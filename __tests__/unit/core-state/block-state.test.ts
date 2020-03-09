@@ -5,7 +5,7 @@ import { BlockState } from "@packages/core-state/src/block-state";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { Utils } from "@packages/crypto/src";
+import { Enums, Utils } from "@packages/crypto/src";
 import { ITransaction } from "@packages/crypto/src/interfaces";
 import { IBlock } from "@packages/crypto/src/interfaces";
 
@@ -420,16 +420,39 @@ describe("BlockState", () => {
                     recipientId: "D5T4Cjx7khYbwaaCLmi7j3cUdt4GVWqKkG",
                 },
             ];
+            // TODO: Why do these need to be set manually here?
+            // @ts-ignore
+            multiPaymentTransaction.typeGroup = multiPaymentTransaction.data.typeGroup;
+            // @ts-ignore
+            multiPaymentTransaction.type = multiPaymentTransaction.data.type;
+
             sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
             recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
             walletRepo.index([sendersDelegate, recipientsDelegate, sendingWallet, recipientWallet]);
         });
 
         it("should fail if there are no assets", async () => {
+            sendingWallet.forgetAttribute("vote");
+            walletRepo.index([sendingWallet]);
+
             // @ts-ignore
             delete multiPaymentTransaction.data.asset;
 
             await expect(blockState.applyTransaction(multiPaymentTransaction)).toReject();
+        });
+
+        it("should fail if there are no assets and sending wallet has voted", async () => {
+            // @ts-ignore
+            delete multiPaymentTransaction.data.asset;
+
+            await expect(blockState.applyTransaction(multiPaymentTransaction)).toReject();
+        });
+
+        it("should be okay when recipient hasn't voted", async () => {
+            recipientWallet.forgetAttribute("vote");
+            walletRepo.index([recipientWallet]);
+
+            await expect(blockState.applyTransaction(multiPaymentTransaction)).toResolve();
         });
 
         it("should update delegates vote balance for multiPayments", async () => {
@@ -567,20 +590,36 @@ describe("BlockState", () => {
 
         describe("vote", () => {
             it("should fail if there are no assets", async () => {
-                // @ts-ignore
-                delete vote.data.asset;
+                const voteTransaction = factory
+                    .get("Vote")
+                    .withOptions({
+                        publicKey: recipientWallet.publicKey,
+                        senderPublicKey: sender.publicKey,
+                        recipientId: recipientWallet.address,
+                    })
+                    .make();
 
-                await expect(blockState.applyTransaction(vote as ITransaction)).toReject();
+                // @ts-ignore
+                delete voteTransaction.data.asset;
+
+                await expect(blockState.applyTransaction(voteTransaction as ITransaction)).toReject();
             });
         });
 
-        describe("htlc lock transaction", () => {
+        describe("htlc transaction", () => {
             let htlcClaimTransaction: ITransaction;
+            let htlcLock: ITransaction;
             let lockData;
             let lockID;
 
             beforeEach(() => {
                 const amount = Utils.BigNumber.make(2345);
+
+                htlcLock = factory
+                    .get("HtlcLock")
+                    .withOptions({ amount, senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
+                    .make();
+
                 htlcClaimTransaction = factory
                     .get("HtlcClaim")
                     .withOptions({
@@ -664,11 +703,6 @@ describe("BlockState", () => {
                 const forgingWalletBefore = Utils.BigNumber.ZERO;
                 forgingWallet.setAttribute("delegate.voteBalance", forgingWalletBefore);
 
-                const htlcLock: ITransaction = factory
-                    .get("HtlcLock")
-                    .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
-                    .make();
-
                 await blockState.applyTransaction(htlcLock);
 
                 const delegateBalanceAfterApply = forgingWallet.getAttribute("delegate.voteBalance");
@@ -692,6 +726,20 @@ describe("BlockState", () => {
                 delete htlcClaimTransaction.data.asset;
 
                 await expect(blockState.revertTransaction(htlcClaimTransaction)).toReject();
+            });
+
+            it("should update recipient vote balance if it isn't a core typeground", async () => {
+                htlcLock.data.recipientId = recipientWallet.address;
+                htlcLock.data.type = Enums.TransactionType.HtlcLock;
+                htlcLock.data.typeGroup = Enums.TransactionTypeGroup.Test;
+
+                const recipientsDelegateBalanceBefore = recipientsDelegate.getAttribute("delegate.voteBalance");
+
+                await blockState.applyTransaction(htlcLock);
+
+                expect(recipientsDelegate.getAttribute("delegate.voteBalance")).toEqual(
+                    recipientsDelegateBalanceBefore.plus(htlcLock.data.amount),
+                );
             });
         });
     });
