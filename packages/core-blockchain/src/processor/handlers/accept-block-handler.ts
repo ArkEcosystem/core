@@ -47,7 +47,7 @@ export class AcceptBlockHandler extends BlockHandler {
         } catch (error) {
             if (transactionPool && !transactionPoolWasReset) {
                 // reset transaction pool as it could be out of sync with db state
-                this.resetTransactionPool(transactionPool);
+                await this.resetTransactionPool(transactionPool);
             }
 
             this.logger.warn(`Refused new block ${JSON.stringify(this.block.data)}`);
