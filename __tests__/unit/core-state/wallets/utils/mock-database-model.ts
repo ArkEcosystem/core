@@ -55,6 +55,10 @@ export class MockDatabaseModel {
                 fieldName: "testContains",
                 supportedOperators: [Contracts.Database.SearchOperator.OP_CONTAINS],
             },
+            {
+                fieldName: "testNoSupportedOperators",
+                supportedOperators: [],
+            },
         ];
     }
 }

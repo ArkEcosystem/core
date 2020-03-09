@@ -58,6 +58,46 @@ describe("SearchParameterConverter", () => {
         expect(searchParameters.parameters[5].operator).toEqual(Contracts.Database.SearchOperator.OP_CONTAINS);
     });
 
+    it("should convert search for 'from' and 'to' independently", () => {
+        const fromParams = {
+            timestamp: { from: "100" },
+        };
+
+        const toParams = {
+            timestamp: { to: "100" },
+        };
+
+        const searchFromParameters = searchParameterConverter.convert(fromParams);
+        expect(searchFromParameters.orderBy).toHaveLength(0);
+
+        expect(searchFromParameters.orderBy).toHaveLength(0);
+        expect(searchFromParameters.paginate).toBeUndefined();
+        expect(searchFromParameters.parameters).toHaveLength(1);
+        expect(searchFromParameters.parameters[0].value).toEqual("100");
+        expect(searchFromParameters.parameters[0].operator).toEqual(Contracts.Database.SearchOperator.OP_GTE);
+
+        const searchToParameters = searchParameterConverter.convert(toParams);
+        expect(searchToParameters.orderBy).toHaveLength(0);
+
+        expect(searchToParameters.orderBy).toHaveLength(0);
+        expect(searchToParameters.paginate).toBeUndefined();
+        expect(searchToParameters.parameters).toHaveLength(1);
+        expect(searchToParameters.parameters[0].value).toEqual("100");
+        expect(searchToParameters.parameters[0].operator).toEqual(Contracts.Database.SearchOperator.OP_LTE);
+    });
+
+    it("should return defaults if no supported operators", () => {
+        const params = {
+            testNoSupportedOperators: "test",
+        };
+
+        const searchParameters = searchParameterConverter.convert(params);
+
+        const expected = { orderBy: [], paginate: undefined, parameters: [] };
+
+        expect(searchParameters).toEqual(expected);
+    });
+
     it("should return default params when none are provided", () => {
         const defaults = {
             orderBy: [],
