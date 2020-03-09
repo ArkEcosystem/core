@@ -49,7 +49,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public initialize(options: { networkStart?: boolean }): this {
-        this.isStopped = true;
+        this.isStopped = false;
 
         // flag to force a network start
         this.state.networkStart = !!options.networkStart;
