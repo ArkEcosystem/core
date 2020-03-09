@@ -4,7 +4,7 @@ import { Utils } from "@packages/core-kernel/src";
 import { TransactionValidator } from "@packages/core-state/src/transaction-validator";
 import { AssertionError } from "assert";
 
-import { makeVoteTransactions } from "./helper";
+import { makeVoteTransactions } from "./__utils__/make-vote-transactions";
 import { setUp } from "./setup";
 
 let transactionValidator: TransactionValidator;
