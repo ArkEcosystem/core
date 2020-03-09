@@ -72,6 +72,19 @@ describe("Wallet Repository Copy On Write", () => {
         expect(walletRepoCopyOnWrite.allByUsername()).toEqual(allWallets);
     });
 
+    it("should not index wallets in CopyOnWrite repo if they were only indexed on original", () => {
+        const wallet1 = walletRepoCopyOnWrite.createWallet("abcd");
+        const wallet2 = walletRepoCopyOnWrite.createWallet("efg");
+        const wallet3 = walletRepoCopyOnWrite.createWallet("hij");
+        const allWallets = [wallet1, wallet2, wallet3];
+        walletRepo.getIndex("usernames").set("username1", wallet1);
+        walletRepo.getIndex("usernames").set("username2", wallet2);
+        walletRepo.getIndex("usernames").set("username3", wallet3);
+        walletRepo.index(allWallets);
+
+        expect(walletRepoCopyOnWrite.allByUsername()).toEqual([]);
+    });
+
     describe("search", () => {
         it("should throw if no wallet exists", () => {
             expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, "1")).toThrowError(
