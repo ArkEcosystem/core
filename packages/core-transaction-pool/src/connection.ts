@@ -75,6 +75,10 @@ export class Connection implements TransactionPool.IConnection {
         return new Processor(this);
     }
 
+    public getAllTransactions(): Interfaces.ITransaction[] {
+        return this.memory.allSortedByFee();
+    }
+
     public async getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>> {
         if (typeGroup === undefined) {
             typeGroup = Enums.TransactionTypeGroup.Core;

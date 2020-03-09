@@ -69,6 +69,10 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
+    public getAllTransactions(): Interfaces.ITransaction[] {
+        return [];
+    }
+
     public async getTransactionsForForging(blockSize: number): Promise<string[]> {
         return [];
     }
