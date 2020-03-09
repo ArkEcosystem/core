@@ -61,6 +61,30 @@ describe("Filter Rows", () => {
         it("match objects that include all values of the parameters", () => {
             expect(filterRows(rows, { c: ["dummy-3", "dummy-1", "dummy-4"] }, { every: ["c"] })).toEqual([rows[2]]);
         });
+        it("should throw if property is not an array", () => {
+            expect(() =>
+                filterRows(
+                    // @ts-ignore
+                    [{ test: {} }],
+                    {
+                        test: {},
+                    },
+                    { every: ["test"] },
+                ),
+            ).toThrow("Property must be an array");
+        });
+        it("should throw if item is not an array", () => {
+            expect(() =>
+                filterRows(
+                    // @ts-ignore
+                    [{ test: [] }],
+                    {
+                        test: {},
+                    },
+                    { every: ["test"] },
+                ),
+            ).toThrow('Filtering by "every" requires an Array');
+        });
     });
 
     // This filter is not used yet
