@@ -332,7 +332,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     }
 
     private searchLocks(
-        params: Contracts.Database.QueryParameters = {},
+        params: Contracts.Database.QueryParameters,
     ): Contracts.State.SearchContext<Contracts.State.UnwrappedHtlcLock> {
         const query: Record<string, string[]> = {
             exact: [
@@ -389,7 +389,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         };
     }
 
-    private searchBusinesses(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
+    private searchBusinesses(params: Contracts.Database.QueryParameters): Contracts.State.SearchContext<any> {
         const query: Record<string, string[]> = {
             exact: ["address", "isResigned", "publicKey", "vat"],
             like: ["name", "repository", "website"],
@@ -416,7 +416,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         };
     }
 
-    private searchBridgechains(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
+    private searchBridgechains(params: Contracts.Database.QueryParameters): Contracts.State.SearchContext<any> {
         const query: Record<string, string[]> = {
             exact: ["isResigned", "genesisHash", "publicKey"],
             like: ["bridgechainRepository", "name"],

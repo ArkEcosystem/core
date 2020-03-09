@@ -293,6 +293,14 @@ describe("Wallet Repository", () => {
         expect(walletRepo.has("wallet1")).toBeTrue();
     });
 
+    it("should do nothing if forgotten wallet does not exist", () => {
+        const wallet1 = walletRepo.createWallet("wallet1");
+        walletRepo.index(wallet1);
+        wallet1.publicKey = undefined;
+        expect(() => walletRepo.forgetByIndex("addresses", "wallet2")).not.toThrow();
+        expect(walletRepo.has("wallet2")).toBeFalse();
+    });
+
     it("should index array of wallets and forget using different indexers", () => {
         const wallets: Contracts.State.Wallet[] = [];
         const walletAddresses: string[] = [];
@@ -560,12 +568,15 @@ describe("Search", () => {
             expect(locks.rows).toHaveLength(wallets.length);
         });
 
-        it("should return all locks with amount params", () => {
+        it("should return only wallets which have correct lock ids", () => {
             genesisBlock.data = {
                 timestamp: 0,
             };
             const wallets = fixtureGenerator.generateHtlcLocks();
             walletRepo.index(wallets);
+            wallets[0].setAttribute("htlc.locks", {
+                nothing: {},
+            });
 
             const spyStateStore = jest.spyOn(stateStorage, "getLastBlock");
             // @ts-ignore
@@ -573,7 +584,7 @@ describe("Search", () => {
 
             const locks = walletRepo.search(Contracts.State.SearchScope.Locks, { amount: "" });
             expect(wallets.length).not.toEqual(0);
-            expect(locks.rows).toHaveLength(wallets.length);
+            expect(locks.rows).toHaveLength(wallets.length - 1);
         });
 
         it("should set attributes on wallet using manipulator", () => {
@@ -670,9 +681,18 @@ describe("Search", () => {
             const wallets = fixtureGenerator.generateBridgeChainWallets();
             walletRepo.index(wallets);
 
-            const bridgechains = walletRepo.search(Contracts.State.SearchScope.Bridgechains, {});
+            const bridgechains = walletRepo.search(Contracts.State.SearchScope.Bridgechains);
             expect(wallets.length).not.toEqual(0);
             expect(bridgechains.rows).toHaveLength(wallets.length);
+        });
+
+        it("should ignore bridgechains with the wrong key", () => {
+            const wallets = fixtureGenerator.generateBridgeChainWallets();
+            walletRepo.index(wallets);
+            wallets[0].setAttribute("business.bridgechains", { differentKey: {} });
+            const bridgechains = walletRepo.search(Contracts.State.SearchScope.Bridgechains);
+            expect(wallets.length).not.toEqual(0);
+            expect(bridgechains.rows).toHaveLength(wallets.length - 1);
         });
     });
 
@@ -681,7 +701,7 @@ describe("Search", () => {
             const wallets = fixtureGenerator.generateBusinesses();
             walletRepo.index(wallets);
 
-            const businesses = walletRepo.search(Contracts.State.SearchScope.Businesses, {});
+            const businesses = walletRepo.search(Contracts.State.SearchScope.Businesses);
             expect(wallets.length).not.toEqual(0);
             expect(businesses.rows).toHaveLength(wallets.length);
         });
@@ -697,6 +717,30 @@ describe("Search", () => {
             expect(wallets.length).not.toEqual(0);
             expect(businesses.count).toEqual(1);
             expect(businesses.rows).toEqual([wallets[0]]);
+        });
+
+        it("should transform params", () => {
+            const wallets = fixtureGenerator.generateBusinesses();
+            walletRepo.index(wallets);
+
+            const businesses = walletRepo.search(Contracts.State.SearchScope.Businesses, {
+                address: wallets[0].address,
+                transform: true,
+            });
+
+            const expected = {
+                address: wallets[0].address,
+                isResigned: false,
+                name: "DummyBusiness",
+                publicKey: wallets[0].publicKey,
+                website: "https://www.dummy.example",
+                vat: "EX1234567890",
+                repository: "https://www.dummy.example/repo",
+            };
+
+            expect(wallets.length).not.toEqual(0);
+            expect(businesses.count).toEqual(1);
+            expect(businesses.rows).toEqual([expected]);
         });
     });
 
@@ -784,7 +828,7 @@ describe("Search", () => {
         });
 
         it("should be ok without params", () => {
-            const { count, rows } = top();
+            const { count, rows } = walletRepo.top(Contracts.State.SearchScope.Wallets);
 
             expect(count).toBe(3);
             expect(rows.length).toBe(3);
