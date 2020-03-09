@@ -191,6 +191,68 @@ describe("StateBuilder", () => {
         expect(dispatchSpy).not.toHaveBeenCalled();
     });
 
+    it("should not fail if the whitelisted key has the allowed negative balance", async () => {
+        const wallet = walletRepo.findByPublicKey(senderKey);
+        wallet.nonce = getSentTransactionDefault.nonce;
+        wallet.balance = Utils.BigNumber.make(-90000);
+        wallet.publicKey = senderKey;
+        walletRepo.index(wallet);
+
+        const balance: Record<string, Record<string, string>> = {
+            [senderKey]: {
+                [wallet.nonce.toString()]: Utils.BigNumber.make(-90000).toString(),
+            },
+        };
+
+        sandbox.app.config("crypto.exceptions.negativeBalances", balance);
+
+        setUpDefaults.getSentTransaction = [];
+
+        await stateBuilder.run();
+
+        expect(loggerWarningSpy).not.toHaveBeenCalled();
+        expect(dispatchSpy).toHaveBeenCalled();
+    });
+
+    it("should not fail if delegates vote balance isn't below 0", async () => {
+        const wallet = walletRepo.findByPublicKey(senderKey);
+        wallet.balance = Utils.BigNumber.ZERO;
+        walletRepo.index(wallet);
+        wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(100));
+
+        setUpDefaults.getSentTransaction = [];
+
+        await stateBuilder.run();
+
+        expect(loggerWarningSpy).not.toHaveBeenCalled();
+        expect(dispatchSpy).toHaveBeenCalled();
+    });
+
+    it("should fail if the wallet has no public key", async () => {
+        const wallet = walletRepo.findByPublicKey(senderKey);
+        wallet.nonce = getSentTransactionDefault.nonce;
+        wallet.balance = Utils.BigNumber.make(-90000);
+        wallet.publicKey = null;
+        walletRepo.index(wallet);
+
+        const balance: Record<string, Record<string, string>> = {
+            [senderKey]: {
+                [wallet.nonce.toString()]: Utils.BigNumber.make(-90000).toString(),
+            },
+        };
+
+        sandbox.app.config("crypto.exceptions.negativeBalances", balance);
+
+        setUpDefaults.getSentTransaction = [];
+
+        await stateBuilder.run();
+
+        expect(loggerWarningSpy).toHaveBeenCalledWith(
+            "Wallet ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp has a negative balance of '-90000'",
+        );
+        expect(dispatchSpy).not.toHaveBeenCalled();
+    });
+
     it("should emit an event when the builder is finished", async () => {
         await stateBuilder.run();
 
