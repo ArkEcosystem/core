@@ -396,6 +396,23 @@ describe("State Storage", () => {
             expect(stateStorage.blockPing.block).toBe(blocks[5].data);
             expect(stateStorage.blockPing.count).toBe(1);
         });
+
+        it("should log info message if there is already a blockPing when pushed fromForger", async () => {
+            stateStorage.blockPing = {
+                count: 0,
+                first: new Date().getTime(),
+                last: new Date().getTime(),
+                block: blocks[3].data,
+            };
+
+            stateStorage.pushPingBlock(blocks[5].data, true);
+            expect(logger).toHaveBeenCalledWith(
+                `Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 1 times`,
+            );
+            expect(stateStorage.blockPing).toBeObject();
+            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
+            expect(stateStorage.blockPing.count).toBe(0);
+        });
     });
 
     describe("clearWakeUpTimeout", () => {
@@ -406,6 +423,14 @@ describe("State Storage", () => {
             stateStorage.clearWakeUpTimeout();
 
             expect(clearTimeout).toHaveBeenCalledWith(1);
+        });
+
+        it("it should do nothing if a timer is not set", () => {
+            jest.useFakeTimers();
+
+            stateStorage.clearWakeUpTimeout();
+
+            expect(clearTimeout).not.toHaveBeenCalled();
         });
     });
 });
