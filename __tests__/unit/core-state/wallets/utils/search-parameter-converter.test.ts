@@ -1,6 +1,7 @@
-import { SearchParameterConverter } from "@packages/core-state/src/wallets/utils/search-parameter-converter";
-import { MockDatabaseModel } from "./mock-database-model";
 import { Contracts } from "@packages/core-kernel";
+import { SearchParameterConverter } from "@packages/core-state/src/wallets/utils/search-parameter-converter";
+
+import { MockDatabaseModel } from "./mock-database-model";
 
 describe("SearchParameterConverter", () => {
     let searchParameterConverter: SearchParameterConverter;
@@ -61,6 +62,23 @@ describe("SearchParameterConverter", () => {
         };
         searchParameterConverter.convert({ orderBy: "testOrder" });
         expect((searchParameterConverter as any).parseOrderBy).toHaveBeenCalledWith(defaults, "testOrder");
+    });
+
+    it("should parse order by strings", () => {
+        const actualSearchParams = searchParameterConverter.convert({ orderBy: "testOrder:ASC" });
+
+        const expectedSearchParams = {
+            orderBy: [
+                {
+                    direction: "ASC",
+                    field: "testorder",
+                },
+            ],
+            paginate: undefined,
+            parameters: [],
+        };
+
+        expect(actualSearchParams).toEqual(expectedSearchParams);
     });
 
     it('should default to "equals" when from,to fields not set', () => {
