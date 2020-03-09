@@ -107,6 +107,12 @@ export class BlockState {
             if (this.walletRepository.hasByAddress(transaction.data.recipientId)) {
                 recipient = this.walletRepository.findByAddress(transaction.data.recipientId);
             }
+
+            /**
+             * TODO: check this is desired behaviour?
+             * Presumably if a transaction specifies a recipient, that recipient should exist
+             */
+            AppUtils.assert.defined<Contracts.State.Wallet>(recipient);
         }
 
         // @ts-ignore - Apply vote balance updates
@@ -129,6 +135,12 @@ export class BlockState {
             if (this.walletRepository.hasByAddress(transaction.data.recipientId)) {
                 recipient = this.walletRepository.findByAddress(transaction.data.recipientId);
             }
+
+            /**
+             * TODO: check this is desired behaviour?
+             * Presumably if a transaction specifies a recipient, that recipient should exist
+             */
+            AppUtils.assert.defined<Contracts.State.Wallet>(recipient);
         }
 
         await transactionHandler.revert(transaction);
