@@ -97,7 +97,7 @@ export class Service implements Contracts.TransactionPool.Service {
         this.mempool.flush();
 
         let prevCount = 0;
-        let rebuiltCount = 0;
+        let count = 0;
 
         if (prevTransactions) {
             for (const transaction of prevTransactions) {
@@ -105,7 +105,7 @@ export class Service implements Contracts.TransactionPool.Service {
                     await this.addTransactionToMempool(transaction);
                     this.storage.addTransaction(transaction);
                     prevCount++;
-                    rebuiltCount++;
+                    count++;
                 } catch (error) {}
             }
         }
@@ -113,16 +113,14 @@ export class Service implements Contracts.TransactionPool.Service {
         for (const transaction of this.storage.getAllTransactions()) {
             try {
                 await this.addTransactionToMempool(transaction);
-                rebuiltCount++;
+                count++;
             } catch (error) {
                 AppUtils.assert.defined<string>(transaction.id);
                 this.storage.removeTransaction(transaction.id);
             }
         }
 
-        this.logger.debug(
-            `${AppUtils.pluralize("transaction", rebuiltCount, true)} re-added to pool (${prevCount} previous)`,
-        );
+        this.logger.debug(`${AppUtils.pluralize("transaction", count, true)} re-added to pool (${prevCount} previous)`);
     }
 
     public async cleanUp(): Promise<void> {
@@ -146,14 +144,15 @@ export class Service implements Contracts.TransactionPool.Service {
 
         if (this.getPoolSize() >= maxTransactionsInPool) {
             await this.cleanLowestPriority();
+
             const lowest = this.poolQuery.getFromLowestPriority().first();
             if (transaction.data.fee.isLessThanEqual(lowest.data.fee)) {
                 throw new TransactionPoolFullError(transaction, lowest.data.fee);
             }
+            await this.removeTransaction(lowest);
         }
 
         await this.mempool.addTransaction(transaction);
-        await this.cleanLowestPriority();
     }
 
     private async cleanExpired(): Promise<void> {

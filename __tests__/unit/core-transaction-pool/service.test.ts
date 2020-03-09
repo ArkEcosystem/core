@@ -66,7 +66,7 @@ const transaction1 = Transactions.BuilderFactory.transfer()
     .amount("100")
     .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("1")
-    .fee("900")
+    .fee("1000")
     .sign("sender's secret")
     .build();
 const transaction2 = Transactions.BuilderFactory.transfer()
@@ -74,7 +74,15 @@ const transaction2 = Transactions.BuilderFactory.transfer()
     .amount("100")
     .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("2")
-    .fee("900")
+    .fee("2000")
+    .sign("sender's secret")
+    .build();
+const transaction3 = Transactions.BuilderFactory.transfer()
+    .version(2)
+    .amount("100")
+    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .nonce("3")
+    .fee("3000")
     .sign("sender's secret")
     .build();
 
@@ -159,7 +167,6 @@ describe("Service.addTransaction", () => {
         expirationService.isExpired.mockReturnValueOnce(true);
         mempool.removeTransaction.mockReturnValueOnce([transaction2]);
         mempool.getSize.mockReturnValueOnce(0);
-        mempool.getSize.mockReturnValue(1);
 
         const service = container.resolve(Service);
         await service.addTransaction(transaction1);
@@ -167,5 +174,204 @@ describe("Service.addTransaction", () => {
         expect(expirationService.isExpired).toBeCalledWith(transaction2);
         expect(mempool.removeTransaction).toBeCalledWith(transaction2);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+    });
+
+    it("should throw if fee isn't higher than lowest priority transaction when pool is full", async () => {
+        configuration.getRequired.mockReturnValue(1); // maxTransactionsInPool
+        mempool.getSize.mockReturnValue(1);
+        poolQuery.getAll.mockReturnValueOnce([transaction2]);
+        expirationService.isExpired.mockReturnValueOnce(false);
+        poolQuery.getFromLowestPriority.mockReturnValueOnce({ first: () => transaction2 });
+
+        const service = container.resolve(Service);
+        const promise = service.addTransaction(transaction1);
+
+        await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
+        await expect(promise).rejects.toHaveProperty("type", "ERR_POOL_FULL");
+    });
+
+    it("should remove low priority transactions when pool is full", async () => {
+        configuration.getRequired.mockReturnValue(1); // maxTransactionsInPool
+
+        mempool.getSize.mockReturnValueOnce(2);
+        poolQuery.getAll.mockReturnValueOnce([transaction1, transaction2]);
+        expirationService.isExpired.mockReturnValueOnce(false).mockReturnValueOnce(false);
+
+        mempool.getSize.mockReturnValueOnce(2);
+
+        mempool.getSize.mockReturnValueOnce(2);
+        poolQuery.getFromLowestPriority.mockReturnValueOnce({ first: () => transaction1 });
+        mempool.removeTransaction.mockReturnValueOnce([transaction1]);
+
+        mempool.getSize.mockReturnValueOnce(1);
+        poolQuery.getFromLowestPriority.mockReturnValueOnce({ first: () => transaction2 });
+        mempool.removeTransaction.mockReturnValueOnce([transaction2]);
+
+        const service = container.resolve(Service);
+        await service.addTransaction(transaction3);
+
+        expect(mempool.removeTransaction).toBeCalledWith(transaction1);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+
+        expect(mempool.removeTransaction).toBeCalledWith(transaction2);
+        expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+    });
+});
+
+describe("Service.removeTransaction", () => {
+    it("should log error if transaction wasn't added previously", async () => {
+        storage.hasTransaction.mockReturnValueOnce(false);
+
+        const service = container.resolve(Service);
+        await service.removeTransaction(transaction1);
+
+        expect(logger.error).toBeCalled();
+    });
+
+    it("should remove from storage every transaction removed by mempool", async () => {
+        storage.hasTransaction.mockReturnValueOnce(true);
+        mempool.removeTransaction.mockReturnValueOnce([transaction1, transaction2]);
+
+        const service = container.resolve(Service);
+        await service.removeTransaction(transaction1);
+
+        expect(mempool.removeTransaction).toBeCalledWith(transaction1);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+        expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+    });
+
+    it("should log error if transaction wasn't found in mempool", async () => {
+        storage.hasTransaction.mockReturnValueOnce(true);
+        mempool.removeTransaction.mockReturnValueOnce([transaction2]);
+
+        const service = container.resolve(Service);
+        await service.removeTransaction(transaction1);
+
+        expect(mempool.removeTransaction).toBeCalledWith(transaction1);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+        expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+        expect(logger.error).toBeCalled();
+    });
+});
+
+describe("Service.acceptForgedTransaction", () => {
+    it("should do nothing if transaction wasn't added previously", async () => {
+        storage.hasTransaction.mockReturnValueOnce(false);
+
+        const service = container.resolve(Service);
+        await service.acceptForgedTransaction(transaction1);
+
+        expect(mempool.acceptForgedTransaction).not.toBeCalled();
+    });
+
+    it("should remove from storage every transaction removed by mempool", async () => {
+        storage.hasTransaction.mockReturnValueOnce(true);
+        mempool.acceptForgedTransaction.mockReturnValueOnce([transaction1, transaction2]);
+
+        const service = container.resolve(Service);
+        await service.acceptForgedTransaction(transaction1);
+
+        expect(mempool.acceptForgedTransaction).toBeCalledWith(transaction1);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+        expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+    });
+
+    it("should log error if transaction wasn't found in mempool", async () => {
+        storage.hasTransaction.mockReturnValueOnce(true);
+        mempool.acceptForgedTransaction.mockReturnValueOnce([transaction2]);
+
+        const service = container.resolve(Service);
+        await service.acceptForgedTransaction(transaction1);
+
+        expect(mempool.acceptForgedTransaction).toBeCalledWith(transaction1);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+        expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+        expect(logger.error).toBeCalled();
+    });
+});
+
+describe("Service.readdTransactions", () => {
+    it("should flush mempool", async () => {
+        storage.getAllTransactions.mockReturnValueOnce([]);
+
+        const service = container.resolve(Service);
+        await service.readdTransactions();
+
+        expect(mempool.flush).toBeCalled();
+    });
+
+    it("should add all transactions from storage", async () => {
+        storage.getAllTransactions.mockReturnValueOnce([transaction1, transaction2, transaction3]);
+
+        const service = container.resolve(Service);
+        await service.readdTransactions();
+
+        expect(mempool.addTransaction).toBeCalledWith(transaction1);
+        expect(mempool.addTransaction).toBeCalledWith(transaction2);
+        expect(mempool.addTransaction).toBeCalledWith(transaction3);
+    });
+
+    it("should remove transaction from storage that failed adding to mempool", async () => {
+        storage.getAllTransactions.mockReturnValueOnce([transaction1]);
+        mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
+
+        const service = container.resolve(Service);
+        await service.readdTransactions();
+
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+    });
+
+    it("should first add transactions passed in argument", async () => {
+        storage.getAllTransactions.mockReturnValueOnce([transaction3]);
+
+        const service = container.resolve(Service);
+        await service.readdTransactions([transaction1, transaction2]);
+
+        expect(mempool.addTransaction).toBeCalledWith(transaction1);
+        expect(mempool.addTransaction).toBeCalledWith(transaction2);
+        expect(mempool.addTransaction).toBeCalledWith(transaction3);
+    });
+
+    it("should ignore errors when adding transaction that was passed in argument", async () => {
+        storage.getAllTransactions.mockReturnValueOnce([transaction3]);
+        mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
+
+        const service = container.resolve(Service);
+        await service.readdTransactions([transaction1, transaction2]);
+
+        expect(mempool.addTransaction).toBeCalledWith(transaction2);
+        expect(mempool.addTransaction).toBeCalledWith(transaction3);
+    });
+});
+
+describe("Service.cleanUp", () => {
+    it("should remove expired transactions", async () => {
+        poolQuery.getAll.mockReturnValueOnce([transaction2]);
+        expirationService.isExpired.mockReturnValueOnce(true);
+        mempool.removeTransaction.mockReturnValueOnce([transaction2]);
+
+        const service = container.resolve(Service);
+        await service.cleanUp();
+
+        expect(mempool.removeTransaction).toBeCalledWith(transaction2);
+        expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+    });
+
+    it("should remove lowest priority transactions", async () => {
+        configuration.getRequired.mockReturnValue(1); // maxTransactionsInPool
+
+        mempool.getSize.mockReturnValueOnce(2);
+        poolQuery.getAll.mockReturnValueOnce([transaction1, transaction2]);
+        expirationService.isExpired.mockReturnValueOnce(false).mockReturnValueOnce(false);
+
+        mempool.getSize.mockReturnValueOnce(2);
+        poolQuery.getFromLowestPriority.mockReturnValueOnce({ first: () => transaction1 });
+        mempool.removeTransaction.mockReturnValueOnce([transaction1]);
+
+        const service = container.resolve(Service);
+        await service.addTransaction(transaction3);
+
+        expect(mempool.removeTransaction).toBeCalledWith(transaction1);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
     });
 });
