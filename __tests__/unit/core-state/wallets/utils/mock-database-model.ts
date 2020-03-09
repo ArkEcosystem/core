@@ -51,6 +51,10 @@ export class MockDatabaseModel {
                     Contracts.Database.SearchOperator.OP_LTE,
                 ],
             },
+            {
+                fieldName: "testContains",
+                supportedOperators: [Contracts.Database.SearchOperator.OP_CONTAINS],
+            },
         ];
     }
 }

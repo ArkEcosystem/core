@@ -43,6 +43,21 @@ describe("SearchParameterConverter", () => {
         expect(searchParameters.parameters[4].operator).toEqual(Contracts.Database.SearchOperator.OP_IN);
     });
 
+    it("should parse contains operator", () => {
+        const params = {
+            id: "343-guilty-spark",
+            timestamp: { from: "100", to: "1000" },
+            sentence: "a partial",
+            basket: ["apples", "pears", "bananas"],
+            testContains: "test",
+        };
+
+        const searchParameters = searchParameterConverter.convert(params);
+
+        expect(searchParameters.parameters[5].value).toEqual("test");
+        expect(searchParameters.parameters[5].operator).toEqual(Contracts.Database.SearchOperator.OP_CONTAINS);
+    });
+
     it("should return default params when none are provided", () => {
         const defaults = {
             orderBy: [],
@@ -65,9 +80,9 @@ describe("SearchParameterConverter", () => {
     });
 
     it("should parse order by strings", () => {
-        const actualSearchParams = searchParameterConverter.convert({ orderBy: "testOrder:ASC" });
+        const actualASCSearchParams = searchParameterConverter.convert({ orderBy: "testOrder:ASC" });
 
-        const expectedSearchParams = {
+        const expectedASCSearchParams = {
             orderBy: [
                 {
                     direction: "ASC",
@@ -78,7 +93,21 @@ describe("SearchParameterConverter", () => {
             parameters: [],
         };
 
-        expect(actualSearchParams).toEqual(expectedSearchParams);
+        const actualDESCSearchParams = searchParameterConverter.convert({ orderBy: "testOrder:DESC" });
+
+        const expectedDESCSearchParams = {
+            orderBy: [
+                {
+                    direction: "DESC",
+                    field: "testorder",
+                },
+            ],
+            paginate: undefined,
+            parameters: [],
+        };
+
+        expect(actualASCSearchParams).toEqual(expectedASCSearchParams);
+        expect(actualDESCSearchParams).toEqual(expectedDESCSearchParams);
     });
 
     it('should default to "equals" when from,to fields not set', () => {
@@ -124,8 +153,7 @@ describe("SearchParameterConverter", () => {
         expect(searchParameters.parameters[0].operator).toEqual(Contracts.Database.SearchOperator.OP_CUSTOM);
     });
 
-    // TODO: this test was passed before, but now fails, is this an intentional change?
-    xit("should parse orderBy & paginate from params", () => {
+    it("should parse orderBy & paginate from params", () => {
         const params = {
             orderBy: "field:asc",
             offset: 20,
@@ -135,7 +163,7 @@ describe("SearchParameterConverter", () => {
         const searchParameters = searchParameterConverter.convert(params);
         expect(searchParameters.orderBy).toHaveLength(1);
         expect(searchParameters.orderBy[0].field).toEqual("field");
-        expect(searchParameters.orderBy[0].direction).toEqual("asc");
+        expect(searchParameters.orderBy[0].direction).toEqual("ASC");
 
         expect(searchParameters.paginate.offset).toEqual(20);
         expect(searchParameters.paginate.limit).toEqual(50);
