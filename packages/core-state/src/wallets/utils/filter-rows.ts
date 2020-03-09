@@ -70,6 +70,7 @@ export default <T = any>(
                     // @ts-ignore
                     return params[elem].indexOf(getProperty(item, elem)) > -1;
                 }
+                return false;
             }
         }
 

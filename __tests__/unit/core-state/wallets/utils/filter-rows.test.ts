@@ -47,6 +47,8 @@ describe("Filter Rows", () => {
                 rows[3],
                 rows[4],
             ]);
+
+            expect(filterRows(rows, { a: 1 }, { between: ["a"] })).toEqual([rows[0]]);
         });
     });
 
@@ -54,6 +56,10 @@ describe("Filter Rows", () => {
         it("match objects that include some values of the parameters", () => {
             expect(filterRows(rows, { e: ["value-e-99"] }, { in: ["e"] })).toEqual([]);
             expect(filterRows(rows, { e: ["value-e-1", "value-e-3"] }, { in: ["e"] })).toEqual([rows[1], rows[5]]);
+        });
+
+        it("should return an empty array if no values match", () => {
+            expect(filterRows(rows, { e: { test: 1 } }, { in: ["e"] })).toEqual([]);
         });
     });
 
