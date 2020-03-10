@@ -66,4 +66,8 @@ describe("anyAncestorOrTargetTaggedFirst", () => {
         expect(poolWalletRepository).toBeInstanceOf(PoolWalletRepository);
         expect(poolWalletRepository.blockchainWalletRepository).toBeInstanceOf(BlockchainWalletRepository);
     });
+
+    it("should not match when attempting to load without tag", () => {
+        expect(() => container.resolve(TransactionHandler)).toThrow();
+    });
 });
