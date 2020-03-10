@@ -1,6 +1,7 @@
 import { ClassManager } from "../../../../packages/core-kernel/src/support/class-manager";
 
 class MyMemoryDriver {}
+class MyRemoteDriver {}
 
 class MyManager extends ClassManager {
     protected getDefaultDriver(): string {
@@ -10,14 +11,25 @@ class MyManager extends ClassManager {
     protected async createMemoryDriver(): Promise<MyMemoryDriver> {
         return new MyMemoryDriver();
     }
+
+    protected async createRemoteDriver(): Promise<MyRemoteDriver> {
+        return new MyRemoteDriver();
+    }
 }
 
 describe("ClassManager.driver", () => {
-    it("should return driver instance", async () => {
+    it("should return default driver instance", async () => {
         const manager = new MyManager();
-        const memoryDriver = await manager.driver("memory");
+        const memoryDriver = await manager.driver();
 
         expect(memoryDriver).toBeInstanceOf(MyMemoryDriver);
+    });
+
+    it("should return driver instance", async () => {
+        const manager = new MyManager();
+        const remoteDriver = await manager.driver("remote");
+
+        expect(remoteDriver).toBeInstanceOf(MyRemoteDriver);
     });
 
     it("should throw when attempting to create unknown driver instance", async () => {
