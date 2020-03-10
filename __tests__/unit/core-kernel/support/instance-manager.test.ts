@@ -54,3 +54,17 @@ describe("ClassManager.driver", () => {
         expect(check).toThrow();
     });
 });
+
+describe("ClassManager.getDrivers", () => {
+    it("should return driver instances", async () => {
+        const manager = new MyManager();
+        await manager.boot();
+        await manager.extend("remote", async () => new MyRemoteDriver());
+        const drivers = manager.getDrivers();
+
+        console.log(drivers);
+
+        expect(drivers.some(d => d instanceof MyMemoryDriver)).toBeTrue();
+        expect(drivers.some(d => d instanceof MyRemoteDriver)).toBeTrue();
+    });
+});
