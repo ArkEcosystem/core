@@ -1,7 +1,6 @@
 import { Kernel } from "../contracts";
 // import { DriverCannotBeResolved } from "../exceptions/container";
 import { Identifiers, inject, injectable } from "../ioc";
-import { Class } from "../types";
 import { pascalCase } from "../utils";
 
 /**
@@ -28,15 +27,6 @@ export abstract class ClassManager {
     private defaultDriver: string;
 
     /**
-     * The array of available drivers.
-     *
-     * @private
-     * @type {Map<string, Class>}
-     * @memberof ClassManager
-     */
-    private drivers: Map<string, Class> = new Map<string, Class>();
-
-    /**
      * Create a new manager instance.
      *
      * @memberof ClassManager
@@ -57,18 +47,6 @@ export abstract class ClassManager {
     }
 
     /**
-     * Register a custom driver.
-     *
-     * @param {string} name
-     * @param {Class} driver
-     * @returns {Promise<void>}
-     * @memberof ClassManager
-     */
-    public async extend(name: string, driver: Class): Promise<void> {
-        this.drivers.set(name, driver);
-    }
-
-    /**
      * Set the default driver name.
      *
      * @param {string} name
@@ -76,16 +54,6 @@ export abstract class ClassManager {
      */
     public setDefaultDriver(name: string): void {
         this.defaultDriver = name;
-    }
-
-    /**
-     * Get all of the available drivers.
-     *
-     * @returns {Class[]}
-     * @memberof ClassManager
-     */
-    public getDrivers(): Class[] {
-        return Object.values(this.drivers);
     }
 
     /**
