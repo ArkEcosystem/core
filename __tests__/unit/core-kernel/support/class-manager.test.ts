@@ -25,6 +25,14 @@ describe("ClassManager.driver", () => {
         expect(memoryDriver).toBeInstanceOf(MyMemoryDriver);
     });
 
+    it("should return new default driver instance after default driver change", async () => {
+        const manager = new MyManager();
+        manager.setDefaultDriver("remote");
+        const remoteDriver = await manager.driver();
+
+        expect(remoteDriver).toBeInstanceOf(MyRemoteDriver);
+    });
+
     it("should return driver instance", async () => {
         const manager = new MyManager();
         const remoteDriver = await manager.driver("remote");
