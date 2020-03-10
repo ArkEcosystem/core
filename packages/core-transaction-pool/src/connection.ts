@@ -216,19 +216,14 @@ export class Connection implements TransactionPool.IConnection {
                 transaction.typeGroup,
             );
 
-            const senderWallet: State.IWallet = this.walletManager.hasByPublicKey(senderPublicKey)
-                ? this.walletManager.findByPublicKey(senderPublicKey)
-                : undefined;
-
-            const recipientWallet: State.IWallet = this.walletManager.hasByAddress(data.recipientId)
-                ? this.walletManager.findByAddress(data.recipientId)
-                : undefined;
-
             await transactionHandler.applyToRecipient(transaction, this.walletManager);
+
+            const senderWallet: State.IWallet = this.walletManager.findByPublicKey(senderPublicKey);
+            const recipientWallet: State.IWallet = this.walletManager.findByAddress(data.recipientId);
 
             if (exists) {
                 this.removeTransaction(transaction);
-            } else if (senderWallet) {
+            } else {
                 try {
                     await transactionHandler.throwIfCannotBeApplied(
                         transaction,
@@ -239,11 +234,9 @@ export class Connection implements TransactionPool.IConnection {
                 } catch (error) {
                     this.walletManager.forget(data.senderPublicKey);
 
-                    if (recipientWallet) {
-                        recipientWallet.publicKey
-                            ? this.walletManager.forget(recipientWallet.publicKey)
-                            : this.walletManager.forgetByAddress(recipientWallet.address);
-                    }
+                    recipientWallet.publicKey
+                        ? this.walletManager.forget(recipientWallet.publicKey)
+                        : this.walletManager.forgetByAddress(recipientWallet.address);
 
                     this.logger.error(
                         `[Pool] Cannot apply transaction ${transaction.id} when trying to accept ` +
