@@ -70,4 +70,16 @@ describe("sortEntries", () => {
 
         expect(actual).toEqual(thirdNowAtFront);
     });
+
+    it("should default to 0 balance when not set", () => {
+        const wallets = fixtureGenerator.generateFullWallets();
+        wallets[3].forgetAttribute("delegate"); 
+        wallets[5].forgetAttribute("delegate"); 
+
+        const actual = sortEntries({}, wallets, ["voteBalance", "asc"]);
+
+        expect(actual[0]).toEqual(wallets[3]);
+        expect(actual[1]).toEqual(wallets[5]);
+
+    });
 });
