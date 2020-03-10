@@ -38,7 +38,12 @@ describe("LocalConfigLoader", () => {
     it("should throw if it fails to load the application configuration", async () => {
         app.rebind("path.config").toConstantValue(resolve(__dirname, "../../../__stubs__/config-empty"));
 
-        await expect(configLoader.loadConfiguration()).rejects.toThrowError(ApplicationConfigurationCannotBeLoaded);
+        const promise = configLoader.loadConfiguration();
+
+        await expect(promise).rejects.toThrowError(ApplicationConfigurationCannotBeLoaded);
+        await expect(promise).rejects.toThrow(
+            "Unable to load the application configuration file. Failed to discovery any files matching [app.json, app.js].",
+        );
     });
 
     it("should throw if it fails to validate the application configuration", async () => {
