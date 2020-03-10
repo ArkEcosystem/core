@@ -23,7 +23,6 @@ export class FixtureGenerator {
             wallet.balance = Utils.BigNumber.make(100);
             wallet.setAttribute("delegate", {
                 username: `username-${address}`,
-                balance: Utils.BigNumber.make(100),
                 voteBalance: Utils.BigNumber.make(200),
                 forgedRewards: Utils.BigNumber.ZERO,
                 forgedFees: Utils.BigNumber.ZERO,

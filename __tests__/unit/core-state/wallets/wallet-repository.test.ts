@@ -488,7 +488,7 @@ describe("Search", () => {
             expectSearch({ username: wallets[0].getAttribute("delegate.username") });
         });
 
-        it.skip("should search wallets by the specified closed inverval (included) of balance", () => {
+        it("should search wallets by the specified closed inverval (included) of balance", () => {
             const wallets = fixtureGenerator.generateFullWallets();
             for (let i = 0; i < wallets.length; i++) {
                 const wallet = wallets[i];
@@ -591,7 +591,6 @@ describe("Search", () => {
             const wallets = fixtureGenerator.generateFullWallets();
             wallets[0].setAttribute("delegate", {
                 username: `username-${wallets[0].address}`,
-                balance: Utils.BigNumber.make(100),
                 voteBalance: Utils.BigNumber.make(200),
                 forgedRewards: Utils.BigNumber.make(50),
                 forgedFees: Utils.BigNumber.make(50),
@@ -600,11 +599,14 @@ describe("Search", () => {
             expect(wallets[0].getAttribute("delegate.forgedTotal")).not.toEqual(Utils.BigNumber.make(100));
 
             walletRepo.index(wallets);
-            walletRepo.search(Contracts.State.SearchScope.Delegates, {
-                forgedTotal: Utils.BigNumber.make(100),
+            const searchResult = walletRepo.search(Contracts.State.SearchScope.Delegates, {
+                forgedTotal: {
+                    from: Utils.BigNumber.make(100),
+                },
             });
 
             expect(wallets[0].getAttribute("delegate.forgedTotal")).not.toEqual(Utils.BigNumber.make(100));
+            expect(searchResult.rows).toEqual([wallets[0]]);
         });
     });
 
