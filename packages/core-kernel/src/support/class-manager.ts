@@ -1,5 +1,4 @@
 import { Kernel } from "../contracts";
-// import { DriverCannotBeResolved } from "../exceptions/container";
 import { Identifiers, inject, injectable } from "../ioc";
 import { pascalCase } from "../utils";
 
