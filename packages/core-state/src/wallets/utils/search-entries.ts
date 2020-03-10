@@ -1,8 +1,8 @@
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
-import filterRows from "./filter-rows";
+import filterWallets from "./filter-rows";
 import limitRows from "./limit-rows";
-import { sortEntries } from "./sort-entries";
+import { sortEntries as sortWallets } from "./sort-entries";
 
 type CallbackFunctionVariadicVoidReturn = (...args: any[]) => void;
 
@@ -24,7 +24,7 @@ const manipulateIteratee = (iteratee): any => {
             return iteratee;
     }
 };
-const applyOrder = (
+const applyOrderToParams = (
     params: Contracts.Database.QueryParameters,
     defaultOrder: string[],
 ): [CallbackFunctionVariadicVoidReturn | string, string] => {
@@ -47,7 +47,7 @@ const applyOrder = (
 export const searchEntries = <T extends Record<string, any>>(
     params: Contracts.Database.QueryParameters,
     query: Record<string, string[]>,
-    entries: ReadonlyArray<T>,
+    wallets: ReadonlyArray<T>,
     defaultOrder: string[],
 ): Contracts.State.RowsPaginated<T> => {
     if (params.addresses) {
@@ -62,13 +62,13 @@ export const searchEntries = <T extends Record<string, any>>(
         delete params.addresses;
     }
 
-    applyOrder(params, defaultOrder);
+    applyOrderToParams(params, defaultOrder);
 
     // @ts-ignore
-    entries = sortEntries(params, filterRows(entries, params, query), defaultOrder);
+    wallets = sortWallets(params, filterWallets(wallets, params, query), defaultOrder);
 
     return {
-        rows: limitRows(entries, params),
-        count: entries.length,
+        rows: limitRows(wallets, params),
+        count: wallets.length,
     };
 };
