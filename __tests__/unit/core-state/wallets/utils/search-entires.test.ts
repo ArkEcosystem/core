@@ -90,4 +90,35 @@ describe("searchEntries", () => {
 
         expect(result.count).toEqual(29);
     });
+
+    it("should order by votes", () => {
+        const wallets = fixtureGenerator.generateFullWallets();
+        for (let i = 0; i < wallets.length; i++) {
+            const wallet = wallets[i];
+            if (i < 17) {
+                wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(12));
+            } else if (i < 29) {
+                wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(17));
+            }
+        }
+
+        const params = {
+            orderBy: "votes:asc",
+            voteBalance: {
+                from: 11,
+                to: 18,
+            }
+        };
+        
+        const query = {
+            exact: [ 'publicKey', 'secondPublicKey', 'username', 'vote' ],
+            between: [ 'balance', 'voteBalance', 'lockedBalance' ],
+            in: [ 'address' ]
+        };
+        const defaultOrder = [ 'balance', 'desc' ];
+
+        const result = searchEntries(params, query, wallets, defaultOrder);
+
+        expect(result.count).toEqual(29);
+    });
 });
