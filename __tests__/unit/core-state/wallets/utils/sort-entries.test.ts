@@ -39,7 +39,7 @@ describe("sortEntries", () => {
         const entries = fixtureGenerator.generateFullWallets();
         const collectThird = entry => entry !== entries[3];
         const thirdNowAtStart = moveIndexToFrontofArray(3, entries);
-        const actual = sortEntries({ orderBy: [collectThird, "asc"] }, entries, entries[0]);
+        const actual = sortEntries([collectThird, "asc"], entries);
 
         expect(actual).toEqual(thirdNowAtStart);
     });
@@ -52,7 +52,7 @@ describe("sortEntries", () => {
 
         });
     
-        const actual = sortEntries({}, wallets, ["balance", "asc"]); 
+        const actual = sortEntries(["balance", "asc"], wallets); 
         const thirdNowAtBack = moveIndexToBackOfArray(3, wallets);
 
         expect(actual).toEqual(thirdNowAtBack);
@@ -65,7 +65,7 @@ describe("sortEntries", () => {
 
         });
 
-        const actual = sortEntries({}, wallets, ["balance", "desc"]);;
+        const actual = sortEntries(["balance", "desc"], wallets);;
         const thirdNowAtFront = moveIndexToFrontofArray(3, wallets);
 
         expect(actual).toEqual(thirdNowAtFront);
@@ -76,7 +76,7 @@ describe("sortEntries", () => {
         wallets[3].forgetAttribute("delegate"); 
         wallets[5].forgetAttribute("delegate"); 
 
-        const actual = sortEntries({}, wallets, ["voteBalance", "asc"]);
+        const actual = sortEntries(["voteBalance", "asc"], wallets);
 
         expect(actual[0]).toEqual(wallets[3]);
         expect(actual[1]).toEqual(wallets[5]);

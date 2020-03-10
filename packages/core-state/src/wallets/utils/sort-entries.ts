@@ -3,16 +3,14 @@ import { Utils } from "@arkecosystem/crypto";
 
 import { getProperty } from "./get-property";
 
+export type OrderBy = (any | string)[];
+
 // todo: review the implementation
-export const sortEntries = <T>(
-    params: Contracts.Database.QueryParameters,
-    entries: Contracts.State.Wallet[],
-    defaultValue,
-) => {
-    const [iteratee, order] = params.orderBy ? params.orderBy : defaultValue;
+export const sortEntries = (params: OrderBy, wallets: Contracts.State.Wallet[]) => {
+    const [iteratee, order] = params;
 
     if (["balance", "voteBalance"].includes(iteratee)) {
-        return Object.values(entries).sort((a: Contracts.State.Wallet, b: Contracts.State.Wallet) => {
+        return Object.values(wallets).sort((a: Contracts.State.Wallet, b: Contracts.State.Wallet) => {
             const iterateeA: Utils.BigNumber = getProperty(a, iteratee) || Utils.BigNumber.ZERO;
             const iterateeB: Utils.BigNumber = getProperty(b, iteratee) || Utils.BigNumber.ZERO;
 
@@ -21,23 +19,23 @@ export const sortEntries = <T>(
     }
 
     return AppUtils.orderBy(
-        entries,
-        (entry: T) => {
+        wallets,
+        (wallet: Contracts.State.Wallet) => {
             if (typeof iteratee === "function") {
                 // @ts-ignore
-                return iteratee(entry);
+                return iteratee(wallet);
             }
 
-            if (AppUtils.has(entry, iteratee)) {
-                return AppUtils.get(entry, iteratee);
+            if (AppUtils.has(wallet, iteratee)) {
+                return AppUtils.get(wallet, iteratee);
             }
 
             const delegateAttribute: string = `attributes.delegate.${iteratee}`;
-            if (AppUtils.has(entry, delegateAttribute)) {
-                return AppUtils.get(entry, delegateAttribute);
+            if (AppUtils.has(wallet, delegateAttribute)) {
+                return AppUtils.get(wallet, delegateAttribute);
             }
 
-            return AppUtils.get(entry, `attributes.${iteratee}`);
+            return AppUtils.get(wallet, `attributes.${iteratee}`);
         },
         [order],
     );
