@@ -1,6 +1,8 @@
 import { Identities } from "@arkecosystem/crypto";
 import { BIP38 } from "@packages/core-forger/src/methods/bip38";
 
+import { dummy, expectedBlock, optionsDefault, transactions } from "../__utils__/create-transactions";
+
 const passphrase: string = "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire";
 const bip38: string = "6PYTQC4c2vBv6PGvV4HibNni6wNsHsGbR1qpL1DfkCNihsiWwXnjvJMU4B";
 
@@ -14,5 +16,28 @@ describe("Methods -> BIP38", () => {
 
     it("should fail with an invalid passphrase", () => {
         expect(() => new BIP38(bip38, "invalid-password")).toThrow();
+    });
+
+    it("should forge a block - bip38", () => {
+        const delegate = new BIP38(dummy.bip38Passphrase, "bip38-password");
+
+        const spyDecryptKeys = jest.spyOn(delegate as any, "decryptKeysWithOtp");
+        const spyEncryptKeys = jest.spyOn(delegate as any, "encryptKeysWithOtp");
+
+        const block = delegate.forge(transactions, optionsDefault);
+
+        expect(spyDecryptKeys).toHaveBeenCalledTimes(1);
+        expect(spyEncryptKeys).toHaveBeenCalledTimes(1);
+
+        for (const key of Object.keys(expectedBlock)) {
+            expect(block.data[key]).toEqual(expectedBlock[key]);
+        }
+        expect(block.verification).toEqual({
+            containsMultiSignatures: false,
+            errors: [],
+            verified: true,
+        });
+        expect(block.transactions).toHaveLength(50);
+        expect(block.transactions[0].id).toBe(transactions[0].id);
     });
 });
