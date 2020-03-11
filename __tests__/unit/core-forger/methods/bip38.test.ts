@@ -40,4 +40,11 @@ describe("Methods -> BIP38", () => {
         expect(block.transactions).toHaveLength(50);
         expect(block.transactions[0].id).toBe(transactions[0].id);
     });
+
+    it("should not forge a block if encryptedKeys are not set", () => {
+        const delegate = new BIP38(dummy.bip38Passphrase, "bip38-password");
+        delegate.encryptedKeys = undefined;
+
+        expect(() => delegate.forge(transactions, optionsDefault)).toThrow();
+    });
 });
