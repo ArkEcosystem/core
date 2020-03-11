@@ -172,7 +172,7 @@ export class WalletsController extends Controller {
         try {
             return this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, id);
         } catch (error) {
-            throw notFound("Wallet not found");
+            return notFound("Wallet not found");
         }
     }
 }
