@@ -20,6 +20,8 @@ export const sortEntries = (params: OrderBy, wallets: Contracts.State.Wallet[]) 
 
     return AppUtils.orderBy(
         wallets,
+        // todo: revisit the implementation of this method when wallet search changes are implemented
+        // most likely even remove it once the wallet changes have been fully implemented
         (wallet: Contracts.State.Wallet) => {
             if (typeof iteratee === "function") {
                 // @ts-ignore
@@ -31,7 +33,9 @@ export const sortEntries = (params: OrderBy, wallets: Contracts.State.Wallet[]) 
             }
 
             const delegateAttribute: string = `attributes.delegate.${iteratee}`;
+
             if (AppUtils.has(wallet, delegateAttribute)) {
+                /* istanbul ignore next */
                 return AppUtils.get(wallet, delegateAttribute);
             }
 

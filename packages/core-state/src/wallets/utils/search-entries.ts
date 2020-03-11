@@ -9,7 +9,6 @@ const manipulateIteratee = (iteratee): any => {
         case "approval":
             return Utils.delegateCalculator.calculateApproval;
         case "forgedtotal":
-            // console.log("HELLLLLO");
             return Utils.delegateCalculator.calculateForgedTotal;
         case "votes":
             return "voteBalance";

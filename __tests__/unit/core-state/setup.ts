@@ -88,6 +88,10 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
         .set("delegate.forgedTotal");
 
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("delegate.approval");
+
     sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("vote");
 
     sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("secondPublicKey");
