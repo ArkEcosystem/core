@@ -5,36 +5,44 @@ import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 // todo: review the implementation and make use of ioc
 @Container.injectable()
 export class BlockState {
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
+    // @Container.inject(Container.Identifiers.Application)
+    // private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain") // TODO: Without this line - and despite
+    // being intialised in the same way as the service provider - the tests fail to find a correct binding
     private walletRepository!: Contracts.State.WalletRepository;
 
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
     private handlerRegistry!: Handlers.Registry;
 
+    @Container.inject(Container.Identifiers.LogService)
+    private logger!: Contracts.Kernel.Logger;
+
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         if (block.data.height === 1) {
-            this.initGenesisGeneratorWallet(block.data.generatorPublicKey);
+            this.initGenesisForgerWallet(block.data.generatorPublicKey);
         }
 
-        const generatorWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
-        if (!generatorWallet) {
-            const msg = `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
-            this.app.terminate(msg);
-        }
-
+        const forgerWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
+        /**
+         * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
+         * If so, this code can be deleted.
+         */
+        // if (!forgerWallet) {
+        //     const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
+        //     this.app.terminate(msg);
+        // }
         const appliedTransactions: Interfaces.ITransaction[] = [];
         try {
             for (const transaction of block.transactions) {
                 await this.applyTransaction(transaction);
                 appliedTransactions.push(transaction);
             }
-            this.applyBlockToGenerator(generatorWallet, block.data);
+            this.applyBlockToForger(forgerWallet, block.data);
         } catch (error) {
-            this.app.log.error(error.stack);
-            this.app.log.error("Failed to apply all transactions in block - reverting previous transactions");
+            this.logger.error(error.stack);
+            this.logger.error("Failed to apply all transactions in block - reverting previous transactions");
             for (const transaction of appliedTransactions.reverse()) {
                 await this.revertTransaction(transaction);
             }
@@ -43,11 +51,15 @@ export class BlockState {
     }
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
-        const generatorWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
-        if (!generatorWallet) {
-            const msg = `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
-            this.app.terminate(msg);
-        }
+        const forgerWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
+        /**
+         * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
+         * If so, this code can be deleted.
+         */
+        // if (!forgerWallet) {
+        //     const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
+        //     this.app.terminate(msg);
+        // }
 
         const revertedTransactions: Interfaces.ITransaction[] = [];
         try {
@@ -55,10 +67,10 @@ export class BlockState {
                 await this.revertTransaction(transaction);
                 revertedTransactions.push(transaction);
             }
-            this.revertBlockFromGenerator(generatorWallet, block.data);
+            this.revertBlockFromForger(forgerWallet, block.data);
         } catch (error) {
-            this.app.log.error(error.stack);
-            this.app.log.error("Failed to revert all transactions in block - applying previous transactions");
+            this.logger.error(error.stack);
+            this.logger.error("Failed to revert all transactions in block - applying previous transactions");
             for (const transaction of revertedTransactions.reverse()) {
                 await this.applyTransaction(transaction);
             }
@@ -95,6 +107,12 @@ export class BlockState {
             if (this.walletRepository.hasByAddress(transaction.data.recipientId)) {
                 recipient = this.walletRepository.findByAddress(transaction.data.recipientId);
             }
+
+            /**
+             * TODO: check this is desired behaviour?
+             * Presumably if a transaction specifies a recipient, that recipient should exist
+             */
+            AppUtils.assert.defined<Contracts.State.Wallet>(recipient);
         }
 
         // @ts-ignore - Apply vote balance updates
@@ -117,6 +135,12 @@ export class BlockState {
             if (this.walletRepository.hasByAddress(transaction.data.recipientId)) {
                 recipient = this.walletRepository.findByAddress(transaction.data.recipientId);
             }
+
+            /**
+             * TODO: check this is desired behaviour?
+             * Presumably if a transaction specifies a recipient, that recipient should exist
+             */
+            AppUtils.assert.defined<Contracts.State.Wallet>(recipient);
         }
 
         await transactionHandler.revert(transaction);
@@ -181,28 +205,28 @@ export class BlockState {
         return this.updateVoteBalances(sender, recipient, transaction, lockWallet, lockTransaction, true);
     }
 
-    private applyBlockToGenerator(generatorWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
-        const delegateAttribute = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
+    private applyBlockToForger(forgerWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
+        const delegateAttribute = forgerWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
         delegateAttribute.producedBlocks++;
         delegateAttribute.forgedFees = delegateAttribute.forgedFees.plus(blockData.totalFee);
         delegateAttribute.forgedRewards = delegateAttribute.forgedRewards.plus(blockData.reward);
         delegateAttribute.lastBlock = blockData;
 
         const balanceIncrease = blockData.reward.plus(blockData.totalFee);
-        this.increaseWalletDelegateVoteBalance(generatorWallet, balanceIncrease);
-        generatorWallet.balance = generatorWallet.balance.plus(balanceIncrease);
+        this.increaseWalletDelegateVoteBalance(forgerWallet, balanceIncrease);
+        forgerWallet.balance = forgerWallet.balance.plus(balanceIncrease);
     }
 
-    private revertBlockFromGenerator(generatorWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
-        const delegateAttribute = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
+    private revertBlockFromForger(forgerWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
+        const delegateAttribute = forgerWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
         delegateAttribute.producedBlocks--;
         delegateAttribute.forgedFees = delegateAttribute.forgedFees.minus(blockData.totalFee);
         delegateAttribute.forgedRewards = delegateAttribute.forgedRewards.minus(blockData.reward);
         delegateAttribute.lastBlock = undefined;
 
         const balanceDecrease = blockData.reward.plus(blockData.totalFee);
-        this.decreaseWalletDelegateVoteBalance(generatorWallet, balanceDecrease);
-        generatorWallet.balance = generatorWallet.balance.minus(balanceDecrease);
+        this.decreaseWalletDelegateVoteBalance(forgerWallet, balanceDecrease);
+        forgerWallet.balance = forgerWallet.balance.minus(balanceDecrease);
     }
 
     /**
@@ -362,14 +386,14 @@ export class BlockState {
         }
     }
 
-    private initGenesisGeneratorWallet(generatorPublicKey: string) {
-        if (this.walletRepository.hasByPublicKey(generatorPublicKey)) {
+    private initGenesisForgerWallet(forgerPublicKey: string) {
+        if (this.walletRepository.hasByPublicKey(forgerPublicKey)) {
             return;
         }
 
-        const generatorAddress = Identities.Address.fromPublicKey(generatorPublicKey);
-        const generatorWallet = this.walletRepository.createWallet(generatorAddress);
-        generatorWallet.publicKey = generatorPublicKey;
-        this.walletRepository.index(generatorWallet);
+        const forgerAddress = Identities.Address.fromPublicKey(forgerPublicKey);
+        const forgerWallet = this.walletRepository.createWallet(forgerAddress);
+        forgerWallet.publicKey = forgerPublicKey;
+        this.walletRepository.index(forgerWallet);
     }
 }

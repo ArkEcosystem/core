@@ -7,7 +7,7 @@ import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
+import { Mempool } from "@arkecosystem/core-transaction-pool/src/mempool";
 import {
     HtlcLockExpiredError,
     HtlcLockTransactionNotFoundError,
@@ -344,7 +344,7 @@ describe("Htlc claim", () => {
             });
 
             it("should throw if transaction by sender already in pool", async () => {
-                await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(htlcClaimTransaction);
+                await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(htlcClaimTransaction);
 
                 await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(
                     Contracts.TransactionPool.PoolError,
@@ -361,7 +361,7 @@ describe("Htlc claim", () => {
                     .sign(passphrases[2])
                     .build();
 
-                await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(anotherHtlcClaimTransaction);
+                await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(anotherHtlcClaimTransaction);
 
                 lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(6 * 1e8));
 

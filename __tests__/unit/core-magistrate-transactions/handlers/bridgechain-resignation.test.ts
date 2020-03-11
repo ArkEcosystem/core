@@ -25,7 +25,7 @@ import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Memory } from "@arkecosystem/core-transaction-pool";
+import { Mempool } from "@arkecosystem/core-transaction-pool";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/dist/errors";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
@@ -238,7 +238,9 @@ describe("BusinessRegistration", () => {
         });
 
         it("should throw if transaction by sender already in pool", async () => {
-            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(bridgechainResignationTransaction);
+            await app
+                .get<Mempool>(Identifiers.TransactionPoolMempool)
+                .addTransaction(bridgechainResignationTransaction);
 
             await expect(handler.throwIfCannotEnterPool(bridgechainResignationTransaction)).rejects.toThrow(
                 Contracts.TransactionPool.PoolError,
