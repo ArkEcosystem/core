@@ -21,7 +21,9 @@ export class BlockStore {
     public set(value: Interfaces.IBlock): void {
         const lastBlock: Interfaces.IBlock | undefined = this.last();
 
-        Utils.assert.defined<Interfaces.IBlock>(lastBlock);
+        if (value.data.height !== 1) {
+            Utils.assert.defined<Interfaces.IBlock>(lastBlock);
+        }
 
         assert.strictEqual(value.data.height, lastBlock ? lastBlock.data.height + 1 : 1);
 
