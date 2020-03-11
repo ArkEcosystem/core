@@ -1,5 +1,7 @@
 import { Kernel } from "../contracts";
 import { Identifiers, inject, injectable } from "../ioc";
+// todo: revisit the implementation of the class and see if it can be removed
+// import { Class } from "../types";
 import { pascalCase } from "../utils";
 
 /**
@@ -25,6 +27,16 @@ export abstract class ClassManager {
      */
     private defaultDriver: string;
 
+    // todo: revisit the implementation of the class and see if it can be removed
+    // /**
+    //  * The array of available drivers.
+    //  *
+    //  * @private
+    //  * @type {Map<string, Class>}
+    //  * @memberof ClassManager
+    //  */
+    // private drivers: Map<string, Class> = new Map<string, Class>();
+
     /**
      * Create a new manager instance.
      *
@@ -45,6 +57,19 @@ export abstract class ClassManager {
         return this.createDriver<T>(name || this.defaultDriver);
     }
 
+    // todo: revisit the implementation of the class and see if it can be removed
+    // /**
+    //  * Register a custom driver.
+    //  *
+    //  * @param {string} name
+    //  * @param {Class} driver
+    //  * @returns {Promise<void>}
+    //  * @memberof ClassManager
+    //  */
+    // public async extend(name: string, driver: Class): Promise<void> {
+    //     this.drivers.set(name, driver);
+    // }
+
     /**
      * Set the default driver name.
      *
@@ -54,6 +79,17 @@ export abstract class ClassManager {
     public setDefaultDriver(name: string): void {
         this.defaultDriver = name;
     }
+
+    // todo: revisit the implementation of the class and see if it can be removed
+    // /**
+    //  * Get all of the available drivers.
+    //  *
+    //  * @returns {Class[]}
+    //  * @memberof ClassManager
+    //  */
+    // public getDrivers(): Class[] {
+    //     return Object.values(this.drivers);
+    // }
 
     /**
      * Create a new driver instance.
