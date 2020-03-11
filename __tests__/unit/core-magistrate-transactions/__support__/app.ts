@@ -14,7 +14,7 @@ import {
     locksIndexer,
     publicKeysIndexer,
     usernamesIndexer,
-} from "@packages/core-state/src/wallets/wallet-indexes";
+} from "@packages/core-state/src/wallets/indexers/indexers";
 import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { knownAttributes } from "@packages/core-test-framework/src/internal/wallet-attributes";

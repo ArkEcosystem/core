@@ -1,53 +1,51 @@
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
-import filterRows from "./filter-rows";
+import filterWallets from "./filter-rows";
 import limitRows from "./limit-rows";
-import { sortEntries } from "./sort-entries";
-
-type CallbackFunctionVariadicVoidReturn = (...args: any[]) => void;
+import { OrderBy, sortEntries as sortWallets } from "./sort-entries";
 
 const manipulateIteratee = (iteratee): any => {
     switch (iteratee) {
         case "approval":
             return Utils.delegateCalculator.calculateApproval;
-        case "forgedTotal":
+        case "forgedtotal":
             return Utils.delegateCalculator.calculateForgedTotal;
         case "votes":
             return "voteBalance";
-        case "vendorfield":
-            return "vendorField";
-        case "expirationvalue":
-            return "expirationValue";
-        case "expirationtype":
-            return "expirationType";
+        // TODO: check these are no longer used (presumably this function used to be used with transactions?)
+        // case "vendorfield":
+        //     return "vendorField";
+        // case "expirationvalue":
+        //     return "expirationValue";
+        // case "expirationtype":
+        //     return "expirationType";
         default:
             return iteratee;
     }
 };
-const applyOrder = (
-    params: Contracts.Database.QueryParameters,
-    defaultOrder: string[],
-): [CallbackFunctionVariadicVoidReturn | string, string] => {
-    const assignOrder = (params, value) => (params.orderBy = value);
-
+const calculateOrder = (params: Contracts.Database.QueryParameters, defaultOrder: string[]): OrderBy => {
+    let orderBy;
     if (!params.orderBy) {
-        return assignOrder(params, defaultOrder);
+        orderBy = defaultOrder;
+        return orderBy;
     }
 
     // @ts-ignore
     const orderByMapped: string[] = params.orderBy.split(":").map(p => p.toLowerCase());
 
     if (orderByMapped.length !== 2 || ["desc", "asc"].includes(orderByMapped[1]) !== true) {
-        return assignOrder(params, defaultOrder);
+        orderBy = defaultOrder;
+        return orderBy;
     }
 
-    return assignOrder(params, [manipulateIteratee(orderByMapped[0]), orderByMapped[1]]);
+    orderBy = [manipulateIteratee(orderByMapped[0]), orderByMapped[1]];
+    return orderBy;
 };
 
 export const searchEntries = <T extends Record<string, any>>(
     params: Contracts.Database.QueryParameters,
     query: Record<string, string[]>,
-    entries: ReadonlyArray<T>,
+    wallets: ReadonlyArray<T>,
     defaultOrder: string[],
 ): Contracts.State.RowsPaginated<T> => {
     if (params.addresses) {
@@ -62,13 +60,13 @@ export const searchEntries = <T extends Record<string, any>>(
         delete params.addresses;
     }
 
-    applyOrder(params, defaultOrder);
+    const order = calculateOrder(params, defaultOrder);
 
     // @ts-ignore
-    entries = sortEntries(params, filterRows(entries, params, query), defaultOrder);
+    wallets = sortWallets(order, filterWallets(wallets, params, query));
 
     return {
-        rows: limitRows(entries, params),
-        count: entries.length,
+        rows: limitRows(wallets, params),
+        count: wallets.length,
     };
 };

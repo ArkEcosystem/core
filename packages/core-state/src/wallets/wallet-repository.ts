@@ -139,6 +139,15 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     }
 
     public forgetByIndex(indexName: string, key: string): void {
+        const forgottenWallet = this.getIndex(indexName).get(key);
+        for (const index of Object.values(this.indexes)) {
+            for (const [name, wallet] of index.entries()) {
+                if (wallet.publicKey === forgottenWallet?.publicKey) {
+                    index.forget(name);
+                }
+            }
+        }
+        // TODO: check whether this line is still needed?
         this.getIndex(indexName).forget(key);
     }
 
@@ -323,7 +332,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     }
 
     private searchLocks(
-        params: Contracts.Database.QueryParameters = {},
+        params: Contracts.Database.QueryParameters,
     ): Contracts.State.SearchContext<Contracts.State.UnwrappedHtlcLock> {
         const query: Record<string, string[]> = {
             exact: [
@@ -380,7 +389,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         };
     }
 
-    private searchBusinesses(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
+    private searchBusinesses(params: Contracts.Database.QueryParameters): Contracts.State.SearchContext<any> {
         const query: Record<string, string[]> = {
             exact: ["address", "isResigned", "publicKey", "vat"],
             like: ["name", "repository", "website"],
@@ -407,7 +416,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         };
     }
 
-    private searchBridgechains(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
+    private searchBridgechains(params: Contracts.Database.QueryParameters): Contracts.State.SearchContext<any> {
         const query: Record<string, string[]> = {
             exact: ["isResigned", "genesisHash", "publicKey"],
             like: ["bridgechainRepository", "name"],

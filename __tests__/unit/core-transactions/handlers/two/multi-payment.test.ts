@@ -13,7 +13,6 @@ import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
-
 import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
