@@ -100,6 +100,7 @@ describe("Transaction Guard", () => {
 
             const transaction = TransactionFactory.transfer(walletGen.address, 2 * 100000000)
                 .withNetwork("unitnet")
+                .withNonce(wallet.nonce.plus(1))
                 .withPassphrase(walletGen.passphrase)
                 .build()[0];
 
