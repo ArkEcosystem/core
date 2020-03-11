@@ -18,10 +18,8 @@ export class ServiceProvider extends BaseServiceProvider {
 
         this.app
             .bind(Identifiers.QueueFactory)
-            .toFactory((context: interfaces.Context) => async <K, T>(name?: string): Promise<Queue> => {
-                const cacheManager: QueueManager = context.container.get<QueueManager>(Identifiers.QueueManager);
-
-                return cacheManager.driver<Queue>(name);
-            });
+            .toFactory((context: interfaces.Context) => async <K, T>(name?: string): Promise<Queue> =>
+                context.container.get<QueueManager>(Identifiers.QueueManager).driver<Queue>(name),
+            );
     }
 }

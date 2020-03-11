@@ -44,11 +44,19 @@ describe("PluginConfiguration", () => {
         expect(pluginConfiguration.all()).toEqual({ key: "value" });
         expect(pluginConfiguration.get("key")).toBe("value");
         expect(pluginConfiguration.has("key")).toBeTrue();
+        expect(pluginConfiguration.getOptional("key", "default value")).toBe("value");
+        expect(pluginConfiguration.getRequired("key")).toBe("value");
 
         pluginConfiguration.unset("key");
 
         expect(pluginConfiguration.all()).toEqual({});
         expect(pluginConfiguration.get("key")).toBeUndefined();
         expect(pluginConfiguration.has("key")).toBeFalse();
+        expect(pluginConfiguration.getOptional("key", "default value")).toBe("default value");
+        expect(() => pluginConfiguration.getRequired("key")).toThrow();
+    });
+
+    it("should throw when using deprecated get default value argument", () => {
+        expect(() => pluginConfiguration.get("key", "default value")).toThrow();
     });
 });

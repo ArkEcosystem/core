@@ -27,18 +27,41 @@ beforeEach(() => {
 });
 
 describe("LocalConfigLoader", () => {
-    it("should throw if it fails to fail the application configuration", async () => {
-        app.rebind("path.config").toConstantValue("does-not-exist");
-
-        await expect(configLoader.loadConfiguration()).rejects.toThrowError(ApplicationConfigurationCannotBeLoaded);
-    });
-
-    it("should throw if it fails to fail the environment variables", async () => {
-        app.rebind("path.config").toConstantValue("does-not-exist");
+    it("should throw if it fails to load the environment variables", async () => {
+        app.rebind("path.config").toConstantValue(resolve(__dirname, "../../../__stubs__/config-empty"));
 
         await expect(configLoader.loadEnvironmentVariables()).rejects.toThrowError(
             EnvironmentConfigurationCannotBeLoaded,
         );
+    });
+
+    it("should throw if it fails to load the application configuration", async () => {
+        app.rebind("path.config").toConstantValue(resolve(__dirname, "../../../__stubs__/config-empty"));
+
+        const promise = configLoader.loadConfiguration();
+
+        await expect(promise).rejects.toThrowError(ApplicationConfigurationCannotBeLoaded);
+        await expect(promise).rejects.toThrow(
+            "Unable to load the application configuration file. Failed to discovery any files matching [app.json, app.js].",
+        );
+    });
+
+    it("should throw if it fails to validate the application configuration", async () => {
+        app.rebind("path.config").toConstantValue(resolve(__dirname, "../../../__stubs__/config-invalid-app"));
+
+        await expect(configLoader.loadConfiguration()).rejects.toThrowError(ApplicationConfigurationCannotBeLoaded);
+    });
+
+    it("should throw if it fails to validate the application peers configuration", async () => {
+        app.rebind("path.config").toConstantValue(resolve(__dirname, "../../../__stubs__/config-invalid-peers"));
+
+        await expect(configLoader.loadConfiguration()).rejects.toThrowError(ApplicationConfigurationCannotBeLoaded);
+    });
+
+    it("should throw if it fails to validate the application delegates configuration", async () => {
+        app.rebind("path.config").toConstantValue(resolve(__dirname, "../../../__stubs__/config-invalid-delegates"));
+
+        await expect(configLoader.loadConfiguration()).rejects.toThrowError(ApplicationConfigurationCannotBeLoaded);
     });
 
     it("should load the application configuration without cryptography", async () => {
