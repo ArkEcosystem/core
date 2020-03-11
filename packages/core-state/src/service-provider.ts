@@ -1,4 +1,4 @@
-import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockState } from "./block-state";
@@ -8,17 +8,10 @@ import { BlockStore } from "./stores/blocks";
 import { StateStore } from "./stores/state";
 import { TransactionStore } from "./stores/transactions";
 import { TransactionValidator } from "./transaction-validator";
-import { Wallet, WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "./wallets";
-import {
-    addressesIndexer,
-    ipfsIndexer,
-    locksIndexer,
-    publicKeysIndexer,
-    resignationsIndexer,
-    usernamesIndexer,
-} from "./wallets/wallet-indexes";
+import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "./wallets";
+import { registerFactories, registerIndexers } from "./wallets/indexers";
 
-const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
+export const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
     return async (
         blocks: Interfaces.IBlock[],
         roundInfo: Contracts.Shared.RoundInfo,
@@ -31,8 +24,8 @@ const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) =
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        this.registerFactories();
-        this.registerIndexers();
+        registerFactories(this.app);
+        registerIndexers(this.app);
 
         this.app
             .bind(Container.Identifiers.WalletRepository)
@@ -80,44 +73,5 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async bootWhen(serviceProvider?: string): Promise<boolean> {
         return serviceProvider === "@arkecosystem/core-database";
-    }
-
-    private registerFactories(): void {
-        this.app
-            .bind(Container.Identifiers.WalletFactory)
-            .toFactory<Contracts.State.Wallet>((context: Container.interfaces.Context) => (address: string) =>
-                new Wallet(
-                    address,
-                    new Services.Attributes.AttributeMap(
-                        context.container.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes),
-                    ),
-                ),
-            );
-    }
-
-    private registerIndexers(): void {
-        this.app
-            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-            .toConstantValue({ name: Contracts.State.WalletIndexes.Addresses, indexer: addressesIndexer });
-
-        this.app
-            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-            .toConstantValue({ name: Contracts.State.WalletIndexes.PublicKeys, indexer: publicKeysIndexer });
-
-        this.app
-            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-            .toConstantValue({ name: Contracts.State.WalletIndexes.Usernames, indexer: usernamesIndexer });
-
-        this.app
-            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-            .toConstantValue({ name: Contracts.State.WalletIndexes.Resignations, indexer: resignationsIndexer });
-
-        this.app
-            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-            .toConstantValue({ name: Contracts.State.WalletIndexes.Locks, indexer: locksIndexer });
-
-        this.app
-            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-            .toConstantValue({ name: Contracts.State.WalletIndexes.Ipfs, indexer: ipfsIndexer });
     }
 }

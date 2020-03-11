@@ -32,7 +32,7 @@ export class Collator implements Contracts.TransactionPool.Collator {
 
         await this.pool.cleanUp();
 
-        for (const transaction of this.poolQuery.getAllFromHighestPriority()) {
+        for (const transaction of this.poolQuery.getFromHighestPriority()) {
             if (transactions.length === milestone.block.maxTransactions) {
                 break;
             }

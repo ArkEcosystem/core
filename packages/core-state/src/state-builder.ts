@@ -1,5 +1,5 @@
 import { Repositories } from "@arkecosystem/core-database";
-import { Application, Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Application, Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
 
@@ -28,6 +28,9 @@ export class StateBuilder {
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private emitter!: Contracts.Kernel.EventDispatcher;
+
+    @Container.inject(Container.Identifiers.ConfigRepository)
+    private readonly configRepository!: Services.Config.ConfigRepository;
 
     public async run(): Promise<void> {
         this.logger = this.app.log;
@@ -92,6 +95,9 @@ export class StateBuilder {
     }
 
     private verifyWalletsConsistency(): void {
+        const logNegativeBalance = (wallet, type, balance) =>
+            this.logger.warning(`Wallet ${wallet.address} has a negative ${type} of '${balance}'`);
+
         const genesisPublicKeys: Record<string, true> = Managers.configManager
             .get("genesisBlock.transactions")
             .reduce((acc, curr) => Object.assign(acc, { [curr.senderPublicKey]: true }), {});
@@ -107,27 +113,36 @@ export class StateBuilder {
                 // Example:
                 //          https://explorer.ark.io/transaction/608c7aeba0895da4517496590896eb325a0b5d367e1b186b1c07d7651a568b9e
                 //          Results in a negative balance (-2 ARK) from height 93478 to 187315
-                const negativeBalanceExceptions: Record<string, Record<string, string>> | undefined = this.app.config(
-                    "exceptions.negativeBalances",
-                    {},
-                );
+                const negativeBalanceExceptions:
+                    | Record<string, Record<string, string>>
+                    | undefined = this.configRepository.get("crypto.exceptions.negativeBalances");
 
                 AppUtils.assert.defined<Record<string, Record<string, string>>>(negativeBalanceExceptions);
 
-                const negativeBalances: Record<string, string> | undefined = wallet.publicKey
+                const whitelistedNegativeBalances: Record<string, string> | undefined = wallet.publicKey
                     ? negativeBalanceExceptions[wallet.publicKey]
                     : undefined;
-                if (negativeBalances && !wallet.balance.isEqualTo(negativeBalances[wallet.nonce.toString()] || 0)) {
-                    this.logger.warning(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
+
+                if (!whitelistedNegativeBalances) {
+                    logNegativeBalance(wallet, "balance", wallet.balance);
+                    throw new Error("Non-genesis wallet with negative balance.");
+                }
+
+                const allowedNegativeBalance = wallet.balance.isEqualTo(
+                    whitelistedNegativeBalances[wallet.nonce.toString()],
+                );
+
+                if (!allowedNegativeBalance) {
+                    logNegativeBalance(wallet, "balance", wallet.balance);
                     throw new Error("Non-genesis wallet with negative balance.");
                 }
             }
 
             if (wallet.hasAttribute("delegate.voteBalance")) {
                 const voteBalance: Utils.BigNumber = wallet.getAttribute("delegate.voteBalance");
-                if (voteBalance.isLessThan(0)) {
-                    this.logger.warning(`Wallet ${wallet.address} has a negative vote balance of '${voteBalance}'`);
 
+                if (voteBalance.isLessThan(0)) {
+                    logNegativeBalance(wallet, "vote balance", voteBalance);
                     throw new Error("Wallet with negative vote balance.");
                 }
             }

@@ -102,7 +102,7 @@ export abstract class InstanceManager<T> {
      * @memberof InstanceManager
      */
     public getDrivers(): T[] {
-        return Object.values(this.drivers);
+        return Array.from(this.drivers.values());
     }
 
     /**

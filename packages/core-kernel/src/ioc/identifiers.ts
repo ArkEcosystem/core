@@ -81,15 +81,16 @@ export const Identifiers = {
     // Transaction Pool
     TransactionPoolService: Symbol.for("TransactionPool<Service>"),
     TransactionPoolCleaner: Symbol.for("TransactionPool<Cleaner>"),
-    TransactionPoolMemory: Symbol.for("TransactionPool<Memory>"),
+    TransactionPoolMempool: Symbol.for("TransactionPool<Mempool>"),
     TransactionPoolStorage: Symbol.for("TransactionPool<Storage>"),
     TransactionPoolCollator: Symbol.for("TransactionPool<Collator>"),
     TransactionPoolQuery: Symbol.for("TransactionPool<Query>"),
     TransactionPoolDynamicFeeMatcher: Symbol.for("TransactionPool<DynamicFeeMatcher>"),
     TransactionPoolProcessor: Symbol.for("TransactionPool<Processor>"),
     TransactionPoolProcessorFactory: Symbol.for("TransactionPool<ProcessorFactory>"),
+    TransactionPoolSenderMempool: Symbol.for("TransactionPool<SenderMempool>"),
+    TransactionPoolSenderMempoolFactory: Symbol.for("TransactionPool<SenderMempoolFactory>"),
     TransactionPoolSenderState: Symbol.for("TransactionPool<SenderState>"),
-    TransactionPoolSenderStateFactory: Symbol.for("TransactionPool<SenderStateFactory>"),
     TransactionPoolExpirationService: Symbol.for("TransactionPool<ExpirationService>"),
 
     // Transactions - @todo: better names that won't clash

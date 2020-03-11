@@ -64,7 +64,7 @@ export class TransactionsController extends Controller {
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const pagination: Repositories.Search.SearchPagination = super.paginate(request);
-        const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getAllFromHighestPriority());
+        const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getFromHighestPriority());
         const transactions: Interfaces.ITransaction[] = all.slice(
             pagination.offset,
             pagination.offset + pagination.limit,
@@ -76,7 +76,7 @@ export class TransactionsController extends Controller {
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const transactionQuery: Contracts.TransactionPool.QueryIterable = this.poolQuery
-            .getAllFromHighestPriority()
+            .getFromHighestPriority()
             .whereId(request.params.id);
 
         if (transactionQuery.has() === false) {
