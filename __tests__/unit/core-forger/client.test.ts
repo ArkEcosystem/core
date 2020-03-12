@@ -61,6 +61,7 @@ describe("Client", () => {
             // @ts-ignore
             client.register([mockHost]);
             expect(spysocketCluster).toHaveBeenCalledWith(expected);
+            expect(client.hosts).toEqual([mockHost]);
         });
 
         it("on error the socket should call logger", () => {
