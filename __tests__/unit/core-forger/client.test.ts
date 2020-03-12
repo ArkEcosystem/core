@@ -24,33 +24,38 @@ afterEach(() => {
 });
 
 describe("Client", () => {
+    let spySocketDisconnect;
+    let spySocketOn;
+    let spySocketCluster;
+
+    let mockHosts;
     let client: Client;
 
     beforeEach(() => {
         client = app.resolve<Client>(Client);
+        spySocketOn = jest.fn();
+        spySocketDisconnect = jest.fn();
+        // @ts-ignore
+        spySocketCluster = jest.spyOn(socketCluster, "create").mockImplementation(() => ({
+            // @ts-ignore
+            on: spySocketOn,
+            disconnect: spySocketDisconnect,
+        }));
+
+        mockHosts = [
+            {
+                socket: {},
+            },
+            {
+                socket: {},
+            },
+        ];
     });
 
     describe("register", () => {
-        let spySocketOn;
-        let spySocketCluster;
-        let mockHost;
-
-        beforeEach(() => {
-            spySocketOn = jest.fn();
-            // @ts-ignore
-            spySocketCluster = jest.spyOn(socketCluster, "create").mockImplementation(() => ({
-                // @ts-ignore
-                on: spySocketOn,
-            }));
-
-            mockHost = {
-                socket: {},
-            };
-        });
-
         it("should register hosts", async () => {
             const expected = {
-                ...mockHost,
+                ...mockHosts[0],
                 autoReconnectOptions: {
                     initialDelay: 1000,
                     maxDelay: 1000,
@@ -59,17 +64,17 @@ describe("Client", () => {
             };
 
             // @ts-ignore
-            client.register([mockHost]);
+            client.register([mockHosts[0]]);
             expect(spySocketCluster).toHaveBeenCalledWith(expected);
-            expect(client.hosts).toEqual([mockHost]);
+            expect(client.hosts).toEqual([mockHosts[0]]);
         });
 
         it("on error the socket should call logger", () => {
             let onErrorCallBack;
-            spySocketOn.mockImplementationOnce((...data) => (onErrorCallBack = data[1]));
+            spySocketOn.mockImplementation((...data) => (onErrorCallBack = data[1]));
 
             // @ts-ignore
-            client.register([mockHost]);
+            client.register(mockHosts);
 
             const fakeError = { message: "Fake Error" };
             onErrorCallBack(fakeError);
@@ -82,7 +87,7 @@ describe("Client", () => {
             spySocketOn.mockImplementationOnce((...data) => (onErrorCallBack = data[1]));
 
             // @ts-ignore
-            client.register([mockHost]);
+            client.register(mockHosts);
 
             const socketHangupError = { message: "Socket hung up" };
             onErrorCallBack(socketHangupError);
@@ -92,29 +97,6 @@ describe("Client", () => {
     });
 
     describe("dispose", () => {
-        let spySocketDisconnect;
-        let mockHosts;
-
-        beforeEach(() => {
-            spySocketDisconnect = jest.fn();
-            // @ts-ignore
-            jest.spyOn(socketCluster, "create").mockImplementation(() => ({
-                // @ts-ignore
-                on: () => {},
-                // @ts-ignore
-                disconnect: spySocketDisconnect,
-            }));
-
-            mockHosts = [
-                {
-                    socket: {},
-                },
-                {
-                    socket: {},
-                },
-            ];
-        });
-
         it("should call disconnect on all sockets", () => {
             client.register(mockHosts);
             client.dispose();
