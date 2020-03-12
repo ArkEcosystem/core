@@ -216,15 +216,13 @@ export class Connection implements TransactionPool.IConnection {
                 transaction.typeGroup,
             );
 
-            const senderWallet: State.IWallet = this.walletManager.hasByPublicKey(senderPublicKey)
-                ? this.walletManager.findByPublicKey(senderPublicKey)
-                : undefined;
+            await transactionHandler.applyToRecipient(transaction, this.walletManager);
+
+            const senderWallet: State.IWallet = this.walletManager.findByPublicKey(senderPublicKey);
 
             const recipientWallet: State.IWallet = this.walletManager.hasByAddress(data.recipientId)
                 ? this.walletManager.findByAddress(data.recipientId)
                 : undefined;
-
-            await transactionHandler.applyToRecipient(transaction, this.walletManager);
 
             if (exists) {
                 this.removeTransaction(transaction);
