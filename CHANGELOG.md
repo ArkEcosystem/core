@@ -7,11 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.27] - 2020-03-12
+
+## Fixed
+
+-   Always apply to sender wallet on `acceptChainedBlock` ([#3594])
+-   Block incomplete sockets ([#3596])
+
 ## [2.6.25] - 2020-03-09
 
 ## Fixed
 
--   AcceptBlockHandler apply block to tx pool before db ([#3590])
+Fix block apply issue where in some cases transaction could be applied twice to recipient in transaction pool ([#3590])
 
 ## [2.6.24] - 2020-03-04
 
@@ -1454,6 +1461,8 @@ Closed security vulnerabilities:
 [#3574]: https://github.com/ARKEcosystem/core/pull/3574
 [#3575]: https://github.com/ARKEcosystem/core/pull/3575
 [#3590]: https://github.com/ARKEcosystem/core/pull/3590
+[#3594]: https://github.com/ARKEcosystem/core/pull/3594
+[#3596]: https://github.com/ARKEcosystem/core/pull/3596
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
