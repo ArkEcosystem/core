@@ -44,11 +44,6 @@ beforeEach(async () => {
     app.bind(Container.Identifiers.BlockchainService).to(MockBlockchainService);
 
     app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
-
-    /**
-     * inSingletonScope()
-        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
-     */
 });
 
 afterEach(() => {
