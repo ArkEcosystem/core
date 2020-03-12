@@ -68,7 +68,7 @@ export class NullCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async getMany(keys: K[]): Promise<Array<T | undefined>> {
-        return [];
+        return new Array(keys.length).fill(undefined);
     }
 
     /**
@@ -93,7 +93,7 @@ export class NullCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async putMany(values: Array<[K, T]>, seconds?: number): Promise<boolean[]> {
-        return [];
+        return new Array(values.length).fill(false);
     }
 
     /**
@@ -115,7 +115,7 @@ export class NullCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async hasMany(keys: K[]): Promise<boolean[]> {
-        return [];
+        return new Array(keys.length).fill(false);
     }
 
     /**
@@ -137,7 +137,7 @@ export class NullCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async missingMany(keys: K[]): Promise<boolean[]> {
-        return [];
+        return new Array(keys.length).fill(true);
     }
 
     /**
@@ -160,7 +160,7 @@ export class NullCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async foreverMany(values: Array<[K, T]>): Promise<boolean[]> {
-        return [];
+        return new Array(values.length).fill(false);
     }
 
     /**
@@ -182,7 +182,7 @@ export class NullCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async forgetMany(keys: K[]): Promise<boolean[]> {
-        return [];
+        return new Array(keys.length).fill(false);
     }
 
     /**

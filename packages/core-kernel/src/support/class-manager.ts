@@ -1,7 +1,7 @@
 import { Kernel } from "../contracts";
-// import { DriverCannotBeResolved } from "../exceptions/container";
 import { Identifiers, inject, injectable } from "../ioc";
-import { Class } from "../types";
+// todo: revisit the implementation of the class and see if it can be removed
+// import { Class } from "../types";
 import { pascalCase } from "../utils";
 
 /**
@@ -27,14 +27,15 @@ export abstract class ClassManager {
      */
     private defaultDriver: string;
 
-    /**
-     * The array of available drivers.
-     *
-     * @private
-     * @type {Map<string, Class>}
-     * @memberof ClassManager
-     */
-    private drivers: Map<string, Class> = new Map<string, Class>();
+    // todo: revisit the implementation of the class and see if it can be removed
+    // /**
+    //  * The array of available drivers.
+    //  *
+    //  * @private
+    //  * @type {Map<string, Class>}
+    //  * @memberof ClassManager
+    //  */
+    // private drivers: Map<string, Class> = new Map<string, Class>();
 
     /**
      * Create a new manager instance.
@@ -56,17 +57,18 @@ export abstract class ClassManager {
         return this.createDriver<T>(name || this.defaultDriver);
     }
 
-    /**
-     * Register a custom driver.
-     *
-     * @param {string} name
-     * @param {Class} driver
-     * @returns {Promise<void>}
-     * @memberof ClassManager
-     */
-    public async extend(name: string, driver: Class): Promise<void> {
-        this.drivers.set(name, driver);
-    }
+    // todo: revisit the implementation of the class and see if it can be removed
+    // /**
+    //  * Register a custom driver.
+    //  *
+    //  * @param {string} name
+    //  * @param {Class} driver
+    //  * @returns {Promise<void>}
+    //  * @memberof ClassManager
+    //  */
+    // public async extend(name: string, driver: Class): Promise<void> {
+    //     this.drivers.set(name, driver);
+    // }
 
     /**
      * Set the default driver name.
@@ -78,15 +80,16 @@ export abstract class ClassManager {
         this.defaultDriver = name;
     }
 
-    /**
-     * Get all of the available drivers.
-     *
-     * @returns {Class[]}
-     * @memberof ClassManager
-     */
-    public getDrivers(): Class[] {
-        return Object.values(this.drivers);
-    }
+    // todo: revisit the implementation of the class and see if it can be removed
+    // /**
+    //  * Get all of the available drivers.
+    //  *
+    //  * @returns {Class[]}
+    //  * @memberof ClassManager
+    //  */
+    // public getDrivers(): Class[] {
+    //     return Object.values(this.drivers);
+    // }
 
     /**
      * Create a new driver instance.

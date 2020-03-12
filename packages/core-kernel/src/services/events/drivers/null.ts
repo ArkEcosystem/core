@@ -24,7 +24,11 @@ export class NullEventDispatcher implements EventDispatcherContract {
      * @memberof MemoryEventDispatcher
      */
     public listenMany(events: Array<[EventName, EventListener]>): Map<EventName, () => void> {
-        return new Map();
+        const map: Map<EventName, () => void> = new Map<EventName, () => void>();
+        for (const [name] of events) {
+            map.set(name, () => {});
+        }
+        return map;
     }
 
     /**
@@ -41,9 +45,7 @@ export class NullEventDispatcher implements EventDispatcherContract {
      * @param {EventListener} [listener]
      * @memberof MemoryEventDispatcher
      */
-    public forget(event: EventName, listener?: EventListener): boolean {
-        return false;
-    }
+    public forget(event: EventName, listener?: EventListener): void {}
 
     /**
      * @param {Array<[EventName, EventListener]>} events
