@@ -31,7 +31,7 @@ describe("Client", () => {
     let spySocketCluster;
     let spyEmit;
 
-    let mockHosts;
+    let mockHost;
     let client: Client;
 
     beforeEach(() => {
@@ -40,30 +40,24 @@ describe("Client", () => {
         spySocketDisconnect = jest.fn();
         spyEmit = jest.fn((__, data, cb) => cb(undefined, data));
 
-        mockHosts = [
-            {
-                socket: {
-                    on: spySocketOn,
-                    disconnect: spySocketDisconnect,
-                    emit: spyEmit,
-                    getState: () => "open",
-                    OPEN: "open",
-                },
-                hostname: "mock-1",
+        mockHost = {
+            socket: {
+                on: spySocketOn,
+                disconnect: spySocketDisconnect,
+                emit: spyEmit,
+                getState: () => "open",
+                OPEN: "open",
             },
-            {
-                socket: {},
-                hostname: "mock-2",
-            },
-        ];
+            hostname: "mock-1",
+        };
         // @ts-ignore
-        spySocketCluster = jest.spyOn(socketCluster, "create").mockImplementation(() => mockHosts[0].socket);
+        spySocketCluster = jest.spyOn(socketCluster, "create").mockImplementation(() => mockHost.socket);
     });
 
     describe("register", () => {
         it("should register hosts", async () => {
             const expected = {
-                ...mockHosts[0],
+                ...mockHost,
                 autoReconnectOptions: {
                     initialDelay: 1000,
                     maxDelay: 1000,
@@ -71,16 +65,16 @@ describe("Client", () => {
                 codecEngine: codec,
             };
 
-            client.register([mockHosts[0]]);
+            client.register([mockHost]);
             expect(spySocketCluster).toHaveBeenCalledWith(expected);
-            expect(client.hosts).toEqual([mockHosts[0]]);
+            expect(client.hosts).toEqual([mockHost]);
         });
 
         it("on error the socket should call logger", () => {
             let onErrorCallBack;
             spySocketOn.mockImplementation((...data) => (onErrorCallBack = data[1]));
 
-            client.register(mockHosts);
+            client.register([mockHost]);
 
             const fakeError = { message: "Fake Error" };
             onErrorCallBack(fakeError);
@@ -92,7 +86,7 @@ describe("Client", () => {
             let onErrorCallBack;
             spySocketOn.mockImplementationOnce((...data) => (onErrorCallBack = data[1]));
 
-            client.register(mockHosts);
+            client.register([mockHost]);
 
             const socketHangupError = { message: "Socket hung up" };
             onErrorCallBack(socketHangupError);
@@ -103,16 +97,15 @@ describe("Client", () => {
 
     describe("dispose", () => {
         it("should call disconnect on all sockets", () => {
-            client.register(mockHosts);
+            client.register([mockHost]);
             client.dispose();
-            expect(spySocketDisconnect).toHaveBeenCalledTimes(2);
+            expect(spySocketDisconnect).toHaveBeenCalled();
         });
 
         it("should do nothing if a hosts socket doesn't exist", () => {
-            client.register(mockHosts);
-            for (const host of mockHosts) {
-                delete host.socket;
-            }
+            client.register([mockHost]);
+            delete mockHost.socket;
+
             client.dispose();
             expect(spySocketDisconnect).not.toHaveBeenCalledWith();
         });
@@ -120,55 +113,45 @@ describe("Client", () => {
 
     describe("broadcastBlock", () => {
         it("should log broadcast as debug message", async () => {
-            client.register(mockHosts);
+            client.register([mockHost]);
 
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
             expect(logger.debug).toHaveBeenCalledWith(
                 `Broadcasting block ${forgedBlockWithTransactions.data.height.toLocaleString()} (${
                     forgedBlockWithTransactions.data.id
-                }) with ${forgedBlockWithTransactions.data.numberOfTransactions} transactions to ${
-                    mockHosts[0].hostname
-                }`,
+                }) with ${forgedBlockWithTransactions.data.numberOfTransactions} transactions to ${mockHost.hostname}`,
             );
         });
 
         it("should not broadcast block when there is an issue with socket", async () => {
-            client.register(mockHosts);
+            client.register([mockHost]);
 
-            mockHosts[0].socket = {};
+            mockHost.socket = {};
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
 
             expect(logger.error).toHaveBeenCalledWith(
-                `Broadcast block failed: Request to ${mockHosts[0].hostname}:${mockHosts[0].port}<p2p.peer.postBlock> failed, because of 'socket.getState is not a function'.`,
+                `Broadcast block failed: Request to ${mockHost.hostname}:${mockHost.port}<p2p.peer.postBlock> failed, because of 'socket.getState is not a function'.`,
             );
         });
 
         it("should not broadcast block when there the socket is closed", async () => {
-            client.register(mockHosts);
+            client.register([mockHost]);
 
-            mockHosts[0].socket = {
-                ...mockHosts[0].socket,
-                getState: () => "closed",
-            };
-
-            mockHosts[1].socket = {
-                ...mockHosts[1].socket,
-                getState: () => "closed",
-            };
+            mockHost.socket.getState = () => "closed";
 
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
             expect(spyEmit).not.toHaveBeenCalled();
             expect(logger.error).toHaveBeenCalledWith(
-                `Broadcast block failed: Request to ${mockHosts[0].hostname}:${
-                    mockHosts[0].port
+                `Broadcast block failed: Request to ${mockHost.hostname}:${
+                    mockHost.port
                 }<p2p.peer.postBlock> failed, because of 'Peer ${
-                    mockHosts[0].hostname
-                } socket is not connected. State: ${mockHosts[0].socket.getState()}'.`,
+                    mockHost.hostname
+                } socket is not connected. State: ${mockHost.socket.getState()}'.`,
             );
         });
 
         it("should broadcast valid blocks without error", async () => {
-            client.register(mockHosts);
+            client.register([mockHost]);
 
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
             expect(spyEmit).toHaveBeenCalledWith("p2p.peer.postBlock", expect.anything(), expect.anything());
@@ -176,13 +159,54 @@ describe("Client", () => {
         });
 
         it("should not broadcast blocks on socketEmit error", async () => {
-            client.register(mockHosts);
+            client.register([mockHost]);
 
             spyEmit.mockImplementation((__, data, cb) => cb("Error", data));
 
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
             expect(logger.error).toHaveBeenCalledWith(
-                `Broadcast block failed: Request to ${mockHosts[0].hostname}:${mockHosts[0].port}<p2p.peer.postBlock> failed, because of 'undefined'.`,
+                `Broadcast block failed: Request to ${mockHost.hostname}:${mockHost.port}<p2p.peer.postBlock> failed, because of 'undefined'.`,
+            );
+        });
+    });
+
+    describe("selectHost", () => {
+        let hosts;
+
+        beforeEach(() => {
+            hosts = [
+                mockHost,
+                mockHost,
+                mockHost,
+                mockHost,
+                mockHost,
+                mockHost,
+                mockHost,
+                mockHost,
+                mockHost,
+                mockHost,
+            ];
+        });
+
+        it("should select the first open socket", async () => {
+            hosts[4].socket.getState = () => "open";
+
+            client.register(hosts);
+            client.selectHost();
+            expect((client as any).host).toEqual(hosts[4]);
+        });
+
+        it("should log debug message when no sockets are open", async () => {
+            hosts.forEach(host => (host.socket.getState = () => "closed"));
+
+            client.register(hosts);
+            await expect(client.selectHost()).rejects.toThrow(
+                `${hosts.map(host => host.hostname).join()} didn't respond. Trying again later.`,
+            );
+            expect(logger.debug).toHaveBeenCalledWith(
+                `No open socket connection to any host: ${JSON.stringify(
+                    hosts.map(host => `${host.hostname}:${host.port}`),
+                )}.`,
             );
         });
     });
