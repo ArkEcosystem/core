@@ -305,4 +305,56 @@ describe("Client", () => {
             expect(networkState.status).toEqual(NetworkStateStatus.Unknown);
         });
     });
+
+    describe("emitEvent", () => {
+        it("should emit events from localhost", async () => {
+            mockHost.hostname = "127.0.0.1";
+            client.register([mockHost]);
+
+            const data = { activeDelegates: ["delegate-one"] };
+
+            client.emitEvent("test-event", data);
+            expect(spyEmit).toHaveBeenCalledWith(
+                "p2p.internal.emitEvent",
+                {
+                    data: {
+                        body: data,
+                        event: "test-event",
+                    },
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                },
+                expect.anything(),
+            );
+        });
+
+        it("should not emit events which are not from localhost", async () => {
+            mockHost.hostname = "127.0.0.2";
+            client.register([mockHost]);
+
+            const data = { activeDelegates: ["delegate-one"] };
+            client.emitEvent("test-event", data);
+
+            expect(logger.error).toHaveBeenCalledWith("emitEvent: unable to find any local hosts.");
+        });
+
+        it("should log error if emitting fails", async () => {
+            const errorMessage = "Fake Error";
+            const emitSpy = jest.spyOn(client as any, "emit");
+            emitSpy.mockImplementationOnce(() => {
+                throw new Error(errorMessage);
+            });
+            mockHost.hostname = "127.0.0.1";
+            client.register([mockHost]);
+            const event = "test-event";
+
+            const data = { activeDelegates: ["delegate-one"] };
+            client.emitEvent(event, data);
+
+            expect(logger.error).toHaveBeenCalledWith(
+                `Failed to emit "${event}" to "${mockHost.hostname}:${mockHost.port}"`,
+            );
+        });
+    });
 });
