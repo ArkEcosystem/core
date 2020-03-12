@@ -5,7 +5,7 @@ import { getCoreDatabasePluginConfiguration } from "./__support__/app";
 
 jest.setTimeout(30000);
 
-test("migrations undo and execute", async () => {
+test("migrations", async () => {
     const configuration = await getCoreDatabasePluginConfiguration();
     const connection = await createConnection({
         ...configuration.getRequired<any>("connection"),
@@ -16,10 +16,10 @@ test("migrations undo and execute", async () => {
 
     const queryRunner = connection.createQueryRunner();
     await queryRunner.startTransaction();
-    const migrationExecutor = new MigrationExecutor(connection, queryRunner);
 
     const check = async () => {
         try {
+            const migrationExecutor = new MigrationExecutor(connection, queryRunner);
             await migrationExecutor.executePendingMigrations();
             for (;;) {
                 const executedMigrations = await migrationExecutor.getExecutedMigrations();
@@ -34,5 +34,5 @@ test("migrations undo and execute", async () => {
         }
     };
 
-    await expect(check()).resolves.not.toThrow();
+    await expect(check()).resolves.toBeUndefined();
 });
