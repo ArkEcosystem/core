@@ -9,6 +9,7 @@ import { requestSchemas } from "../schemas";
 import { codec } from "../utils/sc-codec";
 import { validateTransactionLight } from "./utils/validate";
 
+const SOCKET_TIMEOUT = 2000;
 const MINUTE_IN_MILLISECONDS = 1000 * 60;
 const HOUR_IN_MILLISECONDS = MINUTE_IN_MILLISECONDS * 60;
 
@@ -41,7 +42,7 @@ export class Worker extends SCWorker {
         await this.loadHandlers();
 
         // @ts-ignore
-        this.scServer.wsServer._server.timeout = 2000;
+        this.scServer.wsServer._server.timeout = SOCKET_TIMEOUT;
 
         // @ts-ignore
         this.scServer.wsServer.on("connection", (ws, req) => {
@@ -59,8 +60,7 @@ export class Worker extends SCWorker {
         this.httpServer.on("request", req => {
             // @ts-ignore
             if (req.method !== "GET" || req.url !== this.scServer.wsServer.options.path) {
-                this.setErrorForIpAndTerminate(req);
-                req.destroy();
+                this.setErrorForIpAndDestroy(req.socket);
             }
         });
         // @ts-ignore
@@ -99,43 +99,44 @@ export class Worker extends SCWorker {
         ws.removeAllListeners("ping");
         ws.removeAllListeners("pong");
         ws.prependListener("ping", () => {
-            this.setErrorForIpAndTerminate(req, ws);
+            this.setErrorForIpAndDestroy(req.socket);
         });
         ws.prependListener("pong", () => {
-            this.setErrorForIpAndTerminate(req, ws);
+            this.setErrorForIpAndDestroy(req.socket);
         });
 
         ws.prependListener("error", error => {
             if (error instanceof RangeError) {
-                this.setErrorForIpAndTerminate(req, ws);
+                this.setErrorForIpAndDestroy(req.socket);
             }
         });
 
         const messageListeners = ws.listeners("message");
         ws.removeAllListeners("message");
         ws.prependListener("message", message => {
-            if (ws._disconnected) {
-                return this.setErrorForIpAndTerminate(req, ws);
+            if (req.socket._disconnected) {
+                return this.setErrorForIpAndDestroy(req.socket);
             } else if (message === "#2") {
                 const timeNow: number = new Date().getTime() / 1000;
-                if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
-                    return this.setErrorForIpAndTerminate(req, ws);
+                if (req.socket._lastPingTime && timeNow - req.socket._lastPingTime < 1) {
+                    return this.setErrorForIpAndDestroy(req.socket);
                 }
-                ws._lastPingTime = timeNow;
+                req.socket._lastPingTime = timeNow;
             } else if (message.length < 10) {
                 // except for #2 message, we should have JSON with some required properties
                 // (see below) which implies that message length should be longer than 10 chars
-                return this.setErrorForIpAndTerminate(req, ws);
+                return this.setErrorForIpAndDestroy(req.socket);
             } else {
                 try {
                     const parsed = JSON.parse(message);
                     if (parsed.event === "#disconnect") {
-                        ws._disconnected = true;
+                        req.socket._disconnected = true;
                     } else if (parsed.event === "#handshake") {
-                        if (ws._handshake) {
-                            return this.setErrorForIpAndTerminate(req, ws);
+                        if (req.socket._handshake) {
+                            return this.setErrorForIpAndDestroy(req.socket);
                         }
-                        ws._handshake = true;
+                        req.socket._handshake = true;
+                        clearTimeout(req.socket._connectionTimer);
                     } else if (
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
@@ -144,10 +145,10 @@ export class Worker extends SCWorker {
                             (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined")) ||
                         !this.handlers.includes(parsed.event)
                     ) {
-                        return this.setErrorForIpAndTerminate(req, ws);
+                        return this.setErrorForIpAndDestroy(req.socket);
                     }
                 } catch (error) {
-                    return this.setErrorForIpAndTerminate(req, ws);
+                    return this.setErrorForIpAndDestroy(req.socket);
                 }
             }
 
@@ -219,11 +220,9 @@ export class Worker extends SCWorker {
         return false;
     }
 
-    private setErrorForIpAndTerminate(req, ws?): void {
-        this.ipLastError[req.socket.remoteAddress] = Date.now();
-        if (ws) {
-            ws.terminate();
-        }
+    private setErrorForIpAndDestroy(socket): void {
+        this.ipLastError[socket.remoteAddress] = Date.now();
+        socket.destroy();
     }
 
     private async handleConnection(socket): Promise<void> {
@@ -245,6 +244,12 @@ export class Worker extends SCWorker {
             socket.destroy();
             return;
         }
+
+        socket._connectionTimer = setTimeout(() => {
+            if (!socket._handshake) {
+                this.setErrorForIpAndDestroy(socket);
+            }
+        }, SOCKET_TIMEOUT * 2);
 
         const { data }: { data: { blocked: boolean } } = await this.sendToMasterAsync(
             "p2p.internal.isBlockedByRateLimit",

@@ -326,6 +326,23 @@ describe("Peer socket endpoint", () => {
             await delay(2000); // give time to workers to respawn
         });
 
+        it("should disconnect the client if it sends multiple handshakes", async () => {
+            connect(); // this automatically sends the first handshake
+            await delay(1000);
+
+            expect(socket.state).toBe("open");
+
+            // this is the second handshake
+            send('{"event": "#handshake", "data": {}, "cid": 1}');
+            await delay(500);
+
+            expect(socket.state).toBe("closed");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
+        });
+
         it("should accept the request when below rate limit", async () => {
             connect();
             await delay(1000);
@@ -496,8 +513,6 @@ describe("Peer socket endpoint", () => {
             connect();
             await delay(1000);
 
-            expect(socket.state).toBe("open");
-
             send('{"event":"#disconnect","data":{"code":4000}}');
             await expect(
                 emit("p2p.peer.getStatus", {
@@ -540,30 +555,56 @@ describe("Peer socket endpoint", () => {
             await delay(2000); // give time to workers to respawn
         });
 
-        it("should close the connection when the HTTP url is not valid", async () => {
+        it("should close the connection when the HTTP url is not valid", async done => {
             const socket = new net.Socket();
-            socket.connect(4007, "127.0.0.1", function() {
+            socket.connect(4007, "127.0.0.1", async () => {
                 socket.write("GET /invalid/ HTTP/1.0\r\n\r\n");
+                await delay(500);
+                expect(socket.destroyed).toBe(true);
+
+                socket.connect(4007, "127.0.0.1");
+                await delay(500);
+                expect(socket.destroyed).toBe(true);
+
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
+                done();
             });
-            await delay(500);
-            expect(socket.destroyed).toBe(true);
-
-            socket.connect(4007, "127.0.0.1");
-            await delay(500);
-            expect(socket.destroyed).toBe(true);
-
-            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
-            server.killWorkers({ immediate: true });
-            await delay(2000); // give time to workers to respawn
         });
 
-        it("should close the connection if the initial HTTP request is not processed within 2 seconds", async () => {
+        it("should close the connection if the initial HTTP request is not processed within 2 seconds", async done => {
             const socket = new net.Socket();
-            socket.connect(4007, "127.0.0.1");
-            await delay(500);
-            expect(socket.destroyed).toBe(false);
             await delay(2000);
-            expect(socket.destroyed).toBe(true);
+            socket.connect(4007, "127.0.0.1", async () => {
+                await delay(500);
+                expect(socket.destroyed).toBe(false);
+                await delay(2000);
+                expect(socket.destroyed).toBe(true);
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
+                done();
+            });
+        });
+
+        it("should close the connection if is is not fully established from start to finish within 4 seconds", async done => {
+            const socket = new net.Socket();
+            await delay(2000);
+            socket.connect(4007, "127.0.0.1", async () => {
+                expect(socket.destroyed).toBe(false);
+                // @ts-ignore
+                socket.write(`GET /${server.options.path}/ HTTP/1.0\r\n`);
+                socket.write("Host: 127.0.0.1");
+                await delay(1500);
+                expect(socket.destroyed).toBe(false);
+                socket.write("Host: 127.0.0.1");
+                await delay(1500);
+                expect(socket.destroyed).toBe(false);
+                socket.write("Host: 127.0.0.1");
+                await delay(1500);
+                expect(socket.destroyed).toBe(true);
+                done();
+            });
         });
     });
 });
