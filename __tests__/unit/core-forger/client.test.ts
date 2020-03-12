@@ -5,6 +5,8 @@ import { Application, Container } from "@packages/core-kernel";
 import { codec } from "@packages/core-p2p";
 import socketCluster from "socketcluster-client";
 
+import { forgedBlockWithTransactions } from "./__utils__/create-block-with-transactions";
+
 jest.mock("socketcluster-client");
 
 let app: Application;

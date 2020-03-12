@@ -1,7 +1,7 @@
 import { Identities } from "@arkecosystem/crypto";
 import { BIP38 } from "@packages/core-forger/src/methods/bip38";
 
-import { dummy, expectedBlock, optionsDefault, transactions } from "../__utils__/create-transactions";
+import { dummy, expectedBlock, optionsDefault, transactions } from "../__utils__/create-block-with-transactions";
 
 const passphrase: string = "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire";
 const bip38: string = "6PYTQC4c2vBv6PGvV4HibNni6wNsHsGbR1qpL1DfkCNihsiWwXnjvJMU4B";
