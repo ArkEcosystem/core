@@ -143,7 +143,7 @@ export class AddNonceColumnToTransactionsTable20190806000000 implements Migratio
 
     public async down(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`
-            DROP FUNCTION IF EXISTS set_nonces;
+            DROP FUNCTION set_nonces;
             DROP TRIGGER transactions_set_nonce ON transactions;
             DROP FUNCTION set_row_nonce;
             ALTER TABLE transactions DROP CONSTRAINT "transactions_nonce";
