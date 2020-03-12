@@ -47,9 +47,11 @@ describe("Client", () => {
         mockHosts = [
             {
                 socket: {},
+                hostname: "mock-1",
             },
             {
                 socket: {},
+                hostname: "mock-2",
             },
         ];
     });
@@ -112,6 +114,21 @@ describe("Client", () => {
             }
             client.dispose();
             expect(spySocketDisconnect).not.toHaveBeenCalledWith();
+        });
+    });
+
+    describe("broadcastBlock", () => {
+        it("should log broadcast as debug message", () => {
+            client.register(mockHosts);
+
+            client.broadcastBlock(forgedBlockWithTransactions);
+            expect(logger.debug).toHaveBeenCalledWith(
+                `Broadcasting block ${forgedBlockWithTransactions.data.height.toLocaleString()} (${
+                    forgedBlockWithTransactions.data.id
+                }) with ${forgedBlockWithTransactions.data.numberOfTransactions} transactions to ${
+                    mockHosts[0].hostname
+                }`,
+            );
         });
     });
 });
