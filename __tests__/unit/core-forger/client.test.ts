@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Client } from "@packages/core-forger/src/client";
 import { Application, Container } from "@packages/core-kernel";
 import { codec } from "@packages/core-p2p";
@@ -225,6 +226,83 @@ describe("Client", () => {
                 },
                 expect.anything(),
             );
+        });
+    });
+
+    describe("getRound", () => {
+        it("should broadcast internal getRound transaction", async () => {
+            client.register([mockHost]);
+            await client.getRound();
+            expect(spyEmit).toHaveBeenCalledWith(
+                "p2p.internal.getCurrentRound",
+                {
+                    data: {},
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                },
+                expect.anything(),
+            );
+        });
+    });
+
+    describe("syncWithNetwork", () => {
+        it("should broadcast internal getRound transaction", async () => {
+            client.register([mockHost]);
+            await client.syncWithNetwork();
+            expect(spyEmit).toHaveBeenCalledWith(
+                "p2p.internal.syncBlockchain",
+                {
+                    data: {},
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                },
+                expect.anything(),
+            );
+            expect(logger.debug).toHaveBeenCalledWith(`Sending wake-up check to relay node ${mockHost.hostname}`);
+        });
+
+        it("should log error message if syncing fails", async () => {
+            const errorMessage = "Fake Error";
+            const emitSpy = jest.spyOn(client as any, "emit");
+            emitSpy.mockImplementationOnce(() => {
+                throw new Error(errorMessage);
+            });
+            client.register([mockHost]);
+            await expect(client.syncWithNetwork()).toResolve();
+            expect(logger.error).toHaveBeenCalledWith(`Could not sync check: ${errorMessage}`);
+        });
+    });
+
+    describe("getNetworkState", () => {
+        it("should emit internal getNetworkState event", async () => {
+            client.register([mockHost]);
+            await client.getNetworkState();
+
+            expect(spyEmit).toHaveBeenCalledWith(
+                "p2p.internal.getNetworkState",
+                {
+                    data: {},
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                },
+                expect.anything(),
+            );
+        });
+
+        it("should return valid network state on error", async () => {
+            const errorMessage = "Fake Error";
+            const emitSpy = jest.spyOn(client as any, "emit");
+            emitSpy.mockImplementationOnce(() => {
+                throw new Error(errorMessage);
+            });
+
+            client.register([mockHost]);
+            const networkState = await client.getNetworkState();
+
+            expect(networkState.status).toEqual(NetworkStateStatus.Unknown);
         });
     });
 });
