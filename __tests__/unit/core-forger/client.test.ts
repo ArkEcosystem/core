@@ -210,4 +210,21 @@ describe("Client", () => {
             );
         });
     });
+
+    describe("getTransactions", () => {
+        it("should broadcast get transactions internal event using socket emitter", async () => {
+            client.register([mockHost]);
+            await client.getTransactions();
+            expect(spyEmit).toHaveBeenCalledWith(
+                "p2p.internal.getUnconfirmedTransactions",
+                {
+                    data: {},
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                },
+                expect.anything(),
+            );
+        });
+    });
 });
