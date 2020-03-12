@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Client } from "@packages/core-forger/src/client";
 import { Application, Container } from "@packages/core-kernel";
+import { NetworkStateStatus } from "@packages/core-p2p";
 import { codec } from "@packages/core-p2p";
 import socketCluster from "socketcluster-client";
 
