@@ -32,13 +32,13 @@ describe("Client", () => {
 
     describe("register", () => {
         let spySocketOn;
-        let spysocketCluster;
+        let spySocketCluster;
         let mockHost;
 
         beforeEach(() => {
             spySocketOn = jest.fn();
             // @ts-ignore
-            spysocketCluster = jest.spyOn(socketCluster, "create").mockImplementation(() => ({
+            spySocketCluster = jest.spyOn(socketCluster, "create").mockImplementation(() => ({
                 // @ts-ignore
                 on: spySocketOn,
             }));
@@ -60,7 +60,7 @@ describe("Client", () => {
 
             // @ts-ignore
             client.register([mockHost]);
-            expect(spysocketCluster).toHaveBeenCalledWith(expected);
+            expect(spySocketCluster).toHaveBeenCalledWith(expected);
             expect(client.hosts).toEqual([mockHost]);
         });
 
@@ -77,7 +77,6 @@ describe("Client", () => {
             expect(logger.error).toHaveBeenCalledWith("Fake Error");
         });
 
-        // TODO: this passes on its own, fails with the rest - probably to do with mock state
         it("should not call logger if the socket hangs up", () => {
             let onErrorCallBack;
             spySocketOn.mockImplementationOnce((...data) => (onErrorCallBack = data[1]));
@@ -89,6 +88,37 @@ describe("Client", () => {
             onErrorCallBack(socketHangupError);
 
             expect(logger.error).not.toHaveBeenCalled();
+        });
+    });
+
+    describe("dispose", () => {
+        let spySocketDisconnect;
+        let mockHosts;
+
+        beforeEach(() => {
+            spySocketDisconnect = jest.fn();
+            // @ts-ignore
+            jest.spyOn(socketCluster, "create").mockImplementation(() => ({
+                // @ts-ignore
+                on: () => {},
+                // @ts-ignore
+                disconnect: spySocketDisconnect,
+            }));
+
+            mockHosts = [
+                {
+                    socket: {},
+                },
+                {
+                    socket: {},
+                },
+            ];
+        });
+
+        it("should call disconnect on all sockets", () => {
+            client.register(mockHosts);
+            client.dispose();
+            expect(spySocketDisconnect).toHaveBeenCalledTimes(2);
         });
     });
 });
