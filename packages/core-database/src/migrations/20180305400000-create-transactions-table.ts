@@ -3,7 +3,7 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class CreateTransactionsTable20180305400000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`
-            CREATE TABLE IF NOT EXISTS transactions (
+            CREATE TABLE transactions (
                 "id" VARCHAR(64) PRIMARY KEY,
                 "version" SMALLINT NOT NULL,
                 "block_id" VARCHAR(64) NOT NULL,
@@ -18,7 +18,7 @@ export class CreateTransactionsTable20180305400000 implements MigrationInterface
                 "serialized" bytea NOT NULL
             );
 
-            CREATE INDEX IF NOT EXISTS "transactions_unique" ON transactions ("sender_public_key", "recipient_id", "vendor_field_hex", "timestamp");
+            CREATE INDEX "transactions_unique" ON transactions ("sender_public_key", "recipient_id", "vendor_field_hex", "timestamp");
         `);
     }
 
