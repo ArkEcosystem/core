@@ -120,5 +120,14 @@ describe("Client", () => {
             client.dispose();
             expect(spySocketDisconnect).toHaveBeenCalledTimes(2);
         });
+
+        it("should do nothing if a hosts socket doesn't exist", () => {
+            client.register(mockHosts);
+            for (const host of mockHosts) {
+                delete host.socket;
+            }
+            client.dispose();
+            expect(spySocketDisconnect).not.toHaveBeenCalledWith();
+        });
     });
 });
