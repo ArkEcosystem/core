@@ -1,5 +1,8 @@
 import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@arkecosystem/core-test-framework";
+import { Connection, createConnection } from "typeorm";
+
+import { SnakeNamingStrategy } from "../../../../packages/core-database/src/models/naming-strategy";
 
 export const getCoreDatabasePluginConfiguration = async (): Promise<Providers.PluginConfiguration> => {
     const sandbox: Sandbox = new Sandbox();
@@ -22,4 +25,17 @@ export const getCoreDatabasePluginConfiguration = async (): Promise<Providers.Pl
     );
     const databaseServiceProvider = serviceProviderRepository.get("@arkecosystem/core-database");
     return databaseServiceProvider.config();
+};
+
+export const getCoreDatabaseConnection = async (options = {}): Promise<Connection> => {
+    const configuration = await getCoreDatabasePluginConfiguration();
+    const connection = await createConnection({
+        ...configuration.getRequired<any>("connection"),
+        namingStrategy: new SnakeNamingStrategy(),
+        migrations: [`${__dirname}/../../../../packages/core-database/src/migrations/*.ts`],
+        entities: [`${__dirname}/../../../../packages/core-database/src/models/*.ts`],
+        migrationsRun: true,
+        ...options,
+    });
+    return connection;
 };
