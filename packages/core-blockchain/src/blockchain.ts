@@ -575,13 +575,13 @@ export class Blockchain implements blockchain.IBlockchain {
             this.missedBlocks >= Managers.configManager.getMilestone().activeDelegates / 3 - 1 &&
             Math.random() <= 0.8
         ) {
+            this.missedBlocks = 0;
+
             const networkStatus = await this.p2p.getMonitor().checkNetworkHealth();
             if (networkStatus.forked) {
                 this.state.numberOfBlocksToRollback = networkStatus.blocksToRollback;
                 this.dispatch("FORK");
             }
-
-            this.missedBlocks = 0;
         }
     }
 }
