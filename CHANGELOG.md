@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.28] - 2020-03-13
+
+## Changed
+
+-   Reset missedBlocks before await call ([#3598])
+
 ## [2.6.27] - 2020-03-12
 
 ## Fixed
@@ -922,6 +928,8 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.6.28]: https://github.com/ARKEcosystem/core/compare/2.6.27...2.6.28
+[2.6.27]: https://github.com/ARKEcosystem/core/compare/2.6.25...2.6.27
 [2.6.25]: https://github.com/ARKEcosystem/core/compare/2.6.24...2.6.25
 [2.6.24]: https://github.com/ARKEcosystem/core/compare/2.6.21...2.6.24
 [2.6.21]: https://github.com/ARKEcosystem/core/compare/2.6.11...2.6.21
@@ -1463,6 +1471,7 @@ Closed security vulnerabilities:
 [#3590]: https://github.com/ARKEcosystem/core/pull/3590
 [#3594]: https://github.com/ARKEcosystem/core/pull/3594
 [#3596]: https://github.com/ARKEcosystem/core/pull/3596
+[#3598]: https://github.com/ARKEcosystem/core/pull/3598
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
