@@ -123,7 +123,7 @@ jobs:
 
             - name: Codecov
               run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
-    test-functional-core-database-migrations:
+    test-functional-core-database:
         needs: lint
 
         runs-on: ubuntu-latest
@@ -169,7 +169,7 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/core-database/migrations.test.ts
+              run: yarn test:coverage --coverageDirectory .coverage/functional/core-database/ __tests__/functional/core-database/
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -177,6 +177,9 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
+
+            - name: Codecov
+              run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
     test-functional-bridgechain-registration:
         needs: lint
 
