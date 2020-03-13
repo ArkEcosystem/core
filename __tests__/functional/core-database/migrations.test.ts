@@ -14,10 +14,10 @@ test("migrations", async () => {
         migrationsRun: false,
     });
 
-    const queryRunner = connection.createQueryRunner();
-    await queryRunner.startTransaction();
-
     const check = async () => {
+        const queryRunner = connection.createQueryRunner();
+        await queryRunner.startTransaction();
+
         try {
             const migrationExecutor = new MigrationExecutor(connection, queryRunner);
             await migrationExecutor.executePendingMigrations();
@@ -31,6 +31,7 @@ test("migrations", async () => {
             await migrationExecutor.executePendingMigrations();
         } finally {
             await queryRunner.rollbackTransaction();
+            await queryRunner.release();
         }
     };
 
