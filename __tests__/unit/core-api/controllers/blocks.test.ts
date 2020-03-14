@@ -2,16 +2,21 @@ import "jest-extended";
 
 import Hapi from "@hapi/hapi";
 import { Application, Container } from "@packages/core-kernel";
-import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
+import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { BlocksController } from "@arkecosystem/core-api/src/controllers/blocks";
 import { BlockchainMocks, BlockRepositoryMocks, StateStoreMocks, TransactionRepositoryMocks } from "./mocks";
 import { Block } from "@arkecosystem/core-database/src/models";
-import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Identities, Interfaces, Utils, Transactions } from "@arkecosystem/crypto";
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
+import { Wallets } from "@arkecosystem/core-state";
+import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
+import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 
 let app: Application;
 let controller: BlocksController;
+let walletRepository: Wallets.WalletRepository;
 
 beforeEach(() => {
     app = initApp();
@@ -40,11 +45,27 @@ beforeEach(() => {
         .bind(Container.Identifiers.TransactionRepository)
         .toConstantValue(TransactionRepositoryMocks.transactionRepository);
 
+    // Triggers registration of indexes
+    app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+
     controller = app.resolve<BlocksController>(BlocksController);
+
+    walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
     BlockRepositoryMocks.setMockBlock(null);
     BlockRepositoryMocks.setMockBlocks([]);
     TransactionRepositoryMocks.setMockTransactions([]);
+});
+
+afterEach(() => {
+    try {
+        Transactions.TransactionRegistry.deregisterTransactionType(
+            MagistrateTransactions.BusinessRegistrationTransaction,
+        );
+        Transactions.TransactionRegistry.deregisterTransactionType(
+            MagistrateTransactions.BridgechainRegistrationTransaction,
+        );
+    } catch {}
 });
 
 describe("BlocksController", () => {
@@ -53,10 +74,30 @@ describe("BlocksController", () => {
     beforeEach(() => {
         mockBlock = {
             id: "17184958558311101492",
+            version: 2,
+            height: 2,
+            timestamp: 2,
             reward: Utils.BigNumber.make("100"),
             totalFee: Utils.BigNumber.make("200"),
             totalAmount: Utils.BigNumber.make("300"),
+            generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0])
         };
+
+        let delegateWallet = buildSenderWallet(app);
+
+        let delegateAttributes = {
+            username: "delegate",
+            voteBalance: Utils.BigNumber.make("200"),
+            rank: 1,
+            resigned: false,
+            producedBlocks: 0,
+            forgedFees: Utils.BigNumber.make("2"),
+            forgedRewards: Utils.BigNumber.make("200"),
+        };
+
+        delegateWallet.setAttribute("delegate", delegateAttributes);
+
+        walletRepository.index(delegateWallet);
     });
 
     describe("index", () => {
@@ -77,6 +118,25 @@ describe("BlocksController", () => {
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
             expect(response.results[0]).toEqual(mockBlock);
+        });
+
+        it("should return last block from store - transformed", async () => {
+            BlockRepositoryMocks.setMockBlocks([mockBlock]);
+
+            let request: Hapi.Request = {
+                query: {
+                    page: 1,
+                    limit: 100,
+                    transform: true
+                }
+            };
+
+            let response = <PaginatedResponse>(await controller.index(request, undefined));
+
+            expect(response.totalCount).toBeDefined();
+            expect(response.meta).toBeDefined();
+            expect(response.results).toBeDefined();
+            // expect(response.results[0]).toEqual(mockBlock);
         });
     });
 

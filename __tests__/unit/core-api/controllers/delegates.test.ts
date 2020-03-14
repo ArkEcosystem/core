@@ -66,6 +66,11 @@ describe("DelegatesController", () => {
             producedBlocks: 0,
             forgedFees: Utils.BigNumber.make("2"),
             forgedRewards: Utils.BigNumber.make("200"),
+            lastBlock: {
+                id: "123",
+                height: 2,
+                timestamp: 2,
+            }
         };
 
         delegateWallet.setAttribute("delegate", delegateAttributes);
