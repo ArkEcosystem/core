@@ -1,7 +1,9 @@
 import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@arkecosystem/core-test-framework";
+import { Interfaces } from "@arkecosystem/crypto";
 import { Connection, createConnection } from "typeorm";
 
+import { Block } from "../../../../packages/core-database/src/models/block";
 import { SnakeNamingStrategy } from "../../../../packages/core-database/src/models/naming-strategy";
 
 export const getCoreDatabasePluginConfiguration = async (): Promise<Providers.PluginConfiguration> => {
@@ -42,4 +44,13 @@ export const getCoreDatabaseConnection = async (options = {}): Promise<Connectio
 
 export const clearCoreDatabase = async (connection: Connection) => {
     await connection.query("TRUNCATE TABLE blocks, rounds, transactions RESTART IDENTITY");
+};
+
+export const toBlock = (blockData: Interfaces.IBlockData): Block => {
+    const clone = Object.assign({}, blockData);
+    delete clone.idHex;
+    delete clone.previousBlockHex;
+    const block = new Block();
+    Object.assign(block, clone);
+    return block;
 };

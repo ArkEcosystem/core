@@ -1,8 +1,7 @@
-import { Blocks, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { Blocks, Managers, Utils } from "@arkecosystem/crypto";
 import { getCustomRepository } from "typeorm";
 
-import { clearCoreDatabase, getCoreDatabaseConnection } from "../__support__/app";
-import { Block } from "../../../../packages/core-database/src/models/block";
+import { clearCoreDatabase, getCoreDatabaseConnection, toBlock } from "../__support__/app";
 import { BlockRepository } from "../../../../packages/core-database/src/repositories/block-repository";
 import { BIP39 } from "../../../../packages/core-forger/src/methods/bip39";
 
@@ -22,15 +21,6 @@ const block3 = bip39.forge(block3Transactions, {
     previousBlock: block2.data,
     reward: new Utils.BigNumber(0),
 });
-
-const b = (blockData: Interfaces.IBlockData): Block => {
-    const clone = Object.assign({}, blockData);
-    delete clone.idHex;
-    delete clone.previousBlockHex;
-    const block = new Block();
-    Object.assign(block, clone);
-    return block;
-};
 
 describe("BlockRepository.findLatest", () => {
     it("should return undefined when no blocks were added", async () => {
@@ -54,7 +44,7 @@ describe("BlockRepository.findLatest", () => {
             const blockRepository = getCustomRepository(BlockRepository);
             await blockRepository.saveBlocks([block1]);
             const latestBlock = await blockRepository.findLatest();
-            expect(latestBlock).toStrictEqual(b(block1.data));
+            expect(latestBlock).toStrictEqual(toBlock(block1.data));
         } finally {
             await connection.close();
         }
@@ -88,7 +78,7 @@ describe("BlockRepository.findTop", () => {
             const blockRepository = getCustomRepository(BlockRepository);
             await blockRepository.saveBlocks([block1, block2, block3]);
             const recentBlocks = await blockRepository.findTop(2);
-            expect(recentBlocks).toStrictEqual([b(block3.data), b(block2.data)]);
+            expect(recentBlocks).toStrictEqual([toBlock(block3.data), toBlock(block2.data)]);
         } finally {
             await connection.close();
         }
@@ -104,7 +94,7 @@ describe("BlockRepository.findByIdOrHeight", () => {
             const blockRepository = getCustomRepository(BlockRepository);
             await blockRepository.saveBlocks([block1, block2, block3]);
             const blockById = await blockRepository.findByIdOrHeight(block2.data.id);
-            expect(blockById).toStrictEqual(b(block2.data));
+            expect(blockById).toStrictEqual(toBlock(block2.data));
         } finally {
             await connection.close();
         }
@@ -118,7 +108,7 @@ describe("BlockRepository.findByIdOrHeight", () => {
             const blockRepository = getCustomRepository(BlockRepository);
             await blockRepository.saveBlocks([block1, block2, block3]);
             const blockByHeight = await blockRepository.findByIdOrHeight(block2.data.height);
-            expect(blockByHeight).toStrictEqual(b(block2.data));
+            expect(blockByHeight).toStrictEqual(toBlock(block2.data));
         } finally {
             await connection.close();
         }
@@ -134,7 +124,7 @@ describe("BlockRepository.findByHeight", () => {
             const blockRepository = getCustomRepository(BlockRepository);
             await blockRepository.saveBlocks([block1, block2, block3]);
             const blockByHeight = await blockRepository.findByHeight(block2.data.height);
-            expect(blockByHeight).toStrictEqual(b(block2.data));
+            expect(blockByHeight).toStrictEqual(toBlock(block2.data));
         } finally {
             await connection.close();
         }
@@ -150,7 +140,7 @@ describe("BlockRepository.findByHeights", () => {
             const blockRepository = getCustomRepository(BlockRepository);
             await blockRepository.saveBlocks([block1, block2, block3]);
             const blockByHeight = await blockRepository.findByHeights([block1.data.height, block3.data.height]);
-            expect(blockByHeight).toStrictEqual([b(block1.data), b(block3.data)]);
+            expect(blockByHeight).toStrictEqual([toBlock(block1.data), toBlock(block3.data)]);
         } finally {
             await connection.close();
         }
@@ -166,7 +156,7 @@ describe("BlockRepository.findByHeightRange", () => {
             const blockRepository = getCustomRepository(BlockRepository);
             await blockRepository.saveBlocks([block1, block2, block3]);
             const blockByHeight = await blockRepository.findByHeightRange(block1.data.height, block3.data.height);
-            expect(blockByHeight).toStrictEqual([b(block1.data), b(block2.data), b(block3.data)]);
+            expect(blockByHeight).toStrictEqual([toBlock(block1.data), toBlock(block2.data), toBlock(block3.data)]);
         } finally {
             await connection.close();
         }
