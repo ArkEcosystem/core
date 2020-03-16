@@ -4,15 +4,15 @@ import Hapi from "@hapi/hapi";
 
 import { Application, Container, Contracts } from "@packages/core-kernel";
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
-import { DelegatesController } from "@arkecosystem/core-api/src/controllers/delegates";
+import { DelegatesController } from "@packages/core-api/src/controllers/delegates";
 import { BlockRepositoryMocks, StateStoreMocks } from "./mocks";
 import { Wallets } from "@packages/core-state";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Identities, Transactions, Utils } from "@arkecosystem/crypto";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Block } from "@arkecosystem/core-database/src/models";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Identities, Transactions, Utils } from "@packages/crypto";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Block } from "@packages/core-database/src/models";
+import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 
 let app: Application;
 let controller: DelegatesController;

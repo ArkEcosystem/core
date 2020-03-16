@@ -2,11 +2,11 @@ import "jest-extended";
 
 import { Application } from "@packages/core-kernel";
 import { initApp } from "../__support__";
-import { Controller } from "@arkecosystem/core-api/src/controllers/controller";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Transactions } from "@arkecosystem/crypto";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Controller } from "@packages/core-api/src/controllers/controller";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Transactions } from "@packages/crypto";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 
 class TestController extends Controller {
     public runRespondWithResource (data: any, transformer: any): any {

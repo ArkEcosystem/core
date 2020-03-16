@@ -1,5 +1,5 @@
 import "jest-extended";
-import { Application } from "@arkecosystem/core-kernel";
+import { Application } from "@packages/core-kernel";
 import { initApp } from "../__support__";
 import { initServer } from "./__support__";
 

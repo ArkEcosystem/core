@@ -1,9 +1,9 @@
 import "jest-extended";
 import { Application, Container } from "@packages/core-kernel";
 import { initApp, ItemResponse } from "../__support__";
-import { BlockchainController } from "@arkecosystem/core-api/src/controllers/blockchain";
+import { BlockchainController } from "@packages/core-api/src/controllers/blockchain";
 import { StateStoreMocks } from "./mocks";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@packages/crypto";
 
 let app: Application;
 let controller: BlockchainController;

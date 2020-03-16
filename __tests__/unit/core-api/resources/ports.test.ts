@@ -1,11 +1,11 @@
 import "jest-extended";
 import { PortsResource } from "@packages/core-api/src/resources";
-import { Application, Container, Providers } from "@arkecosystem/core-kernel";
+import { Application, Container, Providers } from "@packages/core-kernel";
 import { initApp } from "../__support__";
-import { ServiceProvider as CoreApiServiceProvider } from "@arkecosystem/core-api/src";
-import { defaults } from "@arkecosystem/core-api/src/defaults";
+import { ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
+import { defaults } from "@packages/core-api/src/defaults";
 import { ServiceProviderRepository } from "../controllers/mocks";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
 
 let resource: PortsResource;
 let app: Application;

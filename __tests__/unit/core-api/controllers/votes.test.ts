@@ -4,14 +4,14 @@ import Hapi from "@hapi/hapi";
 
 import { Application, Container } from "@packages/core-kernel";
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
-import { VotesController } from "@arkecosystem/core-api/src/controllers/votes";
+import { VotesController } from "@packages/core-api/src/controllers/votes";
 import { BlockRepositoryMocks, StateStoreMocks, TransactionRepositoryMocks } from "./mocks";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Identities, Interfaces, Transactions } from "@arkecosystem/crypto";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Identities, Interfaces, Transactions } from "@packages/crypto";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 let app: Application;
 let controller: VotesController;

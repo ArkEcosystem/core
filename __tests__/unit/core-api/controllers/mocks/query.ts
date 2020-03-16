@@ -35,7 +35,7 @@ class CustomQueryIterable implements Partial<Contracts.TransactionPool.QueryIter
 }
 
 export const transactionPoolQuery: Partial<Contracts.TransactionPool.Query> = {
-    getAllFromHighestPriority: () : Contracts.TransactionPool.QueryIterable => {
-        return new CustomQueryIterable(mockTransactions) as unknown as Contracts.TransactionPool.QueryIterable;
+    getFromHighestPriority(): Contracts.TransactionPool.QueryIterable {
+        return new CustomQueryIterable(mockTransactions) as unknown as Contracts.TransactionPool.QueryIterable
     }
 };

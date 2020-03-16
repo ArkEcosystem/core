@@ -3,7 +3,7 @@ import "jest-extended";
 import Hapi from "@hapi/hapi";
 import { Application, Container } from "@packages/core-kernel";
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
-import { TransactionsController } from "@arkecosystem/core-api/src/controllers/transactions";
+import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
 import {
     BlockRepositoryMocks,
     StateStoreMocks,
@@ -11,15 +11,15 @@ import {
     TransactionPoolQueryMocks,
     TransactionRepositoryMocks,
 } from "./mocks";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Identities, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { configManager } from "@arkecosystem/crypto/src/managers";
-import { TransactionType } from "@arkecosystem/crypto/src/enums";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Identities, Interfaces, Managers, Transactions } from "@packages/crypto";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Generators } from "@packages/core-test-framework/src";
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionType } from "@packages/crypto/src/enums";
 
 let app: Application;
 let controller: TransactionsController;

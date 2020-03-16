@@ -1,6 +1,6 @@
 import "jest-extended";
 import { LockResource } from "@packages/core-api/src/resources";
-import { Utils } from "@arkecosystem/crypto/src";
+import { Utils } from "@packages/crypto/src";
 
 
 let resource: LockResource;

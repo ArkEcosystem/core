@@ -16,7 +16,7 @@ import {
     ipfsIndexer, locksIndexer,
     publicKeysIndexer,
     usernamesIndexer,
-} from "@packages/core-state/src/wallets/wallet-indexes";
+} from "@packages/core-state/src/wallets/indexers/indexers";
 import {
     bridgechainIndexer,
     businessIndexer,

@@ -2,7 +2,7 @@ import "jest-extended";
 
 import Boom from "@hapi/boom";
 import NodeCache from "node-cache";
-import { Application } from "@arkecosystem/core-kernel";
+import { Application } from "@packages/core-kernel";
 import { initApp } from "../__support__";
 import { initServer } from "./__support__";
 

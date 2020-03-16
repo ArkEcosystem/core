@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { RLWrapperBlackAndWhite } from "rate-limiter-flexible";
-import { Application } from "@arkecosystem/core-kernel";
+import { Application } from "@packages/core-kernel";
 import { initApp } from "../__support__";
 import { initServer } from "./__support__";
 

@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { Application, Container, Providers } from "@arkecosystem/core-kernel";
+import { Application, Container, Providers } from "@packages/core-kernel";
 import { initApp } from "./__support__";
-import { Server } from "@arkecosystem/core-api/src/server";
-import { preparePlugins } from "@arkecosystem/core-api/src/plugins";
+import { Server } from "@packages/core-api/src/server";
+import { preparePlugins } from "@packages/core-api/src/plugins";
 
 let app: Application;
 
