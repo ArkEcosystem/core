@@ -98,19 +98,6 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
         });
     }
 
-    public async findCommon(
-        ids: string[],
-    ): Promise<{ id: string; timestamp: number; previousBlock: string; height: string }[]> {
-        return this.createQueryBuilder()
-            .select(["id", "timestamp"])
-            .addSelect("previous_block", "previousBlock")
-            .addSelect("MAX(height)", "height")
-            .where("id IN (:...ids)", { ids })
-            .groupBy("id")
-            .orderBy("height", "DESC")
-            .getRawMany();
-    }
-
     public async getStatistics(): Promise<{
         numberOfTransactions: number;
         totalFee: string;

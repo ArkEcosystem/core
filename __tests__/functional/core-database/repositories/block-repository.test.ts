@@ -169,18 +169,18 @@ describe("BlockRepository.findByHeightRange", () => {
 });
 
 describe("BlockRepository.findByHeightRangeWithTransactions", () => {
-    it("should return blocks by height range with transactions", async () => {
+    it("should return blocks with transactions by height range", async () => {
         const connection = await getCoreDatabaseConnection();
 
         try {
             await clearCoreDatabase(connection);
             const blockRepository = getCustomRepository(BlockRepository);
             await blockRepository.saveBlocks([block1, block2, block3]);
-            const blockByHeight = await blockRepository.findByHeightRangeWithTransactions(
+            const blockByHeightWithTransactions = await blockRepository.findByHeightRangeWithTransactions(
                 block1.data.height,
                 block3.data.height,
             );
-            expect(blockByHeight).toStrictEqual([
+            expect(blockByHeightWithTransactions).toStrictEqual([
                 toBlockModelWithTransactions(block1),
                 toBlockModelWithTransactions(block2),
                 toBlockModelWithTransactions(block3),

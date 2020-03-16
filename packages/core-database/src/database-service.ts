@@ -405,7 +405,7 @@ export class DatabaseService {
             .getCommonBlocks(ids);
 
         if (commonBlocks.length < ids.length) {
-            commonBlocks = ((await this.blockRepository.findCommon(ids)) as unknown) as Interfaces.IBlockData[];
+            commonBlocks = ((await this.blockRepository.findByIds(ids)) as unknown) as Interfaces.IBlockData[];
         }
 
         return commonBlocks;
