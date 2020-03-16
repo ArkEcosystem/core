@@ -6,7 +6,7 @@ import { Block } from "../../../../packages/core-database/src/models/block";
 import { BlockRepository } from "../../../../packages/core-database/src/repositories/block-repository";
 
 const block1 = new Block();
-block1.id = `${"0".repeat(63)}1`;
+block1.id = `${"0".repeat(62)}10`;
 block1.version = 1;
 block1.timestamp = 60;
 block1.previousBlock = null;
@@ -21,7 +21,7 @@ block1.generatorPublicKey = "0".repeat(66);
 block1.blockSignature = "0".repeat(256);
 
 const block2 = new Block();
-block2.id = `${"0".repeat(63)}2`;
+block2.id = `${"0".repeat(62)}20`;
 block2.version = 1;
 block2.timestamp = 120;
 block2.previousBlock = block1.id;
@@ -36,7 +36,7 @@ block2.generatorPublicKey = "0".repeat(66);
 block2.blockSignature = "0".repeat(256);
 
 const block3 = new Block();
-block3.id = `${"0".repeat(63)}3`;
+block3.id = `${"0".repeat(62)}30`;
 block3.version = 1;
 block3.timestamp = 180;
 block3.previousBlock = block2.id;
@@ -111,6 +111,94 @@ describe("BlockRepository.findTop", () => {
             await blockRepository.save(block3);
             const recentBlocks = await blockRepository.findTop(2);
             expect(recentBlocks).toStrictEqual([block3, block2]);
+        } finally {
+            await connection.close();
+        }
+    });
+});
+
+describe("BlockRepository.findByIdOrHeight", () => {
+    it("should return block by id", async () => {
+        const connection = await getCoreDatabaseConnection();
+
+        try {
+            await clearCoreDatabase(connection);
+            const blockRepository = getCustomRepository(BlockRepository);
+            await blockRepository.save(block1);
+            await blockRepository.save(block2);
+            await blockRepository.save(block3);
+            const blockById = await blockRepository.findByIdOrHeight(block2.id);
+            expect(blockById).toStrictEqual(block2);
+        } finally {
+            await connection.close();
+        }
+    });
+
+    it("should return block by height", async () => {
+        const connection = await getCoreDatabaseConnection();
+
+        try {
+            await clearCoreDatabase(connection);
+            const blockRepository = getCustomRepository(BlockRepository);
+            await blockRepository.save(block1);
+            await blockRepository.save(block2);
+            await blockRepository.save(block3);
+            const blockByHeight = await blockRepository.findByIdOrHeight(block2.height);
+            expect(blockByHeight).toStrictEqual(block2);
+        } finally {
+            await connection.close();
+        }
+    });
+});
+
+describe("BlockRepository.findByHeight", () => {
+    it("should return block by height", async () => {
+        const connection = await getCoreDatabaseConnection();
+
+        try {
+            await clearCoreDatabase(connection);
+            const blockRepository = getCustomRepository(BlockRepository);
+            await blockRepository.save(block1);
+            await blockRepository.save(block2);
+            await blockRepository.save(block3);
+            const blockByHeight = await blockRepository.findByHeight(block2.height);
+            expect(blockByHeight).toStrictEqual(block2);
+        } finally {
+            await connection.close();
+        }
+    });
+});
+
+describe("BlockRepository.findByHeights", () => {
+    it("should return blocks by height", async () => {
+        const connection = await getCoreDatabaseConnection();
+
+        try {
+            await clearCoreDatabase(connection);
+            const blockRepository = getCustomRepository(BlockRepository);
+            await blockRepository.save(block1);
+            await blockRepository.save(block2);
+            await blockRepository.save(block3);
+            const blockByHeight = await blockRepository.findByHeights([block1.height, block3.height]);
+            expect(blockByHeight).toStrictEqual([block1, block3]);
+        } finally {
+            await connection.close();
+        }
+    });
+});
+
+describe("BlockRepository.findByHeightRange", () => {
+    it("should return blocks by height range", async () => {
+        const connection = await getCoreDatabaseConnection();
+
+        try {
+            await clearCoreDatabase(connection);
+            const blockRepository = getCustomRepository(BlockRepository);
+            await blockRepository.save(block1);
+            await blockRepository.save(block2);
+            await blockRepository.save(block3);
+            const blockByHeight = await blockRepository.findByHeightRange(block1.height, block3.height);
+            expect(blockByHeight).toStrictEqual([block1, block2, block3]);
         } finally {
             await connection.close();
         }
