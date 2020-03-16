@@ -9,21 +9,7 @@ export const hapiAjv = {
     name,
     version: "1.0.0",
     register: async (server: Hapi.Server, options: any): Promise<void> => {
-        if (options.registerFormats) {
-            options.registerFormats(Validation.validator.getInstance());
-        }
-
         const createErrorResponse = (request, h, errors) => {
-            if (request.pre.apiVersion === 1) {
-                return h
-                    .response({
-                        path: errors[0].dataPath,
-                        error: errors[0].message,
-                        success: false,
-                    })
-                    .takeover();
-            }
-
             return Boom.badData(errors.map(error => error.message).join(","));
         };
 

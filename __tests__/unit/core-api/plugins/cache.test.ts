@@ -1,10 +1,10 @@
 import "jest-extended";
 
 import Boom from "@hapi/boom";
+import NodeCache from "node-cache";
 import { Application } from "@arkecosystem/core-kernel";
 import { initApp } from "../__support__";
 import { initServer } from "./__support__";
-
 
 let app: Application;
 
@@ -113,5 +113,25 @@ describe("Cache", () => {
         response = await server.inject(injectOptions);
         payload = JSON.parse(response.payload || {});
         expect(payload.message).toBe("Bad data");
+    });
+
+    it("should not cache response if cache response not cached", async () => {
+        NodeCache.prototype.get = (cacheKey: any) => {
+            return undefined;
+        };
+
+        let server = await initServer(app, defaults, customRoute);
+
+        let response = await server.inject(injectOptions);
+        let payload = JSON.parse(response.payload || {});
+        expect(payload.data).toBe("ok");
+
+        customResponse = {
+            data: "dummy"
+        };
+
+        response = await server.inject(injectOptions);
+        payload = JSON.parse(response.payload || {});
+        expect(payload.data).toBe("dummy");
     });
 });

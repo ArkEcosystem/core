@@ -11,9 +11,9 @@ export = {
                 const response = request.response;
 
                 if (response.isBoom && response.data) {
-                    delete response.output.payload.error;
+                    // delete response.output.payload.error;
 
-                    response.output = { payload: { error: response.data } };
+                    // response.output = { payload: { error: response.data } };
                 }
 
                 return h.continue;
