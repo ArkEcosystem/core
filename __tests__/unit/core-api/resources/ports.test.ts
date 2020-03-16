@@ -4,7 +4,7 @@ import { Application, Container, Providers } from "@packages/core-kernel";
 import { initApp } from "../__support__";
 import { ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
-import { ServiceProviderRepository } from "../controllers/mocks";
+import { ServiceProviderRepository } from "../mocks";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 
 let resource: PortsResource;

@@ -1,16 +1,15 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { Application, Container } from "@packages/core-kernel";
+import { Application } from "@packages/core-kernel";
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
 import {
-    BlockRepositoryMocks,
     StateStoreMocks,
     TransactionPoolProcessorMocks,
     TransactionPoolQueryMocks,
     TransactionRepositoryMocks,
-} from "./mocks";
+} from "../mocks";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Identities, Interfaces, Managers, Transactions } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -30,46 +29,6 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     app = initApp();
-
-    app
-        .unbind(Container.Identifiers.StateStore);
-    app
-        .bind(Container.Identifiers.StateStore)
-        .toConstantValue(StateStoreMocks.stateStore);
-
-    app
-        .unbind(Container.Identifiers.BlockRepository);
-    app
-        .bind(Container.Identifiers.BlockRepository)
-        .toConstantValue(BlockRepositoryMocks.blockRepository);
-
-    app
-        .unbind(Container.Identifiers.TransactionRepository);
-    app
-        .bind(Container.Identifiers.TransactionRepository)
-        .toConstantValue(TransactionRepositoryMocks.transactionRepository);
-
-    app
-        .unbind(Container.Identifiers.TransactionPoolQuery);
-    app
-        .bind(Container.Identifiers.TransactionPoolQuery)
-        .toConstantValue(TransactionPoolQueryMocks.transactionPoolQuery);
-
-    app
-        .unbind(Container.Identifiers.TransactionPoolProcessor);
-    app
-        .bind(Container.Identifiers.TransactionPoolProcessor)
-        .toConstantValue(TransactionPoolProcessorMocks.transactionPoolProcessor);
-
-    app
-        .unbind(Container.Identifiers.TransactionPoolProcessorFactory);
-    app
-        .bind(Container.Identifiers.TransactionPoolProcessorFactory)
-        .toFactory(() => () => {
-            return TransactionPoolProcessorMocks.transactionPoolProcessor
-        });
-
-
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);

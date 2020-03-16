@@ -22,6 +22,12 @@ import {
     businessIndexer,
     MagistrateIndex,
 } from "@packages/core-magistrate-transactions/src/wallet-indexes";
+import {
+    BlockchainMocks,
+    BlockRepositoryMocks, NetworkMonitorMocks,
+    PeerStorageMocks, RoundRepositoryMocks,
+    StateStoreMocks, TransactionPoolProcessorMocks, TransactionPoolQueryMocks, TransactionRepositoryMocks,
+} from "@tests/unit/core-api/mocks";
 
 export type PaginatedResponse = {
     totalCount: number,
@@ -54,43 +60,45 @@ export const initApp = (): Application => {
 
     app
         .bind(Container.Identifiers.StateStore)
-        .toConstantValue({});
+        .toConstantValue(StateStoreMocks.stateStore);
 
     app
         .bind(Container.Identifiers.BlockchainService)
-        .toConstantValue({});
+        .toConstantValue(BlockchainMocks.blockchain);
 
     app
         .bind(Container.Identifiers.BlockRepository)
-        .toConstantValue({});
+        .toConstantValue(BlockRepositoryMocks.blockRepository);
 
     app
         .bind(Container.Identifiers.TransactionRepository)
-        .toConstantValue({});
+        .toConstantValue(TransactionRepositoryMocks.transactionRepository);
 
     app
         .bind(Container.Identifiers.PeerNetworkMonitor)
-        .toConstantValue({});
+        .toConstantValue(NetworkMonitorMocks.networkMonitor);
 
     app
         .bind(Container.Identifiers.PeerStorage)
-        .toConstantValue({});
+        .toConstantValue(PeerStorageMocks.peerStorage);
 
     app
         .bind(Container.Identifiers.RoundRepository)
-        .toConstantValue({});
+        .toConstantValue(RoundRepositoryMocks.roundRepository);
 
     app
         .bind(Container.Identifiers.TransactionPoolQuery)
-        .toConstantValue({});
+        .toConstantValue(TransactionPoolQueryMocks.transactionPoolQuery);
 
     app
         .bind(Container.Identifiers.TransactionPoolProcessor)
-        .toConstantValue({});
+        .toConstantValue(TransactionPoolProcessorMocks.transactionPoolProcessor);
 
     app
         .bind(Container.Identifiers.TransactionPoolProcessorFactory)
-        .toConstantValue({});
+        .toFactory(() => () => {
+            return TransactionPoolProcessorMocks.transactionPoolProcessor
+        });
 
     app
         .bind(Container.Identifiers.EventDispatcherService)

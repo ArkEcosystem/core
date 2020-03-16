@@ -2,10 +2,10 @@ import "jest-extended";
 
 import Hapi from "@hapi/hapi";
 
-import { Application, Container, Contracts } from "@packages/core-kernel";
+import { Application, Contracts } from "@packages/core-kernel";
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { WalletsController } from "@packages/core-api/src/controllers/wallets";
-import { BlockRepositoryMocks, StateStoreMocks, TransactionRepositoryMocks } from "./mocks";
+import { StateStoreMocks, TransactionRepositoryMocks } from "../mocks";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -14,7 +14,6 @@ import { Wallets } from "@packages/core-state";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { htlcSecretHashHex } from "../../core-transactions/handlers/__fixtures__/htlc-secrets";
-
 
 let app: Application;
 let controller: WalletsController;
@@ -31,24 +30,6 @@ const makeNotExpiredTimestamp = type =>
 
 beforeEach(() => {
     app = initApp();
-
-    app
-        .unbind(Container.Identifiers.StateStore);
-    app
-        .bind(Container.Identifiers.StateStore)
-        .toConstantValue(StateStoreMocks.stateStore);
-
-    app
-        .unbind(Container.Identifiers.BlockRepository);
-    app
-        .bind(Container.Identifiers.BlockRepository)
-        .toConstantValue(BlockRepositoryMocks.blockRepository);
-
-    app
-        .unbind(Container.Identifiers.TransactionRepository);
-    app
-        .bind(Container.Identifiers.TransactionRepository)
-        .toConstantValue(TransactionRepositoryMocks.transactionRepository);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);

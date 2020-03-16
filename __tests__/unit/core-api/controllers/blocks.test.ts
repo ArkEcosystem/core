@@ -1,10 +1,10 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { Application, Container } from "@packages/core-kernel";
+import { Application } from "@packages/core-kernel";
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { BlocksController } from "@packages/core-api/src/controllers/blocks";
-import { BlockchainMocks, BlockRepositoryMocks, StateStoreMocks, TransactionRepositoryMocks } from "./mocks";
+import { BlockchainMocks, BlockRepositoryMocks, StateStoreMocks, TransactionRepositoryMocks } from "../mocks";
 import { Block } from "@packages/core-database/src/models";
 import { Identities, Interfaces, Utils, Transactions } from "@packages/crypto";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
@@ -20,30 +20,6 @@ let walletRepository: Wallets.WalletRepository;
 
 beforeEach(() => {
     app = initApp();
-
-    app
-        .unbind(Container.Identifiers.StateStore);
-    app
-        .bind(Container.Identifiers.StateStore)
-        .toConstantValue(StateStoreMocks.stateStore);
-
-    app
-        .unbind(Container.Identifiers.BlockRepository);
-    app
-        .bind(Container.Identifiers.BlockRepository)
-        .toConstantValue(BlockRepositoryMocks.blockRepository);
-
-    app
-        .unbind(Container.Identifiers.BlockchainService);
-    app
-        .bind(Container.Identifiers.BlockchainService)
-        .toConstantValue(BlockchainMocks.blockchain);
-
-    app
-        .unbind(Container.Identifiers.TransactionRepository);
-    app
-        .bind(Container.Identifiers.TransactionRepository)
-        .toConstantValue(TransactionRepositoryMocks.transactionRepository);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);

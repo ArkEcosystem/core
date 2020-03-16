@@ -1,10 +1,10 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { Application, Container, Contracts } from "@packages/core-kernel";
+import { Application, Contracts } from "@packages/core-kernel";
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { PeersController } from "@packages/core-api/src/controllers/peers";
-import { PeerStorageMocks, StateStoreMocks } from "./mocks";
+import { PeerStorageMocks } from "../mocks";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -15,18 +15,6 @@ let controller: PeersController;
 
 beforeEach(() => {
     app = initApp();
-
-    app
-        .unbind(Container.Identifiers.StateStore);
-    app
-        .bind(Container.Identifiers.StateStore)
-        .toConstantValue(StateStoreMocks.stateStore);
-
-    app
-        .unbind(Container.Identifiers.PeerStorage);
-    app
-        .bind(Container.Identifiers.PeerStorage)
-        .toConstantValue(PeerStorageMocks.peerStorage);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);

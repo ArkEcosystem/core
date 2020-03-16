@@ -2,10 +2,10 @@ import "jest-extended";
 
 import Hapi from "@hapi/hapi";
 
-import { Application, Container } from "@packages/core-kernel";
+import { Application } from "@packages/core-kernel";
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { VotesController } from "@packages/core-api/src/controllers/votes";
-import { BlockRepositoryMocks, StateStoreMocks, TransactionRepositoryMocks } from "./mocks";
+import { TransactionRepositoryMocks } from "../mocks";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Identities, Interfaces, Transactions } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -18,24 +18,6 @@ let controller: VotesController;
 
 beforeEach(() => {
     app = initApp();
-
-    app
-        .unbind(Container.Identifiers.StateStore);
-    app
-        .bind(Container.Identifiers.StateStore)
-        .toConstantValue(StateStoreMocks.stateStore);
-
-    app
-        .unbind(Container.Identifiers.BlockRepository);
-    app
-        .bind(Container.Identifiers.BlockRepository)
-        .toConstantValue(BlockRepositoryMocks.blockRepository);
-
-    app
-        .unbind(Container.Identifiers.TransactionRepository);
-    app
-        .bind(Container.Identifiers.TransactionRepository)
-        .toConstantValue(TransactionRepositoryMocks.transactionRepository);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);

@@ -2,10 +2,10 @@ import "jest-extended";
 
 import Hapi from "@hapi/hapi";
 
-import { Application, Container, Contracts } from "@packages/core-kernel";
+import { Application, Contracts } from "@packages/core-kernel";
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { DelegatesController } from "@packages/core-api/src/controllers/delegates";
-import { BlockRepositoryMocks, StateStoreMocks } from "./mocks";
+import { BlockRepositoryMocks } from "../mocks";
 import { Wallets } from "@packages/core-state";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Identities, Transactions, Utils } from "@packages/crypto";
@@ -20,18 +20,6 @@ let walletRepository: Wallets.WalletRepository;
 
 beforeEach(() => {
     app = initApp();
-
-    app
-        .unbind(Container.Identifiers.StateStore);
-    app
-        .bind(Container.Identifiers.StateStore)
-        .toConstantValue(StateStoreMocks.stateStore);
-
-    app
-        .unbind(Container.Identifiers.BlockRepository);
-    app
-        .bind(Container.Identifiers.BlockRepository)
-        .toConstantValue(BlockRepositoryMocks.blockRepository);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);

@@ -4,7 +4,7 @@ import Hapi from "@hapi/hapi";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { initApp, ItemResponse } from "../__support__";
 import { NodeController } from "@packages/core-api/src/controllers/node";
-import { BlockchainMocks, NetworkMonitorMocks, StateStoreMocks, TransactionRepositoryMocks } from "./mocks";
+import { BlockchainMocks, TransactionRepositoryMocks } from "../mocks";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Interfaces, Managers, Transactions } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -19,30 +19,6 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     app = initApp();
-
-    app
-        .unbind(Container.Identifiers.StateStore);
-    app
-        .bind(Container.Identifiers.StateStore)
-        .toConstantValue(StateStoreMocks.stateStore);
-
-    app
-        .unbind(Container.Identifiers.TransactionRepository);
-    app
-        .bind(Container.Identifiers.TransactionRepository)
-        .toConstantValue(TransactionRepositoryMocks.transactionRepository);
-
-    app
-        .unbind(Container.Identifiers.BlockchainService);
-    app
-        .bind(Container.Identifiers.BlockchainService)
-        .toConstantValue(BlockchainMocks.blockchain);
-
-    app
-        .unbind(Container.Identifiers.PeerNetworkMonitor);
-    app
-        .bind(Container.Identifiers.PeerNetworkMonitor)
-        .toConstantValue(NetworkMonitorMocks.networkMonitor);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
