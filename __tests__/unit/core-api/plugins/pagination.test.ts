@@ -1,63 +1,20 @@
 import "jest-extended";
 
-import Hapi from "@hapi/hapi";
 import { Application } from "@arkecosystem/core-kernel";
 import { initApp } from "../__support__";
 import { initServer } from "./__support__";
-import Joi from "@hapi/joi";
-
 
 let app: Application;
-let customResponse: any;
 
 beforeEach(() => {
     app = initApp();
 });
 
-class TestRoute {
-    public name = "test";
-
-    public register (server: Hapi.Server): void {
-        let customRoute = {
-            method: 'GET',
-            path: '/api/transactions',
-            handler: (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
-                console.log(request, h);
-                return customResponse
-            },
-            options: {
-                validate: {
-                    query: Joi.object({
-                        ...server.app.schemas.pagination,
-                    })
-                }
-            }
-        };
-
-        server.route(customRoute)
-    };
-}
-
-class TestRouteWithoutPagination {
-    public name = "test";
-
-    public register (server: Hapi.Server): void {
-        let customRoute = {
-            method: 'GET',
-            path: '/api/transactions',
-            handler: () => {
-                return customResponse
-            },
-        };
-
-        server.route(customRoute)
-    };
-}
-
-
 describe("Pagination", () => {
     let defaults: any;
     let injectOptions: any;
+    let customResponse: any;
+    let customRoute: any;
 
     beforeEach(() => {
         defaults = {
@@ -70,33 +27,100 @@ describe("Pagination", () => {
 
         customResponse = ["Item1", "Item2", "Item3"];
 
+        customRoute = {
+            method: 'GET',
+            path: '/api/transactions',
+            handler: () => {
+                return customResponse
+            }
+        };
+
         injectOptions = {
             method: 'GET',
             url: '/api/transactions',
         };
     });
 
-    it("should return ok if payload is valid", async () => {
-        let server = await initServer(app, defaults, null);
-
-        server.register({
-            plugin: new TestRouteWithoutPagination()
-        });
+    it("should return paginated payload", async () => {
+        let server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
         const payload = JSON.parse(response.payload || {});
-        expect(payload.data).toEqual(["Item1", "Item2", "Item3"]);
+        expect(payload.data).toEqual(customResponse);
+        expect(payload.meta).toEqual(expect.objectContaining(
+            {
+                count: 3,
+                pageCount: 1
+            }
+        ));
     });
 
-    it("should return ok if payload is valid", async () => {
-        let server = await initServer(app, defaults, null);
+    it("should not return paginated payload if disabled on route", async () => {
+        customRoute.options = {
+            plugins: {
+                pagination: {
+                    pagination: false
+                }
+            }
+        };
 
-        server.register({
-            plugin: new TestRoute()
-        });
+        let server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
         const payload = JSON.parse(response.payload || {});
-        expect(payload.data).toEqual(["Item1", "Item2", "Item3"]);
+
+        expect(payload).toEqual(customResponse);
+        expect(payload.data).toBeUndefined();
+        expect(payload.meta).toBeUndefined();
+    });
+
+    it("should return paginated payload when params are invalid", async () => {
+        let server = await initServer(app, defaults, customRoute);
+
+        injectOptions.url = '/api/transactions?page="invalid_values"&limit="invalid_value"';
+
+        const response = await server.inject(injectOptions);
+        const payload = JSON.parse(response.payload || {});
+        expect(payload.data).toEqual(customResponse);
+        expect(payload.meta).toEqual(expect.objectContaining(
+            {
+                count: 3,
+                pageCount: 1
+            }
+        ));
+    });
+
+    it("should return paginated payload with total count", async () => {
+        let server = await initServer(app, defaults, customRoute);
+
+        customResponse.totalCount = 5;
+
+        const response = await server.inject(injectOptions);
+        const payload = JSON.parse(response.payload || {});
+        expect(payload.meta).toEqual(expect.objectContaining(
+            {
+                count: 3,
+                pageCount: 1,
+                totalCount: 5
+            }
+        ));
+    });
+
+    it("should return paginated payload with response object", async () => {
+        let server = await initServer(app, defaults, customRoute);
+
+        customResponse.response = {
+            test: "test_value"
+        };
+
+        const response = await server.inject(injectOptions);
+        const payload = JSON.parse(response.payload || {});
+        expect(payload.meta).toEqual(expect.objectContaining(
+            {
+                count: 3,
+                pageCount: 1
+            }
+        ));
+        expect(payload.test).toEqual("test_value");
     });
 });

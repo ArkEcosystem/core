@@ -82,8 +82,7 @@ describe("ServiceProvider", () => {
 
         coreApiServiceProvider.setConfig(instance);
 
-        console.log(await coreApiServiceProvider.register());
-        // await expect(coreApiServiceProvider.register()).toResolve();
+        await expect(coreApiServiceProvider.register()).toResolve();
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
     });

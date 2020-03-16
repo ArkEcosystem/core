@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import Boom from "@hapi/boom";
+// import Boom from "@hapi/boom";
 import { Application } from "@arkecosystem/core-kernel";
 import { initApp } from "../__support__";
 import { initServer } from "./__support__";
@@ -54,15 +54,15 @@ describe("Set Headers", () => {
         expect(payload.data).toBe("ok");
     });
 
-    // TODO: Review
-    it("shod resolve if response is boom", async () => {
-        customResponse = Boom.badImplementation("Bad Implementation", {data: "ok"});
-        // customResponse = Boom.badImplementation("Bad Implementation", "ok");
-        let server = await initServer(app, defaults, customRoute);
-
-        const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
-        console.log(payload);
-        // expect(payload.data).toBe("ok");
-    });
+    // // TODO: Review
+    // it("shod resolve if response is boom", async () => {
+    //     customResponse = Boom.badImplementation("Bad Implementation", "ok");
+    //     // customResponse = Boom.badImplementation("Bad Implementation", "ok");
+    //     let server = await initServer(app, defaults, customRoute);
+    //
+    //     const response = await server.inject(injectOptions);
+    //     const payload = JSON.parse(response.payload || {});
+    //     console.log(payload);
+    //     // expect(payload.data).toBe("ok");
+    // });
 });

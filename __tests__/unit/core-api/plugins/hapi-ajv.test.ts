@@ -3,7 +3,6 @@ import { Application } from "@arkecosystem/core-kernel";
 import { initApp } from "../__support__";
 import { initServer } from "./__support__";
 
-
 let app: Application;
 
 beforeEach(() => {
@@ -93,49 +92,6 @@ describe("Hapi Ajv", () => {
     });
 
     it("should return error if query is not valid", async () => {
-        let server = await initServer(app, defaults, customRoute);
-
-        injectOptions.url = '/test';
-
-        const response = await server.inject(injectOptions);
-        const payload = JSON.parse(response.payload || {});
-        expect(payload.statusCode).toBe(422);
-    });
-
-    it("should return error if query is not valid", async () => {
-        // customRoute.config = {
-        //     // pre: [
-        //     //     {
-        //     //         method: (request, h) => {
-        //     //             request.pre = {};
-        //     //             request.pre.apiVersion = 1
-        //     //         },
-        //     //         assign: "apiVersion"
-        //     //     }
-        //     // ],
-        //     // handler: (request, h) => {
-        //     //     return "test"
-        //     // }
-        // };
-
-        customRoute = {
-            method: 'GET',
-            path: '/test',
-            config: {
-                // pre: [
-                //     [
-                //         // m1 and m2 executed in parallel
-                //         { method: pre1, assign: 'm1' },
-                //         { method: pre2, assign: 'm2' }
-                //     ],
-                //     { method: pre3, assign: 'm3' },
-                // ],
-                handler: function (request, h) {
-                    return customResponse
-                },
-            }
-        };
-
         let server = await initServer(app, defaults, customRoute);
 
         injectOptions.url = '/test';
