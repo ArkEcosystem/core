@@ -48,12 +48,13 @@ export class SearchParameterConverter implements Contracts.Database.SearchParame
     private parseOrderBy(searchParameters: Contracts.Database.SearchParameters, orderBy?: any) {
         if (orderBy && typeof orderBy === "string") {
             const fieldDirection = orderBy.split(":").map(o => o.toLowerCase());
-            if (fieldDirection.length === 2 && (fieldDirection[1] === "ASC" || fieldDirection[1] === "DESC")) {
+            if (fieldDirection.length === 2 && (fieldDirection[1] === "asc" || fieldDirection[1] === "desc")) {
                 Utils.assert.defined<object>(searchParameters.orderBy);
 
                 searchParameters.orderBy.push({
                     field: Utils.snakeCase(fieldDirection[0])!,
-                    direction: fieldDirection[1],
+                    // @ts-ignore
+                    direction: Utils.toUpper(fieldDirection[1]),
                 });
             }
         }

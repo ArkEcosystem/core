@@ -3,16 +3,15 @@ import "jest-extended";
 import Hapi from "@hapi/hapi";
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { MagistrateIndex } from "@packages/core-magistrate-transactions/src/wallet-indexes";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Transactions } from "@packages/crypto";
-import { Wallets } from "@packages/core-state";
-import { Assets } from '../__fixtures__'
-import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { BusinessController } from "@packages/core-magistrate-api/src/controllers/businesses";
-import {
-    IBridgechainRegistrationAsset,
-} from "@packages/core-magistrate-crypto/src/interfaces";
+import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { IBridgechainRegistrationAsset } from "@packages/core-magistrate-crypto/src/interfaces";
+import { MagistrateIndex } from "@packages/core-magistrate-transactions/src/wallet-indexes";
+import { Wallets } from "@packages/core-state";
+import { Transactions } from "@packages/crypto";
+
+import { Assets } from "../__fixtures__";
+import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 
 let app: Application;
 let controller: BusinessController;
@@ -24,7 +23,7 @@ beforeEach(() => {
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    let businessRegistrationAsset = Assets.businessRegistrationAsset;
+    const businessRegistrationAsset = Assets.businessRegistrationAsset;
 
     senderWallet = buildSenderWallet(app);
 
@@ -49,14 +48,14 @@ afterEach(() => {
 describe("BusinessController", () => {
     describe("index", () => {
         it("should return wallets with registered business", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 query: {
                     page: 1,
                     limit: 100,
-                }
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.index(request, undefined));
+            const response = <PaginatedResponse>await controller.index(request, undefined);
 
             expect(response.totalCount).toBe(1);
             expect(response.results.includes(senderWallet)).toBeTrue();
@@ -65,13 +64,13 @@ describe("BusinessController", () => {
 
     describe("show", () => {
         it("should return wallet with registered business", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.publicKey
-                }
+                    id: senderWallet.publicKey,
+                },
             };
 
-            let response = <ItemResponse>(await controller.show(request, undefined));
+            const response = <ItemResponse>await controller.show(request, undefined);
 
             expect(response.data).toEqual(senderWallet);
         });
@@ -79,10 +78,10 @@ describe("BusinessController", () => {
         it("should return error if business not fund", async () => {
             senderWallet.forgetAttribute("business");
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.publicKey
-                }
+                    id: senderWallet.publicKey,
+                },
             };
 
             await expect(controller.show(request, undefined)).resolves.toThrowError("Business not found");
@@ -91,20 +90,22 @@ describe("BusinessController", () => {
         it("should return error if wallet do not have public key", async () => {
             delete senderWallet.publicKey;
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.address
-                }
+                    id: senderWallet.address,
+                },
             };
 
-            await expect(controller.show(request, undefined)).resolves.toThrowError("Wallet missing public key property");
+            await expect(controller.show(request, undefined)).resolves.toThrowError(
+                "Wallet missing public key property",
+            );
         });
 
         it("should return error if business is not found", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.publicKey
-                }
+                    id: senderWallet.publicKey,
+                },
             };
 
             walletRepository.forgetByIndex(MagistrateIndex.Businesses, senderWallet.publicKey!);
@@ -119,7 +120,7 @@ describe("BusinessController", () => {
         beforeEach(() => {
             bridgechainRegistrationAsset = Assets.bridgechainRegistrationAsset;
 
-            let businessAttributes = senderWallet.getAttribute("business");
+            const businessAttributes = senderWallet.getAttribute("business");
 
             businessAttributes.bridgechains = {};
 
@@ -131,50 +132,48 @@ describe("BusinessController", () => {
         });
 
         it("should return wallet bridgechains", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.publicKey
+                    id: senderWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                }
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.bridgechains(request, undefined));
+            const response = <PaginatedResponse>await controller.bridgechains(request, undefined);
 
             expect(response.totalCount).toBe(1);
             expect(response.results[0]).toBeObject();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                bridgechainRegistrationAsset
-            ));
+            expect(response.results[0]).toEqual(expect.objectContaining(bridgechainRegistrationAsset));
         });
 
         it("should return error if wallet does not have registered business", async () => {
             senderWallet.forgetAttribute("business");
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.publicKey
+                    id: senderWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                }
+                },
             };
 
             await expect(controller.bridgechains(request, undefined)).resolves.toThrowError("Business not found");
         });
 
         it("should return error if wallet is not found", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: "invalid key"
+                    id: "invalid key",
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                }
+                },
             };
 
             await expect(controller.bridgechains(request, undefined)).resolves.toThrowError();
@@ -183,23 +182,21 @@ describe("BusinessController", () => {
 
     describe("search", () => {
         it("should return wallets", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 payload: {
-                    id: senderWallet.publicKey
+                    id: senderWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                }
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.search(request, undefined));
+            const response = <PaginatedResponse>await controller.search(request, undefined);
 
             expect(response.totalCount).toBe(1);
             expect(response.results[0]).toBeObject();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                senderWallet
-            ));
+            expect(response.results[0]).toEqual(expect.objectContaining(senderWallet));
         });
     });
 });

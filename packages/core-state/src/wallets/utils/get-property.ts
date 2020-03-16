@@ -3,8 +3,8 @@ import { Utils } from "@arkecosystem/core-kernel";
 import { Wallet } from "../wallet";
 
 // todo: review implementation - quite a mess at the moment
-export const getProperty = (item: any, prop: string): any => {
-    for (const [key, value] of Object.entries(item)) {
+export const getProperty = (wallet: any, prop: string): any => {
+    for (const [key, value] of Object.entries(wallet)) {
         if (key === prop) {
             return value;
         }
@@ -20,8 +20,8 @@ export const getProperty = (item: any, prop: string): any => {
         }
     }
 
-    if (item instanceof Wallet) {
-        return getProperty(item.getAttributes(), prop);
+    if (wallet instanceof Wallet) {
+        return getProperty(wallet.getAttributes(), prop);
     }
 
     return undefined;

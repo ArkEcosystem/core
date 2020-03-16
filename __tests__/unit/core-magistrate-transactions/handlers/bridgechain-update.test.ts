@@ -30,7 +30,7 @@ import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Memory } from "@arkecosystem/core-transaction-pool";
+import { Mempool } from "@arkecosystem/core-transaction-pool";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
@@ -271,7 +271,7 @@ describe("BusinessRegistration", () => {
         });
 
         it("should throw if transaction by sender already in pool", async () => {
-            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(bridgechainUpdateTransaction);
+            await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(bridgechainUpdateTransaction);
 
             await expect(handler.throwIfCannotEnterPool(bridgechainUpdateTransaction)).rejects.toThrow(
                 Contracts.TransactionPool.PoolError,
@@ -350,8 +350,6 @@ describe("BusinessRegistration", () => {
                 ...secondBridgechainUpdateAssetClone,
                 ...bridgechainUpdateAssetClone,
             });
-
-            console.log(bridgechainRegistrationTransaction);
 
             // @ts-ignore
             setMockTransactions([

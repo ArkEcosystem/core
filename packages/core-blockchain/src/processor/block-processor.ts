@@ -204,7 +204,12 @@ export class BlockProcessor {
         );
         const generatorWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(block.data.generatorPublicKey);
 
-        const generatorUsername: string = generatorWallet.getAttribute("delegate.username");
+        let generatorUsername: string;
+        try {
+            generatorUsername = generatorWallet.getAttribute("delegate.username");
+        } catch {
+            return false;
+        }
 
         if (!forgingDelegate) {
             this.logger.debug(

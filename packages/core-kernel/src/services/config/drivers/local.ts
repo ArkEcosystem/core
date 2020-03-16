@@ -229,6 +229,6 @@ export class LocalConfigLoader implements ConfigLoader {
             }
         }
 
-        throw new FileException(`Failed to discovery any files matching [${files}.join(",")].`);
+        throw new FileException(`Failed to discovery any files matching [${files.join(", ")}].`);
     }
 }
