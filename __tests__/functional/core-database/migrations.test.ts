@@ -5,15 +5,13 @@ import { getCoreDatabaseConnection } from "./__support__/app";
 jest.setTimeout(30000);
 
 test("migrations", async () => {
-    const connection = await getCoreDatabaseConnection({ migrationsRun: false });
-
     const check = async () => {
+        const connection = await getCoreDatabaseConnection({ migrationsRun: false });
         const queryRunner = connection.createQueryRunner();
         await queryRunner.startTransaction();
 
         try {
             const migrationExecutor = new MigrationExecutor(connection, queryRunner);
-            await migrationExecutor.executePendingMigrations();
             for (;;) {
                 const executedMigrations = await migrationExecutor.getExecutedMigrations();
                 if (executedMigrations.length === 0) {
@@ -25,6 +23,7 @@ test("migrations", async () => {
         } finally {
             await queryRunner.rollbackTransaction();
             await queryRunner.release();
+            await connection.close();
         }
     };
 

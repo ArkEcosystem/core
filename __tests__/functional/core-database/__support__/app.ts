@@ -39,3 +39,7 @@ export const getCoreDatabaseConnection = async (options = {}): Promise<Connectio
     });
     return connection;
 };
+
+export const clearCoreDatabase = async (connection: Connection) => {
+    await connection.query("TRUNCATE TABLE blocks, rounds, transactions RESTART IDENTITY");
+};
