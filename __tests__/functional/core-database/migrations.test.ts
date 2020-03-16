@@ -1,6 +1,6 @@
 import { MigrationExecutor } from "typeorm";
 
-import { getCoreDatabaseConnection } from "./__support__/app";
+import { getCoreDatabaseConnection } from "./__support__";
 
 jest.setTimeout(30000);
 

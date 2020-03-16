@@ -90,6 +90,8 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                         entity.transactions = value.map(
                             buffer => Transactions.TransactionFactory.fromBytesUnsafe(buffer).data,
                         );
+                    } else {
+                        entity.transactions = [];
                     }
                 },
             );

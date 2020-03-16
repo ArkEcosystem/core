@@ -1,6 +1,6 @@
 import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@arkecosystem/core-test-framework";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { Connection, createConnection } from "typeorm";
 
 import { Block } from "../../../../packages/core-database/src/models/block";
@@ -46,11 +46,20 @@ export const clearCoreDatabase = async (connection: Connection) => {
     await connection.query("TRUNCATE TABLE blocks, rounds, transactions RESTART IDENTITY");
 };
 
-export const toBlock = (blockData: Interfaces.IBlockData): Block => {
-    const clone = Object.assign({}, blockData);
-    delete clone.idHex;
-    delete clone.previousBlockHex;
-    const block = new Block();
-    Object.assign(block, clone);
-    return block;
+export const toBlockModel = (block: Interfaces.IBlock): Block => {
+    const blockDataClone = Object.assign({}, block.data);
+    delete blockDataClone.idHex;
+    delete blockDataClone.previousBlockHex;
+    const model = new Block();
+    Object.assign(model, blockDataClone);
+    return model;
+};
+
+export const toBlockModelWithTransactions = (block: Interfaces.IBlock): Block => {
+    const model = toBlockModel(block);
+    const transactions = block.transactions.map(
+        t => Transactions.TransactionFactory.fromBytesUnsafe(t.serialized).data,
+    );
+    Object.assign(model, { transactions });
+    return model;
 };
