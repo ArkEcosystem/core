@@ -11,10 +11,11 @@ import { mockLastBlock, setup } from "./setup";
 
 let delegateTracker: DelegateTracker;
 let attributeMap;
-const activeDelegates = [];
-let loggerDebug;
+let loggerDebug: jest.SpyInstance;
+let activeDelegates;
 
-beforeEach(async () => {
+const calculateActiveDelegates = (): Wallet[] => {
+    const activeDelegates = [];
     for (let i = 0; i < 51; i++) {
         const address = `Delegate-Wallet-${i}`;
         const wallet = new Wallet(address, attributeMap);
@@ -22,14 +23,17 @@ beforeEach(async () => {
 
         activeDelegates.push(wallet);
     }
+    return activeDelegates;
+};
 
+beforeEach(async () => {
+    activeDelegates = calculateActiveDelegates();
     const initialEnv = await setup(activeDelegates);
     delegateTracker = initialEnv.sandbox.app.resolve<DelegateTracker>(DelegateTracker);
-
     loggerDebug = initialEnv.spies.logger.debug;
 });
 
-afterEach(() => {
+beforeEach(() => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
     jest.clearAllMocks();
@@ -46,15 +50,6 @@ describe("DelegateTracker", () => {
     });
 
     describe("handle", () => {
-        let secondsToNextRound;
-        beforeEach(() => {
-            const height = mockLastBlock.data.height;
-            const delegatesCount = Managers.configManager.getMilestone(height).activeDelegates;
-            const blockTime: number = Managers.configManager.getMilestone(height).blocktime;
-
-            secondsToNextRound = (delegatesCount - (height % delegatesCount)) * blockTime;
-        });
-
         it("should handle and compute next forgers", async () => {
             delegateTracker.initialize(activeDelegates);
             await expect(delegateTracker.handle()).toResolve();
@@ -63,8 +58,15 @@ describe("DelegateTracker", () => {
         it("should log the next forgers and time to next round", async () => {
             delegateTracker.initialize([activeDelegates[0]]);
 
-            jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValue(0);
+            const slotSpy = jest.spyOn(Crypto.Slots, "getSlotNumber");
+            slotSpy.mockReturnValue(0);
             await delegateTracker.handle();
+
+            const height = mockLastBlock.data.height;
+            const delegatesCount = Managers.configManager.getMilestone(height).activeDelegates;
+            const blockTime: number = Managers.configManager.getMilestone(height).blocktime;
+
+            const secondsToNextRound = (delegatesCount - (height % delegatesCount)) * blockTime;
 
             expect(loggerDebug).toHaveBeenCalledWith(
                 `Next Forgers: ${JSON.stringify(
@@ -78,15 +80,82 @@ describe("DelegateTracker", () => {
         });
 
         it("should log the next forger when it's time to forge", async () => {
-            delegateTracker.initialize(activeDelegates);
+            const slotSpy = jest.spyOn(Crypto.Slots, "getSlotNumber");
+            slotSpy.mockReturnValue(0);
+            const mockMileStoneData = {
+                blocktime: 0,
+                activeDelegates: 51,
+            };
+            const milestoneSpy = jest.spyOn(Managers.configManager, "getMilestone");
+            milestoneSpy.mockReturnValue(mockMileStoneData);
 
-            jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValue(0);
-            // @ts-ignore
-            jest.spyOn(Managers.configManager, "getMilestone").mockReturnValue({ blocktime: 0, activeDelegates: 51 });
+            delegateTracker.initialize(activeDelegates);
             await delegateTracker.handle();
+
+            milestoneSpy.mockRestore();
+            milestoneSpy.mockClear();
+            milestoneSpy.mockReset();
 
             const nextToForge = activeDelegates[2];
             expect(loggerDebug).toHaveBeenCalledWith(`${nextToForge.publicKey} will forge next.`);
+        });
+
+        it("should log the next forger and the time when it will forge", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getSlotNumber");
+            slotSpy.mockReturnValue(0);
+            const mockMileStoneData = {
+                blocktime: 2,
+                activeDelegates: 51,
+            };
+            const milestoneSpy = jest.spyOn(Managers.configManager, "getMilestone");
+            milestoneSpy.mockReturnValue(mockMileStoneData);
+
+            delegateTracker.initialize(activeDelegates);
+            await delegateTracker.handle();
+
+            let secondsToForge = mockMileStoneData.blocktime * (mockMileStoneData.activeDelegates - 2);
+
+            for (let i = 0; i < activeDelegates.length; i++) {
+                const nextToForge = activeDelegates[i];
+                if (i === 2) {
+                    expect(loggerDebug).toHaveBeenCalledWith(`${nextToForge.publicKey} will forge next.`);
+                } else if (i > 2) {
+                    expect(loggerDebug).toHaveBeenNthCalledWith(i + 2, `${nextToForge.publicKey} has already forged.`);
+                } else {
+                    expect(loggerDebug).toHaveBeenNthCalledWith(
+                        i + 2,
+                        `${nextToForge.publicKey} will forge in ${Utils.prettyTime(secondsToForge * 1000)}.`,
+                    );
+                }
+                secondsToForge += mockMileStoneData.blocktime;
+            }
+        });
+
+        it("should handle cases where there are less active delegates than the required delegate count", async () => {
+            const mockMileStoneData = {
+                blocktime: 2,
+                activeDelegates: 80,
+            };
+            const milestoneSpy = jest.spyOn(Managers.configManager, "getMilestone");
+            milestoneSpy.mockReturnValue(mockMileStoneData);
+
+            delegateTracker.initialize(activeDelegates);
+            await delegateTracker.handle();
+
+            /**
+             * TODO: check this is desired behaviour
+             * When there are less activeDelegates than required this behaves differently.
+             * In this case, the first entry in nextDelegates is calculated as forging next (as opposed to the second delegate in the test above).
+             * We also don't calculate (or log) the time until forging for any delegate.
+             */
+            for (let i = 0; i < activeDelegates.length; i++) {
+                const nextToForge = activeDelegates[i];
+                if (i === 0) {
+                    expect(loggerDebug).toHaveBeenCalledWith(`${nextToForge.publicKey} will forge next.`);
+                } else {
+                    expect(loggerDebug).toHaveBeenNthCalledWith(i + 2, `${nextToForge.publicKey} has already forged.`);
+                }
+            }
         });
     });
 });
