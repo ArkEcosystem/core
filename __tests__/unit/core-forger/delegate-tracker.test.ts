@@ -3,7 +3,7 @@ import "jest-extended";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { Wallet } from "@packages/core-state/src/wallets";
-import { Identities } from "@packages/crypto";
+import { Crypto, Identities } from "@packages/crypto";
 
 import { dummy } from "./__utils__/create-block-with-transactions";
 import { setup } from "./setup";
@@ -14,7 +14,7 @@ const activeDelegates = [];
 let loggerDebug;
 
 beforeEach(async () => {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 51; i++) {
         const address = `Delegate-Wallet-${i}`;
         const wallet = new Wallet(address, attributeMap);
         wallet.publicKey = Identities.PublicKey.fromPassphrase(address);
@@ -45,16 +45,20 @@ describe("DelegateTracker", () => {
     });
 
     describe("handle", () => {
-        it("should call database service to get the active delegates ", async () => {
-            const delegate = new BIP39(dummy.plainPassphrase);
+        it("should handle and compute next forgers", async () => {
+            delegateTracker.initialize(activeDelegates);
+            await expect(delegateTracker.handle()).toResolve();
+        });
 
-            //@ts-ignore
-            delegateTracker.initialize([delegate]);
-            delegateTracker.handle();
+        it("should log the next forgers", async () => {
+            delegateTracker.initialize([activeDelegates[0]]);
+
+            jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValue(0);
+            await delegateTracker.handle();
 
             expect(loggerDebug).toHaveBeenCalledWith(
                 `Next Forgers: ${JSON.stringify(
-                    activeDelegates.slice(0, 5).map((delegate: Wallet) => delegate.publicKey),
+                    activeDelegates.slice(2, 7).map((delegate: Wallet) => delegate.publicKey),
                 )}`,
             );
         });
