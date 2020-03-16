@@ -2,68 +2,61 @@ import "jest-extended";
 
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
-import { Application } from "@packages/core-kernel";
-import { Container } from "@packages/core-kernel/src";
+import { Wallet } from "@packages/core-state/src/wallets";
+import { Identities } from "@packages/crypto";
 
 import { dummy } from "./__utils__/create-block-with-transactions";
+import { setup } from "./setup";
 
-let app: Application;
-
-const logger = {
-    error: jest.fn(),
-    debug: jest.fn(),
-};
+let delegateTracker: DelegateTracker;
+let attributeMap;
+const activeDelegates = [];
+let loggerDebug;
 
 beforeEach(async () => {
-    app = new Application(new Container.Container());
-    app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+    for (let i = 0; i < 10; i++) {
+        const address = `Delegate-Wallet-${i}`;
+        const wallet = new Wallet(address, attributeMap);
+        wallet.publicKey = Identities.PublicKey.fromPassphrase(address);
 
-    @Container.injectable()
-    class MockDatabaseService {
-        public getActiveDelegates() {
-            return {};
-        }
+        activeDelegates.push(wallet);
     }
 
-    @Container.injectable()
-    class MockWalletRepository {
-        public findByPublicKey() {
-            return {};
-        }
-    }
+    const initialEnv = await setup(activeDelegates);
+    delegateTracker = initialEnv.sandbox.app.resolve<DelegateTracker>(DelegateTracker);
 
-    @Container.injectable()
-    class MockBlockchainService {
-        public getLastBlock() {
-            return {};
-        }
-    }
-
-    app.bind(Container.Identifiers.DatabaseService).to(MockDatabaseService);
-
-    app.bind(Container.Identifiers.BlockchainService).to(MockBlockchainService);
-
-    app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
+    loggerDebug = initialEnv.spies.logger.debug;
 });
 
 afterEach(() => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
+    jest.clearAllMocks();
 });
 
 describe("DelegateTracker", () => {
-    let delegateTracker: DelegateTracker;
-
-    beforeEach(() => {
-        delegateTracker = app.resolve<DelegateTracker>(DelegateTracker);
-    });
-
     describe("initialise", () => {
         it("should set-up delegates", async () => {
             const delegate = new BIP39(dummy.plainPassphrase);
 
             delegateTracker.initialize([delegate]);
             expect((delegateTracker as any).delegates).toEqual([delegate]);
+        });
+    });
+
+    describe("handle", () => {
+        it("should call database service to get the active delegates ", async () => {
+            const delegate = new BIP39(dummy.plainPassphrase);
+
+            //@ts-ignore
+            delegateTracker.initialize([delegate]);
+            delegateTracker.handle();
+
+            expect(loggerDebug).toHaveBeenCalledWith(
+                `Next Forgers: ${JSON.stringify(
+                    activeDelegates.slice(0, 5).map((delegate: Wallet) => delegate.publicKey),
+                )}`,
+            );
         });
     });
 });
