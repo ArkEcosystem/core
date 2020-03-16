@@ -143,13 +143,57 @@ describe("BlockRepository.getStatistics", () => {
 });
 
 describe("BlockRepository.getBlockRewards", () => {
-    it("should return rewards groupped by generator key", async () => {
+    it("should return rewards grouped by generator key", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
         const blockRewards = await blockRepository.getBlockRewards();
         expect(blockRewards).toStrictEqual([
             { generatorPublicKey: block1.data.generatorPublicKey, rewards: "0" },
             { generatorPublicKey: bip39.publicKey, rewards: "200" },
+        ]);
+    });
+});
+
+describe("BlockRepository.getDelegatesForgedBlocks", () => {
+    it("should return statistics grouped by generator key", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const delegatesForgedBlocks = await blockRepository.getDelegatesForgedBlocks();
+        expect(delegatesForgedBlocks).toStrictEqual([
+            {
+                generatorPublicKey: block1.data.generatorPublicKey,
+                totalFees: "0",
+                totalRewards: "0",
+                totalProduced: "1",
+            },
+            {
+                generatorPublicKey: bip39.publicKey,
+                totalFees: "0",
+                totalRewards: "200",
+                totalProduced: "2",
+            },
+        ]);
+    });
+});
+
+describe("BlockRepository.getLastForgedBlocks", () => {
+    it("it should return last forged block for each generator key", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const lastForgedBlocks = await blockRepository.getLastForgedBlocks();
+        expect(lastForgedBlocks).toStrictEqual([
+            {
+                generatorPublicKey: bip39.publicKey,
+                id: block3.data.id,
+                timestamp: block3.data.timestamp,
+                height: 3,
+            },
+            {
+                generatorPublicKey: block1.data.generatorPublicKey,
+                id: block1.data.id,
+                timestamp: block1.data.timestamp,
+                height: 1,
+            },
         ]);
     });
 });
