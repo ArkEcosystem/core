@@ -6,6 +6,10 @@ import { Wallet } from "@packages/core-state/src/wallets";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { Managers } from "@packages/crypto/src";
 
+export const mockLastBlock = {
+    data: { height: 3, timestamp: 111150 },
+};
+
 export const setup = async activeDelegates => {
     const sandbox = new Sandbox();
 
@@ -38,9 +42,7 @@ export const setup = async activeDelegates => {
     @Container.injectable()
     class MockBlockchainService {
         public getLastBlock() {
-            return {
-                data: { height: 3, timestamp: 111150 },
-            };
+            return mockLastBlock;
         }
     }
 

@@ -1,12 +1,13 @@
 import "jest-extended";
 
+import { Utils } from "@arkecosystem/core-kernel";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { Wallet } from "@packages/core-state/src/wallets";
-import { Crypto, Identities } from "@packages/crypto";
+import { Crypto, Identities, Managers } from "@packages/crypto";
 
 import { dummy } from "./__utils__/create-block-with-transactions";
-import { setup } from "./setup";
+import { mockLastBlock, setup } from "./setup";
 
 let delegateTracker: DelegateTracker;
 let attributeMap;
@@ -45,12 +46,21 @@ describe("DelegateTracker", () => {
     });
 
     describe("handle", () => {
+        let secondsToNextRound;
+        beforeEach(() => {
+            const height = mockLastBlock.data.height;
+            const delegatesCount = Managers.configManager.getMilestone(height).activeDelegates;
+            const blockTime: number = Managers.configManager.getMilestone(height).blocktime;
+
+            secondsToNextRound = (delegatesCount - (height % delegatesCount)) * blockTime;
+        });
+
         it("should handle and compute next forgers", async () => {
             delegateTracker.initialize(activeDelegates);
             await expect(delegateTracker.handle()).toResolve();
         });
 
-        it("should log the next forgers", async () => {
+        it("should log the next forgers and time to next round", async () => {
             delegateTracker.initialize([activeDelegates[0]]);
 
             jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValue(0);
@@ -61,6 +71,22 @@ describe("DelegateTracker", () => {
                     activeDelegates.slice(2, 7).map((delegate: Wallet) => delegate.publicKey),
                 )}`,
             );
+
+            expect(loggerDebug).toHaveBeenCalledWith(
+                `Round 1 will end in ${Utils.prettyTime(secondsToNextRound * 1000)}.`,
+            );
+        });
+
+        it("should log the next forger when it's time to forge", async () => {
+            delegateTracker.initialize(activeDelegates);
+
+            jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValue(0);
+            // @ts-ignore
+            jest.spyOn(Managers.configManager, "getMilestone").mockReturnValue({ blocktime: 0, activeDelegates: 51 });
+            await delegateTracker.handle();
+
+            const nextToForge = activeDelegates[2];
+            expect(loggerDebug).toHaveBeenCalledWith(`${nextToForge.publicKey} will forge next.`);
         });
     });
 });
