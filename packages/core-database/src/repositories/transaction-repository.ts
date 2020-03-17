@@ -29,21 +29,17 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
         });
     }
 
-    public async findForged(ids: string[]): Promise<{ id: string }[]> {
-        return this.find({
+    public async getForgedTransactionsIds(ids: string[]): Promise<string[]> {
+        if (!ids.length) {
+            return [];
+        }
+        const transactions = await this.find({
             select: ["id"],
             where: {
                 id: In(ids),
             },
         });
-    }
-
-    public async getForgedTransactionsIds(ids: string[]): Promise<string[]> {
-        if (!ids.length) {
-            return [];
-        }
-
-        return (await this.findForged(ids)).map(({ id }) => id);
+        return transactions.map(t => t.id);
     }
 
     public async getStatistics(): Promise<{
