@@ -247,23 +247,6 @@ describe("API 2.0 - Blocks", () => {
             await databaseService.deleteBlocks([block2.data]); // reset to genesis block
         });
 
-        it("should POST a search for blocks with the exact specified payloadHash", async () => {
-            const response = await utils.request("POST", "blocks/search", {
-                id: genesisBlock.id,
-                payloadHash: genesisBlock.payloadHash,
-            });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-
-            expect(response.data.data).toHaveLength(1);
-
-            const block = response.data.data[0];
-            utils.expectBlock(block);
-            expect(block.id).toBe(genesisBlock.id);
-            expect(block.payload.length).toBe(genesisBlock.payloadLength);
-            expect(block.payload.hash).toBe(genesisBlock.payloadHash);
-        });
-
         it("should POST a search for blocks with the exact specified generatorPublicKey", async () => {
             const response = await utils.request("POST", "blocks/search", {
                 id: genesisBlock.id,
@@ -278,22 +261,6 @@ describe("API 2.0 - Blocks", () => {
             utils.expectBlock(block);
             expect(block.id).toBe(genesisBlock.id);
             expect(block.generator.publicKey).toBe(genesisBlock.generatorPublicKey);
-        });
-
-        it("should POST a search for blocks with the exact specified blockSignature", async () => {
-            const response = await utils.request("POST", "blocks/search", {
-                id: genesisBlock.id,
-                blockSignature: genesisBlock.blockSignature,
-            });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-
-            expect(response.data.data).toHaveLength(1);
-
-            const block = response.data.data[0];
-            utils.expectBlock(block);
-            expect(block.id).toBe(genesisBlock.id);
-            expect(block.signature).toBe(genesisBlock.blockSignature);
         });
 
         it("should POST a search for blocks with the exact specified timestamp", async () => {
@@ -489,44 +456,6 @@ describe("API 2.0 - Blocks", () => {
             utils.expectBlock(block);
             expect(block.id).toBe(genesisBlock.id);
             expect(+block.forged.reward).toBe(+genesisBlock.reward.toFixed());
-        });
-
-        it("should POST a search for blocks with the exact specified payloadLength", async () => {
-            const response = await utils.request("POST", "blocks/search", {
-                id: genesisBlock.id,
-                payloadLength: {
-                    from: genesisBlock.payloadLength,
-                    to: genesisBlock.payloadLength,
-                },
-            });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-
-            expect(response.data.data).toHaveLength(1);
-
-            const block = response.data.data[0];
-            utils.expectBlock(block);
-            expect(block.id).toBe(genesisBlock.id);
-            expect(block.payload.length).toBe(genesisBlock.payloadLength);
-        });
-
-        it("should POST a search for blocks with the specified payloadLength range", async () => {
-            const response = await utils.request("POST", "blocks/search", {
-                id: genesisBlock.id,
-                payloadLength: {
-                    from: genesisBlock.payloadLength,
-                    to: genesisBlock.payloadLength,
-                },
-            });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-
-            expect(response.data.data).toHaveLength(1);
-
-            const block = response.data.data[0];
-            utils.expectBlock(block);
-            expect(block.id).toBe(genesisBlock.id);
-            expect(block.payload.length).toBe(genesisBlock.payloadLength);
         });
 
         it("should POST a search for blocks with the wrong specified version", async () => {
