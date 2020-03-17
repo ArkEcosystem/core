@@ -5,6 +5,8 @@ import { ForgerService } from "@packages/core-forger/src/forger-service";
 import { Application, Container, Utils } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Crypto, Identities } from "@packages/crypto";
+import { Address } from "@packages/crypto/src/identities";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 import socketCluster from "socketcluster-client";
 
 jest.mock("socketcluster-client");
@@ -210,6 +212,48 @@ describe("ForgerService", () => {
             await expect(forgerService.boot(delegates)).toResolve();
 
             expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), timeout);
+        });
+    });
+
+    describe("GetTransactionsForForging", () => {
+        it("should log error when transactions are empty", async () => {
+            forgerService.register({ hosts: [mockHost] });
+
+            // @ts-ignore
+            const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
+            // @ts-ignore
+            spyGetTransactions.mockResolvedValue([]);
+            await expect(forgerService.getTransactionsForForging()).resolves.toEqual([]);
+            expect(logger.error).toHaveBeenCalledWith(`Could not get unconfirmed transactions from transaction pool.`);
+        });
+
+        it("should log and return valid transactions", async () => {
+            forgerService.register({ hosts: [mockHost] });
+
+            // @ts-ignore
+            const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
+
+            const recipientAddress = Address.fromPassphrase("recipient's secret");
+            const transaction = BuilderFactory.transfer()
+                .version(1)
+                .amount("100")
+                .recipientId(recipientAddress)
+                .sign("sender's secret")
+                .build();
+
+            const mockTransaction = {
+                transactions: [transaction.serialized.toString("hex")],
+                poolSize: 10,
+                count: 10,
+            };
+            // @ts-ignore
+            spyGetTransactions.mockResolvedValue(mockTransaction);
+            await expect(forgerService.getTransactionsForForging()).resolves.toEqual([transaction.data]);
+            expect(logger.error).not.toHaveBeenCalled();
+            const expectedLogInfo =
+                `Received ${Utils.pluralize("transaction", 1, true)} ` +
+                `from the pool containing ${Utils.pluralize("transaction", mockTransaction.poolSize, true)} total`;
+            expect(logger.debug).toHaveBeenCalledWith(expectedLogInfo);
         });
     });
 });
