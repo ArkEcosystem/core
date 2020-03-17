@@ -101,5 +101,22 @@ describe("ForgerService", () => {
 
             expect(logger.info).toHaveBeenCalledWith(expectedInfoMessage);
         });
+
+        it("should skip logging when the service is already initialised", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+            const round = { data: { delegates } };
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            forgerService.register({ hosts: [mockHost] });
+            (forgerService as any).initialized = true;
+            await expect(forgerService.boot(delegates)).toResolve();
+            expect(logger.info).not.toHaveBeenCalledWith(`Forger Manager started.`);
+        });
     });
 });
