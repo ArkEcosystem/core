@@ -288,5 +288,117 @@ describe("ForgerService", () => {
             ).toEqual(false);
             expect(logger.info).toHaveBeenCalledWith("Network reach is not sufficient to get quorum. Will not forge.");
         });
+
+        it("should log double forge warning for any overheight block headers", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const round = { data: { delegates } };
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            forgerService.register({ hosts: [mockHost] });
+            await forgerService.boot(delegates);
+
+            const overHeightBlockHeaders: Array<{
+                [id: string]: any;
+            }> = [
+                {
+                    generatorPublicKey: delegates[0].publicKey,
+                    id: 1,
+                },
+            ];
+
+            const mockNetworkState = {
+                status: NetworkStateStatus.Default,
+                getOverHeightBlockHeaders: () => overHeightBlockHeaders,
+                getQuorum: () => 0.99,
+            };
+
+            expect(
+                // @ts-ignore
+                forgerService.isForgingAllowed(mockNetworkState, delegates[0]),
+            ).toEqual(true);
+            const expectedOverHeightInfo = `Detected ${Utils.pluralize(
+                "distinct overheight block header",
+                overHeightBlockHeaders.length,
+                true,
+            )}.`;
+            expect(logger.info).toHaveBeenCalledWith(expectedOverHeightInfo);
+
+            const expectedDoubleForgeWarning = `Possible double forging delegate: ${delegates[0].delegate.username} (${delegates[0].publicKey}) - Block: ${overHeightBlockHeaders[0].id}.`;
+
+            expect(logger.warning).toHaveBeenCalledWith(expectedDoubleForgeWarning);
+        });
+
+        it("should not allow forging if quorum is not met", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const round = { data: { delegates } };
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            forgerService.register({ hosts: [mockHost] });
+            await forgerService.boot(delegates);
+
+            const mockNetworkState = {
+                status: NetworkStateStatus.Default,
+                getOverHeightBlockHeaders: () => [],
+                getQuorum: () => 0.6,
+                toJson: () => "test json",
+            };
+
+            expect(
+                // @ts-ignore
+                forgerService.isForgingAllowed(mockNetworkState, delegates[0]),
+            ).toEqual(false);
+
+            expect(logger.info).toHaveBeenCalledWith("Fork 6 - Not enough quorum to forge next block. Will not forge.");
+
+            expect(logger.debug).toHaveBeenCalledWith(`Network State: ${mockNetworkState.toJson()}`);
+
+            expect(logger.warning).not.toHaveBeenCalled();
+        });
+
+        it("should allow forging if quorum is met", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const round = { data: { delegates } };
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            forgerService.register({ hosts: [mockHost] });
+            await forgerService.boot(delegates);
+
+            const mockNetworkState = {
+                status: NetworkStateStatus.Default,
+                getOverHeightBlockHeaders: () => [],
+                getQuorum: () => 0.7,
+                toJson: () => "test json",
+            };
+
+            expect(
+                // @ts-ignore
+                forgerService.isForgingAllowed(mockNetworkState, delegates[0]),
+            ).toEqual(true);
+
+            expect(logger.debug).not.toHaveBeenCalled();
+
+            expect(logger.warning).not.toHaveBeenCalled();
+        });
     });
 });
