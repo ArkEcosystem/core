@@ -1,11 +1,11 @@
 import "jest-extended";
 import { WalletResource } from "@packages/core-api/src/resources";
-import { Application, Contracts } from "@arkecosystem/core-kernel";
+import { Application, Contracts } from "@packages/core-kernel";
 import { buildSenderWallet, initApp, parseObjectWithBigInt } from "../__support__";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Identities, Transactions, Utils } from "@arkecosystem/crypto";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Identities, Transactions, Utils } from "@packages/crypto";
+import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 
 let app: Application;

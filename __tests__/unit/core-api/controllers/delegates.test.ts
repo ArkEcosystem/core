@@ -156,7 +156,7 @@ describe("DelegatesController", () => {
     });
 
     describe("blocks", () => {
-        it("should return list of delegates", async () => {
+        it("should return list of blocks", async () => {
             let mockBlock: Partial<Block> = {
                 id: "17184958558311101492",
                 reward: Utils.BigNumber.make("100"),
@@ -174,6 +174,42 @@ describe("DelegatesController", () => {
                     page: 1,
                     limit: 100,
                     transform: false
+                }
+            };
+
+            let response = <PaginatedResponse>(await controller.blocks(request, undefined));
+
+            expect(response.totalCount).toBeDefined();
+            expect(response.meta).toBeDefined();
+            expect(response.results).toBeDefined();
+            expect(response.results[0]).toEqual(expect.objectContaining(
+                {
+                    id: mockBlock.id
+                }
+            ));
+        });
+
+        // TODO
+        it("should return list of transformed blocks", async () => {
+            let mockBlock: Partial<Block> = {
+                id: "17184958558311101492",
+                reward: Utils.BigNumber.make("100"),
+                totalFee: Utils.BigNumber.make("200"),
+                totalAmount: Utils.BigNumber.make("300"),
+                generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                timestamp: 2
+            };
+
+            BlockRepositoryMocks.setMockBlocks([mockBlock]);
+
+            let request: Hapi.Request = {
+                params: {
+                    id: delegateWallet.publicKey
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    transform: true
                 }
             };
 

@@ -1,9 +1,9 @@
 import "jest-extended";
 import { TransactionResource } from "@packages/core-api/src/resources";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
-import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Identities, Interfaces, Utils } from "@packages/crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { Application } from "@arkecosystem/core-kernel";
+import { Application } from "@packages/core-kernel";
 import { initApp, parseObjectWithBigInt } from "../__support__";
 import { BlockchainMocks } from "../mocks";
 

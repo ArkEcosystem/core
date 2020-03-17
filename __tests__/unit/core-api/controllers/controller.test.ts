@@ -7,7 +7,7 @@ import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Identities, Transactions, Utils } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { BlockResource } from "@arkecosystem/core-api/src/resources";
+import { BlockResource } from "@packages/core-api/src/resources";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 
 
@@ -52,7 +52,7 @@ describe("Controller", () => {
     });
 
     describe("toCollection", () => {
-        it("should return transformed data", async () => {
+        it("should return raw data", async () => {
             let data = [
                 {
                     id: "17184958558311101492",
@@ -67,6 +67,29 @@ describe("Controller", () => {
             ];
 
             expect(controller.runToCollection(data, BlockResource, false)).toStrictEqual(data);
+        });
+
+        it("should return transformed data", async () => {
+            let data = [
+                {
+                    id: "17184958558311101492",
+                    version: 2,
+                    height: 2,
+                    timestamp: 2,
+                    reward: Utils.BigNumber.make("100"),
+                    totalFee: Utils.BigNumber.make("200"),
+                    totalAmount: Utils.BigNumber.make("300"),
+                    generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0])
+                }
+            ];
+
+            expect(controller.runToCollection(data, BlockResource, true)[0]).toEqual(expect.objectContaining(
+                {
+                    height: 2,
+                    id: "17184958558311101492",
+                    version: 2
+                }
+            ));
         });
     });
 });
