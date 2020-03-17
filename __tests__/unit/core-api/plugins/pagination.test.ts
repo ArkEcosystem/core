@@ -106,6 +106,25 @@ describe("Pagination", () => {
         ));
     });
 
+    it("should return paginated payload with previous url", async () => {
+        let server = await initServer(app, defaults, customRoute);
+
+        injectOptions.url = '/api/transactions?page=2';
+
+        customResponse.totalCount = 5;
+
+        const response = await server.inject(injectOptions);
+        const payload = JSON.parse(response.payload || {});
+        expect(payload.meta).toEqual(expect.objectContaining(
+            {
+                count: 3,
+                pageCount: 1,
+                totalCount: 5
+            }
+        ));
+        expect(payload.meta.previous).toBeDefined();
+    });
+
     it("should return paginated payload with response object", async () => {
         let server = await initServer(app, defaults, customRoute);
 
