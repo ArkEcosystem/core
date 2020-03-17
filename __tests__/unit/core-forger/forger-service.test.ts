@@ -14,6 +14,7 @@ const logger = {
     error: jest.fn(),
     debug: jest.fn(),
     info: jest.fn(),
+    warning: jest.fn(),
 };
 
 const calculateActiveDelegates = () => {
@@ -172,6 +173,43 @@ describe("ForgerService", () => {
             await expect(forgerService.boot(delegates)).toResolve();
 
             expect(logger.info).toHaveBeenCalledWith(expectedInactiveDelegatesMessage);
+        });
+
+        it("should catch and log errors", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+
+            corep2p.socketEmit = jest.fn().mockRejectedValue({});
+
+            forgerService.register({ hosts: [mockHost] });
+            await expect(forgerService.boot(delegates)).toResolve();
+
+            expect(logger.warning).toHaveBeenCalledWith(`Waiting for a responsive host`);
+        });
+
+        it("should set correct timeout to check slots", async () => {
+            const timeout = 500;
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(timeout);
+
+            const delegates = calculateActiveDelegates();
+
+            const round = { data: { delegates } };
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            jest.useFakeTimers();
+
+            forgerService.register({ hosts: [mockHost] });
+            await expect(forgerService.boot(delegates)).toResolve();
+
+            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), timeout);
         });
     });
 });
