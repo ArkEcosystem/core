@@ -4,7 +4,7 @@ import Hapi from "@hapi/hapi";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { initApp, ItemResponse } from "../__support__";
 import { NodeController } from "@packages/core-api/src/controllers/node";
-import { BlockchainMocks, TransactionRepositoryMocks } from "../mocks";
+import { BlockchainMocks, NetworkMonitorMocks, TransactionRepositoryMocks } from "../mocks";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Interfaces, Managers, Transactions } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -51,6 +51,7 @@ describe("NodeController", () => {
             data: mockBlockData as Interfaces.IBlockData
         };
 
+        NetworkMonitorMocks.setNetworkHeight(5);
         BlockchainMocks.setMockBlock(mockBlock);
     });
 

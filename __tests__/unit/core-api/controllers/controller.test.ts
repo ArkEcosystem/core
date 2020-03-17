@@ -13,11 +13,11 @@ import passphrases from "@packages/core-test-framework/src/internal/passphrases.
 
 class TestController extends Controller {
     public runRespondWithResource (data: any, transformer: any): any {
-        return this.respondWithResource(data, transformer)
+        return super.respondWithResource(data, transformer)
     }
 
     public runToCollection (data: any, transformer: any, transform: boolean): any {
-        return this.toCollection(data, transformer, transform)
+        return super.toCollection(data, transformer, transform)
     }
 }
 
