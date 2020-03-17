@@ -400,5 +400,46 @@ describe("ForgerService", () => {
 
             expect(logger.warning).not.toHaveBeenCalled();
         });
+
+        it("should allow forging if quorum is met, not log warning if overheight delegate is not the same", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const round = { data: { delegates } };
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            forgerService.register({ hosts: [mockHost] });
+            await forgerService.boot(delegates);
+
+            const overHeightBlockHeaders: Array<{
+                [id: string]: any;
+            }> = [
+                {
+                    generatorPublicKey: delegates[0].publicKey,
+                    id: 1,
+                },
+            ];
+
+            const mockNetworkState = {
+                status: NetworkStateStatus.Default,
+                getOverHeightBlockHeaders: () => overHeightBlockHeaders,
+                getQuorum: () => 0.7,
+                toJson: () => "test json",
+            };
+
+            expect(
+                // @ts-ignore
+                forgerService.isForgingAllowed(mockNetworkState, delegates[1]),
+            ).toEqual(true);
+
+            expect(logger.debug).not.toHaveBeenCalled();
+
+            expect(logger.warning).not.toHaveBeenCalled();
+        });
     });
 });
