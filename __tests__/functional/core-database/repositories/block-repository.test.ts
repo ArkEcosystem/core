@@ -177,7 +177,7 @@ describe("BlockRepository.getDelegatesForgedBlocks", () => {
 });
 
 describe("BlockRepository.getLastForgedBlocks", () => {
-    it("it should return last forged block for each generator key", async () => {
+    it("should return last forged block for each generator key", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
         const lastForgedBlocks = await blockRepository.getLastForgedBlocks();
@@ -195,5 +195,49 @@ describe("BlockRepository.getLastForgedBlocks", () => {
                 height: 1,
             },
         ]);
+    });
+});
+
+describe("BlockRepository.saveBlocks", () => {
+    it("should save blocks", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const block1ById = await blockRepository.findById(block1.data.id);
+        const block2ById = await blockRepository.findById(block2.data.id);
+        const block3ById = await blockRepository.findById(block3.data.id);
+        expect(block1ById).toStrictEqual(toBlockModel(block1));
+        expect(block2ById).toStrictEqual(toBlockModel(block2));
+        expect(block3ById).toStrictEqual(toBlockModel(block3));
+    });
+});
+
+describe("BlockRepository.deleteBlocks", () => {
+    it("should delete blocks", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        await blockRepository.deleteBlocks([block2.data, block3.data]);
+        const block1ById = await blockRepository.findById(block1.data.id);
+        const block2ById = await blockRepository.findById(block2.data.id);
+        const block3ById = await blockRepository.findById(block3.data.id);
+        expect(block1ById).toStrictEqual(toBlockModel(block1));
+        expect(block2ById).toBeUndefined();
+        expect(block3ById).toBeUndefined();
+    });
+
+    it("should throw when deleting blocks from the middle", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const promise = blockRepository.deleteBlocks([block2.data]);
+        await expect(promise).rejects.toThrow("Removing blocks from the middle");
+    });
+});
+
+describe("BlockRepository.search", () => {
+    it("should find saved block", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const searchResults = await blockRepository.searchByQuery({ height: 2 }, { offset: 0, limit: 100 });
+        expect(searchResults.count).toBe(1);
+        expect(searchResults.rows[0]).toStrictEqual(toBlockModel(block2));
     });
 });
