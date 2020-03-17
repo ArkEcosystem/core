@@ -3,6 +3,7 @@ import "jest-extended";
 import { Client } from "@packages/core-forger/src/client";
 import { ForgerService } from "@packages/core-forger/src/forger-service";
 import { Application, Container, Utils } from "@packages/core-kernel";
+import { NetworkStateStatus } from "@packages/core-p2p";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Crypto, Identities } from "@packages/crypto";
 import { Address } from "@packages/crypto/src/identities";
@@ -254,6 +255,38 @@ describe("ForgerService", () => {
                 `Received ${Utils.pluralize("transaction", 1, true)} ` +
                 `from the pool containing ${Utils.pluralize("transaction", mockTransaction.poolSize, true)} total`;
             expect(logger.debug).toHaveBeenCalledWith(expectedLogInfo);
+        });
+    });
+
+    describe("isForgingAllowed", () => {
+        it("should not allow forging when network status is unknown", async () => {
+            const delegates = calculateActiveDelegates();
+
+            expect(
+                // @ts-ignore
+                forgerService.isForgingAllowed({ status: NetworkStateStatus.Unknown }, delegates[0]),
+            ).toEqual(false);
+            expect(logger.info).toHaveBeenCalledWith("Failed to get network state from client. Will not forge.");
+        });
+
+        it("should not allow forging when network status is a cold start", async () => {
+            const delegates = calculateActiveDelegates();
+
+            expect(
+                // @ts-ignore
+                forgerService.isForgingAllowed({ status: NetworkStateStatus.ColdStart }, delegates[0]),
+            ).toEqual(false);
+            expect(logger.info).toHaveBeenCalledWith("Skipping slot because of cold start. Will not forge.");
+        });
+
+        it("should not allow forging when network status is below minimum peers", async () => {
+            const delegates = calculateActiveDelegates();
+
+            expect(
+                // @ts-ignore
+                forgerService.isForgingAllowed({ status: NetworkStateStatus.BelowMinimumPeers }, delegates[0]),
+            ).toEqual(false);
+            expect(logger.info).toHaveBeenCalledWith("Network reach is not sufficient to get quorum. Will not forge.");
         });
     });
 });
