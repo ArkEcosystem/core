@@ -65,10 +65,37 @@ describe("NodeController", () => {
                 }
             ));
         });
+
+
+        it("should return node status when last block is undefined", async () => {
+            BlockchainMocks.setMockBlock(null);
+            let response = <ItemResponse>(await controller.status(undefined, undefined));
+
+            expect(response.data).toEqual(expect.objectContaining(
+                {
+                    synced: true,
+                    now: 0,
+                    blocksCount: 0
+                }
+            ));
+        });
     });
 
     describe("syncing", () => {
         it("should return syncing status", async () => {
+            BlockchainMocks.setMockBlock(null);
+            let response = <ItemResponse>(await controller.syncing(undefined, undefined));
+
+            expect(response.data).toEqual(expect.objectContaining(
+                {
+                    syncing: false,
+                    height: 0,
+                    id: undefined,
+                }
+            ));
+        });
+
+        it("should return syncing status when last block is undefined", async () => {
             let response = <ItemResponse>(await controller.syncing(undefined, undefined));
 
             expect(response.data).toEqual(expect.objectContaining(
@@ -88,6 +115,29 @@ describe("NodeController", () => {
             app
                 .get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration)
                 .set("dynamicFees", { enabled: true });
+
+            let response = <any>(await controller.configuration(undefined, undefined));
+
+            expect(response.data.core).toBeDefined();
+            expect(response.data.nethash).toBeDefined();
+            expect(response.data.slip44).toBeDefined();
+            expect(response.data.wif).toBeDefined();
+            expect(response.data.token).toBeDefined();
+            expect(response.data.symbol).toBeDefined();
+            expect(response.data.explorer).toBeDefined();
+            expect(response.data.version).toBeDefined();
+            expect(response.data.ports).toBeDefined();
+            expect(response.data.constants).toBeDefined();
+            expect(response.data.transactionPool).toBeDefined();
+            expect(response.data.transactionPool.dynamicFees).toBeDefined();
+        });
+
+        it("should return node configuration when dynamicFees are not enabled", async () => {
+            app.bind(Identifiers.ApplicationVersion).toConstantValue("3.0.0");
+
+            app
+                .get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration)
+                .set("dynamicFees", { enabled: false });
 
             let response = <any>(await controller.configuration(undefined, undefined));
 

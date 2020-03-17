@@ -39,6 +39,14 @@ export type ItemResponse = {
     data: object
 }
 
+export const parseObjectWithBigInt = (item) => {
+    return JSON.parse(JSON.stringify(item, (key, value) =>
+        typeof value === 'bigint'
+            ? value.toString()
+            : value
+    ));
+};
+
 export const buildSenderWallet = (app: Application, passphrase: string | null = null): Contracts.State.Wallet => {
     let walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 

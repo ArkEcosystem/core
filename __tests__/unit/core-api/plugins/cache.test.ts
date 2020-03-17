@@ -83,6 +83,16 @@ describe("Cache", () => {
         expect(payload.data).toBe("ok");
     });
 
+    it("shod resolve if cache is enabled and request contains query", async () => {
+        let server = await initServer(app, defaults, customRoute);
+
+        injectOptions.url = '/test?test="test"';
+
+        const response = await server.inject(injectOptions);
+        const payload = JSON.parse(response.payload || {});
+        expect(payload.data).toBe("ok");
+    });
+
     it("should cache respone if cache is enabled", async () => {
         let server = await initServer(app, defaults, customRoute);
 
