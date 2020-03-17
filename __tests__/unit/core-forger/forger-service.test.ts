@@ -133,5 +133,32 @@ describe("ForgerService", () => {
             expect(logger.info).toHaveBeenCalledTimes(1);
             expect(logger.info).toHaveBeenCalledWith(`Forger Manager started.`);
         });
+
+        it("should log inactive delegates correctly", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+            const numberActive = 10;
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+            const round = { data: { delegates: delegates.slice(0, numberActive) } };
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            const expectedInactiveDelegatesMessage = `Loaded ${Utils.pluralize(
+                "inactive delegate",
+                delegates.length - numberActive,
+                true,
+            )}: ${delegates
+                .slice(numberActive)
+                .map(delegate => delegate.publicKey)
+                .join(", ")}`;
+
+            forgerService.register({ hosts: [mockHost] });
+            await expect(forgerService.boot(delegates)).toResolve();
+
+            expect(logger.info).toHaveBeenCalledWith(expectedInactiveDelegatesMessage);
+        });
     });
 });
