@@ -76,6 +76,19 @@ describe("ForgerService", () => {
         });
     });
 
+    describe("Dispose", () => {
+        it("should dispose of an associated client", async () => {
+            forgerService.register({ hosts: [mockHost] });
+            const spyDisposeClient = jest.spyOn((forgerService as any).client, "dispose");
+            // @ts-ignore
+            expect(forgerService.isStopped).toEqual(false);
+            forgerService.dispose();
+            expect(spyDisposeClient).toHaveBeenCalled();
+            // @ts-ignore
+            expect(forgerService.isStopped).toEqual(true);
+        });
+    });
+
     describe("Boot", () => {
         it("should set delegates and log active delegates info message", async () => {
             const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
