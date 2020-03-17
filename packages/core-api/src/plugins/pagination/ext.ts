@@ -118,7 +118,7 @@ export class Ext {
                 ...(source.meta || {}),
                 ...{
                     count: results.length,
-                    pageCount: pageCount || 1,
+                    pageCount: pageCount,
                     totalCount: totalCount ? totalCount : 0,
 
                     // tslint:disable-next-line: no-null-keyword
