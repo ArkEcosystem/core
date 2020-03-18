@@ -56,7 +56,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     bridgechain-resignation:
         runs-on: ubuntu-latest
@@ -105,7 +105,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     bridgechain-update:
         runs-on: ubuntu-latest
@@ -154,7 +154,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     business-registration:
         runs-on: ubuntu-latest
@@ -203,7 +203,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     business-resignation:
         runs-on: ubuntu-latest
@@ -252,7 +252,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     business-update:
         runs-on: ubuntu-latest
@@ -301,7 +301,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     delegate-registration:
         runs-on: ubuntu-latest
@@ -350,7 +350,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     delegate-resignation:
         runs-on: ubuntu-latest
@@ -399,7 +399,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     htlc-claim:
         runs-on: ubuntu-latest
@@ -448,7 +448,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     htlc-lock:
         runs-on: ubuntu-latest
@@ -497,7 +497,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     htlc-refund:
         runs-on: ubuntu-latest
@@ -546,7 +546,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     ipfs:
         runs-on: ubuntu-latest
@@ -595,7 +595,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     multi-payment:
         runs-on: ubuntu-latest
@@ -644,7 +644,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     multi-signature-registration:
         runs-on: ubuntu-latest
@@ -693,7 +693,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     second-signature-registration:
         runs-on: ubuntu-latest
@@ -742,7 +742,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     transfer:
         runs-on: ubuntu-latest
@@ -791,7 +791,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     vote:
         runs-on: ubuntu-latest
@@ -840,7 +840,7 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
 
     pool:
         runs-on: ubuntu-latest
@@ -889,4 +889,4 @@ jobs:
                   POSTGRES_USER: ark
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
-                  CORE_API_RATE_LIMIT_USER_LIMIT: 200
+                  CORE_API_RATE_LIMIT_USER_LIMIT: 300
