@@ -137,10 +137,24 @@ describe("TransactionRepository.getSentTransactions", () => {
             t => t.senderPublicKey === Identities.PublicKey.fromPassphrase("sender's secret"),
         );
         expect(senderTransaction).toStrictEqual({
-            senderPublicKey: Identities.PublicKey.fromPassphrase("sender's secret"),
+            senderPublicKey: transaction1.data.senderPublicKey,
             nonce: "3",
             amount: "300",
             fee: "600",
+        });
+    });
+});
+
+describe("TransactionRepository.findReceivedTransactions", () => {
+    it("should return transfer amount grouped by recipient", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const receivedTransactions = await transactionRepository.findReceivedTransactions();
+        const recipientTransaction = receivedTransactions.find(t => t.recipientId === transaction1.data.recipientId);
+        expect(recipientTransaction).toStrictEqual({
+            recipientId: transaction1.data.recipientId,
+            amount: "300",
         });
     });
 });
