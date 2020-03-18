@@ -15,19 +15,36 @@ import {
     truthy,
 } from "@packages/core-webhooks/src/conditions";
 
+// TODO: Add test for decimal comparison
+
 // TODO: fix bignumber decimal comparison
-describe.skip("Conditions - between", () => {
+describe("Conditions - between", () => {
+    // it("should be true", () => {
+    //     expect(
+    //         between(1.5, {
+    //             min: 1,
+    //             max: 2,
+    //         }),
+    //     ).toBeTrue();
+    //     expect(
+    //         between("1.5", {
+    //             min: "1",
+    //             max: "2",
+    //         }),
+    //     ).toBeTrue();
+    // });
+
     it("should be true", () => {
         expect(
-            between(1.5, {
+            between(2, {
                 min: 1,
-                max: 2,
+                max: 3,
             }),
         ).toBeTrue();
         expect(
-            between("1.5", {
+            between("2", {
                 min: "1",
-                max: "2",
+                max: "3",
             }),
         ).toBeTrue();
     });
@@ -174,7 +191,7 @@ describe("Conditions - not equal", () => {
     });
 });
 
-describe.skip("Conditions - not-between", () => {
+describe("Conditions - not-between", () => {
     it("should be true", () => {
         expect(
             notBetween(3, {
@@ -192,15 +209,15 @@ describe.skip("Conditions - not-between", () => {
 
     it("should be false", () => {
         expect(
-            notBetween(1.5, {
+            notBetween(2, {
                 min: 1,
-                max: 2,
+                max: 3,
             }),
         ).toBeFalse();
         expect(
-            notBetween("1.5", {
+            notBetween("2", {
                 min: "1",
-                max: "2",
+                max: "3",
             }),
         ).toBeFalse();
     });
