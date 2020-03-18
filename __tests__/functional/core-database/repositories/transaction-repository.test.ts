@@ -150,3 +150,24 @@ describe("TransactionRepository.findReceivedTransactions", () => {
         });
     });
 });
+
+describe("TransactionRepository.findByType", () => {
+    it("should find transactions by type", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const transferTransactions = await transactionRepository.findByType(
+            Enums.TransactionType.Transfer,
+            Enums.TransactionTypeGroup.Core,
+        );
+        const foundTransaction1 = transferTransactions.find(t => t.id === transaction1.id);
+        const foundTransaction2 = transferTransactions.find(t => t.id === transaction2.id);
+        const foundTransaction3 = transferTransactions.find(t => t.id === transaction3.id);
+        expect(foundTransaction1).not.toBeUndefined();
+        expect(foundTransaction2).not.toBeUndefined();
+        expect(foundTransaction3).not.toBeUndefined();
+        expect(foundTransaction1["blockHeight"]).toBe(2);
+        expect(foundTransaction2["blockHeight"]).toBe(3);
+        expect(foundTransaction3["blockHeight"]).toBe(3);
+    });
+});
