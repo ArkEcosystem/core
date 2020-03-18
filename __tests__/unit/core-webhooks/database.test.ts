@@ -52,6 +52,10 @@ describe("Database", () => {
         expect(database.findById(webhook.id)).toEqual(webhook);
     });
 
+    it("should return undefined if webhook not found", () => {
+        expect(database.findById(dummyWebhook.id)).toEqual(undefined);
+    });
+
     it("should find webhooks by their event", () => {
         const webhook: Webhook = database.create(dummyWebhook);
 

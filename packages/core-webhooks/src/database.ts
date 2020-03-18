@@ -64,14 +64,10 @@ export class Database {
      * @memberof Database
      */
     public findById(id: string): Webhook | undefined {
-        try {
-            return this.database
-                .get("webhooks")
-                .find({ id })
-                .value();
-        } catch (error) {
-            return undefined;
-        }
+        return this.database
+            .get("webhooks")
+            .find({ id })
+            .value();
     }
 
     /**
