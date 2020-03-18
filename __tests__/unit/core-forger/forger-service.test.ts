@@ -728,7 +728,7 @@ describe("ForgerService", () => {
         });
     });
 
-    describe.only("checkSlot", () => {
+    describe("checkSlot", () => {
         it("should do nothing when the forging service is stopped", async () => {
             forgerService.register({ hosts: [mockHost] });
 
