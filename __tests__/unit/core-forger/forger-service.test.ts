@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { Client } from "@packages/core-forger/src/client";
 import { ForgerService } from "@packages/core-forger/src/forger-service";
+import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { Application, Container, Utils } from "@packages/core-kernel";
 import { NetworkStateStatus } from "@packages/core-p2p";
 import { Wallet } from "@packages/core-state/src/wallets";
@@ -440,6 +441,67 @@ describe("ForgerService", () => {
             expect(logger.debug).not.toHaveBeenCalled();
 
             expect(logger.warning).not.toHaveBeenCalled();
+        });
+    });
+
+    describe("ForgeNewBlock", () => {
+        it("should fail to forge when delegate is already in next slot", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const round = { data: { delegates } };
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            const recipientAddress = Address.fromPassphrase("recipient's secret");
+            const transaction = BuilderFactory.transfer()
+                .version(1)
+                .amount("100")
+                .recipientId(recipientAddress)
+                .sign("sender's secret")
+                .build();
+
+            const mockTransaction = {
+                transactions: [transaction.serialized.toString("hex")],
+                poolSize: 10,
+                count: 10,
+            };
+
+            forgerService.register({ hosts: [mockHost] });
+
+            // @ts-ignore
+            const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
+            // @ts-ignore
+            spyGetTransactions.mockResolvedValue(mockTransaction);
+
+            const mockNetworkState = {
+                nodeHeight: 10,
+                lastBlockId: "11111111",
+            };
+
+            const mockRound = {
+                timestamp: 0,
+                reward: 0,
+            };
+
+            await forgerService.boot(delegates);
+
+            const address = `Delegate-Wallet-${2}`;
+
+            const nextDelegateToForge: BIP39 = new BIP39(address);
+
+            // @ts-ignore
+            await expect(forgerService.forgeNewBlock(nextDelegateToForge, mockRound, mockNetworkState)).toResolve();
+
+            const prettyName = `Username: ${address} (${nextDelegateToForge.publicKey})`;
+
+            const failedForgeMessage = `Failed to forge new block by delegate ${prettyName}, because already in next slot.`;
+
+            expect(logger.warning).toHaveBeenCalledWith(failedForgeMessage);
         });
     });
 });
