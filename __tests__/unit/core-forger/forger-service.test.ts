@@ -930,5 +930,140 @@ describe("ForgerService", () => {
             const loggerWarningMessage = `The NetworkState height (${mockNetworkState.nodeHeight}) and round height (${round.data.lastBlock.height}) are out of sync. This indicates delayed blocks on the network.`;
             expect(logger.warning).toHaveBeenCalledWith(loggerWarningMessage);
         });
+
+        it("should not log warning message when nodeHeight does not equal last block height", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const address = `Delegate-Wallet-${delegates.length - 2}`;
+
+            const nextDelegateToForge: BIP39 = new BIP39(address);
+            delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+            const round = {
+                data: {
+                    delegates,
+                    canForge: true,
+                    currentForger: {
+                        publicKey: delegates[delegates.length - 2].publicKey,
+                    },
+                    nextForger: { publicKey: delegates[delegates.length - 3].publicKey },
+                    lastBlock: {
+                        height: 10,
+                    },
+                    timestamp: 0,
+                    reward: 0,
+                },
+            };
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            forgerService.register({ hosts: [mockHost] });
+
+            // @ts-ignore
+            const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
+            // @ts-ignore
+            spyGetTransactions.mockResolvedValue([]);
+
+            const spyForgeNewBlock = jest.spyOn(forgerService, "forgeNewBlock");
+
+            const mockNetworkState = {
+                status: NetworkStateStatus.Default,
+                getOverHeightBlockHeaders: () => [],
+                getQuorum: () => 0.7,
+                toJson: () => "test json",
+                nodeHeight: 10,
+                lastBlockId: "11111111",
+            };
+
+            // @ts-ignore
+            const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
+            // @ts-ignore
+            spyGetNetworkState.mockResolvedValue(mockNetworkState);
+
+            await expect(forgerService.boot(delegates)).toResolve();
+
+            jest.useFakeTimers();
+            // @ts-ignore
+            await expect(forgerService.checkSlot()).toResolve();
+
+            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 0);
+
+            expect(spyForgeNewBlock).toHaveBeenCalledWith(
+                delegates[delegates.length - 2],
+                round.data,
+                mockNetworkState,
+            );
+
+            const loggerWarningMessage = `The NetworkState height (${mockNetworkState.nodeHeight}) and round height (${round.data.lastBlock.height}) are out of sync. This indicates delayed blocks on the network.`;
+            expect(logger.warning).not.toHaveBeenCalledWith(loggerWarningMessage);
+        });
+
+        it("should not allow forging when blocked by network status", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const address = `Delegate-Wallet-${delegates.length - 2}`;
+
+            const nextDelegateToForge: BIP39 = new BIP39(address);
+            delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+            const round = {
+                data: {
+                    delegates,
+                    canForge: true,
+                    currentForger: {
+                        publicKey: delegates[delegates.length - 2].publicKey,
+                    },
+                    nextForger: { publicKey: delegates[delegates.length - 3].publicKey },
+                    lastBlock: {
+                        height: 10,
+                    },
+                    timestamp: 0,
+                    reward: 0,
+                },
+            };
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            forgerService.register({ hosts: [mockHost] });
+
+            // @ts-ignore
+            const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
+            // @ts-ignore
+            spyGetTransactions.mockResolvedValue([]);
+
+            const spyForgeNewBlock = jest.spyOn(forgerService, "forgeNewBlock");
+
+            const mockNetworkState = {
+                status: NetworkStateStatus.Unknown,
+                getOverHeightBlockHeaders: () => [],
+                getQuorum: () => 0.7,
+                toJson: () => "test json",
+                nodeHeight: 10,
+                lastBlockId: "11111111",
+            };
+
+            // @ts-ignore
+            const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
+            // @ts-ignore
+            spyGetNetworkState.mockResolvedValue(mockNetworkState);
+
+            await expect(forgerService.boot(delegates)).toResolve();
+
+            jest.useFakeTimers();
+            // @ts-ignore
+            await expect(forgerService.checkSlot()).toResolve();
+
+            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 0);
+
+            expect(spyForgeNewBlock).not.toHaveBeenCalled();
+        });
     });
 });
