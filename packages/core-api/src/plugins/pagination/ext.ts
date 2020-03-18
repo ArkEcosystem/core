@@ -52,7 +52,7 @@ export class Ext {
         const { method, path } = request.route;
 
         return (
-            this.routes.find(route => route.method === method && path === `${this.routePathPrefix}${route.path}`) !==
+            this.routes.find(route => route.method === method && `${this.routePathPrefix}${route.path}` === path) !==
             undefined
         );
     }
@@ -118,7 +118,7 @@ export class Ext {
                 ...(source.meta || {}),
                 ...{
                     count: results.length,
-                    pageCount: pageCount || 1,
+                    pageCount: pageCount,
                     totalCount: totalCount ? totalCount : 0,
 
                     // tslint:disable-next-line: no-null-keyword

@@ -8,9 +8,6 @@ export const preparePlugins = config => [
             whitelist: config.whitelist,
         },
     },
-    {
-        plugin: require("./set-headers"),
-    },
     { plugin: hapiAjv },
     {
         plugin: require("./cache"),

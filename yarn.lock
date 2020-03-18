@@ -10549,15 +10549,10 @@ randomstring@~1.1.5:
   dependencies:
     array-uniq "1.0.2"
 
-rate-limiter-flexible@^1.1.0:
+rate-limiter-flexible@^1.1.0, rate-limiter-flexible@^1.1.6:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/rate-limiter-flexible/-/rate-limiter-flexible-1.3.2.tgz#2e2e8730f76bc3c349e9941d1826d40603bcca55"
   integrity sha512-f+xNvGn+52G4nZVok9VB3LTE1kfDmqbnWKRayX5n2k/LEQ7doWrYvzmzFVh7ltmLgwEdEzoYwxGaXlfCjFg4Ag==
-
-rate-limiter-flexible@^1.1.6:
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/rate-limiter-flexible/-/rate-limiter-flexible-1.1.6.tgz#b3620ba1b4d61f34b8a982546600a7a776924c40"
-  integrity sha512-fVjTbMcXlBqbCfYyfmEqzyj5niHVyPl5b4OtWcnaM3M8layKz5K6ooILqeDA8AljKgvH2bv7rmcO/qZqffU6gw==
 
 rc-config-loader@^3.0.0:
   version "3.0.0"

@@ -8,7 +8,7 @@ const generateCacheKey = (request: Hapi.Request): string =>
             pathname: request.url.pathname,
             params: request.params || {},
             payload: request.payload || {},
-            query: request.query || {},
+            query: request.query,
         }),
     ).toString("hex");
 
