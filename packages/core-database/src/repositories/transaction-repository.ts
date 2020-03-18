@@ -147,26 +147,6 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
         }) as any;
     }
 
-    public async findByIdAndType(type: number, id: string): Promise<Transaction | undefined> {
-        return this.findOne({
-            select: [
-                "senderPublicKey",
-                "timestamp",
-                "asset",
-                "version",
-                "id",
-                "fee",
-                "amount",
-                "recipientId",
-                "serialized",
-            ],
-            where: {
-                id,
-                type,
-            },
-        });
-    }
-
     public async findByHtlcLocks(lockIds: string[]): Promise<Transaction[]> {
         return this.createQueryBuilder()
             .select()

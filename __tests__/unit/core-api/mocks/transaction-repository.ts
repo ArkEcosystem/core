@@ -1,7 +1,4 @@
-import {
-    RepositorySearchResult,
-    TransactionRepository,
-} from "@packages/core-database/src/repositories";
+import { RepositorySearchResult, TransactionRepository } from "@packages/core-database/src/repositories";
 import { Transaction } from "@packages/core-database/src/models";
 
 export type FeeStatistics = {
@@ -35,25 +32,22 @@ export const transactionRepository: Partial<TransactionRepository> = {
             rows: mockTransactions as Transaction[],
             count: mockTransactions.length,
             countIsEstimate: false,
-        }
+        };
     },
     searchByQuery: async (query: any, pagination: any): Promise<RepositorySearchResult<Transaction>> => {
         return {
             rows: mockTransactions as Transaction[],
             count: mockTransactions.length,
             countIsEstimate: false,
-        }
+        };
     },
     findByHtlcLocks: async (lockIds: any): Promise<Transaction[]> => {
-        return mockTransactions as Transaction[]
-    },
-    findByIdAndType: async (type: any, id: any): Promise<Transaction | undefined> => {
-        return mockTransaction ? mockTransaction as Transaction : undefined
+        return mockTransactions as Transaction[];
     },
     findById: async (id: any): Promise<Transaction> => {
         return mockTransaction as Transaction;
     },
     getFeeStatistics: async (days: any, minFee?: any): Promise<FeeStatistics[]> => {
         return mockFeeStatistics;
-    }
+    },
 };

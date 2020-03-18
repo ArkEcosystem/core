@@ -22,12 +22,15 @@ export class VotesController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction: Models.Transaction | undefined = await this.transactionRepository.findByIdAndType(
-            Enums.TransactionType.Vote,
+        const transaction: Models.Transaction | undefined = await this.transactionRepository.findById(
             request.params.id,
         );
 
-        if (!transaction) {
+        if (
+            !transaction ||
+            transaction.type !== Enums.TransactionType.Vote ||
+            transaction.typeGroup !== Enums.TransactionTypeGroup.Core
+        ) {
             return Boom.notFound("Vote not found");
         }
 
