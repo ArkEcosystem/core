@@ -30,9 +30,6 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     }
 
     public async getForgedTransactionsIds(ids: string[]): Promise<string[]> {
-        if (!ids.length) {
-            return [];
-        }
         const transactions = await this.find({
             select: ["id"],
             where: {
