@@ -43,6 +43,7 @@ export class Controller {
             : this.app.resolve<Resource>(transformer).raw(data);
     }
 
+    /* istanbul ignore next */
     protected toCollection(data, transformer, transform = true): object {
         return data.map(item => this.toResource(item, transformer, transform));
     }

@@ -36,7 +36,7 @@ export class NodeController extends Controller {
             data: {
                 synced: this.blockchain.isSynced(),
                 now: lastBlock ? lastBlock.data.height : 0,
-                blocksCount: networkHeight - lastBlock.data.height || 0,
+                blocksCount: networkHeight && lastBlock ? networkHeight - lastBlock.data.height : 0,
                 timestamp: Crypto.Slots.getTime(),
             },
         };
@@ -49,9 +49,9 @@ export class NodeController extends Controller {
         return {
             data: {
                 syncing: !this.blockchain.isSynced(),
-                blocks: networkHeight - lastBlock.data.height || 0,
-                height: lastBlock.data.height,
-                id: lastBlock.data.id,
+                blocks: networkHeight && lastBlock ? networkHeight - lastBlock.data.height : 0,
+                height: lastBlock ? lastBlock.data.height : 0,
+                id: lastBlock?.data?.id,
             },
         };
     }
