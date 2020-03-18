@@ -2,12 +2,9 @@ import "jest-extended";
 
 import { Enums } from "@packages/core-kernel/src";
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
-import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
-import { Database } from "@packages/core-webhooks/src/database";
-import { Identifiers as WebhookIdentifiers } from "@packages/core-webhooks/src/identifiers";
 import { Server } from "@packages/core-webhooks/src/server";
-import { dirSync, setGracefulCleanup } from "tmp";
+import { setGracefulCleanup } from "tmp";
+import { initApp, initServer, request } from "./__support__";
 
 const postData = {
     event: Enums.BlockEvent.Forged,
@@ -27,46 +24,18 @@ const postData = {
     ],
 };
 
-const request = async (server: Server, method, path, payload = {}) => {
-    const response = await server.inject({ method, url: `http://localhost:4004/api/${path}`, payload });
-
-    return { body: response.result as any, status: response.statusCode };
-};
-
 const createWebhook = (server, data?: any) => request(server, "POST", "webhooks", data || postData);
 
 let server: Server;
+let serverOptions = {
+    host: "0.0.0.0",
+    port: 4004,
+};
 
 beforeEach(async () => {
-    const app: Application = new Application(new Container());
+    const app: Application = initApp();
 
-    app.bind(Identifiers.EventDispatcherService)
-        .to(MemoryEventDispatcher)
-        .inSingletonScope();
-
-    app.bind(Identifiers.LogService).toConstantValue({ info: jest.fn(), notice: jest.fn(), debug: jest.fn() });
-
-    app.bind("path.cache").toConstantValue(dirSync().name);
-
-    app.bind<Database>(WebhookIdentifiers.Database)
-        .to(Database)
-        .inSingletonScope();
-
-    app.get<Database>(WebhookIdentifiers.Database).boot();
-
-    // Setup Server...
-    app.bind(WebhookIdentifiers.Server)
-        .to(Server)
-        .inSingletonScope();
-
-    server = app.get<Server>(WebhookIdentifiers.Server);
-
-    server.register({
-        host: "0.0.0.0",
-        port: 4004,
-    });
-
-    await server.boot();
+    server = await initServer(app, serverOptions);
 });
 
 afterEach(async () => server.dispose());
