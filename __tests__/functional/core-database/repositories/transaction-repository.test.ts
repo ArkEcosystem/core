@@ -1,4 +1,4 @@
-import { Blocks, Enums, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Enums, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { Connection } from "typeorm";
 import { getCustomRepository } from "typeorm";
 
@@ -45,12 +45,12 @@ const transaction3 = Transactions.BuilderFactory.transfer()
 const bip39 = new BIP39("generator's secret");
 const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"));
 const block2 = bip39.forge([transaction1.data], {
-    timestamp: block1.data.timestamp + 60,
+    timestamp: Crypto.Slots.getTime() - 60,
     previousBlock: block1.data,
     reward: new Utils.BigNumber("100"),
 });
 const block3 = bip39.forge([transaction2.data, transaction3.data], {
-    timestamp: block2.data.timestamp + 120,
+    timestamp: Crypto.Slots.getTime() - 30,
     previousBlock: block2.data,
     reward: new Utils.BigNumber("100"),
 });
@@ -105,22 +105,14 @@ describe("TransactionRepository.getFeeStatistics", () => {
         const blockRepository = getCustomRepository(BlockRepository);
         const transactionRepository = getCustomRepository(TransactionRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
-        const feeStatistics = await transactionRepository.getFeeStatistics(365 * 25, 0);
+        const feeStatistics = await transactionRepository.getFeeStatistics(14, 0);
         expect(feeStatistics).toStrictEqual([
             {
                 typeGroup: Enums.TransactionTypeGroup.Core,
-                type: Enums.TransactionType.DelegateRegistration,
-                avg: "0",
-                max: "0",
-                min: "0",
-                sum: "0",
-            },
-            {
-                typeGroup: Enums.TransactionTypeGroup.Core,
                 type: Enums.TransactionType.Transfer,
-                avg: "150",
+                avg: "200",
                 max: "300",
-                min: "0",
+                min: "100",
                 sum: "600",
             },
         ]);
