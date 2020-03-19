@@ -7,46 +7,57 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.30] - 2020-03-19
+
+### Changed
+
+-   Optimize database adding indexes ([#3605])
+-   Restrict some api sorting and filtering parameters that are not needed ([#3605])
+
+## [2.6.29] - 2020-03-13
+
+Re-release for NPM.
+
 ## [2.6.28] - 2020-03-13
 
-## Changed
+### Changed
 
 -   Reset missedBlocks before await call ([#3598])
 
 ## [2.6.27] - 2020-03-12
 
-## Fixed
+### Fixed
 
 -   Always apply to sender wallet on `acceptChainedBlock` ([#3594])
 -   Block incomplete sockets ([#3596])
 
 ## [2.6.25] - 2020-03-09
 
-## Fixed
+### Fixed
 
 Fix block apply issue where in some cases transaction could be applied twice to recipient in transaction pool ([#3590])
 
 ## [2.6.24] - 2020-03-04
 
-## Fixed
+### Fixed
 
 -   add missing transactions.type_group index ([#3573])
 
-## Changed
+### Changed
 
 -   update xstate to v4.8.0 ([#3575])
 -   use application events from core-event-emitter ([#3574])
 
 ## [2.6.21] - 2020-03-04
 
-## Fixed
+### Fixed
 
 -   Set height 1 on config manager for processing genesis block (blockchain replay) ([#3561])
 -   Handle multiple installations of jemalloc ([#3562])
 -   jemalloc compatibility for ubuntu 16.04 ([#3567])
 -   Always call applyToRecipient ([#3570])
 
-## Changed
+### Changed
 
 -   Allow multiple ports in bridgechain schema ([#3504])
 -   Allow to resign business only when bridgechains are resigned ([#3524])
@@ -928,6 +939,8 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.6.30]: https://github.com/ARKEcosystem/core/compare/2.6.29...2.6.30
+[2.6.29]: https://github.com/ARKEcosystem/core/compare/2.6.28...2.6.29
 [2.6.28]: https://github.com/ARKEcosystem/core/compare/2.6.27...2.6.28
 [2.6.27]: https://github.com/ARKEcosystem/core/compare/2.6.25...2.6.27
 [2.6.25]: https://github.com/ARKEcosystem/core/compare/2.6.24...2.6.25
@@ -1472,6 +1485,7 @@ Closed security vulnerabilities:
 [#3594]: https://github.com/ARKEcosystem/core/pull/3594
 [#3596]: https://github.com/ARKEcosystem/core/pull/3596
 [#3598]: https://github.com/ARKEcosystem/core/pull/3598
+[#3605]: https://github.com/ARKEcosystem/core/pull/3605
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
