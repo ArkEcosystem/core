@@ -28,7 +28,7 @@
         "cron": "^1.7.2",
         "dayjs": "^1.8.17",
         "env-paths": "^2.2.0",
-        "fs-extra": "^8.1.0",
+        "fs-extra": "^9.0.0",
         "import-fresh": "^3.2.1",
         "inversify": "^5.0.1",
         "log-process-errors": "^5.0.3",

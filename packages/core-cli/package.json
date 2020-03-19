@@ -32,7 +32,7 @@
         "envfile": "^4.4.0",
         "execa": "^3.4.0",
         "fast-levenshtein": "^2.0.6",
-        "fs-extra": "^8.1.0",
+        "fs-extra": "^9.0.0",
         "is-ci": "^2.0.0",
         "kleur": "^3.0.3",
         "latest-version": "^5.1.0",

@@ -60,7 +60,7 @@
         "env-paths": "^2.2.0",
         "envfile": "^4.4.0",
         "execa": "^3.4.0",
-        "fs-extra": "^8.1.0",
+        "fs-extra": "^9.0.0",
         "ngrok": "^3.2.5",
         "nodejs-tail": "^1.1.0",
         "pretty-bytes": "^5.2.0",
