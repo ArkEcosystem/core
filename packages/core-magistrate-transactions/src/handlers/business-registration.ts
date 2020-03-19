@@ -122,6 +122,8 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
         sender.forgetAttribute("business");
 
         walletRepository.forgetByIndex(MagistrateIndex.Businesses, transaction.data.senderPublicKey);
+
+        walletRepository.index(sender);
     }
 
     public async applyToRecipient(

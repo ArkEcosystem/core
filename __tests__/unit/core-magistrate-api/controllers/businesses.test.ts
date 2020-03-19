@@ -23,11 +23,9 @@ beforeEach(() => {
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    const businessRegistrationAsset = Assets.businessRegistrationAsset;
-
     senderWallet = buildSenderWallet(app);
 
-    senderWallet.setAttribute("business.businessAsset", businessRegistrationAsset);
+    senderWallet.setAttribute("business.businessAsset", Assets.businessRegistrationAsset);
 
     walletRepository.index(senderWallet);
 
@@ -112,6 +110,26 @@ describe("BusinessController", () => {
 
             await expect(controller.show(request, undefined)).resolves.toThrowError("Business not found");
         });
+
+        it("should return error if wallet has not indexed business attribute", async () => {
+            walletRepository.forgetByIndex(MagistrateIndex.Businesses, senderWallet.publicKey!);
+
+            senderWallet = buildSenderWallet(app);
+
+            walletRepository.index(senderWallet);
+
+            senderWallet.setAttribute("business.businessAsset", Assets.businessRegistrationAsset);
+
+            const request: Hapi.Request = {
+                params: {
+                    id: senderWallet.address,
+                },
+            };
+
+            await expect(controller.show(request, undefined)).resolves.toThrowError(
+                "Business not found",
+            );
+        });
     });
 
     describe("bridgechains", () => {
@@ -174,6 +192,25 @@ describe("BusinessController", () => {
                     page: 1,
                     limit: 100,
                 },
+            };
+
+            await expect(controller.bridgechains(request, undefined)).resolves.toThrowError();
+        });
+
+        it("should return boom if error is thrown", async () => {
+            const request: Hapi.Request = {
+                params: {
+                    id: senderWallet.publicKey,
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                },
+            };
+
+            // @ts-ignore
+            controller.toPagination = () => {
+                throw new Error()
             };
 
             await expect(controller.bridgechains(request, undefined)).resolves.toThrowError();

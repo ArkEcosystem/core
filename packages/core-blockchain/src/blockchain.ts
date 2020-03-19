@@ -368,9 +368,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         if (
             blocks[0] &&
-            !Utils.isBlockChained(this.getLastBlock().data, blocks[0], this.app.log) &&
+            !Utils.isBlockChained(this.getLastBlock().data, blocks[0]) &&
             !CryptoUtils.isException(blocks[0].id)
         ) {
+            this.app.log.warning(Utils.getBlockNotChainedErrorMessage(this.getLastBlock().data, blocks[0]));
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
             this.resetLastDownloadedBlock();

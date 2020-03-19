@@ -1,7 +1,6 @@
 // Based on https://github.com/fknop/hapi-pagination
 
 import { getConfig } from "./config";
-import { decorate } from "./decorate";
 import { Ext } from "./ext";
 
 exports.plugin = {
@@ -12,12 +11,6 @@ exports.plugin = {
 
         if (error) {
             throw error;
-        }
-
-        try {
-            server.decorate("toolkit", "paginate", decorate().paginate);
-        } catch {
-            //
         }
 
         const ext = new Ext(config);

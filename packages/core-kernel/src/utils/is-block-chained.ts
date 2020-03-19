@@ -1,12 +1,18 @@
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
-import { Logger } from "../contracts/kernel/log";
+type BlockChainedDetails = {
+    followsPrevious: boolean;
+    isPlusOne: boolean;
+    previousSlot: number;
+    nextSlot: number;
+    isAfterPreviousSlot: boolean;
+    isChained: boolean;
+};
 
-export const isBlockChained = (
+const getBlockChainedDetails = (
     previousBlock: Interfaces.IBlockData,
     nextBlock: Interfaces.IBlockData,
-    logger?: Logger,
-): boolean => {
+): BlockChainedDetails => {
     const followsPrevious: boolean = nextBlock.previousBlock === previousBlock.id;
     const isPlusOne: boolean = nextBlock.height === previousBlock.height + 1;
 
@@ -16,30 +22,41 @@ export const isBlockChained = (
 
     const isChained: boolean = followsPrevious && isPlusOne && isAfterPreviousSlot;
 
-    // todo: move this out, the function should only make
-    // a decision and return a boolean and not perform logging
+    return { followsPrevious, isPlusOne, previousSlot, nextSlot, isAfterPreviousSlot, isChained };
+};
 
-    if (logger && !isChained) {
-        const messagePrefix: string =
-            `Block { height: ${nextBlock.height}, id: ${nextBlock.id}, ` +
-            `previousBlock: ${nextBlock.previousBlock} } is not chained to the ` +
-            `previous block { height: ${previousBlock.height}, id: ${previousBlock.id} }`;
+export const isBlockChained = (previousBlock: Interfaces.IBlockData, nextBlock: Interfaces.IBlockData): boolean => {
+    const details: BlockChainedDetails = getBlockChainedDetails(previousBlock, nextBlock);
+    return details.isChained;
+};
 
-        let messageDetail: string | undefined;
+export const getBlockNotChainedErrorMessage = (
+    previousBlock: Interfaces.IBlockData,
+    nextBlock: Interfaces.IBlockData,
+): string => {
+    const details: BlockChainedDetails = getBlockChainedDetails(previousBlock, nextBlock);
 
-        if (!followsPrevious) {
-            messageDetail = `previous block id mismatch`;
-        } else if (!isPlusOne) {
-            messageDetail = `height is not plus one`;
-        } else if (!isAfterPreviousSlot) {
-            messageDetail =
-                `previous slot is not smaller: ` +
-                `${previousSlot} (derived from timestamp ${previousBlock.timestamp}) VS ` +
-                `${nextSlot} (derived from timestamp ${nextBlock.timestamp})`;
-        }
-
-        logger.warning(`${messagePrefix}: ${messageDetail}`);
+    if (details.isChained) {
+        throw new Error("Block had no chain error");
     }
 
-    return isChained;
+    const messagePrefix: string =
+        `Block { height: ${nextBlock.height}, id: ${nextBlock.id}, ` +
+        `previousBlock: ${nextBlock.previousBlock} } is not chained to the ` +
+        `previous block { height: ${previousBlock.height}, id: ${previousBlock.id} }`;
+
+    let messageDetail: string | undefined;
+
+    if (!details.followsPrevious) {
+        messageDetail = `previous block id mismatch`;
+    } else if (!details.isPlusOne) {
+        messageDetail = `height is not plus one`;
+    } else if (!details.isAfterPreviousSlot) {
+        messageDetail =
+            `previous slot is not smaller: ` +
+            `${details.previousSlot} (derived from timestamp ${previousBlock.timestamp}) VS ` +
+            `${details.nextSlot} (derived from timestamp ${nextBlock.timestamp})`;
+    }
+
+    return `${messagePrefix}: ${messageDetail}`;
 };

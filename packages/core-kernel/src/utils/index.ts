@@ -1,7 +1,7 @@
 import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
 import { calculateLockExpirationStatus, calculateTransactionExpiration } from "./expiration-calculator";
 import { formatTimestamp } from "./format-timestamp";
-import { isBlockChained } from "./is-block-chained";
+import { getBlockNotChainedErrorMessage, isBlockChained } from "./is-block-chained";
 import { isWhitelisted } from "./is-whitelisted";
 import { calculateRound, isNewRound } from "./round-calculator";
 import { calculate } from "./supply-calculator";
@@ -16,4 +16,4 @@ export const expirationCalculator = { calculateTransactionExpiration, calculateL
 export const roundCalculator = { calculateRound, isNewRound };
 export const supplyCalculator = { calculate };
 
-export { formatTimestamp, isBlockChained, isWhitelisted, Plugins };
+export { formatTimestamp, isBlockChained, getBlockNotChainedErrorMessage, isWhitelisted, Plugins };
