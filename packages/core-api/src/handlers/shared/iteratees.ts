@@ -1,10 +1,6 @@
 export const blockIteratees = [
     "height",
-    "id",
     "numberOfTransactions",
-    "payloadHash",
-    "payloadLength",
-    "previousBlock",
     "reward",
     "timestamp",
     "totalAmount",
@@ -54,12 +50,8 @@ export const peerIteratees = ["height", "ip", "latency", "version"];
 
 export const transactionIteratees = [
     "amount",
-    "blockId",
     "fee",
-    "id",
     "nonce",
-    "recipientId",
-    "senderPublicKey",
     "timestamp",
     "type",
     "typeGroup",

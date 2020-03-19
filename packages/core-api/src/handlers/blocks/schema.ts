@@ -30,12 +30,7 @@ export const index: object = {
             reward: Joi.number()
                 .integer()
                 .min(0),
-            payloadLength: Joi.number()
-                .integer()
-                .positive(),
-            payloadHash: Joi.string().hex(),
             generatorPublicKey: publicKey,
-            blockSignature: Joi.string().hex(),
             transform: Joi.bool().default(true),
         },
     },
@@ -112,9 +107,7 @@ export const search: object = {
             .integer()
             .min(0),
         previousBlock: blockId,
-        payloadHash: Joi.string().hex(),
         generatorPublicKey: publicKey,
-        blockSignature: Joi.string().hex(),
         timestamp: Joi.object().keys({
             from: Joi.number()
                 .integer()
@@ -156,14 +149,6 @@ export const search: object = {
                 .min(0),
         }),
         reward: Joi.object().keys({
-            from: Joi.number()
-                .integer()
-                .min(0),
-            to: Joi.number()
-                .integer()
-                .min(0),
-        }),
-        payloadLength: Joi.object().keys({
             from: Joi.number()
                 .integer()
                 .min(0),
