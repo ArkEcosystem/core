@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { Block } from "@arkecosystem/crypto/dist/blocks";
 import { Client } from "@packages/core-forger/src/client";
+import { HostNoResponseError, RelayCommunicationError } from "@packages/core-forger/src/errors";
 import { ForgerService } from "@packages/core-forger/src/forger-service";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { Application, Container, Enums, Utils } from "@packages/core-kernel";
@@ -1057,13 +1058,244 @@ describe("ForgerService", () => {
 
             await expect(forgerService.boot(delegates)).toResolve();
 
+            // @ts-ignore
+            await expect(forgerService.checkSlot()).toResolve();
+
+            expect(spyForgeNewBlock).not.toHaveBeenCalled();
+        });
+
+        it("should catch network errors and set timeout to check slot later", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const address = `Delegate-Wallet-${delegates.length - 2}`;
+
+            const nextDelegateToForge: BIP39 = new BIP39(address);
+            delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+            const round = {
+                data: {
+                    delegates,
+                    canForge: true,
+                    currentForger: {
+                        publicKey: delegates[delegates.length - 2].publicKey,
+                    },
+                    nextForger: { publicKey: delegates[delegates.length - 3].publicKey },
+                    lastBlock: {
+                        height: 10,
+                    },
+                    timestamp: 0,
+                    reward: 0,
+                },
+            };
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            forgerService.register({ hosts: [mockHost] });
+
+            // @ts-ignore
+            const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
+            // @ts-ignore
+            spyGetTransactions.mockResolvedValue([]);
+
+            const spyForgeNewBlock = jest.spyOn(forgerService, "forgeNewBlock");
+
+            // @ts-ignore
+            const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
+            // @ts-ignore
+            spyGetNetworkState.mockImplementation(() => {
+                throw new HostNoResponseError(`blockchain isn't ready`);
+            });
+
+            await expect(forgerService.boot(delegates)).toResolve();
+
             jest.useFakeTimers();
             // @ts-ignore
             await expect(forgerService.checkSlot()).toResolve();
 
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 0);
+            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
 
             expect(spyForgeNewBlock).not.toHaveBeenCalled();
+
+            expect(logger.info).toHaveBeenCalledWith(`Waiting for relay to become ready.`);
+        });
+
+        it("should log warning when error isn't a network error", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const address = `Delegate-Wallet-${delegates.length - 2}`;
+
+            const nextDelegateToForge: BIP39 = new BIP39(address);
+            delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+            const round = {
+                data: {
+                    delegates,
+                    canForge: true,
+                    currentForger: {
+                        publicKey: delegates[delegates.length - 2].publicKey,
+                    },
+                    nextForger: { publicKey: delegates[delegates.length - 3].publicKey },
+                    lastBlock: {
+                        height: 10,
+                    },
+                    timestamp: 0,
+                    reward: 0,
+                },
+            };
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            forgerService.register({ hosts: [mockHost] });
+
+            // @ts-ignore
+            const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
+            // @ts-ignore
+            spyGetTransactions.mockResolvedValue([]);
+
+            const spyForgeNewBlock = jest.spyOn(forgerService, "forgeNewBlock");
+
+            // @ts-ignore
+            const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
+            const mockEndpoint = `Test - Endpoint`;
+            const mockError = `custom error`;
+            // @ts-ignore
+            spyGetNetworkState.mockImplementation(() => {
+                throw new RelayCommunicationError(mockEndpoint, mockError);
+            });
+
+            await expect(forgerService.boot(delegates)).toResolve();
+
+            jest.useFakeTimers();
+            // @ts-ignore
+            await expect(forgerService.checkSlot()).toResolve();
+
+            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
+
+            expect(spyForgeNewBlock).not.toHaveBeenCalled();
+
+            expect(logger.warning).toHaveBeenCalledWith(
+                `Request to ${mockEndpoint} failed, because of '${mockError}'.`,
+            );
+        });
+
+        it("should log error when error thrown during attempted forge isn't a network error", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const address = `Delegate-Wallet-${delegates.length - 2}`;
+
+            const nextDelegateToForge: BIP39 = new BIP39(address);
+            delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+            const round = {
+                data: {
+                    delegates,
+                    canForge: true,
+                    currentForger: {
+                        publicKey: delegates[delegates.length - 2].publicKey,
+                    },
+                    nextForger: { publicKey: delegates[delegates.length - 3].publicKey },
+                    lastBlock: {
+                        height: 10,
+                    },
+                    timestamp: 0,
+                    reward: 0,
+                    current: 9,
+                },
+            };
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            forgerService.register({ hosts: [mockHost] });
+
+            // @ts-ignore
+            const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
+            // @ts-ignore
+            spyGetTransactions.mockResolvedValue([]);
+
+            // @ts-ignore
+            const spyClientEmitEvent = jest.spyOn(forgerService.client, "emitEvent");
+
+            const spyForgeNewBlock = jest.spyOn(forgerService, "forgeNewBlock");
+
+            // @ts-ignore
+            const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
+            const mockError = `custom error`;
+            // @ts-ignore
+            spyGetNetworkState.mockImplementation(() => {
+                throw new Error(mockError);
+            });
+
+            await expect(forgerService.boot(delegates)).toResolve();
+
+            jest.useFakeTimers();
+            // @ts-ignore
+            await expect(forgerService.checkSlot()).toResolve();
+
+            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
+
+            expect(spyForgeNewBlock).not.toHaveBeenCalled();
+
+            expect(logger.error).toHaveBeenCalled();
+
+            expect(spyClientEmitEvent).toHaveBeenCalledWith(Enums.ForgerEvent.Failed, { error: mockError });
+            const infoMessage = `Round: ${round.data.current.toLocaleString()}, height: ${round.data.lastBlock.height.toLocaleString()}`;
+            expect(logger.info).toHaveBeenCalledWith(infoMessage);
+        });
+
+        it("should not error when there is no roudn info", async () => {
+            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            slotSpy.mockReturnValue(0);
+
+            const delegates = calculateActiveDelegates();
+
+            const address = `Delegate-Wallet-${delegates.length - 2}`;
+
+            const nextDelegateToForge: BIP39 = new BIP39(address);
+            delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
+
+            const corep2p = jest.requireActual("@packages/core-p2p");
+            const round = {};
+
+            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+
+            forgerService.register({ hosts: [mockHost] });
+
+            // @ts-ignore
+            const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
+            // @ts-ignore
+            spyGetTransactions.mockResolvedValue([]);
+
+            // @ts-ignore
+            const spyClientEmitEvent = jest.spyOn(forgerService.client, "emitEvent");
+
+            const spyForgeNewBlock = jest.spyOn(forgerService, "forgeNewBlock");
+
+            await expect(forgerService.boot(delegates)).toResolve();
+
+            jest.useFakeTimers();
+            // @ts-ignore
+            await expect(forgerService.checkSlot()).toResolve();
+
+            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
+
+            expect(spyForgeNewBlock).not.toHaveBeenCalled();
+
+            expect(logger.error).toHaveBeenCalled();
+
+            expect(spyClientEmitEvent).toHaveBeenCalledWith(Enums.ForgerEvent.Failed, { error: expect.any(String) });
+            expect(logger.info).not.toHaveBeenCalled();
         });
     });
 });
