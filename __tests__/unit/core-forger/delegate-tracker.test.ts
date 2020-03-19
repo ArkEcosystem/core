@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/core-kernel";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
+import { Utils } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Crypto, Identities, Managers } from "@packages/crypto";
 

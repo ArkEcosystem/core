@@ -653,12 +653,24 @@ describe("ForgerService", () => {
             const spyTimeTillNextSlot = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             spyTimeTillNextSlot.mockReturnValue(timeLeftInMs);
 
-            const spyMilestone = jest.spyOn(Managers.configManager, "getMilestone");
-            spyMilestone.mockReturnValueOnce({ block: { idFullSha256: true } });
-
             const delegates = calculateActiveDelegates();
 
-            const round = { data: { delegates } };
+            const round = {
+                data: {
+                    delegates,
+                    canForge: true,
+                    currentForger: {
+                        publicKey: delegates[delegates.length - 2].publicKey,
+                    },
+                    nextForger: { publicKey: delegates[delegates.length - 3].publicKey },
+                    lastBlock: {
+                        height: 10,
+                    },
+                    timestamp: 0,
+                    reward: 0,
+                    current: 9,
+                },
+            };
 
             const corep2p = jest.requireActual("@packages/core-p2p");
 
@@ -680,6 +692,9 @@ describe("ForgerService", () => {
 
             forgerService.register({ hosts: [mockHost] });
 
+            const spyMilestone = jest.spyOn(Managers.configManager, "getMilestone");
+            spyMilestone.mockReturnValue({ block: { idFullSha256: true } });
+
             // @ts-ignore
             const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
             // @ts-ignore
@@ -687,13 +702,22 @@ describe("ForgerService", () => {
 
             const mockNetworkState = {
                 nodeHeight: 10,
-                // lastBlockId: "0000000000a98ac7",
-                lastBlockId: Block.toBytesHex(11111111),
+                lastBlockId: Block.toBytesHex("11111111"),
             };
 
             const mockRound = {
-                timestamp: 50,
+                delegates,
+                canForge: true,
+                currentForger: {
+                    publicKey: delegates[delegates.length - 2].publicKey,
+                },
+                nextForger: { publicKey: delegates[delegates.length - 3].publicKey },
+                lastBlock: {
+                    height: 10,
+                },
+                timestamp: 0,
                 reward: 0,
+                current: 9,
             };
 
             await forgerService.boot(delegates);
