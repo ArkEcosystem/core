@@ -45,6 +45,17 @@ describe("Delegate Calculator", () => {
             expect(calculateApproval(delegate, 1)).toBe(1);
         });
 
+        it("should calculate correctly with default height 1", () => {
+            const delegate = createWallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+
+            delegate.setAttribute("delegate", {
+                producedBlocks: 0,
+                voteBalance: Utils.BigNumber.make(10000 * 1e8),
+            });
+
+            expect(calculateApproval(delegate)).toBe(1);
+        });
+
         it("should calculate correctly with 2 decimals", () => {
             const delegate = createWallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
 

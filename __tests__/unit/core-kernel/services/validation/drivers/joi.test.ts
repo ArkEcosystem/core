@@ -17,6 +17,9 @@ describe("JoiValidator", () => {
         validator.validate({ username: "johndoe" }, schema);
 
         expect(validator.passes()).toBeTrue();
+        expect(validator.invalid()).toStrictEqual({});
+        expect(validator.failed()).toStrictEqual({});
+        expect(validator.errors()).toStrictEqual({});
     });
 
     it("should fail to validate the given data", () => {
