@@ -4,27 +4,15 @@ import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { Utils } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
-import { Crypto, Identities, Managers } from "@packages/crypto";
+import { Crypto, Managers } from "@packages/crypto";
 
+import { calculateActiveDelegates } from "./__utils__/calculate-active-delegates";
 import { dummy } from "./__utils__/create-block-with-transactions";
 import { mockLastBlock, setup } from "./setup";
 
 let delegateTracker: DelegateTracker;
-let attributeMap;
 let loggerDebug: jest.SpyInstance;
 let activeDelegates;
-
-const calculateActiveDelegates = (): Wallet[] => {
-    const activeDelegates = [];
-    for (let i = 0; i < 51; i++) {
-        const address = `Delegate-Wallet-${i}`;
-        const wallet = new Wallet(address, attributeMap);
-        wallet.publicKey = Identities.PublicKey.fromPassphrase(address);
-
-        activeDelegates.push(wallet);
-    }
-    return activeDelegates;
-};
 
 beforeEach(async () => {
     activeDelegates = calculateActiveDelegates();
