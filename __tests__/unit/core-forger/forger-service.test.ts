@@ -6,13 +6,13 @@ import { ForgerService } from "@packages/core-forger/src/forger-service";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { Application, Container, Enums, Utils } from "@packages/core-kernel";
 import { NetworkStateStatus } from "@packages/core-p2p";
-import { Wallet } from "@packages/core-state/src/wallets";
-import { Crypto, Identities, Managers } from "@packages/crypto";
+import { Crypto, Managers } from "@packages/crypto";
 import { Block } from "@packages/crypto/dist/blocks";
 import { Address } from "@packages/crypto/src/identities";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 import socketCluster from "socketcluster-client";
 
+import { calculateActiveDelegates } from "./__utils__/calculate-active-delegates";
 jest.mock("socketcluster-client");
 
 let app: Application;
@@ -21,19 +21,6 @@ const logger = {
     debug: jest.fn(),
     info: jest.fn(),
     warning: jest.fn(),
-};
-
-const calculateActiveDelegates = () => {
-    const activeDelegates = [];
-    for (let i = 0; i < 51; i++) {
-        const address = `Delegate-Wallet-${i}`;
-        const wallet = new Wallet(address, null);
-        wallet.publicKey = Identities.PublicKey.fromPassphrase(address);
-        // @ts-ignore
-        wallet.delegate = { username: `Username: ${address}` };
-        activeDelegates.push(wallet);
-    }
-    return activeDelegates;
 };
 
 const initializeClient = (client: Client) => {
@@ -69,11 +56,53 @@ describe("ForgerService", () => {
     let forgerService: ForgerService;
     let client: Client;
     let mockHost;
+    let delegates;
+    let mockNetworkState;
+    let mockTransaction;
+    let transaction;
+    let mockRound;
+    let round;
 
     beforeEach(() => {
         forgerService = app.resolve<ForgerService>(ForgerService);
         client = app.resolve<Client>(Client);
         mockHost = initializeClient(client);
+        const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+        slotSpy.mockReturnValue(0);
+
+        delegates = calculateActiveDelegates();
+
+        const corep2p = jest.requireActual("@packages/core-p2p");
+        round = { data: { delegates, timestamp: 50, reward: 0 }, canForge: false };
+
+        corep2p.socketEmit = jest.fn().mockResolvedValue(round);
+        mockNetworkState = {
+            status: NetworkStateStatus.Default,
+            getOverHeightBlockHeaders: () => [],
+            getQuorum: () => 0.7,
+            toJson: () => "test json",
+            nodeHeight: 10,
+            lastBlockId: "11111111",
+        };
+
+        const recipientAddress = Address.fromPassphrase("recipient's secret");
+        transaction = BuilderFactory.transfer()
+            .version(1)
+            .amount("100")
+            .recipientId(recipientAddress)
+            .sign("sender's secret")
+            .build();
+
+        mockTransaction = {
+            transactions: [transaction.serialized.toString("hex")],
+            poolSize: 10,
+            count: 10,
+        };
+
+        mockRound = {
+            timestamp: 0,
+            reward: 0,
+        };
     });
 
     describe("Register", () => {
@@ -98,16 +127,6 @@ describe("ForgerService", () => {
 
     describe("Boot", () => {
         it("should set delegates and log active delegates info message", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-            const round = { data: { delegates } };
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
             forgerService.register({ hosts: [mockHost] });
             await expect(forgerService.boot(delegates)).toResolve();
 
@@ -123,16 +142,6 @@ describe("ForgerService", () => {
         });
 
         it("should skip logging when the service is already initialised", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-            const round = { data: { delegates } };
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
             forgerService.register({ hosts: [mockHost] });
             (forgerService as any).initialized = true;
             await expect(forgerService.boot(delegates)).toResolve();
@@ -140,14 +149,6 @@ describe("ForgerService", () => {
         });
 
         it("should not log when there are no active delegates", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(0);
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-            const round = { data: { delegates: [] } };
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
             forgerService.register({ hosts: [mockHost] });
             await expect(forgerService.boot([])).toResolve();
             expect(logger.info).toHaveBeenCalledTimes(1);
@@ -155,10 +156,6 @@ describe("ForgerService", () => {
         });
 
         it("should log inactive delegates correctly", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
             const numberActive = 10;
 
             const corep2p = jest.requireActual("@packages/core-p2p");
@@ -182,11 +179,6 @@ describe("ForgerService", () => {
         });
 
         it("should catch and log errors", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
-
             const corep2p = jest.requireActual("@packages/core-p2p");
 
             corep2p.socketEmit = jest.fn().mockRejectedValue({});
@@ -201,14 +193,6 @@ describe("ForgerService", () => {
             const timeout = 500;
             const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(timeout);
-
-            const delegates = calculateActiveDelegates();
-
-            const round = { data: { delegates } };
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
 
             jest.useFakeTimers();
 
@@ -263,8 +247,6 @@ describe("ForgerService", () => {
 
     describe("isForgingAllowed", () => {
         it("should not allow forging when network status is unknown", async () => {
-            const delegates = calculateActiveDelegates();
-
             expect(
                 // @ts-ignore
                 forgerService.isForgingAllowed({ status: NetworkStateStatus.Unknown }, delegates[0]),
@@ -273,8 +255,6 @@ describe("ForgerService", () => {
         });
 
         it("should not allow forging when network status is a cold start", async () => {
-            const delegates = calculateActiveDelegates();
-
             expect(
                 // @ts-ignore
                 forgerService.isForgingAllowed({ status: NetworkStateStatus.ColdStart }, delegates[0]),
@@ -283,8 +263,6 @@ describe("ForgerService", () => {
         });
 
         it("should not allow forging when network status is below minimum peers", async () => {
-            const delegates = calculateActiveDelegates();
-
             expect(
                 // @ts-ignore
                 forgerService.isForgingAllowed({ status: NetworkStateStatus.BelowMinimumPeers }, delegates[0]),
@@ -293,17 +271,6 @@ describe("ForgerService", () => {
         });
 
         it("should log double forge warning for any overheight block headers", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
-
-            const round = { data: { delegates } };
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
             forgerService.register({ hosts: [mockHost] });
             await forgerService.boot(delegates);
 
@@ -316,11 +283,8 @@ describe("ForgerService", () => {
                 },
             ];
 
-            const mockNetworkState = {
-                status: NetworkStateStatus.Default,
-                getOverHeightBlockHeaders: () => overHeightBlockHeaders,
-                getQuorum: () => 0.99,
-            };
+            mockNetworkState.getQuorum = () => 0.99;
+            mockNetworkState.getOverHeightBlockHeaders = () => overHeightBlockHeaders;
 
             expect(
                 // @ts-ignore
@@ -339,31 +303,14 @@ describe("ForgerService", () => {
         });
 
         it("should not allow forging if quorum is not met", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
-
-            const round = { data: { delegates } };
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
             forgerService.register({ hosts: [mockHost] });
             await forgerService.boot(delegates);
 
-            const mockNetworkState = {
-                status: NetworkStateStatus.Default,
-                getOverHeightBlockHeaders: () => [],
-                getQuorum: () => 0.6,
-                toJson: () => "test json",
-            };
-
-            expect(
-                // @ts-ignore
-                forgerService.isForgingAllowed(mockNetworkState, delegates[0]),
-            ).toEqual(false);
+            (mockNetworkState.getQuorum = () => 0.6),
+                expect(
+                    // @ts-ignore
+                    forgerService.isForgingAllowed(mockNetworkState, delegates[0]),
+                ).toEqual(false);
 
             expect(logger.info).toHaveBeenCalledWith("Fork 6 - Not enough quorum to forge next block. Will not forge.");
 
@@ -373,26 +320,8 @@ describe("ForgerService", () => {
         });
 
         it("should allow forging if quorum is met", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
-
-            const round = { data: { delegates } };
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
             forgerService.register({ hosts: [mockHost] });
             await forgerService.boot(delegates);
-
-            const mockNetworkState = {
-                status: NetworkStateStatus.Default,
-                getOverHeightBlockHeaders: () => [],
-                getQuorum: () => 0.7,
-                toJson: () => "test json",
-            };
 
             expect(
                 // @ts-ignore
@@ -405,17 +334,6 @@ describe("ForgerService", () => {
         });
 
         it("should allow forging if quorum is met, not log warning if overheight delegate is not the same", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
-
-            const round = { data: { delegates } };
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
             forgerService.register({ hosts: [mockHost] });
             await forgerService.boot(delegates);
 
@@ -428,12 +346,7 @@ describe("ForgerService", () => {
                 },
             ];
 
-            const mockNetworkState = {
-                status: NetworkStateStatus.Default,
-                getOverHeightBlockHeaders: () => overHeightBlockHeaders,
-                getQuorum: () => 0.7,
-                toJson: () => "test json",
-            };
+            mockNetworkState.getOverHeightBlockHeaders = () => overHeightBlockHeaders;
 
             expect(
                 // @ts-ignore
@@ -448,47 +361,12 @@ describe("ForgerService", () => {
 
     describe("ForgeNewBlock", () => {
         it("should fail to forge when delegate is already in next slot", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
-
-            const round = { data: { delegates } };
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
-            const recipientAddress = Address.fromPassphrase("recipient's secret");
-            const transaction = BuilderFactory.transfer()
-                .version(1)
-                .amount("100")
-                .recipientId(recipientAddress)
-                .sign("sender's secret")
-                .build();
-
-            const mockTransaction = {
-                transactions: [transaction.serialized.toString("hex")],
-                poolSize: 10,
-                count: 10,
-            };
-
             forgerService.register({ hosts: [mockHost] });
 
             // @ts-ignore
             const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
             // @ts-ignore
             spyGetTransactions.mockResolvedValue(mockTransaction);
-
-            const mockNetworkState = {
-                nodeHeight: 10,
-                lastBlockId: "11111111",
-            };
-
-            const mockRound = {
-                timestamp: 0,
-                reward: 0,
-            };
 
             await forgerService.boot(delegates);
 
@@ -511,44 +389,12 @@ describe("ForgerService", () => {
             const spyTimeTillNextSlot = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             spyTimeTillNextSlot.mockReturnValue(timeLeftInMs);
 
-            const delegates = calculateActiveDelegates();
-
-            const round = { data: { delegates } };
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
-            const recipientAddress = Address.fromPassphrase("recipient's secret");
-            const transaction = BuilderFactory.transfer()
-                .version(1)
-                .amount("100")
-                .recipientId(recipientAddress)
-                .sign("sender's secret")
-                .build();
-
-            const mockTransaction = {
-                transactions: [transaction.serialized.toString("hex")],
-                poolSize: 10,
-                count: 10,
-            };
-
             forgerService.register({ hosts: [mockHost] });
 
             // @ts-ignore
             const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
             // @ts-ignore
             spyGetTransactions.mockResolvedValue(mockTransaction);
-
-            const mockNetworkState = {
-                nodeHeight: 10,
-                lastBlockId: "11111111",
-            };
-
-            const mockRound = {
-                timestamp: 0,
-                reward: 0,
-            };
 
             await forgerService.boot(delegates);
 
@@ -576,44 +422,12 @@ describe("ForgerService", () => {
             const spyTimeTillNextSlot = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             spyTimeTillNextSlot.mockReturnValue(timeLeftInMs);
 
-            const delegates = calculateActiveDelegates();
-
-            const round = { data: { delegates } };
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
-            const recipientAddress = Address.fromPassphrase("recipient's secret");
-            const transaction = BuilderFactory.transfer()
-                .version(1)
-                .amount("100")
-                .recipientId(recipientAddress)
-                .sign("sender's secret")
-                .build();
-
-            const mockTransaction = {
-                transactions: [transaction.serialized.toString("hex")],
-                poolSize: 10,
-                count: 10,
-            };
-
             forgerService.register({ hosts: [mockHost] });
 
             // @ts-ignore
             const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
             // @ts-ignore
             spyGetTransactions.mockResolvedValue(mockTransaction);
-
-            const mockNetworkState = {
-                nodeHeight: 10,
-                lastBlockId: "11111111",
-            };
-
-            const mockRound = {
-                timestamp: 50,
-                reward: 0,
-            };
 
             await forgerService.boot(delegates);
 
@@ -650,31 +464,10 @@ describe("ForgerService", () => {
         it("should forge valid new blocks when passed specific milestones", async () => {
             const spyMilestone = jest.spyOn(Managers.configManager, "getMilestone");
             spyMilestone.mockReturnValue({ block: { idFullSha256: true, version: 0 }, reward: 0 });
+
             const timeLeftInMs = 3000;
             const spyTimeTillNextSlot = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             spyTimeTillNextSlot.mockReturnValue(timeLeftInMs);
-
-            const delegates = calculateActiveDelegates();
-
-            const round = { data: { delegates, timestamp: 50, reward: 0 } };
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
-            const recipientAddress = Address.fromPassphrase("recipient's secret");
-            const transaction = BuilderFactory.transfer()
-                .version(1)
-                .amount("100")
-                .recipientId(recipientAddress)
-                .sign("sender's secret")
-                .build();
-
-            const mockTransaction = {
-                transactions: [transaction.serialized.toString("hex")],
-                poolSize: 10,
-                count: 10,
-            };
 
             forgerService.register({ hosts: [mockHost] });
 
@@ -683,10 +476,7 @@ describe("ForgerService", () => {
             // @ts-ignore
             spyGetTransactions.mockResolvedValue(mockTransaction);
 
-            const mockNetworkState = {
-                nodeHeight: 10,
-                lastBlockId: "c2fa2d400b4c823873d476f6e0c9e423cf925e9b48f1b5706c7e2771d4095538",
-            };
+            mockNetworkState.lastBlockId = "c2fa2d400b4c823873d476f6e0c9e423cf925e9b48f1b5706c7e2771d4095538";
 
             await forgerService.boot(delegates);
 
@@ -736,16 +526,6 @@ describe("ForgerService", () => {
         });
 
         it("should set timer if forging is not yet allowed", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
-
-            const corep2p = jest.requireActual("@packages/core-p2p");
-            const round = { data: { delegates, canForge: false } };
-
-            corep2p.socketEmit = jest.fn().mockResolvedValue(round);
-
             forgerService.register({ hosts: [mockHost] });
             (forgerService as any).initialized = true;
 
@@ -767,9 +547,8 @@ describe("ForgerService", () => {
             const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
-            const delegates = calculateActiveDelegates();
-
             const corep2p = jest.requireActual("@packages/core-p2p");
+
             const round = {
                 data: {
                     delegates,
@@ -811,8 +590,6 @@ describe("ForgerService", () => {
         it("should set timer and not log message if nextForger is not active", async () => {
             const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
 
             const corep2p = jest.requireActual("@packages/core-p2p");
             const round = {
@@ -857,8 +634,6 @@ describe("ForgerService", () => {
             const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
-            const delegates = calculateActiveDelegates();
-
             const address = `Delegate-Wallet-${delegates.length - 2}`;
 
             const nextDelegateToForge: BIP39 = new BIP39(address);
@@ -892,15 +667,6 @@ describe("ForgerService", () => {
 
             const spyForgeNewBlock = jest.spyOn(forgerService, "forgeNewBlock");
 
-            const mockNetworkState = {
-                status: NetworkStateStatus.Default,
-                getOverHeightBlockHeaders: () => [],
-                getQuorum: () => 0.7,
-                toJson: () => "test json",
-                nodeHeight: 10,
-                lastBlockId: "11111111",
-            };
-
             // @ts-ignore
             const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
             // @ts-ignore
@@ -927,8 +693,6 @@ describe("ForgerService", () => {
         it("should not log warning message when nodeHeight does not equal last block height", async () => {
             const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
 
             const address = `Delegate-Wallet-${delegates.length - 2}`;
 
@@ -962,15 +726,6 @@ describe("ForgerService", () => {
             spyGetTransactions.mockResolvedValue([]);
 
             const spyForgeNewBlock = jest.spyOn(forgerService, "forgeNewBlock");
-
-            const mockNetworkState = {
-                status: NetworkStateStatus.Default,
-                getOverHeightBlockHeaders: () => [],
-                getQuorum: () => 0.7,
-                toJson: () => "test json",
-                nodeHeight: 10,
-                lastBlockId: "11111111",
-            };
 
             // @ts-ignore
             const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
@@ -999,8 +754,6 @@ describe("ForgerService", () => {
             const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
-            const delegates = calculateActiveDelegates();
-
             const address = `Delegate-Wallet-${delegates.length - 2}`;
 
             const nextDelegateToForge: BIP39 = new BIP39(address);
@@ -1034,14 +787,7 @@ describe("ForgerService", () => {
 
             const spyForgeNewBlock = jest.spyOn(forgerService, "forgeNewBlock");
 
-            const mockNetworkState = {
-                status: NetworkStateStatus.Unknown,
-                getOverHeightBlockHeaders: () => [],
-                getQuorum: () => 0.7,
-                toJson: () => "test json",
-                nodeHeight: 10,
-                lastBlockId: "11111111",
-            };
+            mockNetworkState.status = NetworkStateStatus.Unknown;
 
             // @ts-ignore
             const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
@@ -1059,8 +805,6 @@ describe("ForgerService", () => {
         it("should catch network errors and set timeout to check slot later", async () => {
             const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
 
             const address = `Delegate-Wallet-${delegates.length - 2}`;
 
@@ -1118,8 +862,6 @@ describe("ForgerService", () => {
         it("should log warning when error isn't a network error", async () => {
             const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
 
             const address = `Delegate-Wallet-${delegates.length - 2}`;
 
@@ -1181,8 +923,6 @@ describe("ForgerService", () => {
         it("should log error when error thrown during attempted forge isn't a network error", async () => {
             const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
 
             const address = `Delegate-Wallet-${delegates.length - 2}`;
 
@@ -1246,11 +986,9 @@ describe("ForgerService", () => {
             expect(logger.info).toHaveBeenCalledWith(infoMessage);
         });
 
-        it("should not error when there is no roudn info", async () => {
+        it("should not error when there is no round info", async () => {
             const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
-
-            const delegates = calculateActiveDelegates();
 
             const address = `Delegate-Wallet-${delegates.length - 2}`;
 
