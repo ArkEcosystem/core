@@ -1,6 +1,5 @@
 import "jest-extended";
 
-import { Block } from "@arkecosystem/crypto/dist/blocks";
 import { Client } from "@packages/core-forger/src/client";
 import { HostNoResponseError, RelayCommunicationError } from "@packages/core-forger/src/errors";
 import { ForgerService } from "@packages/core-forger/src/forger-service";
@@ -9,6 +8,7 @@ import { Application, Container, Enums, Utils } from "@packages/core-kernel";
 import { NetworkStateStatus } from "@packages/core-p2p";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Crypto, Identities, Managers } from "@packages/crypto";
+import { Block } from "@packages/crypto/dist/blocks";
 import { Address } from "@packages/crypto/src/identities";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 import socketCluster from "socketcluster-client";
@@ -647,30 +647,16 @@ describe("ForgerService", () => {
             expect(spyClientEmitEvent).toHaveBeenNthCalledWith(2, Enums.TransactionEvent.Forged, transaction.data);
         });
 
-        // TODO:
-        it.skip("should forge valid new blocks when passed specific milestones", async () => {
+        it("should forge valid new blocks when passed specific milestones", async () => {
+            const spyMilestone = jest.spyOn(Managers.configManager, "getMilestone");
+            spyMilestone.mockReturnValue({ block: { idFullSha256: true, version: 0 }, reward: 0 });
             const timeLeftInMs = 3000;
             const spyTimeTillNextSlot = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
             spyTimeTillNextSlot.mockReturnValue(timeLeftInMs);
 
             const delegates = calculateActiveDelegates();
 
-            const round = {
-                data: {
-                    delegates,
-                    canForge: true,
-                    currentForger: {
-                        publicKey: delegates[delegates.length - 2].publicKey,
-                    },
-                    nextForger: { publicKey: delegates[delegates.length - 3].publicKey },
-                    lastBlock: {
-                        height: 10,
-                    },
-                    timestamp: 0,
-                    reward: 0,
-                    current: 9,
-                },
-            };
+            const round = { data: { delegates, timestamp: 50, reward: 0 } };
 
             const corep2p = jest.requireActual("@packages/core-p2p");
 
@@ -692,9 +678,6 @@ describe("ForgerService", () => {
 
             forgerService.register({ hosts: [mockHost] });
 
-            const spyMilestone = jest.spyOn(Managers.configManager, "getMilestone");
-            spyMilestone.mockReturnValue({ block: { idFullSha256: true } });
-
             // @ts-ignore
             const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
             // @ts-ignore
@@ -702,22 +685,7 @@ describe("ForgerService", () => {
 
             const mockNetworkState = {
                 nodeHeight: 10,
-                lastBlockId: Block.toBytesHex("11111111"),
-            };
-
-            const mockRound = {
-                delegates,
-                canForge: true,
-                currentForger: {
-                    publicKey: delegates[delegates.length - 2].publicKey,
-                },
-                nextForger: { publicKey: delegates[delegates.length - 3].publicKey },
-                lastBlock: {
-                    height: 10,
-                },
-                timestamp: 0,
-                reward: 0,
-                current: 9,
+                lastBlockId: "c2fa2d400b4c823873d476f6e0c9e423cf925e9b48f1b5706c7e2771d4095538",
             };
 
             await forgerService.boot(delegates);
@@ -735,7 +703,7 @@ describe("ForgerService", () => {
             const spyClientEmitEvent = jest.spyOn(forgerService.client, "emitEvent");
 
             // @ts-ignore
-            await expect(forgerService.forgeNewBlock(nextDelegateToForge, mockRound, mockNetworkState)).toResolve();
+            await expect(forgerService.forgeNewBlock(nextDelegateToForge, round.data, mockNetworkState)).toResolve();
 
             const prettyName = `Username: ${address} (${nextDelegateToForge.publicKey})`;
 
