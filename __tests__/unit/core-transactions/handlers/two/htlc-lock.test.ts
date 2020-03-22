@@ -145,8 +145,6 @@ describe("Htlc lock", () => {
             });
 
             it("should resolve with open transaction", async () => {
-                // @ts-ignore
-                htlcLockTransaction.data.open = true;
                 setMockTransaction(htlcLockTransaction);
                 await expect(handler.bootstrap()).toResolve();
             });
@@ -163,8 +161,6 @@ describe("Htlc lock", () => {
                     .vendorField("dummy")
                     .sign(passphrases[0])
                     .build();
-                // @ts-ignore
-                htlcLockTransaction.data.open = true;
                 setMockTransaction(htlcLockTransaction);
                 await expect(handler.bootstrap()).toResolve();
             });

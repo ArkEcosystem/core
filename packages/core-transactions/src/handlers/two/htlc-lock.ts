@@ -29,25 +29,23 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
 
             let lockedBalance: Utils.BigNumber = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
 
-            if (transaction.open) {
-                locks[transaction.id] = {
-                    amount: Utils.BigNumber.make(transaction.amount),
-                    recipientId: transaction.recipientId,
-                    timestamp: transaction.timestamp,
-                    vendorField: transaction.vendorField
-                        ? Buffer.from(transaction.vendorField, "hex").toString("utf8")
-                        : undefined,
-                    ...transaction.asset.lock,
-                };
+            locks[transaction.id] = {
+                amount: Utils.BigNumber.make(transaction.amount),
+                recipientId: transaction.recipientId,
+                timestamp: transaction.timestamp,
+                vendorField: transaction.vendorField
+                    ? Buffer.from(transaction.vendorField, "hex").toString("utf8")
+                    : undefined,
+                ...transaction.asset.lock,
+            };
 
-                lockedBalance = lockedBalance.plus(transaction.amount);
+            lockedBalance = lockedBalance.plus(transaction.amount);
 
-                const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(
-                    transaction.recipientId,
-                );
-                walletsToIndex[wallet.address] = wallet;
-                walletsToIndex[recipientWallet.address] = recipientWallet;
-            }
+            const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(
+                transaction.recipientId,
+            );
+            walletsToIndex[wallet.address] = wallet;
+            walletsToIndex[recipientWallet.address] = recipientWallet;
 
             wallet.setAttribute("htlc.locks", locks);
             wallet.setAttribute("htlc.lockedBalance", lockedBalance);

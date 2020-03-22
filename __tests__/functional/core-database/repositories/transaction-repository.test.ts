@@ -171,3 +171,94 @@ describe("TransactionRepository.findByType", () => {
         expect(foundTransaction3["blockHeight"]).toBe(3);
     });
 });
+
+describe("TransactionRepository.findByHtlcLocks", () => {
+    it("should find htlc claims and refunds by lock ids", async () => {
+        const htlcLock = Transactions.BuilderFactory.htlcLock()
+            .htlcLockAsset({
+                secretHash: "0".repeat(64),
+                expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
+            })
+            .amount("100")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("4")
+            .fee("300")
+            .sign("sender's secret")
+            .build();
+        const htlcClaim = Transactions.BuilderFactory.htlcClaim()
+            .htlcClaimAsset({
+                lockTransactionId: htlcLock.id,
+                unlockSecret: "1".repeat(64),
+            })
+            .amount("0")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("5")
+            .sign("sender's secret")
+            .build();
+        const block4 = bip39.forge([htlcLock.data, htlcClaim.data], {
+            timestamp: Crypto.Slots.getTime(),
+            previousBlock: block3.data,
+            reward: new Utils.BigNumber("100"),
+        });
+
+        const blockRepository = getCustomRepository(BlockRepository);
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        await blockRepository.saveBlocks([block1, block2, block3, block4]);
+        const unlockTransactions = await transactionRepository.findByHtlcLocks([htlcLock.id]);
+
+        expect(unlockTransactions.length).toBe(1);
+        expect(unlockTransactions[0].id).toBe(htlcClaim.id);
+    });
+});
+
+describe("TransactionRepository.getOpenHtlcLocks", () => {
+    it("should find all htlc locks and add open field indicating if they are open", async () => {
+        const htlcLock1 = Transactions.BuilderFactory.htlcLock()
+            .htlcLockAsset({
+                secretHash: "1".repeat(64),
+                expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
+            })
+            .amount("100")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("4")
+            .fee("300")
+            .sign("sender's secret")
+            .build();
+        const htlcLock2 = Transactions.BuilderFactory.htlcLock()
+            .htlcLockAsset({
+                secretHash: "2".repeat(64),
+                expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
+            })
+            .amount("100")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("5")
+            .fee("300")
+            .sign("sender's secret")
+            .build();
+        const htlcClaim1 = Transactions.BuilderFactory.htlcClaim()
+            .htlcClaimAsset({
+                lockTransactionId: htlcLock1.id,
+                unlockSecret: "1".repeat(64),
+            })
+            .amount("0")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("6")
+            .sign("sender's secret")
+            .build();
+        const block4 = bip39.forge([htlcLock1.data, htlcLock2.data, htlcClaim1.data], {
+            timestamp: Crypto.Slots.getTime(),
+            previousBlock: block3.data,
+            reward: new Utils.BigNumber("100"),
+        });
+
+        const blockRepository = getCustomRepository(BlockRepository);
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        await blockRepository.saveBlocks([block1, block2, block3, block4]);
+        const lockTransactions = await transactionRepository.getOpenHtlcLocks();
+
+        console.log(lockTransactions[0]);
+
+        expect(lockTransactions.length).toBe(1);
+        expect(lockTransactions[0].id).toBe(htlcLock2.id);
+    });
+});

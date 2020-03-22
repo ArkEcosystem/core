@@ -150,46 +150,47 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     public async findByHtlcLocks(lockIds: string[]): Promise<Transaction[]> {
         return this.createQueryBuilder()
             .select()
-            .where("type IN (:...lockIds)", { lockIds })
-            .andWhere("type_group = 1")
-            .andWhere(
-                `
-                (
-                    asset->'refund'->'lockTransactionId' ?| array[:lockIds]
-                OR
-                    asset->'claim'->'lockTransactionId' ?| array[:lockIds]
-                )
-            `,
+            .where(
+                new Brackets(qb => {
+                    qb.where(`type_group = ${Enums.TransactionTypeGroup.Core}`)
+                        .andWhere(`type = ${Enums.TransactionType.HtlcClaim}`)
+                        .andWhere("asset->'claim'->>'lockTransactionId' IN (:...lockIds)", { lockIds });
+                }),
+            )
+            .orWhere(
+                new Brackets(qb => {
+                    qb.where(`type_group = ${Enums.TransactionTypeGroup.Core}`)
+                        .andWhere(`type = ${Enums.TransactionType.HtlcRefund}`)
+                        .andWhere("asset->'refund'->>'lockTransactionId' IN (:...lockIds)", { lockIds });
+                }),
             )
             .getMany();
     }
 
-    public async getOpenHtlcLocks(): Promise<Array<Transaction & { open: boolean }>> {
-        const lockedIds = this.createQueryBuilder()
-            .select([])
-            .addSelect(
-                `COALESCE(
-                asset->'refund'->>'lockTransactionId',
-                asset->'claim'->>'lockTransactionId'
-            )`,
-                "id",
-            )
-            .where("type IN (9, 10)")
-            .andWhere("type_group = 1");
-
+    public async getOpenHtlcLocks(): Promise<Array<Transaction>> {
         return this.createQueryBuilder()
             .select()
-            .addSelect(subQuery => {
-                return subQuery
-                    .select([])
-                    .select("id")
-                    .where("T.id IN (" + lockedIds.getQuery() + ")")
-                    .from(Transaction, "T")
-                    .limit(1);
-            }, "open")
-            .where("type = 8")
-            .andWhere("type_group = 1")
-            .getRawMany();
+            .where(`type_group = ${Enums.TransactionTypeGroup.Core}`)
+            .andWhere(`type = ${Enums.TransactionType.HtlcLock}`)
+            .andWhere(qb => {
+                const claimedIdsSubQuery = qb
+                    .subQuery()
+                    .select("asset->'claim'->>'lockTransactionId'")
+                    .from(Transaction, "t")
+                    .where(`type_group = ${Enums.TransactionTypeGroup.Core}`)
+                    .andWhere(`type = ${Enums.TransactionType.HtlcClaim}`);
+                return `id NOT IN ${claimedIdsSubQuery.getQuery()}`;
+            })
+            .andWhere(qb => {
+                const refundedIdsSubQuery = qb
+                    .subQuery()
+                    .select("asset->'refund'->>'lockTransactionId'")
+                    .from(Transaction, "t")
+                    .where(`type_group = ${Enums.TransactionTypeGroup.Core}`)
+                    .andWhere(`type = ${Enums.TransactionType.HtlcRefund}`);
+                return `id NOT IN ${refundedIdsSubQuery.getQuery()}`;
+            })
+            .getMany();
     }
 
     public async getClaimedHtlcLockBalances(): Promise<{ amount: string; recipientId: string }[]> {
