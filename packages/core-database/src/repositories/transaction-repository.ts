@@ -194,30 +194,40 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
             .getMany();
     }
 
-    public async getClaimedHtlcLockBalances(): Promise<{ amount: string; recipientId: string }[]> {
-        const lockedIds = this.createQueryBuilder()
-            .select("id")
-            .where("type = 9")
-            .andWhere("type_group = 1");
-
+    public async getClaimedHtlcLockBalances(): Promise<{ recipientId: string; claimedBalance: string }[]> {
         return this.createQueryBuilder()
-            .select("recipient_id")
-            .addSelect("SUM(amount)", "amount")
-            .where("id IN (" + lockedIds.getQuery() + ")")
+            .select(`recipient_id AS "recipientId"`)
+            .addSelect("SUM(amount)", "claimedBalance")
+            .where(`type_group = ${Enums.TransactionTypeGroup.Core}`)
+            .andWhere(`type = ${Enums.TransactionType.HtlcLock}`)
+            .andWhere(qb => {
+                const claimedLockIdsSubQuery = qb
+                    .subQuery()
+                    .select("asset->'claim'->>'lockTransactionId'")
+                    .from(Transaction, "t")
+                    .where(`type_group = ${Enums.TransactionTypeGroup.Core}`)
+                    .andWhere(`type = ${Enums.TransactionType.HtlcClaim}`);
+                return `id IN ${claimedLockIdsSubQuery.getQuery()}`;
+            })
             .groupBy("recipient_id")
             .getRawMany();
     }
 
-    public async getRefundedHtlcLockBalances(): Promise<{ amount: string; senderPublicKey: string }[]> {
-        const lockedIds = this.createQueryBuilder()
-            .select("id")
-            .where("type = 10")
-            .andWhere("type_group = 1");
-
+    public async getRefundedHtlcLockBalances(): Promise<{ refundedBalance: string; senderPublicKey: string }[]> {
         return this.createQueryBuilder()
-            .select("sender_public_key")
-            .addSelect("SUM(amount)", "amount")
-            .where("id IN (" + lockedIds.getQuery() + ")")
+            .select(`sender_public_key AS "senderPublicKey"`)
+            .addSelect("SUM(amount)", "refundedBalance")
+            .where(`type_group = ${Enums.TransactionTypeGroup.Core}`)
+            .andWhere(`type = ${Enums.TransactionType.HtlcLock}`)
+            .andWhere(qb => {
+                const refundedLockIdsSubQuery = qb
+                    .subQuery()
+                    .select("asset->'refund'->>'lockTransactionId'")
+                    .from(Transaction, "t")
+                    .where(`type_group = ${Enums.TransactionTypeGroup.Core}`)
+                    .andWhere(`type = ${Enums.TransactionType.HtlcRefund}`);
+                return `id IN ${refundedLockIdsSubQuery.getQuery()}`;
+            })
             .groupBy("sender_public_key")
             .getRawMany();
     }

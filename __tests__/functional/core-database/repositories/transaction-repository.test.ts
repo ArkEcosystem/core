@@ -236,10 +236,7 @@ describe("TransactionRepository.getOpenHtlcLocks", () => {
             .sign("sender's secret")
             .build();
         const htlcClaim1 = Transactions.BuilderFactory.htlcClaim()
-            .htlcClaimAsset({
-                lockTransactionId: htlcLock1.id,
-                unlockSecret: "1".repeat(64),
-            })
+            .htlcClaimAsset({ lockTransactionId: htlcLock1.id, unlockSecret: "1".repeat(64) })
             .amount("0")
             .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("6")
@@ -256,9 +253,123 @@ describe("TransactionRepository.getOpenHtlcLocks", () => {
         await blockRepository.saveBlocks([block1, block2, block3, block4]);
         const lockTransactions = await transactionRepository.getOpenHtlcLocks();
 
-        console.log(lockTransactions[0]);
-
         expect(lockTransactions.length).toBe(1);
         expect(lockTransactions[0].id).toBe(htlcLock2.id);
+    });
+});
+
+describe("TransactionRepository.getClaimedHtlcLockBalances", () => {
+    it("should return sum of claimed amounts grouped by recipients", async () => {
+        const htlcLock1 = Transactions.BuilderFactory.htlcLock()
+            .htlcLockAsset({
+                secretHash: "1".repeat(64),
+                expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
+            })
+            .amount("100")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("4")
+            .fee("300")
+            .sign("sender's secret")
+            .build();
+        const htlcLock2 = Transactions.BuilderFactory.htlcLock()
+            .htlcLockAsset({
+                secretHash: "2".repeat(64),
+                expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
+            })
+            .amount("100")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("5")
+            .fee("300")
+            .sign("sender's secret")
+            .build();
+        const htlcClaim1 = Transactions.BuilderFactory.htlcClaim()
+            .htlcClaimAsset({ lockTransactionId: htlcLock1.id, unlockSecret: "1".repeat(64) })
+            .amount("0")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("6")
+            .sign("sender's secret")
+            .build();
+        const htlcClaim2 = Transactions.BuilderFactory.htlcClaim()
+            .htlcClaimAsset({ lockTransactionId: htlcLock2.id, unlockSecret: "1".repeat(64) })
+            .amount("0")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("7")
+            .sign("sender's secret")
+            .build();
+        const block4 = bip39.forge([htlcLock1.data, htlcLock2.data, htlcClaim1.data, htlcClaim2.data], {
+            timestamp: Crypto.Slots.getTime(),
+            previousBlock: block3.data,
+            reward: new Utils.BigNumber("100"),
+        });
+
+        const blockRepository = getCustomRepository(BlockRepository);
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        await blockRepository.saveBlocks([block1, block2, block3, block4]);
+        const claimedBalances = await transactionRepository.getClaimedHtlcLockBalances();
+
+        expect(claimedBalances).toStrictEqual([
+            {
+                recipientId: htlcLock1.data.recipientId,
+                claimedBalance: "200",
+            },
+        ]);
+    });
+});
+
+describe("TransactionRepository.getRefundedHtlcLockBalances", () => {
+    it("should return sum of claimed amounts grouped by recipients", async () => {
+        const htlcLock1 = Transactions.BuilderFactory.htlcLock()
+            .htlcLockAsset({
+                secretHash: "1".repeat(64),
+                expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
+            })
+            .amount("100")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("4")
+            .fee("300")
+            .sign("sender's secret")
+            .build();
+        const htlcLock2 = Transactions.BuilderFactory.htlcLock()
+            .htlcLockAsset({
+                secretHash: "2".repeat(64),
+                expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
+            })
+            .amount("100")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("5")
+            .fee("300")
+            .sign("sender's secret")
+            .build();
+        const htlcRefund1 = Transactions.BuilderFactory.htlcRefund()
+            .htlcRefundAsset({ lockTransactionId: htlcLock1.id })
+            .amount("0")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("6")
+            .sign("sender's secret")
+            .build();
+        const htlcRefund2 = Transactions.BuilderFactory.htlcRefund()
+            .htlcRefundAsset({ lockTransactionId: htlcLock2.id })
+            .amount("0")
+            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .nonce("7")
+            .sign("sender's secret")
+            .build();
+        const block4 = bip39.forge([htlcLock1.data, htlcLock2.data, htlcRefund1.data, htlcRefund2.data], {
+            timestamp: Crypto.Slots.getTime(),
+            previousBlock: block3.data,
+            reward: new Utils.BigNumber("100"),
+        });
+
+        const blockRepository = getCustomRepository(BlockRepository);
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        await blockRepository.saveBlocks([block1, block2, block3, block4]);
+        const refundedBalances = await transactionRepository.getRefundedHtlcLockBalances();
+
+        expect(refundedBalances).toStrictEqual([
+            {
+                senderPublicKey: htlcLock1.data.senderPublicKey,
+                refundedBalance: "200",
+            },
+        ]);
     });
 });

@@ -27,12 +27,12 @@ export const transactionRepository = {
     },
     getClaimedHtlcLockBalances() {
         return mockTransaction
-            ? [{ amount: mockTransaction.data.amount, recipientId: mockTransaction.data.recipientId }]
+            ? [{ claimedBalance: mockTransaction.data.amount, recipientId: mockTransaction.data.recipientId }]
             : [];
     },
     getRefundedHtlcLockBalances() {
         return mockTransaction
-            ? [{ amount: mockTransaction.data.amount, senderPublicKey: mockTransaction.data.senderPublicKey }]
+            ? [{ refundedBalance: mockTransaction.data.amount, senderPublicKey: mockTransaction.data.senderPublicKey }]
             : [];
     },
     search(filter: SearchFilter): any {
