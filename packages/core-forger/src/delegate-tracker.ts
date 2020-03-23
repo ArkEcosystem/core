@@ -89,7 +89,11 @@ export class DelegateTracker {
 
         if (activeDelegates.length < delegatesCount) {
             return this.logger.warning(
-                `Tracker only has ${activeDelegates.length} active delegates from a required ${delegatesCount}`,
+                `Tracker only has ${Utils.pluralize(
+                    "active delegate",
+                    activeDelegates.length,
+                    true,
+                )} from a required ${delegatesCount}`,
             );
         }
 
