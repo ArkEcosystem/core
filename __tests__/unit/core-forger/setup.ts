@@ -15,10 +15,12 @@ export const setup = async activeDelegates => {
 
     const error: jest.SpyInstance = jest.fn();
     const debug: jest.SpyInstance = jest.fn();
+    const warning: jest.SpyInstance = jest.fn();
 
     const logger = {
         error,
         debug,
+        warning,
     };
 
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);

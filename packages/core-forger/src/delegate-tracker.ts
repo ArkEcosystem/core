@@ -87,6 +87,16 @@ export class DelegateTracker {
             }
         }
 
+        if (activeDelegates.length < delegatesCount) {
+            return this.logger.warning(
+                `Tracker only has ${Utils.pluralize(
+                    "active delegate",
+                    activeDelegates.length,
+                    true,
+                )} from a required ${delegatesCount}`,
+            );
+        }
+
         // Determine Next Forger Usernames...
         this.logger.debug(
             `Next Forgers: ${JSON.stringify(
