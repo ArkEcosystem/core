@@ -213,7 +213,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
             .getRawMany();
     }
 
-    public async getRefundedHtlcLockBalances(): Promise<{ refundedBalance: string; senderPublicKey: string }[]> {
+    public async getRefundedHtlcLockBalances(): Promise<{ senderPublicKey: string; refundedBalance: string }[]> {
         return this.createQueryBuilder()
             .select(`sender_public_key AS "senderPublicKey"`)
             .addSelect("SUM(amount)", "refundedBalance")
