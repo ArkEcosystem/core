@@ -55,4 +55,34 @@ describe("File", () => {
             removeSync.mockReset();
         });
     });
+
+    describe("#update", () => {
+        it("should successfully install the plugin", async () => {
+            // Arrange
+            const fileName: string = `${dirSync().name}/utils.tgz`;
+
+            fs.ensureFileSync(fileName);
+
+            await tar.create(
+                {
+                    gzip: true,
+                    file: fileName,
+                },
+                [fileSync().name, fileSync().name, fileSync().name],
+            );
+
+            const removeSync = jest.spyOn(fs, "removeSync").mockImplementation();
+
+            // Act
+            await source.update(fileName);
+
+            // Assert
+            expect(removeSync).toHaveBeenCalledWith(`${dataPath}/plugins/utils`);
+            expect(fs.existsSync(`${dataPath}/plugins`)).toBeTrue();
+            expect(removeSync).toHaveBeenLastCalledWith(fileName);
+
+            // Reset
+            removeSync.mockReset();
+        });
+    });
 });
