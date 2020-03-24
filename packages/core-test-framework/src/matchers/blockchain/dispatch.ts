@@ -20,6 +20,7 @@ expect.extend({
         const pass = calls && calls[0] ? Object.is(calls[0][0], expected) : false;
 
         // @ts-ignore
+        /* istanbul ignore next */
         const messageStr = `Expected "${expected}" to ${this.isNot ? "not" : ""} be dispatched, received ${
             calls && calls[0] ? calls[0][0] : ""
         }`;

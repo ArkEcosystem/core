@@ -40,9 +40,19 @@ afterEach(() => {
 describe("ApiHelpers", () => {
     describe("request", () => {
         it("should return response", async () => {
-            let response = await api.request("GET", "blockchain", "dummy_params");
+            let response = await api.request("GET", "blockchain", "dummy_params", {});
             expect(response).toBe(response);
-        })
+        });
+
+        it("should return response", async () => {
+            let response = await api.request("POST", "blockchain", "dummy_params", {});
+            expect(response).toBe(response);
+        });
+
+        it("should return response - without params", async () => {
+            let response = await api.request("POST", "blockchain");
+            expect(response).toBe(response);
+        });
     });
 
     describe("expectJson", () => {
