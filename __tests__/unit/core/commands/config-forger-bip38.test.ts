@@ -108,7 +108,7 @@ describe("BIP38Command", () => {
     });
 
     it("should fail to configure from a prompt if it doesn't receive a valid bip39", async () => {
-        await expect(cli.withFlags({ bip39: "random-string" }).execute(Command)).rejects.toThrow(
+        await expect(cli.withFlags({ bip39: "random-string", password: "test" }).execute(Command)).rejects.toThrow(
             "Failed to verify the given passphrase as BIP39 compliant.",
         );
     });
