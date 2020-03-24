@@ -40,7 +40,7 @@ expect.extend({
 
         return {
             pass,
-            message: () =>
+            message: /* istanbul ignore next */ () =>
                 // @ts-ignore
                 `expected ${transaction.id} ${this.isNot ? "not" : ""} to be accepted ${
                     error ? "(error: " + error + ")" : ""
@@ -67,7 +67,7 @@ expect.extend({
 
         return {
             pass,
-            message: () =>
+            message: /* istanbul ignore next */ () =>
                 // @ts-ignore
                 `expected all transactions ${this.isNot ? "not" : ""} to be accepted ${
                     error ? "(error: " + error + ")" : ""
@@ -98,7 +98,7 @@ expect.extend({
 
         return {
             pass,
-            message: () =>
+            message: /* istanbul ignore next */ () =>
                 // @ts-ignore
                 `expected transactions ${this.isNot ? "not" : ""} to be accepted ${
                     error ? "(error: " + error + ")" : ""

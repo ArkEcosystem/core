@@ -39,11 +39,12 @@ const isValidBlock = block => {
 expect.extend({
     toBeValidBlock: (actual, expected) => {
         return {
-            message: () => `Expected ${JSON.stringify(actual)} to be a valid block`,
+            message: /* istanbul ignore next */ () => `Expected ${JSON.stringify(actual)} to be a valid block`,
             pass: isValidBlock(actual),
         };
     },
     toBeValidArrayOfBlocks: (actual, expected) => {
+        /* istanbul ignore next */
         const message = () => `Expected ${JSON.stringify(actual)} to be a valid array of blocks`;
 
         if (!Array.isArray(actual)) {

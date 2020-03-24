@@ -23,6 +23,7 @@ expect.extend({
         const messageStr = `Expected "${expected}" to ${this.isNot ? "not" : ""} be dispatched, received ${
             calls && calls[0] ? calls[0][0] : ""
         }`;
+        /* istanbul ignore next */
         const message = () => messageStr;
 
         return {
