@@ -33,9 +33,9 @@ expect.extend({
 
             error = JSON.stringify(parsedBody.errors);
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             error = e.message;
-            console.error(error);
+            // console.error(error);
         }
 
         return {
@@ -62,7 +62,7 @@ expect.extend({
             error = JSON.stringify(parsedBody.errors);
         } catch (e) {
             error = e.message;
-            console.error(error);
+            // console.error(error);
         }
 
         return {
@@ -93,7 +93,7 @@ expect.extend({
         } catch (e) {
             pass = false;
             error = e.message;
-            console.error(error);
+            // console.error(error);
         }
 
         return {

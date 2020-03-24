@@ -16,7 +16,7 @@ expect.extend({
         // TODO based on type
         const allowedKeys = Utils.sortBy([
             "id",
-            "blockid",
+            "blockId",
             "type",
             "timestamp",
             "amount",
