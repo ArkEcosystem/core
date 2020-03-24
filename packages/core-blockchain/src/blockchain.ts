@@ -62,9 +62,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.blockProcessor = this.app.resolve<BlockProcessor>(BlockProcessor);
 
-        this.queue = async.queue((blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
+        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
             try {
-                return this.processBlocks(blockList.blocks, cb);
+                return await this.processBlocks(blockList.blocks, cb);
             } catch (error) {
                 this.app.log.error(
                     `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
@@ -115,11 +115,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.emitter.listen(Enums.ForgerEvent.Missing, { handle: this.checkMissingBlocks });
 
-        this.emitter.listen(Enums.RoundEvent.Applied, {
-            handle: () => {
-                this.missedBlocks = 0;
-            },
-        });
+        this.emitter.listen(Enums.RoundEvent.Applied, { handle: this.resetMissedBlocks });
 
         return true;
     }
@@ -566,7 +562,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 this.dispatch("FORK");
             }
 
-            this.missedBlocks = 0;
+            this.resetMissedBlocks();
         }
+    }
+
+    private resetMissedBlocks(): void {
+        this.missedBlocks = 0;
     }
 }
