@@ -4,6 +4,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "../contracts";
 
+@Container.injectable()
 export class NonceOutOfOrderHandler implements BlockHandler {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
