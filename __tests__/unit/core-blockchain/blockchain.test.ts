@@ -20,15 +20,16 @@ describe("Blockchain", () => {
     const peerStorage: any = {};
     const blockProcessor: any = {};
 
-    const appContracts = {
+    const applicationGet = {
         [Container.Identifiers.PeerNetworkMonitor]: peerNetworkMonitor,
         [Container.Identifiers.PeerStorage]: peerStorage,
+        [Container.Identifiers.StateStore]: stateStore,
     };
 
     const application = {
         log: logService,
         resolve: () => blockProcessor,
-        get: id => appContracts[id],
+        get: id => applicationGet[id],
         events: eventDispatcherService
     };
 
@@ -58,6 +59,7 @@ describe("Blockchain", () => {
         stateStore.wakeUpTimeout = undefined;
         stateStore.lastDownloadedBlock = undefined;
         stateStore.blockPing = undefined;
+        stateStore.getGenesisBlock = jest.fn().mockReturnValue(Networks.testnet.genesisBlock);
         stateStore.getLastBlock = jest.fn();
         stateStore.setLastBlock = jest.fn();
         stateStore.pushPingBlock = jest.fn();
@@ -494,9 +496,10 @@ describe("Blockchain", () => {
                 .mockReturnValueOnce(blockHeight2) // called in __removeBlocks
                 .mockReturnValueOnce(blockHeight2) // called in revertLastBlock
                 .mockReturnValue(genesisBlock);
-            databaseService.getBlocks = jest.fn().mockReturnValueOnce(
-                [ { ...blockHeight2.data, transactions: blockHeight2.transactions } ]
-            );
+            databaseService.getBlocks = jest.fn().mockReturnValueOnce([
+                { ...blockHeight2.data, transactions: blockHeight2.transactions },
+                genesisBlock
+            ]);
 
             await blockchain.removeBlocks(blockHeight2.data.height + 10);
 
@@ -633,6 +636,50 @@ describe("Blockchain", () => {
             expect(callback).toHaveBeenLastCalledWith([ expect.any(Blocks.Block) ]);
             expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(1);
         });
+
+        describe("calling processBlocks from the queue", () => {
+            it("should call processBlocks from queue handler", async () => {
+                const blockchain = container.resolve<Blockchain>(Blockchain);
+                blockchain.initialize({});
+                stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
+                blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
+                stateStore.lastDownloadedBlock = { height: 23111 };
+                
+                const spyQueuePush = jest.spyOn(blockchain.queue, "push");
+                const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
+    
+                blockchain.enqueueBlocks([currentBlock]);
+    
+                expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [currentBlock] });
+                await delay(1000);
+    
+                expect(spyProcessBlocks).toBeCalledTimes(1);
+            });
+
+            it("should log an error when processBlocks throws for any reason", async () => {
+                const blockchain = container.resolve<Blockchain>(Blockchain);
+                blockchain.initialize({});
+                stateStore.getLastBlock = jest.fn().mockImplementationOnce(() => {
+                    throw new Error("oops")
+                });
+                blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
+                stateStore.lastDownloadedBlock = { height: 23111 };
+                
+                const spyQueuePush = jest.spyOn(blockchain.queue, "push");
+                const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
+    
+                const blocksToEnqueue = [ currentBlock ];
+                blockchain.enqueueBlocks(blocksToEnqueue);
+    
+                expect(spyQueuePush).toHaveBeenCalledWith({ blocks: blocksToEnqueue });
+                await delay(1000);
+    
+                expect(spyProcessBlocks).toBeCalledTimes(1);
+                expect(logService.error).toBeCalledWith(
+                    `Failed to process ${blocksToEnqueue.length} blocks from height ${blocksToEnqueue[0].height} in queue.`
+                );
+            });
+        })
     });
 
     describe("resetLastDownloadedBlock", () => {
