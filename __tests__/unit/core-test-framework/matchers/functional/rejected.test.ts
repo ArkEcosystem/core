@@ -37,13 +37,13 @@ describe("Rejected", () => {
             expect(spyOnPost).toHaveBeenCalled();
         });
 
-        it("should not pass due thrown error", async () => {
+        it("should pass due thrown error", async () => {
             // @ts-ignore
             let spyOnPost = jest.spyOn(got, "post").mockImplementation((url: any) => {
                 throw new Error();
             });
 
-            await expect(transactions[0]).not.toBeRejected();
+            await expect(transactions[0]).toBeRejected();
             expect(spyOnPost).toHaveBeenCalled();
         });
     });
@@ -88,13 +88,13 @@ describe("Rejected", () => {
             expect(spyOnPost).toHaveBeenCalled();
         });
 
-        it("should not pass due thrown error", async () => {
+        it("should pass due thrown error", async () => {
             // @ts-ignore
             let spyOnPost = jest.spyOn(got, "post").mockImplementation((url: any) => {
                 throw new Error();
             });
 
-            await expect(transactions).not.toBeEachRejected();
+            await expect(transactions).toBeEachRejected();
             expect(spyOnPost).toHaveBeenCalled();
         });
     });

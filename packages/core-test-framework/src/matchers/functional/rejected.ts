@@ -15,7 +15,7 @@ declare global {
 
 expect.extend({
     toBeRejected: async (transaction: Interfaces.ITransactionData) => {
-        let pass: boolean = false;
+        let pass: boolean = true;
         let response: string;
         try {
             const { body } = await got.post(`http://localhost:4003/api/transactions`, {
@@ -35,7 +35,7 @@ expect.extend({
         };
     },
     toBeEachRejected: async (transactions: Interfaces.ITransactionData[]) => {
-        let pass: boolean = false;
+        let pass: boolean = true;
         let response: string;
 
         try {
@@ -53,9 +53,7 @@ expect.extend({
                     break;
                 }
             }
-        } catch (e) {
-            pass = false
-        } // tslint:disable-line
+        } catch (e) {} // tslint:disable-line
 
         return {
             pass,
