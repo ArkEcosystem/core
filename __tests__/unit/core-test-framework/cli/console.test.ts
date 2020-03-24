@@ -47,8 +47,6 @@ export class Command extends Commands.Command {
     public async execute(): Promise<void> {
         spyOnExecute(this.getFlag("test"));
         // spyOnExecute(this.getArguments("test"));
-        console.log(this.getFlags());
-        console.log(this.getArguments());
     }
 }
 
@@ -67,11 +65,11 @@ describe("Console", () => {
         expect(spyOnExecute).toHaveBeenCalledWith("flag_test");
     });
 
-    // TODO: Add support for arguments
-    // it("should execute with arguments", async () => {
-    //     let console = new Console();
-    //
-    //     await expect(console.withArgs(["-test_arg test123"]).execute(Command)).toResolve();
-    //     expect(spyOnExecute).toHaveBeenCalledWith("test");
-    // });
+    // TODO: Add support for arguments in console class
+    it("should execute with arguments", async () => {
+        let console = new Console();
+
+        await expect(console.withArgs(["-test_arg test123"]).execute(Command)).toResolve();
+        expect(spyOnExecute).toHaveBeenCalledWith("test");
+    });
 });
