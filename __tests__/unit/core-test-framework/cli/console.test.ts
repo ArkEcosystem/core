@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Console } from "@arkecosystem/core-test-framework/src";
-import { Commands, Container } from "@arkecosystem/core-cli";
+import { Console } from "@packages/core-test-framework/src";
+import { Commands, Container } from "@packages/core-cli";
 import Joi from "@hapi/joi";
 
 let spyOnExecute = jest.fn();

@@ -1,6 +1,6 @@
 import "@packages/core-test-framework/src/matchers/transactions/types/delegate-registration"
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import { Interfaces } from "@packages/crypto";
 
 let factory: FactoryBuilder;
 

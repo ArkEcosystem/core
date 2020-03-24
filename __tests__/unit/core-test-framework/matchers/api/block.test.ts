@@ -1,5 +1,5 @@
 import "@packages/core-test-framework/src/matchers/api/block"
-import { Utils } from "@arkecosystem/crypto";
+import { Utils } from "@packages/crypto";
 
 let block: any;
 

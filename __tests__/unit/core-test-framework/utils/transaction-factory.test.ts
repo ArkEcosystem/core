@@ -1,9 +1,9 @@
 import "jest-extended";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
-import { Sandbox } from "@arkecosystem/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { Identities, Managers, Utils } from "@arkecosystem/crypto";
-import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Identities, Managers, Utils } from "@packages/crypto";
+import { Generators } from "@packages/core-test-framework/src";
 import {
     passphrasePairsAsset,
     bridgechainRegistrationAsset,

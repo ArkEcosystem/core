@@ -1,11 +1,11 @@
 import "jest-extended";
 
 import { performance } from "perf_hooks";
-import { Generators, Sandbox } from "@arkecosystem/core-test-framework";
-import { Identities, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
-import { Container } from "@arkecosystem/core-kernel";
+import { Generators, Sandbox } from "@packages/core-test-framework";
+import { Identities, Interfaces, Managers, Utils } from "@packages/crypto";
+import { Container } from "@packages/core-kernel";
 import { BlockchainMocks, StateStoreMocks, WalletRepositoryMocks } from "./mocks";
-import { Block } from "@arkecosystem/core-database/src/models";
+import { Block } from "@packages/core-database/src/models";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import {
     getLastHeight,

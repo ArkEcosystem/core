@@ -1,8 +1,8 @@
 import "jest-extended";
-import { CoreOptions, CryptoOptions, Sandbox } from "@arkecosystem/core-test-framework/src/app";
-import { ServiceProvider as CoreStateServiceProvider } from "@arkecosystem/core-state";
+import { CoreOptions, CryptoOptions, Sandbox } from "@packages/core-test-framework/src/app";
+import { ServiceProvider as CoreStateServiceProvider } from "@packages/core-state";
 import { resolve } from "path";
-import { Container } from "@arkecosystem/core-kernel";
+import { Container } from "@packages/core-kernel";
 
 describe("Sandbox", () => {
     it("should create app", async () => {

@@ -1,6 +1,6 @@
 import "@packages/core-test-framework/src/matchers/transactions/valid-second-signature"
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import { Identities, Interfaces } from "@arkecosystem/crypto";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import { Identities, Interfaces } from "@packages/crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 
 let factory: FactoryBuilder;

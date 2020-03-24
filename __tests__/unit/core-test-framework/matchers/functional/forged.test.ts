@@ -1,5 +1,5 @@
 import "@packages/core-test-framework/src/matchers/functional/forged"
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@packages/crypto";
 import got from "got";
 
 let block: Partial<Interfaces.IBlockData>;

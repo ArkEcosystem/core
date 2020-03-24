@@ -1,8 +1,8 @@
 import "jest-extended";
-import { Sandbox } from "@arkecosystem/core-test-framework";
-import { Identifiers } from "@arkecosystem/core-api";
+import { Sandbox } from "@packages/core-test-framework";
+import { Identifiers } from "@packages/core-api";
 import { ApiHelpers } from "@packages/core-test-framework/src/utils/api";
-import { Utils } from "@arkecosystem/core-kernel";
+import { Utils } from "@packages/core-kernel";
 import {
     blockResponse,
     delegateResponse,

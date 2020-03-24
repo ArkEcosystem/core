@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { Wallets } from "@arkecosystem/core-state";
+import { Wallets } from "@packages/core-state";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { Utils } from "@arkecosystem/crypto";
+import { Utils } from "@packages/crypto";
 
 let factory: FactoryBuilder;
 

@@ -2,8 +2,8 @@ import "jest-extended";
 
 import fsExtra from "fs-extra";
 import { PathLike } from "fs";
-import { CoreGenerator } from "@arkecosystem/core-test-framework/src/app/generators/core";
-import { CoreConfigPaths } from "@arkecosystem/core-test-framework/src";
+import { CoreGenerator } from "@packages/core-test-framework/src/app/generators/core";
+import { CoreConfigPaths } from "@packages/core-test-framework/src";
 import { sandboxOptions } from "./__fixtures__/assets";
 
 
