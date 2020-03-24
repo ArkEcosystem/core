@@ -12,6 +12,7 @@ import { mockLastBlock, setup } from "./setup";
 
 let delegateTracker: DelegateTracker;
 let loggerDebug: jest.SpyInstance;
+let loggerWarning: jest.SpyInstance;
 let activeDelegates;
 
 beforeEach(async () => {
@@ -19,6 +20,7 @@ beforeEach(async () => {
     const initialEnv = await setup(activeDelegates);
     delegateTracker = initialEnv.sandbox.app.resolve<DelegateTracker>(DelegateTracker);
     loggerDebug = initialEnv.spies.logger.debug;
+    loggerWarning = initialEnv.spies.logger.warning;
 });
 
 beforeEach(() => {
@@ -119,7 +121,7 @@ describe("DelegateTracker", () => {
             }
         });
 
-        it("should handle cases where there are less active delegates than the required delegate count", async () => {
+        it("should log warning when there are less active delegates than the required delegate count", async () => {
             const mockMileStoneData = {
                 blocktime: 2,
                 activeDelegates: 80,
@@ -130,20 +132,9 @@ describe("DelegateTracker", () => {
             delegateTracker.initialize(activeDelegates);
             await delegateTracker.handle();
 
-            /**
-             * TODO: check this is desired behaviour
-             * When there are less activeDelegates than required this behaves differently.
-             * In this case, the first entry in nextDelegates is calculated as forging next (as opposed to the second delegate in the test above).
-             * We also don't calculate (or log) the time until forging for any delegate.
-             */
-            for (let i = 0; i < activeDelegates.length; i++) {
-                const nextToForge = activeDelegates[i];
-                if (i === 0) {
-                    expect(loggerDebug).toHaveBeenCalledWith(`${nextToForge.publicKey} will forge next.`);
-                } else {
-                    expect(loggerDebug).toHaveBeenNthCalledWith(i + 2, `${nextToForge.publicKey} has already forged.`);
-                }
-            }
+            expect(loggerWarning).toHaveBeenCalledWith(
+                `Tracker only has ${activeDelegates.length} active delegates from a required ${mockMileStoneData.activeDelegates}`,
+            );
         });
     });
 });
