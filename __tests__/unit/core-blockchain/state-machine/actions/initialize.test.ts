@@ -195,15 +195,9 @@ describe("Initialize", () => {
             it("should dispatch FAILURE", async () => {
                 const initialize = container.resolve<Initialize>(Initialize);
 
-                const lastBlock = {
-                    data: {
-                        id: "345",
-                        height: 1,
-                        payloadHash: "6d84d08bd299ed97c212c886c98a57e36545c8f5d645ca7eeae63a8bd62d8988"
-                    }
-                };
-                stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                databaseService.deleteRound = jest.fn().mockRejectedValueOnce(new Error("oops"));
+                stateStore.getLastBlock = jest.fn().mockImplementationOnce(() => {
+                    throw new Error("oops")
+                });
                 databaseService.restoredDatabaseIntegrity = true;
                 process.env.NODE_ENV = "";
                 await initialize.handle();

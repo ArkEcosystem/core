@@ -4,7 +4,7 @@ import delay from "delay";
 import { Container, Enums } from "@arkecosystem/core-kernel";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "../../../packages/core-blockchain/src/processor/block-processor";
-import { Interfaces, Crypto, Utils, Blocks, Managers } from "@arkecosystem/crypto";
+import { Interfaces, Crypto, Utils, Blocks, Managers, Networks } from "@arkecosystem/crypto";
 
 describe("Blockchain", () => {
     const container = new Container.Container();
@@ -42,6 +42,8 @@ describe("Blockchain", () => {
         container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPoolService);
         container.bind(Container.Identifiers.StateMachine).toConstantValue(stateMachine);
         container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcherService);
+
+        Managers.configManager.setFromPreset("testnet");
     });
 
     beforeEach(() => {
@@ -83,6 +85,8 @@ describe("Blockchain", () => {
         peerStorage.hasPeers = jest.fn();
 
         blockProcessor.process = jest.fn();
+
+        transactionPoolService.readdTransactions = jest.fn();
     })
 
     describe("initialize", () => {
@@ -122,6 +126,30 @@ describe("Blockchain", () => {
 
             expect(spyDispatch).toBeCalledTimes(1);
             expect(spyDispatch).toHaveBeenLastCalledWith("START");
+        });
+
+        it("should dispatch START and return true even if stateStore is not ready when skipStartedCheck === true", async () => {
+            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const spyDispatch = jest.spyOn(blockchain, "dispatch");
+            
+            stateStore.started = false;
+            const bootResult = await blockchain.boot(true);
+
+            expect(bootResult).toBeTrue();
+            expect(spyDispatch).toBeCalledTimes(1);
+            expect(spyDispatch).toHaveBeenLastCalledWith("START");
+
+            // should be the same with process.env.CORE_SKIP_BLOCKCHAIN_STARTED_CHECK
+            jest.resetAllMocks();
+            stateStore.started = false;
+            process.env.CORE_SKIP_BLOCKCHAIN_STARTED_CHECK = "true";
+            const bootResultEnv = await blockchain.boot();
+
+            expect(bootResultEnv).toBeTrue();
+            expect(spyDispatch).toBeCalledTimes(1);
+            expect(spyDispatch).toHaveBeenLastCalledWith("START");
+
+            delete process.env.CORE_SKIP_BLOCKCHAIN_STARTED_CHECK;
         });
 
         it("should wait for stateStore to be started before resolving", async () => {
@@ -184,6 +212,22 @@ describe("Blockchain", () => {
 
             blockchain.setWakeUp();
             expect(stateStore.wakeUpTimeout).toBeDefined();
+        })
+
+        it("should dispatch WAKEUP when wake up function is called", () => {
+            const blockchain = container.resolve<Blockchain>(Blockchain);
+            jest.useFakeTimers();
+            const spyDispatch = jest.spyOn(blockchain, "dispatch");
+
+            blockchain.setWakeUp();
+            expect(spyDispatch).toBeCalledTimes(0);
+
+            jest.runAllTimers();
+
+            expect(spyDispatch).toBeCalledTimes(1);
+            expect(spyDispatch).toBeCalledWith("WAKEUP");
+
+            jest.useRealTimers();
         })
     });
 
@@ -298,7 +342,7 @@ describe("Blockchain", () => {
     });
 
     describe("enqueueBlocks", () => {
-        const blockData = { height: 30122 } as Interfaces.IBlockData;
+        const blockData = { height: 30122, numberOfTransactions: 0 } as Interfaces.IBlockData;
 
         it("should just return if blocks provided are an empty array", async () => {
             const blockchain = container.resolve<Blockchain>(Blockchain);
@@ -321,12 +365,147 @@ describe("Blockchain", () => {
             expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [blockData] });
         });
 
-        it.todo("divide blocks into chunks");
-        it.todo("hitting new milestone");
+        it("should push a chunk to the queue when currentTransactionsCount >= 150", async () => {
+            const blockchain = container.resolve<Blockchain>(Blockchain);
+            blockchain.initialize({});
+            stateStore.lastDownloadedBlock = { height: 23111 };
+            
+            const spyQueuePush = jest.spyOn(blockchain.queue, "push");
+
+            const blockWith150Txs = { height: blockData.height + 1, numberOfTransactions: 150} as Interfaces.IBlockData;
+
+            blockchain.enqueueBlocks([
+                blockWith150Txs,
+                blockData,
+            ]);
+
+            expect(spyQueuePush).toHaveBeenCalledTimes(2);
+            expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [blockWith150Txs] });
+            expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [blockData] });
+        });
+
+        it("should push a chunk to the queue when currentBlocksChunk.length > 100", async () => {
+            const blockchain = container.resolve<Blockchain>(Blockchain);
+            blockchain.initialize({});
+            stateStore.lastDownloadedBlock = { height: 23111 };
+            
+            const spyQueuePush = jest.spyOn(blockchain.queue, "push");
+
+            const blocksToEnqueue = [];
+            for (let i = 0; i <= 101; i++) {
+                blocksToEnqueue.push(blockData);
+            }
+            blockchain.enqueueBlocks(blocksToEnqueue);
+
+            expect(spyQueuePush).toHaveBeenCalledTimes(2);
+            expect(spyQueuePush).toHaveBeenCalledWith({ blocks: blocksToEnqueue.slice(-1) });
+            expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [blockData] });
+        });
+
+        it("should push a chunk to the queue when hitting new milestone", async () => {
+            const blockchain = container.resolve<Blockchain>(Blockchain);
+            blockchain.initialize({});
+            stateStore.lastDownloadedBlock = { height: 7555 };
+            
+            const spyQueuePush = jest.spyOn(blockchain.queue, "push");
+
+            const blockMilestone = { id: "123", height: 75600 } as Interfaces.IBlockData;
+            const blockAfterMilestone = { id: "456", height: 75601 } as Interfaces.IBlockData;
+            blockchain.enqueueBlocks([ blockMilestone, blockAfterMilestone ]);
+
+            expect(spyQueuePush).toHaveBeenCalledTimes(2);
+            expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [ blockMilestone ] });
+            expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [ blockAfterMilestone ] });
+        });
     });
 
+    const blockHeight2 = {
+        data: {
+            id: "17882607875259085966",
+            version: 0,
+            timestamp: 46583330,
+            height: 2,
+            reward: Utils.BigNumber.make("0"),
+            previousBlock: "17184958558311101492",
+            numberOfTransactions: 0,
+            totalAmount: Utils.BigNumber.make("0"),
+            totalFee: Utils.BigNumber.make("0"),
+            payloadLength: 0,
+            payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            generatorPublicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
+            blockSignature:
+                "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
+            createdAt: "2018-09-11T16:48:50.550Z",
+        },
+        transactions: []
+    };
+    const blockHeight3 = {
+        data: {
+            id: "7242383292164246617",
+            version: 0,
+            timestamp: 46583338,
+            height: 3,
+            reward: Utils.BigNumber.make("0"),
+            previousBlock: "17882607875259085966",
+            numberOfTransactions: 0,
+            totalAmount: Utils.BigNumber.make("0"),
+            totalFee: Utils.BigNumber.make("0"),
+            payloadLength: 0,
+            payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            generatorPublicKey: "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
+            blockSignature:
+                "304402204087bb1d2c82b9178b02b9b3f285de260cdf0778643064fe6c7aef27321d49520220594c57009c1fca543350126d277c6adeb674c00685a464c3e4bf0d634dc37e39",
+            createdAt: "2018-09-11T16:48:58.431Z",
+        },
+        transactions: []
+    };
     describe("removeBlocks", () => {
-        it.todo("removeBlocks tests");
+        it("should call revertBlock and setLastBlock for each block to be removed, and deleteBlocks with all blocks removed", async () => {
+            const blockchain = container.resolve<Blockchain>(Blockchain);
+            blockchain.initialize({});
+            
+            const blocksToRemove = [ blockHeight2, blockHeight3 ];
+            stateStore.getLastBlock = jest.fn()
+                .mockReturnValueOnce(blocksToRemove[1]) // called in clearAndStopQueue
+                .mockReturnValueOnce(blocksToRemove[1]) // called in removeBlocks
+                .mockReturnValueOnce(blocksToRemove[1]) // called in __removeBlocks
+                .mockReturnValueOnce(blocksToRemove[1]) // called in revertLastBlock
+                .mockReturnValueOnce(blocksToRemove[0]) // called in __removeBlocks
+                .mockReturnValueOnce(blocksToRemove[0]) // called in revertLastBlock
+            databaseService.getBlocks = jest.fn().mockReturnValueOnce(
+                blocksToRemove.map(b => ({ ...b.data, transactions: b.transactions}))
+            );
+
+            await blockchain.removeBlocks(2);
+
+            expect(databaseService.revertBlock).toHaveBeenCalledTimes(2);
+            expect(stateStore.setLastBlock).toHaveBeenCalledTimes(2);
+            expect(blockRepository.deleteBlocks).toHaveBeenCalledTimes(1);
+        });
+
+        it("should default to removing until genesis block when asked to remove more", async () => {
+            const blockchain = container.resolve<Blockchain>(Blockchain);
+            blockchain.initialize({});
+            
+            const genesisBlock = Networks.testnet.genesisBlock;
+            stateStore.getLastBlock = jest.fn()
+                .mockReturnValueOnce(blockHeight2) // called in clearAndStopQueue
+                .mockReturnValueOnce(blockHeight2) // called in removeBlocks
+                .mockReturnValueOnce(blockHeight2) // called in __removeBlocks
+                .mockReturnValueOnce(blockHeight2) // called in revertLastBlock
+                .mockReturnValue(genesisBlock);
+            databaseService.getBlocks = jest.fn().mockReturnValueOnce(
+                [ { ...blockHeight2.data, transactions: blockHeight2.transactions } ]
+            );
+
+            await blockchain.removeBlocks(blockHeight2.data.height + 10);
+
+            stateStore.getLastBlock = jest.fn();
+
+            expect(databaseService.revertBlock).toHaveBeenCalledTimes(1);
+            expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
+            expect(blockRepository.deleteBlocks).toHaveBeenCalledTimes(1);
+        });
     });
 
     describe("removeTopBlocks", () => {
@@ -360,40 +539,8 @@ describe("Blockchain", () => {
     });
 
     describe("processBlocks", () => {
-        const lastBlock = {
-            id: "17882607875259085966",
-            version: 0,
-            timestamp: 46583330,
-            height: 2,
-            reward: Utils.BigNumber.make("0"),
-            previousBlock: "17184958558311101492",
-            numberOfTransactions: 0,
-            totalAmount: Utils.BigNumber.make("0"),
-            totalFee: Utils.BigNumber.make("0"),
-            payloadLength: 0,
-            payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            generatorPublicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
-            blockSignature:
-                "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
-            createdAt: "2018-09-11T16:48:50.550Z",
-        };
-        const currentBlock = {
-            id: "7242383292164246617",
-            version: 0,
-            timestamp: 46583338,
-            height: 3,
-            reward: Utils.BigNumber.make("0"),
-            previousBlock: "17882607875259085966",
-            numberOfTransactions: 0,
-            totalAmount: Utils.BigNumber.make("0"),
-            totalFee: Utils.BigNumber.make("0"),
-            payloadLength: 0,
-            payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            generatorPublicKey: "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
-            blockSignature:
-                "304402204087bb1d2c82b9178b02b9b3f285de260cdf0778643064fe6c7aef27321d49520220594c57009c1fca543350126d277c6adeb674c00685a464c3e4bf0d634dc37e39",
-            createdAt: "2018-09-11T16:48:58.431Z",
-        }
+        const lastBlock = { ...blockHeight2.data, transactions: [] };
+        const currentBlock = { ...blockHeight3.data, transactions: [] };
         
         it("should process a new chained block", async () => {
             const blockchain = container.resolve<Blockchain>(Blockchain);
@@ -425,6 +572,24 @@ describe("Blockchain", () => {
             expect(callback).toHaveBeenLastCalledWith();
             expect(spyClearQueue).toBeCalledTimes(1);
             expect(spyResetLastDownloadedBlock).toBeCalledTimes(1);
+        });
+
+        it("should not process the remaining block if one is not accepted", async () => {
+            const blockchain = container.resolve<Blockchain>(Blockchain);
+            blockchain.initialize({});
+
+            const genesisBlock = Networks.testnet.genesisBlock;
+            stateStore.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
+            blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Rollback);
+            const callback = jest.fn();
+            const spyForkBlock = jest.spyOn(blockchain, "forkBlock");
+
+            await blockchain.processBlocks([ lastBlock, currentBlock ], callback);
+
+            expect(callback).toBeCalledTimes(1);
+            expect(callback).toHaveBeenLastCalledWith([]);
+            expect(blockProcessor.process).toBeCalledTimes(1); // only 1 out of the 2 blocks
+            expect(spyForkBlock).toBeCalledTimes(1); // because Rollback
         });
 
         it("should revert block when blockRepository saveBlocks fails", async () => {
@@ -663,6 +828,25 @@ describe("Blockchain", () => {
 
             await blockchain.checkMissingBlocks();
             expect(peerNetworkMonitor.checkNetworkHealth).toHaveBeenCalledTimes(1);
+        });
+
+        it("when missedBlocks passes the threshold and Math.random()<=0.8, should checkNetworkHealth and dispatch FORK if forked", async () => {
+            const blockchain = container.resolve<Blockchain>(Blockchain);
+            jest.spyOn(Math, "random").mockReturnValue(0.7);
+
+            const spyDispatch = jest.spyOn(blockchain, "dispatch");
+
+            peerNetworkMonitor.checkNetworkHealth = jest.fn().mockReturnValue({ forked: true });
+            for (let i = 1; i < threshold; i++) {
+                await blockchain.checkMissingBlocks();
+                expect(peerNetworkMonitor.checkNetworkHealth).toHaveBeenCalledTimes(0);
+                expect(spyDispatch).toBeCalledTimes(0);
+            }
+
+            await blockchain.checkMissingBlocks();
+            expect(peerNetworkMonitor.checkNetworkHealth).toHaveBeenCalledTimes(1);
+            expect(spyDispatch).toBeCalledTimes(1);
+            expect(spyDispatch).toBeCalledWith("FORK");
         });
 
         it("when missedBlocks passes the threshold and Math.random()>0.8, should do nothing", async () => {

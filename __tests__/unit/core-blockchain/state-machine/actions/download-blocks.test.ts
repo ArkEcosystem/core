@@ -1,3 +1,4 @@
+import delay from "delay";
 import { Container } from "@arkecosystem/core-kernel";
 import { DownloadBlocks } from "../../../../../packages/core-blockchain/src/state-machine/actions/download-blocks";
 
@@ -8,7 +9,7 @@ describe("DownloadBlocks", () => {
     const blockchain = {
         isStopped: false,
         dispatch: jest.fn(),
-        queue: { length: jest.fn() },
+        queue: { length: () => 0 },
         clearQueue: jest.fn(),
         enqueueBlocks: jest.fn()
     };
@@ -44,6 +45,20 @@ describe("DownloadBlocks", () => {
             blockchain.isStopped = true;
             await downloadBlocks.handle();
 
+            expect(blockchain.dispatch).toHaveBeenCalledTimes(0);
+        });
+
+        it("should do nothing when stateStore.lastDownloadedBlock !== lastDownloadedBlock", async () => {
+            const downloadBlocks = container.resolve<DownloadBlocks>(DownloadBlocks);
+
+            peerNetworkMonitor.downloadBlocksFromHeight = jest.fn().mockImplementationOnce(async () => {
+                await delay(1000);
+                return [];
+            })
+            const handlePromise = downloadBlocks.handle();
+            stateStore.lastDownloadedBlock = { data: { id: "987", height: 233, timestamp: 111 } };
+            await handlePromise;
+            
             expect(blockchain.dispatch).toHaveBeenCalledTimes(0);
         });
         

@@ -100,6 +100,7 @@ describe("UnchainedHandler", () => {
                     }
                 };
                 blockchain.getLastBlock = jest.fn().mockReturnValue(lastBlock);
+                blockchain.queue.length = jest.fn().mockReturnValueOnce(1);
 
                 for (let i = 0; i < 5; i++) {
                     expect(await unchainedHandler.execute(block as Interfaces.IBlock)).toBe(
@@ -110,6 +111,27 @@ describe("UnchainedHandler", () => {
                 expect(await unchainedHandler.execute(block as Interfaces.IBlock)).toBe(
                     BlockProcessorResult.Rollback
                 );
+            })
+        })
+
+        describe("when block is already in blockchain (height < last height)", () => {
+            it("should return DiscardedButCanBeBroadcasted", async () => {
+                const unchainedHandler = container.resolve<UnchainedHandler>(UnchainedHandler);
+                
+                const lastBlock = { data: { id:"123", height: 443, timestamp: 111112 } };
+                const block = {
+                    data: {
+                        id:"987",
+                        height: 442,
+                        timestamp: 111102,
+                        generatorPublicKey: "03ea97a59522c4cb4bb3420fc94555f6223813d9817dd421bf533b390a7ea140db"
+                    }
+                };
+                blockchain.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
+
+                const result = await unchainedHandler.execute(block as Interfaces.IBlock);
+    
+                expect(result).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
             })
         })
 
