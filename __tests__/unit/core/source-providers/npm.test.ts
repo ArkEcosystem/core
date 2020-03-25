@@ -19,13 +19,13 @@ beforeEach(() => {
     nock.cleanAll();
 });
 
-beforeAll(() => {
+beforeEach(() => {
     setGracefulCleanup();
 
     nock.disableNetConnect();
 });
 
-afterAll(() => nock.enableNetConnect());
+afterEach(() => nock.enableNetConnect());
 
 describe("NPM", () => {
     describe("#exists", () => {
@@ -56,7 +56,7 @@ describe("NPM", () => {
         });
     });
 
-    describe("#install", () => {
+    describe("#update", () => {
         it("should successfully install the plugin", async () => {
             nock(/.*/)
                 .get("/@arkecosystem/utils")
@@ -87,7 +87,7 @@ describe("NPM", () => {
 
             // Act
             const packageName: string = "@arkecosystem/utils";
-            await source.install(packageName);
+            await source.update(packageName);
 
             // Assert
             const pathPlugin: string = `${dataPath}/plugins/${packageName}`;
