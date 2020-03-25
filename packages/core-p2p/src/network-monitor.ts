@@ -586,7 +586,20 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     private async populateSeedPeers(): Promise<any> {
         const peerList: Contracts.P2P.PeerData[] = this.app.config("peers").list;
 
-        if (!peerList) {
+        try {
+            const peersFromUrl = await this.loadPeersFromUrlList();
+            for (const peer of peersFromUrl) {
+                if (!peerList.find(p => p.ip === peer.ip)) {
+                    peerList.push({
+                        ip: peer.ip,
+                        ports: { "@arkecosystem/core-api": peer.port },
+                        version: this.app.version(),
+                    });
+                }
+            }
+        } catch {}
+
+        if (!peerList || !peerList.length) {
             this.app.terminate("No seed peers defined in peers.json");
         }
 
@@ -603,5 +616,23 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 return this.processor.validateAndAcceptPeer(peer, { seed: true, lessVerbose: true });
             }),
         );
+    }
+
+    private async loadPeersFromUrlList(): Promise<Array<{ ip: string; port: number }>> {
+        const urls: string[] = this.app.config("peers").sources || [];
+
+        for (const url of urls) {
+            // Local File...
+            if (url.startsWith("/")) {
+                return require(url);
+            }
+
+            // URL...
+            this.logger.debug(`GET ${url}`);
+            const { data } = await Utils.http.get(url);
+            return data;
+        }
+
+        return [];
     }
 }
