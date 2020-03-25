@@ -11,6 +11,12 @@ describe("CLI", () => {
         await expect(cli.execute("./packages/core/dist")).toResolve();
     });
 
+    it("should fail when the dirname isn't properly configured", async () => {
+        const cli = new CommandLineInterface(["help"]);
+        // default dirname runs from a specific relative file location
+        await expect(cli.execute()).toReject();
+    });
+
     it("should reject when using invalid commands", async () => {
         // @ts-ignore
         const mockExit = jest.spyOn(process, "exit").mockImplementation(() => {});
