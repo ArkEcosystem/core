@@ -35,7 +35,7 @@ export class CommandLineInterface {
      * @returns {Promise<void>}
      * @memberof CommandLineInterface
      */
-    public async execute(): Promise<void> {
+    public async execute(dirname = __dirname): Promise<void> {
         // Load the package information. Only needed for updates and installations.
         const pkg: PackageJson = require("../package.json");
 
@@ -46,7 +46,7 @@ export class CommandLineInterface {
         this.app.get<Contracts.Updater>(Container.Identifiers.Updater).check();
 
         // Discover commands and commands from plugins
-        const commands: Contracts.CommandList = this.discoverCommands();
+        const commands: Contracts.CommandList = this.discoverCommands(dirname);
 
         // Figure out what command we should run and offer help if necessary
         const { args, flags } = InputParser.parseArgv(this.argv);
@@ -95,10 +95,10 @@ export class CommandLineInterface {
      * @returns {Contracts.CommandList}
      * @memberof CommandLineInterface
      */
-    private discoverCommands(): Contracts.CommandList {
+    private discoverCommands(dirname: string): Contracts.CommandList {
         const discoverer = this.app.resolve(Commands.DiscoverCommands);
+        const commands: Contracts.CommandList = discoverer.within(resolve(dirname, "./commands"));
 
-        const commands: Contracts.CommandList = discoverer.within(resolve(__dirname, "./commands"));
         const commandsFromPlugins = discoverer.from(
             this.app.get<Contracts.Config>(Container.Identifiers.Config).get("plugins"),
         );
