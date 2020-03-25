@@ -1,7 +1,8 @@
 import "jest-extended";
 
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { Interfaces } from "@packages/crypto/src";
+import { Interfaces, Identities } from "@packages/crypto/src";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 
 let factory: FactoryBuilder;
 
@@ -19,6 +20,36 @@ describe("TransactionFactory", () => {
             expect(transaction.data.signature).toBeUndefined();
             expect(transaction.data.secondSignature).toBeUndefined();
             expect(transaction.data.signatures).toBeUndefined();
+        });
+
+        it("should create a builder with options", () => {
+            let options = {
+                version: 2,
+                nonce: 1,
+                fee: 2,
+                timestamp: 1,
+                senderPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                expiration: 2,
+                vendorField: "Dummy Field"
+            };
+
+            const transaction: Interfaces.ITransaction = factory.get("Transfer").withOptions(options).withStates("vendorField").make();
+
+            expect(transaction.data.signature).toBeUndefined();
+            expect(transaction.data.secondSignature).toBeUndefined();
+            expect(transaction.data.signatures).toBeUndefined();
+
+            expect(transaction.data.vendorField).toBeDefined();
+        });
+
+        it("should create a builder with vendor field", () => {
+            const transaction: Interfaces.ITransaction = factory.get("Transfer").withStates("vendorField").make();
+
+            expect(transaction.data.signature).toBeUndefined();
+            expect(transaction.data.secondSignature).toBeUndefined();
+            expect(transaction.data.signatures).toBeUndefined();
+
+            expect(transaction.data.vendorField).toBeDefined();
         });
 
         it("should sign it with a single passphrase", () => {

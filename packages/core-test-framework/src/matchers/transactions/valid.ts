@@ -20,7 +20,7 @@ expect.extend({
         } catch {}
 
         return {
-            message: () => "Expected value to be a valid transaction",
+            message: /* istanbul ignore next */ () => "Expected value to be a valid transaction",
             pass: !!verified,
         };
     },

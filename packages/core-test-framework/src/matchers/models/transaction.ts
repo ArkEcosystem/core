@@ -18,7 +18,7 @@ expect.extend({
         const actualKeys = Object.keys(actual).filter(key => allowedKeys.includes(key));
 
         return {
-            message: () => "Expected value to be a valid transaction",
+            message: /* istanbul ignore next */ () => "Expected value to be a valid transaction",
             pass: Utils.isEqual(Utils.sortBy(actualKeys), allowedKeys),
         };
     },

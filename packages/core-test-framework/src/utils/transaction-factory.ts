@@ -332,6 +332,7 @@ export class TransactionFactory {
         return getWalletNonce(this.app, this.senderPublicKey);
     }
 
+    /* istanbul ignore next */
     private make<T>(quantity = 1, method: string): T[] {
         if (this.passphrasePairs && this.passphrasePairs.length) {
             return this.passphrasePairs.map(

@@ -16,7 +16,7 @@ expect.extend({
         // TODO based on type
         const allowedKeys = Utils.sortBy([
             "id",
-            "blockid",
+            "blockId",
             "type",
             "timestamp",
             "amount",
@@ -30,7 +30,7 @@ expect.extend({
         const actualKeys = Object.keys(actual).filter(key => allowedKeys.includes(key));
 
         return {
-            message: () => `Expected ${JSON.stringify(actual)} to be a valid transaction`,
+            message: /* istanbul ignore next */ () => `Expected ${JSON.stringify(actual)} to be a valid transaction`,
             pass: Utils.isEqual(Utils.sortBy(actualKeys), allowedKeys),
         };
     },

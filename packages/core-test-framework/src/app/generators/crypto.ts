@@ -332,11 +332,12 @@ export class CryptoGenerator extends Generator {
             byteBuffer.writeByte(generatorByte);
         }
 
-        if (genesisBlock.blockSignature) {
-            for (const blockSignatureByte of Buffer.from(genesisBlock.blockSignature, "hex")) {
-                byteBuffer.writeByte(blockSignatureByte);
-            }
-        }
+        // Unreachable
+        // if (genesisBlock.blockSignature) {
+        //     for (const blockSignatureByte of Buffer.from(genesisBlock.blockSignature, "hex")) {
+        //         byteBuffer.writeByte(blockSignatureByte);
+        //     }
+        // }
 
         byteBuffer.flip();
 
