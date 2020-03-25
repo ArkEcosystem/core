@@ -32,8 +32,7 @@ import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem
 import { configManager } from "@arkecosystem/crypto/src/managers";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { setMockBlock } from "../mocks/block-repository";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Converter } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -51,7 +50,9 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    setMockTransaction(null);
+    // setMockTransaction(null);
+    Mocks.TransactionRepository.setMockTransaction(null);
+    Mocks.TransactionRepository.setMockTransactions([]);
 
     app = initApp();
 
@@ -129,12 +130,8 @@ describe("BusinessRegistration", () => {
     });
 
     describe("bootstrap", () => {
-        afterEach(() => {
-            setMockBlock(null);
-        });
-
         it("should resolve", async () => {
-            setMockTransaction(bridgechainRegistrationTransaction);
+            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(bridgechainRegistrationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
 
             expect(

@@ -10,5 +10,6 @@ import * as Generators from "./app/generators";
 import * as Factories from "./factories";
 // Utilities for common tasks like sending HTTP requests or altering wallets
 export * from "./utils"; // todo: export as Utils
+import * as Mocks from "./mocks"; // todo: export as Utils
 
-export { Factories, Generators };
+export { Factories, Generators, Mocks };

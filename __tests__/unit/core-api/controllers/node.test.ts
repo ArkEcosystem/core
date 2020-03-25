@@ -4,7 +4,7 @@ import Hapi from "@hapi/hapi";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { initApp, ItemResponse } from "../__support__";
 import { NodeController } from "@packages/core-api/src/controllers/node";
-import { BlockchainMocks, NetworkMonitorMocks, TransactionRepositoryMocks } from "../mocks";
+import { Mocks } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Interfaces, Managers, Transactions } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -51,8 +51,8 @@ describe("NodeController", () => {
             data: mockBlockData as Interfaces.IBlockData
         };
 
-        NetworkMonitorMocks.setNetworkHeight(5);
-        BlockchainMocks.setMockBlock(mockBlock);
+        Mocks.NetworkMonitor.setNetworkHeight(5);
+        Mocks.Blockchain.setMockBlock(mockBlock);
     });
 
     describe("status", () => {
@@ -69,7 +69,7 @@ describe("NodeController", () => {
 
 
         it("should return node status when last block is undefined", async () => {
-            BlockchainMocks.setMockBlock(null);
+            Mocks.Blockchain.setMockBlock(null);
             let response = <ItemResponse>(await controller.status(undefined, undefined));
 
             expect(response.data).toEqual(expect.objectContaining(
@@ -84,7 +84,7 @@ describe("NodeController", () => {
 
     describe("syncing", () => {
         it("should return syncing status", async () => {
-            BlockchainMocks.setMockBlock(null);
+            Mocks.Blockchain.setMockBlock(null);
             let response = <ItemResponse>(await controller.syncing(undefined, undefined));
 
             expect(response.data).toEqual(expect.objectContaining(
@@ -170,7 +170,7 @@ describe("NodeController", () => {
 
     describe("fees", () => {
         it("should return transactions fees", async () => {
-            let feeStatistics: TransactionRepositoryMocks.FeeStatistics = {
+            let feeStatistics: Mocks.TransactionRepository.FeeStatistics = {
                 type: 1,
                 typeGroup: 1,
                 avg: "15",
@@ -179,7 +179,7 @@ describe("NodeController", () => {
                 sum: "500",
             };
 
-            TransactionRepositoryMocks.setFeeStatistics([feeStatistics]);
+            Mocks.TransactionRepository.setFeeStatistics([feeStatistics]);
 
             let request: Hapi.Request = {
                 query: {

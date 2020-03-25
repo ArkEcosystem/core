@@ -1,10 +1,10 @@
-import { BlockRepository, RepositorySearchResult } from "@packages/core-database/src/repositories";
-import { Block } from "@packages/core-database/src/models";
+import { BlockRepository, RepositorySearchResult } from "@arkecosystem/core-database/src/repositories";
+import { Block } from "@arkecosystem/core-database/src/models";
 
 let mockBlock: any | null;
 let mockBlocks: Partial<Block>[];
 
-export const setMockBlock = (block: any | null) => {
+export const setMockBlock = (block: Partial<Block> | null) => {
     mockBlock = block;
 };
 
@@ -29,5 +29,11 @@ export const blockRepository: Partial<BlockRepository> = {
             count: mockBlocks.length,
             countIsEstimate: false
         }
-    }
+    },
+    getDelegatesForgedBlocks: async () => {
+        return mockBlock ? [mockBlock] : [];
+    },
+    getLastForgedBlocks: async () => {
+        return mockBlock ? [mockBlock] : [];
+    },
 };

@@ -5,7 +5,7 @@ import Hapi from "@hapi/hapi";
 import { Application } from "@packages/core-kernel";
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { VotesController } from "@packages/core-api/src/controllers/votes";
-import { TransactionRepositoryMocks } from "../mocks";
+import { Mocks } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Identities, Interfaces, Transactions } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -46,12 +46,12 @@ describe("VotesController", () => {
             .sign(passphrases[0])
             .build();
 
-        TransactionRepositoryMocks.setMockTransaction(null);
+        Mocks.TransactionRepository.setMockTransaction(null);
     });
 
     describe("index", () => {
         it("should return list of votes", async () => {
-            TransactionRepositoryMocks.setMockTransactions([voteTransaction]);
+            Mocks.TransactionRepository.setMockTransactions([voteTransaction]);
 
             let request: Hapi.Request = {
                 query: {
@@ -76,7 +76,7 @@ describe("VotesController", () => {
 
     describe("show", () => {
         it("should return vote", async () => {
-            TransactionRepositoryMocks.setMockTransaction(voteTransaction);
+            Mocks.TransactionRepository.setMockTransaction(voteTransaction);
 
             let request: Hapi.Request = {
                 params: {
@@ -97,7 +97,7 @@ describe("VotesController", () => {
         });
 
         it("should return error if vote transaction does not exists", async () => {
-            TransactionRepositoryMocks.setMockTransaction(null);
+            Mocks.TransactionRepository.setMockTransaction(null);
 
             let request: Hapi.Request = {
                 params: {

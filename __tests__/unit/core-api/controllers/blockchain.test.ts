@@ -2,7 +2,7 @@ import "jest-extended";
 import { Application } from "@packages/core-kernel";
 import { initApp, ItemResponse } from "../__support__";
 import { BlockchainController } from "@packages/core-api/src/controllers/blockchain";
-import { StateStoreMocks } from "../mocks";
+import { Mocks } from "@packages/core-test-framework";
 import { Interfaces } from "@packages/crypto";
 
 let app: Application;
@@ -26,7 +26,7 @@ describe("BlockchainController", () => {
                 data: mockBlockData as Interfaces.IBlockData
             };
 
-            StateStoreMocks.setMockBlock(mockBlock);
+            Mocks.StateStore.setMockBlock(mockBlock);
 
             type BlockItemResponse = ItemResponse & {
                 data: {

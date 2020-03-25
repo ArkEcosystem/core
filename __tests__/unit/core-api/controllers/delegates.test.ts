@@ -5,7 +5,7 @@ import Hapi from "@hapi/hapi";
 import { Application, Contracts } from "@packages/core-kernel";
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { DelegatesController } from "@packages/core-api/src/controllers/delegates";
-import { BlockRepositoryMocks } from "../mocks";
+import { Mocks } from "@packages/core-test-framework";
 import { Wallets } from "@packages/core-state";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Identities, Transactions, Utils } from "@packages/crypto";
@@ -164,7 +164,7 @@ describe("DelegatesController", () => {
                 totalAmount: Utils.BigNumber.make("300"),
             };
 
-            BlockRepositoryMocks.setMockBlocks([mockBlock]);
+            Mocks.BlockRepository.setMockBlocks([mockBlock]);
 
             let request: Hapi.Request = {
                 params: {
@@ -200,7 +200,7 @@ describe("DelegatesController", () => {
                 timestamp: 2
             };
 
-            BlockRepositoryMocks.setMockBlocks([mockBlock]);
+            Mocks.BlockRepository.setMockBlocks([mockBlock]);
 
             let request: Hapi.Request = {
                 params: {

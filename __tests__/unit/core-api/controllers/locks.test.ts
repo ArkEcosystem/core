@@ -4,7 +4,7 @@ import Hapi from "@hapi/hapi";
 import { Application, Contracts } from "@packages/core-kernel";
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { LocksController } from "@packages/core-api/src/controllers/locks";
-import { BlockchainMocks, StateStoreMocks, TransactionRepositoryMocks } from "../mocks";
+import { Mocks } from "@packages/core-test-framework";
 import { Wallets } from "@packages/core-state";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
@@ -36,7 +36,7 @@ beforeEach(() => {
     controller = app.resolve<LocksController>(LocksController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    StateStoreMocks.setMockBlock({ data: mockLastBlockData } as Interfaces.IBlock)
+    Mocks.StateStore.setMockBlock({ data: mockLastBlockData } as Interfaces.IBlock)
 });
 
 afterEach(() => {
@@ -174,8 +174,8 @@ describe("LocksController", () => {
                 totalAmount: Utils.BigNumber.make("300"),
             };
 
-            BlockchainMocks.setMockBlock({data: mockBlock} as Partial<Interfaces.IBlock>);
-            TransactionRepositoryMocks.setMockTransactions([htlcLockTransaction]);
+            Mocks.Blockchain.setMockBlock({data: mockBlock} as Partial<Interfaces.IBlock>);
+            Mocks.TransactionRepository.setMockTransactions([htlcLockTransaction]);
 
             let request: Hapi.Request = {
                 payload: {

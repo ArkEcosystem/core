@@ -4,7 +4,7 @@ import Hapi from "@hapi/hapi";
 import { Application } from "@packages/core-kernel";
 import { initApp, ItemResponse } from "../__support__";
 import { RoundsController } from "@packages/core-api/src/controllers/rounds";
-import { RoundRepositoryMocks } from "../mocks";
+import { Mocks } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Identities, Transactions, Utils } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -22,7 +22,7 @@ beforeEach(() => {
 
     controller = app.resolve<RoundsController>(RoundsController);
 
-    RoundRepositoryMocks.setRounds([]);
+    Mocks.RoundRepository.setRounds([]);
 });
 
 afterEach(() => {
@@ -45,7 +45,7 @@ describe("RoundsController", () => {
                 balance: Utils.BigNumber.make("555")
             };
 
-            RoundRepositoryMocks.setRounds([round]);
+            Mocks.RoundRepository.setRounds([round]);
 
             let request: Hapi.Request = {
                 params: {

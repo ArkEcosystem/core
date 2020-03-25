@@ -1,5 +1,5 @@
-import { PeerStorage } from "@packages/core-p2p/src/peer-storage";
-import { Contracts } from "@packages/core-kernel";
+import { PeerStorage } from "@arkecosystem/core-p2p/src/peer-storage";
+import { Contracts } from "@arkecosystem/core-kernel";
 
 let mockPeers: Partial<Contracts.P2P.Peer>[] = [];
 

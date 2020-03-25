@@ -37,8 +37,7 @@ import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem
 import { configManager } from "@arkecosystem/crypto/src/managers";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { setMockBlock } from "../mocks/block-repository";
-import { setMockTransaction, setMockTransactions } from "../mocks/transaction-repository";
+import { Mocks, Converter } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -56,7 +55,7 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    setMockTransaction(null);
+    Mocks.TransactionRepository.setMockTransactions([]);
 
     app = initApp();
 
@@ -168,12 +167,9 @@ describe("BusinessRegistration", () => {
     });
 
     describe("bootstrap", () => {
-        afterEach(() => {
-            setMockBlock(null);
-        });
-
         it("should resolve", async () => {
-            setMockTransaction(bridgechainUpdateTransaction);
+            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(bridgechainUpdateTransaction, 1)]);
+
             await expect(handler.bootstrap()).toResolve();
 
             const bridgechainUpdateAssetClone = Object.assign({}, bridgechainUpdateAsset);
@@ -318,7 +314,7 @@ describe("BusinessRegistration", () => {
                     "2001:4860:4860::8844",
                 ],
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo/second",
-                bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo/sedond",
+                bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo/second",
                 ports: { "@arkecosystem/core-api": 54321 },
             };
 
@@ -351,12 +347,12 @@ describe("BusinessRegistration", () => {
                 ...bridgechainUpdateAssetClone,
             });
 
-            // @ts-ignore
-            setMockTransactions([
-                bridgechainRegistrationTransaction,
-                secondBridgechainUpdateTransaction,
-                bridgechainUpdateTransaction,
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(bridgechainRegistrationTransaction, 1),
+                Converter.convertCryptoTransactionToDatabaseTransaction(secondBridgechainUpdateTransaction, 2),
+                Converter.convertCryptoTransactionToDatabaseTransaction(bridgechainUpdateTransaction, 3),
             ]);
+
 
             await handler.revert(bridgechainUpdateTransaction, walletRepository);
 

@@ -4,7 +4,7 @@ import { Application, Container, Providers } from "@packages/core-kernel";
 import { initApp } from "../__support__";
 import { ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
-import { ServiceProviderRepository } from "../mocks";
+import { Mocks } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 
 let resource: PortsResource;
@@ -14,7 +14,7 @@ beforeEach(() => {
     app = initApp();
 
     app.unbind(Identifiers.ServiceProviderRepository);
-    app.bind(Identifiers.ServiceProviderRepository).toConstantValue(ServiceProviderRepository.serviceProviderRepository);
+    app.bind(Identifiers.ServiceProviderRepository).toConstantValue(Mocks.ServiceProviderRepository.serviceProviderRepository);
 });
 
 beforeEach(() => {
@@ -47,7 +47,7 @@ describe("PortsResource", () => {
                 return "@arkecosystem/core-api"
             };
 
-            ServiceProviderRepository.setServiceProviders([coreApiServiceProvider]);
+            Mocks.ServiceProviderRepository.setServiceProviders([coreApiServiceProvider]);
         });
 
         it("should return transformed object", async () => {

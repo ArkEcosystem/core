@@ -5,7 +5,7 @@ import { Identities, Interfaces, Utils } from "@packages/crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { Application } from "@packages/core-kernel";
 import { initApp, parseObjectWithBigInt } from "../__support__";
-import { BlockchainMocks } from "../mocks";
+import { Mocks } from "@packages/core-test-framework";
 
 let app: Application;
 let resource: TransactionResource;
@@ -67,7 +67,7 @@ describe("TransactionResource", () => {
                 generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0])
             };
 
-            BlockchainMocks.setMockBlock({data: mockBlock} as Partial<Interfaces.IBlock>);
+            Mocks.Blockchain.setMockBlock({data: mockBlock} as Partial<Interfaces.IBlock>);
 
             // @ts-ignore
             transferTransaction.block = mockBlock;

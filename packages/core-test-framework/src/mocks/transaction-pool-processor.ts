@@ -1,4 +1,4 @@
-import { Contracts } from "@packages/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
 
 
 let accept: string[] = [];

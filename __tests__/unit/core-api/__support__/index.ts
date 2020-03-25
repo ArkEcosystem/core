@@ -22,12 +22,8 @@ import {
     businessIndexer,
     MagistrateIndex,
 } from "@packages/core-magistrate-transactions/src/wallet-indexes";
-import {
-    BlockchainMocks,
-    BlockRepositoryMocks, NetworkMonitorMocks,
-    PeerStorageMocks, RoundRepositoryMocks,
-    StateStoreMocks, TransactionPoolProcessorMocks, TransactionPoolQueryMocks, TransactionRepositoryMocks,
-} from "@tests/unit/core-api/mocks";
+import { Mocks } from "@packages/core-test-framework";
+
 
 export type PaginatedResponse = {
     totalCount: number,
@@ -68,44 +64,44 @@ export const initApp = (): Application => {
 
     app
         .bind(Container.Identifiers.StateStore)
-        .toConstantValue(StateStoreMocks.stateStore);
+        .toConstantValue(Mocks.StateStore.stateStore);
 
     app
         .bind(Container.Identifiers.BlockchainService)
-        .toConstantValue(BlockchainMocks.blockchain);
+        .toConstantValue(Mocks.Blockchain.blockchain);
 
     app
         .bind(Container.Identifiers.BlockRepository)
-        .toConstantValue(BlockRepositoryMocks.blockRepository);
+        .toConstantValue(Mocks.BlockRepository.blockRepository);
 
     app
         .bind(Container.Identifiers.TransactionRepository)
-        .toConstantValue(TransactionRepositoryMocks.transactionRepository);
+        .toConstantValue(Mocks.TransactionRepository.transactionRepository);
 
     app
         .bind(Container.Identifiers.PeerNetworkMonitor)
-        .toConstantValue(NetworkMonitorMocks.networkMonitor);
+        .toConstantValue(Mocks.NetworkMonitor.networkMonitor);
 
     app
         .bind(Container.Identifiers.PeerStorage)
-        .toConstantValue(PeerStorageMocks.peerStorage);
+        .toConstantValue(Mocks.PeerStorage.peerStorage);
 
     app
         .bind(Container.Identifiers.RoundRepository)
-        .toConstantValue(RoundRepositoryMocks.roundRepository);
+        .toConstantValue(Mocks.RoundRepository.roundRepository);
 
     app
         .bind(Container.Identifiers.TransactionPoolQuery)
-        .toConstantValue(TransactionPoolQueryMocks.transactionPoolQuery);
+        .toConstantValue(Mocks.TransactionPoolQuery.transactionPoolQuery);
 
     app
         .bind(Container.Identifiers.TransactionPoolProcessor)
-        .toConstantValue(TransactionPoolProcessorMocks.transactionPoolProcessor);
+        .toConstantValue(Mocks.TransactionPoolProcessor.transactionPoolProcessor);
 
     app
         .bind(Container.Identifiers.TransactionPoolProcessorFactory)
         .toFactory(() => () => {
-            return TransactionPoolProcessorMocks.transactionPoolProcessor
+            return Mocks.TransactionPoolProcessor.transactionPoolProcessor
         });
 
     app

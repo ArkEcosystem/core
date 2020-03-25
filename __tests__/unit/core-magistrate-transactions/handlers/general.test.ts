@@ -18,7 +18,6 @@ import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem
 import { configManager } from "@arkecosystem/crypto/src/managers";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -35,8 +34,6 @@ beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
-
-    setMockTransaction(null);
 
     app = initApp();
 

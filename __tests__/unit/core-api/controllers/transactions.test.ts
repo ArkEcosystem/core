@@ -4,12 +4,7 @@ import Hapi from "@hapi/hapi";
 import { Application } from "@packages/core-kernel";
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
-import {
-    StateStoreMocks,
-    TransactionPoolProcessorMocks,
-    TransactionPoolQueryMocks,
-    TransactionRepositoryMocks,
-} from "../mocks";
+import { Mocks } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Identities, Interfaces, Managers, Transactions } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -35,9 +30,9 @@ beforeEach(() => {
 
     controller = app.resolve<TransactionsController>(TransactionsController);
 
-    TransactionRepositoryMocks.setMockTransaction(null);
-    TransactionRepositoryMocks.setMockTransactions([]);
-    TransactionPoolQueryMocks.setMockTransactions([]);
+    Mocks.TransactionRepository.setMockTransaction(null);
+    Mocks.TransactionRepository.setMockTransactions([]);
+    Mocks.TransactionPoolQuery.setMockTransactions([]);
 });
 
 afterEach(() => {
@@ -65,7 +60,7 @@ describe("TransactionsController", () => {
 
     describe("index", () => {
         it("should return list of transactions", async () => {
-            TransactionRepositoryMocks.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
             let request: Hapi.Request = {
                 query: {
@@ -97,7 +92,7 @@ describe("TransactionsController", () => {
                 invalid: []
             };
 
-            TransactionPoolProcessorMocks.setProcessorState(processorState);
+            Mocks.TransactionPoolProcessor.setProcessorState(processorState);
 
             let request: Hapi.Request = {
                 payload: {
@@ -117,7 +112,7 @@ describe("TransactionsController", () => {
 
     describe("show", () => {
         it("should return transaction", async () => {
-            TransactionRepositoryMocks.setMockTransaction(transferTransaction);
+            Mocks.TransactionRepository.setMockTransaction(transferTransaction);
 
             let request: Hapi.Request = {
                 params: {
@@ -153,7 +148,7 @@ describe("TransactionsController", () => {
 
     describe("unconfirmed", () => {
         it("should return transactions", async () => {
-            TransactionPoolQueryMocks.setMockTransactions([transferTransaction]);
+            Mocks.TransactionPoolQuery.setMockTransactions([transferTransaction]);
 
             let request: Hapi.Request = {
                 query: {
@@ -178,7 +173,7 @@ describe("TransactionsController", () => {
 
     describe("showUnconfirmed", () => {
         it("should return transactions", async () => {
-            TransactionPoolQueryMocks.setMockTransactions([transferTransaction]);
+            Mocks.TransactionPoolQuery.setMockTransactions([transferTransaction]);
 
             let request: Hapi.Request = {
                 params: {
@@ -214,7 +209,7 @@ describe("TransactionsController", () => {
 
     describe("search", () => {
         it("should return list of transactions", async () => {
-            TransactionRepositoryMocks.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
             let request: Hapi.Request = {
                 params: {
@@ -240,7 +235,7 @@ describe("TransactionsController", () => {
         });
 
         it("should return paginated response when defined offset", async () => {
-            TransactionRepositoryMocks.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
             let request: Hapi.Request = {
                 params: {
@@ -290,7 +285,7 @@ describe("TransactionsController", () => {
 
     describe("fees", () => {
         it("should return fees", async () => {
-            StateStoreMocks.setLastHeight(1);
+            Mocks.StateStore.setLastHeight(1);
 
             let response = <ItemResponse>(await controller.fees(undefined, undefined));
 
@@ -311,7 +306,7 @@ describe("TransactionsController", () => {
         });
 
         it("should return error ", async () => {
-            StateStoreMocks.setLastHeight(-1);
+            Mocks.StateStore.setLastHeight(-1);
 
             await expect(controller.fees(undefined, undefined)).resolves.toThrowError();
         });

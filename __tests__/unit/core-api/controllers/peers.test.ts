@@ -4,7 +4,7 @@ import Hapi from "@hapi/hapi";
 import { Application, Contracts } from "@packages/core-kernel";
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { PeersController } from "@packages/core-api/src/controllers/peers";
-import { PeerStorageMocks } from "../mocks";
+import { Mocks } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -21,7 +21,7 @@ beforeEach(() => {
 
     controller = app.resolve<PeersController>(PeersController);
 
-    PeerStorageMocks.setPeers([]);
+    Mocks.PeerStorage.setPeers([]);
 });
 
 afterEach(() => {
@@ -75,7 +75,7 @@ describe("PeersController", () => {
 
     describe("index", () => {
         it("should return list of peers", async () => {
-            PeerStorageMocks.setPeers([peer, anotherPeer]);
+            Mocks.PeerStorage.setPeers([peer, anotherPeer]);
 
             let request: Hapi.Request = {
                 query: {
@@ -112,7 +112,7 @@ describe("PeersController", () => {
         });
 
         it("should return error when offset is negative", async () => {
-            PeerStorageMocks.setPeers([peer]);
+            Mocks.PeerStorage.setPeers([peer]);
 
             let request: Hapi.Request = {
                 query: {
@@ -132,7 +132,7 @@ describe("PeersController", () => {
         });
 
         it("should return paginated response when offset is not a number", async () => {
-            PeerStorageMocks.setPeers([peer]);
+            Mocks.PeerStorage.setPeers([peer]);
 
             let request: Hapi.Request = {
                 query: {
@@ -152,7 +152,7 @@ describe("PeersController", () => {
         });
 
         it("should return paginated response when limit is not defined", async () => {
-            PeerStorageMocks.setPeers([peer]);
+            Mocks.PeerStorage.setPeers([peer]);
 
             let request: Hapi.Request = {
                 query: {
@@ -171,7 +171,7 @@ describe("PeersController", () => {
         });
 
         it("should return list of peers ordered by version ascending", async () => {
-            PeerStorageMocks.setPeers([peer, anotherPeer]);
+            Mocks.PeerStorage.setPeers([peer, anotherPeer]);
 
             let request: Hapi.Request = {
                 query: {
@@ -201,7 +201,7 @@ describe("PeersController", () => {
         });
 
         it("should return list of peers ordered by version descending", async () => {
-            PeerStorageMocks.setPeers([peer, anotherPeer]);
+            Mocks.PeerStorage.setPeers([peer, anotherPeer]);
 
             let request: Hapi.Request = {
                 query: {
@@ -231,7 +231,7 @@ describe("PeersController", () => {
         });
 
         it("should return list of peers ordered by height ascending", async () => {
-            PeerStorageMocks.setPeers([peer, anotherPeer]);
+            Mocks.PeerStorage.setPeers([peer, anotherPeer]);
 
             let request: Hapi.Request = {
                 query: {
@@ -261,7 +261,7 @@ describe("PeersController", () => {
         });
 
         it("should return list of peers ordered by height descending", async () => {
-            PeerStorageMocks.setPeers([peer, anotherPeer]);
+            Mocks.PeerStorage.setPeers([peer, anotherPeer]);
 
             let request: Hapi.Request = {
                 query: {
@@ -291,7 +291,7 @@ describe("PeersController", () => {
         });
 
         it("should return list of peers ordered by latency ascending", async () => {
-            PeerStorageMocks.setPeers([peer, anotherPeer]);
+            Mocks.PeerStorage.setPeers([peer, anotherPeer]);
 
             let request: Hapi.Request = {
                 query: {
@@ -321,7 +321,7 @@ describe("PeersController", () => {
         });
 
         it("should return list of peers ordered by latency descending", async () => {
-            PeerStorageMocks.setPeers([peer, anotherPeer]);
+            Mocks.PeerStorage.setPeers([peer, anotherPeer]);
 
             let request: Hapi.Request = {
                 query: {
@@ -351,7 +351,7 @@ describe("PeersController", () => {
         });
 
         it("should return list of peers ordered by other descending", async () => {
-            PeerStorageMocks.setPeers([peer, anotherPeer]);
+            Mocks.PeerStorage.setPeers([peer, anotherPeer]);
 
             let request: Hapi.Request = {
                 query: {
@@ -383,7 +383,7 @@ describe("PeersController", () => {
 
     describe("show", () => {
         it("should return peer", async () => {
-            PeerStorageMocks.setPeers([peer]);
+            Mocks.PeerStorage.setPeers([peer]);
 
             let request: Hapi.Request = {
                 params: {

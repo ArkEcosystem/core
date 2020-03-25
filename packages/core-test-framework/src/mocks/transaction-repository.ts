@@ -1,8 +1,8 @@
 import {
     RepositorySearchResult,
     TransactionRepository,
-} from "@packages/core-database/src/repositories";
-import { Transaction } from "@packages/core-database/src/models";
+} from "@arkecosystem/core-database/src/repositories";
+import { Transaction } from "@arkecosystem/core-database/src/models";
 
 export type FeeStatistics = {
     type: number;
@@ -31,9 +31,11 @@ export const setFeeStatistics = (feeStatistics: FeeStatistics[]) => {
 
 export const transactionRepository: Partial<TransactionRepository> = {
     search: async (filter: any): Promise<RepositorySearchResult<Transaction>> => {
+        const type = filter.criteria.find(x => x.field === "type");
+        let transaction = (mockTransactions as Transaction[]).filter(x => x.type === type.value).map(x => x);
         return {
-            rows: mockTransactions as Transaction[],
-            count: mockTransactions.length,
+            rows: transaction as Transaction[],
+            count: transaction.length,
             countIsEstimate: false,
         }
     },
@@ -52,6 +54,21 @@ export const transactionRepository: Partial<TransactionRepository> = {
     },
     findById: async (id: any): Promise<Transaction> => {
         return mockTransaction as Transaction;
+    },
+    findByType: async () => {
+        return mockTransactions as any;
+    },
+     findReceivedTransactions: async () => {
+        return mockTransactions.map(x => {return { recipientId: x.recipientId!.toString(), amount: x.amount!.toString() }})
+    },
+    getOpenHtlcLocks: async () => {
+        return mockTransaction as any;
+    },
+    getClaimedHtlcLockBalances: async () => {
+        return mockTransactions.map(x => {return { recipientId: x.recipientId!.toString(), amount: x.amount!.toString() }})
+    },
+    getRefundedHtlcLockBalances: async () => {
+        return mockTransactions.map(x => {return { senderPublicKey: x.recipientId!.toString(), amount: x.amount!.toString() }})
     },
     getFeeStatistics: async (days: any, minFee?: any): Promise<FeeStatistics[]> => {
         return mockFeeStatistics;

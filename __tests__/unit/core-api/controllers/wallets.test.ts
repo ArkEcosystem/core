@@ -5,7 +5,7 @@ import Hapi from "@hapi/hapi";
 import { Application, Contracts } from "@packages/core-kernel";
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { WalletsController } from "@packages/core-api/src/controllers/wallets";
-import { StateStoreMocks, TransactionRepositoryMocks } from "../mocks";
+import { Mocks } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -37,8 +37,8 @@ beforeEach(() => {
     controller = app.resolve<WalletsController>(WalletsController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    StateStoreMocks.setMockBlock({ data: mockLastBlockData } as Interfaces.IBlock);
-    TransactionRepositoryMocks.setMockTransactions([]);
+    Mocks.StateStore.setMockBlock({ data: mockLastBlockData } as Interfaces.IBlock);
+    Mocks.TransactionRepository.setMockTransactions([]);
 });
 
 afterEach(() => {
@@ -141,7 +141,7 @@ describe("WalletsController", () => {
 
     describe("transactions", () => {
         it("should return list of transactions", async () => {
-            TransactionRepositoryMocks.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
             let request: Hapi.Request = {
                 params: {
@@ -179,7 +179,7 @@ describe("WalletsController", () => {
 
     describe("transactionsSent", () => {
         it("should return list of transactions", async () => {
-            TransactionRepositoryMocks.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
             let request: Hapi.Request = {
                 params: {
@@ -217,7 +217,7 @@ describe("WalletsController", () => {
 
     describe("transactionsReceived", () => {
         it("should return list of transactions", async () => {
-            TransactionRepositoryMocks.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
             let request: Hapi.Request = {
                 params: {
@@ -255,7 +255,7 @@ describe("WalletsController", () => {
 
     describe("votes", () => {
         it("should return list of transactions", async () => {
-            TransactionRepositoryMocks.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
             let request: Hapi.Request = {
                 params: {

@@ -1,5 +1,5 @@
-import { StateStore } from "@packages/core-state/src/stores/state";
-import { IBlock } from "@packages/crypto/src/interfaces";
+import { StateStore } from "@arkecosystem/core-state/src/stores/state";
+import { IBlock } from "@arkecosystem/crypto/src/interfaces";
 
 let mockBlock: Partial<IBlock> | null;
 let lastHeight: number;
