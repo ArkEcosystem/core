@@ -63,6 +63,7 @@ export class Blockchain implements blockchain.IBlockchain {
     protected blockProcessor: BlockProcessor;
     private actions: any;
     private missedBlocks: number = 0;
+    private lastCheckNetworkHealthTs: number = 0;
 
     /**
      * Create a new blockchain manager instance.
@@ -576,6 +577,13 @@ export class Blockchain implements blockchain.IBlockchain {
             Math.random() <= 0.8
         ) {
             this.missedBlocks = 0;
+
+            // do not check network health here more than every 10 minutes
+            const nowTs = Date.now();
+            if (nowTs - this.lastCheckNetworkHealthTs < 10 * 60 * 1000) {
+                return;
+            }
+            this.lastCheckNetworkHealthTs = nowTs;
 
             const networkStatus = await this.p2p.getMonitor().checkNetworkHealth();
             if (networkStatus.forked) {
