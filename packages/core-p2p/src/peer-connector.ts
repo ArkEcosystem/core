@@ -17,10 +17,8 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         return this.connections.values();
     }
 
-    public connection(peer: Contracts.P2P.Peer): SCClientSocket {
+    public connection(peer: Contracts.P2P.Peer): SCClientSocket | undefined {
         const connection: SCClientSocket | undefined = this.connections.get(peer.ip);
-
-        Utils.assert.defined<SCClientSocket>(connection);
 
         return connection;
     }
@@ -59,7 +57,9 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
     }
 
     public emit(peer: Contracts.P2P.Peer, event: string, data: any): void {
-        this.connection(peer).on(event, data);
+        // TODO is this method revelant here ? :think:
+        const connection: SCClientSocket = this.connect(peer);
+        connection.emit(event, data);
     }
 
     public getError(peer: Contracts.P2P.Peer): string | undefined {
