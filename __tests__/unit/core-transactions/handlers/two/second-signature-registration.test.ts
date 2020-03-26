@@ -27,7 +27,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Converter } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -48,8 +48,6 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    setMockTransaction(null);
-
     app = initApp();
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -67,6 +65,10 @@ beforeEach(() => {
     walletRepository.index(secondSignatureWallet);
     walletRepository.index(multiSignatureWallet);
     walletRepository.index(recipientWallet);
+});
+
+afterEach(() => {
+    Mocks.TransactionRepository.setMockTransactions([]);
 });
 
 describe("SecondSignatureRegistrationTransaction", () => {
@@ -94,7 +96,9 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            setMockTransaction(secondSignatureTransaction);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(secondSignatureTransaction),
+            ]);
             await expect(handler.bootstrap()).toResolve();
         });
     });

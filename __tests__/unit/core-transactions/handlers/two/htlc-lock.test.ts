@@ -22,7 +22,9 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
+
+import { Mocks, Converter } from "@packages/core-test-framework";
+
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -50,8 +52,6 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    setMockTransaction(null);
-
     app = initApp();
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -69,6 +69,10 @@ beforeEach(() => {
     walletRepository.index(secondSignatureWallet);
     walletRepository.index(multiSignatureWallet);
     walletRepository.index(recipientWallet);
+});
+
+afterEach(() => {
+   Mocks.TransactionRepository.setMockTransactions([]);
 });
 
 describe("Htlc lock", () => {
@@ -140,14 +144,22 @@ describe("Htlc lock", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
-                setMockTransaction(htlcLockTransaction);
+                Mocks.TransactionRepository.setMockTransactions([
+                    Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction),
+                ]);
                 await expect(handler.bootstrap()).toResolve();
             });
 
             it("should resolve with open transaction", async () => {
+
+                let mockHtlcLockTransacton = Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction);
                 // @ts-ignore
-                htlcLockTransaction.data.open = true;
-                setMockTransaction(htlcLockTransaction);
+                mockHtlcLockTransacton.open = true;
+
+                Mocks.TransactionRepository.setMockTransactions([
+                    mockHtlcLockTransacton
+                ]);
+
                 await expect(handler.bootstrap()).toResolve();
             });
 
@@ -163,9 +175,14 @@ describe("Htlc lock", () => {
                     .vendorField("dummy")
                     .sign(passphrases[0])
                     .build();
+
+                let mockHtlcLockTransacton = Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction);
                 // @ts-ignore
-                htlcLockTransaction.data.open = true;
-                setMockTransaction(htlcLockTransaction);
+                mockHtlcLockTransacton.open = true;
+
+                Mocks.TransactionRepository.setMockTransactions([
+                    mockHtlcLockTransacton
+                ]);
                 await expect(handler.bootstrap()).toResolve();
             });
         });

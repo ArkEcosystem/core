@@ -26,7 +26,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Converter } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -49,8 +49,6 @@ beforeEach(() => {
     configManager.getMilestone().aip11 = false;
     Managers.configManager.getMilestone().aip11 = false;
 
-    setMockTransaction(null);
-
     app = initApp();
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -69,6 +67,11 @@ beforeEach(() => {
     walletRepository.index(multiSignatureWallet);
     walletRepository.index(recipientWallet);
 });
+
+afterEach(() => {
+    Mocks.TransactionRepository.setMockTransactions([]);
+});
+
 
 describe("MultiSignatureRegistrationTransaction", () => {
     let multiSignatureTransaction: Interfaces.ITransaction;
@@ -121,13 +124,17 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            setMockTransaction(multiSignatureTransaction);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(multiSignatureTransaction),
+            ]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should throw when wallet has multi signature", async () => {
             senderWallet.setAttribute("multiSignature", multiSignatureAsset);
-            setMockTransaction(multiSignatureTransaction);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(multiSignatureTransaction),
+            ]);
             await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
         });
     });

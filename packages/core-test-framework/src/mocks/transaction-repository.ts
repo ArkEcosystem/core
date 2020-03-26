@@ -64,13 +64,16 @@ export const instance: Partial<TransactionRepository> = {
     findByType: async () => {
         return mockTransactions as any;
     },
+    findByIds: async (ids: any[]) => {
+        return mockTransactions as Transaction[];
+    },
     findReceivedTransactions: async () => {
         return mockTransactions.map((x) => {
             return { recipientId: x.recipientId!.toString(), amount: x.amount!.toString() };
         });
     },
     getOpenHtlcLocks: async () => {
-        return mockTransaction as any;
+        return mockTransactions as any;
     },
     getClaimedHtlcLockBalances: async () => {
         return mockTransactions.map((x) => {
@@ -79,7 +82,7 @@ export const instance: Partial<TransactionRepository> = {
     },
     getRefundedHtlcLockBalances: async () => {
         return mockTransactions.map((x) => {
-            return { senderPublicKey: x.recipientId!.toString(), amount: x.amount!.toString() };
+            return { senderPublicKey: x.senderPublicKey!.toString(), amount: x.amount!.toString() };
         });
     },
     getFeeStatistics: async (days: any, minFee?: any): Promise<FeeStatistics[]> => {

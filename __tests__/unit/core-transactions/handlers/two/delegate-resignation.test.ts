@@ -29,7 +29,8 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Converter } from "@packages/core-test-framework";
+
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -49,8 +50,6 @@ beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
-
-    setMockTransaction(null);
 
     app = initApp();
 
@@ -139,7 +138,7 @@ describe("DelegateResignationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            setMockTransaction(delegateResignationTransaction);
+            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(delegateResignationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
 
@@ -148,7 +147,7 @@ describe("DelegateResignationTransaction", () => {
 
             walletRepository.index(allDelegates[0]);
 
-            setMockTransaction(delegateResignationTransaction);
+            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(delegateResignationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
     });

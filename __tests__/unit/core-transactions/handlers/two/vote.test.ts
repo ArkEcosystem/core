@@ -28,7 +28,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Converter } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -49,8 +49,6 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    setMockTransaction(null);
-
     app = initApp();
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -68,6 +66,10 @@ beforeEach(() => {
     walletRepository.index(secondSignatureWallet);
     walletRepository.index(multiSignatureWallet);
     walletRepository.index(recipientWallet);
+});
+
+afterEach(() => {
+    Mocks.TransactionRepository.setMockTransactions([]);
 });
 
 describe("VoteTransaction", () => {
@@ -148,26 +150,36 @@ describe("VoteTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            setMockTransaction(voteTransaction);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(voteTransaction),
+            ]);
             await expect(handler.bootstrap()).toResolve();
 
-            setMockTransaction(unvoteTransaction);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(unvoteTransaction),
+            ]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should throw on vote if wallet already voted", async () => {
-            setMockTransaction(voteTransaction);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(voteTransaction),
+            ]);
             senderWallet.setAttribute("vote", delegateWallet.publicKey);
             await expect(handler.bootstrap()).rejects.toThrow(AlreadyVotedError);
         });
 
         it("should throw on unvote if wallet did not vote", async () => {
-            setMockTransaction(unvoteTransaction);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(unvoteTransaction),
+            ]);
             await expect(handler.bootstrap()).rejects.toThrow(NoVoteError);
         });
 
         it("should throw on unvote if wallet vote is mismatch", async () => {
-            setMockTransaction(unvoteTransaction);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(unvoteTransaction),
+            ]);
             senderWallet.setAttribute("vote", "no_a_public_key");
             await expect(handler.bootstrap()).rejects.toThrow(UnvoteMismatchError);
         });

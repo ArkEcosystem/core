@@ -23,7 +23,8 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Converter } from "@packages/core-test-framework";
+
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -53,8 +54,6 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    setMockTransaction(null);
-
     app = initApp();
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -72,6 +71,10 @@ beforeEach(() => {
     walletRepository.index(secondSignatureWallet);
     walletRepository.index(multiSignatureWallet);
     walletRepository.index(recipientWallet);
+});
+
+afterEach(() => {
+    Mocks.TransactionRepository.setMockTransactions([]);
 });
 
 describe("Htlc refund", () => {
@@ -171,7 +174,9 @@ describe("Htlc refund", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
-                setMockTransaction(htlcLockTransaction);
+                Mocks.TransactionRepository.setMockTransactions([
+                    Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction),
+                ]);
                 await expect(handler.bootstrap()).toResolve();
             });
         });
@@ -420,7 +425,9 @@ describe("Htlc refund", () => {
                     handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
                 ).toResolve();
 
-                setMockTransaction(htlcLockTransaction);
+                Mocks.TransactionRepository.setMockTransactions([
+                    Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction),
+                ]);
                 const balanceBefore = lockWallet.balance;
 
                 await handler.apply(htlcRefundTransaction, walletRepository);
@@ -440,7 +447,7 @@ describe("Htlc refund", () => {
                 );
                 expect(foundLockWallet).toBeDefined();
                 expect(foundLockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id!]).toEqual({
-                    amount: htlcLockTransaction.data.amount,
+                    amount: htlcLockTransaction.data.amount.toString(),
                     recipientId: htlcLockTransaction.data.recipientId,
                     ...htlcLockTransaction.data.asset!.lock,
                 });
@@ -456,7 +463,9 @@ describe("Htlc refund", () => {
                     handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
                 ).toResolve();
 
-                setMockTransaction(htlcLockTransaction);
+                Mocks.TransactionRepository.setMockTransactions([
+                    Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction),
+                ]);
                 const balanceBefore = lockWallet.balance;
 
                 await handler.apply(htlcRefundTransaction, walletRepository);

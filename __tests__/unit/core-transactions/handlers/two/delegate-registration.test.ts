@@ -29,8 +29,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockBlock } from "../mocks/block-repository";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Converter } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -49,8 +48,6 @@ beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
-
-    setMockTransaction(null);
 
     app = initApp();
 
@@ -104,38 +101,51 @@ describe("DelegateRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         afterEach(() => {
-            setMockBlock(null);
+            Mocks.TransactionRepository.setMockTransactions([]);
+            Mocks.BlockRepository.setDelegateForgedBlocks([]);
+            Mocks.BlockRepository.setLastForgedBlocks([]);
         });
 
         it("should resolve", async () => {
-            setMockTransaction(delegateRegistrationTransaction);
+            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(delegateRegistrationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should resolve with bocks", async () => {
-            setMockTransaction(delegateRegistrationTransaction);
-            setMockBlock({
+            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(delegateRegistrationTransaction)]);
+
+            Mocks.BlockRepository.setDelegateForgedBlocks([{
                 generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
                 totalRewards: "2",
                 totalFees: "2",
-                totalProduced: "1",
-                id: "1",
+                totalProduced: 1,
+            }]);
+
+            Mocks.BlockRepository.setLastForgedBlocks([{
+                generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                id: "123",
                 height: "1",
-                timestamp: "1",
-            });
+                timestamp: 1
+            }]);
+
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should resolve with bocks and genesis wallet", async () => {
-            setMockBlock({
+            Mocks.BlockRepository.setDelegateForgedBlocks([{
                 generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
                 totalRewards: "2",
                 totalFees: "2",
-                totalProduced: "1",
-                id: "1",
+                totalProduced: 1,
+            }]);
+
+            Mocks.BlockRepository.setLastForgedBlocks([{
+                generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                id: "123",
                 height: "1",
-                timestamp: "1",
-            });
+                timestamp: 1
+            }]);
+
             await expect(handler.bootstrap()).toResolve();
         });
     });

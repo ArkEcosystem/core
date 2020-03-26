@@ -25,7 +25,7 @@ import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
 
 import { buildRecipientWallet, buildSecondSignatureWallet, buildSenderWallet, initApp } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Converter } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -45,8 +45,6 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    setMockTransaction(null);
-
     app = initApp();
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -62,6 +60,10 @@ beforeEach(() => {
     walletRepository.index(senderWallet);
     walletRepository.index(secondSignatureWallet);
     walletRepository.index(recipientWallet);
+});
+
+afterEach(() => {
+   Mocks.TransactionRepository.setMockTransactions([]);
 });
 
 describe("MultiSignatureRegistrationTransaction", () => {
@@ -133,12 +135,16 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            setMockTransaction(multiSignatureTransaction);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(multiSignatureTransaction),
+            ]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should throw if wallet is mutli signature", async () => {
-            setMockTransaction(multiSignatureTransaction);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(multiSignatureTransaction),
+            ]);
             recipientWallet.setAttribute("multiSignature", multiSignatureTransaction.data.asset!.multiSignature);
             await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
         });

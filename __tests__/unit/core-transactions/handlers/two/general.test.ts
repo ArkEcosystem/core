@@ -31,7 +31,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -51,8 +50,6 @@ beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
-
-    setMockTransaction(null);
 
     app = initApp();
 
