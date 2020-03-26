@@ -126,6 +126,7 @@ export abstract class Command {
     public register(argv: string[]) {
         try {
             this.input = this.app.resolve(Input);
+            // TODO: since parse is always passed a new InputDefinition - how can arguments ever be retrieved from it?
             this.input.parse(argv, this.definition);
             this.input.bind();
             this.input.validate();
