@@ -58,4 +58,10 @@ describe("TopCommand", () => {
 
         await expect(cli.execute(Command)).rejects.toThrow("No processes are running.");
     });
+
+    it("should throw if the process list is undefined", async () => {
+        jest.spyOn(processManager, "list").mockReturnValue(undefined);
+
+        await expect(cli.execute(Command)).rejects.toThrow("No processes are running.");
+    });
 });
