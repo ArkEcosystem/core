@@ -9,24 +9,18 @@ import { dirSync } from "tmp";
 export const initApp = (): Application => {
     const app: Application = new Application(new Container());
 
-    app.bind(Identifiers.EventDispatcherService)
-        .to(MemoryEventDispatcher)
-        .inSingletonScope();
+    app.bind(Identifiers.EventDispatcherService).to(MemoryEventDispatcher).inSingletonScope();
 
     app.bind(Identifiers.LogService).toConstantValue({ info: jest.fn(), notice: jest.fn(), debug: jest.fn() });
 
     app.bind("path.cache").toConstantValue(dirSync().name);
 
-    app.bind<Database>(WebhookIdentifiers.Database)
-        .to(Database)
-        .inSingletonScope();
+    app.bind<Database>(WebhookIdentifiers.Database).to(Database).inSingletonScope();
 
     app.get<Database>(WebhookIdentifiers.Database).boot();
 
     // Setup Server...
-    app.bind(WebhookIdentifiers.Server)
-        .to(Server)
-        .inSingletonScope();
+    app.bind(WebhookIdentifiers.Server).to(Server).inSingletonScope();
 
     return app;
 };

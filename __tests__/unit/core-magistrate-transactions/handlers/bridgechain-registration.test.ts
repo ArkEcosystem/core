@@ -1,35 +1,35 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { BridgechainRegistrationBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
+import { Application, Contracts } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { BridgechainRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import {
     IBridgechainRegistrationAsset,
     IBusinessRegistrationAsset,
-} from "@arkecosystem/core-magistrate-crypto/src/interfaces";
+} from "@packages/core-magistrate-crypto/src/interfaces";
 import {
     BridgechainAlreadyRegisteredError,
     BusinessIsResignedError,
     GenesisHashAlreadyRegisteredError,
     PortKeyMustBeValidPackageNameError,
     WalletIsNotBusinessError,
-} from "@arkecosystem/core-magistrate-transactions/src/errors";
-import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
+} from "@packages/core-magistrate-transactions/src/errors";
+import { MagistrateApplicationEvents } from "@packages/core-magistrate-transactions/src/events";
 import {
     BridgechainRegistrationTransactionHandler,
     BusinessRegistrationTransactionHandler,
-} from "@arkecosystem/core-magistrate-transactions/src/handlers";
-import { Wallets } from "@arkecosystem/core-state";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { InsufficientBalanceError } from "@arkecosystem/core-transactions/dist/errors";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { configManager } from "@arkecosystem/crypto/src/managers";
+} from "@packages/core-magistrate-transactions/src/handlers";
+import { Wallets } from "@packages/core-state";
+import { StateStore } from "@packages/core-state/src/stores/state";
+import { Generators } from "@packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { InsufficientBalanceError } from "@packages/core-transactions/dist/errors";
+import { TransactionHandler } from "@packages/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { configManager } from "@packages/crypto/src/managers";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
 import { Mocks, Converter } from "@packages/core-test-framework";
