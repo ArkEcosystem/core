@@ -14,7 +14,7 @@ declare global {
 expect.extend({
     toBeDelegate: actual => {
         return {
-            message: () => "Expected value to be a valid delegate",
+            message: /* istanbul ignore next */ () => "Expected value to be a valid delegate",
             pass: Utils.isEqual(Utils.sortBy(Object.keys(actual)), ["address", "publicKey", "username"]),
         };
     },

@@ -22,7 +22,7 @@ expect.extend({
         }
 
         return {
-            message: () => "Expected value to be a valid public key",
+            message: /* istanbul ignore next */ () => "Expected value to be a valid public key",
             pass,
         };
     },

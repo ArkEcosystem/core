@@ -22,12 +22,13 @@ const isValidPeer = peer => {
 expect.extend({
     toBeValidPeer: (actual, expected) => {
         return {
-            message: () => `Expected ${JSON.stringify(actual)} to be a valid peer`,
+            message: /* istanbul ignore next */ () => `Expected ${JSON.stringify(actual)} to be a valid peer`,
             pass: isValidPeer(actual),
         };
     },
 
     toBeValidArrayOfPeers: (actual, expected) => {
+        /* istanbul ignore next */
         const message = () => `Expected ${JSON.stringify(actual)} to be a valid array of peers`;
 
         if (!Array.isArray(actual)) {
