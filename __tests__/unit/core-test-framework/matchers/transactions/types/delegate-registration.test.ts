@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/transactions/types/delegate-registration"
+import "@packages/core-test-framework/src/matchers/transactions/types/delegate-registration";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Interfaces } from "@packages/crypto";
 
@@ -12,7 +12,6 @@ beforeEach(() => {
 
 describe("Delegate Registration", () => {
     describe("toBeDelegateRegistrationType", () => {
-
         it("should be delegate registrations type", async () => {
             const transaction: Interfaces.ITransaction = factory.get("DelegateRegistration").make();
 

@@ -10,5 +10,5 @@ export const setMockNonce = (nonce: Utils.BigNumber) => {
 export const walletRepository: Partial<WalletRepository> = {
     getNonce: (publicKey: string): Utils.BigNumber => {
         return mockNonce;
-    }
+    },
 };

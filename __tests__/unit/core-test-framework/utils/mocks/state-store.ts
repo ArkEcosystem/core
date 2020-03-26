@@ -13,13 +13,13 @@ export const setLastHeight = (height: number) => {
 };
 
 export const stateStore: Partial<StateStore> = {
-    getLastBlock: () :IBlock => {
+    getLastBlock: (): IBlock => {
         return mockBlock as IBlock;
     },
     getGenesisBlock: (): IBlock => {
         return mockBlock as IBlock;
     },
     getLastHeight(): number {
-        return lastHeight
-    }
+        return lastHeight;
+    },
 };

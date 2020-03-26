@@ -20,9 +20,8 @@ let sandbox: Sandbox;
 
 let config = Generators.generateCryptoConfigRaw();
 
-
 beforeEach(async () => {
-    for(let item of config.milestones) {
+    for (let item of config.milestones) {
         item.blocktime = 2;
     }
     Managers.configManager.setConfig(config);
@@ -33,7 +32,9 @@ beforeEach(async () => {
 
     sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(BlockchainMocks.blockchain);
 
-    sandbox.app.bind(Container.Identifiers.WalletRepository).toConstantValue(WalletRepositoryMocks.walletRepository)
+    sandbox.app
+        .bind(Container.Identifiers.WalletRepository)
+        .toConstantValue(WalletRepositoryMocks.walletRepository)
         .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
 });
 
@@ -47,7 +48,6 @@ afterEach(() => {
     WalletRepositoryMocks.setMockNonce(Utils.BigNumber.make(1));
 });
 
-
 describe("Generic", () => {
     describe("snoozeForBlock", () => {
         it("should snooze", async () => {
@@ -58,8 +58,8 @@ describe("Generic", () => {
             let end = performance.now();
 
             // Test with 2 sec blocktime
-            expect(end-start).toBeGreaterThan(1900);
-            expect(end-start).toBeLessThan(4100);
+            expect(end - start).toBeGreaterThan(1900);
+            expect(end - start).toBeLessThan(4100);
         });
     });
 
@@ -87,7 +87,9 @@ describe("Generic", () => {
         it("should return sender nonce", async () => {
             WalletRepositoryMocks.setMockNonce(Utils.BigNumber.make(5));
 
-            expect(getSenderNonce(sandbox.app, Identities.PublicKey.fromPassphrase(passphrases[0]))).toEqual(Utils.BigNumber.make(5));
+            expect(getSenderNonce(sandbox.app, Identities.PublicKey.fromPassphrase(passphrases[0]))).toEqual(
+                Utils.BigNumber.make(5),
+            );
         });
     });
 
@@ -101,10 +103,10 @@ describe("Generic", () => {
                 reward: Utils.BigNumber.make("100"),
                 totalFee: Utils.BigNumber.make("200"),
                 totalAmount: Utils.BigNumber.make("300"),
-                generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0])
+                generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
             };
 
-            BlockchainMocks.setMockBlock({data: mockBlock} as Partial<Interfaces.IBlock>);
+            BlockchainMocks.setMockBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
 
             let spyOnRemoveBlocks = jest.spyOn(BlockchainMocks.blockchain, "removeBlocks");
 
@@ -117,17 +119,23 @@ describe("Generic", () => {
         it("should return wallet nonce", async () => {
             WalletRepositoryMocks.setMockNonce(Utils.BigNumber.make(5));
 
-            expect(getWalletNonce(sandbox.app, Identities.PublicKey.fromPassphrase(passphrases[0]))).toEqual(Utils.BigNumber.make(5));
+            expect(getWalletNonce(sandbox.app, Identities.PublicKey.fromPassphrase(passphrases[0]))).toEqual(
+                Utils.BigNumber.make(5),
+            );
         });
 
         it("should return zero on error", async () => {
             WalletRepositoryMocks.setMockNonce(Utils.BigNumber.make(5));
 
-            let spyOnGetNonce = jest.spyOn(WalletRepositoryMocks.walletRepository, "getNonce").mockImplementation((publicKey: string) => {
-                throw new Error();
-            });
+            let spyOnGetNonce = jest
+                .spyOn(WalletRepositoryMocks.walletRepository, "getNonce")
+                .mockImplementation((publicKey: string) => {
+                    throw new Error();
+                });
 
-            expect(getWalletNonce(sandbox.app, Identities.PublicKey.fromPassphrase(passphrases[0]))).toEqual(Utils.BigNumber.make(0));
+            expect(getWalletNonce(sandbox.app, Identities.PublicKey.fromPassphrase(passphrases[0]))).toEqual(
+                Utils.BigNumber.make(0),
+            );
             expect(spyOnGetNonce).toHaveBeenCalled();
         });
     });

@@ -15,16 +15,16 @@ export const machineConfig = {
                 firstNestedState: {
                     onEntry: ["runFirstNestedState"],
                     on: {
-                        LEAVE: "secondNestedState"
-                    }
+                        LEAVE: "secondNestedState",
+                    },
                 },
                 secondNestedState: {
                     onEntry: ["runSecondNestedState"],
                     on: {
-                        LEAVE: "stopped"
-                    }
-                }
-            }
-        }
-    }
+                        LEAVE: "stopped",
+                    },
+                },
+            },
+        },
+    },
 };

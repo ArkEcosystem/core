@@ -10,50 +10,27 @@ let app: Application;
 beforeEach(() => {
     app = new Application(new Container.Container());
 
-    app
-        .bind(Container.Identifiers.PluginConfiguration)
-        .to(Providers.PluginConfiguration)
-        .inSingletonScope();
+    app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 
-    app
-        .bind(Container.Identifiers.StateStore)
-        .toConstantValue({});
+    app.bind(Container.Identifiers.StateStore).toConstantValue({});
 
-    app
-        .bind(Container.Identifiers.BlockchainService)
-        .toConstantValue({});
+    app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
 
-    app
-        .bind(Container.Identifiers.BlockRepository)
-        .toConstantValue({});
+    app.bind(Container.Identifiers.BlockRepository).toConstantValue({});
 
-    app
-        .bind(Container.Identifiers.TransactionRepository)
-        .toConstantValue({});
+    app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
 
-    app
-        .bind(Container.Identifiers.WalletRepository)
-        .toConstantValue({});
+    app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
 
-    app
-        .bind(Container.Identifiers.PeerNetworkMonitor)
-        .toConstantValue({});
+    app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue({});
 
-    app
-        .bind(Container.Identifiers.PeerStorage)
-        .toConstantValue({});
+    app.bind(Container.Identifiers.PeerStorage).toConstantValue({});
 
-    app
-        .bind(Container.Identifiers.RoundRepository)
-        .toConstantValue({});
+    app.bind(Container.Identifiers.RoundRepository).toConstantValue({});
 
-    app
-        .bind(Container.Identifiers.TransactionPoolQuery)
-        .toConstantValue({});
+    app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
 
-    app
-        .bind(Container.Identifiers.TransactionPoolProcessorFactory)
-        .toConstantValue({});
+    app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
 });
 
 describe("ServiceProvider", () => {
@@ -78,5 +55,5 @@ describe("ServiceProvider", () => {
 
     it("should not be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeFalse();
-    })
+    });
 });

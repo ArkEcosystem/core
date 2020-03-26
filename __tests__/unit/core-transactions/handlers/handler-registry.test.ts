@@ -158,12 +158,8 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcClaimTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
 
-    app.bind(Identifiers.TransactionHandlerProvider)
-        .to(TransactionHandlerProvider)
-        .inSingletonScope();
-    app.bind(Identifiers.TransactionHandlerRegistry)
-        .to(TransactionHandlerRegistry)
-        .inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
 
     Managers.configManager.getMilestone().aip11 = false;
 });

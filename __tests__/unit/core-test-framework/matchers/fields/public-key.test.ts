@@ -1,7 +1,6 @@
-import "@packages/core-test-framework/src/matchers/fields/public-key"
+import "@packages/core-test-framework/src/matchers/fields/public-key";
 import { Identities } from "@packages/crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-
 
 let publicKey: string;
 
@@ -11,7 +10,6 @@ beforeEach(() => {
 
 describe("PublicKey", () => {
     describe("toBePublicKey", () => {
-
         it("should be valid public key", async () => {
             expect(publicKey).toBePublicKey();
         });

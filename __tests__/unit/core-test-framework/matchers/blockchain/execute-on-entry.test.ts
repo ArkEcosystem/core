@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/blockchain/execute-on-entry"
+import "@packages/core-test-framework/src/matchers/blockchain/execute-on-entry";
 import { Machine } from "xstate";
 import { machineConfig } from "./__fixtures__/assets";
 

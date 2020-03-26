@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/transactions/valid"
+import "@packages/core-test-framework/src/matchers/transactions/valid";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Interfaces } from "@packages/crypto";
 
@@ -8,12 +8,10 @@ beforeEach(() => {
     factory = new FactoryBuilder();
 
     Factories.registerTransactionFactory(factory);
-
 });
 
 describe("Valid", () => {
     describe("toBeValidTransaction", () => {
-
         it("should be valid transaction - with sign", async () => {
             const transaction: Interfaces.ITransaction = factory.get("Transfer").withStates("sign").make();
 

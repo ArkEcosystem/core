@@ -115,7 +115,9 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(businessUpdateTransaction)]);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(businessUpdateTransaction),
+            ]);
             await expect(handler.bootstrap()).toResolve();
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessUpdateAsset);
@@ -208,7 +210,9 @@ describe("BusinessRegistration", () => {
                 .sign(passphrases[0])
                 .build();
 
-            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(businessRegistrationTransaction)]);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(businessRegistrationTransaction),
+            ]);
 
             await handler.revert(businessUpdateTransaction, walletRepository);
 

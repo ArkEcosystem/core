@@ -93,9 +93,7 @@ export const initApp = (): Application => {
             ),
     );
 
-    app.bind(Container.Identifiers.PluginConfiguration)
-        .to(Providers.PluginConfiguration)
-        .inSingletonScope();
+    app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 
     app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set("maxTransactionAge", 500);
     app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set(
@@ -107,17 +105,11 @@ export const initApp = (): Application => {
         300,
     );
 
-    app.bind(Container.Identifiers.StateStore)
-        .to(StateStore)
-        .inTransientScope();
+    app.bind(Container.Identifiers.StateStore).to(StateStore).inTransientScope();
 
-    app.bind(Identifiers.TransactionPoolMempool)
-        .to(Mempool)
-        .inSingletonScope();
+    app.bind(Identifiers.TransactionPoolMempool).to(Mempool).inSingletonScope();
 
-    app.bind(Identifiers.TransactionPoolQuery)
-        .to(Query)
-        .inSingletonScope();
+    app.bind(Identifiers.TransactionPoolQuery).to(Query).inSingletonScope();
 
     app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
     app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
@@ -129,13 +121,9 @@ export const initApp = (): Application => {
     );
     app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
 
-    app.bind(Identifiers.WalletRepository)
-        .to(Wallets.WalletRepository)
-        .inSingletonScope();
+    app.bind(Identifiers.WalletRepository).to(Wallets.WalletRepository).inSingletonScope();
 
-    app.bind(Identifiers.EventDispatcherService)
-        .to(NullEventDispatcher)
-        .inSingletonScope();
+    app.bind(Identifiers.EventDispatcherService).to(NullEventDispatcher).inSingletonScope();
 
     app.bind(Identifiers.BlockRepository).toConstantValue(Mocks.BlockRepository.blockRepository);
 
@@ -158,12 +146,8 @@ export const initApp = (): Application => {
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcClaimTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
 
-    app.bind(Identifiers.TransactionHandlerProvider)
-        .to(TransactionHandlerProvider)
-        .inSingletonScope();
-    app.bind(Identifiers.TransactionHandlerRegistry)
-        .to(TransactionHandlerRegistry)
-        .inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
 
     return app;
 };

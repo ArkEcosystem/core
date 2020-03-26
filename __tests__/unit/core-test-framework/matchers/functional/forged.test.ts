@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/functional/forged"
+import "@packages/core-test-framework/src/matchers/functional/forged";
 import { Interfaces } from "@packages/crypto";
 import got from "got";
 
@@ -7,7 +7,7 @@ let block: Partial<Interfaces.IBlockData>;
 beforeEach(() => {
     block = {
         id: "67219440c617ddaa7b7d102df462773c5b765ca1a1ba0827340f34ff32f495ef",
-    }
+    };
 });
 
 describe("Forged", () => {
@@ -18,10 +18,10 @@ describe("Forged", () => {
                 return {
                     body: JSON.stringify({
                         data: {
-                            id: block.id
-                        }
-                    })
-                }
+                            id: block.id,
+                        },
+                    }),
+                };
             });
 
             await expect(block.id).toBeForged();

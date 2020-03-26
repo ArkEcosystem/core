@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Signer } from "@packages/core-test-framework/src/internal/signer"
+import { Signer } from "@packages/core-test-framework/src/internal/signer";
 import { Generators } from "@packages/core-test-framework/src";
 import { Identities, Interfaces } from "@packages/crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -21,7 +21,7 @@ describe("Signer", () => {
             amount: "100",
             passphrase: passphrases[0],
             secondPassphrase: passphrases[1],
-            vendorField: "dummy"
+            vendorField: "dummy",
         };
 
         let entity: Interfaces.ITransactionData = signer.makeTransfer(options);
@@ -79,7 +79,9 @@ describe("Signer", () => {
     it("should make multi signature registration", async () => {
         let options = {
             min: 2,
-            participants: `${Identities.PublicKey.fromPassphrase(passphrases[0])},${Identities.PublicKey.fromPassphrase(passphrases[1])},${Identities.PublicKey.fromPassphrase(passphrases[2])}`,
+            participants: `${Identities.PublicKey.fromPassphrase(passphrases[0])},${Identities.PublicKey.fromPassphrase(
+                passphrases[1],
+            )},${Identities.PublicKey.fromPassphrase(passphrases[2])}`,
             passphrases: `${passphrases[0]},${passphrases[1]},${passphrases[2]}`,
             passphrase: passphrases[0],
             secondPassphrase: passphrases[1],
@@ -115,12 +117,12 @@ describe("Signer", () => {
             payments: [
                 {
                     recipientId: Identities.Address.fromPassphrase(passphrases[0]),
-                    amount: "2"
+                    amount: "2",
                 },
                 {
                     recipientId: Identities.Address.fromPassphrase(passphrases[1]),
-                    amount: "3"
-                }
+                    amount: "3",
+                },
             ],
             passphrase: passphrases[0],
             secondPassphrase: passphrases[1],
@@ -141,7 +143,7 @@ describe("Signer", () => {
                 expiration: {
                     type: HtlcLockExpirationType.EpochTimestamp,
                     value: 5,
-                }
+                },
             },
             amount: "100",
             recipient: Identities.Address.fromPassphrase(passphrases[0]),
@@ -180,7 +182,7 @@ describe("Signer", () => {
         let options = {
             htlcRefundFee: "5",
             refund: {
-                lockTransactionId: "12345"
+                lockTransactionId: "12345",
             },
             passphrase: passphrases[0],
             secondPassphrase: passphrases[1],

@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/models/wallet"
+import "@packages/core-test-framework/src/matchers/models/wallet";
 import { Identities } from "@packages/crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 
@@ -8,12 +8,11 @@ beforeEach(() => {
     wallet = {
         address: Identities.Address.fromPassphrase(passphrases[0]),
         publicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
-    }
+    };
 });
 
 describe("Wallet", () => {
     describe("toBeWallet", () => {
-
         it("should be wallet", async () => {
             expect(wallet).toBeWallet();
         });

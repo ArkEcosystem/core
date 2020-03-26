@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/api/response"
+import "@packages/core-test-framework/src/matchers/api/response";
 
 let response: any;
 
@@ -7,23 +7,22 @@ beforeEach(() => {
         data: {
             test: "test",
             meta: {
-                "pageCount": 5,
-                "totalCount": 25,
-                "next": undefined,
-                "previous": undefined,
-                "self": undefined,
-                "first": undefined,
-                "last": undefined,
-            }
+                pageCount: 5,
+                totalCount: 25,
+                next: undefined,
+                previous: undefined,
+                self: undefined,
+                first: undefined,
+                last: undefined,
+            },
         },
         status: 200,
-        headers: {}
-    }
+        headers: {},
+    };
 });
 
 describe("Response", () => {
     describe("toBeSuccessfulResponse", () => {
-
         it("should be successful response", async () => {
             expect(response).toBeSuccessfulResponse();
         });

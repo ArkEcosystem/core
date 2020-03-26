@@ -38,7 +38,7 @@ const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Sl
 
 const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
     mockLastBlockData.height! + heightRelativeToLastBlock;
-const makeNotExpiredTimestamp = type =>
+const makeNotExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
 
 const mockGetLastBlock = jest.fn();
@@ -72,7 +72,7 @@ beforeEach(() => {
 });
 
 describe("Htlc lock", () => {
-    describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", expirationType => {
+    describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", (expirationType) => {
         let htlcLockTransaction: Interfaces.ITransaction;
         let secondSignatureHtlcLockTransaction: Interfaces.ITransaction;
         let multiSignatureHtlcLockTransaction: Interfaces.ITransaction;

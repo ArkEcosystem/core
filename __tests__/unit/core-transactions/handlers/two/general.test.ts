@@ -336,9 +336,7 @@ describe("General Tests", () => {
             await handler.apply(instance, walletRepository);
 
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance)
-                    .minus(instance.data.amount)
-                    .minus(instance.data.fee),
+                Utils.BigNumber.make(senderBalance).minus(instance.data.amount).minus(instance.data.fee),
             );
 
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).plus(instance.data.amount));
@@ -403,9 +401,7 @@ describe("General Tests", () => {
 
             await handler.revert(instance, walletRepository);
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance)
-                    .plus(instance.data.amount)
-                    .plus(instance.data.fee),
+                Utils.BigNumber.make(senderBalance).plus(instance.data.amount).plus(instance.data.fee),
             );
 
             expect(senderWallet.nonce.isZero()).toBeTrue();

@@ -94,7 +94,9 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(businessRegistrationTransaction)]);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(businessRegistrationTransaction),
+            ]);
 
             await expect(handler.bootstrap()).toResolve();
 

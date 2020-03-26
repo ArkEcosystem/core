@@ -175,9 +175,7 @@ describe("MultiPaymentTransaction", () => {
             await handler.apply(multiPaymentTransaction, walletRepository);
 
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance)
-                    .minus(totalPaymentsAmount)
-                    .minus(multiPaymentTransaction.data.fee),
+                Utils.BigNumber.make(senderBalance).minus(totalPaymentsAmount).minus(multiPaymentTransaction.data.fee),
             );
 
             for (const { recipientId, amount } of multiPaymentTransaction.data.asset!.payments!) {
@@ -203,9 +201,7 @@ describe("MultiPaymentTransaction", () => {
 
             await handler.revert(multiPaymentTransaction, walletRepository);
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance)
-                    .plus(totalPaymentsAmount)
-                    .plus(multiPaymentTransaction.data.fee),
+                Utils.BigNumber.make(senderBalance).plus(totalPaymentsAmount).plus(multiPaymentTransaction.data.fee),
             );
 
             expect(senderWallet.nonce.isZero()).toBeTrue();

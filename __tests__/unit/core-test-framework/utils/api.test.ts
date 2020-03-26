@@ -12,7 +12,6 @@ import {
     walletResponse,
 } from "./__fixtures__/assets";
 
-
 let sandbox: Sandbox;
 let api: ApiHelpers;
 
@@ -21,7 +20,7 @@ let mockResponse: any = '{test:"test"}';
 let mockServer = {
     async inject(options: any) {
         return mockResponse;
-    }
+    },
 };
 
 beforeEach(async () => {
@@ -35,7 +34,6 @@ beforeEach(async () => {
 afterEach(() => {
     jest.resetAllMocks();
 });
-
 
 describe("ApiHelpers", () => {
     describe("request", () => {
@@ -58,7 +56,7 @@ describe("ApiHelpers", () => {
     describe("expectJson", () => {
         it("should pass", async () => {
             let response = {
-                data: {}
+                data: {},
             };
 
             api.expectJson(response);
@@ -68,7 +66,7 @@ describe("ApiHelpers", () => {
     describe("expectStatus", () => {
         it("should pass", async () => {
             let response = {
-                status: 200
+                status: 200,
             };
 
             api.expectStatus(response, 200);
@@ -79,8 +77,8 @@ describe("ApiHelpers", () => {
         it("should pass", async () => {
             let response = {
                 data: {
-                    data: {}
-                }
+                    data: {},
+                },
             };
 
             api.expectResource(response);
@@ -91,8 +89,8 @@ describe("ApiHelpers", () => {
         it("should pass", async () => {
             let response = {
                 data: {
-                    data: []
-                }
+                    data: [],
+                },
             };
 
             api.expectCollection(response);
@@ -103,8 +101,8 @@ describe("ApiHelpers", () => {
         it("should pass", async () => {
             let response = {
                 data: {
-                    meta: paginationResponseMeta
-                }
+                    meta: paginationResponseMeta,
+                },
             };
 
             api.expectPaginator(response);
@@ -115,7 +113,7 @@ describe("ApiHelpers", () => {
         it("should pass", async () => {
             let response = {
                 data: {},
-                status: 200
+                status: 200,
             };
 
             api.expectSuccessful(response);
@@ -130,7 +128,7 @@ describe("ApiHelpers", () => {
                     error: "Dummy error",
                     message: "Dummy error message",
                 },
-                status: 404
+                status: 404,
             };
 
             api.expectError(response);
@@ -164,7 +162,6 @@ describe("ApiHelpers", () => {
 
     describe("expectWallet", () => {
         it("should pass", async () => {
-
             // TODO: Check why is vote required
 
             api.expectWallet(walletResponse);

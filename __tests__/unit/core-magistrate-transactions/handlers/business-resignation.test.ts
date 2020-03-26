@@ -84,10 +84,7 @@ describe("BusinessRegistration", () => {
             2,
         );
 
-        businessResignationTransaction = new BusinessResignationBuilder()
-            .nonce("1")
-            .sign(passphrases[0])
-            .build();
+        businessResignationTransaction = new BusinessResignationBuilder().nonce("1").sign(passphrases[0]).build();
 
         senderWallet.setAttribute("business.businessAsset", businessRegistrationAsset);
 
@@ -107,7 +104,9 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(businessResignationTransaction)]);
+            Mocks.TransactionRepository.setMockTransactions([
+                Converter.convertCryptoTransactionToDatabaseTransaction(businessResignationTransaction),
+            ]);
             await expect(handler.bootstrap()).toResolve();
 
             expect(senderWallet.getAttribute("business.resigned")).toBeTrue();

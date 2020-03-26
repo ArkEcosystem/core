@@ -39,9 +39,9 @@ const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Sl
 
 const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
     mockLastBlockData.height! + heightRelativeToLastBlock;
-const makeExpiredTimestamp = type =>
+const makeExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! - 9 : makeBlockHeightTimestamp(-2);
-const makeNotExpiredTimestamp = type =>
+const makeNotExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
 
 const mockGetLastBlock = jest.fn();
@@ -75,7 +75,7 @@ beforeEach(() => {
 });
 
 describe("Htlc refund", () => {
-    describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i", expirationType => {
+    describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i", (expirationType) => {
         const lockPassphrase = passphrases[2];
         let htlcLockTransaction: Interfaces.ITransaction;
         let htlcRefundTransaction: Interfaces.ITransaction;
