@@ -104,11 +104,12 @@ export class CommandLineInterface {
         );
 
         for (const [key, value] of Object.entries(commandsFromPlugins)) {
+            // TODO: check we can ignore this line for now
+            /* istanbul ignore next */
             commands[key] = value;
         }
 
         this.app.bind(Container.Identifiers.Commands).toConstantValue(commands);
-
         return commands;
     }
 }

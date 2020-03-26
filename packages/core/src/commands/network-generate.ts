@@ -119,7 +119,11 @@ export class Command extends Commands.Command {
                 } as prompts.PromptObject<string>),
         );
 
-        if (Object.keys(flagsDefinition).find(flagName => !response[flagName])) {
+        // TODO: check this fix is acceptable
+        // the distribute flag is a boolean in the pre-existing tests
+        // and it is defined as a number in this.generateCryptoGenesisBlock()
+        // If false or 0 are passed intentionally, this would fail (despite all flags being provided).
+        if (Object.keys(flagsDefinition).find(flagName => response[flagName] === undefined)) {
             this.components.fatal("Please provide all flags and try again!");
         }
 
@@ -361,10 +365,8 @@ export class Command extends Commands.Command {
         return wallets;
     }
 
-    private createWallet(pubKeyHash: number, passphrase?: string): Wallet {
-        if (!passphrase) {
-            passphrase = generateMnemonic();
-        }
+    private createWallet(pubKeyHash: number): Wallet {
+        const passphrase = generateMnemonic();
 
         const keys: Interfaces.IKeyPair = Identities.Keys.fromPassphrase(passphrase);
 
@@ -534,12 +536,6 @@ export class Command extends Commands.Command {
 
         for (const generatorByte of Buffer.from(genesisBlock.generatorPublicKey, "hex")) {
             byteBuffer.writeByte(generatorByte);
-        }
-
-        if (genesisBlock.blockSignature) {
-            for (const blockSignatureByte of Buffer.from(genesisBlock.blockSignature, "hex")) {
-                byteBuffer.writeByte(blockSignatureByte);
-            }
         }
 
         byteBuffer.flip();
