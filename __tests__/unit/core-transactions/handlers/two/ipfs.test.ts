@@ -105,7 +105,7 @@ describe("Ipfs", () => {
     describe("bootstrap", () => {
         it("should resolve", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(ipfsTransaction),
+                Converter.convertTransactionToModel(ipfsTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();
         });

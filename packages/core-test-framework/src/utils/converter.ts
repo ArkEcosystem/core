@@ -1,23 +1,21 @@
-import { Interfaces } from "@packages/crypto";
+import { Interfaces, Utils } from "@packages/crypto";
 import { Models } from "@packages/core-database";
 
-
-// TODO: Fix bigint return
-export const convertCryptoTransactionToDatabaseTransaction = (transaction: Interfaces.ITransaction, sequence: number = 0): Models.Transaction => {
+export const convertTransactionToModel = (transaction: Interfaces.ITransaction, sequence: number = 0): Models.Transaction => {
     return {
         id: transaction.id as string,
-        version: transaction.data.version as number,
-        blockId: transaction.data.blockId as string,
+        version: transaction.data.version || 1,
+        blockId: transaction.data.blockId || "",
         sequence: sequence,
         timestamp: transaction.data.timestamp,
-        nonce: transaction.data.nonce!.toString() as any,
-        senderPublicKey: transaction.data.senderPublicKey as string,
-        recipientId: transaction.data.recipientId as string,
-        type: transaction.data.type as number,
-        typeGroup: transaction.data.typeGroup as number,
+        nonce: transaction.data.nonce || Utils.BigNumber.make(1),
+        senderPublicKey: transaction.data.senderPublicKey || "",
+        recipientId: transaction.data.recipientId || "",
+        type: transaction.data.type,
+        typeGroup: transaction.data.typeGroup || 1,
         vendorField: transaction.data.vendorField,
-        amount: transaction.data.amount.toString() as any,
-        fee: transaction.data.fee.toString() as any,
+        amount: BigInt(transaction.data.amount),
+        fee: BigInt(transaction.data.fee),
         serialized: transaction.serialized,
         asset: transaction.data.asset as Record<string, any>,
     }

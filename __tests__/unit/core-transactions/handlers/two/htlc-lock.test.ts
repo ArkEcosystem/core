@@ -145,14 +145,14 @@ describe("Htlc lock", () => {
         describe("bootstrap", () => {
             it("should resolve", async () => {
                 Mocks.TransactionRepository.setMockTransactions([
-                    Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction),
+                    Converter.convertTransactionToModel(htlcLockTransaction),
                 ]);
                 await expect(handler.bootstrap()).toResolve();
             });
 
             it("should resolve with open transaction", async () => {
 
-                let mockHtlcLockTransacton = Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction);
+                let mockHtlcLockTransacton = Converter.convertTransactionToModel(htlcLockTransaction);
                 // @ts-ignore
                 mockHtlcLockTransacton.open = true;
 
@@ -176,7 +176,7 @@ describe("Htlc lock", () => {
                     .sign(passphrases[0])
                     .build();
 
-                let mockHtlcLockTransacton = Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction);
+                let mockHtlcLockTransacton = Converter.convertTransactionToModel(htlcLockTransaction);
                 // @ts-ignore
                 mockHtlcLockTransacton.open = true;
 

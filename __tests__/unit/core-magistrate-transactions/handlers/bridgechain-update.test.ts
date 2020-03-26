@@ -169,7 +169,7 @@ describe("BusinessRegistration", () => {
     describe("bootstrap", () => {
         it("should resolve", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(bridgechainUpdateTransaction, 1),
+                Converter.convertTransactionToModel(bridgechainUpdateTransaction, 1),
             ]);
 
             await expect(handler.bootstrap()).toResolve();
@@ -350,9 +350,9 @@ describe("BusinessRegistration", () => {
             });
 
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(bridgechainRegistrationTransaction, 1),
-                Converter.convertCryptoTransactionToDatabaseTransaction(secondBridgechainUpdateTransaction, 2),
-                Converter.convertCryptoTransactionToDatabaseTransaction(bridgechainUpdateTransaction, 3),
+                Converter.convertTransactionToModel(bridgechainRegistrationTransaction, 1),
+                Converter.convertTransactionToModel(secondBridgechainUpdateTransaction, 2),
+                Converter.convertTransactionToModel(bridgechainUpdateTransaction, 3),
             ]);
 
             await handler.revert(bridgechainUpdateTransaction, walletRepository);

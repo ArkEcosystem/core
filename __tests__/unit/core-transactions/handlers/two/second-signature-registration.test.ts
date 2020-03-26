@@ -97,7 +97,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
     describe("bootstrap", () => {
         it("should resolve", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(secondSignatureTransaction),
+                Converter.convertTransactionToModel(secondSignatureTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();
         });

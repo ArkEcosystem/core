@@ -151,19 +151,19 @@ describe("VoteTransaction", () => {
     describe("bootstrap", () => {
         it("should resolve", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(voteTransaction),
+                Converter.convertTransactionToModel(voteTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();
 
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(unvoteTransaction),
+                Converter.convertTransactionToModel(unvoteTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should throw on vote if wallet already voted", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(voteTransaction),
+                Converter.convertTransactionToModel(voteTransaction),
             ]);
             senderWallet.setAttribute("vote", delegateWallet.publicKey);
             await expect(handler.bootstrap()).rejects.toThrow(AlreadyVotedError);
@@ -171,14 +171,14 @@ describe("VoteTransaction", () => {
 
         it("should throw on unvote if wallet did not vote", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(unvoteTransaction),
+                Converter.convertTransactionToModel(unvoteTransaction),
             ]);
             await expect(handler.bootstrap()).rejects.toThrow(NoVoteError);
         });
 
         it("should throw on unvote if wallet vote is mismatch", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(unvoteTransaction),
+                Converter.convertTransactionToModel(unvoteTransaction),
             ]);
             senderWallet.setAttribute("vote", "no_a_public_key");
             await expect(handler.bootstrap()).rejects.toThrow(UnvoteMismatchError);

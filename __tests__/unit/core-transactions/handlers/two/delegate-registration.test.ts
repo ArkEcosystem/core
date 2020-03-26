@@ -107,12 +107,12 @@ describe("DelegateRegistrationTransaction", () => {
         });
 
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(delegateRegistrationTransaction)]);
+            Mocks.TransactionRepository.setMockTransactions([Converter.convertTransactionToModel(delegateRegistrationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should resolve with bocks", async () => {
-            Mocks.TransactionRepository.setMockTransactions([Converter.convertCryptoTransactionToDatabaseTransaction(delegateRegistrationTransaction)]);
+            Mocks.TransactionRepository.setMockTransactions([Converter.convertTransactionToModel(delegateRegistrationTransaction)]);
 
             Mocks.BlockRepository.setDelegateForgedBlocks([{
                 generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),

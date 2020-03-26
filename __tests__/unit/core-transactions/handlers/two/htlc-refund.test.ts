@@ -175,7 +175,7 @@ describe("Htlc refund", () => {
         describe("bootstrap", () => {
             it("should resolve", async () => {
                 Mocks.TransactionRepository.setMockTransactions([
-                    Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction),
+                    Converter.convertTransactionToModel(htlcLockTransaction),
                 ]);
                 await expect(handler.bootstrap()).toResolve();
             });
@@ -426,7 +426,7 @@ describe("Htlc refund", () => {
                 ).toResolve();
 
                 Mocks.TransactionRepository.setMockTransactions([
-                    Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction),
+                    Converter.convertTransactionToModel(htlcLockTransaction),
                 ]);
                 const balanceBefore = lockWallet.balance;
 
@@ -447,7 +447,7 @@ describe("Htlc refund", () => {
                 );
                 expect(foundLockWallet).toBeDefined();
                 expect(foundLockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id!]).toEqual({
-                    amount: htlcLockTransaction.data.amount.toString(),
+                    amount: BigInt(htlcLockTransaction.data.amount),
                     recipientId: htlcLockTransaction.data.recipientId,
                     ...htlcLockTransaction.data.asset!.lock,
                 });
@@ -464,7 +464,7 @@ describe("Htlc refund", () => {
                 ).toResolve();
 
                 Mocks.TransactionRepository.setMockTransactions([
-                    Converter.convertCryptoTransactionToDatabaseTransaction(htlcLockTransaction),
+                    Converter.convertTransactionToModel(htlcLockTransaction),
                 ]);
                 const balanceBefore = lockWallet.balance;
 

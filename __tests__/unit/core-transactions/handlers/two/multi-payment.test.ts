@@ -120,7 +120,7 @@ describe("MultiPaymentTransaction", () => {
     describe("bootstrap", () => {
         it("should resolve", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(multiPaymentTransaction),
+                Converter.convertTransactionToModel(multiPaymentTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();
         });

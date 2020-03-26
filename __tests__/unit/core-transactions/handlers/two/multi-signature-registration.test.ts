@@ -136,14 +136,14 @@ describe("MultiSignatureRegistrationTransaction", () => {
     describe("bootstrap", () => {
         it("should resolve", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(multiSignatureTransaction),
+                Converter.convertTransactionToModel(multiSignatureTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should throw if wallet is mutli signature", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertCryptoTransactionToDatabaseTransaction(multiSignatureTransaction),
+                Converter.convertTransactionToModel(multiSignatureTransaction),
             ]);
             recipientWallet.setAttribute("multiSignature", multiSignatureTransaction.data.asset!.multiSignature);
             await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
