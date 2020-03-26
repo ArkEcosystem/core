@@ -56,32 +56,32 @@ export const initApp = (): Application => {
 
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 
-    app.bind(Container.Identifiers.StateStore).toConstantValue(Mocks.StateStore.stateStore);
+    app.bind(Container.Identifiers.StateStore).toConstantValue(Mocks.StateStore.instance);
 
-    app.bind(Container.Identifiers.BlockchainService).toConstantValue(Mocks.Blockchain.blockchain);
+    app.bind(Container.Identifiers.BlockchainService).toConstantValue(Mocks.Blockchain.instance);
 
-    app.bind(Container.Identifiers.BlockRepository).toConstantValue(Mocks.BlockRepository.blockRepository);
+    app.bind(Container.Identifiers.BlockRepository).toConstantValue(Mocks.BlockRepository.instance);
 
     app.bind(Container.Identifiers.TransactionRepository).toConstantValue(
-        Mocks.TransactionRepository.transactionRepository,
+        Mocks.TransactionRepository.instance,
     );
 
-    app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(Mocks.NetworkMonitor.networkMonitor);
+    app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(Mocks.NetworkMonitor.instance);
 
-    app.bind(Container.Identifiers.PeerStorage).toConstantValue(Mocks.PeerStorage.peerStorage);
+    app.bind(Container.Identifiers.PeerStorage).toConstantValue(Mocks.PeerStorage.instance);
 
-    app.bind(Container.Identifiers.RoundRepository).toConstantValue(Mocks.RoundRepository.roundRepository);
+    app.bind(Container.Identifiers.RoundRepository).toConstantValue(Mocks.RoundRepository.instance);
 
     app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(
-        Mocks.TransactionPoolQuery.transactionPoolQuery,
+        Mocks.TransactionPoolQuery.instance,
     );
 
     app.bind(Container.Identifiers.TransactionPoolProcessor).toConstantValue(
-        Mocks.TransactionPoolProcessor.transactionPoolProcessor,
+        Mocks.TransactionPoolProcessor.instance,
     );
 
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toFactory(() => () => {
-        return Mocks.TransactionPoolProcessor.transactionPoolProcessor;
+        return Mocks.TransactionPoolProcessor.instance;
     });
 
     app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});

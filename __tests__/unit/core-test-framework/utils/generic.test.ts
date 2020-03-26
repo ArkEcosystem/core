@@ -4,7 +4,7 @@ import { performance } from "perf_hooks";
 import { Generators, Sandbox } from "@packages/core-test-framework";
 import { Identities, Interfaces, Managers, Utils } from "@packages/crypto";
 import { Container } from "@packages/core-kernel";
-import { BlockchainMocks, StateStoreMocks, WalletRepositoryMocks } from "./mocks";
+import { Mocks } from "@packages/core-test-framework";
 import { Block } from "@packages/core-database/src/models";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import {
@@ -28,24 +28,24 @@ beforeEach(async () => {
 
     sandbox = new Sandbox();
 
-    sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue(StateStoreMocks.stateStore);
+    sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue(Mocks.StateStore.instance);
 
-    sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(BlockchainMocks.blockchain);
+    sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(Mocks.Blockchain.instance);
 
     sandbox.app
         .bind(Container.Identifiers.WalletRepository)
-        .toConstantValue(WalletRepositoryMocks.walletRepository)
+        .toConstantValue(Mocks.WalletRepository.instance)
         .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
 });
 
 afterEach(() => {
     jest.resetAllMocks();
 
-    StateStoreMocks.setLastHeight(0);
+    Mocks.StateStore.setLastHeight(0);
 
-    BlockchainMocks.setMockBlock(null);
+    Mocks.Blockchain.setMockBlock(null);
 
-    WalletRepositoryMocks.setMockNonce(Utils.BigNumber.make(1));
+    Mocks.WalletRepository.setMockNonce(Utils.BigNumber.make(1));
 });
 
 describe("Generic", () => {
@@ -77,7 +77,7 @@ describe("Generic", () => {
 
     describe("getLastHeight", () => {
         it("should return last height", async () => {
-            StateStoreMocks.setLastHeight(5);
+            Mocks.StateStore.setLastHeight(5);
 
             expect(getLastHeight(sandbox.app)).toBe(5);
         });
@@ -85,7 +85,7 @@ describe("Generic", () => {
 
     describe("getSenderNonce", () => {
         it("should return sender nonce", async () => {
-            WalletRepositoryMocks.setMockNonce(Utils.BigNumber.make(5));
+            Mocks.WalletRepository.setMockNonce(Utils.BigNumber.make(5));
 
             expect(getSenderNonce(sandbox.app, Identities.PublicKey.fromPassphrase(passphrases[0]))).toEqual(
                 Utils.BigNumber.make(5),
@@ -106,9 +106,9 @@ describe("Generic", () => {
                 generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
             };
 
-            BlockchainMocks.setMockBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
+            Mocks.Blockchain.setMockBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
 
-            let spyOnRemoveBlocks = jest.spyOn(BlockchainMocks.blockchain, "removeBlocks");
+            let spyOnRemoveBlocks = jest.spyOn(Mocks.Blockchain.instance, "removeBlocks");
 
             await expect(resetBlockchain(sandbox.app)).toResolve();
             expect(spyOnRemoveBlocks).toHaveBeenCalled();
@@ -117,7 +117,7 @@ describe("Generic", () => {
 
     describe("getWalletNonce", () => {
         it("should return wallet nonce", async () => {
-            WalletRepositoryMocks.setMockNonce(Utils.BigNumber.make(5));
+            Mocks.WalletRepository.setMockNonce(Utils.BigNumber.make(5));
 
             expect(getWalletNonce(sandbox.app, Identities.PublicKey.fromPassphrase(passphrases[0]))).toEqual(
                 Utils.BigNumber.make(5),
@@ -125,10 +125,10 @@ describe("Generic", () => {
         });
 
         it("should return zero on error", async () => {
-            WalletRepositoryMocks.setMockNonce(Utils.BigNumber.make(5));
+            Mocks.WalletRepository.setMockNonce(Utils.BigNumber.make(5));
 
             let spyOnGetNonce = jest
-                .spyOn(WalletRepositoryMocks.walletRepository, "getNonce")
+                .spyOn(Mocks.WalletRepository.instance, "getNonce")
                 .mockImplementation((publicKey: string) => {
                     throw new Error();
                 });

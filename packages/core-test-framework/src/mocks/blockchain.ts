@@ -12,8 +12,8 @@ export const setIsSynced = (isSynced: boolean) => {
     mockIsSynced = isSynced;
 };
 
-export const blockchain: Partial<Blockchain> = {
-    getLastBlock: () :IBlock => {
+export const instance: Partial<Blockchain> = {
+    getLastBlock: (): IBlock => {
         return mockBlock as IBlock;
     },
     getLastHeight: (): number => {
@@ -21,5 +21,6 @@ export const blockchain: Partial<Blockchain> = {
     },
     isSynced: (block?: any): boolean => {
         return mockIsSynced;
-    }
+    },
+    removeBlocks: async (nblocks: number): Promise<void> => {},
 };

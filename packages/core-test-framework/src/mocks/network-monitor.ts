@@ -5,8 +5,8 @@ export const setNetworkHeight = (networkHeight: number) => {
     mockNetworkHeight = networkHeight;
 };
 
-export const networkMonitor: Partial<NetworkMonitor> = {
+export const instance: Partial<NetworkMonitor> = {
     getNetworkHeight: (): number => {
         return mockNetworkHeight;
-    }
+    },
 };

@@ -1,6 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 
-
 let accept: string[] = [];
 let broadcast: string[] = [];
 let invalid: string[] = [];
@@ -16,23 +15,23 @@ export const setProcessorState = (state: any): void => {
     errors = state.errors ? state.errors : [];
 };
 
-export const transactionPoolProcessor: Partial<Contracts.TransactionPool.Processor> = {
-    process: async (data: any) : Promise<void> => {
+export const instance: Partial<Contracts.TransactionPool.Processor> = {
+    process: async (data: any): Promise<void> => {
         return;
     },
     get accept(): string[] {
-        return accept
+        return accept;
     },
     get broadcast(): string[] {
-        return broadcast
+        return broadcast;
     },
     get invalid(): string[] {
-      return invalid
+        return invalid;
     },
     get excess(): string[] {
-        return excess
+        return excess;
     },
     get errors(): any {
-        return errors
-    }
+        return errors;
+    },
 };

@@ -4,11 +4,11 @@ import { Round } from "@arkecosystem/core-database/src/models";
 let mockRounds: Partial<Round>[];
 
 export const setRounds = (rounds: Partial<Round>[]) => {
-    mockRounds = rounds
+    mockRounds = rounds;
 };
 
-export const roundRepository: Partial<RoundRepository> = {
+export const instance: Partial<RoundRepository> = {
     findById: async (id: any): Promise<Round[]> => {
         return mockRounds as Round[];
-    }
+    },
 };

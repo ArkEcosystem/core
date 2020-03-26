@@ -12,23 +12,23 @@ export const setMockBlocks = (blocks: Partial<Block>[]) => {
     mockBlocks = blocks;
 };
 
-export const blockRepository: Partial<BlockRepository> = {
+export const instance: Partial<BlockRepository> = {
     searchByQuery: async (query: any, pagination: any): Promise<RepositorySearchResult<Block>> => {
         return {
             rows: mockBlocks as Block[],
             count: mockBlocks.length,
-            countIsEstimate: false
-        }
+            countIsEstimate: false,
+        };
     },
     findByIdOrHeight: async (idOrHeight: any): Promise<Block> => {
-        return mockBlock as Block
+        return mockBlock as Block;
     },
     search: async (filter: any): Promise<RepositorySearchResult<Block>> => {
         return {
             rows: mockBlocks as Block[],
             count: mockBlocks.length,
-            countIsEstimate: false
-        }
+            countIsEstimate: false,
+        };
     },
     getDelegatesForgedBlocks: async () => {
         return mockBlock ? [mockBlock] : [];

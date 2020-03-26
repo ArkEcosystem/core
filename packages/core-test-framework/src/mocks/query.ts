@@ -12,7 +12,7 @@ class CustomQueryIterable implements Partial<Contracts.TransactionPool.QueryIter
     public transactions: Interfaces.ITransaction[];
 
     constructor(items) {
-        this.transactions = items
+        this.transactions = items;
     }
 
     public *[Symbol.iterator](): Iterator<Interfaces.ITransaction> {
@@ -30,12 +30,12 @@ class CustomQueryIterable implements Partial<Contracts.TransactionPool.QueryIter
     }
 
     first(): Interfaces.ITransaction {
-        return this.transactions[0]
+        return this.transactions[0];
     }
 }
 
-export const transactionPoolQuery: Partial<Contracts.TransactionPool.Query> = {
+export const instance: Partial<Contracts.TransactionPool.Query> = {
     getFromHighestPriority(): Contracts.TransactionPool.QueryIterable {
-        return new CustomQueryIterable(mockTransactions) as unknown as Contracts.TransactionPool.QueryIterable
-    }
+        return (new CustomQueryIterable(mockTransactions) as unknown) as Contracts.TransactionPool.QueryIterable;
+    },
 };
