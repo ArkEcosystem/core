@@ -49,12 +49,10 @@ export class Command extends Commands.Command {
         const pkg: string = this.getArgument("package");
 
         try {
-            await this.install(pkg);
+            return await this.install(pkg);
         } catch (error) {
             throw new Error(error.message);
         }
-
-        throw new Error(`The given package [${pkg}] is neither a git nor a npm package.`);
     }
 
     /**
