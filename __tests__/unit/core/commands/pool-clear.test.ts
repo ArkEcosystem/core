@@ -10,6 +10,8 @@ beforeEach(() => {
     cli = new Console();
 });
 
+afterEach(() => jest.clearAllMocks());
+
 describe("PoolClearCommand", () => {
     it("should execute succesfully", async () => {
         const removeSync = jest.spyOn(fs, "removeSync");
@@ -17,6 +19,7 @@ describe("PoolClearCommand", () => {
         prompts.inject([true]);
         jest.spyOn(cli.app, "getCorePath").mockResolvedValueOnce(null);
         await expect(cli.execute(Command)).toResolve();
+        expect(removeSync).toHaveBeenCalled();
     });
 
     it("should throw any errors", async () => {
@@ -27,5 +30,24 @@ describe("PoolClearCommand", () => {
         prompts.inject([true]);
         jest.spyOn(cli.app, "getCorePath").mockResolvedValueOnce(null);
         await expect(cli.execute(Command)).rejects.toThrow("Fake Error");
+        expect(removeSync).toHaveBeenCalled();
+    });
+
+    it("should do nothing when prompt confirmation is false", async () => {
+        const removeSync = jest.spyOn(fs, "removeSync");
+        removeSync.mockImplementation(() => {});
+        prompts.inject([false]);
+        jest.spyOn(cli.app, "getCorePath").mockResolvedValueOnce(null);
+        await expect(cli.execute(Command)).toResolve();
+        expect(removeSync).not.toHaveBeenCalled();
+    });
+
+    it("should remove files using flags", async () => {
+        const removeSync = jest.spyOn(fs, "removeSync");
+        removeSync.mockImplementation(() => {});
+        prompts.inject([true]);
+        jest.spyOn(cli.app, "getCorePath").mockResolvedValueOnce(null);
+        await expect(cli.withFlags({ false: true }).execute(Command)).toResolve();
+        expect(removeSync).toHaveBeenCalled();
     });
 });
