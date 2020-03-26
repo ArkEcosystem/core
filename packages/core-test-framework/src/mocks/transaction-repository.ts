@@ -3,6 +3,7 @@ import {
     TransactionRepository,
 } from "@arkecosystem/core-database/src/repositories";
 import { Transaction } from "@arkecosystem/core-database/src/models";
+import { SearchCriteria } from "@arkecosystem/core-database/src/repositories/search";
 
 export type FeeStatistics = {
     type: number;
@@ -31,11 +32,17 @@ export const setFeeStatistics = (feeStatistics: FeeStatistics[]) => {
 
 export const transactionRepository: Partial<TransactionRepository> = {
     search: async (filter: any): Promise<RepositorySearchResult<Transaction>> => {
-        const type = filter.criteria.find(x => x.field === "type");
-        let transaction = (mockTransactions as Transaction[]).filter(x => x.type === type.value).map(x => x);
+        let transitions = mockTransactions as Transaction[];
+
+        const type: SearchCriteria | undefined = filter.criteria ? filter.criteria.find(x => x.field === "type") : undefined;
+
+        if (type) {
+            transitions = transitions.filter(x => x.type === type.value)
+        }
+
         return {
-            rows: transaction as Transaction[],
-            count: transaction.length,
+            rows: transitions as Transaction[],
+            count: transitions.length,
             countIsEstimate: false,
         }
     },

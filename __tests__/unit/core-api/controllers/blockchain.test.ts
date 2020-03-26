@@ -24,11 +24,11 @@ describe("BlockchainController", () => {
                 height: 1,
             };
 
-            const mockBlock: Partial<Interfaces.IBlock> = {
+            const mockBlock = {
                 data: mockBlockData,
             };
 
-            Mocks.StateStore.setMockBlock(mockBlock);
+            Mocks.StateStore.setMockBlock(mockBlock as Partial<Interfaces.IBlock>);
 
             type BlockItemResponse = ItemResponse & {
                 data: {

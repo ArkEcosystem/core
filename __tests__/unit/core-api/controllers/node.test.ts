@@ -47,12 +47,12 @@ describe("NodeController", () => {
             height: 1,
         };
 
-        const mockBlock: Partial<Interfaces.IBlock> = {
+        const mockBlock = {
             data: mockBlockData,
         };
 
         Mocks.NetworkMonitor.setNetworkHeight(5);
-        Mocks.Blockchain.setMockBlock(mockBlock);
+        Mocks.Blockchain.setMockBlock(mockBlock as Partial<Interfaces.IBlock>);
     });
 
     describe("status", () => {
