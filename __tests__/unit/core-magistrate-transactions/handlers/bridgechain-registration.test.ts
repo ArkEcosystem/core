@@ -33,6 +33,8 @@ import { configManager } from "@packages/crypto/src/managers";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
 import { Mocks, Mapper } from "@packages/core-test-framework";
+import { Assets } from "./__fixtures__";
+import _ from "lodash";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -50,7 +52,6 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    // setMockTransaction(null);
     Mocks.TransactionRepository.setMockTransaction(null);
     Mocks.TransactionRepository.setMockTransactions([]);
 
@@ -86,26 +87,8 @@ describe("BusinessRegistration", () => {
             2,
         );
 
-        businessRegistrationAsset = {
-            name: "DummyBusiness",
-            website: "https://www.dummy.example",
-            vat: "EX1234567890",
-            repository: "https://www.dummy.example/repo",
-        };
-        bridgechainRegistrationAsset = {
-            name: "arkecosystem1",
-            seedNodes: [
-                "74.125.224.71",
-                "74.125.224.72",
-                "64.233.173.193",
-                "2001:4860:4860::8888",
-                "2001:4860:4860::8844",
-            ],
-            genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-            bridgechainRepository: "http://www.repository.com/myorg/myrepo",
-            bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
-            ports: { "@arkecosystem/core-api": 12345 },
-        };
+        businessRegistrationAsset = _.cloneDeep(Assets.businessRegistrationAsset);
+        bridgechainRegistrationAsset = _.cloneDeep(Assets.bridgechainRegistrationAsset);
 
         bridgechainRegistrationTransaction = new BridgechainRegistrationBuilder()
             .bridgechainRegistrationAsset(bridgechainRegistrationAsset)

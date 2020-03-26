@@ -5,10 +5,6 @@ import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { BridgechainResignationBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import {
-    IBridgechainRegistrationAsset,
-    IBusinessRegistrationAsset,
-} from "@packages/core-magistrate-crypto/src/interfaces";
-import {
     BridgechainIsNotRegisteredByWalletError,
     BridgechainIsResignedError,
     BusinessIsResignedError,
@@ -34,6 +30,8 @@ import { configManager } from "@packages/crypto/src/managers";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
 import { Mocks, Mapper } from "@packages/core-test-framework";
+import { Assets } from "./__fixtures__";
+import _ from "lodash";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -74,20 +72,8 @@ beforeEach(() => {
 describe("BusinessRegistration", () => {
     let bridgechainResignationTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
-    const businessRegistrationAsset: IBusinessRegistrationAsset = {
-        name: "DummyBusiness",
-        website: "https://www.dummy.example",
-        vat: "EX1234567890",
-        repository: "https://www.dummy.example/repo",
-    };
-    const bridgechainRegistrationAsset: IBridgechainRegistrationAsset = {
-        name: "arkecosystem1",
-        seedNodes: ["74.125.224.71", "74.125.224.72", "64.233.173.193", "2001:4860:4860::8888", "2001:4860:4860::8844"],
-        genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-        bridgechainRepository: "http://www.repository.com/myorg/myrepo",
-        bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
-        ports: { "@arkecosystem/core-api": 12345 },
-    };
+    const businessRegistrationAsset = _.cloneDeep(Assets.businessRegistrationAsset);
+    const bridgechainRegistrationAsset = _.cloneDeep(Assets.bridgechainRegistrationAsset);
 
     beforeEach(async () => {
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(

@@ -4,7 +4,7 @@ import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { BusinessRegistrationBuilder, BusinessUpdateBuilder } from "@packages/core-magistrate-crypto/src/builders";
-import { IBusinessRegistrationAsset, IBusinessUpdateAsset } from "@packages/core-magistrate-crypto/src/interfaces";
+import { IBusinessUpdateAsset } from "@packages/core-magistrate-crypto/src/interfaces";
 import {
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
@@ -28,6 +28,8 @@ import { configManager } from "@packages/crypto/src/managers";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
 import { Mocks, Mapper } from "@packages/core-test-framework";
+import { Assets } from "./__fixtures__";
+import _ from "lodash";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -68,19 +70,8 @@ describe("BusinessRegistration", () => {
     let businessUpdateTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
 
-    const businessRegistrationAsset: IBusinessRegistrationAsset = {
-        name: "DummyBusiness",
-        website: "https://www.dummy.example",
-        vat: "EX1234567890",
-        repository: "https://www.dummy.example/repo",
-    };
-
-    const businessUpdateAsset: IBusinessUpdateAsset = {
-        name: "DummyBusinessUpdated",
-        website: "https://www.dummy.example.updated",
-        vat: "UEX1234567890",
-        repository: "https://www.dummy.example/repo/updated",
-    };
+    const businessRegistrationAsset = _.cloneDeep(Assets.businessRegistrationAsset);
+    const businessUpdateAsset =  _.cloneDeep(Assets.businessUpdateAsset);
 
     beforeEach(async () => {
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(

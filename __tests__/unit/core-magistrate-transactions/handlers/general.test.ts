@@ -4,7 +4,6 @@ import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { BusinessRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
-import { IBusinessRegistrationAsset } from "@packages/core-magistrate-crypto/src/interfaces";
 import { StaticFeeMismatchError } from "@packages/core-magistrate-transactions/src/errors";
 import { BusinessRegistrationTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
@@ -18,6 +17,8 @@ import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/cry
 import { configManager } from "@packages/crypto/src/managers";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
+import { Assets } from "./__fixtures__";
+import _ from "lodash";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -66,12 +67,7 @@ describe("BusinessRegistration", () => {
 
         const builder = new BusinessRegistrationBuilder();
 
-        const businessRegistrationAsset: IBusinessRegistrationAsset = {
-            name: "DummyBusiness",
-            website: "https://www.dummy.example",
-            vat: "EX1234567890",
-            repository: "https://www.dummy.example/repo",
-        };
+        const businessRegistrationAsset = _.cloneDeep(Assets.businessRegistrationAsset);
 
         businessRegistrationTransaction = builder
             .businessRegistrationAsset(businessRegistrationAsset)
