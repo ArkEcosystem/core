@@ -23,7 +23,7 @@ import {
     initApp,
 } from "../__support__/app";
 
-import { Mocks, Converter } from "@packages/core-test-framework";
+import { Mocks, Mapper } from "@packages/core-test-framework";
 
 
 let app: Application;
@@ -145,14 +145,14 @@ describe("Htlc lock", () => {
         describe("bootstrap", () => {
             it("should resolve", async () => {
                 Mocks.TransactionRepository.setMockTransactions([
-                    Converter.convertTransactionToModel(htlcLockTransaction),
+                    Mapper.mapTransactionToModel(htlcLockTransaction),
                 ]);
                 await expect(handler.bootstrap()).toResolve();
             });
 
             it("should resolve with open transaction", async () => {
 
-                let mockHtlcLockTransacton = Converter.convertTransactionToModel(htlcLockTransaction);
+                let mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
                 // @ts-ignore
                 mockHtlcLockTransacton.open = true;
 
@@ -176,7 +176,7 @@ describe("Htlc lock", () => {
                     .sign(passphrases[0])
                     .build();
 
-                let mockHtlcLockTransacton = Converter.convertTransactionToModel(htlcLockTransaction);
+                let mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
                 // @ts-ignore
                 mockHtlcLockTransacton.open = true;
 

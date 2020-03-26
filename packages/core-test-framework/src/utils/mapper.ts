@@ -1,7 +1,7 @@
 import { Interfaces, Utils } from "@packages/crypto";
 import { Models } from "@packages/core-database";
 
-export const convertTransactionToModel = (transaction: Interfaces.ITransaction, sequence: number = 0): Models.Transaction => {
+export const mapTransactionToModel = (transaction: Interfaces.ITransaction, sequence: number = 0): Models.Transaction => {
     return {
         id: transaction.id as string,
         version: transaction.data.version || 1,

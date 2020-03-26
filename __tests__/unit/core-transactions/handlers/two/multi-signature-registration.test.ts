@@ -25,7 +25,7 @@ import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
 
 import { buildRecipientWallet, buildSecondSignatureWallet, buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Converter } from "@packages/core-test-framework";
+import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -136,14 +136,14 @@ describe("MultiSignatureRegistrationTransaction", () => {
     describe("bootstrap", () => {
         it("should resolve", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertTransactionToModel(multiSignatureTransaction),
+                Mapper.mapTransactionToModel(multiSignatureTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should throw if wallet is mutli signature", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertTransactionToModel(multiSignatureTransaction),
+                Mapper.mapTransactionToModel(multiSignatureTransaction),
             ]);
             recipientWallet.setAttribute("multiSignature", multiSignatureTransaction.data.asset!.multiSignature);
             await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);

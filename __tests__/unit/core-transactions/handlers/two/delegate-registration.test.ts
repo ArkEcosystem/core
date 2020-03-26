@@ -29,7 +29,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Converter } from "@packages/core-test-framework";
+import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -107,12 +107,12 @@ describe("DelegateRegistrationTransaction", () => {
         });
 
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([Converter.convertTransactionToModel(delegateRegistrationTransaction)]);
+            Mocks.TransactionRepository.setMockTransactions([Mapper.mapTransactionToModel(delegateRegistrationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should resolve with bocks", async () => {
-            Mocks.TransactionRepository.setMockTransactions([Converter.convertTransactionToModel(delegateRegistrationTransaction)]);
+            Mocks.TransactionRepository.setMockTransactions([Mapper.mapTransactionToModel(delegateRegistrationTransaction)]);
 
             Mocks.BlockRepository.setDelegateForgedBlocks([{
                 generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),

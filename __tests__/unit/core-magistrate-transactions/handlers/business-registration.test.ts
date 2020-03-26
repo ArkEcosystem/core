@@ -22,7 +22,7 @@ import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/cry
 import { configManager } from "@packages/crypto/src/managers";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Converter } from "@packages/core-test-framework";
+import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -95,7 +95,7 @@ describe("BusinessRegistration", () => {
     describe("bootstrap", () => {
         it("should resolve", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertTransactionToModel(businessRegistrationTransaction),
+                Mapper.mapTransactionToModel(businessRegistrationTransaction),
             ]);
 
             await expect(handler.bootstrap()).toResolve();

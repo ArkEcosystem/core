@@ -29,7 +29,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Converter } from "@packages/core-test-framework";
+import { Mocks, Mapper } from "@packages/core-test-framework";
 
 
 let app: Application;
@@ -138,7 +138,7 @@ describe("DelegateResignationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([Converter.convertTransactionToModel(delegateResignationTransaction)]);
+            Mocks.TransactionRepository.setMockTransactions([Mapper.mapTransactionToModel(delegateResignationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
 
@@ -147,7 +147,7 @@ describe("DelegateResignationTransaction", () => {
 
             walletRepository.index(allDelegates[0]);
 
-            Mocks.TransactionRepository.setMockTransactions([Converter.convertTransactionToModel(delegateResignationTransaction)]);
+            Mocks.TransactionRepository.setMockTransactions([Mapper.mapTransactionToModel(delegateResignationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
     });

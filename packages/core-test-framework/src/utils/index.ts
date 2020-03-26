@@ -3,6 +3,6 @@ export * from "./generic";
 export * from "./rest-client";
 export * from "./transaction-factory";
 
-import * as Converter from './converter'
+import * as Mapper from './mapper'
 
-export { Converter }
+export { Mapper }

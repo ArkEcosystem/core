@@ -37,7 +37,7 @@ import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/cry
 import { configManager } from "@packages/crypto/src/managers";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Converter } from "@packages/core-test-framework";
+import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -169,7 +169,7 @@ describe("BusinessRegistration", () => {
     describe("bootstrap", () => {
         it("should resolve", async () => {
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertTransactionToModel(bridgechainUpdateTransaction, 1),
+                Mapper.mapTransactionToModel(bridgechainUpdateTransaction, 1),
             ]);
 
             await expect(handler.bootstrap()).toResolve();
@@ -350,9 +350,9 @@ describe("BusinessRegistration", () => {
             });
 
             Mocks.TransactionRepository.setMockTransactions([
-                Converter.convertTransactionToModel(bridgechainRegistrationTransaction, 1),
-                Converter.convertTransactionToModel(secondBridgechainUpdateTransaction, 2),
-                Converter.convertTransactionToModel(bridgechainUpdateTransaction, 3),
+                Mapper.mapTransactionToModel(bridgechainRegistrationTransaction, 1),
+                Mapper.mapTransactionToModel(secondBridgechainUpdateTransaction, 2),
+                Mapper.mapTransactionToModel(bridgechainUpdateTransaction, 3),
             ]);
 
             await handler.revert(bridgechainUpdateTransaction, walletRepository);

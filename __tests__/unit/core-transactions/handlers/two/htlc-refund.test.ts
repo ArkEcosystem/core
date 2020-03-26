@@ -23,7 +23,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Converter } from "@packages/core-test-framework";
+import { Mocks, Mapper } from "@packages/core-test-framework";
 
 
 let app: Application;
@@ -175,7 +175,7 @@ describe("Htlc refund", () => {
         describe("bootstrap", () => {
             it("should resolve", async () => {
                 Mocks.TransactionRepository.setMockTransactions([
-                    Converter.convertTransactionToModel(htlcLockTransaction),
+                    Mapper.mapTransactionToModel(htlcLockTransaction),
                 ]);
                 await expect(handler.bootstrap()).toResolve();
             });
@@ -426,7 +426,7 @@ describe("Htlc refund", () => {
                 ).toResolve();
 
                 Mocks.TransactionRepository.setMockTransactions([
-                    Converter.convertTransactionToModel(htlcLockTransaction),
+                    Mapper.mapTransactionToModel(htlcLockTransaction),
                 ]);
                 const balanceBefore = lockWallet.balance;
 
@@ -464,7 +464,7 @@ describe("Htlc refund", () => {
                 ).toResolve();
 
                 Mocks.TransactionRepository.setMockTransactions([
-                    Converter.convertTransactionToModel(htlcLockTransaction),
+                    Mapper.mapTransactionToModel(htlcLockTransaction),
                 ]);
                 const balanceBefore = lockWallet.balance;
 
