@@ -43,6 +43,12 @@ afterEach(() => {
 });
 
 describe("PluginInstallCommand", () => {
+    it("should not call install an packages which don't exist", async () => {
+        packageExists = false;
+        await expect(cli.execute(Command)).toResolve();
+        expect(called).toEqual(false);
+    });
+
     it("should throw any errors while installing", async () => {
         jest.spyOn(cli.app, "getCorePath").mockImplementationOnce(() => {
             throw Error("Fake Error");
@@ -51,7 +57,7 @@ describe("PluginInstallCommand", () => {
         await expect(cli.execute(Command)).rejects.toThrow("Fake Error");
     });
 
-    it("should call install an NPM paclage", async () => {
+    it("should call install on existing packages", async () => {
         packageExists = true;
         await expect(cli.execute(Command)).toResolve();
         expect(called).toEqual(true);
