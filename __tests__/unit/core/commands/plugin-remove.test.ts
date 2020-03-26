@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { Console } from "@packages/core-test-framework";
 import { Command } from "@packages/core/src/commands/plugin-remove";
+import fs from "fs-extra";
 
 let cli;
 beforeEach(() => {
@@ -14,5 +15,11 @@ describe("PluginRemoveCommand", () => {
         await expect(cli.execute(Command)).rejects.toThrow(`The package [undefined] does not exist.`);
     });
 
-    it.todo("should execute succesfully");
+    it("if the plugin exists, it should be removed", async () => {
+        jest.spyOn(fs, "existsSync").mockReturnValue(true);
+        const removeSync = jest.spyOn(fs, "removeSync");
+
+        await expect(cli.execute(Command)).toResolve();
+        expect(removeSync).toHaveBeenCalled();
+    });
 });
