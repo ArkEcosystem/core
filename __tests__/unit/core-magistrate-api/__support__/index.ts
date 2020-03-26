@@ -51,23 +51,14 @@ export const initApp = (): Application => {
     const app = new Application(new Container.Container());
 
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-
     app.bind(Container.Identifiers.StateStore).toConstantValue({});
-
     app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
-
     app.bind(Container.Identifiers.BlockRepository).toConstantValue({});
-
     app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
-
     app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue({});
-
     app.bind(Container.Identifiers.PeerStorage).toConstantValue({});
-
     app.bind(Container.Identifiers.RoundRepository).toConstantValue({});
-
     app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
-
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
