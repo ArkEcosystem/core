@@ -1,18 +1,18 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-
-import { Application, Contracts } from "@packages/core-kernel";
-import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { WalletsController } from "@packages/core-api/src/controllers/wallets";
-import { Mocks } from "@packages/core-test-framework";
+import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { Wallets } from "@packages/core-state";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Mocks } from "@packages/core-test-framework";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+
+import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { htlcSecretHashHex } from "../../core-transactions/handlers/__fixtures__/htlc-secrets";
 
 let app: Application;
@@ -25,7 +25,7 @@ const { EpochTimestamp } = Enums.HtlcLockExpirationType;
 
 const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
     mockLastBlockData.height! + heightRelativeToLastBlock;
-const makeNotExpiredTimestamp = type =>
+const makeNotExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
 
 beforeEach(() => {
@@ -71,71 +71,71 @@ describe("WalletsController", () => {
 
     describe("index", () => {
         it("should return list of wallets", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.index(request, undefined));
+            const response = (await controller.index(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
                     address: senderWallet.address,
                     publicKey: senderWallet.publicKey,
-                }
-            ));
+                }),
+            );
         });
     });
 
     describe("top", () => {
         it("should return list of top wallets", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.top(request, undefined));
+            const response = (await controller.top(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
                     address: senderWallet.address,
                     publicKey: senderWallet.publicKey,
-                }
-            ));
+                }),
+            );
         });
     });
 
     describe("show", () => {
         it("should return lock", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.publicKey
+                    id: senderWallet.publicKey,
                 },
                 query: {
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <ItemResponse>(await controller.show(request, undefined));
+            const response = (await controller.show(request, undefined)) as ItemResponse;
 
-            expect(response.data).toEqual(expect.objectContaining(
-                {
+            expect(response.data).toEqual(
+                expect.objectContaining({
                     address: senderWallet.address,
                     publicKey: senderWallet.publicKey,
-                }
-            ));
+                }),
+            );
         });
     });
 
@@ -143,34 +143,34 @@ describe("WalletsController", () => {
         it("should return list of transactions", async () => {
             Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
                     id: senderWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.transactions(request, undefined));
+            const response = (await controller.transactions(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    id: transferTransaction.id
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
         });
 
         it("should return error if wallet does not exists", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: "unknown_wallet_public_key"
-                }
+                    id: "unknown_wallet_public_key",
+                },
             };
 
             await expect(controller.transactions(request, undefined)).resolves.toThrowError("Wallet not found");
@@ -181,34 +181,34 @@ describe("WalletsController", () => {
         it("should return list of transactions", async () => {
             Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
                     id: senderWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.transactionsSent(request, undefined));
+            const response = (await controller.transactionsSent(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    id: transferTransaction.id
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
         });
 
         it("should return error if wallet does not exists", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: "unknown_wallet_public_key"
-                }
+                    id: "unknown_wallet_public_key",
+                },
             };
 
             await expect(controller.transactionsSent(request, undefined)).resolves.toThrowError("Wallet not found");
@@ -219,34 +219,34 @@ describe("WalletsController", () => {
         it("should return list of transactions", async () => {
             Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
                     id: senderWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.transactionsReceived(request, undefined));
+            const response = (await controller.transactionsReceived(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    id: transferTransaction.id
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
         });
 
         it("should return error if wallet does not exists", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: "unknown_wallet_public_key"
-                }
+                    id: "unknown_wallet_public_key",
+                },
             };
 
             await expect(controller.transactionsReceived(request, undefined)).resolves.toThrowError("Wallet not found");
@@ -257,34 +257,34 @@ describe("WalletsController", () => {
         it("should return list of transactions", async () => {
             Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
                     id: senderWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.votes(request, undefined));
+            const response = (await controller.votes(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    id: transferTransaction.id
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
         });
 
         it("should return error if wallet does not exists", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: "unknown_wallet_public_key"
-                }
+                    id: "unknown_wallet_public_key",
+                },
             };
 
             await expect(controller.votes(request, undefined)).resolves.toThrowError("Wallet not found");
@@ -298,7 +298,7 @@ describe("WalletsController", () => {
                 value: makeNotExpiredTimestamp(EpochTimestamp),
             };
 
-            let htlcLockTransaction = BuilderFactory.htlcLock()
+            const htlcLockTransaction = BuilderFactory.htlcLock()
                 .htlcLockAsset({
                     secretHash: htlcSecretHashHex,
                     expiration: expiration,
@@ -322,39 +322,39 @@ describe("WalletsController", () => {
 
             walletRepository.index(senderWallet);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
                     id: senderWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.locks(request, undefined));
+            const response = (await controller.locks(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    lockId: htlcLockTransaction.id
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    lockId: htlcLockTransaction.id,
+                }),
+            );
         });
 
         it("should return empty rows if cold wallet", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.address
-                }
+                    id: senderWallet.address,
+                },
             };
 
             delete senderWallet.publicKey;
 
-            let response = <PaginatedResponse>(await controller.locks(request, undefined));
+            const response = (await controller.locks(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBe(0);
             expect(response.meta).toBeDefined();
@@ -363,10 +363,10 @@ describe("WalletsController", () => {
         });
 
         it("should return error if wallet does not exists", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: "unknown_wallet_public_key"
-                }
+                    id: "unknown_wallet_public_key",
+                },
             };
 
             await expect(controller.locks(request, undefined)).resolves.toThrowError("Wallet not found");
@@ -375,26 +375,26 @@ describe("WalletsController", () => {
 
     describe("search", () => {
         it("should return found wallets", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.publicKey
+                    id: senderWallet.publicKey,
                 },
                 query: {
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.search(request, undefined));
+            const response = (await controller.search(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
                     address: senderWallet.address,
                     publicKey: senderWallet.publicKey,
-                }
-            ));
+                }),
+            );
         });
     });
 });

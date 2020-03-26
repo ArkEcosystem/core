@@ -1,18 +1,18 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-
-import { Application, Contracts } from "@packages/core-kernel";
-import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { DelegatesController } from "@packages/core-api/src/controllers/delegates";
-import { Mocks } from "@packages/core-test-framework";
-import { Wallets } from "@packages/core-state";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Identities, Transactions, Utils } from "@packages/crypto";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { Block } from "@packages/core-database/src/models";
+import { Application, Contracts } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { Wallets } from "@packages/core-state";
+import { Mocks } from "@packages/core-test-framework";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Identities, Transactions, Utils } from "@packages/crypto";
+
+import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 
 let app: Application;
 let controller: DelegatesController;
@@ -58,7 +58,7 @@ describe("DelegatesController", () => {
                 id: "123",
                 height: 2,
                 timestamp: 2,
-            }
+            },
         };
 
         delegateWallet.setAttribute("delegate", delegateAttributes);
@@ -68,59 +68,59 @@ describe("DelegatesController", () => {
 
     describe("index", () => {
         it("should return list of delegates", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.index(request, undefined));
+            const response = (await controller.index(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    username: delegateAttributes.username
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    username: delegateAttributes.username,
+                }),
+            );
         });
     });
 
     describe("show", () => {
         it("should return delegate", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: delegateWallet.publicKey
-                }
+                    id: delegateWallet.publicKey,
+                },
             };
 
-            let response = <ItemResponse>(await controller.show(request, undefined));
+            const response = (await controller.show(request, undefined)) as ItemResponse;
 
-            expect(response.data).toEqual(expect.objectContaining(
-                {
-                    username: delegateAttributes.username
-                }
-            ));
+            expect(response.data).toEqual(
+                expect.objectContaining({
+                    username: delegateAttributes.username,
+                }),
+            );
         });
 
         it("should return error if delegate does not exist", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: Identities.PublicKey.fromPassphrase(passphrases[1])
-                }
+                    id: Identities.PublicKey.fromPassphrase(passphrases[1]),
+                },
             };
 
             await expect(controller.show(request, undefined)).resolves.toThrowError("Delegate not found");
         });
 
         it("should return error if delegate does not have username", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: delegateWallet.publicKey
-                }
+                    id: delegateWallet.publicKey,
+                },
             };
 
             delegateWallet.forgetAttribute("delegate.username");
@@ -131,33 +131,33 @@ describe("DelegatesController", () => {
 
     describe("search", () => {
         it("should return list of delegates", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: delegateWallet.publicKey
+                    id: delegateWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.search(request, undefined));
+            const response = (await controller.search(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    username: delegateAttributes.username
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    username: delegateAttributes.username,
+                }),
+            );
         });
     });
 
     describe("blocks", () => {
         it("should return list of blocks", async () => {
-            let mockBlock: Partial<Block> = {
+            const mockBlock: Partial<Block> = {
                 id: "17184958558311101492",
                 reward: Utils.BigNumber.make("100"),
                 totalFee: Utils.BigNumber.make("200"),
@@ -166,75 +166,75 @@ describe("DelegatesController", () => {
 
             Mocks.BlockRepository.setMockBlocks([mockBlock]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: delegateWallet.publicKey
+                    id: delegateWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.blocks(request, undefined));
+            const response = (await controller.blocks(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    id: mockBlock.id
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: mockBlock.id,
+                }),
+            );
         });
 
         // TODO
         it("should return list of transformed blocks", async () => {
-            let mockBlock: Partial<Block> = {
+            const mockBlock: Partial<Block> = {
                 id: "17184958558311101492",
                 reward: Utils.BigNumber.make("100"),
                 totalFee: Utils.BigNumber.make("200"),
                 totalAmount: Utils.BigNumber.make("300"),
                 generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
-                timestamp: 2
+                timestamp: 2,
             };
 
             Mocks.BlockRepository.setMockBlocks([mockBlock]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: delegateWallet.publicKey
+                    id: delegateWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: true
-                }
+                    transform: true,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.blocks(request, undefined));
+            const response = (await controller.blocks(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    id: mockBlock.id
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: mockBlock.id,
+                }),
+            );
         });
 
         it("should return error if delegate does not exists", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: Identities.PublicKey.fromPassphrase(passphrases[1])
+                    id: Identities.PublicKey.fromPassphrase(passphrases[1]),
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
             await expect(controller.blocks(request, undefined)).resolves.toThrowError("Delegate not found");
@@ -243,46 +243,46 @@ describe("DelegatesController", () => {
 
     describe("voters", () => {
         it("should return list of voting wallets", async () => {
-            let voteWallet = buildSenderWallet(app, passphrases[1]);
+            const voteWallet = buildSenderWallet(app, passphrases[1]);
 
             voteWallet.setAttribute("vote", delegateWallet.publicKey);
 
             walletRepository.index(voteWallet);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: delegateWallet.publicKey
+                    id: delegateWallet.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.voters(request, undefined));
+            const response = (await controller.voters(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
                     address: voteWallet.address,
                     publicKey: voteWallet.publicKey,
-                }
-            ));
+                }),
+            );
         });
 
         it("should return error if delegate does not exists", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: Identities.PublicKey.fromPassphrase(passphrases[1])
+                    id: Identities.PublicKey.fromPassphrase(passphrases[1]),
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
             await expect(controller.voters(request, undefined)).resolves.toThrowError("Delegate not found");

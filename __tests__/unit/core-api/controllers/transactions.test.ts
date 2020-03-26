@@ -1,19 +1,20 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { Application } from "@packages/core-kernel";
-import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
-import { Mocks } from "@packages/core-test-framework";
+import { Application } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Identities, Interfaces, Managers, Transactions } from "@packages/crypto";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
-import { configManager } from "@packages/crypto/src/managers";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Identities, Interfaces, Managers, Transactions } from "@packages/crypto";
 import { TransactionType } from "@packages/crypto/src/enums";
+import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+
+import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 
 let app: Application;
 let controller: TransactionsController;
@@ -62,51 +63,47 @@ describe("TransactionsController", () => {
         it("should return list of transactions", async () => {
             Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.index(request, undefined));
+            const response = (await controller.index(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    id: transferTransaction.id
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
         });
     });
 
     describe("store", () => {
         it("should return processor state", async () => {
-            let processorState = {
+            const processorState = {
                 accept: [transferTransaction.id],
                 broadcast: [],
                 excess: [],
-                invalid: []
+                invalid: [],
             };
 
             Mocks.TransactionPoolProcessor.setProcessorState(processorState);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 payload: {
-                    transactions: [
-                        transferTransaction
-                    ]
-                }
+                    transactions: [transferTransaction],
+                },
             };
 
-            let response = <ItemResponse>(await controller.store(request, undefined));
+            const response = (await controller.store(request, undefined)) as ItemResponse;
 
-            expect(response.data).toEqual(expect.objectContaining(
-                processorState
-            ));
+            expect(response.data).toEqual(expect.objectContaining(processorState));
         });
     });
 
@@ -114,32 +111,32 @@ describe("TransactionsController", () => {
         it("should return transaction", async () => {
             Mocks.TransactionRepository.setMockTransaction(transferTransaction);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: transferTransaction.id
+                    id: transferTransaction.id,
                 },
                 query: {
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <ItemResponse>(await controller.show(request, undefined));
+            const response = (await controller.show(request, undefined)) as ItemResponse;
 
-            expect(response.data).toEqual(expect.objectContaining(
-                {
-                    id: transferTransaction.id
-                }
-            ));
+            expect(response.data).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
         });
 
         it("should return error if transaction does not exist", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: transferTransaction.id
+                    id: transferTransaction.id,
                 },
                 query: {
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
             await expect(controller.show(request, undefined)).resolves.toThrowError("Transaction not found");
@@ -150,24 +147,24 @@ describe("TransactionsController", () => {
         it("should return transactions", async () => {
             Mocks.TransactionPoolQuery.setMockTransactions([transferTransaction]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.unconfirmed(request, undefined));
+            const response = (await controller.unconfirmed(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    id: transferTransaction.id
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
         });
     });
 
@@ -175,32 +172,32 @@ describe("TransactionsController", () => {
         it("should return transactions", async () => {
             Mocks.TransactionPoolQuery.setMockTransactions([transferTransaction]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
                     id: transferTransaction.id,
                 },
                 query: {
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <ItemResponse>(await controller.showUnconfirmed(request, undefined));
+            const response = (await controller.showUnconfirmed(request, undefined)) as ItemResponse;
 
-            expect(response.data).toEqual(expect.objectContaining(
-                {
-                    id: transferTransaction.id
-                }
-            ));
+            expect(response.data).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
         });
 
         it("should return error if transaction does not exist", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
                     id: transferTransaction.id,
                 },
                 query: {
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
             await expect(controller.showUnconfirmed(request, undefined)).resolves.toThrowError("Transaction not found");
@@ -211,45 +208,45 @@ describe("TransactionsController", () => {
         it("should return list of transactions", async () => {
             Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: transferTransaction.id
+                    id: transferTransaction.id,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.search(request, undefined));
+            const response = (await controller.search(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
                     id: transferTransaction.id,
-                }
-            ));
+                }),
+            );
         });
 
         it("should return paginated response when defined offset", async () => {
             Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: transferTransaction.id
+                    id: transferTransaction.id,
                 },
                 query: {
                     page: 1,
                     limit: 100,
                     offset: 1,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.search(request, undefined));
+            const response = (await controller.search(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
@@ -259,27 +256,25 @@ describe("TransactionsController", () => {
 
     describe("types", () => {
         it("should return registered types", async () => {
-            let response = <ItemResponse>(await controller.types(undefined, undefined));
+            const response = (await controller.types(undefined, undefined)) as ItemResponse;
 
-            let transactionTypeObject = {};
-            for(let key of Object.keys(TransactionType)) {
+            const transactionTypeObject = {};
+            for (const key of Object.keys(TransactionType)) {
                 if (isNaN(Number(key))) {
-                    transactionTypeObject[key] = TransactionType[key]
+                    transactionTypeObject[key] = TransactionType[key];
                 }
             }
 
-            expect(response.data['1']).toEqual(expect.objectContaining(
-                transactionTypeObject
-            ));
+            expect(response.data["1"]).toEqual(expect.objectContaining(transactionTypeObject));
         });
     });
 
     describe("schemas", () => {
         it("should return registered schemas", async () => {
-            let response = <ItemResponse>(await controller.schemas(undefined, undefined));
+            const response = (await controller.schemas(undefined, undefined)) as ItemResponse;
 
             const coreTransactionHandlersCount = 11;
-            expect(Object.keys(response.data['1']).length).toBe(coreTransactionHandlersCount);
+            expect(Object.keys(response.data["1"]).length).toBe(coreTransactionHandlersCount);
         });
     });
 
@@ -287,22 +282,23 @@ describe("TransactionsController", () => {
         it("should return fees", async () => {
             Mocks.StateStore.setLastHeight(1);
 
-            let response = <ItemResponse>(await controller.fees(undefined, undefined));
+            const response = (await controller.fees(undefined, undefined)) as ItemResponse;
 
-            expect(response.data['1']).toEqual(expect.objectContaining({
-                    transfer: '10000000',
-                    secondSignature: '500000000',
-                    delegateRegistration: '2500000000',
-                    vote: '100000000',
-                    multiSignature: '500000000',
-                    ipfs: '500000000',
-                    multiPayment: '10000000',
-                    delegateResignation: '2500000000',
-                    htlcLock: '10000000',
-                    htlcClaim: '0',
-                    htlcRefund: '0'
-                }
-            ));
+            expect(response.data["1"]).toEqual(
+                expect.objectContaining({
+                    transfer: "10000000",
+                    secondSignature: "500000000",
+                    delegateRegistration: "2500000000",
+                    vote: "100000000",
+                    multiSignature: "500000000",
+                    ipfs: "500000000",
+                    multiPayment: "10000000",
+                    delegateResignation: "2500000000",
+                    htlcLock: "10000000",
+                    htlcClaim: "0",
+                    htlcRefund: "0",
+                }),
+            );
         });
 
         it("should return error ", async () => {

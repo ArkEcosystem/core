@@ -13,7 +13,8 @@ import {
 } from "@packages/core-magistrate-transactions/src/handlers";
 import {
     addressesIndexer,
-    ipfsIndexer, locksIndexer,
+    ipfsIndexer,
+    locksIndexer,
     publicKeysIndexer,
     usernamesIndexer,
 } from "@packages/core-state/src/wallets/indexers/indexers";
@@ -24,28 +25,30 @@ import {
 } from "@packages/core-magistrate-transactions/src/wallet-indexes";
 
 export type PaginatedResponse = {
-    totalCount: number,
-    results: [object],
-    meta: object
-}
+    totalCount: number;
+    results: [object];
+    meta: object;
+};
 
 export type ItemResponse = {
-    data: object
-}
+    data: object;
+};
 
 export const buildSenderWallet = (app: Application): Contracts.State.Wallet => {
-    let walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+    const walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    let wallet: Contracts.State.Wallet = walletRepository.createWallet(Identities.Address.fromPassphrase(passphrases[0]));
+    const wallet: Contracts.State.Wallet = walletRepository.createWallet(
+        Identities.Address.fromPassphrase(passphrases[0]),
+    );
 
     wallet.publicKey = Identities.PublicKey.fromPassphrase(passphrases[0]);
     wallet.balance = Utils.BigNumber.make(7527654310);
 
-    return wallet
+    return wallet;
 };
 
 export const initApp = (): Application => {
-    let app = new Application(new Container.Container());
+    const app = new Application(new Container.Container());
 
     app
         .bind(Container.Identifiers.PluginConfiguration)

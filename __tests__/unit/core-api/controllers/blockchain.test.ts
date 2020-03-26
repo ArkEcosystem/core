@@ -1,9 +1,11 @@
 import "jest-extended";
-import { Application } from "@packages/core-kernel";
-import { initApp, ItemResponse } from "../__support__";
+
 import { BlockchainController } from "@packages/core-api/src/controllers/blockchain";
+import { Application } from "@packages/core-kernel";
 import { Mocks } from "@packages/core-test-framework";
 import { Interfaces } from "@packages/crypto";
+
+import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: BlockchainController;
@@ -17,13 +19,13 @@ beforeEach(() => {
 describe("BlockchainController", () => {
     describe("index", () => {
         it("should return last block from store", async () => {
-            let mockBlockData: Partial<Interfaces.IBlockData> = {
+            const mockBlockData: Partial<Interfaces.IBlockData> = {
                 id: "1",
                 height: 1,
             };
 
-            let mockBlock: Partial<Interfaces.IBlock> = {
-                data: mockBlockData as Interfaces.IBlockData
+            const mockBlock: Partial<Interfaces.IBlock> = {
+                data: mockBlockData,
             };
 
             Mocks.StateStore.setMockBlock(mockBlock);
@@ -31,14 +33,14 @@ describe("BlockchainController", () => {
             type BlockItemResponse = ItemResponse & {
                 data: {
                     block: {
-                        id: string,
-                        height: number
-                    },
-                    supply: string
-                },
-            }
+                        id: string;
+                        height: number;
+                    };
+                    supply: string;
+                };
+            };
 
-            let response = <BlockItemResponse>(await controller.index());
+            const response = (await controller.index()) as BlockItemResponse;
 
             expect(response.data.supply).toBeDefined();
             expect(response.data.block).toEqual(mockBlockData);

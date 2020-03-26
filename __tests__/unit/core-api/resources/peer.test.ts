@@ -1,4 +1,5 @@
 import "jest-extended";
+
 import { PeerResource } from "@packages/core-api/src/resources";
 
 let resource: PeerResource;
@@ -17,7 +18,7 @@ describe("PeerResource", () => {
             ports: [4003],
             version: "3.0.0",
             height: 2,
-            latency: 200
+            latency: 200,
         };
     });
 
@@ -33,11 +34,11 @@ describe("PeerResource", () => {
         });
 
         it("should return transformed object when data have state", async () => {
-            let dataWithState = Object.assign({}, data);
+            const dataWithState = Object.assign({}, data);
 
             // @ts-ignore
             dataWithState.state = {
-                height: 2
+                height: 2,
             };
 
             expect(resource.transform(dataWithState)).toEqual(data);
