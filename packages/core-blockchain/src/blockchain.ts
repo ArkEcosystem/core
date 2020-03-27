@@ -62,17 +62,16 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.blockProcessor = this.app.resolve<BlockProcessor>(BlockProcessor);
 
-        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
+        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }) => {
             try {
-                return await this.processBlocks(blockList.blocks, cb);
+                return await this.processBlocks(blockList.blocks);
             } catch (error) {
                 this.app.log.error(
                     `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
                 );
 
                 this.app.log.error(error.stack);
-
-                return cb();
+                return undefined;
             }
         }, 1);
 
@@ -358,7 +357,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     /**
      * Process the given block.
      */
-    public async processBlocks(blocks: Interfaces.IBlockData[], callback): Promise<Interfaces.IBlock[]> {
+    public async processBlocks(blocks: Interfaces.IBlockData[]): Promise<Interfaces.IBlock[] | undefined> {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult | undefined;
 
@@ -371,7 +370,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
             this.resetLastDownloadedBlock();
-            return callback();
+            return undefined;
         }
 
         let forkBlock: Interfaces.IBlock | undefined = undefined;
@@ -427,7 +426,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 await this.database.deleteRound(deleteRoundsAfter + 1);
                 await this.database.loadBlocksFromCurrentRound();
 
-                return callback();
+                return undefined;
             }
         }
 
@@ -448,7 +447,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.forkBlock(forkBlock);
         }
 
-        return callback(acceptedBlocks);
+        return acceptedBlocks;
     }
 
     /**
