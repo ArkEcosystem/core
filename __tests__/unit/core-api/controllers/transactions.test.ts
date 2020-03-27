@@ -31,9 +31,9 @@ beforeEach(() => {
 
     controller = app.resolve<TransactionsController>(TransactionsController);
 
-    Mocks.TransactionRepository.setMockTransaction(null);
-    Mocks.TransactionRepository.setMockTransactions([]);
-    Mocks.TransactionPoolQuery.setMockTransactions([]);
+    Mocks.TransactionRepository.setTransaction(null);
+    Mocks.TransactionRepository.setTransactions([]);
+    Mocks.TransactionPoolQuery.setTransactions([]);
 });
 
 afterEach(() => {
@@ -61,7 +61,7 @@ describe("TransactionsController", () => {
 
     describe("index", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setTransactions([transferTransaction]);
 
             const request: Hapi.Request = {
                 query: {
@@ -109,7 +109,7 @@ describe("TransactionsController", () => {
 
     describe("show", () => {
         it("should return transaction", async () => {
-            Mocks.TransactionRepository.setMockTransaction(transferTransaction);
+            Mocks.TransactionRepository.setTransaction(transferTransaction);
 
             const request: Hapi.Request = {
                 params: {
@@ -145,7 +145,7 @@ describe("TransactionsController", () => {
 
     describe("unconfirmed", () => {
         it("should return transactions", async () => {
-            Mocks.TransactionPoolQuery.setMockTransactions([transferTransaction]);
+            Mocks.TransactionPoolQuery.setTransactions([transferTransaction]);
 
             const request: Hapi.Request = {
                 query: {
@@ -170,7 +170,7 @@ describe("TransactionsController", () => {
 
     describe("showUnconfirmed", () => {
         it("should return transactions", async () => {
-            Mocks.TransactionPoolQuery.setMockTransactions([transferTransaction]);
+            Mocks.TransactionPoolQuery.setTransactions([transferTransaction]);
 
             const request: Hapi.Request = {
                 params: {
@@ -206,7 +206,7 @@ describe("TransactionsController", () => {
 
     describe("search", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setTransactions([transferTransaction]);
 
             const request: Hapi.Request = {
                 params: {
@@ -232,7 +232,7 @@ describe("TransactionsController", () => {
         });
 
         it("should return paginated response when defined offset", async () => {
-            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setTransactions([transferTransaction]);
 
             const request: Hapi.Request = {
                 params: {

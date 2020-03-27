@@ -41,7 +41,7 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    Mocks.TransactionRepository.setMockTransactions([]);
+    Mocks.TransactionRepository.setTransactions([]);
 
     app = initApp();
 
@@ -90,7 +90,7 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(businessRegistrationTransaction),
             ]);
 

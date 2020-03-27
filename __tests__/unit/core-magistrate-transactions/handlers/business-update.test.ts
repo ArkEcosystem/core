@@ -47,7 +47,7 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    Mocks.TransactionRepository.setMockTransactions([]);
+    Mocks.TransactionRepository.setTransactions([]);
 
     app = initApp();
 
@@ -106,7 +106,7 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(businessUpdateTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();
@@ -201,7 +201,7 @@ describe("BusinessRegistration", () => {
                 .sign(passphrases[0])
                 .build();
 
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(businessRegistrationTransaction),
             ]);
 
@@ -246,7 +246,7 @@ describe("BusinessRegistration", () => {
                 ...secondBusinessUpdateAsset,
             });
 
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(businessRegistrationTransaction),
                 Mapper.mapTransactionToModel(secondBusinessUpdateTransaction),
                 Mapper.mapTransactionToModel(businessUpdateTransaction),

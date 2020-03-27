@@ -37,8 +37,8 @@ beforeEach(() => {
     controller = app.resolve<WalletsController>(WalletsController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    Mocks.StateStore.setMockBlock({ data: mockLastBlockData } as Interfaces.IBlock);
-    Mocks.TransactionRepository.setMockTransactions([]);
+    Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
+    Mocks.TransactionRepository.setTransactions([]);
 });
 
 afterEach(() => {
@@ -141,7 +141,7 @@ describe("WalletsController", () => {
 
     describe("transactions", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setTransactions([transferTransaction]);
 
             const request: Hapi.Request = {
                 params: {
@@ -179,7 +179,7 @@ describe("WalletsController", () => {
 
     describe("transactionsSent", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setTransactions([transferTransaction]);
 
             const request: Hapi.Request = {
                 params: {
@@ -217,7 +217,7 @@ describe("WalletsController", () => {
 
     describe("transactionsReceived", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setTransactions([transferTransaction]);
 
             const request: Hapi.Request = {
                 params: {
@@ -255,7 +255,7 @@ describe("WalletsController", () => {
 
     describe("votes", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setMockTransactions([transferTransaction]);
+            Mocks.TransactionRepository.setTransactions([transferTransaction]);
 
             const request: Hapi.Request = {
                 params: {

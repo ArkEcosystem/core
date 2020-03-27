@@ -138,7 +138,7 @@ describe("DelegateResignationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([Mapper.mapTransactionToModel(delegateResignationTransaction)]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(delegateResignationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
 
@@ -147,7 +147,7 @@ describe("DelegateResignationTransaction", () => {
 
             walletRepository.index(allDelegates[0]);
 
-            Mocks.TransactionRepository.setMockTransactions([Mapper.mapTransactionToModel(delegateResignationTransaction)]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(delegateResignationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
     });

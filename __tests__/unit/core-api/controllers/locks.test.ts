@@ -37,7 +37,7 @@ beforeEach(() => {
     controller = app.resolve<LocksController>(LocksController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    Mocks.StateStore.setMockBlock({ data: mockLastBlockData } as Interfaces.IBlock);
+    Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
 });
 
 afterEach(() => {
@@ -175,8 +175,8 @@ describe("LocksController", () => {
                 totalAmount: Utils.BigNumber.make("300"),
             };
 
-            Mocks.Blockchain.setMockBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
-            Mocks.TransactionRepository.setMockTransactions([htlcLockTransaction]);
+            Mocks.Blockchain.setBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
+            Mocks.TransactionRepository.setTransactions([htlcLockTransaction]);
 
             const request: Hapi.Request = {
                 payload: {

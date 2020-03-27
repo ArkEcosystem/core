@@ -67,7 +67,7 @@ describe("TransactionResource", () => {
                 generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
             };
 
-            Mocks.Blockchain.setMockBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
+            Mocks.Blockchain.setBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
 
             // @ts-ignore
             transferTransaction.block = mockBlock;

@@ -69,7 +69,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    Mocks.TransactionRepository.setMockTransactions([]);
+    Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("VoteTransaction", () => {
@@ -150,19 +150,19 @@ describe("VoteTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(voteTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();
 
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(unvoteTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should throw on vote if wallet already voted", async () => {
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(voteTransaction),
             ]);
             senderWallet.setAttribute("vote", delegateWallet.publicKey);
@@ -170,14 +170,14 @@ describe("VoteTransaction", () => {
         });
 
         it("should throw on unvote if wallet did not vote", async () => {
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(unvoteTransaction),
             ]);
             await expect(handler.bootstrap()).rejects.toThrow(NoVoteError);
         });
 
         it("should throw on unvote if wallet vote is mismatch", async () => {
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(unvoteTransaction),
             ]);
             senderWallet.setAttribute("vote", "no_a_public_key");

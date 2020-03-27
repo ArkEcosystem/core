@@ -52,7 +52,7 @@ describe("NodeController", () => {
         };
 
         Mocks.NetworkMonitor.setNetworkHeight(5);
-        Mocks.Blockchain.setMockBlock(mockBlock as Partial<Interfaces.IBlock>);
+        Mocks.Blockchain.setBlock(mockBlock as Partial<Interfaces.IBlock>);
     });
 
     describe("status", () => {
@@ -68,7 +68,7 @@ describe("NodeController", () => {
         });
 
         it("should return node status when last block is undefined", async () => {
-            Mocks.Blockchain.setMockBlock(null);
+            Mocks.Blockchain.setBlock(undefined);
             const response = (await controller.status(undefined, undefined)) as ItemResponse;
 
             expect(response.data).toEqual(
@@ -83,7 +83,7 @@ describe("NodeController", () => {
 
     describe("syncing", () => {
         it("should return syncing status", async () => {
-            Mocks.Blockchain.setMockBlock(null);
+            Mocks.Blockchain.setBlock(undefined);
             const response = (await controller.syncing(undefined, undefined)) as ItemResponse;
 
             expect(response.data).toEqual(

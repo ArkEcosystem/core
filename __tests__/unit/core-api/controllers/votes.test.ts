@@ -46,12 +46,12 @@ describe("VotesController", () => {
             .sign(passphrases[0])
             .build();
 
-        Mocks.TransactionRepository.setMockTransaction(null);
+        Mocks.TransactionRepository.setTransaction(null);
     });
 
     describe("index", () => {
         it("should return list of votes", async () => {
-            Mocks.TransactionRepository.setMockTransactions([voteTransaction]);
+            Mocks.TransactionRepository.setTransactions([voteTransaction]);
 
             const request: Hapi.Request = {
                 query: {
@@ -76,7 +76,7 @@ describe("VotesController", () => {
 
     describe("show", () => {
         it("should return vote", async () => {
-            Mocks.TransactionRepository.setMockTransaction(voteTransaction);
+            Mocks.TransactionRepository.setTransaction(voteTransaction);
 
             const request: Hapi.Request = {
                 params: {
@@ -97,7 +97,7 @@ describe("VotesController", () => {
         });
 
         it("should return error if vote transaction does not exists", async () => {
-            Mocks.TransactionRepository.setMockTransaction(null);
+            Mocks.TransactionRepository.setTransaction(null);
 
             const request: Hapi.Request = {
                 params: {

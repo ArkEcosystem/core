@@ -16,6 +16,10 @@ beforeEach(() => {
     controller = app.resolve<BlockchainController>(BlockchainController);
 });
 
+afterEach(() => {
+    Mocks.StateStore.setBlock(undefined);
+});
+
 describe("BlockchainController", () => {
     describe("index", () => {
         it("should return last block from store", async () => {
@@ -28,7 +32,7 @@ describe("BlockchainController", () => {
                 data: mockBlockData,
             };
 
-            Mocks.StateStore.setMockBlock(mockBlock as Partial<Interfaces.IBlock>);
+            Mocks.StateStore.setBlock(mockBlock as Partial<Interfaces.IBlock>);
 
             type BlockItemResponse = ItemResponse & {
                 data: {

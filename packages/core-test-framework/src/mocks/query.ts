@@ -2,13 +2,13 @@ import { Transaction } from "@arkecosystem/crypto/src/transactions";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
-let mockTransactions: Partial<Transaction>[];
+let mockTransactions: Partial<Transaction>[] = [];
 
-export const setMockTransactions = (transactions: Partial<Interfaces.ITransaction>[]) => {
+export const setTransactions = (transactions: Partial<Interfaces.ITransaction>[]) => {
     mockTransactions = transactions;
 };
 
-class CustomQueryIterable implements Partial<Contracts.TransactionPool.QueryIterable> {
+export class CustomQueryIterable implements Partial<Contracts.TransactionPool.QueryIterable> {
     public transactions: Interfaces.ITransaction[];
 
     constructor(items) {
@@ -34,8 +34,10 @@ class CustomQueryIterable implements Partial<Contracts.TransactionPool.QueryIter
     }
 }
 
-export const instance: Partial<Contracts.TransactionPool.Query> = {
+class TransactionPoolQueryMock implements Partial<Contracts.TransactionPool.Query> {
     getFromHighestPriority(): Contracts.TransactionPool.QueryIterable {
         return (new CustomQueryIterable(mockTransactions) as unknown) as Contracts.TransactionPool.QueryIterable;
-    },
-};
+    }
+}
+
+export const instance = new TransactionPoolQueryMock();

@@ -77,7 +77,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    Mocks.TransactionRepository.setMockTransactions([]);
+    Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("Htlc claim", () => {
@@ -192,7 +192,7 @@ describe("Htlc claim", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
-                Mocks.TransactionRepository.setMockTransactions([
+                Mocks.TransactionRepository.setTransactions([
                     Mapper.mapTransactionToModel(htlcLockTransaction),
                 ]);
                 await expect(handler.bootstrap()).toResolve();
@@ -467,7 +467,7 @@ describe("Htlc claim", () => {
                     handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository),
                 ).toResolve();
 
-                Mocks.TransactionRepository.setMockTransactions([
+                Mocks.TransactionRepository.setTransactions([
                     Mapper.mapTransactionToModel(htlcLockTransaction),
                 ]);
 
@@ -507,7 +507,7 @@ describe("Htlc claim", () => {
                     handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository),
                 ).toResolve();
 
-                Mocks.TransactionRepository.setMockTransactions([
+                Mocks.TransactionRepository.setTransactions([
                     Mapper.mapTransactionToModel(htlcLockTransaction),
                 ]);
 

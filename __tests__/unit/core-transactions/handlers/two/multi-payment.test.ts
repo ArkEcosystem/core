@@ -61,7 +61,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    Mocks.TransactionRepository.setMockTransactions([]);
+    Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("MultiPaymentTransaction", () => {
@@ -119,7 +119,7 @@ describe("MultiPaymentTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(multiPaymentTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();

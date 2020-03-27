@@ -21,5 +21,5 @@ export {
     StateStore,
     TransactionRepository,
     TransactionPoolProcessor,
-    WalletRepository
+    WalletRepository,
 };

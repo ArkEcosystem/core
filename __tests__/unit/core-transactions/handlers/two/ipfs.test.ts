@@ -61,7 +61,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    Mocks.TransactionRepository.setMockTransactions([]);
+    Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("Ipfs", () => {
@@ -104,7 +104,7 @@ describe("Ipfs", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(ipfsTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();

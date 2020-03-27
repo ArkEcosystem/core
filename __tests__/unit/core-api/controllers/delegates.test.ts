@@ -164,7 +164,7 @@ describe("DelegatesController", () => {
                 totalAmount: Utils.BigNumber.make("300"),
             };
 
-            Mocks.BlockRepository.setMockBlocks([mockBlock]);
+            Mocks.BlockRepository.setBlocks([mockBlock]);
 
             const request: Hapi.Request = {
                 params: {
@@ -200,7 +200,7 @@ describe("DelegatesController", () => {
                 timestamp: 2,
             };
 
-            Mocks.BlockRepository.setMockBlocks([mockBlock]);
+            Mocks.BlockRepository.setBlocks([mockBlock]);
 
             const request: Hapi.Request = {
                 params: {

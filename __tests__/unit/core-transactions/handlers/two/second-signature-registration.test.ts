@@ -68,7 +68,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    Mocks.TransactionRepository.setMockTransactions([]);
+    Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("SecondSignatureRegistrationTransaction", () => {
@@ -96,7 +96,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(secondSignatureTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();

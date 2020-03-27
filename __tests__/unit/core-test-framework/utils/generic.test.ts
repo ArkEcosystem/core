@@ -43,9 +43,9 @@ afterEach(() => {
 
     Mocks.StateStore.setLastHeight(0);
 
-    Mocks.Blockchain.setMockBlock(null);
+    Mocks.Blockchain.setBlock(undefined);
 
-    Mocks.WalletRepository.setMockNonce(Utils.BigNumber.make(1));
+    Mocks.WalletRepository.setNonce(Utils.BigNumber.make(1));
 });
 
 describe("Generic", () => {
@@ -85,7 +85,7 @@ describe("Generic", () => {
 
     describe("getSenderNonce", () => {
         it("should return sender nonce", async () => {
-            Mocks.WalletRepository.setMockNonce(Utils.BigNumber.make(5));
+            Mocks.WalletRepository.setNonce(Utils.BigNumber.make(5));
 
             expect(getSenderNonce(sandbox.app, Identities.PublicKey.fromPassphrase(passphrases[0]))).toEqual(
                 Utils.BigNumber.make(5),
@@ -106,7 +106,7 @@ describe("Generic", () => {
                 generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
             };
 
-            Mocks.Blockchain.setMockBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
+            Mocks.Blockchain.setBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
 
             let spyOnRemoveBlocks = jest.spyOn(Mocks.Blockchain.instance, "removeBlocks");
 
@@ -117,7 +117,7 @@ describe("Generic", () => {
 
     describe("getWalletNonce", () => {
         it("should return wallet nonce", async () => {
-            Mocks.WalletRepository.setMockNonce(Utils.BigNumber.make(5));
+            Mocks.WalletRepository.setNonce(Utils.BigNumber.make(5));
 
             expect(getWalletNonce(sandbox.app, Identities.PublicKey.fromPassphrase(passphrases[0]))).toEqual(
                 Utils.BigNumber.make(5),
@@ -125,7 +125,7 @@ describe("Generic", () => {
         });
 
         it("should return zero on error", async () => {
-            Mocks.WalletRepository.setMockNonce(Utils.BigNumber.make(5));
+            Mocks.WalletRepository.setNonce(Utils.BigNumber.make(5));
 
             let spyOnGetNonce = jest
                 .spyOn(Mocks.WalletRepository.instance, "getNonce")

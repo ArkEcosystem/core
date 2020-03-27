@@ -52,8 +52,8 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    Mocks.TransactionRepository.setMockTransaction(null);
-    Mocks.TransactionRepository.setMockTransactions([]);
+    Mocks.TransactionRepository.setTransaction(null);
+    Mocks.TransactionRepository.setTransactions([]);
 
     app = initApp();
 
@@ -114,7 +114,7 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setMockTransactions([
+            Mocks.TransactionRepository.setTransactions([
                 Mapper.mapTransactionToModel(bridgechainRegistrationTransaction),
             ]);
             await expect(handler.bootstrap()).toResolve();

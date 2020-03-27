@@ -74,7 +74,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    Mocks.TransactionRepository.setMockTransactions([]);
+    Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("Htlc refund", () => {
@@ -174,7 +174,7 @@ describe("Htlc refund", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
-                Mocks.TransactionRepository.setMockTransactions([
+                Mocks.TransactionRepository.setTransactions([
                     Mapper.mapTransactionToModel(htlcLockTransaction),
                 ]);
                 await expect(handler.bootstrap()).toResolve();
@@ -425,7 +425,7 @@ describe("Htlc refund", () => {
                     handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
                 ).toResolve();
 
-                Mocks.TransactionRepository.setMockTransactions([
+                Mocks.TransactionRepository.setTransactions([
                     Mapper.mapTransactionToModel(htlcLockTransaction),
                 ]);
                 const balanceBefore = lockWallet.balance;
@@ -463,7 +463,7 @@ describe("Htlc refund", () => {
                     handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
                 ).toResolve();
 
-                Mocks.TransactionRepository.setMockTransactions([
+                Mocks.TransactionRepository.setTransactions([
                     Mapper.mapTransactionToModel(htlcLockTransaction),
                 ]);
                 const balanceBefore = lockWallet.balance;

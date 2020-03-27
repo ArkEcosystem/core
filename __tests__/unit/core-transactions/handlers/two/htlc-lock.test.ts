@@ -72,7 +72,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-   Mocks.TransactionRepository.setMockTransactions([]);
+   Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("Htlc lock", () => {
@@ -144,7 +144,7 @@ describe("Htlc lock", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
-                Mocks.TransactionRepository.setMockTransactions([
+                Mocks.TransactionRepository.setTransactions([
                     Mapper.mapTransactionToModel(htlcLockTransaction),
                 ]);
                 await expect(handler.bootstrap()).toResolve();
@@ -156,7 +156,7 @@ describe("Htlc lock", () => {
                 // @ts-ignore
                 mockHtlcLockTransacton.open = true;
 
-                Mocks.TransactionRepository.setMockTransactions([
+                Mocks.TransactionRepository.setTransactions([
                     mockHtlcLockTransacton
                 ]);
 
@@ -180,7 +180,7 @@ describe("Htlc lock", () => {
                 // @ts-ignore
                 mockHtlcLockTransacton.open = true;
 
-                Mocks.TransactionRepository.setMockTransactions([
+                Mocks.TransactionRepository.setTransactions([
                     mockHtlcLockTransacton
                 ]);
                 await expect(handler.bootstrap()).toResolve();

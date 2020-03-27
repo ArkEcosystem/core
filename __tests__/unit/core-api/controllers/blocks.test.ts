@@ -28,10 +28,13 @@ beforeEach(() => {
     controller = app.resolve<BlocksController>(BlocksController);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+});
 
-    Mocks.BlockRepository.setMockBlock(null);
-    Mocks.BlockRepository.setMockBlocks([]);
-    Mocks.TransactionRepository.setMockTransactions([]);
+afterEach(() => {
+    Mocks.BlockRepository.setBlock(undefined);
+    Mocks.BlockRepository.setBlocks([]);
+    Mocks.TransactionRepository.setTransactions([]);
+    Mocks.StateStore.setBlock(undefined);
 });
 
 afterEach(() => {
@@ -79,7 +82,7 @@ describe("BlocksController", () => {
 
     describe("index", () => {
         it("should return last block from store", async () => {
-            Mocks.BlockRepository.setMockBlocks([mockBlock]);
+            Mocks.BlockRepository.setBlocks([mockBlock]);
 
             const request: Hapi.Request = {
                 query: {
@@ -98,7 +101,7 @@ describe("BlocksController", () => {
         });
 
         it("should return last block from store - transformed", async () => {
-            Mocks.BlockRepository.setMockBlocks([mockBlock]);
+            Mocks.BlockRepository.setBlocks([mockBlock]);
 
             const request: Hapi.Request = {
                 query: {
@@ -119,7 +122,7 @@ describe("BlocksController", () => {
 
     describe("first", () => {
         it("should return first block from store", async () => {
-            Mocks.StateStore.setMockBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
+            Mocks.StateStore.setBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
 
             const request: Hapi.Request = {
                 query: {
@@ -138,7 +141,7 @@ describe("BlocksController", () => {
 
     describe("last", () => {
         it("should return last block from store", async () => {
-            Mocks.Blockchain.setMockBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
+            Mocks.Blockchain.setBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
 
             const request: Hapi.Request = {
                 query: {
@@ -157,7 +160,7 @@ describe("BlocksController", () => {
 
     describe("show", () => {
         it("should return found block from store", async () => {
-            Mocks.BlockRepository.setMockBlock(mockBlock);
+            Mocks.BlockRepository.setBlock(mockBlock);
 
             const request: Hapi.Request = {
                 params: {
@@ -190,7 +193,7 @@ describe("BlocksController", () => {
 
     describe("transactions", () => {
         it("should return found transactions", async () => {
-            Mocks.BlockRepository.setMockBlock(mockBlock);
+            Mocks.BlockRepository.setBlock(mockBlock);
 
             const transaction = BuilderFactory.transfer()
                 .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
@@ -199,7 +202,7 @@ describe("BlocksController", () => {
                 .nonce("1")
                 .build();
 
-            Mocks.TransactionRepository.setMockTransactions([transaction]);
+            Mocks.TransactionRepository.setTransactions([transaction]);
 
             const request: Hapi.Request = {
                 params: {
@@ -239,7 +242,7 @@ describe("BlocksController", () => {
             const mockBlockWithoutId = Object.assign({}, mockBlock);
             delete mockBlockWithoutId.id;
 
-            Mocks.Blockchain.setMockBlock({ data: mockBlockWithoutId } as Partial<Interfaces.IBlock>);
+            Mocks.Blockchain.setBlock({ data: mockBlockWithoutId } as Partial<Interfaces.IBlock>);
 
             const request: Hapi.Request = {
                 params: {
@@ -256,7 +259,7 @@ describe("BlocksController", () => {
 
     describe("search", () => {
         it("should return found blocks from store", async () => {
-            Mocks.BlockRepository.setMockBlocks([mockBlock]);
+            Mocks.BlockRepository.setBlocks([mockBlock]);
 
             const request: Hapi.Request = {
                 params: {
