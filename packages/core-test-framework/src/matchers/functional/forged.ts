@@ -26,7 +26,7 @@ expect.extend({
         return {
             pass,
             // @ts-ignore
-            message: () => `expected ${id} ${this.isNot ? "not" : ""} to be forged`,
+            message: /* istanbul ignore next */ () => `expected ${id} ${this.isNot ? "not" : ""} to be forged`,
         };
     },
 });

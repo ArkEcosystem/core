@@ -16,7 +16,7 @@ declare global {
 expect.extend({
     toBeIpfsType: received => {
         return {
-            message: () => "Expected value to be a valid IPFS transaction.",
+            message: /* istanbul ignore next */ () => "Expected value to be a valid IPFS transaction.",
             pass: received.type === Ipfs,
         };
     },

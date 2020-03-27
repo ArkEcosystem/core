@@ -16,7 +16,7 @@ declare global {
 expect.extend({
     toBeMultiSignatureType: received => {
         return {
-            message: () => "Expected value to be a valid MultiSignature transaction.",
+            message: /* istanbul ignore next */ () => "Expected value to be a valid MultiSignature transaction.",
             pass: received.type === MultiSignature,
         };
     },

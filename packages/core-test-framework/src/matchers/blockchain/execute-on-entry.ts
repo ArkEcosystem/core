@@ -28,7 +28,7 @@ expect.extend({
         return {
             // FIXME isNot is necessary to write the right message
             // @see https://facebook.github.io/jest/docs/en/expect.html#expectextendmatchers
-            message: () =>
+            message: /* istanbul ignore next */ () =>
                 // @ts-ignore
                 `Expected machine to ${this.isNot ? "not " : ""} call actions ${actions} on state "${
                     transition.state

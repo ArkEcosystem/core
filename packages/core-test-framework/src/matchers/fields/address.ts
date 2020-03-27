@@ -14,7 +14,7 @@ declare global {
 expect.extend({
     toBeAddress: (received, argument) => {
         return {
-            message: () => "Expected value to be a valid address",
+            message: /* istanbul ignore next */ () => "Expected value to be a valid address",
             pass: Identities.Address.validate(received, argument),
         };
     },

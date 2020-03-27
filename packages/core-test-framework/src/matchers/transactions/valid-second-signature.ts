@@ -19,7 +19,7 @@ expect.extend({
         } catch {}
 
         return {
-            message: () => "Expected value to have a valid second signature",
+            message: /* istanbul ignore next */ () => "Expected value to have a valid second signature",
             pass: !!verified,
         };
     },
