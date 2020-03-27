@@ -83,7 +83,11 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                     debug: 7,
                 },
                 level: "emergency",
-                useLevelLabels: true,
+                formatters: {
+                    level (label, number) {
+                        return { level: label }
+                    }
+                },
                 useOnlyCustomLevels: true,
                 safe: true,
             },
