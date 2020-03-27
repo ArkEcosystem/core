@@ -231,7 +231,7 @@ export const replySchemas = {
                     plugins: {
                         type: "object",
                         maxProperties: 32,
-                        minProperties: 1,
+                        minProperties: 0,
                         additionalProperties: false,
                         patternProperties: {
                             "^.{4,64}$": {

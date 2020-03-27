@@ -14,11 +14,21 @@ const sandbox: Sandbox = new Sandbox();
 export const setUp = async (): Promise<Contracts.Kernel.Application> => {
     process.env.CORE_RESET_DATABASE = "1";
 
+    sandbox.withCoreOptions({
+        flags: {
+            token: "ark",
+            network: "testnet",
+            env: "test"
+        },
+        peers: {
+            list: [ { ip: "127.0.0.1", port: 4000 }]
+        },
+    });
     await sandbox.boot(async ({ app }) => {
         await app.bootstrap({
             flags: {
                 token: "ark",
-                network: "unitnet",
+                network: "testnet",
                 env: "test",
                 processType: "core",
             },
