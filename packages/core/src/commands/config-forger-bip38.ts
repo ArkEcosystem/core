@@ -67,6 +67,7 @@ export class Command extends Commands.Command {
                 type: "password",
                 name: "bip39",
                 message: "Please enter your delegate plain text passphrase. Referred to as BIP39.",
+                /* istanbul ignore next */
                 validate: value =>
                     !validateMnemonic(value) ? "Failed to verify the given passphrase as BIP39 compliant." : true,
             },
@@ -74,6 +75,7 @@ export class Command extends Commands.Command {
                 type: "password",
                 name: "password",
                 message: "Please enter your custom password that encrypts the BIP39. Referred to as BIP38.",
+                /* istanbul ignore next */
                 validate: value => (typeof value !== "string" ? "The BIP38 password has to be a string." : true),
             },
             {
