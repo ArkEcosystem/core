@@ -13,19 +13,19 @@ export const setIsSynced = (isSynced: boolean) => {
 };
 
 class BlockchainMock implements Partial<Blockchain> {
-    getLastBlock(): IBlock {
+    public getLastBlock(): IBlock {
         return mockBlock as IBlock;
     }
 
-    getLastHeight(): number {
+    public getLastHeight(): number {
         return mockBlock?.data ? mockBlock.data.height : 1;
     }
 
-    isSynced(block?: any): boolean {
+    public isSynced(block?: any): boolean {
         return mockIsSynced;
     }
 
-    async removeBlocks(nblocks: number): Promise<void> {}
+    public async removeBlocks(nblocks: number): Promise<void> {}
 }
 
 export const instance = new BlockchainMock();

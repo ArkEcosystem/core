@@ -7,7 +7,7 @@ export const setNetworkHeight = (networkHeight: number) => {
 };
 
 class NetworkMonitorMock implements Partial<NetworkMonitor> {
-    getNetworkHeight(): number {
+    public getNetworkHeight(): number {
         return mockNetworkHeight;
     }
 }

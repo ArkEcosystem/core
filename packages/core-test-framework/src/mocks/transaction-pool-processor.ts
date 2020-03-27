@@ -17,25 +17,25 @@ export const setProcessorState = (state: any): void => {
 };
 
 class TransactionPoolProcessorMock implements Partial<Contracts.TransactionPool.Processor> {
-    async process(data: Interfaces.ITransactionData[]): Promise<void> {}
+    public async process(data: Interfaces.ITransactionData[]): Promise<void> {}
 
-    get accept(): string[] {
+    public get accept(): string[] {
         return accept;
     }
 
-    get broadcast(): string[] {
+    public get broadcast(): string[] {
         return broadcast;
     }
 
-    get invalid(): string[] {
+    public get invalid(): string[] {
         return invalid;
     }
 
-    get excess(): string[] {
+    public get excess(): string[] {
         return excess;
     }
 
-    get errors(): any {
+    public get errors(): any {
         return errors;
     }
 }

@@ -32,11 +32,11 @@ export const setLastForgedBlocks = (blocks: LastForgedBlock[]) => {
 };
 
 class BlockRepositoryMock implements Partial<BlockRepository> {
-    async findByIdOrHeight(idOrHeight: string | number): Promise<Block> {
+    public async findByIdOrHeight(idOrHeight: string | number): Promise<Block> {
         return mockBlock as Block;
     }
 
-    async search(filter: SearchFilter): Promise<RepositorySearchResult<Block>> {
+    public async search(filter: SearchFilter): Promise<RepositorySearchResult<Block>> {
         return {
             rows: mockBlocks as Block[],
             count: mockBlocks.length,
@@ -44,7 +44,7 @@ class BlockRepositoryMock implements Partial<BlockRepository> {
         };
     }
 
-    async searchByQuery(
+    public async searchByQuery(
         query: Record<string, any>,
         pagination: SearchPagination,
     ): Promise<RepositorySearchResult<Block>> {
@@ -55,11 +55,11 @@ class BlockRepositoryMock implements Partial<BlockRepository> {
         };
     }
 
-    async getDelegatesForgedBlocks() {
+    public async getDelegatesForgedBlocks() {
         return mockDelegatesForgedBlocks;
     }
 
-    async getLastForgedBlocks() {
+    public async getLastForgedBlocks() {
         return mockLastForgedBlocks;
     }
 }

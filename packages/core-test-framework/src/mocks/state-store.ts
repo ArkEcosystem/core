@@ -13,15 +13,15 @@ export const setLastHeight = (height: number) => {
 };
 
 class StateStoreMocks implements Partial<StateStore> {
-    getLastBlock(): IBlock {
+    public getLastBlock(): IBlock {
         return mockBlock as IBlock;
     }
 
-    getGenesisBlock(): IBlock {
+    public getGenesisBlock(): IBlock {
         return mockBlock as IBlock;
     }
 
-    getLastHeight(): number {
+    public getLastHeight(): number {
         return lastHeight;
     }
 }

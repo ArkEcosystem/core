@@ -7,7 +7,7 @@ export const setServiceProviders = (serviceProviders: Providers.ServiceProvider[
 };
 
 class ServiceProviderRepositoryMocks implements Partial<Providers.ServiceProviderRepository> {
-    allLoadedProviders(): Providers.ServiceProvider[] {
+    public allLoadedProviders(): Providers.ServiceProvider[] {
         return mockServiceProviders;
     }
 }

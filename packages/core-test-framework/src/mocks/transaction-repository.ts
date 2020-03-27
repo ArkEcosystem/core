@@ -28,15 +28,15 @@ export const setFeeStatistics = (feeStatistics: FeeStatistics[]) => {
 };
 
 class TransactionRepositoryMock implements Partial<TransactionRepository> {
-    async findByIdAndType(type: number, id: string): Promise<Transaction | undefined> {
+    public async findByIdAndType(type: number, id: string): Promise<Transaction | undefined> {
         return mockTransaction ? (mockTransaction as Transaction) : undefined;
     }
 
-    async findById(id: string): Promise<Transaction> {
+    public async findById(id: string): Promise<Transaction> {
         return mockTransaction as Transaction;
     }
 
-    async search(filter: SearchFilter): Promise<RepositorySearchResult<Transaction>> {
+    public async search(filter: SearchFilter): Promise<RepositorySearchResult<Transaction>> {
         let transitions = mockTransactions as Transaction[];
 
         const type: SearchCriteria | undefined = filter.criteria
@@ -54,7 +54,7 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
         };
     }
 
-    async searchByQuery(
+    public async searchByQuery(
         query: Record<string, any>,
         pagination: SearchPagination,
     ): Promise<RepositorySearchResult<Transaction>> {
@@ -65,41 +65,41 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
         };
     }
 
-    async findByType(type: number, typeGroup: number, limit?: number, offset?: number) {
+    public async findByType(type: number, typeGroup: number, limit?: number, offset?: number) {
         return mockTransactions as any;
     }
 
-    async findByIds(ids: any[]) {
+    public async findByIds(ids: any[]) {
         return mockTransactions as Transaction[];
     }
 
-    async findReceivedTransactions(): Promise<{ recipientId: string; amount: string }[]> {
+    public async findReceivedTransactions(): Promise<{ recipientId: string; amount: string }[]> {
         return mockTransactions.map((x) => {
             return { recipientId: x.recipientId!.toString(), amount: x.amount!.toString() };
         });
     }
 
-    async findByHtlcLocks(lockIds: string[]): Promise<Transaction[]> {
+    public async findByHtlcLocks(lockIds: string[]): Promise<Transaction[]> {
         return mockTransactions as Transaction[];
     }
 
-    async getOpenHtlcLocks(): Promise<Array<Transaction & { open: boolean }>> {
+    public async getOpenHtlcLocks(): Promise<Array<Transaction & { open: boolean }>> {
         return mockTransactions as any;
     }
 
-    async getClaimedHtlcLockBalances(): Promise<{ amount: string; recipientId: string }[]> {
+    public async getClaimedHtlcLockBalances(): Promise<{ amount: string; recipientId: string }[]> {
         return mockTransactions.map((x) => {
             return { recipientId: x.recipientId!.toString(), amount: x.amount!.toString() };
         });
     }
 
-    async getRefundedHtlcLockBalances(): Promise<{ amount: string; senderPublicKey: string }[]> {
+    public async getRefundedHtlcLockBalances(): Promise<{ amount: string; senderPublicKey: string }[]> {
         return mockTransactions.map((x) => {
             return { senderPublicKey: x.senderPublicKey!.toString(), amount: x.amount!.toString() };
         });
     }
 
-    async getFeeStatistics(days: number, minFee?: number): Promise<FeeStatistics[]> {
+    public async getFeeStatistics(days: number, minFee?: number): Promise<FeeStatistics[]> {
         return mockFeeStatistics;
     }
 }

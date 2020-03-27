@@ -11,7 +11,7 @@ export const setTransactions = (transactions: Partial<Interfaces.ITransaction>[]
 export class CustomQueryIterable implements Partial<Contracts.TransactionPool.QueryIterable> {
     public transactions: Interfaces.ITransaction[];
 
-    constructor(items) {
+    public constructor(items) {
         this.transactions = items;
     }
 
@@ -21,21 +21,21 @@ export class CustomQueryIterable implements Partial<Contracts.TransactionPool.Qu
         }
     }
 
-    whereId(id: any): any {
+    public whereId(id: any): any {
         return this;
     }
 
-    has(): boolean {
+    public has(): boolean {
         return this.transactions.length > 0;
     }
 
-    first(): Interfaces.ITransaction {
+    public first(): Interfaces.ITransaction {
         return this.transactions[0];
     }
 }
 
 class TransactionPoolQueryMock implements Partial<Contracts.TransactionPool.Query> {
-    getFromHighestPriority(): Contracts.TransactionPool.QueryIterable {
+    public getFromHighestPriority(): Contracts.TransactionPool.QueryIterable {
         return (new CustomQueryIterable(mockTransactions) as unknown) as Contracts.TransactionPool.QueryIterable;
     }
 }
