@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/transactions/types/multi-payment"
+import "@packages/core-test-framework/src/matchers/transactions/types/multi-payment";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Interfaces } from "@packages/crypto";
 
@@ -12,7 +12,6 @@ beforeEach(() => {
 
 describe("Multi Payment", () => {
     describe("toBeMultiPaymentType", () => {
-
         it("should be multi payment type", async () => {
             const transaction: Interfaces.ITransaction = factory.get("MultiPayment").make();
 

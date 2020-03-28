@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/functional/rejected"
+import "@packages/core-test-framework/src/matchers/functional/rejected";
 import { Interfaces } from "@packages/crypto";
 import got from "got";
 
@@ -14,8 +14,8 @@ beforeEach(() => {
         },
         {
             id: "8fa3422ec3bf69cf4931b867dfc97185df891c4d45d0c2993014332daa69c596",
-        }
-    ]
+        },
+    ];
 });
 
 describe("Rejected", () => {
@@ -27,10 +27,10 @@ describe("Rejected", () => {
                     body: JSON.stringify({
                         errors: "Dummy error",
                         data: {
-                            invalid: [transactions[0].id]
-                        }
-                    })
-                }
+                            invalid: [transactions[0].id],
+                        },
+                    }),
+                };
             });
 
             await expect(transactions[0]).toBeRejected();
@@ -52,17 +52,16 @@ describe("Rejected", () => {
         it("should pass", async () => {
             // @ts-ignore
             let spyOnPost = jest.spyOn(got, "post").mockImplementation(async (url: any, data: any) => {
-
                 let parsedData = JSON.parse(data.body);
 
                 return {
                     body: JSON.stringify({
                         errors: "Dummy error",
                         data: {
-                            invalid: parsedData.transactions.map(x => x.id)
-                        }
-                    })
-                }
+                            invalid: parsedData.transactions.map((x) => x.id),
+                        },
+                    }),
+                };
             });
 
             await expect(transactions).toBeEachRejected();
@@ -72,16 +71,15 @@ describe("Rejected", () => {
         it("should pass due response without error", async () => {
             // @ts-ignore
             let spyOnPost = jest.spyOn(got, "post").mockImplementation(async (url: any, data: any) => {
-
                 let parsedData = JSON.parse(data.body);
 
                 return {
                     body: JSON.stringify({
                         data: {
-                            invalid: parsedData.transactions.map(x => x.id)
-                        }
-                    })
-                }
+                            invalid: parsedData.transactions.map((x) => x.id),
+                        },
+                    }),
+                };
             });
 
             await expect(transactions).not.toBeEachRejected();

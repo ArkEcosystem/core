@@ -1,7 +1,7 @@
 import "jest-extended";
+
 import { LockResource } from "@packages/core-api/src/resources";
 import { Utils } from "@packages/crypto/src";
-
 
 let resource: LockResource;
 
@@ -34,7 +34,7 @@ describe("DelegateResource", () => {
                     epoch: 2,
                     human: "2017-03-21T13:00:02.000Z",
                     unix: 1490101202,
-                }
+                },
             });
         });
     });

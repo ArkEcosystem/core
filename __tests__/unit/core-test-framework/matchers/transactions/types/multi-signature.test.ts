@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/transactions/types/multi-signature"
+import "@packages/core-test-framework/src/matchers/transactions/types/multi-signature";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Interfaces } from "@packages/crypto";
 
@@ -12,7 +12,6 @@ beforeEach(() => {
 
 describe("Multi Signature", () => {
     describe("toBeMultiSignatureType", () => {
-
         it("should be multi signature type", async () => {
             const transaction: Interfaces.ITransaction = factory.get("MultiSignature").make();
 

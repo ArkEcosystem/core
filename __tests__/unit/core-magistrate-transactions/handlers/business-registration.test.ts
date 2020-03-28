@@ -1,29 +1,29 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { BusinessRegistrationBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
-import { IBusinessRegistrationAsset } from "@arkecosystem/core-magistrate-crypto/src/interfaces";
-import { BusinessAlreadyRegisteredError } from "@arkecosystem/core-magistrate-transactions/src/errors";
-import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
-import { BusinessRegistrationTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers";
-import { MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-indexes";
-import { Wallets } from "@arkecosystem/core-state";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Mempool } from "@arkecosystem/core-transaction-pool";
-import { InsufficientBalanceError } from "@arkecosystem/core-transactions/dist/errors";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { configManager } from "@arkecosystem/crypto/src/managers";
+import { Application, Contracts } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { BusinessRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
+import { BusinessAlreadyRegisteredError } from "@packages/core-magistrate-transactions/src/errors";
+import { MagistrateApplicationEvents } from "@packages/core-magistrate-transactions/src/events";
+import { BusinessRegistrationTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers";
+import { MagistrateIndex } from "@packages/core-magistrate-transactions/src/wallet-indexes";
+import { Wallets } from "@packages/core-state";
+import { StateStore } from "@packages/core-state/src/stores/state";
+import { Generators } from "@packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Mempool } from "@packages/core-transaction-pool";
+import { InsufficientBalanceError } from "@packages/core-transactions/dist/errors";
+import { TransactionHandler } from "@packages/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { configManager } from "@packages/crypto/src/managers";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { setMockBlock } from "../mocks/block-repository";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Mapper } from "@packages/core-test-framework";
+import { Assets } from "./__fixtures__";
+import _ from "lodash";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -41,7 +41,7 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    setMockTransaction(null);
+    Mocks.TransactionRepository.setTransactions([]);
 
     app = initApp();
 
@@ -62,12 +62,7 @@ beforeEach(() => {
 describe("BusinessRegistration", () => {
     let businessRegistrationTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
-    const businessRegistrationAsset: IBusinessRegistrationAsset = {
-        name: "DummyBusiness",
-        website: "https://www.dummy.example",
-        vat: "EX1234567890",
-        repository: "https://www.dummy.example/repo",
-    };
+    const businessRegistrationAsset = _.cloneDeep(Assets.businessRegistrationAsset);
 
     beforeEach(async () => {
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(
@@ -94,12 +89,11 @@ describe("BusinessRegistration", () => {
     });
 
     describe("bootstrap", () => {
-        afterEach(() => {
-            setMockBlock(null);
-        });
-
         it("should resolve", async () => {
-            setMockTransaction(businessRegistrationTransaction);
+            Mocks.TransactionRepository.setTransactions([
+                Mapper.mapTransactionToModel(businessRegistrationTransaction),
+            ]);
+
             await expect(handler.bootstrap()).toResolve();
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessRegistrationAsset);

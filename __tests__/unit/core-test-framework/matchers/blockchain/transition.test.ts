@@ -1,7 +1,6 @@
-import "@packages/core-test-framework/src/matchers/blockchain/transition"
+import "@packages/core-test-framework/src/matchers/blockchain/transition";
 import { Machine } from "xstate";
 import { machineConfig } from "./__fixtures__/assets";
-
 
 let testMachine: any;
 

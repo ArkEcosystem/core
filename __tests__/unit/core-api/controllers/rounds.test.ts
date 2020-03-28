@@ -1,15 +1,16 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { Application } from "@packages/core-kernel";
-import { initApp, ItemResponse } from "../__support__";
 import { RoundsController } from "@packages/core-api/src/controllers/rounds";
-import { RoundRepositoryMocks } from "../mocks";
+import { Application } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Identities, Transactions, Utils } from "@packages/crypto";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { Mocks } from "@packages/core-test-framework";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Identities, Transactions, Utils } from "@packages/crypto";
+
+import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: RoundsController;
@@ -22,7 +23,7 @@ beforeEach(() => {
 
     controller = app.resolve<RoundsController>(RoundsController);
 
-    RoundRepositoryMocks.setRounds([]);
+    Mocks.RoundRepository.setRounds([]);
 });
 
 afterEach(() => {
@@ -39,37 +40,37 @@ afterEach(() => {
 describe("RoundsController", () => {
     describe("delegates", () => {
         it("should return list of delegates", async () => {
-            let round = {
+            const round = {
                 publicKey: Identities.PublicKey.fromPassphrase(passphrases[1]),
                 round: Utils.BigNumber.make("12"),
-                balance: Utils.BigNumber.make("555")
+                balance: Utils.BigNumber.make("555"),
             };
 
-            RoundRepositoryMocks.setRounds([round]);
+            Mocks.RoundRepository.setRounds([round]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: "12"
-                }
+                    id: "12",
+                },
             };
 
-            let response = <ItemResponse>(await controller.delegates(request, undefined));
+            const response = (await controller.delegates(request, undefined)) as ItemResponse;
 
-            expect(response.data[0]).toEqual(expect.objectContaining(
-                {
-                    publicKey: round.publicKey
-                }
-            ));
+            expect(response.data[0]).toEqual(
+                expect.objectContaining({
+                    publicKey: round.publicKey,
+                }),
+            );
         });
 
         it("should return error if round does not exist", async () => {
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: "12"
-                }
+                    id: "12",
+                },
             };
 
-            await expect(controller.delegates(request, undefined)).resolves.toThrowError("Round not found")
+            await expect(controller.delegates(request, undefined)).resolves.toThrowError("Round not found");
         });
     });
 });

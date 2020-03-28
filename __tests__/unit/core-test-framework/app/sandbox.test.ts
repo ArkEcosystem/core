@@ -87,21 +87,20 @@ describe("Sandbox", () => {
 
         sandbox.restore();
 
-        expect(() => { sandbox.app.get("test") }).toThrowError();
+        expect(() => {
+            sandbox.app.get("test");
+        }).toThrowError();
     });
 
     it("should register service provider", async () => {
         let sandbox = new Sandbox();
 
-        sandbox
-            .app
-            .bind(Container.Identifiers.EventDispatcherService)
-            .toConstantValue({});
+        sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
 
         let serviceProviderOptions = {
             name: "@arkecosystem/core-state",
             path: resolve(__dirname, "../../../../packages/core-state"),
-            klass: CoreStateServiceProvider
+            klass: CoreStateServiceProvider,
         };
 
         expect(sandbox.registerServiceProvider(serviceProviderOptions)).toBe(sandbox);

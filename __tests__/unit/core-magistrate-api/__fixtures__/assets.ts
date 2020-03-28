@@ -4,7 +4,7 @@ export const businessRegistrationAsset: IBusinessRegistrationAsset = {
     name: "DummyBusiness",
     website: "https://www.dummy.example",
     vat: "EX1234567890",
-    repository: "https://www.dummy.example/repo"
+    repository: "https://www.dummy.example/repo",
 };
 
 export const bridgechainRegistrationAsset = {

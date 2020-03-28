@@ -18,11 +18,7 @@ describe("Business resignation ser/deser", () => {
         builder = new BusinessResignationBuilder();
     });
     it("should ser/deserialize giving back original fields", () => {
-        const businessResignation = builder
-            .network(23)
-            .version(2)
-            .sign("passphrase")
-            .getStruct();
+        const businessResignation = builder.network(23).version(2).sign("passphrase").getStruct();
 
         const serialized = Transactions.TransactionFactory.fromData(businessResignation).serialized.toString("hex");
         const deserialized = Transactions.Deserializer.deserialize(serialized);

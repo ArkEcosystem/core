@@ -31,11 +31,9 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public configure(): void {
-        this.definition
-            .setFlag("test", "The test message.", Joi.string().default("test"));
+        this.definition.setFlag("test", "The test message.", Joi.string().default("test"));
 
-        this.definition
-            .setArgument("test_arg", "The test argument.", Joi.string().default("test"));
+        this.definition.setArgument("test_arg", "The test argument.", Joi.string().default("test"));
     }
 
     /**

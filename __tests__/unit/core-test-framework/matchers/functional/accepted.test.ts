@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/functional/accepted"
+import "@packages/core-test-framework/src/matchers/functional/accepted";
 import { Interfaces } from "@packages/crypto";
 import got from "got";
 
@@ -14,8 +14,8 @@ beforeEach(() => {
         },
         {
             id: "8fa3422ec3bf69cf4931b867dfc97185df891c4d45d0c2993014332daa69c596",
-        }
-    ]
+        },
+    ];
 });
 
 describe("Accepted", () => {
@@ -29,9 +29,9 @@ describe("Accepted", () => {
                         data: {
                             accept: [transactions[0].id],
                             broadcast: [transactions[0].id],
-                        }
-                    })
-                }
+                        },
+                    }),
+                };
             });
 
             await expect(transactions[0]).toBeAccepted();
@@ -56,8 +56,8 @@ describe("Accepted", () => {
                 return {
                     body: JSON.stringify({
                         errors: undefined,
-                    })
-                }
+                    }),
+                };
             });
 
             await expect(transactions).toBeAllAccepted();
@@ -82,8 +82,8 @@ describe("Accepted", () => {
                 return {
                     body: JSON.stringify({
                         errors: undefined,
-                    })
-                }
+                    }),
+                };
             });
 
             await expect(transactions).toBeEachAccepted();
@@ -95,9 +95,9 @@ describe("Accepted", () => {
             let spyOnPost = jest.spyOn(got, "post").mockImplementation((url: any) => {
                 return {
                     body: JSON.stringify({
-                        errors: "Dummy error"
-                    })
-                }
+                        errors: "Dummy error",
+                    }),
+                };
             });
 
             await expect(transactions).not.toBeEachAccepted();
