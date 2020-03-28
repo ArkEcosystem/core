@@ -1,5 +1,5 @@
-import { IBlock } from "@arkecosystem/crypto/src/interfaces";
 import { Blockchain } from "@arkecosystem/core-blockchain";
+import { IBlock } from "@arkecosystem/crypto/src/interfaces";
 
 let mockBlock: Partial<IBlock> | undefined;
 let mockIsSynced: boolean = true;

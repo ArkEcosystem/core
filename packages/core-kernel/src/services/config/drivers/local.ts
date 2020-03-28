@@ -18,9 +18,7 @@ import { assert } from "../../../utils";
 import { ConfigRepository } from "../repository";
 
 const processSchema = {
-    flags: Joi.array()
-        .items(Joi.string())
-        .optional(),
+    flags: Joi.array().items(Joi.string()).optional(),
     services: Joi.object().optional(),
     plugins: Joi.array()
         .items(Joi.object().keys({ package: Joi.string(), options: Joi.object().optional() }))
@@ -107,15 +105,9 @@ export class LocalConfigLoader implements ConfigLoader {
         this.validationService.validate(
             this.loadFromLocation(["app.json", "app.js"]),
             Joi.object({
-                core: Joi.object()
-                    .keys(processSchema)
-                    .required(),
-                relay: Joi.object()
-                    .keys(processSchema)
-                    .required(),
-                forger: Joi.object()
-                    .keys(processSchema)
-                    .required(),
+                core: Joi.object().keys(processSchema).required(),
+                relay: Joi.object().keys(processSchema).required(),
+                forger: Joi.object().keys(processSchema).required(),
             }).unknown(true),
         );
 
@@ -143,18 +135,12 @@ export class LocalConfigLoader implements ConfigLoader {
                 list: Joi.array()
                     .items(
                         Joi.object().keys({
-                            ip: Joi.string()
-                                .ip()
-                                .required(),
-                            port: Joi.number()
-                                .port()
-                                .required(),
+                            ip: Joi.string().ip().required(),
+                            port: Joi.number().port().required(),
                         }),
                     )
                     .required(),
-                sources: Joi.array()
-                    .items(Joi.string().uri())
-                    .optional(),
+                sources: Joi.array().items(Joi.string().uri()).optional(),
             }),
         );
 
@@ -174,9 +160,7 @@ export class LocalConfigLoader implements ConfigLoader {
         this.validationService.validate(
             this.loadFromLocation(["delegates.json"]),
             Joi.object({
-                secrets: Joi.array()
-                    .items(Joi.string())
-                    .optional(),
+                secrets: Joi.array().items(Joi.string()).optional(),
                 bip38: Joi.string().optional(),
             }),
         );

@@ -149,7 +149,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
             const ownBlock: Interfaces.IBlock | undefined = this.app
                 .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
                 .getLastBlocks()
-                .find(block => block.data.height === blockHeader.height);
+                .find((block) => block.data.height === blockHeader.height);
 
             // Use shortcut to prevent expensive crypto if the block header equals our own.
             if (ownBlock && JSON.stringify(ownBlock.getHeader()) === JSON.stringify(blockHeader)) {
@@ -297,7 +297,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
                 assert.strictEqual(typeof probesIdByHeight[height], "string");
             }
 
-            const ourBlocksPrint = ourBlocks.map(b => `{ height=${b.height}, id=${b.id} }`).join(", ");
+            const ourBlocksPrint = ourBlocks.map((b) => `{ height=${b.height}, id=${b.id} }`).join(", ");
             const rangePrint = `[${ourBlocks[0].height}, ${ourBlocks[ourBlocks.length - 1].height}]`;
 
             const msRemaining = this.throwIfPastDeadline(deadline);

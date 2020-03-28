@@ -74,10 +74,7 @@ export class Deserializer {
         const signatureLength = (): number => {
             buf.mark();
 
-            const lengthHex: string = buf
-                .skip(1)
-                .readBytes(1)
-                .toString("hex");
+            const lengthHex: string = buf.skip(1).readBytes(1).toString("hex");
 
             buf.reset();
 

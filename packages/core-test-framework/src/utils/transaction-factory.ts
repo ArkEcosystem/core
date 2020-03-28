@@ -454,8 +454,6 @@ export class TransactionFactory {
     }
 
     private getRandomUsername(): string {
-        return Math.random()
-            .toString(36)
-            .toLowerCase();
+        return Math.random().toString(36).toLowerCase();
     }
 }

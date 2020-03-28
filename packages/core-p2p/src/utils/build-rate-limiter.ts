@@ -1,6 +1,6 @@
 import { RateLimiter } from "../rate-limiter";
 
-export const buildRateLimiter = options =>
+export const buildRateLimiter = (options) =>
     new RateLimiter({
         whitelist: [...options.whitelist, ...options.remoteAccess],
         configurations: {

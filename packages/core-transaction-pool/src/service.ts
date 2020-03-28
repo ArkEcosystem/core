@@ -66,7 +66,7 @@ export class Service implements Contracts.TransactionPool.Service {
             this.logger.debug(`${removedTransaction} removed from pool`);
         }
 
-        if (!removedTransactions.find(t => t.id === transaction.id)) {
+        if (!removedTransactions.find((t) => t.id === transaction.id)) {
             this.storage.removeTransaction(transaction.id);
             this.logger.error(`${transaction} removed from pool (wasn't in mempool)`);
         }
@@ -85,7 +85,7 @@ export class Service implements Contracts.TransactionPool.Service {
             this.logger.debug(`${removedTransaction} removed from pool`);
         }
 
-        if (removedTransactions.find(t => t.id === transaction.id)) {
+        if (removedTransactions.find((t) => t.id === transaction.id)) {
             this.logger.debug(`${transaction} forged and accepted by pool`);
         } else {
             this.storage.removeTransaction(transaction.id);

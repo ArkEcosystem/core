@@ -12,7 +12,7 @@ describe("AcceptBlockHandler", () => {
         forkedBlock: undefined,
         started: undefined,
         setLastBlock: jest.fn(),
-        lastDownloadedBlock: undefined
+        lastDownloadedBlock: undefined,
     };
     const database = { applyBlock: jest.fn() };
     const transactionPool = { acceptForgedTransaction: jest.fn() };
@@ -36,10 +36,7 @@ describe("AcceptBlockHandler", () => {
     describe("execute", () => {
         const block = {
             data: { id: "1222", height: 5544 },
-            transactions: [
-                { "id": "11" },
-                { "id": "12" },
-            ]
+            transactions: [{ id: "11" }, { id: "12" }],
         };
 
         it("should apply block to database, transaction pool, blockchain and state", async () => {
@@ -61,7 +58,7 @@ describe("AcceptBlockHandler", () => {
 
             expect(state.setLastBlock).toBeCalledTimes(1);
             expect(state.setLastBlock).toHaveBeenCalledWith(block);
-        })
+        });
 
         it("should reset state.forkedBlock if incoming block has same height", async () => {
             const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
@@ -72,7 +69,7 @@ describe("AcceptBlockHandler", () => {
             expect(result).toBe(BlockProcessorResult.Accepted);
 
             expect(state.forkedBlock).toBeUndefined();
-        })
+        });
 
         it("should set state.lastDownloadedBlock if incoming block height is higher", async () => {
             const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
@@ -83,7 +80,7 @@ describe("AcceptBlockHandler", () => {
             expect(result).toBe(BlockProcessorResult.Accepted);
 
             expect(state.lastDownloadedBlock).toBe(block.data);
-        })
+        });
 
         it("should return Reject and resetLastDownloadedBlock when something throws", async () => {
             const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
@@ -94,6 +91,6 @@ describe("AcceptBlockHandler", () => {
             expect(result).toBe(BlockProcessorResult.Rejected);
 
             expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
-        })
-    })
-})
+        });
+    });
+});

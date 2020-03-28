@@ -7,12 +7,7 @@ import {
     DeactivatedTransactionHandlerError,
     InvalidTransactionTypeError,
 } from "@packages/core-transactions/src/errors";
-import {
-    One,
-    TransactionHandler,
-    TransactionHandlerConstructor,
-    Two,
-} from "@packages/core-transactions/src/handlers";
+import { One, TransactionHandler, TransactionHandlerConstructor, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";

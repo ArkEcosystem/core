@@ -24,7 +24,7 @@ describe.each([
     BuilderFactory.htlcLock,
     BuilderFactory.htlcClaim,
     BuilderFactory.htlcRefund,
-])("%s", provider => {
+])("%s", (provider) => {
     describe("TransactionBuilder", () => {
         let identity;
         let identitySecond;

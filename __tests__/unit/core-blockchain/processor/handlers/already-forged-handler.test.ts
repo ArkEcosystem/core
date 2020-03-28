@@ -29,6 +29,6 @@ describe("AlreadyForgedHandler", () => {
 
             expect(result).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
             expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
-        })
-    })
-})
+        });
+    });
+});

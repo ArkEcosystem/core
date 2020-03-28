@@ -38,10 +38,7 @@ container
     .bind("WalletRepository")
     .to(BlockchainWalletRepository)
     .when(anyAncestorOrTargetTaggedFirst("state", "blockchain"));
-container
-    .bind("WalletRepository")
-    .to(PoolWalletRepository)
-    .when(anyAncestorOrTargetTaggedFirst("state", "pool"));
+container.bind("WalletRepository").to(PoolWalletRepository).when(anyAncestorOrTargetTaggedFirst("state", "pool"));
 container.bind("TransactionHandler").to(TransactionHandler);
 
 describe("anyAncestorOrTargetTaggedFirst", () => {

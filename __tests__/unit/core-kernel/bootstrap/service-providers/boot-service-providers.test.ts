@@ -24,9 +24,7 @@ let logger: Record<string, jest.Mock>;
 beforeEach(() => {
     app = new Application(new Container());
 
-    app.bind(Identifiers.EventDispatcherService)
-        .to(MemoryEventDispatcher)
-        .inSingletonScope();
+    app.bind(Identifiers.EventDispatcherService).to(MemoryEventDispatcher).inSingletonScope();
 
     serviceProviderRepository = app.get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository);
 

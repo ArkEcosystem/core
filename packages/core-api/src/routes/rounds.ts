@@ -14,9 +14,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: Joi.number()
-                        .integer()
-                        .min(1),
+                    id: Joi.number().integer().min(1),
                 }),
             },
         },

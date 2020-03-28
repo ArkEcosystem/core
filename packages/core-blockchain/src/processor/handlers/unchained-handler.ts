@@ -86,7 +86,7 @@ export class UnchainedHandler implements BlockHandler {
                     .get<any>(Container.Identifiers.DatabaseService)
                     .getActiveDelegates(roundInfo);
 
-                if (delegates.some(delegate => delegate.publicKey === block.data.generatorPublicKey)) {
+                if (delegates.some((delegate) => delegate.publicKey === block.data.generatorPublicKey)) {
                     return BlockProcessorResult.Rollback;
                 }
 

@@ -58,11 +58,7 @@ describe("Transfer Transaction", () => {
             const keys = Keys.fromPassphrase(passphrase);
             const wif = WIF.fromKeys(keys, devnet.network);
 
-            const wifTransaction = builder
-                .recipientId(identity.address)
-                .amount("10")
-                .fee("10")
-                .network(network);
+            const wifTransaction = builder.recipientId(identity.address).amount("10").fee("10").network(network);
 
             const passphraseTransaction = BuilderFactory.transfer();
             passphraseTransaction.data = { ...wifTransaction.data };

@@ -12,10 +12,10 @@ declare global {
 }
 
 expect.extend({
-    toBeTransaction: actual => {
+    toBeTransaction: (actual) => {
         // TODO based on type
         const allowedKeys = Utils.sortBy(["id", "type", "amount", "fee", "timestamp", "signature"]);
-        const actualKeys = Object.keys(actual).filter(key => allowedKeys.includes(key));
+        const actualKeys = Object.keys(actual).filter((key) => allowedKeys.includes(key));
 
         return {
             message: /* istanbul ignore next */ () => "Expected value to be a valid transaction",

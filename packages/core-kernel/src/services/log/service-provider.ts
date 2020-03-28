@@ -10,10 +10,7 @@ export class ServiceProvider extends BaseServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app
-            .bind<LogManager>(Identifiers.LogManager)
-            .to(LogManager)
-            .inSingletonScope();
+        this.app.bind<LogManager>(Identifiers.LogManager).to(LogManager).inSingletonScope();
 
         await this.app.get<LogManager>(Identifiers.LogManager).boot();
 

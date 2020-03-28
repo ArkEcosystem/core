@@ -312,7 +312,7 @@ describe("Wallet Repository", () => {
         }
 
         walletRepo.index(wallets);
-        walletAddresses.forEach(address => expect(walletRepo.has(address)).toBeTrue());
+        walletAddresses.forEach((address) => expect(walletRepo.has(address)).toBeTrue());
 
         const publicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
 
@@ -322,7 +322,7 @@ describe("Wallet Repository", () => {
         walletRepo.getIndex("locks").set("lock", wallets[4]);
         walletRepo.getIndex("ipfs").set("ipfs", wallets[5]);
 
-        wallets.forEach(wallet => walletRepo.index(wallet));
+        wallets.forEach((wallet) => walletRepo.index(wallet));
 
         walletRepo.forgetByIndex("addresses", walletAddresses[0]);
         walletRepo.forgetByIndex("publicKeys", publicKey);
@@ -331,7 +331,7 @@ describe("Wallet Repository", () => {
         walletRepo.forgetByIndex("locks", "locks");
         walletRepo.forgetByIndex("ipfs", "ipfs");
 
-        walletAddresses.forEach(address => expect(walletRepo.has(address)).toBeFalse());
+        walletAddresses.forEach((address) => expect(walletRepo.has(address)).toBeFalse());
     });
 
     it("should get the nonce of a wallet", () => {
@@ -885,7 +885,7 @@ describe("Delegate Wallets", () => {
             { username: "delegate-2", forgedFees: Utils.BigNumber.make(30), forgedRewards: Utils.BigNumber.make(30) },
         ];
 
-        const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map(delegate => {
+        const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map((delegate) => {
             const wallet = new Wallet("", new Services.Attributes.AttributeMap(attributeSet));
             return Object.assign(wallet, { attributes: { delegate } });
         });

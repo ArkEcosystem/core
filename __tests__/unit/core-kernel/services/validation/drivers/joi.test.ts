@@ -4,9 +4,7 @@ import Joi from "@hapi/joi";
 import { JoiValidator } from "@packages/core-kernel/src/services/validation/drivers/joi";
 
 const schema = Joi.object({
-    username: Joi.string()
-        .alphanum()
-        .required(),
+    username: Joi.string().alphanum().required(),
 });
 
 let validator: JoiValidator;

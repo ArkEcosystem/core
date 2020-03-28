@@ -212,7 +212,7 @@ export class DatabaseService {
         const seedSource: string = round.toString();
         let currentSeed: Buffer = Crypto.HashAlgorithms.sha256(seedSource);
 
-        delegates = delegates.map(delegate => delegate.clone());
+        delegates = delegates.map((delegate) => delegate.clone());
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
             for (let x = 0; x < 4 && i < delCount; i++, x++) {
                 const newIndex = currentSeed[x] % delCount;
@@ -328,7 +328,7 @@ export class DatabaseService {
             }
         }
 
-        const heightsToGetFromDB: number[] = Object.keys(toGetFromDB).map(height => +height);
+        const heightsToGetFromDB: number[] = Object.keys(toGetFromDB).map((height) => +height);
         if (heightsToGetFromDB.length > 0) {
             const blocksByHeights = await this.blockRepository.findByHeights(heightsToGetFromDB);
 
@@ -422,7 +422,7 @@ export class DatabaseService {
             blocks = await this.blockRepository.findRecent(10);
         }
 
-        return blocks.map(block => block.id);
+        return blocks.map((block) => block.id);
     }
 
     public async getTopBlocks(count: number): Promise<Interfaces.IBlockData[]> {
@@ -654,7 +654,7 @@ export class DatabaseService {
             serialized: Buffer;
         }> = await this.getTransactionsForBlocks(blocks);
 
-        const transactions = dbTransactions.map(tx => {
+        const transactions = dbTransactions.map((tx) => {
             const { data } = Transactions.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id);
             data.blockId = tx.blockId;
             return data;
@@ -662,7 +662,7 @@ export class DatabaseService {
 
         for (const block of blocks) {
             if (block.numberOfTransactions > 0) {
-                block.transactions = transactions.filter(transaction => transaction.blockId === block.id);
+                block.transactions = transactions.filter((transaction) => transaction.blockId === block.id);
             }
         }
     }
@@ -715,7 +715,7 @@ export class DatabaseService {
 
         for (const delegate of delegates) {
             const producedBlocks: Interfaces.IBlock[] = this.blocksInCurrentRound.filter(
-                blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey,
+                (blockGenerator) => blockGenerator.data.generatorPublicKey === delegate.publicKey,
             );
 
             if (producedBlocks.length === 0) {

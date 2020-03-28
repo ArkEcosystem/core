@@ -33,15 +33,15 @@ beforeEach(async () => {
 afterEach(() => (message = undefined));
 
 beforeAll(() => {
-    capcon.startCapture(process.stdout, stdout => (message = stdout.toString()));
+    capcon.startCapture(process.stdout, (stdout) => (message = stdout.toString()));
 
-    capcon.startCapture(process.stderr, stderr => (message = stderr.toString()));
-
-    // @ts-ignore
-    capcon.startCapture(console._stdout, stdout => (message = stdout.toString()));
+    capcon.startCapture(process.stderr, (stderr) => (message = stderr.toString()));
 
     // @ts-ignore
-    capcon.startCapture(console._stderr, stderr => (message = stderr.toString()));
+    capcon.startCapture(console._stdout, (stdout) => (message = stdout.toString()));
+
+    // @ts-ignore
+    capcon.startCapture(console._stderr, (stderr) => (message = stderr.toString()));
 });
 
 afterAll(() => setGracefulCleanup());
@@ -149,7 +149,7 @@ describe("Logger", () => {
         }
 
         const files = readdirSync(app.logPath());
-        expect(files.filter(file => file.endsWith(".log.gz"))).toHaveLength(3);
+        expect(files.filter((file) => file.endsWith(".log.gz"))).toHaveLength(3);
         expect(files).toHaveLength(5);
     });
 });

@@ -94,7 +94,7 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
 
         socket.on("ping", () => this.terminate(peer));
         socket.on("pong", () => this.terminate(peer));
-        socket.on("message", data => {
+        socket.on("message", (data) => {
             if (data === "#1") {
                 // this is to establish some rate limit on #1 messages
                 // a simple rate limit of 1 per second doesnt seem to be enough, so decided to give some margin

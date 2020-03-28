@@ -16,9 +16,7 @@ beforeEach(() => {
     app = initApp();
 
     app.unbind(Identifiers.ServiceProviderRepository);
-    app.bind(Identifiers.ServiceProviderRepository).toConstantValue(
-        Mocks.ServiceProviderRepository.instance,
-    );
+    app.bind(Identifiers.ServiceProviderRepository).toConstantValue(Mocks.ServiceProviderRepository.instance);
 });
 
 beforeEach(() => {

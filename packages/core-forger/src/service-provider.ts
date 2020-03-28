@@ -16,10 +16,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app
-            .bind<ForgerService>(Container.Identifiers.ForgerService)
-            .to(ForgerService)
-            .inSingletonScope();
+        this.app.bind<ForgerService>(Container.Identifiers.ForgerService).to(ForgerService).inSingletonScope();
 
         this.app.get<ForgerService>(Container.Identifiers.ForgerService).register(this.config().all()); // ? why it isn't in boot?
     }

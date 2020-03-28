@@ -10,10 +10,7 @@ export class ServiceProvider extends BaseServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app
-            .bind<FilesystemManager>(Identifiers.FilesystemManager)
-            .to(FilesystemManager)
-            .inSingletonScope();
+        this.app.bind<FilesystemManager>(Identifiers.FilesystemManager).to(FilesystemManager).inSingletonScope();
 
         await this.app.get<FilesystemManager>(Identifiers.FilesystemManager).boot();
 

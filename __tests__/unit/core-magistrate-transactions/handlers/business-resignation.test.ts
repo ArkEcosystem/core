@@ -100,9 +100,7 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(businessResignationTransaction),
-            ]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(businessResignationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
 
             expect(senderWallet.getAttribute("business.resigned")).toBeTrue();

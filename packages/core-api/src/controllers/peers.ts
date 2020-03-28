@@ -20,7 +20,7 @@ export class PeersController extends Controller {
             const versionRange = semver.validRange(decodeURIComponent((request.query as any).version));
 
             if (versionRange) {
-                result = result.filter(peer => peer.version && semver.satisfies(peer.version, versionRange));
+                result = result.filter((peer) => peer.version && semver.satisfies(peer.version, versionRange));
             } else {
                 return Boom.notFound("Invalid version range provided");
             }
@@ -42,7 +42,7 @@ export class PeersController extends Controller {
 
         const order: string = request.query.orderBy as string;
         if (order) {
-            const orderByMapped = order.split(":").map(p => p.toLowerCase());
+            const orderByMapped = order.split(":").map((p) => p.toLowerCase());
 
             switch (orderByMapped[0]) {
                 case "version": {
@@ -55,7 +55,7 @@ export class PeersController extends Controller {
                 case "height": {
                     result = Utils.orderBy(
                         result,
-                        el => el.state[orderByMapped[0]],
+                        (el) => el.state[orderByMapped[0]],
                         orderByMapped[1] === "asc" ? "asc" : "desc",
                     );
                     break;

@@ -51,7 +51,7 @@ export class NodeController extends Controller {
                 syncing: !this.blockchain.isSynced(),
                 blocks: networkHeight && lastBlock ? networkHeight - lastBlock.data.height : 0,
                 height: lastBlock ? lastBlock.data.height : 0,
-                id: lastBlock?.data?.id,
+                id: lastBlock.data?.id,
             },
         };
     }

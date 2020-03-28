@@ -16,8 +16,8 @@ describe("RollbackDatabase", () => {
     };
     const mapConfiguration = {
         "databaseRollback.maxBlockRewind": 20,
-        "databaseRollback.steps": 5
-    }
+        "databaseRollback.steps": 5,
+    };
     const configuration = { getRequired: (key) => mapConfiguration[key] };
 
     const application = { get: jest.fn() };
@@ -42,11 +42,12 @@ describe("RollbackDatabase", () => {
             const lastBlock = {
                 data: {
                     id: "123",
-                    height: 5556
-                }
+                    height: 5556,
+                },
             };
             databaseService.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-            databaseService.verifyBlockchain = jest.fn()
+            databaseService.verifyBlockchain = jest
+                .fn()
                 .mockReturnValueOnce(false)
                 .mockReturnValueOnce(false)
                 .mockReturnValueOnce(false)
@@ -56,7 +57,7 @@ describe("RollbackDatabase", () => {
             expect(databaseService.verifyBlockchain).toHaveBeenCalledTimes(5);
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("SUCCESS");
-        })
+        });
 
         it("should dispatch FAILURE when !databaseService.verifyBlockchain() after trying according to maxBlockRewind and steps", async () => {
             const rollbackDatabase = container.resolve<RollbackDatabase>(RollbackDatabase);
@@ -64,11 +65,12 @@ describe("RollbackDatabase", () => {
             const lastBlock = {
                 data: {
                     id: "123",
-                    height: 5556
-                }
+                    height: 5556,
+                },
             };
             databaseService.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-            databaseService.verifyBlockchain = jest.fn()
+            databaseService.verifyBlockchain = jest
+                .fn()
                 .mockReturnValueOnce(false)
                 .mockReturnValueOnce(false)
                 .mockReturnValueOnce(false)
@@ -81,6 +83,6 @@ describe("RollbackDatabase", () => {
             expect(databaseService.verifyBlockchain).toHaveBeenCalledTimes(6);
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("FAILURE");
-        })
-    })
-})
+        });
+    });
+});

@@ -9,19 +9,16 @@ beforeEach(() => {
     cli = new Console();
 
     // Bind from src instead of dist to collect coverage.
-    cli.app
-        .rebind(Container.Identifiers.Table)
-        .to(Table)
-        .inSingletonScope();
+    cli.app.rebind(Container.Identifiers.Table).to(Table).inSingletonScope();
     component = cli.app.get(Container.Identifiers.Table);
 });
 
 describe("Table", () => {
     it("should render the component", () => {
         let message: string;
-        jest.spyOn(console, "log").mockImplementationOnce(m => (message = m));
+        jest.spyOn(console, "log").mockImplementationOnce((m) => (message = m));
 
-        component.render(["ID", "Name"], table => {
+        component.render(["ID", "Name"], (table) => {
             table.push([1, "John Doe"]);
             table.push([2, "Jane Doe"]);
         });

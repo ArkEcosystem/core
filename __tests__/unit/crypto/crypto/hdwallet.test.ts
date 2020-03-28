@@ -23,10 +23,7 @@ describe("HDWallet", () => {
             const child1 = root.derivePath(path);
 
             // option 2, manually
-            const child2 = root
-                .deriveHardened(0)
-                .derive(0)
-                .derive(0);
+            const child2 = root.deriveHardened(0).derive(0).derive(0);
 
             expect(Address.fromPublicKey(child1.publicKey.toString("hex"))).toBe("AZXdSTRFGHPokX6yfXTfHcTzzHKncioj31");
             expect(Address.fromPublicKey(child2.publicKey.toString("hex"))).toBe("AZXdSTRFGHPokX6yfXTfHcTzzHKncioj31");
@@ -43,12 +40,7 @@ describe("HDWallet", () => {
             const child1 = root.derivePath(path);
 
             // option 2, manually
-            const child2 = root
-                .deriveHardened(44)
-                .deriveHardened(111)
-                .deriveHardened(0)
-                .derive(0)
-                .derive(0);
+            const child2 = root.deriveHardened(44).deriveHardened(111).deriveHardened(0).derive(0).derive(0);
 
             expect(Address.fromPublicKey(child1.publicKey.toString("hex"))).toBe("AKdstZSrxzeF54e1M41fQzqGqjod9ydG3E");
             expect(Address.fromPublicKey(child2.publicKey.toString("hex"))).toBe("AKdstZSrxzeF54e1M41fQzqGqjod9ydG3E");
@@ -118,17 +110,9 @@ describe("HDWallet", () => {
         it("should derive path", () => {
             const root = HDWallet.fromMnemonic(mnemonic);
 
-            const actual = HDWallet.deriveSlip44(root)
-                .deriveHardened(0)
-                .derive(0)
-                .derive(0);
+            const actual = HDWallet.deriveSlip44(root).deriveHardened(0).derive(0).derive(0);
 
-            const expected = root
-                .deriveHardened(44)
-                .deriveHardened(111)
-                .deriveHardened(0)
-                .derive(0)
-                .derive(0);
+            const expected = root.deriveHardened(44).deriveHardened(111).deriveHardened(0).derive(0).derive(0);
 
             expect(Address.fromPublicKey(actual.publicKey.toString("hex"))).toBe("AHQhEsLWX5BbvvK836f1rUyZZZ77YikYq5");
             expect(actual.publicKey.toString("hex")).toBe(
@@ -147,9 +131,7 @@ describe("HDWallet", () => {
         it("should derive path", () => {
             const root = HDWallet.fromMnemonic(mnemonic);
 
-            const actual = HDWallet.deriveNetwork(root)
-                .deriveHardened(0)
-                .derive(0);
+            const actual = HDWallet.deriveNetwork(root).deriveHardened(0).derive(0);
 
             expect(Address.fromPublicKey(actual.publicKey.toString("hex"))).toBe("AKjBp5V1xG9c5PQqUvtvtoGjvnyA3wLVpA");
             expect(actual.publicKey.toString("hex")).toBe(

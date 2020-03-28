@@ -14,7 +14,7 @@ import { mapAddr } from "../utils/map-addr";
 export const getPeers = ({ service }: { service: PeerService }): Contracts.P2P.PeerBroadcast[] => {
     return service.storage
         .getPeers()
-        .map(peer => peer.toBroadcast())
+        .map((peer) => peer.toBroadcast())
         .sort((a, b) => {
             Utils.assert.defined<number>(a.latency);
             Utils.assert.defined<number>(b.latency);
@@ -96,7 +96,7 @@ export const postBlock = async ({ app, req }: { app: Contracts.Kernel.Applicatio
 
     const block: Interfaces.IBlockData = {
         ...deserialized.data,
-        transactions: deserialized.transactions.map(tx => tx.data),
+        transactions: deserialized.transactions.map((tx) => tx.data),
     };
 
     const fromForger: boolean = isWhitelisted(

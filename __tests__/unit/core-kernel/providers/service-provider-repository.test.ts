@@ -33,9 +33,7 @@ beforeEach(() => {
 
     app = new Application(container);
 
-    app.bind(Identifiers.EventDispatcherService)
-        .to(MemoryEventDispatcher)
-        .inSingletonScope();
+    app.bind(Identifiers.EventDispatcherService).to(MemoryEventDispatcher).inSingletonScope();
 
     serviceProviderRepository = app.get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository);
 });

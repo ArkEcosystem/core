@@ -5,10 +5,10 @@ import { isNewRound } from "@packages/core-kernel/src/utils/round-calculator";
 
 describe("Round Calculator", () => {
     describe("isNewRound", () => {
-        const setMilestones = milestones => {
+        const setMilestones = (milestones) => {
             Managers.configManager.set("milestones", milestones);
 
-            Managers.configManager.getMilestone = jest.fn().mockImplementation(height => {
+            Managers.configManager.getMilestone = jest.fn().mockImplementation((height) => {
                 for (let i = milestones.length - 1; i >= 0; i--) {
                     if (milestones[i].height <= height) {
                         return milestones[i];

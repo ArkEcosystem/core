@@ -6,7 +6,7 @@ import { ITransaction } from "@arkecosystem/crypto/src/interfaces";
 import { configManager } from "@arkecosystem/crypto/src/managers";
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 
-export const createRandomTx = type => {
+export const createRandomTx = (type) => {
     let transaction: ITransaction;
 
     switch (type) {
@@ -55,7 +55,7 @@ export const createRandomTx = type => {
 
             const passphrases = [Math.random().toString(36), Math.random().toString(36), Math.random().toString(36)];
 
-            const participants = passphrases.map(passphrase => {
+            const participants = passphrases.map((passphrase) => {
                 return Keys.fromPassphrase(passphrase);
             });
 
@@ -66,7 +66,7 @@ export const createRandomTx = type => {
                 Math.floor(Math.random() * (max - min)) + min,
             );
 
-            participants.forEach(participant => {
+            participants.forEach((participant) => {
                 multiSigRegistration.participant(participant.publicKey);
             });
 

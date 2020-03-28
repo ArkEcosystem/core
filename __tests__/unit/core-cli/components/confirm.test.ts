@@ -12,10 +12,7 @@ beforeEach(() => {
     cli = new Console();
 
     // Bind from src instead of dist to collect coverage.
-    cli.app
-        .rebind(Container.Identifiers.Confirm)
-        .to(Confirm)
-        .inSingletonScope();
+    cli.app.rebind(Container.Identifiers.Confirm).to(Confirm).inSingletonScope();
     component = cli.app.get(Container.Identifiers.Confirm);
 });
 

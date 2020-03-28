@@ -16,7 +16,7 @@ describe("ServiceProvider", () => {
         app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
         app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-        
+
         serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
     });
 
@@ -32,8 +32,8 @@ describe("ServiceProvider", () => {
 
             expect(app.isBound(Container.Identifiers.StateMachine)).toBeTrue();
             expect(app.isBound(Container.Identifiers.BlockchainService)).toBeTrue();
-        })
-    })
+        });
+    });
 
     describe("boot", () => {
         it("should call boot on blockchain service", async () => {
@@ -43,8 +43,8 @@ describe("ServiceProvider", () => {
             await serviceProvider.boot();
 
             expect(blockchainService.boot).toBeCalledTimes(1);
-        })
-    })
+        });
+    });
 
     describe("dispose", () => {
         it("should call dispose on blockchain service", async () => {
@@ -54,32 +54,32 @@ describe("ServiceProvider", () => {
             await serviceProvider.dispose();
 
             expect(blockchainService.dispose).toBeCalledTimes(1);
-        })
-    })
+        });
+    });
 
     describe("bootWhen", () => {
         it("should return false when process.env.CORE_SKIP_BLOCKCHAIN", async () => {
             process.env.CORE_SKIP_BLOCKCHAIN = "true";
-            
+
             const bootWhenResult = await serviceProvider.bootWhen();
 
             expect(bootWhenResult).toBeFalse();
-        })
+        });
 
         it("should return true when !process.env.CORE_SKIP_BLOCKCHAIN", async () => {
             delete process.env.CORE_SKIP_BLOCKCHAIN;
-            
+
             const bootWhenResult = await serviceProvider.bootWhen();
 
             expect(bootWhenResult).toBeTrue();
-        })
-    })
+        });
+    });
 
     describe("required", () => {
         it("should return true", async () => {
             const required = await serviceProvider.required();
 
             expect(required).toBeTrue();
-        })
-    })
-})
+        });
+    });
+});

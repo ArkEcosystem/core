@@ -75,7 +75,7 @@ export class CoreGenerator extends Generator {
         if (this.options.core.delegates) {
             writeJSONSync(filePath, this.options.core.delegates, { spaces: 4 });
         } else {
-            writeJSONSync(filePath, { secrets: delegates.map(d => d.passphrase) }, { spaces: 4 });
+            writeJSONSync(filePath, { secrets: delegates.map((d) => d.passphrase) }, { spaces: 4 });
         }
     }
 

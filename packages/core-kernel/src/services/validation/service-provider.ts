@@ -10,10 +10,7 @@ export class ServiceProvider extends BaseServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app
-            .bind<ValidationManager>(Identifiers.ValidationManager)
-            .to(ValidationManager)
-            .inSingletonScope();
+        this.app.bind<ValidationManager>(Identifiers.ValidationManager).to(ValidationManager).inSingletonScope();
 
         await this.app.get<ValidationManager>(Identifiers.ValidationManager).boot();
 

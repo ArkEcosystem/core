@@ -22,13 +22,15 @@ describe("IncompatibleTransactionsHandler", () => {
 
     describe("execute", () => {
         it("should call blockchain.resetLastDownloadedBlock and return DiscardedButCanBeBroadcasted", async () => {
-            const incompatibleTransactionsHandler = container.resolve<IncompatibleTransactionsHandler>(IncompatibleTransactionsHandler);
+            const incompatibleTransactionsHandler = container.resolve<IncompatibleTransactionsHandler>(
+                IncompatibleTransactionsHandler,
+            );
 
             const block = {};
             const result = await incompatibleTransactionsHandler.execute(block as Interfaces.IBlock);
 
             expect(result).toBe(BlockProcessorResult.Rejected);
             expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
-        })
-    })
-})
+        });
+    });
+});

@@ -1,3 +1,3 @@
-import * as Assets from "./assets"
+import * as Assets from "./assets";
 
-export { Assets }
+export { Assets };

@@ -4,7 +4,7 @@
 const base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 const validJSONStartRegex = /^[ \n\r\t]*[{[]/;
 
-const arrayBufferToBase64 = arraybuffer => {
+const arrayBufferToBase64 = (arraybuffer) => {
     const bytes = new Uint8Array(arraybuffer);
     const len = bytes.length;
     let base64 = "";
@@ -62,7 +62,7 @@ const base64ToBinaryReplacer = (key, value) =>
 
 // Decode the data which was transmitted over the wire to a JavaScript Object in a format which SC understands.
 // See encode function below for more details.
-export const decode = input => {
+export const decode = (input) => {
     if (!input) {
         return undefined;
     }
@@ -84,7 +84,7 @@ export const decode = input => {
     return message;
 };
 
-export const encode = object => {
+export const encode = (object) => {
     // Leave ping or pong message as is
     if (object === "#1" || object === "#2") {
         return object;

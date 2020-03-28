@@ -322,9 +322,7 @@ describe("Transaction serializer / deserializer", () => {
         });
 
         it("should fail if more than hardcoded maximum of payments", () => {
-            const multiPayment = BuilderFactory.multiPayment()
-                .fee("50000000")
-                .network(23);
+            const multiPayment = BuilderFactory.multiPayment().fee("50000000").network(23);
 
             for (let i = 0; i < configManager.getMilestone().multiPaymentLimit; i++) {
                 multiPayment.addPayment(Address.fromPassphrase(`recipient-${i}`), "1");

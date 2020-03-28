@@ -31,10 +31,7 @@ describe("Delegate Registration Transaction", () => {
         });
 
         it("should be valid with a second signature", () => {
-            const actual = builder
-                .usernameAsset("homer")
-                .sign("dummy passphrase")
-                .secondSign("dummy passphrase");
+            const actual = builder.usernameAsset("homer").sign("dummy passphrase").secondSign("dummy passphrase");
 
             expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();

@@ -1,5 +1,5 @@
-import { RoundRepository } from "@arkecosystem/core-database/src/repositories";
 import { Round } from "@arkecosystem/core-database/src/models";
+import { RoundRepository } from "@arkecosystem/core-database/src/repositories";
 
 let mockRounds: Partial<Round>[] = [];
 

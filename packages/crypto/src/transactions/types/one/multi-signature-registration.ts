@@ -35,7 +35,7 @@ export abstract class MultiSignatureRegistrationTransaction extends Transaction 
         const { data } = this;
 
         const legacyAsset: IMultiSignatureLegacyAsset = data.asset!.multiSignatureLegacy!;
-        const joined: string = legacyAsset.keysgroup.map(k => (k.startsWith("+") ? k.slice(1) : k)).join("");
+        const joined: string = legacyAsset.keysgroup.map((k) => (k.startsWith("+") ? k.slice(1) : k)).join("");
         const keysgroupBuffer: Buffer = Buffer.from(joined, "hex");
         const buffer: ByteBuffer = new ByteBuffer(keysgroupBuffer.length + 3, true);
 

@@ -99,7 +99,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     }
 
     public has(key: string): boolean {
-        return Object.values(this.indexes).some(index => index.has(key));
+        return Object.values(this.indexes).some((index) => index.has(key));
     }
 
     public hasByAddress(address: string): boolean {
@@ -296,7 +296,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                 break;
             }
             case "never-forged": {
-                entries = this.allByUsername().filter(delegate => {
+                entries = this.allByUsername().filter((delegate) => {
                     return delegate.getAttribute("delegate.producedBlocks") === 0;
                 });
                 break;
@@ -313,7 +313,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         };
 
         if (AppUtils.hasSomeProperty(params, Object.keys(manipulators))) {
-            entries = entries.map(delegate => {
+            entries = entries.map((delegate) => {
                 for (const [prop, method] of Object.entries(manipulators)) {
                     if (params.hasOwnProperty(prop)) {
                         delegate.setAttribute(`delegate.${prop}`, method(delegate));
@@ -375,7 +375,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                             this.stateStore.getLastBlock(),
                             lock.expiration,
                         ),
-                        vendorField: lock.vendorField!,
+                        vendorField: lock.vendorField,
                     });
                 }
 
@@ -397,7 +397,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
         const entries: any[] = this.getIndex("businesses")
             .values()
-            .map(wallet => {
+            .map((wallet) => {
                 const business: any = wallet.getAttribute("business");
                 return params.transform
                     ? {

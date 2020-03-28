@@ -67,10 +67,7 @@ export const setUpDefaults = {
 export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Promise<Setup> => {
     const sandbox = new Sandbox();
 
-    sandbox.app
-        .bind(Container.Identifiers.WalletAttributes)
-        .to(Services.Attributes.AttributeSet)
-        .inSingletonScope();
+    sandbox.app.bind(Container.Identifiers.WalletAttributes).to(Services.Attributes.AttributeSet).inSingletonScope();
 
     sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("delegate");
 
@@ -88,9 +85,7 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
         .set("delegate.forgedTotal");
 
-    sandbox.app
-        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("delegate.approval");
+    sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("delegate.approval");
 
     sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("vote");
 
@@ -140,10 +135,7 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
     registerIndexers(sandbox.app);
     registerFactories(sandbox.app);
 
-    sandbox.app
-        .bind(Container.Identifiers.PluginConfiguration)
-        .to(Providers.PluginConfiguration)
-        .inSingletonScope();
+    sandbox.app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 
     sandbox.app
         .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
@@ -153,10 +145,7 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
         .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
         .set("storage.maxLastTransactionIds", defaults.storage.maxLastTransactionIds);
 
-    sandbox.app
-        .bind(Container.Identifiers.StateStore)
-        .to(StateStore)
-        .inSingletonScope();
+    sandbox.app.bind(Container.Identifiers.StateStore).to(StateStore).inSingletonScope();
 
     const stateStore: StateStore = sandbox.app.get(Container.Identifiers.StateStore);
 
