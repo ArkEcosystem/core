@@ -1,22 +1,22 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Wallets } from "@arkecosystem/core-state";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
+import { Application, Contracts } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Wallets } from "@packages/core-state";
+import { StateStore } from "@packages/core-state/src/stores/state";
+import { Generators } from "@packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import {
     ColdWalletError,
     InsufficientBalanceError,
     SenderWalletMismatchError,
-} from "@arkecosystem/core-transactions/src/errors";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { TransferTransactionHandler } from "@arkecosystem/core-transactions/src/handlers/one";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+} from "@packages/core-transactions/src/errors";
+import { TransactionHandler } from "@packages/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { TransferTransactionHandler } from "@packages/core-transactions/src/handlers/one";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
 
 import {
@@ -26,7 +26,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -47,8 +47,6 @@ beforeEach(() => {
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    setMockTransaction(null);
-
     app = initApp();
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -66,6 +64,10 @@ beforeEach(() => {
     walletRepository.index(secondSignatureWallet);
     walletRepository.index(multiSignatureWallet);
     walletRepository.index(recipientWallet);
+});
+
+afterEach(() => {
+    Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("TransferTransaction", () => {
@@ -117,7 +119,9 @@ describe("TransferTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            setMockTransaction(transferTransaction);
+            Mocks.TransactionRepository.setTransactions([
+                Mapper.mapTransactionToModel(transferTransaction),
+            ]);
             await expect(handler.bootstrap()).toResolve();
         });
     });

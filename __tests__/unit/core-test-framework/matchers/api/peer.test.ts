@@ -1,17 +1,16 @@
-import "@packages/core-test-framework/src/matchers/api/peer"
+import "@packages/core-test-framework/src/matchers/api/peer";
 
 let peer: any;
 
 beforeEach(() => {
     peer = {
         ip: "127.0.0.1",
-        port: 4004
-    }
+        port: 4004,
+    };
 });
 
 describe("Peer", () => {
     describe("toBeValidPeer", () => {
-
         it("should be valid peer", async () => {
             expect(peer).toBeValidPeer();
         });
@@ -35,5 +34,5 @@ describe("Peer", () => {
         it("should pass if peer is valid", async () => {
             expect([peer]).toBeValidArrayOfPeers();
         });
-    })
+    });
 });

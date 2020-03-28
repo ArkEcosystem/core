@@ -78,6 +78,8 @@ describe("CryptoGenerator", () => {
 
         let generator: CryptoGenerator = new CryptoGenerator();
 
-        expect(() => { generator.generate() }).toThrowError();
+        expect(() => {
+            generator.generate();
+        }).toThrowError();
     });
 });

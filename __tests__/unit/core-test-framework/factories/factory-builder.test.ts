@@ -32,12 +32,11 @@ describe("FactoryBuilder", () => {
             return entity;
         });
 
-        expect(
-            factory
-                .get("Transaction")
-                .withStates("verified", "expired")
-                .make(),
-        ).toEqual({ valid: true, verified: true, expired: true });
+        expect(factory.get("Transaction").withStates("verified", "expired").make()).toEqual({
+            valid: true,
+            verified: true,
+            expired: true,
+        });
     });
 
     it("should create a new entity and merge the given attributes", () => {
@@ -45,12 +44,7 @@ describe("FactoryBuilder", () => {
             valid: true,
         }));
 
-        expect(
-            factory
-                .get("Transaction")
-                .withAttributes({ another: "value" })
-                .make(),
-        ).toEqual({
+        expect(factory.get("Transaction").withAttributes({ another: "value" }).make()).toEqual({
             valid: true,
             another: "value",
         });
@@ -80,12 +74,7 @@ describe("FactoryBuilder", () => {
 
         factory.get("Transaction").afterMakingState("invalid", ({ entity }) => (entity.hooked = true));
 
-        expect(
-            factory
-                .get("Transaction")
-                .withStates("invalid")
-                .make(),
-        ).toEqual({
+        expect(factory.get("Transaction").withStates("invalid").make()).toEqual({
             valid: false,
             hooked: true,
         });
@@ -96,12 +85,7 @@ describe("FactoryBuilder", () => {
             valid: options.valid,
         }));
 
-        expect(
-            factory
-                .get("Transaction")
-                .withOptions({ valid: "no" })
-                .make(),
-        ).toEqual({
+        expect(factory.get("Transaction").withOptions({ valid: "no" }).make()).toEqual({
             valid: "no",
         });
     });

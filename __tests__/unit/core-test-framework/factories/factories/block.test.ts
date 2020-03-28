@@ -5,7 +5,6 @@ import { Blocks, Interfaces } from "@packages/crypto";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Generators } from "@packages/core-test-framework/src";
 
-
 let factory: FactoryBuilder;
 
 beforeEach(() => {
@@ -44,8 +43,8 @@ describe("BlockFactory", () => {
 
         const options = {
             config: {
-                genesisBlock: genesisBlock.data
-            }
+                genesisBlock: genesisBlock.data,
+            },
         };
 
         const entity: Blocks.Block = factory.get("Block").withOptions(options).make();

@@ -1,25 +1,25 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { DelegateEvent } from "@arkecosystem/core-kernel/src/enums";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Wallets } from "@arkecosystem/core-state";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Mempool } from "@arkecosystem/core-transaction-pool/src/mempool";
+import { Application, Contracts } from "@packages/core-kernel";
+import { DelegateEvent } from "@packages/core-kernel/src/enums";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Wallets } from "@packages/core-state";
+import { StateStore } from "@packages/core-state/src/stores/state";
+import { Generators } from "@packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 import {
     InsufficientBalanceError,
     NotSupportedForMultiSignatureWalletError,
     WalletIsAlreadyDelegateError,
     WalletUsernameAlreadyRegisteredError,
-} from "@arkecosystem/core-transactions/src/errors";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+} from "@packages/core-transactions/src/errors";
+import { TransactionHandler } from "@packages/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
 
 import {
@@ -29,8 +29,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockBlock } from "../mocks/block-repository";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -49,8 +48,6 @@ beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
-
-    setMockTransaction(null);
 
     app = initApp();
 
@@ -104,38 +101,51 @@ describe("DelegateRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         afterEach(() => {
-            setMockBlock(null);
+            Mocks.TransactionRepository.setTransactions([]);
+            Mocks.BlockRepository.setDelegateForgedBlocks([]);
+            Mocks.BlockRepository.setLastForgedBlocks([]);
         });
 
         it("should resolve", async () => {
-            setMockTransaction(delegateRegistrationTransaction);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(delegateRegistrationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should resolve with bocks", async () => {
-            setMockTransaction(delegateRegistrationTransaction);
-            setMockBlock({
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(delegateRegistrationTransaction)]);
+
+            Mocks.BlockRepository.setDelegateForgedBlocks([{
                 generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
                 totalRewards: "2",
                 totalFees: "2",
-                totalProduced: "1",
-                id: "1",
+                totalProduced: 1,
+            }]);
+
+            Mocks.BlockRepository.setLastForgedBlocks([{
+                generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                id: "123",
                 height: "1",
-                timestamp: "1",
-            });
+                timestamp: 1
+            }]);
+
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should resolve with bocks and genesis wallet", async () => {
-            setMockBlock({
+            Mocks.BlockRepository.setDelegateForgedBlocks([{
                 generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
                 totalRewards: "2",
                 totalFees: "2",
-                totalProduced: "1",
-                id: "1",
+                totalProduced: 1,
+            }]);
+
+            Mocks.BlockRepository.setLastForgedBlocks([{
+                generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                id: "123",
                 height: "1",
-                timestamp: "1",
-            });
+                timestamp: 1
+            }]);
+
             await expect(handler.bootstrap()).toResolve();
         });
     });

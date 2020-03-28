@@ -27,5 +27,5 @@ describe("Helpers", () => {
         expect(factory("BridgechainResignation")).toBeDefined();
         expect(factory("BridgechainUpdate")).toBeDefined();
         expect(factory("Wallet")).toBeDefined();
-    })
+    });
 });

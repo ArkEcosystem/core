@@ -6,7 +6,6 @@ import { CoreGenerator } from "@packages/core-test-framework/src/app/generators/
 import { CoreConfigPaths } from "@packages/core-test-framework/src";
 import { sandboxOptions } from "./__fixtures__/assets";
 
-
 afterEach(() => {
     jest.resetAllMocks();
 });
@@ -43,6 +42,8 @@ describe("CoreGenerator", () => {
 
         let generator: CoreGenerator = new CoreGenerator();
 
-        expect(() => { generator.generate() }).toThrowError();
+        expect(() => {
+            generator.generate();
+        }).toThrowError();
     });
 });

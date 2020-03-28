@@ -1,4 +1,5 @@
 import "jest-extended";
+
 import { FeeStatisticsResource } from "@packages/core-api/src/resources";
 
 // TODO: Use from support or add to node code
@@ -27,8 +28,8 @@ describe("DelegateResource", () => {
             avgFee: "15",
             minFee: "10",
             maxFee: "20",
-            sum: "200"
-        }
+            sum: "200",
+        };
     });
 
     describe("raw", () => {
@@ -44,8 +45,8 @@ describe("DelegateResource", () => {
                 fees: {
                     minFee: 10,
                     maxFee: 20,
-                    avgFee: 15
-                }
+                    avgFee: 15,
+                },
             });
         });
     });

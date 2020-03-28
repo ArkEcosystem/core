@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/transactions/types/delegate-resignation"
+import "@packages/core-test-framework/src/matchers/transactions/types/delegate-resignation";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Interfaces } from "@packages/crypto";
 
@@ -12,7 +12,6 @@ beforeEach(() => {
 
 describe("Delegate Resignation", () => {
     describe("toBeDelegateResignationType", () => {
-
         it("should be delegate resignation type", async () => {
             const transaction: Interfaces.ITransaction = factory.get("DelegateResignation").make();
 

@@ -1,12 +1,14 @@
 import "jest-extended";
+
 import { WalletResource } from "@packages/core-api/src/resources";
 import { Application, Contracts } from "@packages/core-kernel";
-import { buildSenderWallet, initApp, parseObjectWithBigInt } from "../__support__";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Identities, Transactions, Utils } from "@packages/crypto";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Identities, Transactions, Utils } from "@packages/crypto";
+
+import { buildSenderWallet, initApp, parseObjectWithBigInt } from "../__support__";
 
 let app: Application;
 let resource: WalletResource;
@@ -53,14 +55,12 @@ describe("WalletResource", () => {
                 isDelegate: false,
                 isResigned: false,
                 nonce: "0",
-                publicKey: Identities.PublicKey.fromPassphrase(passphrases[0])
+                publicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
             };
         });
 
         it("should return transformed object", async () => {
-            expect(resource.transform(senderWallet)).toEqual(expect.objectContaining(
-                expectedResult
-            ));
+            expect(resource.transform(senderWallet)).toEqual(expect.objectContaining(expectedResult));
         });
 
         it("should return transformed object when contains additional attributes", async () => {
@@ -83,11 +83,9 @@ describe("WalletResource", () => {
             senderWallet.setAttribute("secondPublicKey", Identities.PublicKey.fromPassphrase(passphrases[2]));
             expectedResult.secondPublicKey = Identities.PublicKey.fromPassphrase(passphrases[2]);
 
-            let result = parseObjectWithBigInt(resource.transform(senderWallet));
+            const result = parseObjectWithBigInt(resource.transform(senderWallet));
 
-            expect(result).toEqual(expect.objectContaining(
-                expectedResult
-            ));
+            expect(result).toEqual(expect.objectContaining(expectedResult));
         });
     });
 });

@@ -9,7 +9,7 @@ export const paginationResponseMeta = {
     previous: null,
     self: "/transactions?transform=true&page=1&limit=100",
     first: "/transactions?transform=true&page=1&limit=100",
-    last: "/transactions?transform=true&page=39697&limit=100"
+    last: "/transactions?transform=true&page=39697&limit=100",
 };
 
 export const transactionResponse = {
@@ -23,19 +23,20 @@ export const transactionResponse = {
     sender: "DPTbJqyvrPgBmhs6UFqBwFdyx6jvorxHNL",
     senderPublicKey: "027ab77a71c903893c6264f0997455534c8a9dfd4608b3bc59d3fb6366f5475b0b",
     recipient: "DPTbJqyvrPgBmhs6UFqBwFdyx6jvorxHNL",
-    signature: "32cd7d0bc8d1ddd13ff485aa7e07c8b5f5608920be7b995fa1ed9a58ce76671bc70cc3560cb236eddb04f2b8039d70e508c6f0d0df5ddbb9f3a7c57d40ce117f",
+    signature:
+        "32cd7d0bc8d1ddd13ff485aa7e07c8b5f5608920be7b995fa1ed9a58ce76671bc70cc3560cb236eddb04f2b8039d70e508c6f0d0df5ddbb9f3a7c57d40ce117f",
     asset: {
         delegate: {
-            username: "test123456"
-        }
+            username: "test123456",
+        },
     },
     confirmations: 119869,
     timestamp: {
         epoch: 93911584,
         unix: 1584012784,
-        human: "2020-03-12T11:33:04.000Z"
+        human: "2020-03-12T11:33:04.000Z",
     },
-    nonce: "1"
+    nonce: "1",
 };
 
 export const blockResponse = {
@@ -47,25 +48,26 @@ export const blockResponse = {
         reward: "200000000",
         fee: "0",
         total: "200000000",
-        amount: "0"
+        amount: "0",
     },
     payload: {
         hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        length: 0
+        length: 0,
     },
     generator: {
         username: "pitbull",
         address: "APRt1h4Mrimbjuqm8deiYpuX1wpaM7dfNb",
-        publicKey: "03dff448e2fe490aff1665da1e217f39ac8b6715e5ecfdfec20bc150da70ef5153"
+        publicKey: "03dff448e2fe490aff1665da1e217f39ac8b6715e5ecfdfec20bc150da70ef5153",
     },
-    signature: "304402203974f10df9c73626c861f1d5164d4b7f10e6a0337d0208474bb389a38cc173b00220552c0a65d090e0ddf258538fb5638fbd1c7a2bdea12e6da9b6d45d82266f44c5",
+    signature:
+        "304402203974f10df9c73626c861f1d5164d4b7f10e6a0337d0208474bb389a38cc173b00220552c0a65d090e0ddf258538fb5638fbd1c7a2bdea12e6da9b6d45d82266f44c5",
     confirmations: 0,
     transactions: 0,
     timestamp: {
         epoch: 94874968,
         unix: 1584976168,
-        human: "2020-03-23T15:09:28.000Z"
-    }
+        human: "2020-03-23T15:09:28.000Z",
+    },
 };
 
 export const delegateResponse = {
@@ -83,18 +85,18 @@ export const delegateResponse = {
             timestamp: {
                 epoch: 94874824,
                 unix: 1584976024,
-                human: "2020-03-23T15:07:04.000Z"
-            }
-        }
+                human: "2020-03-23T15:07:04.000Z",
+            },
+        },
     },
     production: {
-        approval: 2.09
+        approval: 2.09,
     },
     forged: {
         fees: "1173040419815",
         rewards: "41992600000000",
-        total: "43165640419815"
-    }
+        total: "43165640419815",
+    },
 };
 
 export const walletResponse = {
@@ -103,11 +105,11 @@ export const walletResponse = {
     nonce: "122533",
     balance: "704589827182762",
     attributes: {
-        vote: "03a28aeb6b15e792f1753caae663a52f15ab642ae7cdee6fcdbc5416ffc0f4f702"
+        vote: "03a28aeb6b15e792f1753caae663a52f15ab642ae7cdee6fcdbc5416ffc0f4f702",
     },
     isDelegate: false,
     isResigned: false,
-    vote: "03a28aeb6b15e792f1753caae663a52f15ab642ae7cdee6fcdbc5416ffc0f4f702"
+    vote: "03a28aeb6b15e792f1753caae663a52f15ab642ae7cdee6fcdbc5416ffc0f4f702",
 };
 
 export const lockResponse = {
@@ -119,11 +121,11 @@ export const lockResponse = {
     timestamp: {
         epoch: 93993832,
         unix: 1584095032,
-        human: "2020-03-13T10:23:52.000Z"
+        human: "2020-03-13T10:23:52.000Z",
     },
     expirationType: 1,
     expirationValue: 1504193605,
-    isExpired: false
+    isExpired: false,
 };
 
 export const htlcLockAsset = {
@@ -131,7 +133,7 @@ export const htlcLockAsset = {
     expiration: {
         type: HtlcLockExpirationType.EpochTimestamp,
         value: 5,
-    }
+    },
 };
 
 export const htlcClaimAsset = {
@@ -140,21 +142,21 @@ export const htlcClaimAsset = {
 };
 
 export const htlcRefundAsset = {
-    lockTransactionId: "12345"
+    lockTransactionId: "12345",
 };
 
 export const businessRegistrationAsset = {
     name: "DummyBusiness",
     website: "https://www.dummy.example",
     vat: "EX1234567890",
-    repository: "https://www.dummy.example/repo"
+    repository: "https://www.dummy.example/repo",
 };
 
 export const businessUpdateAsset = {
     name: "DummyBusiness",
     website: "https://www.dummy.example",
     vat: "EX1234567890",
-    repository: "https://www.dummy.example/repo"
+    repository: "https://www.dummy.example/repo",
 };
 
 export const bridgechainRegistrationAsset = {
@@ -182,5 +184,5 @@ export const passphrasePairsAsset = [
     {
         passphrase: passphrases[3],
         secondPassphrase: passphrases[4],
-    }
+    },
 ];
