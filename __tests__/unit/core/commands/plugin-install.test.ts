@@ -43,9 +43,10 @@ afterEach(() => {
 });
 
 describe("PluginInstallCommand", () => {
-    it("should not call install an packages which don't exist", async () => {
+    it("should throw an error when package doesn't exist", async () => {
         packageExists = false;
-        await expect(cli.execute(Command)).toResolve();
+        const errorMessage = `The given package [${undefined}] is neither a git nor a npm package.`;
+        await expect(cli.execute(Command)).rejects.toThrow(errorMessage);
         expect(called).toEqual(false);
     });
 

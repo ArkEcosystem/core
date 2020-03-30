@@ -72,5 +72,7 @@ export class Command extends Commands.Command {
                 return source.install(pkg);
             }
         }
+
+        throw new Error(`The given package [${pkg}] is neither a git nor a npm package.`);
     }
 }
