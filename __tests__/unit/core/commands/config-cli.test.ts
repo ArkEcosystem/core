@@ -25,6 +25,24 @@ describe("Command", () => {
         expect(config.get("token")).toBe("btc");
     });
 
+    it("should not set config token if no token is passed to command", async () => {
+        cli = new Console(false);
+
+        const spyGetPaths = jest.spyOn(
+            // @ts-ignore
+            cli.app.get<Services.Environment>(Container.Identifiers.Environment),
+            "getPaths",
+        );
+
+        spyGetPaths.mockImplementation(() => {});
+
+        await expect(cli.execute(Command)).toResolve();
+
+        const spySetToken = jest.spyOn(config, "set");
+
+        expect(spySetToken).not.toHaveBeenCalled();
+    });
+
     it("should change the channel and install the new version", async () => {
         jest.spyOn(execa, "sync").mockReturnValue({
             stdout: "stdout",
