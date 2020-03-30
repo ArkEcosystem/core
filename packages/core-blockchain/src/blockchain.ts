@@ -1,5 +1,5 @@
 import { DatabaseService, Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Utils, Services } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 import async from "async";
 
@@ -379,7 +379,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const blockInstance = Blocks.BlockFactory.fromData(block);
             Utils.assert.defined<Interfaces.IBlock>(blockInstance);
 
-            lastProcessResult = await this.blockProcessor.process(blockInstance);
+            lastProcessResult = await this.app
+                .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                .call("processBlock", { blockProcessor: this.blockProcessor, block: blockInstance });
             lastProcessedBlock = blockInstance;
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
