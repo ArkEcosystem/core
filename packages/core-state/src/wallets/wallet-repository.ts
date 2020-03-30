@@ -375,7 +375,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                             this.stateStore.getLastBlock(),
                             lock.expiration,
                         ),
-                        vendorField: lock.vendorField,
+                        vendorField: lock.vendorField!,
                     });
                 }
 

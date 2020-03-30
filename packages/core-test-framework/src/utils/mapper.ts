@@ -6,7 +6,7 @@ export const mapTransactionToModel = (
     sequence: number = 0,
 ): Models.Transaction => {
     return {
-        id: transaction.id,
+        id: transaction.id!,
         version: transaction.data.version || 1,
         blockId: transaction.data.blockId || "",
         sequence: sequence,
