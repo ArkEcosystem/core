@@ -27,7 +27,9 @@ afterAll(() => nock.enableNetConnect());
 
 describe("UpdateCommand", () => {
     it("should throw if the latest version is already installed", async () => {
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, versionNext);
+        nock(/.*/)
+            .get("/@arkecosystem%2Fcore")
+            .reply(200, versionNext);
 
         const spySuccess = jest.spyOn(cli.app.get(Container.Identifiers.Success), "render");
 
@@ -42,7 +44,9 @@ describe("UpdateCommand", () => {
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
+        nock(/.*/)
+            .get("/@arkecosystem%2Fcore")
+            .reply(200, response);
 
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stdout: "stdout",
@@ -62,7 +66,9 @@ describe("UpdateCommand", () => {
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
+        nock(/.*/)
+            .get("/@arkecosystem%2Fcore")
+            .reply(200, response);
 
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stdout: "stdout",
@@ -80,7 +86,9 @@ describe("UpdateCommand", () => {
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
+        nock(/.*/)
+            .get("/@arkecosystem%2Fcore")
+            .reply(200, response);
 
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stdout: "stdout",
@@ -101,7 +109,9 @@ describe("UpdateCommand", () => {
         response["dist-tags"].next = "4.0.0-next.0";
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
+        nock(/.*/)
+            .get("/@arkecosystem%2Fcore")
+            .reply(200, response);
 
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stdout: "stdout",
@@ -119,7 +129,9 @@ describe("UpdateCommand", () => {
         response["dist-tags"].next = "4.0.0-next.0";
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
+        nock(/.*/)
+            .get("/@arkecosystem%2Fcore")
+            .reply(200, response);
 
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stdout: "stdout",
@@ -141,7 +153,9 @@ describe("UpdateCommand", () => {
         response["dist-tags"].next = "4.0.0-next.0";
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
+        nock(/.*/)
+            .get("/@arkecosystem%2Fcore")
+            .reply(200, response);
 
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stdout: "stdout",
@@ -163,7 +177,9 @@ describe("UpdateCommand", () => {
         response["dist-tags"].next = "4.0.0-next.0";
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
+        nock(/.*/)
+            .get("/@arkecosystem%2Fcore")
+            .reply(200, response);
 
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stdout: "stdout",
@@ -186,7 +202,9 @@ describe("UpdateCommand", () => {
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
+        nock(/.*/)
+            .get("/@arkecosystem%2Fcore")
+            .reply(200, response);
 
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stdout: "stdout",

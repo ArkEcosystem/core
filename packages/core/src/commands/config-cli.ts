@@ -63,9 +63,10 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        if (this.hasFlag("token")) {
-            this.config.set("token", this.getFlag("token"));
-        }
+        // TODO: check
+        // Since token has a default value set during this.configuration()
+        // and since it is needed when binding environment paths - we should never reach a situation where this.hasFlag("token") === false.
+        this.config.set("token", this.getFlag("token"));
 
         if (this.hasFlag("channel")) {
             const newChannel: string = this.getFlag("channel");

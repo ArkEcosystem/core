@@ -17,7 +17,7 @@ describe("GetCommand", () => {
         writeFileSync(`${process.env.CORE_PATH_CONFIG}/.env`, "CORE_LOG_LEVEL=emergency");
 
         let message: string;
-        jest.spyOn(console, "log").mockImplementationOnce((m) => (message = m));
+        jest.spyOn(console, "log").mockImplementationOnce(m => (message = m));
 
         await cli.withFlags({ key: "CORE_LOG_LEVEL" }).execute(Command);
 

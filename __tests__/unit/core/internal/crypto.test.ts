@@ -60,6 +60,14 @@ describe("buildBIP38", () => {
         );
     });
 
+    it("should throw if no secrets are present", async () => {
+        writeJSONSync(`${process.env.CORE_PATH_CONFIG}/delegates.json`, {});
+
+        await expect(buildBIP38({ token: "ark", network: "mainnet" })).rejects.toThrow(
+            "We were unable to detect a BIP38 or BIP39 passphrase.",
+        );
+    });
+
     it("should throw if no bip38 password is provided", async () => {
         writeJSONSync(`${process.env.CORE_PATH_CONFIG}/delegates.json`, { bip38: "bip38" });
 
