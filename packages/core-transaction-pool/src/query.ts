@@ -28,23 +28,23 @@ export class QueryIterable implements Contracts.TransactionPool.QueryIterable {
     }
 
     public whereId(id: string): QueryIterable {
-        return this.wherePredicate(t => t.id === id);
+        return this.wherePredicate((t) => t.id === id);
     }
 
     public whereType(type: Enums.TransactionType): QueryIterable {
-        return this.wherePredicate(t => t.type === type);
+        return this.wherePredicate((t) => t.type === type);
     }
 
     public whereTypeGroup(typeGroup: Enums.TransactionTypeGroup): QueryIterable {
-        return this.wherePredicate(t => t.typeGroup === typeGroup);
+        return this.wherePredicate((t) => t.typeGroup === typeGroup);
     }
 
     public whereVersion(version: number): QueryIterable {
-        return this.wherePredicate(t => t.data.version === version);
+        return this.wherePredicate((t) => t.data.version === version);
     }
 
     public whereKind(transaction: Interfaces.ITransaction): QueryIterable {
-        return this.wherePredicate(t => t.type === transaction.type && t.typeGroup === transaction.typeGroup);
+        return this.wherePredicate((t) => t.type === transaction.type && t.typeGroup === transaction.typeGroup);
     }
 
     public has(): boolean {
@@ -68,7 +68,7 @@ export class Query implements Contracts.TransactionPool.Query {
     private readonly mempool!: Contracts.TransactionPool.Mempool;
 
     public getAll(): QueryIterable {
-        const iterable: Iterable<Interfaces.ITransaction> = function*(this: Query) {
+        const iterable: Iterable<Interfaces.ITransaction> = function* (this: Query) {
             for (const senderMempool of this.mempool.getSenderMempools()) {
                 for (const transaction of senderMempool.getFromLatest()) {
                     yield transaction;
@@ -80,7 +80,7 @@ export class Query implements Contracts.TransactionPool.Query {
     }
 
     public getAllBySender(senderPublicKey: string): QueryIterable {
-        const iterable: Iterable<Interfaces.ITransaction> = function*(this: Query) {
+        const iterable: Iterable<Interfaces.ITransaction> = function* (this: Query) {
             if (this.mempool.hasSenderMempool(senderPublicKey)) {
                 const transactions = this.mempool.getSenderMempool(senderPublicKey).getFromEarliest();
                 for (const transaction of transactions) {
@@ -103,8 +103,8 @@ export class Query implements Contracts.TransactionPool.Query {
                 };
 
                 const iterators: Iterator<Interfaces.ITransaction>[] = Array.from(this.mempool.getSenderMempools())
-                    .map(p => p.getFromLatest())
-                    .map(i => i[Symbol.iterator]());
+                    .map((p) => p.getFromLatest())
+                    .map((i) => i[Symbol.iterator]());
 
                 return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);
             },
@@ -124,8 +124,8 @@ export class Query implements Contracts.TransactionPool.Query {
                 };
 
                 const iterators: Iterator<Interfaces.ITransaction>[] = Array.from(this.mempool.getSenderMempools())
-                    .map(p => p.getFromEarliest())
-                    .map(i => i[Symbol.iterator]());
+                    .map((p) => p.getFromEarliest())
+                    .map((i) => i[Symbol.iterator]());
 
                 return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);
             },

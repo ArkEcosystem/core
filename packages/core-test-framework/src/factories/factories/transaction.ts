@@ -13,14 +13,7 @@ import { FactoryFunctionOptions } from "../types";
 
 const chance: Chance = new Chance();
 
-const randomHash = (): string =>
-    createHash("sha256")
-        .update(
-            Math.random()
-                .toString(36)
-                .substring(8),
-        )
-        .digest("hex");
+const randomHash = (): string => createHash("sha256").update(Math.random().toString(36).substring(8)).digest("hex");
 
 const sign = ({ entity, options }: FactoryFunctionOptions) => entity.sign(options.passphrase || secrets[0]);
 
@@ -100,10 +93,7 @@ export const registerSecondSignatureFactory = (factory: FactoryBuilder): void =>
 export const registerDelegateRegistrationFactory = (factory: FactoryBuilder): void => {
     factory.set("DelegateRegistration", ({ options }) =>
         Transactions.BuilderFactory.delegateRegistration().usernameAsset(
-            options.username ||
-                Math.random()
-                    .toString(36)
-                    .substring(8),
+            options.username || Math.random().toString(36).substring(8),
         ),
     );
 
@@ -210,11 +200,7 @@ export const registerHtlcClaimFactory = (factory: FactoryBuilder): void => {
         applyModifiers(
             Transactions.BuilderFactory.htlcClaim().htlcClaimAsset({
                 lockTransactionId: options.lockTransactionId || randomHash(),
-                unlockSecret:
-                    options.unlockSecret ||
-                    Math.random()
-                        .toString(36)
-                        .substring(8),
+                unlockSecret: options.unlockSecret || Math.random().toString(36).substring(8),
             }),
             options,
         ),

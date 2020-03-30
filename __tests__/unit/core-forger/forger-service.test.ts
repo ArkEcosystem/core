@@ -136,7 +136,7 @@ describe("ForgerService", () => {
                 "active delegate",
                 delegates.length,
                 true,
-            )}: ${delegates.map(wallet => `${wallet.delegate.username} (${wallet.publicKey})`).join(", ")}`;
+            )}: ${delegates.map((wallet) => `${wallet.delegate.username} (${wallet.publicKey})`).join(", ")}`;
 
             expect(logger.info).toHaveBeenCalledWith(expectedInfoMessage);
         });
@@ -169,7 +169,7 @@ describe("ForgerService", () => {
                 true,
             )}: ${delegates
                 .slice(numberActive)
-                .map(delegate => delegate.publicKey)
+                .map((delegate) => delegate.publicKey)
                 .join(", ")}`;
 
             forgerService.register({ hosts: [mockHost] });

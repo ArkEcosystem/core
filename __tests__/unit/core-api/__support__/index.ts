@@ -62,9 +62,7 @@ export const initApp = (): Application => {
 
     app.bind(Container.Identifiers.BlockRepository).toConstantValue(Mocks.BlockRepository.instance);
 
-    app.bind(Container.Identifiers.TransactionRepository).toConstantValue(
-        Mocks.TransactionRepository.instance,
-    );
+    app.bind(Container.Identifiers.TransactionRepository).toConstantValue(Mocks.TransactionRepository.instance);
 
     app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(Mocks.NetworkMonitor.instance);
 
@@ -72,13 +70,9 @@ export const initApp = (): Application => {
 
     app.bind(Container.Identifiers.RoundRepository).toConstantValue(Mocks.RoundRepository.instance);
 
-    app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(
-        Mocks.TransactionPoolQuery.instance,
-    );
+    app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(Mocks.TransactionPoolQuery.instance);
 
-    app.bind(Container.Identifiers.TransactionPoolProcessor).toConstantValue(
-        Mocks.TransactionPoolProcessor.instance,
-    );
+    app.bind(Container.Identifiers.TransactionPoolProcessor).toConstantValue(Mocks.TransactionPoolProcessor.instance);
 
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toFactory(() => () => {
         return Mocks.TransactionPoolProcessor.instance;

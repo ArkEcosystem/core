@@ -57,9 +57,7 @@ export class Command extends Commands.Command {
             .setFlag(
                 "premine",
                 "The number of pre-mined tokens.",
-                Joi.alternatives()
-                    .try(Joi.string(), Joi.number())
-                    .default("12500000000000000"),
+                Joi.alternatives().try(Joi.string(), Joi.number()).default("12500000000000000"),
             )
             .setFlag("delegates", "The number of delegates to generate.", Joi.number().default(51))
             .setFlag("blocktime", "The network blocktime.", Joi.number().default(8))
@@ -69,9 +67,7 @@ export class Command extends Commands.Command {
             .setFlag(
                 "rewardAmount",
                 "The number of the block reward per forged block.",
-                Joi.alternatives()
-                    .try(Joi.string(), Joi.number())
-                    .default("200000000"),
+                Joi.alternatives().try(Joi.string(), Joi.number()).default("200000000"),
             )
             .setFlag("pubKeyHash", "The public key hash.", Joi.number())
             .setFlag("wif", "The WIF (Wallet Import Format) that should be used.", Joi.number())
@@ -96,7 +92,7 @@ export class Command extends Commands.Command {
 
         const flags: Contracts.AnyObject = this.getFlags();
 
-        if (!Object.keys(flagsDefinition).find(flagName => !flags[flagName])) {
+        if (!Object.keys(flagsDefinition).find((flagName) => !flags[flagName])) {
             return this.generateNetwork(flags);
         }
 
@@ -104,7 +100,7 @@ export class Command extends Commands.Command {
         const response = await prompts(
             Object.keys(flagsDefinition)
                 .map(
-                    flagName =>
+                    (flagName) =>
                         ({
                             type: stringFlags.includes(flagName) ? "text" : "number",
                             name: flagName,
@@ -119,7 +115,7 @@ export class Command extends Commands.Command {
                 } as prompts.PromptObject<string>),
         );
 
-        if (Object.keys(flagsDefinition).find(flagName => !response[flagName])) {
+        if (Object.keys(flagsDefinition).find((flagName) => !response[flagName])) {
             this.components.fatal("Please provide all flags and try again!");
         }
 
@@ -223,7 +219,7 @@ export class Command extends Commands.Command {
 
                     writeJSONSync(
                         resolve(coreConfigDest, "delegates.json"),
-                        { secrets: delegates.map(d => d.passphrase) },
+                        { secrets: delegates.map((d) => d.passphrase) },
                         { spaces: 4 },
                     );
 
@@ -393,9 +389,7 @@ export class Command extends Commands.Command {
         totalPremine: string,
         pubKeyHash: number,
     ): any {
-        const amount: string = Utils.BigNumber.make(totalPremine)
-            .dividedBy(recipients.length)
-            .toString();
+        const amount: string = Utils.BigNumber.make(totalPremine).dividedBy(recipients.length).toString();
 
         return recipients.map((recipientWallet: Wallet) =>
             this.createTransferTransaction(sender, recipientWallet, amount, pubKeyHash),

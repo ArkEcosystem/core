@@ -198,15 +198,15 @@ describe("Client", () => {
         });
 
         it("should log debug message when no sockets are open", async () => {
-            hosts.forEach(host => (host.socket.getState = () => "closed"));
+            hosts.forEach((host) => (host.socket.getState = () => "closed"));
 
             client.register(hosts);
             await expect(client.selectHost()).rejects.toThrow(
-                `${hosts.map(host => host.hostname).join()} didn't respond. Trying again later.`,
+                `${hosts.map((host) => host.hostname).join()} didn't respond. Trying again later.`,
             );
             expect(logger.debug).toHaveBeenCalledWith(
                 `No open socket connection to any host: ${JSON.stringify(
-                    hosts.map(host => `${host.hostname}:${host.port}`),
+                    hosts.map((host) => `${host.hostname}:${host.port}`),
                 )}.`,
             );
         });

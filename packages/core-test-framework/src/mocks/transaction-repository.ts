@@ -1,5 +1,5 @@
-import { RepositorySearchResult, TransactionRepository } from "@arkecosystem/core-database/src/repositories";
 import { Transaction } from "@arkecosystem/core-database/src/models";
+import { RepositorySearchResult, TransactionRepository } from "@arkecosystem/core-database/src/repositories";
 import { SearchCriteria, SearchFilter, SearchPagination } from "@arkecosystem/core-database/src/repositories/search";
 
 export type FeeStatistics = {
@@ -48,7 +48,7 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
         }
 
         return {
-            rows: transitions as Transaction[],
+            rows: transitions,
             count: transitions.length,
             countIsEstimate: false,
         };

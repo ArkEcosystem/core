@@ -31,7 +31,7 @@ const calculateOrder = (params: Contracts.Database.QueryParameters, defaultOrder
     }
 
     // @ts-ignore
-    const orderByMapped: string[] = params.orderBy.split(":").map(p => p.toLowerCase());
+    const orderByMapped: string[] = params.orderBy.split(":").map((p) => p.toLowerCase());
 
     if (orderByMapped.length !== 2 || ["desc", "asc"].includes(orderByMapped[1]) !== true) {
         orderBy = defaultOrder;

@@ -17,9 +17,7 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
-                        publicKey: Joi.string()
-                            .hex()
-                            .length(66),
+                        publicKey: Joi.string().hex().length(66),
                         isResigned: Joi.bool(),
                         transform: Joi.bool().default(true),
                     },
@@ -35,9 +33,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: Joi.string()
-                        .hex()
-                        .length(66),
+                    id: Joi.string().hex().length(66),
                 }),
                 query: Joi.object({
                     transform: Joi.bool().default(true),
@@ -53,9 +49,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: Joi.string()
-                        .hex()
-                        .length(66),
+                    id: Joi.string().hex().length(66),
                 }),
                 query: Joi.object({
                     ...server.app.schemas.pagination,
@@ -82,16 +76,12 @@ export const register = (server: Hapi.Server): void => {
                     },
                 }),
                 payload: Joi.object({
-                    publicKey: Joi.string()
-                        .hex()
-                        .length(66),
+                    publicKey: Joi.string().hex().length(66),
                     name: Joi.string()
                         .regex(/^[a-zA-Z0-9_-]+$/)
                         .max(40),
                     website: Joi.string().max(80),
-                    vat: Joi.string()
-                        .alphanum()
-                        .max(15),
+                    vat: Joi.string().alphanum().max(15),
                     repository: Joi.string().max(80),
                     isResigned: Joi.bool(),
                 }),

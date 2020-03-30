@@ -37,10 +37,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private async buildServer(type: string, id: symbol): Promise<void> {
-        this.app
-            .bind<Server>(id)
-            .to(Server)
-            .inSingletonScope();
+        this.app.bind<Server>(id).to(Server).inSingletonScope();
 
         const server: Server = this.app.get<Server>(id);
 

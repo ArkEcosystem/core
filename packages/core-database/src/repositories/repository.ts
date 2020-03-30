@@ -17,7 +17,7 @@ export abstract class AbstractEntityRepository<Entity extends ObjectLiteral> ext
 
     protected propertyToColumnName(property: string): string | undefined {
         // Property names coming from query parameters are always lowercase
-        return this.metadata.columns.find(column => column.propertyName.toLowerCase() === property.toLowerCase())
+        return this.metadata.columns.find((column) => column.propertyName.toLowerCase() === property.toLowerCase())
             ?.databaseName;
     }
 
@@ -81,7 +81,7 @@ export abstract class AbstractEntityRepository<Entity extends ObjectLiteral> ext
             // Replace auto-generated column name with property name, if any.
             const columnName: string = key.replace(`${this.metadata.givenTableName}_`, "");
             const columnMetadata: ColumnMetadata | undefined = this.metadata.columns.find(
-                column => column.databaseName === columnName,
+                (column) => column.databaseName === columnName,
             );
             if (columnMetadata) {
                 let propertyValue: any;

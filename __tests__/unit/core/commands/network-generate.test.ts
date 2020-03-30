@@ -81,9 +81,7 @@ describe("GenerateCommand", () => {
     });
 
     it("should throw if the crypto configuration destination already exists", async () => {
-        jest.spyOn(fs, "existsSync")
-            .mockReturnValueOnce(false)
-            .mockReturnValueOnce(true);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValueOnce(true);
 
         await expect(
             cli

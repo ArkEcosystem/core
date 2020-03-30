@@ -35,9 +35,7 @@ const expectExecutionAfterDelay = (callback: CronJob, minutes: number): void => 
 
 const expectExecutionOnDate = (callback: CronJob, day: string): void => {
     clock = useFakeTimers({
-        now: moment(day)
-            .subtract(1, "second")
-            .valueOf(),
+        now: moment(day).subtract(1, "second").valueOf(),
     });
 
     const fn = jest.fn();

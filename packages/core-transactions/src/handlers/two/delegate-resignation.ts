@@ -55,7 +55,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         const requiredDelegatesCount: number = Managers.configManager.getMilestone().activeDelegates;
         const currentDelegatesCount: number = this.walletRepository
             .allByUsername()
-            .filter(w => w.hasAttribute("delegate.resigned") === false).length;
+            .filter((w) => w.hasAttribute("delegate.resigned") === false).length;
 
         if (currentDelegatesCount - 1 < requiredDelegatesCount) {
             throw new NotEnoughDelegatesError();

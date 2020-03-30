@@ -29,6 +29,6 @@ describe("NonceOutOfOrderHandler", () => {
 
             expect(result).toBe(BlockProcessorResult.Rejected);
             expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
-        })
-    })
-})
+        });
+    });
+});

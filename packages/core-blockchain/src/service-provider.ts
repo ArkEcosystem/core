@@ -6,10 +6,7 @@ import { blockchainMachine } from "./state-machine/machine";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        this.app
-            .bind(Container.Identifiers.StateMachine)
-            .to(StateMachine)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.StateMachine).to(StateMachine).inSingletonScope();
 
         const blockchain: Blockchain = this.app.resolve<Blockchain>(Blockchain);
 

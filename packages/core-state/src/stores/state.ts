@@ -101,7 +101,7 @@ export class StateStore implements Contracts.State.StateStore {
         // Only keep blocks which are below the new block height (i.e. rollback)
         if (this.lastBlocks.last() && this.lastBlocks.last<Interfaces.IBlock>().data.height !== block.data.height - 1) {
             assert(block.data.height - 1 <= this.lastBlocks.last<Interfaces.IBlock>().data.height);
-            this.lastBlocks = this.lastBlocks.filter(b => b.data.height < block.data.height);
+            this.lastBlocks = this.lastBlocks.filter((b) => b.data.height < block.data.height);
         }
 
         this.lastBlocks = this.lastBlocks.set(block.data.height, block);
@@ -129,10 +129,7 @@ export class StateStore implements Contracts.State.StateStore {
      * Get the last blocks.
      */
     public getLastBlocks(): Interfaces.IBlock[] {
-        return this.lastBlocks
-            .valueSeq()
-            .reverse()
-            .toArray();
+        return this.lastBlocks.valueSeq().reverse().toArray();
     }
 
     /**
@@ -149,7 +146,7 @@ export class StateStore implements Contracts.State.StateStore {
         return this.lastBlocks
             .valueSeq()
             .reverse()
-            .map(b => {
+            .map((b) => {
                 Utils.assert.defined<string>(b.data.id);
 
                 return b.data.id;
@@ -169,7 +166,7 @@ export class StateStore implements Contracts.State.StateStore {
 
         const blocks = this.lastBlocks
             .valueSeq()
-            .filter(block => block.data.height >= start && block.data.height <= tail);
+            .filter((block) => block.data.height >= start && block.data.height <= tail);
 
         return this.mapToBlockData(blocks, headersOnly).toArray() as Interfaces.IBlockData[];
     }
@@ -185,7 +182,7 @@ export class StateStore implements Contracts.State.StateStore {
         }
 
         return this.getLastBlocksData(true)
-            .filter(block => {
+            .filter((block) => {
                 Utils.assert.defined<string>(block.id);
 
                 return idsHash[block.id];
@@ -200,7 +197,7 @@ export class StateStore implements Contracts.State.StateStore {
         transactions: Interfaces.ITransactionData[],
     ): { added: Interfaces.ITransactionData[]; notAdded: Interfaces.ITransactionData[] } {
         const notAdded: Interfaces.ITransactionData[] = [];
-        const added: Interfaces.ITransactionData[] = transactions.filter(tx => {
+        const added: Interfaces.ITransactionData[] = transactions.filter((tx) => {
             Utils.assert.defined<string>(tx.id);
 
             if (this.cachedTransactionIds.has(tx.id)) {
@@ -212,7 +209,7 @@ export class StateStore implements Contracts.State.StateStore {
             return true;
         });
 
-        this.cachedTransactionIds = this.cachedTransactionIds.withMutations(cache => {
+        this.cachedTransactionIds = this.cachedTransactionIds.withMutations((cache) => {
             for (const tx of added) {
                 Utils.assert.defined<string>(tx.id);
 
@@ -287,9 +284,9 @@ export class StateStore implements Contracts.State.StateStore {
         blocks: Seq<number, Interfaces.IBlock>,
         headersOnly?: boolean,
     ): Seq<number, Interfaces.IBlockData> {
-        return blocks.map(block => ({
+        return blocks.map((block) => ({
             ...block.data,
-            transactions: headersOnly ? undefined : block.transactions.map(tx => tx.data),
+            transactions: headersOnly ? undefined : block.transactions.map((tx) => tx.data),
         }));
     }
 }

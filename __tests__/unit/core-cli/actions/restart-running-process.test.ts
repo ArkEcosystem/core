@@ -13,10 +13,7 @@ beforeEach(() => {
     processManager = cli.app.get(Container.Identifiers.ProcessManager);
 
     // Bind from src instead of dist to collect coverage.
-    cli.app
-        .rebind(Container.Identifiers.RestartRunningProcess)
-        .to(RestartRunningProcess)
-        .inSingletonScope();
+    cli.app.rebind(Container.Identifiers.RestartRunningProcess).to(RestartRunningProcess).inSingletonScope();
     action = cli.app.get(Container.Identifiers.RestartRunningProcess);
 });
 

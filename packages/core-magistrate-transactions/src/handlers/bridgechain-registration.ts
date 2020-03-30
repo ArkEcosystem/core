@@ -110,7 +110,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
                 );
 
                 if (
-                    bridgechainValues.some(bridgechain => {
+                    bridgechainValues.some((bridgechain) => {
                         return (
                             bridgechain.bridgechainAsset.name.toLowerCase() ===
                             data.asset!.bridgechainRegistration.name.toLowerCase()

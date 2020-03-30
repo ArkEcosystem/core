@@ -10,7 +10,7 @@ export const mockLastBlock = {
     data: { height: 3, timestamp: 111150 },
 };
 
-export const setup = async activeDelegates => {
+export const setup = async (activeDelegates) => {
     const sandbox = new Sandbox();
 
     const error: jest.SpyInstance = jest.fn();
@@ -36,7 +36,7 @@ export const setup = async activeDelegates => {
     class MockWalletRepository {
         public findByPublicKey(publicKey: string) {
             return {
-                getAttribute: () => activeDelegates.find(wallet => wallet.publicKey === publicKey).publicKey,
+                getAttribute: () => activeDelegates.find((wallet) => wallet.publicKey === publicKey).publicKey,
             };
         }
     }

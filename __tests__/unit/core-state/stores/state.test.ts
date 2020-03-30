@@ -234,7 +234,7 @@ describe("State Storage", () => {
             }
 
             // Heights 90 - 100
-            const ids = blocks.slice(89, 99).map(block => block.data.id);
+            const ids = blocks.slice(89, 99).map((block) => block.data.id);
             const commonBlocks = stateStorage.getCommonBlocks(ids);
             expect(ids).toHaveLength(10);
             expect(commonBlocks).toHaveLength(10);

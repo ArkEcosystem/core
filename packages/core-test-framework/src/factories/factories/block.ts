@@ -22,7 +22,7 @@ export const registerBlockFactory = (factory: FactoryBuilder): void => {
             const signer = new Signer(options.config, options.nonce);
 
             const genesisWallets = previousBlock.transactions
-                .map(transaction => transaction.recipientId)
+                .map((transaction) => transaction.recipientId)
                 .filter((address: string) => !!address);
 
             for (let i = 0; i < options.transactionsCount; i++) {

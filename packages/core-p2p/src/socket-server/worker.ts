@@ -43,7 +43,7 @@ export class Worker extends SCWorker {
         this.scServer.wsServer.on("connection", (ws, req) => {
             const clients = [...Object.values(this.scServer.clients), ...Object.values(this.scServer.pendingClients)];
             const existingSockets = clients.filter(
-                client =>
+                (client) =>
                     client.remoteAddress === req.socket.remoteAddress && client.remotePort !== req.socket.remotePort,
             );
             for (const socket of existingSockets) {
@@ -51,7 +51,7 @@ export class Worker extends SCWorker {
             }
             this.handlePayload(ws, req);
         });
-        this.scServer.on("connection", socket => this.handleConnection(socket));
+        this.scServer.on("connection", (socket) => this.handleConnection(socket));
         this.scServer.addMiddleware(this.scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) =>
             this.handleHandshake(req, next),
         );
@@ -94,7 +94,7 @@ export class Worker extends SCWorker {
             this.setErrorForIpAndTerminate(ws, req);
         });
 
-        ws.prependListener("error", error => {
+        ws.prependListener("error", (error) => {
             if (error instanceof RangeError) {
                 this.setErrorForIpAndTerminate(ws, req);
             }
@@ -102,7 +102,7 @@ export class Worker extends SCWorker {
 
         const messageListeners = ws.listeners("message");
         ws.removeAllListeners("message");
-        ws.prependListener("message", message => {
+        ws.prependListener("message", (message) => {
             if (ws._disconnected) {
                 return this.setErrorForIpAndTerminate(ws, req);
             } else if (message === "#2") {
@@ -149,7 +149,7 @@ export class Worker extends SCWorker {
     }
 
     private hasAdditionalProperties(object): boolean {
-        if (Object.keys(object).filter(key => key !== "event" && key !== "data" && key !== "cid").length) {
+        if (Object.keys(object).filter((key) => key !== "event" && key !== "data" && key !== "cid").length) {
             return true;
         }
         const event = object.event.split(".");
@@ -157,7 +157,7 @@ export class Worker extends SCWorker {
             if (event.length !== 3) {
                 return true;
             }
-            if (Object.keys(object.data).filter(key => key !== "data" && key !== "headers").length) {
+            if (Object.keys(object.data).filter((key) => key !== "data" && key !== "headers").length) {
                 return true;
             }
         }
@@ -191,7 +191,7 @@ export class Worker extends SCWorker {
         if (object.data.headers) {
             if (
                 Object.keys(object.data.headers).filter(
-                    key => key !== "version" && key !== "port" && key !== "height" && key !== "Content-Type",
+                    (key) => key !== "version" && key !== "port" && key !== "height" && key !== "Content-Type",
                 ).length
             ) {
                 return true;
@@ -249,7 +249,7 @@ export class Worker extends SCWorker {
 
         const cidrRemoteAddress = cidr(`${ip}/24`);
         const sameSubnetSockets = Object.values({ ...this.scServer.clients, ...this.scServer.pendingClients }).filter(
-            client => cidr(`${client.remoteAddress}/24`) === cidrRemoteAddress,
+            (client) => cidr(`${client.remoteAddress}/24`) === cidrRemoteAddress,
         );
         if (sameSubnetSockets.length > this.config.maxSameSubnetPeers) {
             req.socket.destroy();
@@ -328,7 +328,7 @@ export class Worker extends SCWorker {
                 this.sendToMasterAsync("p2p.internal.acceptNewPeer", {
                     data: { ip: req.socket.remoteAddress },
                     headers: req.data.headers,
-                }).catch(ex => {
+                }).catch((ex) => {
                     this.log(`Failed to accept new peer ${req.socket.remoteAddress}: ${ex.message}`, "debug");
                 });
             } else {

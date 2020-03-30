@@ -33,18 +33,13 @@ describe("PublishCommand", () => {
     });
 
     it("should throw if the configuration files cannot be found", async () => {
-        jest.spyOn(fs, "existsSync")
-            .mockReturnValueOnce(false)
-            .mockReturnValueOnce(false);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValueOnce(false);
 
         await expect(cli.execute(Command)).rejects.toThrow("Couldn't find the core configuration files");
     });
 
     it("should throw if the environment file cannot be found", async () => {
-        jest.spyOn(fs, "existsSync")
-            .mockReturnValueOnce(false)
-            .mockReturnValueOnce(true)
-            .mockReturnValueOnce(false);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValueOnce(false);
 
         const spyEnsure = jest.spyOn(fs, "ensureDirSync");
 
@@ -54,10 +49,7 @@ describe("PublishCommand", () => {
     });
 
     it("should publish the configuration", async () => {
-        jest.spyOn(fs, "existsSync")
-            .mockReturnValueOnce(false)
-            .mockReturnValueOnce(true)
-            .mockReturnValueOnce(true);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValueOnce(true);
 
         const spyEnsure = jest.spyOn(fs, "ensureDirSync");
         const spyCopy = jest.spyOn(fs, "copySync");
@@ -69,10 +61,7 @@ describe("PublishCommand", () => {
     });
 
     it("should reset the configuration", async () => {
-        jest.spyOn(fs, "existsSync")
-            .mockReturnValueOnce(false)
-            .mockReturnValueOnce(true)
-            .mockReturnValueOnce(true);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValueOnce(true);
 
         const spyRemove = jest.spyOn(fs, "removeSync");
         const spyEnsure = jest.spyOn(fs, "ensureDirSync");
@@ -86,10 +75,7 @@ describe("PublishCommand", () => {
     });
 
     it("should publish the configuration via prompt", async () => {
-        jest.spyOn(fs, "existsSync")
-            .mockReturnValueOnce(false)
-            .mockReturnValueOnce(true)
-            .mockReturnValueOnce(true);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValueOnce(true);
 
         const spyEnsure = jest.spyOn(fs, "ensureDirSync");
         const spyCopy = jest.spyOn(fs, "copySync");
@@ -107,10 +93,7 @@ describe("PublishCommand", () => {
     });
 
     it("should throw if no network is selected via prompt", async () => {
-        jest.spyOn(fs, "existsSync")
-            .mockReturnValueOnce(false)
-            .mockReturnValueOnce(true)
-            .mockReturnValueOnce(true);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValueOnce(true);
 
         const spyEnsure = jest.spyOn(fs, "ensureDirSync");
         const spyCopy = jest.spyOn(fs, "copySync");
@@ -130,10 +113,7 @@ describe("PublishCommand", () => {
     });
 
     it("should throw if the selected network is invalid via prompt", async () => {
-        jest.spyOn(fs, "existsSync")
-            .mockReturnValueOnce(false)
-            .mockReturnValueOnce(true)
-            .mockReturnValueOnce(true);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValueOnce(true);
 
         const spyEnsure = jest.spyOn(fs, "ensureDirSync");
         const spyCopy = jest.spyOn(fs, "copySync");

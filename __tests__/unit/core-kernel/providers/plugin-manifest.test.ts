@@ -15,9 +15,7 @@ beforeEach(() => {
     container.snapshot();
 
     app = new Application(container);
-    app.bind(Identifiers.ConfigRepository)
-        .to(ConfigRepository)
-        .inSingletonScope();
+    app.bind(Identifiers.ConfigRepository).to(ConfigRepository).inSingletonScope();
 
     pluginManifest = app.resolve<PluginManifest>(PluginManifest);
 });

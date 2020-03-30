@@ -2,7 +2,6 @@ import delay from "delay";
 import { Container } from "@arkecosystem/core-kernel";
 import { DownloadBlocks } from "../../../../../packages/core-blockchain/src/state-machine/actions/download-blocks";
 
-
 describe("DownloadBlocks", () => {
     const container = new Container.Container();
 
@@ -11,14 +10,14 @@ describe("DownloadBlocks", () => {
         dispatch: jest.fn(),
         queue: { length: () => 0 },
         clearQueue: jest.fn(),
-        enqueueBlocks: jest.fn()
+        enqueueBlocks: jest.fn(),
     };
     const lastBlock = { data: { id: "1234", height: 3333, timestamp: 11111 } };
     const stateStore = {
         lastDownloadedBlock: undefined,
-        getLastBlock: () => lastBlock
+        getLastBlock: () => lastBlock,
     };
-    const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn(), };
+    const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
     const peerNetworkMonitor = { downloadBlocksFromHeight: jest.fn() };
 
     const application = { get: () => peerNetworkMonitor };
@@ -26,10 +25,10 @@ describe("DownloadBlocks", () => {
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.Application).toConstantValue(application);
-        container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);  
-        container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);  
-        container.bind(Container.Identifiers.LogService).toConstantValue(logger);  
-        container.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);  
+        container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
+        container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
+        container.bind(Container.Identifiers.LogService).toConstantValue(logger);
+        container.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);
     });
 
     beforeEach(() => {
@@ -54,14 +53,14 @@ describe("DownloadBlocks", () => {
             peerNetworkMonitor.downloadBlocksFromHeight = jest.fn().mockImplementationOnce(async () => {
                 await delay(1000);
                 return [];
-            })
+            });
             const handlePromise = downloadBlocks.handle();
             stateStore.lastDownloadedBlock = { data: { id: "987", height: 233, timestamp: 111 } };
             await handlePromise;
-            
+
             expect(blockchain.dispatch).toHaveBeenCalledTimes(0);
         });
-        
+
         it("should dispatch NOBLOCK when downloadBlocksFromHeight returns no block", async () => {
             const downloadBlocks = container.resolve<DownloadBlocks>(DownloadBlocks);
 
@@ -75,9 +74,7 @@ describe("DownloadBlocks", () => {
         it("should dispatch NOBLOCK when downloadBlocksFromHeight returns no chained block", async () => {
             const downloadBlocks = container.resolve<DownloadBlocks>(DownloadBlocks);
 
-            peerNetworkMonitor.downloadBlocksFromHeight = jest.fn().mockReturnValue([
-                { height: 11 }
-            ]);
+            peerNetworkMonitor.downloadBlocksFromHeight = jest.fn().mockReturnValue([{ height: 11 }]);
             await downloadBlocks.handle();
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
@@ -91,8 +88,8 @@ describe("DownloadBlocks", () => {
                 {
                     height: lastBlock.data.height + 1,
                     previousBlock: lastBlock.data.id,
-                    timestamp: lastBlock.data.timestamp + 20
-                }
+                    timestamp: lastBlock.data.timestamp + 20,
+                },
             ]);
             await downloadBlocks.handle();
 
@@ -108,14 +105,16 @@ describe("DownloadBlocks", () => {
                 {
                     height: lastBlock.data.height + 1,
                     previousBlock: lastBlock.data.id,
-                    timestamp: lastBlock.data.timestamp + 20
-                }
+                    timestamp: lastBlock.data.timestamp + 20,
+                },
             ]);
-            blockchain.enqueueBlocks = jest.fn().mockImplementationOnce(() => { throw new Error("oops") });
+            blockchain.enqueueBlocks = jest.fn().mockImplementationOnce(() => {
+                throw new Error("oops");
+            });
             await downloadBlocks.handle();
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("NOBLOCK");
         });
-    })
-})
+    });
+});

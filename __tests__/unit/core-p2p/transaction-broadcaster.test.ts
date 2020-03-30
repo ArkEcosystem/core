@@ -44,7 +44,7 @@ describe("TransactionBroadcaster", () => {
             configuration.getRequired.mockReturnValue(3);
             storage.getPeers.mockReturnValue(peers);
             const jsons = [{}];
-            const transactions: any[] = jsons.map(j => ({ toJson: jest.fn().mockReturnValue(j) }));
+            const transactions: any[] = jsons.map((j) => ({ toJson: jest.fn().mockReturnValue(j) }));
 
             const broadcaster = container.resolve(TransactionBroadcaster);
             await broadcaster.broadcastTransactions(transactions as Interfaces.ITransaction[]);

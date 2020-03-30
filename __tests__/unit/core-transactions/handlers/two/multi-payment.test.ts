@@ -119,9 +119,7 @@ describe("MultiPaymentTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(multiPaymentTransaction),
-            ]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(multiPaymentTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
     });

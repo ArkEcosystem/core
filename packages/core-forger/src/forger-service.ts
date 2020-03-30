@@ -257,7 +257,7 @@ export class ForgerService {
             return [];
         }
         const transactions = response.transactions.map(
-            hex => Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(hex, "hex")).data,
+            (hex) => Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(hex, "hex")).data,
         );
         this.logger.debug(
             `Received ${AppUtils.pluralize("transaction", transactions.length, true)} ` +
@@ -326,7 +326,7 @@ export class ForgerService {
      * @memberof ForgerService
      */
     private isActiveDelegate(publicKey: string): Delegate | undefined {
-        return this.delegates.find(delegate => delegate.publicKey === publicKey);
+        return this.delegates.find((delegate) => delegate.publicKey === publicKey);
     }
 
     /**
@@ -350,7 +350,7 @@ export class ForgerService {
 
             // @ts-ignore
             this.client.emitEvent(Enums.ForgerEvent.Started, {
-                activeDelegates: this.delegates.map(delegate => delegate.publicKey),
+                activeDelegates: this.delegates.map((delegate) => delegate.publicKey),
             });
 
             this.logger.info(`Forger Manager started.`);
@@ -373,7 +373,7 @@ export class ForgerService {
      * @memberof ForgerService
      */
     private printLoadedDelegates(): void {
-        const activeDelegates: Delegate[] = this.delegates.filter(delegate => {
+        const activeDelegates: Delegate[] = this.delegates.filter((delegate) => {
             AppUtils.assert.defined<string>(delegate.publicKey);
 
             return this.usernames.hasOwnProperty(delegate.publicKey);
@@ -393,8 +393,8 @@ export class ForgerService {
 
         if (this.delegates.length > activeDelegates.length) {
             const inactiveDelegates: (string | undefined)[] = this.delegates
-                .filter(delegate => !activeDelegates.includes(delegate))
-                .map(delegate => delegate.publicKey);
+                .filter((delegate) => !activeDelegates.includes(delegate))
+                .map((delegate) => delegate.publicKey);
 
             this.logger.info(
                 `Loaded ${AppUtils.pluralize(

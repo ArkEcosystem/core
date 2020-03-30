@@ -10,9 +10,6 @@ export class ServiceProvider extends BaseServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app
-            .bind<MixinService>(Identifiers.MixinService)
-            .to(MixinService)
-            .inSingletonScope();
+        this.app.bind<MixinService>(Identifiers.MixinService).to(MixinService).inSingletonScope();
     }
 }

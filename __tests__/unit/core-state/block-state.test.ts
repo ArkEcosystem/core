@@ -747,7 +747,7 @@ describe("BlockState", () => {
     describe("when 1 transaction fails while reverting it", () => {
         it("should apply sequentially (from first to last) all the reverted transactions of the block", async () => {
             // @ts-ignore
-            spyRevertTransaction.mockImplementation(tx => {
+            spyRevertTransaction.mockImplementation((tx) => {
                 if (tx === blocks[0].transactions[0]) {
                     throw new Error("Fake error");
                 }
@@ -776,7 +776,7 @@ describe("BlockState", () => {
     describe("when 1 transaction fails while applying it", () => {
         it("should revert sequentially (from last to first) all the transactions of the block", async () => {
             // @ts-ignore
-            spyApplyTransaction.mockImplementation(tx => {
+            spyApplyTransaction.mockImplementation((tx) => {
                 if (tx === blocks[0].transactions[2]) {
                     throw new Error("Fake error");
                 }

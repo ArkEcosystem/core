@@ -278,7 +278,7 @@ describe("API 2.0 - Wallets", () => {
                 api.expectWallet(wallet);
             }
 
-            const addresses = response.data.data.map(wallet => wallet.address).sort();
+            const addresses = response.data.data.map((wallet) => wallet.address).sort();
             expect(addresses).toEqual([address, address2]);
         });
 

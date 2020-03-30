@@ -13,7 +13,7 @@ declare global {
 }
 
 expect.extend({
-    toBeDelegateResignationType: received => {
+    toBeDelegateResignationType: (received) => {
         return {
             message: /* istanbul ignore next */ () => "Expected value to be a valid DelegateResignation transaction.",
             pass: received.type === DelegateResignation,

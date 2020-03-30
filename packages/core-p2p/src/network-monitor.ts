@@ -82,7 +82,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
             for (const [version, peers] of Object.entries(
                 // @ts-ignore
-                Utils.groupBy(this.storage.getPeers(), peer => peer.version),
+                Utils.groupBy(this.storage.getPeers(), (peer) => peer.version),
             )) {
                 this.logger.info(`Discovered ${Utils.pluralize("peer", peers.length, true)} with v${version}.`);
             }
@@ -158,7 +158,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         this.logger.info(`Checking ${max} peers`);
         const peerErrors = {};
         await Promise.all(
-            peers.map(async peer => {
+            peers.map(async (peer) => {
                 try {
                     return await this.communicator.ping(peer, pingDelay, forcePing);
                 } catch (error) {
@@ -208,7 +208,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                         }),
                 )
             )
-                .map(peers =>
+                .map((peers) =>
                     Utils.shuffle(peers)
                         .slice(0, maxPeersPerPeer)
                         .reduce(
@@ -224,7 +224,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         );
 
         if (pingAll || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.75) {
-            await Promise.all(theirPeers.map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
+            await Promise.all(theirPeers.map((p) => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
             this.pingPeerPorts(pingAll);
 
             return true;
@@ -261,8 +261,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public getNetworkHeight(): number {
         const medians = this.storage
             .getPeers()
-            .filter(peer => peer.state.height)
-            .map(peer => peer.state.height)
+            .filter((peer) => peer.state.height)
+            .map((peer) => peer.state.height)
             .sort((a, b) => {
                 Utils.assert.defined<string>(a);
                 Utils.assert.defined<string>(b);
@@ -309,9 +309,9 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             return { forked: false };
         }
 
-        const groupedByCommonHeight = Utils.groupBy(allPeers, peer => peer.verification.highestCommonHeight);
+        const groupedByCommonHeight = Utils.groupBy(allPeers, (peer) => peer.verification.highestCommonHeight);
 
-        const groupedByLength = Utils.groupBy(Object.values(groupedByCommonHeight), peer => peer.length);
+        const groupedByLength = Utils.groupBy(Object.values(groupedByCommonHeight), (peer) => peer.length);
 
         // Sort by longest
         // @ts-ignore
@@ -344,7 +344,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             return [];
         }
 
-        const peersNotForked: Contracts.P2P.Peer[] = Utils.shuffle(peersAll.filter(peer => !peer.isForked()));
+        const peersNotForked: Contracts.P2P.Peer[] = Utils.shuffle(peersAll.filter((peer) => !peer.isForked()));
 
         if (peersNotForked.length === 0) {
             this.logger.error(
@@ -442,7 +442,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         try {
             // Convert the array of AsyncFunction to an array of Promise by calling the functions.
             // @ts-ignore
-            await Promise.all(downloadJobs.map(f => f()));
+            await Promise.all(downloadJobs.map((f) => f()));
         } catch (error) {
             firstFailureMessage = error.message;
         }
@@ -515,7 +515,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             )}`,
         );
 
-        await Promise.all(peers.map(peer => this.communicator.postBlock(peer, block)));
+        await Promise.all(peers.map((peer) => this.communicator.postBlock(peer, block)));
     }
 
     private async pingPeerPorts(pingAll?: boolean): Promise<void> {
@@ -527,7 +527,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         this.logger.debug(`Checking ports of ${Utils.pluralize("peer", peers.length, true)}.`);
 
         Promise.all(
-            peers.map(async peer => {
+            peers.map(async (peer) => {
                 try {
                     return await this.communicator.pingPorts(peer);
                 } catch (error) {
@@ -589,7 +589,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         try {
             const peersFromUrl = await this.loadPeersFromUrlList();
             for (const peer of peersFromUrl) {
-                if (!peerList.find(p => p.ip === peer.ip)) {
+                if (!peerList.find((p) => p.ip === peer.ip)) {
                     peerList.push({
                         ip: peer.ip,
                         ports: { "@arkecosystem/core-api": peer.port },
@@ -603,7 +603,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             this.app.terminate("No seed peers defined in peers.json");
         }
 
-        const peers: Contracts.P2P.PeerData[] = peerList.map(peer => {
+        const peers: Contracts.P2P.PeerData[] = peerList.map((peer) => {
             peer.version = this.app.version();
             return peer;
         });

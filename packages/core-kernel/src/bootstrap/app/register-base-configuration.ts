@@ -37,10 +37,7 @@ export class RegisterBaseConfiguration implements Bootstrapper {
      * @memberof RegisterBaseConfiguration
      */
     public async bootstrap(): Promise<void> {
-        this.app
-            .bind<ConfigManager>(Identifiers.ConfigManager)
-            .to(ConfigManager)
-            .inSingletonScope();
+        this.app.bind<ConfigManager>(Identifiers.ConfigManager).to(ConfigManager).inSingletonScope();
 
         await this.app.get<ConfigManager>(Identifiers.ConfigManager).boot();
 

@@ -39,7 +39,7 @@ export class SuggestCommand {
             return undefined;
         }
 
-        const suggestion: string = minBy(signatures, c => Levenshtein.get(signature, c));
+        const suggestion: string = minBy(signatures, (c) => Levenshtein.get(signature, c));
 
         this.app.get<any>(Identifiers.Warning).render(`${red(signature)} is not a ${context.bin} command.`);
 

@@ -17,31 +17,15 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
-                        id: Joi.string()
-                            .hex()
-                            .length(64),
+                        id: Joi.string().hex().length(64),
                         blockId: server.app.schemas.blockId,
-                        version: Joi.number()
-                            .integer()
-                            .positive(),
-                        senderPublicKey: Joi.string()
-                            .hex()
-                            .length(66),
-                        senderId: Joi.string()
-                            .alphanum()
-                            .length(34),
-                        recipientId: Joi.string()
-                            .alphanum()
-                            .length(34),
-                        timestamp: Joi.number()
-                            .integer()
-                            .min(0),
-                        amount: Joi.number()
-                            .integer()
-                            .min(0),
-                        fee: Joi.number()
-                            .integer()
-                            .min(0),
+                        version: Joi.number().integer().positive(),
+                        senderPublicKey: Joi.string().hex().length(66),
+                        senderId: Joi.string().alphanum().length(34),
+                        recipientId: Joi.string().alphanum().length(34),
+                        timestamp: Joi.number().integer().min(0),
+                        amount: Joi.number().integer().min(0),
+                        fee: Joi.number().integer().min(0),
                         vendorField: Joi.string().max(255, "utf8"),
                         transform: Joi.bool().default(true),
                     },
@@ -57,9 +41,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: Joi.string()
-                        .hex()
-                        .length(64),
+                    id: Joi.string().hex().length(64),
                 }),
                 query: Joi.object({
                     transform: Joi.bool().default(true),

@@ -81,7 +81,7 @@ export class TransactionHandlerProvider {
     }
 
     private hasOtherHandlerInstance(handler: TransactionHandler, dependency: TransactionHandlerConstructor) {
-        return this.handlers.some(otherHandler => {
+        return this.handlers.some((otherHandler) => {
             return otherHandler !== handler && otherHandler.constructor === dependency;
         });
     }

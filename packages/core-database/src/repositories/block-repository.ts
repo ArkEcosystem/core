@@ -81,14 +81,14 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
         );
 
         const blocks = await this.query(query, parameters);
-        return blocks.map(block => {
+        return blocks.map((block) => {
             return this.rawToEntity(
                 block,
                 // @ts-ignore
                 (entity: Block & { transactions: Interfaces.ITransactionData[] }, _, value: Buffer[] | undefined) => {
                     if (value && value.length) {
                         entity.transactions = value.map(
-                            buffer => Transactions.TransactionFactory.fromBytesUnsafe(buffer).data,
+                            (buffer) => Transactions.TransactionFactory.fromBytesUnsafe(buffer).data,
                         );
                     }
                 },
@@ -172,7 +172,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
     }
 
     public async saveBlocks(blocks: Interfaces.IBlock[]): Promise<void> {
-        return this.manager.transaction(async manager => {
+        return this.manager.transaction(async (manager) => {
             const blockEntities: Block[] = [];
             const transactionEntities: Transaction[] = [];
 
@@ -182,7 +182,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                 });
 
                 if (block.transactions.length > 0) {
-                    let transactions = block.transactions.map(tx =>
+                    let transactions = block.transactions.map((tx) =>
                         Object.assign(new Transaction(), {
                             ...tx.data,
                             timestamp: tx.timestamp,
@@ -196,7 +196,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                         const fixedOrderIds = wrongTransactionOrder[block.data.id!].reverse();
 
                         transactions = fixedOrderIds.map((id: string) =>
-                            transactions.find(transaction => transaction.id === id),
+                            transactions.find((transaction) => transaction.id === id),
                         );
                     }
 
@@ -212,12 +212,12 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
     }
 
     public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
-        return this.manager.transaction(async manager => {
+        return this.manager.transaction(async (manager) => {
             // Delete all rounds after the current round if there are still
             // any left.
             const lastBlockHeight: number = blocks[blocks.length - 1].height;
             const { round } = Utils.roundCalculator.calculateRound(lastBlockHeight);
-            const blockIds = { blockIds: blocks.map(b => b.id) };
+            const blockIds = { blockIds: blocks.map((b) => b.id) };
 
             await manager
                 .createQueryBuilder()
@@ -226,12 +226,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                 .where("block_id IN (:...blockIds)", blockIds)
                 .execute();
 
-            await manager
-                .createQueryBuilder()
-                .delete()
-                .from(Block)
-                .where("id IN (:...blockIds)", blockIds)
-                .execute();
+            await manager.createQueryBuilder().delete().from(Block).where("id IN (:...blockIds)", blockIds).execute();
 
             await manager
                 .createQueryBuilder()
@@ -254,7 +249,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
         const queryBuilder: SelectQueryBuilder<Block> = this.createQueryBuilderFromFilter(filter);
         const criteria: SearchCriteria[] = filter.criteria;
 
-        for (const item of criteria.filter(param => param.operator !== SearchOperator.Custom)) {
+        for (const item of criteria.filter((param) => param.operator !== SearchOperator.Custom)) {
             const { expression, parameters } = this.criteriaToExpression(item);
             queryBuilder.andWhere(expression, parameters);
         }

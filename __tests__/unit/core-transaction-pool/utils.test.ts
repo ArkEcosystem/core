@@ -37,7 +37,7 @@ describe("createLock", () => {
         const lock = createLock();
 
         const promise1 = lock(async () => {
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise((resolve) => setTimeout(resolve, 100));
             return ++counter;
         });
         const promise2 = lock(async () => {
@@ -54,7 +54,7 @@ describe("createLock", () => {
 
         const promise1 = lock(async () => {
             await new Promise((_, reject) => setTimeout(() => reject(++counter), 100));
-        }).catch(value => value);
+        }).catch((value) => value);
         const promise2 = lock(async () => {
             return ++counter;
         });

@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 
 const ips = {};
 const sources = [];
-app.get('/', function (req, res) {
+app.get("/", function (req, res) {
     console.log(`received peer discovery request from ${req.ip} !`);
     if (!ips[req.ip]) {
         ips[req.ip] = true;
@@ -11,8 +11,8 @@ app.get('/', function (req, res) {
     }
     console.log(`responding with ${JSON.stringify(sources)}`);
     res.send(sources);
-})
+});
 
 app.listen(3000, function () {
-  console.log('Peer discovery app listening on port 3000!')
-})
+    console.log("Peer discovery app listening on port 3000!");
+});

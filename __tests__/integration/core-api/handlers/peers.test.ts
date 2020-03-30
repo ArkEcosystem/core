@@ -34,7 +34,7 @@ beforeAll(async () => {
     app = await setUp();
     api = new ApiHelpers(app);
 
-    const peerMocks = peers.map(mock => {
+    const peerMocks = peers.map((mock) => {
         const peerMock = new Peer(mock.ip, mock.port);
         peerMock.version = mock.version;
         peerMock.latency = mock.latency;

@@ -216,9 +216,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         const lastDownloadedHeight: number = this.getLastDownloadedBlock().height;
         const milestoneHeights: number[] = Managers.configManager
             .getMilestones()
-            .map(milestone => milestone.height)
+            .map((milestone) => milestone.height)
             .sort((a, b) => a - b)
-            .filter(height => height >= lastDownloadedHeight);
+            .filter((height) => height >= lastDownloadedHeight);
 
         // divide blocks received into chunks depending on number of transactions
         // this is to avoid blocking the application when processing "heavy" blocks
@@ -296,7 +296,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.state.lastDownloadedBlock = newLastBlock.data;
         };
 
-        const __removeBlocks = async numberOfBlocks => {
+        const __removeBlocks = async (numberOfBlocks) => {
             if (numberOfBlocks < 1) {
                 return;
             }

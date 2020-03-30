@@ -1,9 +1,12 @@
-import { Interfaces, Utils } from "@packages/crypto";
 import { Models } from "@packages/core-database";
+import { Interfaces, Utils } from "@packages/crypto";
 
-export const mapTransactionToModel = (transaction: Interfaces.ITransaction, sequence: number = 0): Models.Transaction => {
+export const mapTransactionToModel = (
+    transaction: Interfaces.ITransaction,
+    sequence: number = 0,
+): Models.Transaction => {
     return {
-        id: transaction.id as string,
+        id: transaction.id!,
         version: transaction.data.version || 1,
         blockId: transaction.data.blockId || "",
         sequence: sequence,
@@ -18,5 +21,5 @@ export const mapTransactionToModel = (transaction: Interfaces.ITransaction, sequ
         fee: BigInt(transaction.data.fee),
         serialized: transaction.serialized,
         asset: transaction.data.asset as Record<string, any>,
-    }
+    };
 };

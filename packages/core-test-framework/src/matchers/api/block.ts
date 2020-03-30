@@ -12,7 +12,7 @@ declare global {
     }
 }
 
-const isValidBlock = block => {
+const isValidBlock = (block) => {
     const allowedKeys = Utils.sortBy([
         "blockSignature",
         "createdAt",
@@ -31,7 +31,7 @@ const isValidBlock = block => {
         "updatedAt",
         "version",
     ]);
-    const actualKeys = Object.keys(block).filter(key => allowedKeys.includes(key));
+    const actualKeys = Object.keys(block).filter((key) => allowedKeys.includes(key));
 
     return Utils.isEqual(Utils.sortBy(actualKeys), allowedKeys);
 };

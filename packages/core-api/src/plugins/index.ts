@@ -1,7 +1,7 @@
 import { hapiAjv } from "./hapi-ajv";
 import { whitelist } from "./whitelist";
 
-export const preparePlugins = config => [
+export const preparePlugins = (config) => [
     {
         plugin: whitelist,
         options: {

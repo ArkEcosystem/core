@@ -150,36 +150,26 @@ describe("VoteTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(voteTransaction),
-            ]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(voteTransaction)]);
             await expect(handler.bootstrap()).toResolve();
 
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(unvoteTransaction),
-            ]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(unvoteTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should throw on vote if wallet already voted", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(voteTransaction),
-            ]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(voteTransaction)]);
             senderWallet.setAttribute("vote", delegateWallet.publicKey);
             await expect(handler.bootstrap()).rejects.toThrow(AlreadyVotedError);
         });
 
         it("should throw on unvote if wallet did not vote", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(unvoteTransaction),
-            ]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(unvoteTransaction)]);
             await expect(handler.bootstrap()).rejects.toThrow(NoVoteError);
         });
 
         it("should throw on unvote if wallet vote is mismatch", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(unvoteTransaction),
-            ]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(unvoteTransaction)]);
             senderWallet.setAttribute("vote", "no_a_public_key");
             await expect(handler.bootstrap()).rejects.toThrow(UnvoteMismatchError);
         });

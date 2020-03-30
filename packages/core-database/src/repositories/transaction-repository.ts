@@ -74,11 +74,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     > {
         minFee = minFee || 0;
 
-        const age = Crypto.Slots.getTime(
-            dayjs()
-                .subtract(days, "day")
-                .valueOf(),
-        );
+        const age = Crypto.Slots.getTime(dayjs().subtract(days, "day").valueOf());
 
         return this.createQueryBuilder()
             .select(['type_group AS "typeGroup"', "type"])
@@ -139,7 +135,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
             .take(limit)
             .getRawMany();
 
-        return transactions.map(transaction => {
+        return transactions.map((transaction) => {
             return this.rawToEntity(
                 transaction,
                 // @ts-ignore
@@ -206,7 +202,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
 
         return this.createQueryBuilder()
             .select()
-            .addSelect(subQuery => {
+            .addSelect((subQuery) => {
                 return subQuery
                     .select([])
                     .select("id")
@@ -220,10 +216,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     }
 
     public async getClaimedHtlcLockBalances(): Promise<{ amount: string; recipientId: string }[]> {
-        const lockedIds = this.createQueryBuilder()
-            .select("id")
-            .where("type = 9")
-            .andWhere("type_group = 1");
+        const lockedIds = this.createQueryBuilder().select("id").where("type = 9").andWhere("type_group = 1");
 
         return this.createQueryBuilder()
             .select("recipient_id")
@@ -234,10 +227,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     }
 
     public async getRefundedHtlcLockBalances(): Promise<{ amount: string; senderPublicKey: string }[]> {
-        const lockedIds = this.createQueryBuilder()
-            .select("id")
-            .where("type = 10")
-            .andWhere("type_group = 1");
+        const lockedIds = this.createQueryBuilder().select("id").where("type = 10").andWhere("type_group = 1");
 
         return this.createQueryBuilder()
             .select("sender_public_key")
@@ -268,7 +258,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
             let useWhere: boolean = false;
 
             // 'search' doesn't support custom-op 'ownerId' like 'findAll' can
-            const operators = criteria.filter(value => {
+            const operators = criteria.filter((value) => {
                 if (value.field === "walletAddress") {
                     walletAddress = value.value as string;
                 } else if (value.field === "walletPublicKey") {
@@ -278,7 +268,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
                 return value.operator !== SearchOperator.Custom;
             });
 
-            const [participants, rest] = Utils.partition(operators, operator =>
+            const [participants, rest] = Utils.partition(operators, (operator) =>
                 ["sender_public_key", "recipient_id"].includes(this.propertyToColumnName(operator.field)!),
             );
 
@@ -290,7 +280,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
 
                 if (last) {
                     const usesInOperator: boolean = participants.every(
-                        condition => condition.operator === SearchOperator.In,
+                        (condition) => condition.operator === SearchOperator.In,
                     );
                     const { expression, parameters } = this.criteriaToExpression(last);
                     if (usesInOperator) {
@@ -307,14 +297,14 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
 
                     queryBuilder
                         .orWhere(
-                            new Brackets(qb => {
+                            new Brackets((qb) => {
                                 qb.where("sender_public_key = :recipientPublicKey", {
                                     recipientPublicKey: recipientWallet.publicKey,
                                 }).andWhere("recipient_id IS NULL");
                             }),
                         )
                         .orWhere(
-                            new Brackets(qb => {
+                            new Brackets((qb) => {
                                 qb.where("type = 6")
                                     .andWhere("type_group = 1")
                                     .andWhere(`asset @> :paymentAsset`, {
@@ -338,7 +328,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
                 queryBuilder[useWhere ? "where" : "andWhere"]("recipient_id = :walletAddress", {
                     walletAddress,
                 }).orWhere(
-                    new Brackets(qb => {
+                    new Brackets((qb) => {
                         qb.where("type = 6")
                             .andWhere("type_group = 1")
                             .andWhere(`asset @> :paymentAsset`, {

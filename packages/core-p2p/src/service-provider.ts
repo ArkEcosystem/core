@@ -53,30 +53,15 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private registerServices(): void {
-        this.app
-            .bind(Container.Identifiers.PeerStorage)
-            .to(PeerStorage)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerStorage).to(PeerStorage).inSingletonScope();
 
-        this.app
-            .bind(Container.Identifiers.PeerConnector)
-            .to(PeerConnector)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerConnector).to(PeerConnector).inSingletonScope();
 
-        this.app
-            .bind(Container.Identifiers.PeerCommunicator)
-            .to(PeerCommunicator)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerCommunicator).to(PeerCommunicator).inSingletonScope();
 
-        this.app
-            .bind(Container.Identifiers.PeerProcessor)
-            .to(PeerProcessor)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerProcessor).to(PeerProcessor).inSingletonScope();
 
-        this.app
-            .bind(Container.Identifiers.PeerNetworkMonitor)
-            .to(NetworkMonitor)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerNetworkMonitor).to(NetworkMonitor).inSingletonScope();
 
         this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).initialize();
 
@@ -84,10 +69,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.get<PeerProcessor>(Container.Identifiers.PeerProcessor).initialize();
 
-        this.app
-            .bind("p2p.event-listener")
-            .to(EventListener)
-            .inSingletonScope();
+        this.app.bind("p2p.event-listener").to(EventListener).inSingletonScope();
 
         this.app.bind(Container.Identifiers.PeerTransactionBroadcaster).to(TransactionBroadcaster);
     }

@@ -1,7 +1,6 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { CheckLastBlockSynced } from "../../../../../packages/core-blockchain/src/state-machine/actions/check-last-block-synced";
 
-
 describe("CheckLastBlockSynced", () => {
     const container = new Container.Container();
 
@@ -12,7 +11,7 @@ describe("CheckLastBlockSynced", () => {
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.Application).toConstantValue(application);
-        container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);  
+        container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
     });
 
     beforeEach(() => {
@@ -20,7 +19,7 @@ describe("CheckLastBlockSynced", () => {
     });
 
     describe("handle", () => {
-        it("should dispatch SYNCED if blockchain is synced",() => {
+        it("should dispatch SYNCED if blockchain is synced", () => {
             const checkLastBlockSynced = container.resolve<CheckLastBlockSynced>(CheckLastBlockSynced);
 
             blockchain.isSynced = jest.fn().mockReturnValue(true);
@@ -28,9 +27,9 @@ describe("CheckLastBlockSynced", () => {
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("SYNCED");
-        })
-        
-        it("should dispatch NOTSYNCED if blockchain is not synced",() => {
+        });
+
+        it("should dispatch NOTSYNCED if blockchain is not synced", () => {
             const checkLastBlockSynced = container.resolve<CheckLastBlockSynced>(CheckLastBlockSynced);
 
             blockchain.isSynced = jest.fn().mockReturnValue(false);
@@ -38,6 +37,6 @@ describe("CheckLastBlockSynced", () => {
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("NOTSYNCED");
-        })
-    })
-})
+        });
+    });
+});

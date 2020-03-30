@@ -17,21 +17,13 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
-                        publicKey: Joi.string()
-                            .hex()
-                            .length(66),
+                        publicKey: Joi.string().hex().length(66),
                         bridgechainRepository: Joi.string().max(80),
-                        genesisHash: Joi.string()
-                            .hex()
-                            .length(64),
+                        genesisHash: Joi.string().hex().length(64),
                         name: Joi.string()
                             .regex(/^[a-zA-Z0-9_-]+$/)
                             .max(40),
-                        seedNodes: Joi.array()
-                            .unique()
-                            .min(1)
-                            .max(10)
-                            .items(Joi.string().ip()),
+                        seedNodes: Joi.array().unique().min(1).max(10).items(Joi.string().ip()),
                         isResigned: Joi.bool(),
                     },
                 }),
@@ -46,9 +38,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: Joi.string()
-                        .hex()
-                        .length(64), // id is genesisHash
+                    id: Joi.string().hex().length(64), // id is genesisHash
                 }),
             },
         },
@@ -68,12 +58,8 @@ export const register = (server: Hapi.Server): void => {
                 }),
                 payload: Joi.object({
                     bridgechainRepository: Joi.string().max(80),
-                    publicKey: Joi.string()
-                        .hex()
-                        .length(66),
-                    genesisHash: Joi.string()
-                        .hex()
-                        .length(64),
+                    publicKey: Joi.string().hex().length(66),
+                    genesisHash: Joi.string().hex().length(64),
                     isResigned: Joi.bool(),
                 }),
             },

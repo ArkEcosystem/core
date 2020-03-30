@@ -55,9 +55,9 @@ export class SearchQueryConverter {
             offset: pagination.offset ?? 0,
         };
 
-        const fieldNames: string[] = Object.keys(query).filter(field => !this.IGNORED_FIELD_NAMES.has(field));
+        const fieldNames: string[] = Object.keys(query).filter((field) => !this.IGNORED_FIELD_NAMES.has(field));
         for (const field of fieldNames) {
-            const columnMetadata: ColumnMetadata | undefined = columns.find(column => column.propertyName === field);
+            const columnMetadata: ColumnMetadata | undefined = columns.find((column) => column.propertyName === field);
             if (!columnMetadata) {
                 searchFilter.criteria.push({
                     field,

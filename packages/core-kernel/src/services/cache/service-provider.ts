@@ -11,10 +11,7 @@ export class ServiceProvider extends BaseServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app
-            .bind<CacheManager>(Identifiers.CacheManager)
-            .to(CacheManager)
-            .inSingletonScope();
+        this.app.bind<CacheManager>(Identifiers.CacheManager).to(CacheManager).inSingletonScope();
 
         this.app
             .bind(Identifiers.CacheFactory)
