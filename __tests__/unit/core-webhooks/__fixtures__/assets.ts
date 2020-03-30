@@ -13,5 +13,5 @@ export const dummyWebhook: Webhook = {
     //         condition: "condition",
     //     },
     // ],
-    conditions: []
+    conditions: [],
 };

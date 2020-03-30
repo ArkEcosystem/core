@@ -4,7 +4,7 @@ import delay from "delay";
 import { Container, Enums } from "@arkecosystem/core-kernel";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "../../../packages/core-blockchain/src/processor/block-processor";
-import { Interfaces, Crypto, Utils, Blocks, Managers, Networks } from "@arkecosystem/crypto";
+import { Interfaces, Crypto, Utils, Managers, Networks } from "@arkecosystem/crypto";
 
 describe("Blockchain", () => {
     const container = new Container.Container();
@@ -551,13 +551,8 @@ describe("Blockchain", () => {
 
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-            const callback = jest.fn();
 
-            await blockchain.processBlocks([ currentBlock ], callback);
-
-            expect(callback).toBeCalledTimes(1);
-            expect(callback).toHaveBeenLastCalledWith([ expect.any(Blocks.Block) ]);
-            // callback is called with acceptedBlocks, here our currentBlock
+            await blockchain.processBlocks([ currentBlock ]);
         });
 
         it("should process a valid block already known", async () => {
@@ -565,14 +560,11 @@ describe("Blockchain", () => {
             blockchain.initialize({});
 
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-            const callback = jest.fn();
             const spyClearQueue = jest.spyOn(blockchain, "clearQueue");
             const spyResetLastDownloadedBlock = jest.spyOn(blockchain, "resetLastDownloadedBlock");
             
-            await blockchain.processBlocks([ lastBlock ], callback);
+            await blockchain.processBlocks([ lastBlock ]);
 
-            expect(callback).toBeCalledTimes(1);
-            expect(callback).toHaveBeenLastCalledWith();
             expect(spyClearQueue).toBeCalledTimes(1);
             expect(spyResetLastDownloadedBlock).toBeCalledTimes(1);
         });
@@ -584,13 +576,10 @@ describe("Blockchain", () => {
             const genesisBlock = Networks.testnet.genesisBlock;
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Rollback);
-            const callback = jest.fn();
             const spyForkBlock = jest.spyOn(blockchain, "forkBlock");
 
-            await blockchain.processBlocks([ lastBlock, currentBlock ], callback);
+            await blockchain.processBlocks([ lastBlock, currentBlock ]);
 
-            expect(callback).toBeCalledTimes(1);
-            expect(callback).toHaveBeenLastCalledWith([]);
             expect(blockProcessor.process).toBeCalledTimes(1); // only 1 out of the 2 blocks
             expect(spyForkBlock).toBeCalledTimes(1); // because Rollback
         });
@@ -603,14 +592,11 @@ describe("Blockchain", () => {
             databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
             blockRepository.saveBlocks = jest.fn().mockRejectedValue(new Error("oops"));
-            const callback = jest.fn();
             const spyClearQueue = jest.spyOn(blockchain, "clearQueue");
             const spyResetLastDownloadedBlock = jest.spyOn(blockchain, "resetLastDownloadedBlock");
             
-            await blockchain.processBlocks([ currentBlock ], callback);
+            await blockchain.processBlocks([ currentBlock ]);
 
-            expect(callback).toBeCalledTimes(1);
-            expect(callback).toHaveBeenLastCalledWith();
             expect(spyClearQueue).toBeCalledTimes(1);
             expect(spyResetLastDownloadedBlock).toBeCalledTimes(1);
             expect(databaseService.revertBlock).toBeCalledTimes(1);
@@ -628,12 +614,9 @@ describe("Blockchain", () => {
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-            const callback = jest.fn();
             
-            await blockchain.processBlocks([ block ], callback);
+            await blockchain.processBlocks([ block ]);
 
-            expect(callback).toBeCalledTimes(1);
-            expect(callback).toHaveBeenLastCalledWith([ expect.any(Blocks.Block) ]);
             expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(1);
         });
 

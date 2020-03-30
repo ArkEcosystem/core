@@ -13,7 +13,7 @@ declare global {
 expect.extend({
     toBeSuccessfulResponse: (actual, expected) => {
         return {
-            message: () =>
+            message: /* istanbul ignore next */ () =>
                 `Expected ${JSON.stringify({
                     data: actual.data,
                     status: actual.status,
@@ -25,7 +25,7 @@ expect.extend({
 
     toBePaginated: (actual, expected) => {
         return {
-            message: () =>
+            message: /* istanbul ignore next */ () =>
                 `Expected ${JSON.stringify({
                     data: actual.data,
                     status: actual.status,

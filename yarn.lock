@@ -3115,12 +3115,12 @@ ajv@^6.10.0, ajv@^6.10.2, ajv@^6.5.5:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-ambi@^6.3.0:
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/ambi/-/ambi-6.3.0.tgz#9781dfa2acfcbcdfe64ca8cae715b3f2fbad9ed8"
-  integrity sha512-2xmzr3kCqkDd5lMNMejBgvkYB+kFi9WQVWQxEpIJQPqGsL3kgERBhYOsRfp80KSmmw+MLe9E3u7lVONOWEnG9Q==
+ambi@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/ambi/-/ambi-7.0.0.tgz#c4494c8f1928fc0553db3ac18bdda15d5a58af7e"
+  integrity sha512-rbjgtVCNRHoI6MMcGJOTwt0YE3wEMtO1Mj13VZnvt2Rhg+NfoFr098vIRR0pqgNG0re0MlhY+RyTQyn5JmGOvA==
   dependencies:
-    typechecker "^5.1.0"
+    typechecker "^6.3.0"
 
 ansi-align@^3.0.0:
   version "3.0.0"
@@ -3421,6 +3421,11 @@ atob@^2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
+
+atomic-sleep@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/atomic-sleep/-/atomic-sleep-1.0.0.tgz#eb85b77a601fc932cfe432c5acd364a9e2c9075b"
+  integrity sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ==
 
 awilix@^4.2.2:
   version "4.2.2"
@@ -5288,12 +5293,12 @@ duplexify@^3.4.2, duplexify@^3.6.0:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
-eachr@^4.3.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/eachr/-/eachr-4.4.0.tgz#9f6de4ad2e7282f300c0605f23c8b5beba119ac5"
-  integrity sha512-QiydM49YD8Mql/wMH8KsDmpjhnkQYBHUDa2J9d0WN6KG1H+uubi7exDaNsI0aPo9MeROODXkTAwf2Ss5+fP9jw==
+eachr@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/eachr/-/eachr-4.5.0.tgz#495eb3aab6a41811da1e04e510424df32075cf04"
+  integrity sha512-9I664RWp6p8jvcHZIwo7bWaiSaUmA1wNSLKwNZEiaYjqiTARq3cGjyRiIunsopZv4QMmX3T5Hs17QoPAzdYxfg==
   dependencies:
-    typechecker "^5.1.0"
+    typechecker "^6.2.0"
 
 ecc-jsbn@~0.1.1:
   version "0.1.2"
@@ -5396,14 +5401,14 @@ env-paths@^2.2.0:
   resolved "https://registry.yarnpkg.com/env-paths/-/env-paths-2.2.0.tgz#cdca557dc009152917d6166e2febe1f039685e43"
   integrity sha512-6u0VYSCo/OW6IoD5WCLLy9JUGARbamfSavcNXry/eu8aHVFei6CD3Sw+VGX5alea1i9pgPHW0mbu6Xj0uBh7gA==
 
-envfile@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/envfile/-/envfile-4.4.0.tgz#7131bb39c81e24d89701c77eae54ff0c96c6a73b"
-  integrity sha512-ixqu6dX5GrzUru69HCLgOKtL7vI9WXcf/sqIcu3lFIaCfzlaAvyThYW0sIgP3WrPKr+MK90pvLLMqThfDmruJA==
+envfile@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/envfile/-/envfile-5.0.0.tgz#8741c8c254209f50a47be6244d9b34d099781aac"
+  integrity sha512-3DYd+6s4mvNMAZrvXeH4csSEJyYdRAVTIDgi7h3CJmcDrWP0n/LDxLa9E+z44sPOcgB/4rpbzDncgT1Znn7uxA==
   dependencies:
-    ambi "^6.3.0"
-    eachr "^4.3.0"
-    typechecker "^5.1.0"
+    ambi "^7.0.0"
+    eachr "^4.5.0"
+    typechecker "^6.3.0"
 
 err-code@^1.0.0:
   version "1.1.2"
@@ -10182,17 +10187,17 @@ pino-std-serializers@^2.4.2:
   resolved "https://registry.yarnpkg.com/pino-std-serializers/-/pino-std-serializers-2.4.2.tgz#cb5e3e58c358b26f88969d7e619ae54bdfcc1ae1"
   integrity sha512-WaL504dO8eGs+vrK+j4BuQQq6GLKeCCcHaMB2ItygzVURcL1CycwNEUHTD/lHFHs/NL5qAz2UKrjYWXKSf4aMQ==
 
-pino@^5.14.0:
-  version "5.14.0"
-  resolved "https://registry.yarnpkg.com/pino/-/pino-5.14.0.tgz#eec56c6388797528e526f969ee022592cc538d4e"
-  integrity sha512-Vj1f2wAojTGesogT0hsA/ua8ALltCOBCcA1nkEoDfnTsVWpgBu5UVSY7OdjiGmrMOKHBm24nd3nKXzyPUYJ3ig==
+pino@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/pino/-/pino-6.0.0.tgz#047746220dd20c2c44b7d54ae34656da51f36036"
+  integrity sha512-3RfX2L76o7v230FP1fZ3Fo/WX7Su+P1Ld+pvBm2j+MyUjtA/KqDYxMkzBqzcX3R00zbC7Gf/HqIzyuu3tgvi9Q==
   dependencies:
     fast-redact "^2.0.0"
     fast-safe-stringify "^2.0.7"
     flatstr "^1.0.12"
     pino-std-serializers "^2.4.2"
-    quick-format-unescaped "^3.0.3"
-    sonic-boom "^0.7.5"
+    quick-format-unescaped "^4.0.1"
+    sonic-boom "^1.0.0"
 
 pirates@^4.0.1:
   version "4.0.1"
@@ -10525,10 +10530,10 @@ querystring@0.2.0:
   resolved "https://registry.yarnpkg.com/querystring/-/querystring-0.2.0.tgz#b209849203bb25df820da756e747005878521620"
   integrity sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=
 
-quick-format-unescaped@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/quick-format-unescaped/-/quick-format-unescaped-3.0.3.tgz#fb3e468ac64c01d22305806c39f121ddac0d1fb9"
-  integrity sha512-dy1yjycmn9blucmJLXOfZDx1ikZJUi6E8bBZLnhPG5gBrVhHXx2xVyqqgKBubVNEXmx51dBACMHpoMQK/N/AXQ==
+quick-format-unescaped@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/quick-format-unescaped/-/quick-format-unescaped-4.0.1.tgz#437a5ea1a0b61deb7605f8ab6a8fd3858dbeb701"
+  integrity sha512-RyYpQ6Q5/drsJyOhrWHYMWTedvjTIat+FTwv0K4yoUxzvekw2aRHMQJLlnvt8UantkZg2++bEzD9EdxXqkWf4A==
 
 quick-lru@^1.0.0:
   version "1.1.0"
@@ -11634,11 +11639,12 @@ socks@~2.3.2:
     ip "^1.1.5"
     smart-buffer "4.0.2"
 
-sonic-boom@^0.7.5:
-  version "0.7.6"
-  resolved "https://registry.yarnpkg.com/sonic-boom/-/sonic-boom-0.7.6.tgz#c42df6df884a6a3d54fa7a45b11e4e2196818d45"
-  integrity sha512-k9E2QQ4zxuVRLDW+ZW6ISzJs3wlEorVdmM7ApDgor7wsGKSDG5YGHsGmgLY4XYh4DMlr/2ap2BWAE7yTFJtWnQ==
+sonic-boom@^1.0.0:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/sonic-boom/-/sonic-boom-1.0.1.tgz#a5fdfcab1ddea31732ce9c7c054f3a5751eee089"
+  integrity sha512-o9tx+bonVEXSaPtptyXQXpP8l6UV9Bi3im2geZskvWw2a/o/hrbWI7EBbbv+rOx6Hubnzun9GgH4WfbgEA3MFQ==
   dependencies:
+    atomic-sleep "^1.0.0"
     flatstr "^1.0.12"
 
 sort-keys@^2.0.0:
@@ -12485,10 +12491,10 @@ type-fest@^0.8.0, type-fest@^0.8.1:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.8.1.tgz#09e249ebde851d3b1e48d27c105444667f17b83d"
   integrity sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==
 
-typechecker@^5.1.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/typechecker/-/typechecker-5.2.0.tgz#0e4280748085635e2560f234c4b8102b38cea703"
-  integrity sha512-9DQNYzPE9fDJLdh9gBT6pf9359PxZxpBTA/NePMJBTf3GktXSfmmcBSIiwT4UfTj+1IkPeRvZhQfm6pAMpYPQQ==
+typechecker@^6.2.0, typechecker@^6.3.0:
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/typechecker/-/typechecker-6.3.0.tgz#c8ee2fee30e1d1156d3063efb9d115c859c3cf5b"
+  integrity sha512-XZmZISfAzrzGHaC2nAwXyh/O1srpTIw/sFS5K0wGRIoWgc+bpGXJLkpI5VoZg9+2SwV6tFIS3WCb3l0bNitLag==
 
 typedarray-to-buffer@^3.1.5:
   version "3.1.5"

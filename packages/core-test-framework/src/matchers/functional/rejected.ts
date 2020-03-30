@@ -31,7 +31,7 @@ expect.extend({
         return {
             pass,
             // @ts-ignore
-            message: () => `expected ${transaction.id} ${this.isNot ? "not" : ""} to be rejected, but: ${response}`,
+            message: /* istanbul ignore next */ () => `expected ${transaction.id} ${this.isNot ? "not" : ""} to be rejected, but: ${response}`,
         };
     },
     toBeEachRejected: async (transactions: Interfaces.ITransactionData[]) => {
@@ -58,7 +58,7 @@ expect.extend({
         return {
             pass,
             // @ts-ignore
-            message: () => `expected transactions ${this.isNot ? "not" : ""} to be rejected, but: ${response}`,
+            message: /* istanbul ignore next */ () => `expected transactions ${this.isNot ? "not" : ""} to be rejected, but: ${response}`,
         };
     },
 });

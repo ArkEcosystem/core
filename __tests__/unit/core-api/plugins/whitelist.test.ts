@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel";
+
 import { initApp } from "../__support__";
 import { initServer } from "./__support__";
 
@@ -26,28 +27,27 @@ describe("Whitelist", () => {
         };
 
         customRoute = {
-            method: 'GET',
-            path: '/test',
-            handler: () => 'ok',
+            method: "GET",
+            path: "/test",
+            handler: () => "ok",
         };
 
         injectOptions = {
-            method: 'GET',
-            url: '/test',
+            method: "GET",
+            url: "/test",
         };
     });
 
-
     it("shod resolve if whitelist options is not provided", async () => {
         delete defaults.plugins.whitelist;
-        let server = await initServer(app, defaults, customRoute);
+        const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
         expect(response.payload).toBe("ok");
     });
 
     it("shod resolve if request ip is whitelisted", async () => {
-        let server = await initServer(app, defaults, customRoute);
+        const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
         expect(response.payload).toBe("ok");
@@ -55,7 +55,7 @@ describe("Whitelist", () => {
 
     it("shod return error if request ip is not whitelisted", async () => {
         defaults.plugins.whitelist = ["128.0.0.1"];
-        let server = await initServer(app, defaults, customRoute);
+        const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
         const payload = JSON.parse(response.payload || {});

@@ -1,18 +1,18 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Wallets } from "@arkecosystem/core-state";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Mempool } from "@arkecosystem/core-transaction-pool/src/mempool";
-import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "@arkecosystem/core-transactions/src/errors";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { Application, Contracts } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Wallets } from "@packages/core-state";
+import { StateStore } from "@packages/core-state/src/stores/state";
+import { Generators } from "@packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Mempool } from "@packages/core-transaction-pool/src/mempool";
+import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "@packages/core-transactions/src/errors";
+import { TransactionHandler } from "@packages/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
 
 import { htlcSecretHashHex } from "../__fixtures__/htlc-secrets";
@@ -23,7 +23,8 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Mapper } from "@packages/core-test-framework";
+
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -39,9 +40,9 @@ const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Sl
 
 const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
     mockLastBlockData.height! + heightRelativeToLastBlock;
-const makeExpiredTimestamp = type =>
+const makeExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! - 9 : makeBlockHeightTimestamp(-2);
-const makeNotExpiredTimestamp = type =>
+const makeNotExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
 
 const mockGetLastBlock = jest.fn();
@@ -52,8 +53,6 @@ beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
-
-    setMockTransaction(null);
 
     app = initApp();
 
@@ -74,8 +73,12 @@ beforeEach(() => {
     walletRepository.index(recipientWallet);
 });
 
+afterEach(() => {
+    Mocks.TransactionRepository.setTransactions([]);
+});
+
 describe("Htlc refund", () => {
-    describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i", expirationType => {
+    describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i", (expirationType) => {
         const lockPassphrase = passphrases[2];
         let htlcLockTransaction: Interfaces.ITransaction;
         let htlcRefundTransaction: Interfaces.ITransaction;
@@ -171,7 +174,9 @@ describe("Htlc refund", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
-                setMockTransaction(htlcLockTransaction);
+                Mocks.TransactionRepository.setTransactions([
+                    Mapper.mapTransactionToModel(htlcLockTransaction),
+                ]);
                 await expect(handler.bootstrap()).toResolve();
             });
         });
@@ -420,7 +425,9 @@ describe("Htlc refund", () => {
                     handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
                 ).toResolve();
 
-                setMockTransaction(htlcLockTransaction);
+                Mocks.TransactionRepository.setTransactions([
+                    Mapper.mapTransactionToModel(htlcLockTransaction),
+                ]);
                 const balanceBefore = lockWallet.balance;
 
                 await handler.apply(htlcRefundTransaction, walletRepository);
@@ -440,7 +447,7 @@ describe("Htlc refund", () => {
                 );
                 expect(foundLockWallet).toBeDefined();
                 expect(foundLockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id!]).toEqual({
-                    amount: htlcLockTransaction.data.amount,
+                    amount: BigInt(htlcLockTransaction.data.amount),
                     recipientId: htlcLockTransaction.data.recipientId,
                     ...htlcLockTransaction.data.asset!.lock,
                 });
@@ -456,7 +463,9 @@ describe("Htlc refund", () => {
                     handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
                 ).toResolve();
 
-                setMockTransaction(htlcLockTransaction);
+                Mocks.TransactionRepository.setTransactions([
+                    Mapper.mapTransactionToModel(htlcLockTransaction),
+                ]);
                 const balanceBefore = lockWallet.balance;
 
                 await handler.apply(htlcRefundTransaction, walletRepository);

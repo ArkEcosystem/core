@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Peer } from "@arkecosystem/core-p2p";
+import { Peer } from "@packages/core-p2p";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 
 let factory: FactoryBuilder;

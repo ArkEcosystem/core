@@ -126,9 +126,7 @@ describe("BusinessController", () => {
                 },
             };
 
-            await expect(controller.show(request, undefined)).resolves.toThrowError(
-                "Business not found",
-            );
+            await expect(controller.show(request, undefined)).resolves.toThrowError("Business not found");
         });
     });
 
@@ -210,7 +208,7 @@ describe("BusinessController", () => {
 
             // @ts-ignore
             controller.toPagination = () => {
-                throw new Error()
+                throw new Error();
             };
 
             await expect(controller.bridgechains(request, undefined)).resolves.toThrowError();

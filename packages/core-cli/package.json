@@ -29,7 +29,7 @@
         "cli-table3": "^0.5.1",
         "dayjs": "^1.8.17",
         "env-paths": "^2.2.0",
-        "envfile": "^4.4.0",
+        "envfile": "^5.0.0",
         "execa": "^3.4.0",
         "fast-levenshtein": "^2.0.6",
         "fs-extra": "^8.1.0",
