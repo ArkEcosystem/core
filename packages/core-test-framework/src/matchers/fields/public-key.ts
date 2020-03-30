@@ -12,7 +12,7 @@ declare global {
 }
 
 expect.extend({
-    toBePublicKey: received => {
+    toBePublicKey: (received) => {
         let pass: boolean;
 
         try {

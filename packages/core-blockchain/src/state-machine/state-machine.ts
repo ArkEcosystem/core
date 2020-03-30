@@ -28,7 +28,7 @@ export class StateMachine {
             this.logger.debug(
                 `event '${event}': ${JSON.stringify(this.stateStore.blockchain.value)} -> ${JSON.stringify(
                     nextState.value,
-                )} -> actions: [${nextState.actions.map(a => a.type).join(", ")}]`,
+                )} -> actions: [${nextState.actions.map((a) => a.type).join(", ")}]`,
             );
         } else {
             this.logger.debug(

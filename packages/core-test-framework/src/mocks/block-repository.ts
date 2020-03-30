@@ -1,5 +1,5 @@
-import { BlockRepository, RepositorySearchResult } from "@arkecosystem/core-database/src/repositories";
 import { Block } from "@arkecosystem/core-database/src/models";
+import { BlockRepository, RepositorySearchResult } from "@arkecosystem/core-database/src/repositories";
 import { SearchFilter, SearchPagination } from "@arkecosystem/core-database/src/repositories/search";
 
 export type DelegateForgedBlock = {

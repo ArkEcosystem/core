@@ -215,12 +215,7 @@ export abstract class TransactionHandler {
 
         this.verifyTransactionNonceApply(sender, transaction);
 
-        if (
-            sender.balance
-                .minus(data.amount)
-                .minus(data.fee)
-                .isNegative()
-        ) {
+        if (sender.balance.minus(data.amount).minus(data.fee).isNegative()) {
             throw new InsufficientBalanceError();
         }
 

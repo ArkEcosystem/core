@@ -63,11 +63,7 @@ test("binds a trigger with <before/error/after> hooks and executes them", async 
     const error: jest.Mock = jest.fn();
     const after: jest.Mock = jest.fn();
 
-    triggers
-        .bind("count", new DummyActionWithException())
-        .before(before)
-        .error(error)
-        .after(after);
+    triggers.bind("count", new DummyActionWithException()).before(before).error(error).after(after);
 
     await expect(triggers.call<boolean>("count")).resolves.toBeUndefined();
     expect(before).toHaveBeenCalled();

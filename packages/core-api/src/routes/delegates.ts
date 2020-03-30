@@ -19,28 +19,14 @@ export const register = (server: Hapi.Server): void => {
                     ...{
                         orderBy: server.app.schemas.orderBy,
                         type: Joi.string().valid("resigned", "never-forged"),
-                        address: Joi.string()
-                            .alphanum()
-                            .length(34),
-                        publicKey: Joi.string()
-                            .hex()
-                            .length(66),
-                        secondPublicKey: Joi.string()
-                            .hex()
-                            .length(66),
-                        vote: Joi.string()
-                            .hex()
-                            .length(66),
+                        address: Joi.string().alphanum().length(34),
+                        publicKey: Joi.string().hex().length(66),
+                        secondPublicKey: Joi.string().hex().length(66),
+                        vote: Joi.string().hex().length(66),
                         username: server.app.schemas.username,
-                        balance: Joi.number()
-                            .integer()
-                            .min(0),
-                        voteBalance: Joi.number()
-                            .integer()
-                            .min(0),
-                        producedBlocks: Joi.number()
-                            .integer()
-                            .min(0),
+                        balance: Joi.number().integer().min(0),
+                        voteBalance: Joi.number().integer().min(0),
+                        producedBlocks: Joi.number().integer().min(0),
                     },
                 }),
             },
@@ -73,28 +59,14 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
-                        address: Joi.string()
-                            .alphanum()
-                            .length(34),
-                        publicKey: Joi.string()
-                            .hex()
-                            .length(66),
-                        secondPublicKey: Joi.string()
-                            .hex()
-                            .length(66),
-                        vote: Joi.string()
-                            .hex()
-                            .length(66),
+                        address: Joi.string().alphanum().length(34),
+                        publicKey: Joi.string().hex().length(66),
+                        secondPublicKey: Joi.string().hex().length(66),
+                        vote: Joi.string().hex().length(66),
                         username: server.app.schemas.username,
-                        balance: Joi.number()
-                            .integer()
-                            .min(0),
-                        voteBalance: Joi.number()
-                            .integer()
-                            .min(0),
-                        producedBlocks: Joi.number()
-                            .integer()
-                            .min(0),
+                        balance: Joi.number().integer().min(0),
+                        voteBalance: Joi.number().integer().min(0),
+                        producedBlocks: Joi.number().integer().min(0),
                         transform: Joi.bool().default(true),
                     },
                 }),
@@ -116,35 +88,17 @@ export const register = (server: Hapi.Server): void => {
                     ...{
                         orderBy: server.app.schemas.orderBy,
                         id: server.app.schemas.blockId,
-                        version: Joi.number()
-                            .integer()
-                            .min(0),
-                        timestamp: Joi.number()
-                            .integer()
-                            .min(0),
+                        version: Joi.number().integer().min(0),
+                        timestamp: Joi.number().integer().min(0),
                         previousBlock: server.app.schemas.blockId,
-                        height: Joi.number()
-                            .integer()
-                            .positive(),
-                        numberOfTransactions: Joi.number()
-                            .integer()
-                            .min(0),
-                        totalAmount: Joi.number()
-                            .integer()
-                            .min(0),
-                        totalFee: Joi.number()
-                            .integer()
-                            .min(0),
-                        reward: Joi.number()
-                            .integer()
-                            .min(0),
-                        payloadLength: Joi.number()
-                            .integer()
-                            .min(0),
+                        height: Joi.number().integer().positive(),
+                        numberOfTransactions: Joi.number().integer().min(0),
+                        totalAmount: Joi.number().integer().min(0),
+                        totalFee: Joi.number().integer().min(0),
+                        reward: Joi.number().integer().min(0),
+                        payloadLength: Joi.number().integer().min(0),
                         payloadHash: Joi.string().hex(),
-                        generatorPublicKey: Joi.string()
-                            .hex()
-                            .length(66),
+                        generatorPublicKey: Joi.string().hex().length(66),
                         blockSignature: Joi.string().hex(),
                         transform: Joi.bool().default(true),
                     },
@@ -166,12 +120,8 @@ export const register = (server: Hapi.Server): void => {
                     },
                 }),
                 payload: Joi.object({
-                    address: Joi.string()
-                        .alphanum()
-                        .length(34),
-                    publicKey: Joi.string()
-                        .hex()
-                        .length(66),
+                    address: Joi.string().alphanum().length(34),
+                    publicKey: Joi.string().hex().length(66),
                     username: server.app.schemas.username,
                     usernames: Joi.array()
                         .unique()

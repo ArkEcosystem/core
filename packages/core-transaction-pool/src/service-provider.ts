@@ -25,10 +25,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
         this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
         this.app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
-        this.app
-            .bind(Container.Identifiers.TransactionPoolMempool)
-            .to(Mempool)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.TransactionPoolMempool).to(Mempool).inSingletonScope();
         this.app.bind(Container.Identifiers.TransactionPoolProcessor).to(Processor);
         this.app
             .bind(Container.Identifiers.TransactionPoolProcessorFactory)
@@ -39,14 +36,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.TransactionPoolSenderMempoolFactory)
             .toAutoFactory(Container.Identifiers.TransactionPoolSenderMempool);
         this.app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
-        this.app
-            .bind(Container.Identifiers.TransactionPoolService)
-            .to(Service)
-            .inSingletonScope();
-        this.app
-            .bind(Container.Identifiers.TransactionPoolStorage)
-            .to(Storage)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.TransactionPoolService).to(Service).inSingletonScope();
+        this.app.bind(Container.Identifiers.TransactionPoolStorage).to(Storage).inSingletonScope();
     }
 
     /**

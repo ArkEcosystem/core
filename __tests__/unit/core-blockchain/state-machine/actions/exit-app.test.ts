@@ -16,12 +16,12 @@ describe("ExitApp", () => {
     });
 
     describe("handle", () => {
-        it("should call app.terminate()",() => {
+        it("should call app.terminate()", () => {
             const exitApp = container.resolve<ExitApp>(ExitApp);
 
             exitApp.handle();
 
             expect(application.terminate).toHaveBeenCalledTimes(1);
-        })
-    })
-})
+        });
+    });
+});

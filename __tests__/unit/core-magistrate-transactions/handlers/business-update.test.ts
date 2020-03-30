@@ -71,7 +71,7 @@ describe("BusinessRegistration", () => {
     let handler: TransactionHandler;
 
     const businessRegistrationAsset = _.cloneDeep(Assets.businessRegistrationAsset);
-    const businessUpdateAsset =  _.cloneDeep(Assets.businessUpdateAsset);
+    const businessUpdateAsset = _.cloneDeep(Assets.businessUpdateAsset);
 
     beforeEach(async () => {
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(
@@ -106,9 +106,7 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(businessUpdateTransaction),
-            ]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(businessUpdateTransaction)]);
             await expect(handler.bootstrap()).toResolve();
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessUpdateAsset);

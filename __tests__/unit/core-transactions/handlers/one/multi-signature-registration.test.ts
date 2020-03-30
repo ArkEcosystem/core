@@ -72,7 +72,6 @@ afterEach(() => {
     Mocks.TransactionRepository.setTransactions([]);
 });
 
-
 describe("MultiSignatureRegistrationTransaction", () => {
     let multiSignatureTransaction: Interfaces.ITransaction;
     let recipientWallet: Wallets.Wallet;
@@ -124,17 +123,13 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(multiSignatureTransaction),
-            ]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(multiSignatureTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should throw when wallet has multi signature", async () => {
             senderWallet.setAttribute("multiSignature", multiSignatureAsset);
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(multiSignatureTransaction),
-            ]);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(multiSignatureTransaction)]);
             await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
         });
     });

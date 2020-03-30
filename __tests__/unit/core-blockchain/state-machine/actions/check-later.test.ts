@@ -1,7 +1,6 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { CheckLater } from "../../../../../packages/core-blockchain/src/state-machine/actions/check-later";
 
-
 describe("CheckLater", () => {
     const container = new Container.Container();
 
@@ -13,8 +12,8 @@ describe("CheckLater", () => {
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.Application).toConstantValue(application);
-        container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);  
-        container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);  
+        container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
+        container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
     });
 
     beforeEach(() => {
@@ -22,21 +21,21 @@ describe("CheckLater", () => {
     });
 
     describe("handle", () => {
-        it("should call blockchain.setWakeUp() when !blockchain.isStopped && !stateStore.wakeUpTimeout",() => {
+        it("should call blockchain.setWakeUp() when !blockchain.isStopped && !stateStore.wakeUpTimeout", () => {
             const checkLater = container.resolve<CheckLater>(CheckLater);
 
             checkLater.handle();
 
             expect(blockchain.setWakeUp).toHaveBeenCalledTimes(1);
-        })
-        
-        it("should do nothing otherwise",() => {
+        });
+
+        it("should do nothing otherwise", () => {
             const checkLater = container.resolve<CheckLater>(CheckLater);
 
             blockchain.isStopped = true;
             checkLater.handle();
 
             expect(blockchain.setWakeUp).toHaveBeenCalledTimes(0);
-        })
-    })
-})
+        });
+    });
+});

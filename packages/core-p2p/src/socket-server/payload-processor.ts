@@ -64,7 +64,7 @@ class PayloadProcessor {
                 let overflowQueueSize = this.payloadOverflowQueue.length;
                 try {
                     const query = this.payloadDatabase.prepare("INSERT INTO payloads (payload) VALUES (:payload)");
-                    const saveToDB = this.payloadDatabase.transaction(data => {
+                    const saveToDB = this.payloadDatabase.transaction((data) => {
                         for (const overflowingPayload of data) {
                             query.run({ payload: JSON.stringify(overflowingPayload) });
                             overflowQueueSize--;
@@ -89,12 +89,7 @@ class PayloadProcessor {
 
     private totalPayloads() {
         const queueSize = this.payloadQueue.length + this.payloadOverflowQueue.length;
-        return queueSize
-            ? queueSize
-            : this.payloadDatabase
-                  .prepare("SELECT COUNT(*) FROM payloads")
-                  .pluck()
-                  .get();
+        return queueSize ? queueSize : this.payloadDatabase.prepare("SELECT COUNT(*) FROM payloads").pluck().get();
     }
 
     private async processPayloads() {
@@ -121,7 +116,7 @@ class PayloadProcessor {
                 payloadIds.push({ id: row.id });
             }
             const query = this.payloadDatabase.prepare("DELETE FROM payloads WHERE id = :id");
-            const deleteFromDB = this.payloadDatabase.transaction(data => {
+            const deleteFromDB = this.payloadDatabase.transaction((data) => {
                 for (const id of data) {
                     query.run(id);
                 }

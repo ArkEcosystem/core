@@ -31,7 +31,6 @@ import {
 } from "../__support__/app";
 import { Mocks, Mapper } from "@packages/core-test-framework";
 
-
 let app: Application;
 let senderWallet: Wallets.Wallet;
 let secondSignatureWallet: Wallets.Wallet;

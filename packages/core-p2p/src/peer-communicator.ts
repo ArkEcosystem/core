@@ -51,7 +51,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             {
                 block: Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
-                    transactions: block.transactions.map(tx => tx.data),
+                    transactions: block.transactions.map((tx) => tx.data),
                 }),
             },
             postBlockTimeout,
@@ -225,7 +225,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 continue;
             }
 
-            block.transactions = block.transactions.map(transaction => {
+            block.transactions = block.transactions.map((transaction) => {
                 const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
                 data.blockId = block.id;
                 return data;

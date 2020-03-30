@@ -18,10 +18,10 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
         flags: {
             token: "ark",
             network: "testnet",
-            env: "test"
+            env: "test",
         },
         peers: {
-            list: [ { ip: "127.0.0.1", port: 4000 }]
+            list: [{ ip: "127.0.0.1", port: 4000 }],
         },
     });
     await sandbox.boot(async ({ app }) => {

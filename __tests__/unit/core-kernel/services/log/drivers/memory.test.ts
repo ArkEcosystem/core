@@ -18,15 +18,15 @@ beforeEach(async () => {
 afterEach(() => (message = undefined));
 
 beforeAll(() => {
-    capcon.startCapture(process.stdout, stdout => (message = stdout.toString()));
+    capcon.startCapture(process.stdout, (stdout) => (message = stdout.toString()));
 
-    capcon.startCapture(process.stderr, stderr => (message = stderr.toString()));
-
-    // @ts-ignore
-    capcon.startCapture(console._stdout, stdout => (message = stdout.toString()));
+    capcon.startCapture(process.stderr, (stderr) => (message = stderr.toString()));
 
     // @ts-ignore
-    capcon.startCapture(console._stderr, stderr => (message = stderr.toString()));
+    capcon.startCapture(console._stdout, (stdout) => (message = stdout.toString()));
+
+    // @ts-ignore
+    capcon.startCapture(console._stderr, (stderr) => (message = stderr.toString()));
 });
 
 describe("Logger", () => {

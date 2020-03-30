@@ -41,8 +41,6 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        this.app
-            .get<any>(Container.Identifiers.ProcessFactory)(this.getFlag("token"), "relay")
-            .restart();
+        this.app.get<any>(Container.Identifiers.ProcessFactory)(this.getFlag("token"), "relay").restart();
     }
 }

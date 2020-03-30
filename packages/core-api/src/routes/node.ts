@@ -38,11 +38,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object({
-                    days: Joi.number()
-                        .integer()
-                        .min(1)
-                        .max(30)
-                        .default(7),
+                    days: Joi.number().integer().min(1).max(30).default(7),
                 }),
             },
         },

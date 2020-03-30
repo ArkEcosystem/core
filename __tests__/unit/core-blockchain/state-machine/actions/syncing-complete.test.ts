@@ -28,6 +28,6 @@ describe("Stopped", () => {
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("SYNCFINISHED");
-        })
-    })
-})
+        });
+    });
+});

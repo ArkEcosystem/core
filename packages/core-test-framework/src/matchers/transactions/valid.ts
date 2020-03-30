@@ -12,7 +12,7 @@ declare global {
 }
 
 expect.extend({
-    toBeValidTransaction: actual => {
+    toBeValidTransaction: (actual) => {
         let verified = false;
 
         try {

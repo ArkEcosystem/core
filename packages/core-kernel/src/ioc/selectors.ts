@@ -5,7 +5,7 @@ export const anyAncestorOrTargetTaggedFirst = (key: string | number | symbol, va
         for (;;) {
             const targetTags = req.target.getCustomTags();
             if (targetTags) {
-                const targetTag = targetTags.find(t => t.key === key);
+                const targetTag = targetTags.find((t) => t.key === key);
                 if (targetTag) {
                     return targetTag.value === value;
                 }

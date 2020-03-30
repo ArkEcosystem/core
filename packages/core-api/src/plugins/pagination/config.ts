@@ -2,14 +2,11 @@
 
 import Joi from "@hapi/joi";
 
-export const getConfig = options => {
+export const getConfig = (options) => {
     const { error, value } = Joi.object({
         query: Joi.object({
             limit: Joi.object({
-                default: Joi.number()
-                    .integer()
-                    .positive()
-                    .default(100),
+                default: Joi.number().integer().positive().default(100),
             }),
         }),
     }).validate(options);

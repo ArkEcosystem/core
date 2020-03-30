@@ -63,7 +63,7 @@ export const getUnconfirmedTransactions = async ({
 
     return {
         poolSize: transactionPool.getPoolSize(),
-        transactions: transactions.map(t => t.serialized.toString("hex")),
+        transactions: transactions.map((t) => t.serialized.toString("hex")),
     };
 };
 
@@ -84,7 +84,7 @@ export const getCurrentRound = async ({
     const blockTime = Managers.configManager.getMilestone(height).blocktime;
     const reward = Managers.configManager.getMilestone(height).reward;
     const delegates: Contracts.P2P.DelegateWallet[] = (await databaseService.getActiveDelegates(roundInfo)).map(
-        wallet => ({
+        (wallet) => ({
             ...wallet,
             delegate: wallet.getAttribute("delegate"),
         }),

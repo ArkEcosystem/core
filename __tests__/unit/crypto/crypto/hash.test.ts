@@ -21,9 +21,7 @@ beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
 
-    identity = Factories.factory("Identity")
-        .withOptions({ passphrase: "this is a top secret passphrase" })
-        .make();
+    identity = Factories.factory("Identity").withOptions({ passphrase: "this is a top secret passphrase" }).make();
 });
 
 describe("Hash", () => {

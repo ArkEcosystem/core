@@ -23,9 +23,7 @@ let store: MemoryCacheStore<string, number>;
 beforeEach(() => {
     app = new Application(new Container());
 
-    app.bind(Identifiers.EventDispatcherService)
-        .to(MemoryEventDispatcher)
-        .inSingletonScope();
+    app.bind(Identifiers.EventDispatcherService).to(MemoryEventDispatcher).inSingletonScope();
 
     store = app.resolve(MemoryCacheStore);
 });

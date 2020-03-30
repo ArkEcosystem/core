@@ -75,7 +75,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with incorrect timestamp", () => {
-            jest.spyOn(Slots, "getSlotNumber").mockImplementation(timestamp => (timestamp ? 2 : 0));
+            jest.spyOn(Slots, "getSlotNumber").mockImplementation((timestamp) => (timestamp ? 2 : 0));
             const block = BlockFactory.fromData(dummyBlock);
 
             expect(block.verification.verified).toBeFalse();
@@ -131,7 +131,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with too large payload", () => {
-            jest.spyOn(configManager, "getMilestone").mockImplementation(height => ({
+            jest.spyOn(configManager, "getMilestone").mockImplementation((height) => ({
                 block: {
                     version: 0,
                     maxTransactions: 200,
@@ -145,7 +145,7 @@ describe("Block", () => {
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors[0]).toContain("Payload is too large");
 
-            jest.spyOn(configManager, "getMilestone").mockImplementation(height => ({
+            jest.spyOn(configManager, "getMilestone").mockImplementation((height) => ({
                 block: {
                     version: 0,
                     maxTransactions: 200,
@@ -357,7 +357,7 @@ describe("Block", () => {
 
         it("should fail to verify a block if error is thrown", () => {
             const errorMessage = "Very very, very bad error";
-            jest.spyOn(Slots, "getSlotNumber").mockImplementation(height => {
+            jest.spyOn(Slots, "getSlotNumber").mockImplementation((height) => {
                 throw errorMessage;
             });
             const block = BlockFactory.fromData(dummyBlock);
@@ -458,11 +458,9 @@ describe("Block", () => {
                 const dataWithPreviousBlock: any = Object.assign({}, data, {
                     previousBlock: "1234",
                 });
-                expect(
-                    serialize(dataWithPreviousBlock)
-                        .slice(12, 20)
-                        .toString("hex"),
-                ).toEqual(dataWithPreviousBlock.previousBlockHex);
+                expect(serialize(dataWithPreviousBlock).slice(12, 20).toString("hex")).toEqual(
+                    dataWithPreviousBlock.previousBlockHex,
+                );
             });
         });
 
@@ -470,11 +468,7 @@ describe("Block", () => {
             it("8 bytes are added, as padding", () => {
                 const dataWithoutPreviousBlock = Object.assign({}, data);
                 delete dataWithoutPreviousBlock.previousBlock;
-                expect(
-                    serialize(dataWithoutPreviousBlock)
-                        .slice(12, 20)
-                        .toString("hex"),
-                ).toEqual("0000000000000000");
+                expect(serialize(dataWithoutPreviousBlock).slice(12, 20).toString("hex")).toEqual("0000000000000000");
             });
         });
 
@@ -483,27 +477,15 @@ describe("Block", () => {
         });
 
         it("`totalAmount` of transactions is serialized as a UInt64", () => {
-            expect(
-                serialize(data)
-                    .readUint64(24)
-                    .toNumber(),
-            ).toEqual(+data.totalAmount);
+            expect(serialize(data).readUint64(24).toNumber()).toEqual(+data.totalAmount);
         });
 
         it("`totalFee` of transactions is serialized as a UInt64", () => {
-            expect(
-                serialize(data)
-                    .readUint64(32)
-                    .toNumber(),
-            ).toEqual(+data.totalFee);
+            expect(serialize(data).readUint64(32).toNumber()).toEqual(+data.totalFee);
         });
 
         it("`reward` of transactions is serialized as a UInt64", () => {
-            expect(
-                serialize(data)
-                    .readUint64(40)
-                    .toNumber(),
-            ).toEqual(+data.reward);
+            expect(serialize(data).readUint64(40).toNumber()).toEqual(+data.reward);
         });
 
         it("`payloadLength` of transactions is serialized as a UInt32", () => {
@@ -542,11 +524,7 @@ describe("Block", () => {
 
         describe("if the `blockSignature` is included", () => {
             it("is serialized", () => {
-                expect(
-                    serialize(data)
-                        .slice(117, 188)
-                        .toString("hex"),
-                ).toEqual(data.blockSignature);
+                expect(serialize(data).slice(117, 188).toString("hex")).toEqual(data.blockSignature);
             });
 
             it("is serialized unless the `includeSignature` parameter is false", () => {

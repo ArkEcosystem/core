@@ -23,7 +23,7 @@ import { transaction as transactionDataFixture } from "../fixtures/transaction";
 let transactionData: ITransactionData;
 let transactionDataJSON;
 
-const createRandomTx = type => {
+const createRandomTx = (type) => {
     let transaction: ITransaction;
 
     switch (type) {
@@ -70,7 +70,7 @@ const createRandomTx = type => {
             configManager.getMilestone().aip11 = true;
             const passphrases = [Math.random().toString(36), Math.random().toString(36), Math.random().toString(36)];
 
-            const participants = passphrases.map(passphrase => {
+            const participants = passphrases.map((passphrase) => {
                 return Keys.fromPassphrase(passphrase);
             });
 
@@ -81,7 +81,7 @@ const createRandomTx = type => {
                 Math.floor(Math.random() * (max - min)) + min,
             );
 
-            participants.forEach(participant => {
+            participants.forEach((participant) => {
                 multiSigRegistration.participant(participant.publicKey);
             });
 
@@ -118,8 +118,8 @@ describe("Transaction", () => {
     describe("toBytes / fromBytes", () => {
         it("should verify all transactions", () => {
             [0, 1, 2, 3]
-                .map(type => createRandomTx(type))
-                .forEach(transaction => {
+                .map((type) => createRandomTx(type))
+                .forEach((transaction) => {
                     const newTransaction = TransactionFactory.fromBytes(TransactionUtils.toBytes(transaction.data));
 
                     // TODO: Remove both from data when not needed

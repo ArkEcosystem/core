@@ -23,7 +23,7 @@ expect.extend({
 
         const state: any = Utils.get(machine.states, path);
 
-        const actions = transition.actions.map(action => `"${action}"`).join(", ");
+        const actions = transition.actions.map((action) => `"${action}"`).join(", ");
 
         return {
             // FIXME isNot is necessary to write the right message
@@ -34,7 +34,7 @@ expect.extend({
                     transition.state
                 }"`,
             pass: Utils.isEqual(
-                state.onEntry.map(action => action.type),
+                state.onEntry.map((action) => action.type),
                 transition.actions,
             ),
         };

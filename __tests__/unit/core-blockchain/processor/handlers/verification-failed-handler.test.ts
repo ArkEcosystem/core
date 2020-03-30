@@ -29,6 +29,6 @@ describe("VerificationFailedHandler", () => {
 
             expect(result).toBe(BlockProcessorResult.Rejected);
             expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
-        })
-    })
-})
+        });
+    });
+});

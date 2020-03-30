@@ -29,10 +29,11 @@ beforeEach(() => {
             fee: Utils.BigNumber.make(5),
             amount: Utils.BigNumber.make(5),
             recipientId: "D7RVC5iZqs3f8ETtHRL3REeVzsxrrBexcT",
-            signature: "efd9acefcc843123f7f518ebc34cd8a81ba536b9604d42eaf3bc84fa9df4e2f51e4596ca2671e5726e99bff83a85f98122512ec9ed5f9a3de97045d23f6c94f3",
+            signature:
+                "efd9acefcc843123f7f518ebc34cd8a81ba536b9604d42eaf3bc84fa9df4e2f51e4596ca2671e5726e99bff83a85f98122512ec9ed5f9a3de97045d23f6c94f3",
             blockId: "717093ac984e1a82a2de1fb334e92bda648547955417bc830d7825c515b5f2f9",
             sequence: 1,
-            asset: {}
+            asset: {},
         },
         serialized: Buffer.from(""),
         serialize: jest.fn(),
@@ -44,28 +45,28 @@ beforeEach(() => {
     };
 
     transactionModel = {
-        id: 'f0880e972206698bf48e43325ec03045a3b2ab215b8f716a51742a909b718177',
+        id: "f0880e972206698bf48e43325ec03045a3b2ab215b8f716a51742a909b718177",
         version: 2,
-        blockId: '717093ac984e1a82a2de1fb334e92bda648547955417bc830d7825c515b5f2f9',
+        blockId: "717093ac984e1a82a2de1fb334e92bda648547955417bc830d7825c515b5f2f9",
         sequence: 0,
         timestamp: 2000123,
         nonce: Utils.BigNumber.make(5),
-        senderPublicKey: '025805c82bb3ff7068e1b20da4ad2f89638e404950b0af7a0d2e23512b3701a21a',
-        recipientId: 'D7RVC5iZqs3f8ETtHRL3REeVzsxrrBexcT',
+        senderPublicKey: "025805c82bb3ff7068e1b20da4ad2f89638e404950b0af7a0d2e23512b3701a21a",
+        recipientId: "D7RVC5iZqs3f8ETtHRL3REeVzsxrrBexcT",
         type: 2,
         typeGroup: 1,
         vendorField: undefined,
         amount: BigInt(Utils.BigNumber.make(5)),
         fee: BigInt(Utils.BigNumber.make(5)),
         serialized: Buffer.from(""),
-        asset: {}
+        asset: {},
     };
 });
 
 describe("Mapper", () => {
     describe("mapTransactionToModel", () => {
         it("should convert crypto transaction to database model", async () => {
-            expect(mapTransactionToModel(transaction)).toEqual(transactionModel)
+            expect(mapTransactionToModel(transaction)).toEqual(transactionModel);
         });
 
         it("should convert crypto transaction to database model without optional parameters", async () => {
@@ -83,7 +84,7 @@ describe("Mapper", () => {
             transactionModel.recipientId = "";
             transactionModel.typeGroup = 1;
 
-            expect(mapTransactionToModel(transaction)).toEqual(transactionModel)
+            expect(mapTransactionToModel(transaction)).toEqual(transactionModel);
         });
     });
 });

@@ -30,10 +30,7 @@ describe("Transfer Transaction", () => {
     });
 
     it("should be valid", () => {
-        transaction
-            .recipientId(address)
-            .amount(amount)
-            .sign("passphrase");
+        transaction.recipientId(address).amount(amount).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).toBeUndefined();
@@ -73,10 +70,7 @@ describe("Transfer Transaction", () => {
     });
 
     it("should be invalid with more than 64 bytes in vendor field", () => {
-        transaction
-            .recipientId(address)
-            .amount(amount)
-            .fee(Utils.BigNumber.make(fee).toFixed());
+        transaction.recipientId(address).amount(amount).fee(Utils.BigNumber.make(fee).toFixed());
 
         // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
         transaction.data.vendorField = "a".repeat(65);
@@ -85,10 +79,7 @@ describe("Transfer Transaction", () => {
         let { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
 
-        transaction
-            .recipientId(address)
-            .amount(amount)
-            .fee(Utils.BigNumber.make(fee).toFixed());
+        transaction.recipientId(address).amount(amount).fee(Utils.BigNumber.make(fee).toFixed());
 
         // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
         transaction.data.vendorField = "⊁".repeat(22);
@@ -104,20 +95,14 @@ describe("Transfer Transaction", () => {
     });
 
     it("should be invalid due to no address", () => {
-        transaction
-            .recipientId(undefined)
-            .amount(amount)
-            .sign("passphrase");
+        transaction.recipientId(undefined).amount(amount).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to invalid address", () => {
-        transaction
-            .recipientId(address)
-            .amount(amount)
-            .sign("passphrase");
+        transaction.recipientId(address).amount(amount).sign("passphrase");
 
         const struct = transaction.getStruct();
         struct.recipientId = "woop";
@@ -127,21 +112,14 @@ describe("Transfer Transaction", () => {
     });
 
     it("should be invalid due to zero amount", () => {
-        transaction
-            .recipientId(address)
-            .amount(0)
-            .sign("passphrase");
+        transaction.recipientId(address).amount(0).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to zero fee", () => {
-        transaction
-            .recipientId(address)
-            .amount("1")
-            .fee("0")
-            .sign("passphrase");
+        transaction.recipientId(address).amount("1").fee("0").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
@@ -156,11 +134,7 @@ describe("Transfer Transaction", () => {
     });
 
     it("should be valid due to missing network byte", () => {
-        transaction
-            .recipientId(address)
-            .amount("1")
-            .fee("1")
-            .sign("passphrase");
+        transaction.recipientId(address).amount("1").fee("1").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).toBeUndefined();
@@ -179,12 +153,7 @@ describe("Transfer Transaction", () => {
     });
 
     it("should be invalid due to wrong network byte", () => {
-        transaction
-            .recipientId(address)
-            .amount("1")
-            .fee("1")
-            .network(1)
-            .sign("passphrase");
+        transaction.recipientId(address).amount("1").fee("1").network(1).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
@@ -259,10 +228,7 @@ describe("Second Signature Transaction", () => {
     });
 
     it("should be valid with correct data", () => {
-        transaction
-            .signatureAsset("second passphrase")
-            .fee("100000000")
-            .sign("passphrase");
+        transaction.signatureAsset("second passphrase").fee("100000000").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).toBeUndefined();
@@ -274,31 +240,21 @@ describe("Second Signature Transaction", () => {
     });
 
     it("should be invalid due to non-zero amount", () => {
-        transaction
-            .signatureAsset("second passphrase")
-            .amount("1000000000")
-            .sign("passphrase");
+        transaction.signatureAsset("second passphrase").amount("1000000000").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to zero fee", () => {
-        transaction
-            .signatureAsset("second passphrase")
-            .fee("0")
-            .sign("passphrase");
+        transaction.signatureAsset("second passphrase").fee("0").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to second signature", () => {
-        transaction
-            .signatureAsset("second passphrase")
-            .fee("1")
-            .sign("passphrase")
-            .secondSign("second passphrase");
+        transaction.signatureAsset("second passphrase").fee("1").sign("passphrase").secondSign("second passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
@@ -345,10 +301,7 @@ describe("Delegate Registration Transaction", () => {
     });
 
     it("should be invalid due to zero fee", () => {
-        transaction
-            .usernameAsset("delegate1")
-            .fee("0")
-            .sign("passphrase");
+        transaction.usernameAsset("delegate1").fee("0").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
@@ -455,10 +408,7 @@ describe("Vote Transaction", () => {
     });
 
     it("should be invalid due to zero fee", () => {
-        transaction
-            .votesAsset(votes)
-            .fee("0")
-            .sign("passphrase");
+        transaction.votesAsset(votes).fee("0").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
@@ -588,10 +538,7 @@ describe("Multi Signature Registration Transaction", () => {
     });
 
     it("should be invalid due to zero fee", () => {
-        transaction
-            .multiSignatureAsset(multiSignatureAsset)
-            .fee("0")
-            .sign("passphrase");
+        transaction.multiSignatureAsset(multiSignatureAsset).fee("0").sign("passphrase");
         signTransaction(transaction, passphrases);
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
@@ -699,11 +646,11 @@ describe("Multi Signature Registration Transaction", () => {
         signTransaction(transaction, passphrases);
 
         const struct = transaction.getStruct();
-        struct.asset.multiSignature.publicKeys = participants.map(value => `-${value.slice(1)}`);
+        struct.asset.multiSignature.publicKeys = participants.map((value) => `-${value.slice(1)}`);
         let { error } = Ajv.validate(transactionSchema.$id, struct);
         expect(error).not.toBeUndefined();
 
-        struct.asset.multiSignature.publicKeys = participants.map(value => "a");
+        struct.asset.multiSignature.publicKeys = participants.map((value) => "a");
         error = Ajv.validate(transactionSchema.$id, struct).error;
         expect(error).not.toBeUndefined();
     });
@@ -759,10 +706,7 @@ describe("Multi Payment Transaction", () => {
     });
 
     it("should be valid with 2 payments", () => {
-        multiPayment
-            .addPayment(address, "150")
-            .addPayment(address, "100")
-            .sign("passphrase");
+        multiPayment.addPayment(address, "150").addPayment(address, "100").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
         expect(error).toBeUndefined();
@@ -813,11 +757,7 @@ describe("Multi Payment Transaction", () => {
     });
 
     it("should be invalid due to zero fee", () => {
-        multiPayment
-            .addPayment(address, "150")
-            .addPayment(address, "100")
-            .fee("0")
-            .sign("passphrase");
+        multiPayment.addPayment(address, "150").addPayment(address, "100").fee("0").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
         expect(error).not.toBeUndefined();
@@ -853,11 +793,7 @@ describe("HTLC Lock Transaction", () => {
     });
 
     it("should be valid with valid secret hash and expiration timestamp", () => {
-        transaction
-            .recipientId(address)
-            .fee(fee)
-            .amount(amount)
-            .sign("passphrase");
+        transaction.recipientId(address).fee(fee).amount(amount).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).toBeUndefined();
@@ -882,11 +818,7 @@ describe("HTLC Lock Transaction", () => {
     });
 
     it("should be invalid when expiration value is not a number", () => {
-        transaction
-            .recipientId(address)
-            .fee(fee)
-            .amount(amount)
-            .sign("passphrase");
+        transaction.recipientId(address).fee(fee).amount(amount).sign("passphrase");
 
         const struct = transaction.getStruct();
         struct.asset.lock.expiration.value = "woop";
@@ -896,20 +828,14 @@ describe("HTLC Lock Transaction", () => {
     });
 
     it("should be invalid due to no address", () => {
-        transaction
-            .recipientId(undefined)
-            .amount(amount)
-            .sign("passphrase");
+        transaction.recipientId(undefined).amount(amount).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to invalid address", () => {
-        transaction
-            .recipientId(address)
-            .amount(amount)
-            .sign("passphrase");
+        transaction.recipientId(address).amount(amount).sign("passphrase");
 
         const struct = transaction.getStruct();
         struct.recipientId = "woop";
@@ -919,21 +845,14 @@ describe("HTLC Lock Transaction", () => {
     });
 
     it("should be invalid due to zero amount", () => {
-        transaction
-            .recipientId(address)
-            .amount(0)
-            .sign("passphrase");
+        transaction.recipientId(address).amount(0).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to zero fee", () => {
-        transaction
-            .recipientId(address)
-            .amount("1")
-            .fee("0")
-            .sign("passphrase");
+        transaction.recipientId(address).amount("1").fee("0").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
@@ -965,10 +884,7 @@ describe("HTLC Claim Transaction", () => {
     });
 
     it("should be valid with valid transaction id and unlock secret", () => {
-        transaction
-            .recipientId(address)
-            .fee(fee)
-            .sign("passphrase");
+        transaction.recipientId(address).fee(fee).sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).toBeUndefined();
@@ -1017,21 +933,14 @@ describe("HTLC Claim Transaction", () => {
     });
 
     it("should be invalid due to non-zero amount", () => {
-        transaction
-            .recipientId(address)
-            .amount("1")
-            .sign("passphrase");
+        transaction.recipientId(address).amount("1").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to non-zero fee", () => {
-        transaction
-            .recipientId(address)
-            .amount("0")
-            .fee("1")
-            .sign("passphrase");
+        transaction.recipientId(address).amount("0").fee("1").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
@@ -1057,10 +966,7 @@ describe("HTLC Refund Transaction", () => {
     });
 
     beforeEach(() => {
-        transaction = BuilderFactory.htlcRefund()
-            .recipientId(address)
-            .fee("0")
-            .htlcRefundAsset(htlcRefundAsset);
+        transaction = BuilderFactory.htlcRefund().recipientId(address).fee("0").htlcRefundAsset(htlcRefundAsset);
     });
 
     it("should be valid with valid transaction id", () => {
@@ -1093,21 +999,14 @@ describe("HTLC Refund Transaction", () => {
     });
 
     it("should be invalid due to non-zero amount", () => {
-        transaction
-            .recipientId(address)
-            .amount("1")
-            .sign("passphrase");
+        transaction.recipientId(address).amount("1").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
     });
 
     it("should be invalid due to non-zero fee", () => {
-        transaction
-            .recipientId(address)
-            .amount("0")
-            .fee("1")
-            .sign("passphrase");
+        transaction.recipientId(address).amount("0").fee("1").sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();

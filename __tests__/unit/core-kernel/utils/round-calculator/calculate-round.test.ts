@@ -48,7 +48,7 @@ describe("Round Calculator", () => {
 
                 Managers.configManager.set("milestones", [...milestones.values()]);
 
-                Managers.configManager.getMilestone = jest.fn().mockImplementation(height => milestones.get(height));
+                Managers.configManager.getMilestone = jest.fn().mockImplementation((height) => milestones.get(height));
 
                 testVector.forEach(({ height, round, roundHeight, nextRound, activeDelegates }) => {
                     const result = calculateRound(height);

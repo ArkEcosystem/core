@@ -51,7 +51,7 @@ export const startSocketServer = async (
         ...config.server,
     });
 
-    server.on("fail", data => app.log.error(data.message));
+    server.on("fail", (data) => app.log.error(data.message));
 
     // socketcluster types do not allow on("workerMessage") so casting as any
     (server as any).on("workerMessage", async (workerId, req, res) => {
@@ -98,7 +98,7 @@ export const startSocketServer = async (
         throw new Error("Socket server failed to setup in 10 seconds.");
     }, 10000);
 
-    const serverReadyPromise = await new Promise(resolve => server.on("ready", () => resolve(server)));
+    const serverReadyPromise = await new Promise((resolve) => server.on("ready", () => resolve(server)));
 
     clearTimeout(timeout);
 

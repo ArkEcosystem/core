@@ -25,7 +25,6 @@ import {
 
 import { Mocks, Mapper } from "@packages/core-test-framework";
 
-
 let app: Application;
 let senderWallet: Wallets.Wallet;
 let secondSignatureWallet: Wallets.Wallet;
@@ -72,7 +71,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-   Mocks.TransactionRepository.setTransactions([]);
+    Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("Htlc lock", () => {
@@ -144,21 +143,16 @@ describe("Htlc lock", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
-                Mocks.TransactionRepository.setTransactions([
-                    Mapper.mapTransactionToModel(htlcLockTransaction),
-                ]);
+                Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
                 await expect(handler.bootstrap()).toResolve();
             });
 
             it("should resolve with open transaction", async () => {
-
                 let mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
                 // @ts-ignore
                 mockHtlcLockTransacton.open = true;
 
-                Mocks.TransactionRepository.setTransactions([
-                    mockHtlcLockTransacton
-                ]);
+                Mocks.TransactionRepository.setTransactions([mockHtlcLockTransacton]);
 
                 await expect(handler.bootstrap()).toResolve();
             });
@@ -180,9 +174,7 @@ describe("Htlc lock", () => {
                 // @ts-ignore
                 mockHtlcLockTransacton.open = true;
 
-                Mocks.TransactionRepository.setTransactions([
-                    mockHtlcLockTransacton
-                ]);
+                Mocks.TransactionRepository.setTransactions([mockHtlcLockTransacton]);
                 await expect(handler.bootstrap()).toResolve();
             });
         });

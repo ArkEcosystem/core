@@ -142,9 +142,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public weekdays(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayWeek("1-5");
+        return this.setMinute("0").setHour("0").setDayWeek("1-5");
     }
 
     /**
@@ -154,9 +152,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public weekends(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayWeek("6,0");
+        return this.setMinute("0").setHour("0").setDayWeek("6,0");
     }
 
     /**
@@ -166,9 +162,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public mondays(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayWeek("MON");
+        return this.setMinute("0").setHour("0").setDayWeek("MON");
     }
 
     /**
@@ -178,9 +172,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public tuesdays(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayWeek("TUE");
+        return this.setMinute("0").setHour("0").setDayWeek("TUE");
     }
 
     /**
@@ -190,9 +182,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public wednesdays(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayWeek("WED");
+        return this.setMinute("0").setHour("0").setDayWeek("WED");
     }
 
     /**
@@ -202,9 +192,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public thursdays(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayWeek("THU");
+        return this.setMinute("0").setHour("0").setDayWeek("THU");
     }
 
     /**
@@ -214,9 +202,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public fridays(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayWeek("FRI");
+        return this.setMinute("0").setHour("0").setDayWeek("FRI");
     }
 
     /**
@@ -226,9 +212,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public saturdays(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayWeek("SAT");
+        return this.setMinute("0").setHour("0").setDayWeek("SAT");
     }
 
     /**
@@ -238,9 +222,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public sundays(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayWeek("SUN");
+        return this.setMinute("0").setHour("0").setDayWeek("SUN");
     }
 
     /**
@@ -250,9 +232,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public weekly(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayWeek("0");
+        return this.setMinute("0").setHour("0").setDayWeek("0");
     }
 
     /**
@@ -265,9 +245,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public weeklyOn(day: string, hour: string, minute: string): this {
-        return this.setMinute(minute)
-            .setHour(hour)
-            .setDayWeek(day);
+        return this.setMinute(minute).setHour(hour).setDayWeek(day);
     }
 
     /**
@@ -277,9 +255,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public monthly(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayMonth("1");
+        return this.setMinute("0").setHour("0").setDayMonth("1");
     }
 
     /**
@@ -292,9 +268,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public monthlyOn(day: string, hour: string, minute: string): this {
-        return this.setMinute(minute)
-            .setHour(hour)
-            .setDayMonth(day);
+        return this.setMinute(minute).setHour(hour).setDayMonth(day);
     }
 
     /**
@@ -304,10 +278,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public quarterly(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayMonth("1")
-            .setMonth("*/3");
+        return this.setMinute("0").setHour("0").setDayMonth("1").setMonth("*/3");
     }
 
     /**
@@ -317,10 +288,7 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public yearly(): this {
-        return this.setMinute("0")
-            .setHour("0")
-            .setDayMonth("1")
-            .setMonth("1");
+        return this.setMinute("0").setHour("0").setDayMonth("1").setMonth("1");
     }
 
     /**

@@ -25,10 +25,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Container.Identifiers.RoundRepository).toConstantValue(getCustomRepository(RoundRepository));
 
-        this.app
-            .bind(Container.Identifiers.DatabaseService)
-            .to(DatabaseService)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.DatabaseService).to(DatabaseService).inSingletonScope();
     }
 
     public async boot(): Promise<void> {

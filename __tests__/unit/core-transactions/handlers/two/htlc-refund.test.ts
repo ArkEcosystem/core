@@ -25,7 +25,6 @@ import {
 } from "../__support__/app";
 import { Mocks, Mapper } from "@packages/core-test-framework";
 
-
 let app: Application;
 let senderWallet: Wallets.Wallet;
 let secondSignatureWallet: Wallets.Wallet;
@@ -174,9 +173,7 @@ describe("Htlc refund", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
-                Mocks.TransactionRepository.setTransactions([
-                    Mapper.mapTransactionToModel(htlcLockTransaction),
-                ]);
+                Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
                 await expect(handler.bootstrap()).toResolve();
             });
         });
@@ -425,9 +422,7 @@ describe("Htlc refund", () => {
                     handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
                 ).toResolve();
 
-                Mocks.TransactionRepository.setTransactions([
-                    Mapper.mapTransactionToModel(htlcLockTransaction),
-                ]);
+                Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
                 const balanceBefore = lockWallet.balance;
 
                 await handler.apply(htlcRefundTransaction, walletRepository);
@@ -463,9 +458,7 @@ describe("Htlc refund", () => {
                     handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
                 ).toResolve();
 
-                Mocks.TransactionRepository.setTransactions([
-                    Mapper.mapTransactionToModel(htlcLockTransaction),
-                ]);
+                Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
                 const balanceBefore = lockWallet.balance;
 
                 await handler.apply(htlcRefundTransaction, walletRepository);

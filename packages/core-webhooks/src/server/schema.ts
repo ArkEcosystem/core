@@ -24,9 +24,7 @@ export const show: object = {
 export const store: object = {
     payload: Joi.object({
         event: Joi.string().required(),
-        target: Joi.string()
-            .uri()
-            .required(),
+        target: Joi.string().uri().required(),
         enabled: Joi.boolean().default(true),
         conditions: Joi.array()
             .items(
@@ -48,9 +46,7 @@ export const update: object = {
     }),
     payload: Joi.object({
         event: Joi.string().required(),
-        target: Joi.string()
-            .uri()
-            .required(),
+        target: Joi.string().uri().required(),
         enabled: Joi.boolean().required(),
         conditions: Joi.array()
             .items(

@@ -12,9 +12,9 @@ declare global {
     }
 }
 
-const isValidPeer = peer => {
+const isValidPeer = (peer) => {
     const allowedKeys = Utils.sortBy(["ip", "port"]);
-    const actualKeys = Object.keys(peer).filter(key => allowedKeys.includes(key));
+    const actualKeys = Object.keys(peer).filter((key) => allowedKeys.includes(key));
 
     return Utils.isEqual(Utils.sortBy(actualKeys), allowedKeys);
 };

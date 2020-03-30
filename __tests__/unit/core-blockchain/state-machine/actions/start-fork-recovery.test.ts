@@ -9,7 +9,7 @@ describe("StartForkRecovery", () => {
         dispatch: jest.fn(),
         clearAndStopQueue: jest.fn(),
         removeBlocks: jest.fn(),
-        queue: { resume: jest.fn() }
+        queue: { resume: jest.fn() },
     };
     const stateStore = { numberOfBlocksToRollback: undefined };
     const peerNetworkMonitor = { refreshPeersAfterFork: jest.fn() };
@@ -43,12 +43,12 @@ describe("StartForkRecovery", () => {
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("SUCCESS");
             expect(blockchain.queue.resume).toHaveBeenCalledTimes(1);
-        })
+        });
 
         it("should remove stateStore.numberOfBlocksToRollback blocks when defined", async () => {
             const startForkRecovery = container.resolve<StartForkRecovery>(StartForkRecovery);
 
-            stateStore.numberOfBlocksToRollback = 7
+            stateStore.numberOfBlocksToRollback = 7;
             await startForkRecovery.handle();
 
             expect(stateStore.numberOfBlocksToRollback).toBeUndefined();
@@ -59,6 +59,6 @@ describe("StartForkRecovery", () => {
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("SUCCESS");
             expect(blockchain.queue.resume).toHaveBeenCalledTimes(1);
-        })
-    })
-})
+        });
+    });
+});

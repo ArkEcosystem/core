@@ -24,7 +24,7 @@ export class DiscoverNetwork {
             throw new Error(`The [${path}] directory does not exist.`);
         }
 
-        const folders: string[] = readdirSync(path).filter(folder => this.isValidNetwork(folder));
+        const folders: string[] = readdirSync(path).filter((folder) => this.isValidNetwork(folder));
 
         if (!folders || folders.length === 0) {
             throw new Error(
@@ -51,8 +51,8 @@ export class DiscoverNetwork {
                 name: "network",
                 message: "What network do you want to operate on?",
                 choices: folders
-                    .filter(folder => this.isValidNetwork(folder))
-                    .map(folder => ({ title: folder, value: folder })),
+                    .filter((folder) => this.isValidNetwork(folder))
+                    .map((folder) => ({ title: folder, value: folder })),
             },
             {
                 type: "confirm",

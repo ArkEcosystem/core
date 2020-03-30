@@ -10,7 +10,7 @@ export const hapiAjv = {
     version: "1.0.0",
     register: async (server: Hapi.Server, options: any): Promise<void> => {
         const createErrorResponse = (request, h, errors) => {
-            return Boom.badData(errors.map(error => error.message).join(","));
+            return Boom.badData(errors.map((error) => error.message).join(","));
         };
 
         server.ext({

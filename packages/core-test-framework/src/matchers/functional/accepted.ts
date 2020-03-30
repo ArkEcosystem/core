@@ -74,7 +74,7 @@ expect.extend({
                 }`,
         };
     },
-    toBeEachAccepted: async transactions => {
+    toBeEachAccepted: async (transactions) => {
         let pass = true;
         let error: string | undefined;
 

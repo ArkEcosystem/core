@@ -1,6 +1,6 @@
-import { Transaction } from "@arkecosystem/crypto/src/transactions";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
+import { Transaction } from "@arkecosystem/crypto/src/transactions";
 
 let mockTransactions: Partial<Transaction>[] = [];
 
