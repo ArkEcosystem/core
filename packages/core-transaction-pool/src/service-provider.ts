@@ -1,4 +1,4 @@
-import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Container, Providers, Services } from "@arkecosystem/core-kernel";
 
 import { Collator } from "./collator";
 import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
@@ -10,6 +10,12 @@ import { SenderMempool } from "./sender-mempool";
 import { SenderState } from "./sender-state";
 import { Service } from "./service";
 import { Storage } from "./storage";
+import {
+    ApplyTransactionAction,
+    RevertTransactionAction,
+    ThrowIfCannotEnterPoolAction,
+    VerifyTransactionAction,
+} from "./actions";
 
 /**
  * @export
@@ -22,6 +28,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
+        this.registerServices();
+        this.registerActions();
+    }
+
+    private registerServices(): void {
         this.app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
         this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
         this.app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
@@ -38,6 +49,20 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
         this.app.bind(Container.Identifiers.TransactionPoolService).to(Service).inSingletonScope();
         this.app.bind(Container.Identifiers.TransactionPoolStorage).to(Storage).inSingletonScope();
+    }
+
+    private registerActions(): void {
+        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("applyTransaction", new ApplyTransactionAction());
+
+        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("revertTransaction", new RevertTransactionAction());
+
+        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("throwIfCannotEnterPool", new ThrowIfCannotEnterPoolAction());
+
+        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("verifyTransaction", new VerifyTransactionAction());
     }
 
     /**
