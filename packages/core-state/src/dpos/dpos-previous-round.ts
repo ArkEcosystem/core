@@ -1,8 +1,11 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class DposPreviousRoundState implements Contracts.State.DposPreviousRoundState {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.BlockState)
     @Container.tagged("state", "clone")
     private readonly blockState!: Contracts.State.BlockState;
@@ -18,7 +21,11 @@ export class DposPreviousRoundState implements Contracts.State.DposPreviousRound
             }
             await this.blockState.revertBlock(block);
         }
-        this.dposState.buildDelegateRanking();
+
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .call("buildDelegateRanking", { dposState: this.dposState });
+
         this.dposState.setDelegatesRound(roundInfo);
     }
 

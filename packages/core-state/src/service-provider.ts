@@ -1,4 +1,4 @@
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockState } from "./block-state";
@@ -10,6 +10,7 @@ import { TransactionStore } from "./stores/transactions";
 import { TransactionValidator } from "./transaction-validator";
 import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "./wallets";
 import { registerFactories, registerIndexers } from "./wallets/indexers";
+import { BuildDelegateRankingAction } from "./actions";
 
 export const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
     return async (
@@ -62,6 +63,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind(Container.Identifiers.TransactionValidatorFactory)
             .toAutoFactory(Container.Identifiers.TransactionValidator);
+
+        this.registerActions();
+    }
+
+    private registerActions(): void {
+        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("buildDelegateRanking", new BuildDelegateRankingAction());
     }
 
     public async boot(): Promise<void> {
