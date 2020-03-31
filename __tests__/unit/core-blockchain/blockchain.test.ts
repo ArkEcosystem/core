@@ -6,8 +6,8 @@ import { Blockchain } from "@packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor/block-processor";
 import { Interfaces, Crypto, Utils, Managers, Networks } from "@packages/crypto";
 import { Sandbox } from "@packages/core-test-framework";
-import { ProcessBlockAction } from "@arkecosystem/core-blockchain/src/actions";
-import { BlockProcessor } from "@arkecosystem/core-blockchain/src/processor";
+import { ProcessBlockAction } from "@packages/core-blockchain/src/actions";
+import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 
 describe("Blockchain", () => {
     let sandbox: Sandbox;
@@ -35,13 +35,19 @@ describe("Blockchain", () => {
         sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcherService);
         sandbox.app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);
         sandbox.app.bind(Container.Identifiers.PeerStorage).toConstantValue(peerStorage);
-        sandbox.app.bind(Container.Identifiers.BlockchainService).to(Blockchain);
+        sandbox.app.bind(Container.Identifiers.BlockchainService).to(Blockchain).inSingletonScope();
+        sandbox.app.bind(Container.Identifiers.BlockProcessor).toConstantValue(blockProcessor);
         sandbox.app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
+        sandbox.app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
 
         sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
         sandbox.app
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .bind("processBlock", new ProcessBlockAction());
+
+        sandbox.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("getActiveDelegates", new GetActiveDelegatesAction(sandbox.app));
 
         Managers.configManager.setFromPreset("testnet");
     });
@@ -69,6 +75,7 @@ describe("Blockchain", () => {
         databaseService.loadBlocksFromCurrentRound = jest.fn();
         databaseService.revertBlock = jest.fn();
         databaseService.deleteRound = jest.fn();
+        databaseService.getActiveDelegates = jest.fn().mockReturnValue([]);
 
         blockRepository.deleteBlocks = jest.fn();
         blockRepository.saveBlocks = jest.fn();
@@ -560,6 +567,7 @@ describe("Blockchain", () => {
 
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
+            blockProcessor.validateGenerator = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
 
             await blockchain.processBlocks([currentBlock]);
         });
@@ -584,12 +592,12 @@ describe("Blockchain", () => {
 
             const genesisBlock = Networks.testnet.genesisBlock;
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
-            BlockProcessor.prototype.process = jest.fn().mockReturnValue(BlockProcessorResult.Rollback);
+            blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Rollback);
             const spyForkBlock = jest.spyOn(blockchain, "forkBlock");
 
             await blockchain.processBlocks([lastBlock, currentBlock]);
 
-            expect(BlockProcessor.prototype.process).toBeCalledTimes(1); // only 1 out of the 2 blocks
+            expect(blockProcessor.process).toBeCalledTimes(1); // only 1 out of the 2 blocks
             expect(spyForkBlock).toBeCalledTimes(1); // because Rollback
         });
 
@@ -599,7 +607,7 @@ describe("Blockchain", () => {
 
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-            BlockProcessor.prototype.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
+            blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
             blockRepository.saveBlocks = jest.fn().mockRejectedValue(new Error("oops"));
             const spyClearQueue = jest.spyOn(blockchain, "clearQueue");
             const spyResetLastDownloadedBlock = jest.spyOn(blockchain, "resetLastDownloadedBlock");
@@ -622,7 +630,7 @@ describe("Blockchain", () => {
             stateStore.started = true;
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-            BlockProcessor.prototype.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
+            blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
 
             await blockchain.processBlocks([block]);
 

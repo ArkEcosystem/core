@@ -1,6 +1,6 @@
-import { ServiceProvider } from "../../../packages/core-blockchain/src/service-provider";
-import { Container, Application, Providers } from "@arkecosystem/core-kernel";
-import { Services } from "@arkecosystem/core-kernel/dist";
+import { ServiceProvider } from "@packages/core-blockchain/src/service-provider";
+import { Container, Application, Providers } from "@packages/core-kernel";
+import { Services } from "@packages/core-kernel/dist";
 
 describe("ServiceProvider", () => {
     let app: Application;
@@ -23,17 +23,19 @@ describe("ServiceProvider", () => {
     });
 
     describe("register", () => {
-        it("should bind blockchain and state machine", async () => {
+        it("should bind blockchain, state machine and block processr", async () => {
             const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
             serviceProvider.setConfig(pluginConfiguration);
 
             expect(app.isBound(Container.Identifiers.StateMachine)).toBeFalse();
             expect(app.isBound(Container.Identifiers.BlockchainService)).toBeFalse();
+            expect(app.isBound(Container.Identifiers.BlockProcessor)).toBeFalse();
 
             await serviceProvider.register();
 
             expect(app.isBound(Container.Identifiers.StateMachine)).toBeTrue();
             expect(app.isBound(Container.Identifiers.BlockchainService)).toBeTrue();
+            expect(app.isBound(Container.Identifiers.BlockProcessor)).toBeTrue();
         });
     });
 
