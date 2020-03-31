@@ -1,5 +1,6 @@
 import { ServiceProvider } from "../../../packages/core-blockchain/src/service-provider";
 import { Container, Application, Providers } from "@arkecosystem/core-kernel";
+import { Services } from "@arkecosystem/core-kernel/dist";
 
 describe("ServiceProvider", () => {
     let app: Application;
@@ -16,6 +17,7 @@ describe("ServiceProvider", () => {
         app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
         app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
     });
