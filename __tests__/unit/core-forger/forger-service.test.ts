@@ -4,7 +4,7 @@ import { Client } from "@packages/core-forger/src/client";
 import { HostNoResponseError, RelayCommunicationError } from "@packages/core-forger/src/errors";
 import { ForgerService } from "@packages/core-forger/src/forger-service";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
-import { Application, Container, Enums, Utils } from "@packages/core-kernel";
+import { Container, Enums, Services, Utils } from "@packages/core-kernel";
 import { NetworkStateStatus } from "@packages/core-p2p";
 import { Crypto, Managers } from "@packages/crypto";
 import { Block } from "@packages/crypto/dist/blocks";
@@ -13,9 +13,12 @@ import { BuilderFactory } from "@packages/crypto/src/transactions";
 import socketCluster from "socketcluster-client";
 
 import { calculateActiveDelegates } from "./__utils__/calculate-active-delegates";
+import { Sandbox } from "@arkecosystem/core-test-framework";
+import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
+import { ForgeNewBlockAction, IsForgingAllowedAction } from "@arkecosystem/core-forger/src/actions";
 jest.mock("socketcluster-client");
 
-let app: Application;
+let sandbox: Sandbox;
 const logger = {
     error: jest.fn(),
     debug: jest.fn(),
@@ -43,8 +46,22 @@ const initializeClient = (client: Client) => {
 };
 
 beforeEach(() => {
-    app = new Application(new Container.Container());
-    app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+    sandbox = new Sandbox();
+    sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+
+    sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("getActiveDelegates", new GetActiveDelegatesAction(sandbox.app));
+
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("forgeNewBlock", new ForgeNewBlockAction());
+
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("isForgingAllowed", new IsForgingAllowedAction());
 });
 
 afterEach(() => {
@@ -64,8 +81,8 @@ describe("ForgerService", () => {
     let round;
 
     beforeEach(() => {
-        forgerService = app.resolve<ForgerService>(ForgerService);
-        client = app.resolve<Client>(Client);
+        forgerService = sandbox.app.resolve<ForgerService>(ForgerService);
+        client = sandbox.app.resolve<Client>(Client);
         mockHost = initializeClient(client);
         const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
         slotSpy.mockReturnValue(0);
