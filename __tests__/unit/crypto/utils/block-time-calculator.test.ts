@@ -1,12 +1,12 @@
 import "jest-extended";
 
-import { calculateBlockTime, isNewBlockTime } from "@packages/core-kernel/src/utils/block-time-calculator";
-import { Managers } from "@packages/crypto";
+import { calculateBlockTime, isNewBlockTime } from "@packages/crypto/src/utils/block-time-calculator";
 
+import { configManager } from "../../../../packages/crypto/src/managers/config";
 import milestones from "./fixtures/block-time-milestones.json";
 
 beforeEach(() => {
-    Managers.configManager.set("milestones", milestones);
+    configManager.set("milestones", milestones);
 });
 
 describe("BlockTimeCalculator", () => {
@@ -72,7 +72,7 @@ describe("BlockTimeCalculator", () => {
         });
 
         it("should throw an error when no blocktimes are specified in any milestones", () => {
-            Managers.configManager.set("milestones", {});
+            configManager.set("milestones", {});
 
             expect(isNewBlockTime(960000)).toBeFalse();
             expect(() => calculateBlockTime(960000)).toThrow(`No milestones specifying any height were found`);

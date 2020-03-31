@@ -1,9 +1,9 @@
-import { Managers } from "@arkecosystem/crypto";
+import { configManager } from "../managers/config";
 
 export const isNewBlockTime = (height: number): boolean => {
     if (height === 1) return true;
 
-    const milestones = Managers.configManager.get("milestones");
+    const milestones = configManager.get("milestones");
 
     let milestone;
 
@@ -29,7 +29,7 @@ export const isNewBlockTime = (height: number): boolean => {
 };
 
 export const calculateBlockTime = (height: number): number => {
-    const milestones = Managers.configManager.get("milestones");
+    const milestones = configManager.get("milestones");
 
     for (let i = milestones.length - 1; i >= 0; i--) {
         const milestone = milestones[i];

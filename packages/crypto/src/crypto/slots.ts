@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 
 import { configManager } from "../managers";
+import { calculateBlockTime } from "../utils/block-time-calculator";
 
 export class Slots {
     public static getTime(time?: number): number {
@@ -20,29 +21,52 @@ export class Slots {
         return (nextSlotTime - now) * 1000;
     }
 
-    public static getSlotNumber(epoch?: number): number {
+    public static getSlotNumber(epoch?: number, height?: number): number {
         if (epoch === undefined) {
             epoch = this.getTime();
         }
 
-        return Math.floor(epoch / configManager.getMilestone(1).blocktime);
+        const lastKnownHeight = this.getHeight(height);
+        const totalBlockTime = this.calculateTotalBlockTime(lastKnownHeight);
+
+        return Math.floor(epoch / totalBlockTime);
     }
 
-    public static getSlotTime(slot: number): number {
-        return slot * configManager.getMilestone(1).blocktime;
+    public static getSlotTime(slot: number, height?: number): number {
+        const lastKnownHeight = this.getHeight(height);
+        return slot * calculateBlockTime(lastKnownHeight);
     }
 
     public static getNextSlot(): number {
         return this.getSlotNumber() + 1;
     }
 
-    public static isForgingAllowed(epoch?: number): boolean {
+    public static isForgingAllowed(epoch?: number, height?: number): boolean {
         if (epoch === undefined) {
             epoch = this.getTime();
         }
 
-        const blockTime: number = configManager.getMilestone(1).blocktime;
+        const lastKnownHeight = this.getHeight(height);
+        const blockTime: number = calculateBlockTime(lastKnownHeight);
 
         return epoch % blockTime < blockTime / 2;
+    }
+
+    private static calculateTotalBlockTime(height: number): number {
+        // TODO: calculate totals with varying blocktimes (across different milestones)
+        return calculateBlockTime(height);
+    }
+
+    private static getHeight(height: number | undefined): number {
+        if (!height) {
+            // TODO: is the config manager the best way to retrieve most recent height?
+            // Or should this class also have a cached list of seen heights?
+            const configConfiguredHeight = configManager.getHeight();
+            if (configConfiguredHeight) {
+                return configConfiguredHeight;
+            }
+        }
+
+        return 1;
     }
 }
