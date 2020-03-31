@@ -155,10 +155,14 @@ export class ForgerService {
                 );
             }
 
-            if (this.isForgingAllowed(networkState, delegate)) {
+            if (
+                this.app
+                    .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                    .call("isForgingAllowed", { forgerService: this, delegate, networkState })
+            ) {
                 await this.app
                     .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-                    .call("forgeNewBlock", { forgerService: this, delegate, round: this.round, networkState })
+                    .call("forgeNewBlock", { forgerService: this, delegate, round: this.round, networkState });
             }
 
             return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());

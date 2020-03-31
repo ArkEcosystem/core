@@ -4,7 +4,7 @@ import { DelegateFactory } from "./delegate-factory";
 import { DelegateTracker } from "./delegate-tracker";
 import { ForgerService } from "./forger-service";
 import { Delegate } from "./interfaces";
-import { ForgeNewBlockAction } from "./actions";
+import { ForgeNewBlockAction, IsForgingAllowedAction } from "./actions";
 
 /**
  * @export
@@ -27,6 +27,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
     private registerActions(): void {
         this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .bind("forgeNewBlock", new ForgeNewBlockAction());
+
+        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("isForgingAllowed", new IsForgingAllowedAction());
     }
 
     /**
