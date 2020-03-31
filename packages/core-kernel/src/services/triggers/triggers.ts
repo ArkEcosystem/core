@@ -75,8 +75,12 @@ export class Triggers {
         let result: T | undefined;
         try {
             result = await this.get(name).execute<T>(args);
-        } catch {
-            await this.callHooks("error", name);
+        } catch (err) {
+            if (this.get(name).hooks("error").size) {
+                await this.callHooks("error", name);
+            } else {
+                throw err;
+            }
         }
 
         await this.callHooks("after", name);
