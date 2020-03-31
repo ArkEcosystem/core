@@ -22,7 +22,7 @@ export class DposPreviousRoundState implements Contracts.State.DposPreviousRound
             await this.blockState.revertBlock(block);
         }
 
-        this.app
+        await this.app
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .call("buildDelegateRanking", { dposState: this.dposState });
 
