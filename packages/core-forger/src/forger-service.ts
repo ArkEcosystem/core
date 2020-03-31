@@ -156,7 +156,7 @@ export class ForgerService {
             }
 
             if (
-                this.app
+                await this.app
                     .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
                     .call("isForgingAllowed", { forgerService: this, delegate, networkState })
             ) {
