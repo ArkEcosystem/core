@@ -4,6 +4,7 @@ import { Blockchain } from "./blockchain";
 import { StateMachine } from "./state-machine";
 import { blockchainMachine } from "./state-machine/machine";
 import { ProcessBlockAction } from "./actions";
+import { BlockProcessor } from "./processor";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -12,6 +13,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         const blockchain: Blockchain = this.app.resolve<Blockchain>(Blockchain);
 
         this.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
+
+        this.app.bind(Container.Identifiers.BlockProcessor).to(BlockProcessor).inSingletonScope();
 
         blockchain.initialize(this.config().all()); // ? why it isn't in boot?
 

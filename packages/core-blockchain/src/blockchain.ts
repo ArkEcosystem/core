@@ -60,7 +60,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             );
         }
 
-        this.blockProcessor = this.app.resolve<BlockProcessor>(BlockProcessor);
+        this.blockProcessor = this.app.get<BlockProcessor>(Container.Identifiers.BlockProcessor);
 
         this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }) => {
             try {

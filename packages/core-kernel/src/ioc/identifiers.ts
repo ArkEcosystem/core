@@ -58,6 +58,7 @@ export const Identifiers = {
     ServiceProviderRepository: Symbol.for("Repository<ServiceProvider>"),
     // Blockchain
     StateMachine: Symbol.for("Blockchain<StateMachine>"),
+    BlockProcessor: Symbol.for("Block<Processor>"),
     // State - @todo: better names that won't clash
     BlockState: Symbol.for("State<Block>"),
     StateBlockStore: Symbol.for("State<BlockStore>"),
