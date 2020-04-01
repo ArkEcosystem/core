@@ -38,6 +38,22 @@ describe("Slots", () => {
         it("returns boolean", () => {
             expect(Slots.isForgingAllowed()).toBeDefined();
         });
+
+        it("is true when over half the time in the block remains", () => {
+            expect(Slots.isForgingAllowed(0)).toBeTrue();
+            expect(Slots.isForgingAllowed(1)).toBeTrue();
+            expect(Slots.isForgingAllowed(3)).toBeTrue();
+            expect(Slots.isForgingAllowed(8)).toBeTrue();
+            expect(Slots.isForgingAllowed(16)).toBeTrue();
+        });
+
+        it("is false when under half the time in the block remains", () => {
+            expect(Slots.isForgingAllowed(4)).toBeFalse();
+            expect(Slots.isForgingAllowed(5)).toBeFalse();
+            expect(Slots.isForgingAllowed(6)).toBeFalse();
+            expect(Slots.isForgingAllowed(7)).toBeFalse();
+            expect(Slots.isForgingAllowed(15)).toBeFalse();
+        });
     });
 
     describe("getTimeInMsUntilNextSlot", () => {
