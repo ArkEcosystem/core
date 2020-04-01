@@ -10,7 +10,7 @@ export class GetActiveDelegatesAction extends Services.Triggers.Action {
         this.app = app;
     }
 
-    public execute(args: ActionArguments): any {
+    public async execute(args: ActionArguments): Promise<Contracts.State.Wallet[]> {
         let roundInfo: Contracts.Shared.RoundInfo = args.roundInfo;
         let delegates: Contracts.State.Wallet[] = args.delegates;
 

@@ -3,7 +3,7 @@ import { ActionArguments } from "@arkecosystem/core-kernel/src/types";
 import { DposState } from "../dpos";
 
 export class BuildDelegateRankingAction extends Services.Triggers.Action {
-    public execute(args: ActionArguments): any {
+    public async execute(args: ActionArguments): Promise<void> {
         let dposState: DposState = args.dposState;
 
         return dposState.buildDelegateRanking();

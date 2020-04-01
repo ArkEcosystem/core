@@ -10,7 +10,7 @@ export class ValidateAndAcceptPeerAction extends Services.Triggers.Action {
         this.app = app;
     }
 
-    public execute(args: ActionArguments): any {
+    public async execute(args: ActionArguments): Promise<void> {
         let peer: Contracts.P2P.Peer = args.peer;
         let options: Contracts.P2P.AcceptNewPeerOptions = args.options;
 

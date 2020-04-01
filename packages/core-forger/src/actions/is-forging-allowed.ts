@@ -4,7 +4,7 @@ import { ForgerService } from "@arkecosystem/core-forger/src/forger-service";
 import { Delegate } from "@arkecosystem/core-forger/src/interfaces";
 
 export class IsForgingAllowedAction extends Services.Triggers.Action {
-    public execute(args: ActionArguments): any {
+    public async execute(args: ActionArguments): Promise<boolean> {
         const forgerService: ForgerService = args.forgerService;
         const delegate: Delegate = args.delegate;
         const networkState: Contracts.P2P.NetworkState = args.networkState;

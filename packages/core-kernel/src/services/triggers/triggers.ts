@@ -58,6 +58,7 @@ export class Triggers {
         return trigger;
     }
 
+    // TODO: Check implementation
     /**
      * Call an trigger by the given name and execute its hooks in sequence.
      *
@@ -70,20 +71,22 @@ export class Triggers {
     public async call<T>(name: string, args: ActionArguments = {}): Promise<T | undefined> {
         this.throwIfActionIsMissing(name);
 
-        await this.callHooks("before", name);
+        await this.callHooks("before", name, args);
 
         let result: T | undefined;
         try {
             result = await this.get(name).execute<T>(args);
+
         } catch (err) {
+            // Handle error inside error hooks. Rethrow error there are no error hooks.
             if (this.get(name).hooks("error").size) {
-                await this.callHooks("error", name);
+                await this.callHooks<T>("error", name, args, err);
             } else {
                 throw err;
             }
         }
 
-        await this.callHooks("after", name);
+        await this.callHooks<T>("after", name, args, result);
 
         return result;
     }
@@ -94,10 +97,12 @@ export class Triggers {
      * @private
      * @param {string} type
      * @param {string} trigger
+     * @param args
+     * @param resultOrError
      * @returns {Promise<void>}
      * @memberof Actions
      */
-    private async callHooks(type: string, trigger: string): Promise<void> {
+    private async callHooks<T>(type: string, trigger: string, args: ActionArguments, resultOrError: T | Error | undefined = undefined): Promise<void> {
         const hooks: Set<Function> = this.get(trigger).hooks(type);
 
         if (!hooks.size) {
@@ -105,7 +110,7 @@ export class Triggers {
         }
 
         for (const hook of [...hooks]) {
-            await hook();
+            await hook(args, resultOrError);
         }
     }
 

@@ -4,7 +4,7 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
 
 export class RevertTransactionAction extends Services.Triggers.Action {
-    public execute(args: ActionArguments): any {
+    public async execute(args: ActionArguments): Promise<void> {
         const handler: Handlers.TransactionHandler = args.handler;
         const transaction: Interfaces.ITransaction = args.transaction;
 
