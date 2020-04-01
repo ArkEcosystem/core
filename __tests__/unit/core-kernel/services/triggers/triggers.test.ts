@@ -4,7 +4,7 @@ import { ActionArguments } from "@packages/core-kernel/src/types";
 
 class DummyAction extends Action {
     public execute<T>(args: ActionArguments): T {
-        return args.returnValue || true;
+        return args.returnValue;
     }
 }
 
@@ -19,118 +19,94 @@ let triggers: Triggers;
 beforeEach(() => (triggers = new Triggers()));
 
 describe("Triggers", () => {
-    it("binds a trigger and accepts arguments for calls", async () => {
-        const before: jest.Mock = jest.fn();
+    describe("bind", () => {
+        it("binds a trigger and accepts arguments for calls", async () => {
+            const before: jest.Mock = jest.fn();
 
-        triggers.bind("count", new DummyAction()).before(before);
+            triggers.bind("count", new DummyAction()).before(before);
 
-        await expect(
-            triggers.call<boolean>("count", {
-                returnValue: "Hello World",
-            }),
-        ).resolves.toBe("Hello World");
-        expect(before).toHaveBeenCalled();
-    });
+            await expect(
+                triggers.call<boolean>("count", {
+                    returnValue: "Hello World",
+                }),
+            ).resolves.toBe("Hello World");
+            expect(before).toHaveBeenCalled();
+        });
 
-    it("binds a trigger and throws error from execute", async () => {
-        const before: jest.Mock = jest.fn();
+        it("binds a trigger and throws error from execute", async () => {
+            const before: jest.Mock = jest.fn();
 
-        triggers.bind("count", new DummyActionWithException()).before(before);
+            triggers.bind("count", new DummyActionWithException()).before(before);
 
-        await expect(
-            triggers.call<boolean>("count", {
-                returnValue: "Hello World",
-            }),
-        ).rejects.toThrowError();
-        expect(before).toHaveBeenCalled();
-    });
+            await expect(
+                triggers.call<boolean>("count", {
+                    returnValue: "Hello World",
+                }),
+            ).rejects.toThrowError();
+            expect(before).toHaveBeenCalled();
+        });
 
-    it("binds a trigger with a <before> hook and executes them", async () => {
-        const before: jest.Mock = jest.fn();
+        it("binds a trigger with a <before> hook and executes them", async () => {
+            const before: jest.Mock = jest.fn();
 
-        triggers.bind("count", new DummyAction()).before(before);
+            triggers.bind("count", new DummyAction()).before(before);
 
-        await expect(triggers.call<boolean>("count")).resolves.toBe(true);
-        expect(before).toHaveBeenCalled();
-    });
+            await expect(triggers.call<boolean>("count")).resolves.toBeUndefined();
+            expect(before).toHaveBeenCalled();
+        });
 
-    it("binds a trigger with a <before> hook and throws error from <before> hook", async () => {
-        const before: jest.Mock = jest.fn().mockImplementation(() => {throw new Error()});
+        it("binds a trigger with an <error> hook and executes them", async () => {
+            const error: jest.Mock = jest.fn();
 
-        triggers.bind("count", new DummyAction()).before(before);
+            triggers.bind("count", new DummyActionWithException()).error(error);
 
-        await expect(triggers.call<boolean>("count")).rejects.toThrowError();
-        expect(before).toHaveBeenCalled();
-    });
+            await expect(triggers.call<boolean>("count")).resolves.toBeUndefined();
+            expect(error).toHaveBeenCalled();
+        });
 
-    it("binds a trigger with an <error> hook and executes them", async () => {
-        const error: jest.Mock = jest.fn();
+        it("binds a trigger with an <after> hook and executes them", async () => {
+            const after: jest.Mock = jest.fn();
 
-        triggers.bind("count", new DummyActionWithException()).error(error);
+            triggers.bind("count", new DummyAction()).after(after);
 
-        await expect(triggers.call<boolean>("count")).resolves.toBeUndefined();
-        expect(error).toHaveBeenCalled();
-    });
+            await expect(triggers.call<boolean>("count")).resolves.toBeUndefined();
+            expect(after).toHaveBeenCalled();
+        });
 
-    it("binds a trigger with an <error> hook and throws error from <error> hook", async () => {
-        const error: jest.Mock = jest.fn().mockImplementation(() => {throw new Error()});
+        it("binds a trigger with <before/error/after> hooks and executes them", async () => {
+            const before: jest.Mock = jest.fn();
+            const error: jest.Mock = jest.fn();
+            const after: jest.Mock = jest.fn();
 
-        triggers.bind("count", new DummyActionWithException()).error(error);
+            triggers.bind("count", new DummyActionWithException()).before(before).error(error).after(after);
 
-        await expect(triggers.call<boolean>("count")).rejects.toThrowError();
-        expect(error).toHaveBeenCalled();
-    });
+            await expect(triggers.call<boolean>("count")).resolves.toBeUndefined();
+            expect(before).toHaveBeenCalled();
+            expect(error).toHaveBeenCalled();
+            expect(after).not.toHaveBeenCalled();
+        });
 
-    it("binds a trigger with an <after> hook and executes them", async () => {
-        const after: jest.Mock = jest.fn();
+        it("throws an error if a trigger is not registered", async () => {
+            expect(triggers.call("count")).rejects.toThrowError(
+                new InvalidArgumentException("The given trigger [count] is not available."),
+            );
+        });
 
-        triggers.bind("count", new DummyAction()).after(after);
-
-        await expect(triggers.call<boolean>("count")).resolves.toBe(true);
-        expect(after).toHaveBeenCalled();
-    });
-
-    it("binds a trigger with an <after> hook and throws error from <after> hook", async () => {
-        const after: jest.Mock = jest.fn().mockImplementation(() => {throw new Error()});
-
-        triggers.bind("count", new DummyAction()).after(after);
-
-        await expect(triggers.call<boolean>("count")).rejects.toThrowError();
-        expect(after).toHaveBeenCalled();
-    });
-
-    it("binds a trigger with <before/error/after> hooks and executes them", async () => {
-        const before: jest.Mock = jest.fn();
-        const error: jest.Mock = jest.fn();
-        const after: jest.Mock = jest.fn();
-
-        triggers.bind("count", new DummyActionWithException()).before(before).error(error).after(after);
-
-        await expect(triggers.call<boolean>("count")).resolves.toBeUndefined();
-        expect(before).toHaveBeenCalled();
-        expect(error).toHaveBeenCalled();
-        expect(after).toHaveBeenCalled();
-    });
-
-    it("throws an error if a trigger is not registered", async () => {
-        expect(triggers.call("count")).rejects.toThrowError(
-            new InvalidArgumentException("The given trigger [count] is not available."),
-        );
-    });
-
-    it("throws an error if a trigger is already registered", async () => {
-        triggers.bind("duplicate", new DummyAction());
-
-        expect(() => {
+        it("throws an error if a trigger is already registered", async () => {
             triggers.bind("duplicate", new DummyAction());
-        }).toThrowError(new InvalidArgumentException("The given trigger [duplicate] is already registered."));
+
+            expect(() => {
+                triggers.bind("duplicate", new DummyAction());
+            }).toThrowError(new InvalidArgumentException("The given trigger [duplicate] is already registered."));
+        });
+
+        it("throws an error if a trigger is reserved", async () => {
+            expect(() => {
+                triggers.bind("internal.trigger", new DummyAction());
+            }).toThrowError(new InvalidArgumentException("The given trigger [internal.trigger] is reserved."));
+        });
     });
 
-    it("throws an error if a trigger is reserved", async () => {
-        expect(() => {
-            triggers.bind("internal.trigger", new DummyAction());
-        }).toThrowError(new InvalidArgumentException("The given trigger [internal.trigger] is reserved."));
-    });
 
     describe("get", () => {
         it("returns a trigger for the given trigger", async () => {
@@ -143,6 +119,62 @@ describe("Triggers", () => {
             expect(() => triggers.get("count")).toThrowError(
                 new InvalidArgumentException("The given trigger [count] is not available."),
             );
+        });
+    });
+
+    describe("error handling", () => {
+        let dummyParams = {
+            returnValue: false
+        };
+
+        it("should call error action if error is thrown on <before> hook", async () => {
+            const before: jest.Mock = jest.fn().mockImplementation(() => {throw new Error()});
+            const error: jest.Mock = jest.fn();
+            triggers.bind("count", new DummyAction()).before(before).error(error);
+
+            await expect(triggers.call<boolean>("count", dummyParams)).resolves.toBeUndefined();
+            expect(before).toHaveBeenCalled();
+            expect(error).toHaveBeenLastCalledWith(dummyParams, undefined, new Error(), "before");
+        });
+
+        it("should throw error if error is thrown on <before> hook and no error handlers are defined", async () => {
+            const before: jest.Mock = jest.fn().mockImplementation(() => {throw new Error()});
+            triggers.bind("count", new DummyAction()).before(before);
+
+            await expect(triggers.call<boolean>("count", dummyParams)).rejects.toThrowError();
+            expect(before).toHaveBeenCalled();
+        });
+
+        it("should call error action if error is thrown on execute", async () => {
+            const error: jest.Mock = jest.fn();
+            triggers.bind("count", new DummyActionWithException()).error(error);
+
+            await expect(triggers.call<boolean>("count", dummyParams)).resolves.toBeUndefined();
+            expect(error).toHaveBeenLastCalledWith(dummyParams, undefined, new Error("Hello World"), "execute");
+        });
+
+        it("should throw error if error is thrown on execute and no error handlers are defined", async () => {
+            triggers.bind("count", new DummyActionWithException());
+
+            await expect(triggers.call<boolean>("count")).rejects.toThrowError();
+        });
+
+        it("should call error action and return result if error is thrown on <after> hook", async () => {
+            const after: jest.Mock = jest.fn().mockImplementation(() => {throw new Error()});
+            const error: jest.Mock = jest.fn();
+            triggers.bind("count", new DummyAction()).after(after).error(error);
+
+            await expect(triggers.call<boolean>("count", dummyParams)).resolves.toBe(dummyParams.returnValue);
+            expect(after).toHaveBeenCalled();
+            expect(error).toHaveBeenLastCalledWith(dummyParams, dummyParams.returnValue, new Error(), "after");
+        });
+
+        it("should throw error if error is thrown on <after> hook and no error handlers are defined", async () => {
+            const after: jest.Mock = jest.fn().mockImplementation(() => {throw new Error()});
+            triggers.bind("count", new DummyAction()).after(after);
+
+            await expect(triggers.call<boolean>("count", dummyParams)).rejects.toThrowError();
+            expect(after).toHaveBeenCalled();
         });
     });
 });

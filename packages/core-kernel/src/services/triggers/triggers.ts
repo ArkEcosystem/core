@@ -59,6 +59,7 @@ export class Triggers {
     }
 
     // TODO: Check implementation
+    // TODO: Add in documentation: how errors are handled, which data can each hook type expect.
     /**
      * Call an trigger by the given name and execute its hooks in sequence.
      *
@@ -71,28 +72,30 @@ export class Triggers {
     public async call<T>(name: string, args: ActionArguments = {}): Promise<T | undefined> {
         this.throwIfActionIsMissing(name);
 
-        await this.callHooks("before", name, args);
-
+        let stage: string = "before";
         let result: T | undefined;
         try {
+            await this.callBeforeHooks(name, args);
+
+            stage = "execute";
             result = await this.get(name).execute<T>(args);
 
+            stage = "after";
+            await this.callAfterHooks<T>(name, args, result);
         } catch (err) {
-            // Handle error inside error hooks. Rethrow error there are no error hooks.
+            // Handle errors inside error hooks. Rethrow error if there are no error hooks.
             if (this.get(name).hooks("error").size) {
-                await this.callHooks<T>("error", name, args, err);
+                await this.callErrorHooks(name, args, result, err, stage);
             } else {
                 throw err;
             }
         }
 
-        await this.callHooks<T>("after", name, args, result);
-
         return result;
     }
 
     /**
-     * Call all hooks for the given trigger and type in sequence.
+     * Call all before hooks for the given trigger in sequence.
      *
      * @private
      * @param {string} type
@@ -102,15 +105,55 @@ export class Triggers {
      * @returns {Promise<void>}
      * @memberof Actions
      */
-    private async callHooks<T>(type: string, trigger: string, args: ActionArguments, resultOrError: T | Error | undefined = undefined): Promise<void> {
-        const hooks: Set<Function> = this.get(trigger).hooks(type);
-
-        if (!hooks.size) {
-            return;
-        }
+    private async callBeforeHooks<T>(trigger: string, args: ActionArguments): Promise<void> {
+        const hooks: Set<Function> = this.get(trigger).hooks("before");
 
         for (const hook of [...hooks]) {
-            await hook(args, resultOrError);
+            await hook(args);
+        }
+    }
+
+    /**
+     * Call all after hooks for the given trigger in sequence.
+     *
+     * @private
+     * @param {string} trigger
+     * @param args
+     * @param result
+     * @returns {Promise<void>}
+     * @memberof Actions
+     */
+    private async callAfterHooks<T>(trigger: string, args: ActionArguments, result: T): Promise<void> {
+        const hooks: Set<Function> = this.get(trigger).hooks("after");
+
+        for (const hook of [...hooks]) {
+            await hook(args, result);
+        }
+    }
+
+    /**
+     * Call all error hooks for the given trigger in sequence.
+     *
+     * @private
+     * @param {string} trigger
+     * @param args
+     * @param result
+     * @param err
+     * @param stage
+     * @returns {Promise<void>}
+     * @memberof Actions
+     */
+    private async callErrorHooks<T>(
+        trigger: string,
+        args: ActionArguments,
+        result: T | undefined,
+        err: Error,
+        stage: string,
+    ): Promise<void> {
+        const hooks: Set<Function> = this.get(trigger).hooks("error");
+
+        for (const hook of [...hooks]) {
+            await hook(args, result, err, stage);
         }
     }
 
