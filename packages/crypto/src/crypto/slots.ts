@@ -1,7 +1,9 @@
 import dayjs from "dayjs";
 
 import { configManager } from "../managers";
-import { calculateBlockTime } from "../utils/block-time-calculator";
+import { calculateBlockTime, isNewBlockTime } from "../utils/block-time-calculator";
+
+type SlotNumber = number;
 
 export class Slots {
     public static getTime(time?: number): number {
@@ -21,19 +23,18 @@ export class Slots {
         return (nextSlotTime - now) * 1000;
     }
 
-    public static getSlotNumber(epoch?: number, height?: number): number {
-        if (epoch === undefined) {
-            epoch = this.getTime();
+    public static getSlotNumber(timestamp?: number, height?: number): number {
+        if (timestamp === undefined) {
+            timestamp = this.getTime();
         }
 
-        const lastKnownHeight = this.getHeight(height);
-        const totalBlockTime = this.calculateTotalBlockTime(lastKnownHeight);
+        const lastKnownHeight = this.getLatestHeight(height);
 
-        return Math.floor(epoch / totalBlockTime);
+        return this.calculateSlotNumber(timestamp, lastKnownHeight, !!height);
     }
 
     public static getSlotTime(slot: number, height?: number): number {
-        const lastKnownHeight = this.getHeight(height);
+        const lastKnownHeight = this.getLatestHeight(height);
         return slot * calculateBlockTime(lastKnownHeight);
     }
 
@@ -41,32 +42,61 @@ export class Slots {
         return this.getSlotNumber() + 1;
     }
 
-    public static isForgingAllowed(epoch?: number, height?: number): boolean {
-        if (epoch === undefined) {
-            epoch = this.getTime();
+    public static isForgingAllowed(timestamp?: number, height?: number): boolean {
+        if (timestamp === undefined) {
+            timestamp = this.getTime();
         }
 
-        const lastKnownHeight = this.getHeight(height);
+        const lastKnownHeight = this.getLatestHeight(height);
         const blockTime: number = calculateBlockTime(lastKnownHeight);
 
-        return epoch % blockTime < blockTime / 2;
+        return timestamp % blockTime < blockTime / 2;
     }
 
-    private static calculateTotalBlockTime(height: number): number {
-        // TODO: calculate totals with varying blocktimes (across different milestones)
-        return calculateBlockTime(height);
-    }
+    private static calculateSlotNumber(timestamp: number, height: number, searchSpecificHeight = true): SlotNumber {
+        let blocktime = calculateBlockTime(1);
+        let slotStartTime = 0;
+        let slotEndTime = slotStartTime + blocktime - 1;
 
-    private static getHeight(height: number | undefined): number {
-        if (!height) {
-            // TODO: is the config manager the best way to retrieve most recent height?
-            // Or should this class also have a cached list of seen heights?
-            const configConfiguredHeight = configManager.getHeight();
-            if (configConfiguredHeight) {
-                return configConfiguredHeight;
+        for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
+            if (!searchSpecificHeight || currentHeight === height) {
+                if (timestamp >= slotStartTime && timestamp <= slotEndTime) {
+                    return currentHeight - 1;
+                }
+            } else {
+                blocktime = this.calculateNewBlockTime(currentHeight + 1, blocktime);
+                slotStartTime = slotEndTime + 1;
+                slotEndTime = slotStartTime + blocktime - 1;
             }
         }
 
-        return 1;
+        if (slotEndTime < timestamp) {
+            if (searchSpecificHeight) {
+                throw new Error(`Given timestamp exists in a future block`);
+            } else {
+                return Math.floor((timestamp - slotStartTime) / blocktime + height) - 1;
+            }
+        } else {
+            throw new Error(`Given timestamp exists in a previous block`);
+        }
+    }
+
+    private static getLatestHeight(height: number | undefined): number {
+        if (!height) {
+            // TODO: is the config manager the best way to retrieve most recent height?
+            // Or should this class maintain some sort of cache?
+            const configConfiguredHeight = configManager.getHeight();
+            if (configConfiguredHeight) {
+                return configConfiguredHeight;
+            } else {
+                return 1;
+            }
+        }
+
+        return height;
+    }
+
+    private static calculateNewBlockTime(height: number, previousBlockTime: number) {
+        return isNewBlockTime(height) ? calculateBlockTime(height) : previousBlockTime;
     }
 }

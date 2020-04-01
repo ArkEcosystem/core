@@ -71,4 +71,33 @@ describe("Configuration", () => {
         configManager.setHeight(1);
         expect(configManager.isNewMilestone(999999)).toBeFalse();
     });
+
+    describe("getNextMilestoneByKey", () => {
+        it("should throw an error if no milestones are set", () => {
+            configManager.setConfig({ ...devnet, milestones: [] });
+            expect(() => configManager.getNextMilestoneWithNewKey(1, "blocktime")).toThrow(
+                `Attempted to get next milestone but none were set`,
+            );
+        });
+
+        it("should get the next milestone with a given key", () => {
+            configManager.setConfig(devnet);
+            const expected = {
+                found: true,
+                milestone: 1750000,
+                data: 255,
+            };
+            expect(configManager.getNextMilestoneWithNewKey(1, "vendorFieldLength")).toEqual(expected);
+        });
+
+        it("should return empty result if no next milestone is found", () => {
+            configManager.setConfig(devnet);
+            const expected = {
+                found: false,
+                milestone: 1750000,
+                data: null,
+            };
+            expect(configManager.getNextMilestoneWithNewKey(1750000, "vendorFieldLength")).toEqual(expected);
+        });
+    });
 });
