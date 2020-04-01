@@ -67,6 +67,10 @@ describe("Slots", () => {
             expect(Slots.isForgingAllowed()).toBeDefined();
         });
 
+        it("should return true when using latest timestamp (i.e. no argument passed)", () => {
+            expect(Slots.isForgingAllowed()).toBeTrue();
+        });
+
         it("returns true when over half the time in the block remains", () => {
             expect(Slots.isForgingAllowed(0)).toBeTrue();
             expect(Slots.isForgingAllowed(1)).toBeTrue();
