@@ -1,4 +1,6 @@
 import { Container, Providers, Services } from "@arkecosystem/core-kernel";
+
+import { ValidateAndAcceptPeerAction } from "./actions";
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
 import { Peer } from "./peer";
@@ -9,7 +11,6 @@ import { PeerStorage } from "./peer-storage";
 import { startSocketServer } from "./socket-server";
 import { payloadProcessor } from "./socket-server/payload-processor";
 import { TransactionBroadcaster } from "./transaction-broadcaster";
-import { ValidateAndAcceptPeerAction } from "./actions";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -77,7 +78,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private registerActions(): void {
-        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .bind("validateAndAcceptPeer", new ValidateAndAcceptPeerAction(this.app));
     }
 }

@@ -1,11 +1,11 @@
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Connection, createConnection, getCustomRepository } from "typeorm";
 
+import { GetActiveDelegatesAction } from "./actions";
 import { DatabaseService } from "./database-service";
 import { DatabaseEvent } from "./events";
 import { SnakeNamingStrategy } from "./models/naming-strategy";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
-import { GetActiveDelegatesAction } from "./actions";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -31,11 +31,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.registerActions();
     }
 
-    private registerActions(): void {
-        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-            .bind("getActiveDelegates", new GetActiveDelegatesAction(this.app));
-    }
-
     public async boot(): Promise<void> {
         await this.app.get<DatabaseService>(Container.Identifiers.DatabaseService).initialize();
     }
@@ -46,6 +41,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    private registerActions(): void {
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("getActiveDelegates", new GetActiveDelegatesAction(this.app));
     }
 
     private async connect(): Promise<Connection> {

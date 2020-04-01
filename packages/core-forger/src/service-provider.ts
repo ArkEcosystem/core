@@ -1,10 +1,10 @@
 import { Container, Contracts, Enums, Providers, Services } from "@arkecosystem/core-kernel";
 
+import { ForgeNewBlockAction, IsForgingAllowedAction } from "./actions";
 import { DelegateFactory } from "./delegate-factory";
 import { DelegateTracker } from "./delegate-tracker";
 import { ForgerService } from "./forger-service";
 import { Delegate } from "./interfaces";
-import { ForgeNewBlockAction, IsForgingAllowedAction } from "./actions";
 
 /**
  * @export
@@ -22,14 +22,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.get<ForgerService>(Container.Identifiers.ForgerService).register(this.config().all()); // ? why it isn't in boot?
 
         this.registerActions();
-    }
-
-    private registerActions(): void {
-        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-            .bind("forgeNewBlock", new ForgeNewBlockAction());
-
-        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-            .bind("isForgingAllowed", new IsForgingAllowedAction());
     }
 
     /**
@@ -68,6 +60,16 @@ export class ServiceProvider extends Providers.ServiceProvider {
         }
 
         return true;
+    }
+
+    private registerActions(): void {
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("forgeNewBlock", new ForgeNewBlockAction());
+
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("isForgingAllowed", new IsForgingAllowedAction());
     }
 
     /**

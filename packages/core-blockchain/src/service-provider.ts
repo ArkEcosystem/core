@@ -1,10 +1,10 @@
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 
+import { ProcessBlockAction } from "./actions";
 import { Blockchain } from "./blockchain";
+import { BlockProcessor } from "./processor";
 import { StateMachine } from "./state-machine";
 import { blockchainMachine } from "./state-machine/machine";
-import { ProcessBlockAction } from "./actions";
-import { BlockProcessor } from "./processor";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -23,11 +23,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.registerActions();
     }
 
-    private registerActions(): void {
-        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-            .bind("processBlock", new ProcessBlockAction());
-    }
-
     public async boot(): Promise<void> {
         await this.app.get<Blockchain>(Container.Identifiers.BlockchainService).boot();
     }
@@ -43,5 +38,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    private registerActions(): void {
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("processBlock", new ProcessBlockAction());
     }
 }

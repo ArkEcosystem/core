@@ -1,6 +1,7 @@
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
+import { BuildDelegateRankingAction } from "./actions";
 import { BlockState } from "./block-state";
 import { DposPreviousRoundState, DposState } from "./dpos";
 import { StateBuilder } from "./state-builder";
@@ -10,7 +11,6 @@ import { TransactionStore } from "./stores/transactions";
 import { TransactionValidator } from "./transaction-validator";
 import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "./wallets";
 import { registerFactories, registerIndexers } from "./wallets/indexers";
-import { BuildDelegateRankingAction } from "./actions";
 
 export const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
     return async (
@@ -67,16 +67,17 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.registerActions();
     }
 
-    private registerActions(): void {
-        this.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-            .bind("buildDelegateRanking", new BuildDelegateRankingAction());
-    }
-
     public async boot(): Promise<void> {
         await this.app.resolve<StateBuilder>(StateBuilder).run();
     }
 
     public async bootWhen(serviceProvider?: string): Promise<boolean> {
         return serviceProvider === "@arkecosystem/core-database";
+    }
+
+    private registerActions(): void {
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("buildDelegateRanking", new BuildDelegateRankingAction());
     }
 }
