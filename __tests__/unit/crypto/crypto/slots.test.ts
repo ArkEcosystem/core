@@ -67,7 +67,7 @@ describe("Slots", () => {
             expect(Slots.isForgingAllowed()).toBeDefined();
         });
 
-        it("is true when over half the time in the block remains", () => {
+        it("returns true when over half the time in the block remains", () => {
             expect(Slots.isForgingAllowed(0)).toBeTrue();
             expect(Slots.isForgingAllowed(1)).toBeTrue();
             expect(Slots.isForgingAllowed(3)).toBeTrue();
@@ -75,7 +75,7 @@ describe("Slots", () => {
             expect(Slots.isForgingAllowed(16)).toBeTrue();
         });
 
-        it("is false when under half the time in the block remains", () => {
+        it("returns false when under half the time in the block remains", () => {
             expect(Slots.isForgingAllowed(4)).toBeFalse();
             expect(Slots.isForgingAllowed(5)).toBeFalse();
             expect(Slots.isForgingAllowed(6)).toBeFalse();
@@ -138,6 +138,53 @@ describe("Slots", () => {
             expect(Slots.getSlotTime(6)).toBe(53);
             expect(Slots.getSlotTime(7)).toBe(63);
             expect(Slots.getSlotTime(8)).toBe(71);
+        });
+
+        describe("isForgingAllowed", () => {
+            it("returns true when over half the time in the block remains", () => {
+                const milestones = [
+                    { height: 1, blocktime: 8 },
+                    { height: 3, blocktime: 7 },
+                    { height: 4, blocktime: 5 },
+                ];
+                const config = { ...devnet, milestones };
+                configManager.setConfig(config);
+
+                expect(Slots.isForgingAllowed(0)).toBeTrue();
+                expect(Slots.isForgingAllowed(1)).toBeTrue();
+                expect(Slots.isForgingAllowed(3)).toBeTrue();
+                expect(Slots.isForgingAllowed(8)).toBeTrue();
+                expect(Slots.isForgingAllowed(11)).toBeTrue();
+                expect(Slots.isForgingAllowed(16)).toBeTrue();
+                expect(Slots.isForgingAllowed(18)).toBeTrue();
+                expect(Slots.isForgingAllowed(23)).toBeTrue();
+                expect(Slots.isForgingAllowed(28)).toBeTrue();
+                expect(Slots.isForgingAllowed(29)).toBeTrue();
+            });
+
+            it("returns false when under half the time in the block remains", () => {
+                const milestones = [
+                    { height: 1, blocktime: 8 },
+                    { height: 3, blocktime: 7 },
+                    { height: 4, blocktime: 5 },
+                ];
+                const config = { ...devnet, milestones };
+                configManager.setConfig(config);
+
+                expect(Slots.isForgingAllowed(4)).toBeFalse();
+                expect(Slots.isForgingAllowed(5)).toBeFalse();
+                expect(Slots.isForgingAllowed(6)).toBeFalse();
+                expect(Slots.isForgingAllowed(7)).toBeFalse();
+                expect(Slots.isForgingAllowed(12)).toBeFalse();
+                expect(Slots.isForgingAllowed(15)).toBeFalse();
+                expect(Slots.isForgingAllowed(19)).toBeFalse();
+                expect(Slots.isForgingAllowed(22)).toBeFalse();
+                expect(Slots.isForgingAllowed(25)).toBeFalse();
+                expect(Slots.isForgingAllowed(26)).toBeFalse();
+                expect(Slots.isForgingAllowed(27)).toBeFalse();
+                expect(Slots.isForgingAllowed(30)).toBeFalse();
+                expect(Slots.isForgingAllowed(32)).toBeFalse();
+            });
         });
     });
 });
