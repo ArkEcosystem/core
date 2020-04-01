@@ -58,6 +58,7 @@ export class Slots {
         let slotStartTime = 0;
         let slotEndTime = slotStartTime + blocktime - 1;
 
+        // TODO: should we start from 1 each time, or store these variables somewhere for efficiency when doing the next computation?
         for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
             if (!searchSpecificHeight || currentHeight === height) {
                 if (timestamp >= slotStartTime && timestamp <= slotEndTime) {
@@ -74,7 +75,21 @@ export class Slots {
             if (searchSpecificHeight) {
                 throw new Error(`Given timestamp exists in a future block`);
             } else {
-                return Math.floor((timestamp - slotStartTime) / blocktime + height) - 1;
+                const numberOfBlocksToPeek = 20000000;
+                // Number is arbitrarily defined - use a while loop instead?
+                height += numberOfBlocksToPeek;
+                // TODO: code duplication, move out to separate function
+                for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
+                    if (timestamp >= slotStartTime && timestamp <= slotEndTime) {
+                        return currentHeight - 1;
+                    }
+
+                    blocktime = this.calculateNewBlockTime(currentHeight + 1, blocktime);
+                    slotStartTime = slotEndTime + 1;
+                    slotEndTime = slotStartTime + blocktime - 1;
+                }
+
+                throw new Error(`Slot doesn't appear in the near future`);
             }
         } else {
             throw new Error(`Given timestamp exists in a previous block`);
@@ -84,7 +99,7 @@ export class Slots {
     private static getLatestHeight(height: number | undefined): number {
         if (!height) {
             // TODO: is the config manager the best way to retrieve most recent height?
-            // Or should this class maintain some sort of cache?
+            // Or should this class maintain its own cache?
             const configConfiguredHeight = configManager.getHeight();
             if (configConfiguredHeight) {
                 return configConfiguredHeight;
