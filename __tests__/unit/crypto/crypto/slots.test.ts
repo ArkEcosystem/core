@@ -18,13 +18,41 @@ describe("Slots", () => {
 
     describe("getSlotNumber", () => {
         it("return slot number", () => {
+            expect(Slots.getSlotNumber(1)).toBe(0);
+            expect(Slots.getSlotNumber(4)).toBe(0);
+            expect(Slots.getSlotNumber(7)).toBe(0);
+
+            expect(Slots.getSlotNumber(8)).toBe(1);
+            expect(Slots.getSlotNumber(9)).toBe(1);
+
             expect(Slots.getSlotNumber(10)).toBe(1);
+
+            expect(Slots.getSlotNumber(11)).toBe(1);
+            expect(Slots.getSlotNumber(15)).toBe(1);
+            expect(Slots.getSlotNumber(16)).toBe(2);
+
+            expect(Slots.getSlotNumber(20)).toBe(2);
+            expect(Slots.getSlotNumber(24)).toBe(3);
+
+            expect(Slots.getSlotNumber(10)).toBe(1);
+            expect(Slots.getSlotNumber(8000)).toBe(1000);
+            expect(Slots.getSlotNumber(15000)).toBe(1875);
+            expect(Slots.getSlotNumber(169000)).toBe(21125);
+            expect(Slots.getSlotNumber(169001)).toBe(21125);
+            expect(Slots.getSlotNumber(169005)).toBe(21125);
+            expect(Slots.getSlotNumber(169007)).toBe(21125);
         });
     });
 
     describe("getSlotTime", () => {
         it("returns slot time", () => {
+            expect(Slots.getSlotTime(1)).toBe(8);
+            expect(Slots.getSlotTime(8)).toBe(64);
+            expect(Slots.getSlotTime(50)).toBe(400);
+            expect(Slots.getSlotTime(8888)).toBe(71104);
             expect(Slots.getSlotTime(19614)).toBe(156912);
+            expect(Slots.getSlotTime(19700)).toBe(157600);
+            expect(Slots.getSlotTime(169000)).toBe(1352000);
         });
     });
 
