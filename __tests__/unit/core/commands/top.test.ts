@@ -37,7 +37,7 @@ describe("TopCommand", () => {
         ]);
 
         let message: string;
-        jest.spyOn(console, "log").mockImplementationOnce((m) => (message = m));
+        jest.spyOn(console, "log").mockImplementationOnce(m => (message = m));
 
         await cli.execute(Command);
 
@@ -55,6 +55,12 @@ describe("TopCommand", () => {
 
     it("should throw if no processes are running", async () => {
         jest.spyOn(processManager, "list").mockReturnValue([]);
+
+        await expect(cli.execute(Command)).rejects.toThrow("No processes are running.");
+    });
+
+    it("should throw if the process list is undefined", async () => {
+        jest.spyOn(processManager, "list").mockReturnValue(undefined);
 
         await expect(cli.execute(Command)).rejects.toThrow("No processes are running.");
     });

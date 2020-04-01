@@ -1,8 +1,7 @@
 import { Commands, Container } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
-import { existsSync } from "fs";
-import { removeSync } from "fs-extra";
+import { existsSync, removeSync } from "fs-extra";
 
 /**
  * @export

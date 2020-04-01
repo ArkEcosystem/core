@@ -46,12 +46,16 @@ export class Command extends Commands.Command {
             .setFlag(
                 "key",
                 "The environment variable that you wish to set.",
-                Joi.alternatives().try(Joi.string(), Joi.number()).required(),
+                Joi.alternatives()
+                    .try(Joi.string(), Joi.number())
+                    .required(),
             )
             .setFlag(
                 "value",
                 "The value that you wish to set the environment variable to.",
-                Joi.alternatives().try(Joi.string(), Joi.number()).required(),
+                Joi.alternatives()
+                    .try(Joi.string(), Joi.number())
+                    .required(),
             );
     }
 

@@ -1,7 +1,7 @@
 import { Commands, Container } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
-import { existsSync } from "fs";
+import { existsSync } from "fs-extra";
 
 import { Git, NPM } from "../source-providers";
 

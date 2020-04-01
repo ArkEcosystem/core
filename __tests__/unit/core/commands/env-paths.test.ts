@@ -8,7 +8,7 @@ beforeEach(() => (cli = new Console()));
 describe("PathsCommand", () => {
     it("should list all system paths", async () => {
         let message: string;
-        jest.spyOn(console, "log").mockImplementationOnce((m) => (message = m));
+        jest.spyOn(console, "log").mockImplementationOnce(m => (message = m));
 
         await cli.execute(Command);
 

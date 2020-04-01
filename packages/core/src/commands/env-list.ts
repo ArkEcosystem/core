@@ -52,7 +52,7 @@ export class Command extends Commands.Command {
             this.components.fatal(`No environment file found at ${envFile}.`);
         }
 
-        this.components.table(["Key", "Value"], (table) => {
+        this.components.table(["Key", "Value"], table => {
             const env = parseFileSync(envFile);
 
             for (const [key, value] of Object.entries(env)) {
