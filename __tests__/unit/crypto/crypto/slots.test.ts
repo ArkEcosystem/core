@@ -94,12 +94,50 @@ describe("Slots", () => {
     });
 
     describe("Dynamic block times", () => {
-        it("should compute the total block time over several milestone changes", () => {
-            // TODO:
+        it("getSlotNumber", () => {
+            const milestones = [
+                { height: 1, blocktime: 9 },
+                { height: 3, blocktime: 8 },
+                { height: 4, blocktime: 5 },
+            ];
+            const config = { ...devnet, milestones };
+            configManager.setConfig(config);
+
+            expect(Slots.getSlotNumber(1)).toBe(0);
+            expect(Slots.getSlotNumber(8)).toBe(0);
+
+            expect(Slots.getSlotNumber(9)).toBe(1);
+            expect(Slots.getSlotNumber(17)).toBe(1);
+
+            expect(Slots.getSlotNumber(18)).toBe(2);
+            expect(Slots.getSlotNumber(25)).toBe(2);
+
+            expect(Slots.getSlotNumber(26)).toBe(3);
+            expect(Slots.getSlotNumber(30)).toBe(3);
+
+            expect(Slots.getSlotNumber(31)).toBe(4);
+            expect(Slots.getSlotNumber(35)).toBe(4);
+
+            expect(Slots.getSlotNumber(36)).toBe(5);
         });
 
-        it("should use the last known blocktime when no height is passed", () => {
-            // use config.getHeight
+        it("getSlotTime", () => {
+            const milestones = [
+                { height: 1, blocktime: 8 },
+                { height: 3, blocktime: 9 },
+                { height: 6, blocktime: 10 },
+            ];
+            const config = { ...devnet, milestones };
+            configManager.setConfig(config);
+
+            expect(Slots.getSlotTime(1)).toBe(8);
+            expect(Slots.getSlotTime(2)).toBe(16);
+            expect(Slots.getSlotTime(3)).toBe(25);
+            expect(Slots.getSlotTime(4)).toBe(34);
+            expect(Slots.getSlotTime(5)).toBe(43);
+            expect(Slots.getSlotTime(6)).toBe(53);
+            expect(Slots.getSlotTime(7)).toBe(63);
+            expect(Slots.getSlotTime(8)).toBe(71);
         });
     });
 });
