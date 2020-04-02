@@ -191,13 +191,13 @@ describe("Slots", () => {
             });
         });
 
-        // TODO:
-        describe.skip("getSlotTime", () => {
+        describe("getSlotTime", () => {
             it("getSlotTime", () => {
                 const milestones = [
                     { height: 1, blocktime: 8 },
                     { height: 3, blocktime: 9 },
                     { height: 6, blocktime: 10 },
+                    { height: 8, blocktime: 8 },
                 ];
                 const config = { ...devnet, milestones };
                 configManager.setConfig(config);
@@ -210,6 +210,7 @@ describe("Slots", () => {
                 expect(Slots.getSlotTime(6)).toBe(53);
                 expect(Slots.getSlotTime(7)).toBe(63);
                 expect(Slots.getSlotTime(8)).toBe(71);
+                expect(Slots.getSlotTime(14)).toBe(119);
             });
         });
 

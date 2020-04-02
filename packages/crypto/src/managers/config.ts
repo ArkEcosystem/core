@@ -10,7 +10,7 @@ import { NetworkName } from "../types";
 
 interface MilestoneSearchResult {
     found: boolean;
-    milestone: number;
+    height: number;
     data: any;
 }
 
@@ -112,7 +112,7 @@ export class ConfigManager {
             throw new Error(`Attempted to get next milestone but none were set`);
         }
 
-        for (let i = 0; i < this.milestones.length - 1; i++) {
+        for (let i = 0; i < this.milestones.length; i++) {
             const milestone = this.milestones[i];
             if (
                 milestone[key] &&
@@ -121,7 +121,7 @@ export class ConfigManager {
             ) {
                 return {
                     found: true,
-                    milestone: milestone.height,
+                    height: milestone.height,
                     data: milestone[key],
                 };
             }
@@ -129,7 +129,7 @@ export class ConfigManager {
 
         return {
             found: false,
-            milestone: previousMilestone,
+            height: previousMilestone,
             data: null,
         };
     }

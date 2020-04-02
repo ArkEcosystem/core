@@ -33,9 +33,8 @@ export class Slots {
         return this.calculateSlotNumber(timestamp, lastKnownHeight, !!height);
     }
 
-    public static getSlotTime(slot: number, height?: number): number {
-        const lastKnownHeight = this.getLatestHeight(height);
-        return slot * calculateBlockTime(lastKnownHeight);
+    public static getSlotTime(slot: number): number {
+        return this.calculateSlotTime(slot);
     }
 
     public static getNextSlot(): number {
@@ -51,6 +50,26 @@ export class Slots {
         const blockTime: number = calculateBlockTime(lastKnownHeight);
 
         return timestamp % blockTime < blockTime / 2;
+    }
+
+    private static calculateSlotTime(slot): number {
+        let total = 0;
+        let lastHeight = 1;
+        let blocktime = calculateBlockTime(lastHeight);
+        let nextMilestone = configManager.getNextMilestoneWithNewKey(lastHeight, "blocktime");
+
+        for (let i = 0; i <= configManager.getMilestones().length; i++) {
+            if (nextMilestone.found && nextMilestone.height <= slot) {
+                total += blocktime * (nextMilestone.height - lastHeight);
+                lastHeight = nextMilestone.height;
+                blocktime = nextMilestone.data;
+                nextMilestone = configManager.getNextMilestoneWithNewKey(lastHeight, "blocktime");
+            } else {
+                total += blocktime * (slot - lastHeight + 1);
+                break;
+            }
+        }
+        return total;
     }
 
     private static calculateSlotNumber(timestamp: number, height: number, searchSpecificHeight = true): SlotNumber {
