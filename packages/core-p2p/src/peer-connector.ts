@@ -1,35 +1,25 @@
-import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { create, SCClientSocket } from "socketcluster-client";
-
-import { codec } from "./utils/sc-codec";
+import Nes from "@hapi/nes";
+import os from "os";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 // todo: review the implementation
 @Container.injectable()
 export class PeerConnector implements Contracts.P2P.PeerConnector {
-    @Container.inject(Container.Identifiers.PluginConfiguration)
-    @Container.tagged("plugin", "@arkecosystem/core-p2p")
-    private readonly configuration!: Providers.PluginConfiguration;
-
-    private readonly connections: Utils.Collection<SCClientSocket> = new Utils.Collection<SCClientSocket>();
+    private readonly connections: Utils.Collection<Nes.Client> = new Utils.Collection<Nes.Client>();
     private readonly errors: Map<string, string> = new Map<string, string>();
 
-    public all(): SCClientSocket[] {
+    public all(): Nes.Client[] {
         return this.connections.values();
     }
 
-    public connection(peer: Contracts.P2P.Peer): SCClientSocket | undefined {
-        const connection: SCClientSocket | undefined = this.connections.get(peer.ip);
+    public connection(peer: Contracts.P2P.Peer): Nes.Client | undefined {
+        const connection: Nes.Client | undefined = this.connections.get(peer.ip);
 
         return connection;
     }
 
-    public connect(peer: Contracts.P2P.Peer, maxPayload?: number): SCClientSocket {
-        const connection = this.connection(peer) || this.create(peer);
-
-        const socket = (connection as any).transport.socket;
-        if (maxPayload && socket._receiver) {
-            socket._receiver._maxPayload = maxPayload;
-        }
+    public async connect(peer: Contracts.P2P.Peer, maxPayload?: number): Promise<Nes.Client> {
+        const connection = this.connection(peer) || await this.create(peer);
 
         this.connections.set(peer.ip, connection);
 
@@ -40,7 +30,7 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         const connection = this.connection(peer);
 
         if (connection) {
-            connection.destroy();
+            connection.disconnect();
 
             this.connections.forget(peer.ip);
         }
@@ -56,10 +46,29 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         }
     }
 
-    public emit(peer: Contracts.P2P.Peer, event: string, data: any): void {
-        // TODO is this method revelant here ? :think:
-        const connection: SCClientSocket = this.connect(peer);
-        connection.emit(event, data);
+    public async emit(peer: Contracts.P2P.Peer, event: string, payload: any): Promise<any> {
+        var ifaces = os.networkInterfaces();
+
+        const ipHeader = Object.values(ifaces).reduce((finalifaces, arrIface) => [...finalifaces, ...arrIface], [])
+        .filter(iface => {
+            if ('IPv4' !== iface.family || iface.internal !== false) {
+            // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+            return false;
+            }
+            return true;
+        }).map(iface => iface.address).join();
+
+        const connection: Nes.Client = await this.connect(peer);
+        const options = {
+            path: event,
+            headers: {
+                "x-forwarded-for": ipHeader
+            },
+            method: "POST",
+            payload
+        };
+        
+        return connection.request(options);
     }
 
     public getError(peer: Contracts.P2P.Peer): string | undefined {
@@ -78,40 +87,9 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         this.errors.delete(peer.ip);
     }
 
-    private create(peer: Contracts.P2P.Peer): SCClientSocket {
-        const getBlocksTimeout = this.configuration.getRequired<number>("getBlocksTimeout");
-        const verifyTimeout = this.configuration.getRequired<number>("verifyTimeout");
-
-        const connection = create({
-            port: peer.port,
-            hostname: peer.ip,
-            ackTimeout: Math.max(getBlocksTimeout, verifyTimeout),
-            perMessageDeflate: false,
-            codecEngine: codec,
-        });
-
-        const socket = (connection as any).transport.socket;
-
-        socket.on("ping", () => this.terminate(peer));
-        socket.on("pong", () => this.terminate(peer));
-        socket.on("message", (data) => {
-            if (data === "#1") {
-                // this is to establish some rate limit on #1 messages
-                // a simple rate limit of 1 per second doesnt seem to be enough, so decided to give some margin
-                // and allow up to 10 per second which should be more than enough
-                const timeNow: number = new Date().getTime();
-                socket._last10Pings = socket._last10Pings || [];
-                socket._last10Pings.push(timeNow);
-                if (socket._last10Pings.length >= 10) {
-                    socket._last10Pings = socket._last10Pings.slice(socket._last10Pings.length - 10);
-                    if (timeNow - socket._last10Pings[0] < 1000) {
-                        this.terminate(peer);
-                    }
-                }
-            }
-        });
-
-        connection.on("error", () => this.disconnect(peer));
+    private async create(peer: Contracts.P2P.Peer): Promise<Nes.Client> {
+        const connection = new Nes.Client(`ws://${peer.ip}:${peer.port}`);
+        await connection.connect();
 
         return connection;
     }

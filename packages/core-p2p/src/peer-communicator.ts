@@ -2,7 +2,6 @@ import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/cor
 import { Blocks, Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import delay from "delay";
-import { SCClientSocket } from "socketcluster-client";
 
 import { constants } from "./constants";
 import { SocketErrors } from "./enums";
@@ -10,7 +9,7 @@ import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedEr
 import { PeerVerifier } from "./peer-verifier";
 import { RateLimiter } from "./rate-limiter";
 import { replySchemas } from "./schemas";
-import { buildRateLimiter, isValidVersion, socketEmit } from "./utils";
+import { buildRateLimiter, isValidVersion } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
@@ -236,7 +235,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     }
 
     private parseHeaders(peer: Contracts.P2P.Peer, response): void {
-        if (response.headers.height) {
+        if (response.headers && response.headers.height) {
             peer.state.height = +response.headers.height;
         }
     }
@@ -260,7 +259,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         return true;
     }
 
-    private async emit(peer: Contracts.P2P.Peer, event: string, data?: any, timeout?: number, maxPayload?: number) {
+    private async emit(peer: Contracts.P2P.Peer, event: string, payload?: any, timeout?: number, maxPayload?: number) {
         await this.throttle(peer, event);
 
         let response;
@@ -270,22 +269,15 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             const timeBeforeSocketCall: number = new Date().getTime();
 
             maxPayload = maxPayload || 100 * constants.KILOBYTE; // 100KB by default, enough for most requests
-            const connection: SCClientSocket = this.connector.connect(peer, maxPayload);
-            response = await socketEmit(
-                peer.ip,
-                connection,
-                event,
-                data,
-                {
-                    "Content-Type": "application/json",
-                },
-                timeout,
-            );
-
+            await this.connector.connect(peer, maxPayload);
+            
+            response = await this.connector.emit(peer, event, payload);
+            
+            
             peer.latency = new Date().getTime() - timeBeforeSocketCall;
-            this.parseHeaders(peer, response);
+            this.parseHeaders(peer, response.payload);
 
-            if (!this.validateReply(peer, response.data, event)) {
+            if (!this.validateReply(peer, response.payload, event)) {
                 throw new Error(`Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.data)}`);
             }
         } catch (e) {
@@ -293,7 +285,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             return undefined;
         }
 
-        return response.data;
+        return response.payload;
     }
 
     private async throttle(peer: Contracts.P2P.Peer, event: string): Promise<void> {

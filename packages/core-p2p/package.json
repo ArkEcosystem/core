@@ -29,6 +29,8 @@
         "@arkecosystem/core-transaction-pool": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
         "@hapi/sntp": "^4.0.0",
+        "@hapi/hapi": "^19.0.0",
+        "@hapi/nes": "^12.0.2",
         "ajv": "^6.10.2",
         "better-sqlite3": "^5.4.3",
         "dayjs": "^1.8.17",

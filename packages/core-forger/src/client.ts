@@ -1,7 +1,7 @@
+import Nes from "@hapi/nes";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { codec, NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
+import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
-import socketCluster from "socketcluster-client";
 
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 import { RelayHost } from "./interfaces";
@@ -41,20 +41,9 @@ export class Client {
      */
     public register(hosts: RelayHost[]) {
         this.hosts = hosts.map((host: RelayHost) => {
-            host.socket = socketCluster.create({
-                ...host,
-                autoReconnectOptions: {
-                    initialDelay: 1000,
-                    maxDelay: 1000,
-                },
-                codecEngine: codec,
-            });
-
-            host.socket.on("error", (err) => {
-                if (err.message !== "Socket hung up") {
-                    this.logger.error(err.message);
-                }
-            });
+            const connection = new Nes.Client(`ws://${host.hostname}:${host.port}`);
+            connection.connect();
+            host.socket = connection;
 
             return host;
         });
@@ -67,7 +56,7 @@ export class Client {
      */
     public dispose(): void {
         for (const host of this.hosts) {
-            const socket: socketCluster.SCClientSocket | undefined = host.socket;
+            const socket: Nes.Client | undefined = host.socket;
 
             if (socket) {
                 socket.disconnect();
@@ -186,7 +175,7 @@ export class Client {
     public async selectHost(): Promise<void> {
         for (let i = 0; i < 10; i++) {
             for (const host of this.hosts) {
-                if (host.socket && host.socket.getState() === host.socket.OPEN) {
+                if (host.socket) {
                     this.host = host;
                     return;
                 }
@@ -208,27 +197,25 @@ export class Client {
      * @private
      * @template T
      * @param {string} event
-     * @param {Record<string, any>} [data={}]
+     * @param {Record<string, any>} [payload={}]
      * @param {number} [timeout=4000]
      * @returns {Promise<T>}
      * @memberof Client
      */
-    private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout = 4000): Promise<T> {
+    private async emit<T = object>(event: string, payload: Record<string, any> = {}, timeout = 4000): Promise<T> {
         try {
-            Utils.assert.defined<socketCluster.SCClientSocket>(this.host.socket);
+            Utils.assert.defined<Nes.Client>(this.host.socket);
 
-            const response: Contracts.P2P.Response<T> = await socketEmit(
-                this.host.hostname,
-                this.host.socket,
-                event,
-                data,
-                {
-                    "Content-Type": "application/json",
-                },
-                timeout,
-            );
+            const options = {
+                path: event,
+                headers: {},
+                method: "POST",
+                payload
+            };
+            
+            const response = await this.host.socket.request(options);
 
-            return response.data;
+            return response.payload;
         } catch (error) {
             throw new RelayCommunicationError(`${this.host.hostname}:${this.host.port}<${event}>`, error.message);
         }

@@ -1,20 +1,20 @@
 // todo: we need to get rid of this dependency as it is big and doesn't concern core-kernel
-import { SCClientSocket } from "socketcluster-client";
+import Nes from "@hapi/nes";
 
 import { Peer } from "./peer";
 
 export interface PeerConnector {
-    all(): SCClientSocket[];
+    all(): Nes.Client[];
 
-    connection(peer: Peer): SCClientSocket | undefined;
+    connection(peer: Peer): Nes.Client | undefined;
 
-    connect(peer: Peer, maxPayload?: number): SCClientSocket;
+    connect(peer: Peer, maxPayload?: number): Promise<Nes.Client>;
 
     disconnect(peer: Peer): void;
 
     terminate(peer: Peer): void;
 
-    emit(peer: Peer, event: string, data: any): void;
+    emit(peer: Peer, event: string, payload: any): Promise<any>;
 
     getError(peer: Peer): string | undefined;
 
