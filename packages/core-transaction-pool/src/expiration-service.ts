@@ -1,5 +1,5 @@
 import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class ExpirationService {
@@ -32,12 +32,11 @@ export class ExpirationService {
             return transaction.data.expiration;
         } else {
             const currentHeight: number = this.stateStore.getLastHeight();
-            const blockTime: number = Managers.configManager.getMilestone(currentHeight).blocktime;
             const createdSecondsAgo: number = Crypto.Slots.getTime() - transaction.data.timestamp;
-            const createdBlocksAgo: number = Math.floor(createdSecondsAgo / blockTime); // ! varying block times
+            const createdBlocksAgo: number = Crypto.Slots.getSlotNumber(createdSecondsAgo);
             const maxTransactionAge: number = this.configuration.getRequired<number>("maxTransactionAge");
 
-            return currentHeight - createdBlocksAgo + maxTransactionAge;
+            return Math.floor(currentHeight - createdBlocksAgo + maxTransactionAge);
         }
     }
 }
