@@ -214,8 +214,7 @@ describe("Slots", () => {
             });
         });
 
-        // TODO:
-        describe.skip("isForgingAllowed", () => {
+        describe("isForgingAllowed", () => {
             it("returns true when over half the time in the block remains", () => {
                 const milestones = [
                     { height: 1, blocktime: 8 },

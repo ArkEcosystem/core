@@ -41,15 +41,39 @@ export class Slots {
         return this.getSlotNumber() + 1;
     }
 
-    public static isForgingAllowed(timestamp?: number, height?: number): boolean {
+    public static isForgingAllowed(timestamp?: number): boolean {
         if (timestamp === undefined) {
             timestamp = this.getTime();
         }
 
-        const lastKnownHeight = this.getLatestHeight(height);
-        const blockTime: number = calculateBlockTime(lastKnownHeight);
+        /**
+            TODO: consider efficiency here
+            Since the slot number has a deterministic relationship to the height -
+            we can instead calculate the slot number, using the timestamp, to know how far to search (in calculateForgingStatus)
+            This is however less efficient than passing a height directly.
+            Passing a height also allows us to capture other possible error states
+            (such as when the timestamp does not correspond to the height)
+         */
 
-        return timestamp % blockTime < blockTime / 2;
+        return this.calculateForgingStatus(timestamp, this.getSlotNumber(timestamp));
+    }
+
+    private static calculateForgingStatus(timestamp: number, height: number): boolean {
+        let blocktime = calculateBlockTime(1);
+        let slotStartTime = 0;
+        let slotEndTime = slotStartTime + blocktime - 1;
+
+        // TODO: code re-use, consider refactoring
+        for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
+            if (timestamp >= slotStartTime && timestamp <= slotEndTime) {
+                break;
+            }
+
+            blocktime = this.calculateNewBlockTime(currentHeight + 1, blocktime);
+            slotStartTime = slotEndTime + 1;
+            slotEndTime = slotStartTime + blocktime - 1;
+        }
+        return timestamp <= slotEndTime - Math.ceil(blocktime / 2);
     }
 
     private static calculateSlotTime(slot): number {
