@@ -4,6 +4,8 @@ import { Slots } from "../../../../packages/crypto/src/crypto/slots";
 import { configManager } from "../../../../packages/crypto/src/managers/config";
 import { devnet } from "../../../../packages/crypto/src/networks";
 
+afterEach(() => jest.clearAllMocks());
+
 describe("Slots", () => {
     beforeEach(() => configManager.setConfig(devnet));
 
@@ -86,8 +88,10 @@ describe("Slots", () => {
         });
 
         describe("getTimeInMsUntilNextSlot", () => {
-            // TODO: fix
-            it.skip("should be ok", () => {
+            it("should be ok", () => {
+                const spyGetTime = jest.spyOn(Slots, "getTime");
+                spyGetTime.mockReturnValue(200);
+
                 const nextSlotTime = Slots.getSlotTime(Slots.getNextSlot());
                 const now = Slots.getTime();
 
