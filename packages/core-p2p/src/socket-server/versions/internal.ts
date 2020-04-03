@@ -4,6 +4,7 @@ import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import { process } from "ipaddr.js";
 
 import { PeerService } from "../../contracts";
+import { calculateForgingInfo } from "../../utils/calculate-forging-info";
 
 // todo: turn this into a class so that ioc can be used
 // todo: review the implementation of all methods
@@ -81,7 +82,6 @@ export const getCurrentRound = async ({
     const roundInfo = Utils.roundCalculator.calculateRound(height);
     const { maxDelegates, round } = roundInfo;
 
-    const blockTime = Managers.configManager.getMilestone(height).blocktime;
     const reward = Managers.configManager.getMilestone(height).reward;
     const delegates: Contracts.P2P.DelegateWallet[] = (await databaseService.getActiveDelegates(roundInfo)).map(
         (wallet) => ({
@@ -91,19 +91,17 @@ export const getCurrentRound = async ({
     );
 
     const timestamp = Crypto.Slots.getTime();
-    const blockTimestamp = Crypto.Slots.getSlotNumber(timestamp) * blockTime;
-    const currentForger = parseInt((timestamp / blockTime) as any) % maxDelegates;
-    const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxDelegates;
+    const forgingInfo = calculateForgingInfo(timestamp, height, maxDelegates);
 
     return {
         current: round,
         reward,
-        timestamp: blockTimestamp,
+        timestamp: forgingInfo.blockTimestamp,
         delegates,
-        currentForger: delegates[currentForger],
-        nextForger: delegates[nextForger],
+        currentForger: delegates[forgingInfo.currentForger],
+        nextForger: delegates[forgingInfo.nextForger],
         lastBlock: lastBlock.data,
-        canForge: parseInt((1 + lastBlock.data.timestamp / blockTime) as any) * blockTime < timestamp - 1,
+        canForge: forgingInfo.canForge,
     };
 };
 
