@@ -1,5 +1,5 @@
 import { Models } from "@arkecosystem/core-database";
-import { Interfaces, Utils } from "@arkecosytem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 export const mapTransactionToModel = (
     transaction: Interfaces.ITransaction,
