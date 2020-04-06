@@ -1,8 +1,9 @@
-import Hapi from "@hapi/hapi";
-import { Controller } from "./controller";
-import { Contracts, Container, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Crypto } from "@arkecosystem/crypto";
 import { DatabaseService } from "@arkecosystem/core-database";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import Hapi from "@hapi/hapi";
+
+import { Controller } from "./controller";
 
 export class InternalController extends Controller {
     @Container.inject(Container.Identifiers.PeerProcessor)
@@ -26,7 +27,10 @@ export class InternalController extends Controller {
         return true;
     }
 
-    public async getUnconfirmedTransactions(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<Contracts.P2P.UnconfirmedTransactions> {
+    public async getUnconfirmedTransactions(
+        request: Hapi.Request,
+        h: Hapi.ResponseToolkit,
+    ): Promise<Contracts.P2P.UnconfirmedTransactions> {
         const collator: Contracts.TransactionPool.Collator = this.app.get<Contracts.TransactionPool.Collator>(
             Container.Identifiers.TransactionPoolCollator,
         );
@@ -34,10 +38,10 @@ export class InternalController extends Controller {
             Container.Identifiers.TransactionPoolService,
         );
         const transactions: Interfaces.ITransaction[] = await collator.getBlockCandidateTransactions();
-    
+
         return {
             poolSize: transactionPool.getPoolSize(),
-            transactions: transactions.map(t => t.serialized.toString("hex")),
+            transactions: transactions.map((t) => t.serialized.toString("hex")),
         };
     }
 
@@ -52,7 +56,7 @@ export class InternalController extends Controller {
         const blockTime = Managers.configManager.getMilestone(height).blocktime;
         const reward = Managers.configManager.getMilestone(height).reward;
         const delegates: Contracts.P2P.DelegateWallet[] = (await this.database.getActiveDelegates(roundInfo)).map(
-            wallet => ({
+            (wallet) => ({
                 ...wallet,
                 delegate: wallet.getAttribute("delegate"),
             }),

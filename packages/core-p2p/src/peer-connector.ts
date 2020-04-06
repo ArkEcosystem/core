@@ -1,6 +1,6 @@
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import Nes from "@hapi/nes";
 import os from "os";
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 // todo: review the implementation
 @Container.injectable()
@@ -19,7 +19,7 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
     }
 
     public async connect(peer: Contracts.P2P.Peer, maxPayload?: number): Promise<Nes.Client> {
-        const connection = this.connection(peer) || await this.create(peer);
+        const connection = this.connection(peer) || (await this.create(peer));
 
         this.connections.set(peer.ip, connection);
 
@@ -40,34 +40,37 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         const connection = this.connection(peer);
 
         if (connection) {
-            (connection as any).transport.socket.terminate();
+            connection.transport.socket.terminate();
 
             this.connections.forget(peer.ip);
         }
     }
 
     public async emit(peer: Contracts.P2P.Peer, event: string, payload: any): Promise<any> {
-        var ifaces = os.networkInterfaces();
+        const ifaces = os.networkInterfaces();
 
-        const ipHeader = Object.values(ifaces).reduce((finalifaces, arrIface) => [...finalifaces, ...arrIface], [])
-        .filter(iface => {
-            if ('IPv4' !== iface.family || iface.internal !== false) {
-            // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
-            return false;
-            }
-            return true;
-        }).map(iface => iface.address).join();
+        const ipHeader = Object.values(ifaces)
+            .reduce((finalifaces, arrIface) => [...finalifaces, ...arrIface], [])
+            .filter((iface) => {
+                if ("IPv4" !== iface.family || iface.internal !== false) {
+                    // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+                    return false;
+                }
+                return true;
+            })
+            .map((iface) => iface.address)
+            .join();
 
         const connection: Nes.Client = await this.connect(peer);
         const options = {
             path: event,
             headers: {
-                "x-forwarded-for": ipHeader
+                "x-forwarded-for": ipHeader,
             },
             method: "POST",
-            payload
+            payload,
         };
-        
+
         return connection.request(options);
     }
 

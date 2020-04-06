@@ -270,10 +270,9 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
             maxPayload = maxPayload || 100 * constants.KILOBYTE; // 100KB by default, enough for most requests
             await this.connector.connect(peer, maxPayload);
-            
+
             response = await this.connector.emit(peer, event, payload);
-            
-            
+
             peer.latency = new Date().getTime() - timeBeforeSocketCall;
             this.parseHeaders(peer, response.payload);
 

@@ -11,7 +11,7 @@ export const peerSchemas = {
     }),
 
     "p2p.peer.getCommonBlocks": Joi.object({
-        ids: Joi.array().min(1).max(10).items(Joi.string()) // TODO strings are block ids
+        ids: Joi.array().min(1).max(10).items(Joi.string()), // TODO strings are block ids
     }),
 
     "p2p.peer.getStatus": Joi.object().max(0), // empty object expected
@@ -19,11 +19,11 @@ export const peerSchemas = {
     "p2p.peer.postBlock": Joi.object({
         block: Joi.object({
             type: "Buffer",
-            data: Joi.array() // TODO better way to validate buffer ?
-        })
+            data: Joi.array(), // TODO better way to validate buffer ?
+        }),
     }),
 
     "p2p.peer.postTransactions": Joi.object({
-        transactions: Joi.array() // TODO array of transactions, needs Joi transaction schema
-    })
-}
+        transactions: Joi.array(), // TODO array of transactions, needs Joi transaction schema
+    }),
+};

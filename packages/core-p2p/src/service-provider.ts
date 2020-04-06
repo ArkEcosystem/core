@@ -8,8 +8,8 @@ import { PeerCommunicator } from "./peer-communicator";
 import { PeerConnector } from "./peer-connector";
 import { PeerProcessor } from "./peer-processor";
 import { PeerStorage } from "./peer-storage";
-import { TransactionBroadcaster } from "./transaction-broadcaster";
 import { Server } from "./socket-server/server";
+import { TransactionBroadcaster } from "./transaction-broadcaster";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     private serverSymbol = Symbol.for("P2P<Server>");
@@ -73,10 +73,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private async buildServer(id: symbol): Promise<void> {
-        this.app
-            .bind<Server>(id)
-            .to(Server)
-            .inSingletonScope();
+        this.app.bind<Server>(id).to(Server).inSingletonScope();
 
         const server: Server = this.app.get<Server>(id);
         const serverConfig = this.config().get<Types.JsonObject>("server");
@@ -84,7 +81,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         await server.initialize("P2P Server", serverConfig);
     }
-    
+
     private registerActions(): void {
         this.app
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)

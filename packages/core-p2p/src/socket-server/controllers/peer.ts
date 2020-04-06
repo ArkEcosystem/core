@@ -1,14 +1,14 @@
-import Hapi from "@hapi/hapi";
-import { Container, Contracts, Utils, Providers } from "@arkecosystem/core-kernel";
-
-import { Controller } from "./controller";
 import { DatabaseService } from "@arkecosystem/core-database";
-import { Interfaces, Crypto, Blocks, Managers } from "@arkecosystem/crypto";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import Hapi from "@hapi/hapi";
+
 import { MissingCommonBlockError } from "../../errors";
-import { getPeerConfig } from "../utils/get-peer-config";
-import { TooManyTransactionsError, UnchainedBlockError } from "../errors";
 import { isWhitelisted } from "../../utils";
+import { TooManyTransactionsError, UnchainedBlockError } from "../errors";
+import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
+import { Controller } from "./controller";
 
 export class PeerController extends Controller {
     @Container.inject(Container.Identifiers.PeerStorage)
@@ -19,13 +19,14 @@ export class PeerController extends Controller {
 
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;
-    
+
     public getPeers(request: Hapi.Request, h: Hapi.ResponseToolkit): Contracts.P2P.PeerBroadcast[] {
         // Add the peer if not already (on every peer endpoint)
         this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
 
-        return this.peerStorage.getPeers()
-            .map(peer => peer.toBroadcast())
+        return this.peerStorage
+            .getPeers()
+            .map((peer) => peer.toBroadcast())
             .sort((a, b) => {
                 Utils.assert.defined<number>(a.latency);
                 Utils.assert.defined<number>(b.latency);
@@ -34,7 +35,10 @@ export class PeerController extends Controller {
             });
     }
 
-    public async getCommonBlocks(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<{
+    public async getCommonBlocks(
+        request: Hapi.Request,
+        h: Hapi.ResponseToolkit,
+    ): Promise<{
         common: Interfaces.IBlockData;
         lastBlockHeight: number;
     }> {
@@ -76,8 +80,8 @@ export class PeerController extends Controller {
         // Add the peer if not already (on every peer endpoint)
         this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
 
-        this.logger.debug(`postBlock request.info received: ${JSON.stringify(request.info)}`)
-        this.logger.debug(`postBlock request.headers received: ${JSON.stringify(request.headers)}`)
+        this.logger.debug(`postBlock request.info received: ${JSON.stringify(request.info)}`);
+        this.logger.debug(`postBlock request.headers received: ${JSON.stringify(request.headers)}`);
         const configuration = this.app.getTagged<Providers.PluginConfiguration>(
             Container.Identifiers.PluginConfiguration,
             "plugin",
@@ -86,46 +90,51 @@ export class PeerController extends Controller {
 
         const blockBuffer = Buffer.from(request.payload.block.data);
         const blockHex: string = blockBuffer.toString("hex");
-    
+
         const deserializedHeader = Blocks.Deserializer.deserialize(blockHex, true);
-    
-        if (deserializedHeader.data.numberOfTransactions > Managers.configManager.getMilestone().block.maxTransactions) {
+
+        if (
+            deserializedHeader.data.numberOfTransactions > Managers.configManager.getMilestone().block.maxTransactions
+        ) {
             throw new TooManyTransactionsError(deserializedHeader.data);
         }
-    
+
         const deserialized: {
             data: Interfaces.IBlockData;
             transactions: Interfaces.ITransaction[];
         } = Blocks.Deserializer.deserialize(blockHex);
-    
+
         const block: Interfaces.IBlockData = {
             ...deserialized.data,
-            transactions: deserialized.transactions.map(tx => tx.data),
+            transactions: deserialized.transactions.map((tx) => tx.data),
         };
-    
+
         const fromForger: boolean = isWhitelisted(
             configuration.getOptional<string[]>("remoteAccess", []),
             request.info.remoteAddress,
         );
 
         const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
-    
+
         if (!fromForger) {
             if (blockchain.pingBlock(block)) {
                 return true;
             }
-    
+
             const lastDownloadedBlock: Interfaces.IBlockData = blockchain.getLastDownloadedBlock();
-    
+
             if (!Utils.isBlockChained(lastDownloadedBlock, block)) {
                 throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
             }
         }
-    
-        if (block.transactions && block.transactions.length > Managers.configManager.getMilestone().block.maxTransactions) {
+
+        if (
+            block.transactions &&
+            block.transactions.length > Managers.configManager.getMilestone().block.maxTransactions
+        ) {
             throw new TooManyTransactionsError(block);
         }
-    
+
         this.logger.info(
             `Received new block at height ${block.height.toLocaleString()} with ${Utils.pluralize(
                 "transaction",
@@ -133,7 +142,7 @@ export class PeerController extends Controller {
                 true,
             )} from ${request.info.remoteAddress} (${request.headers.host})`,
         );
-    
+
         blockchain.handleIncomingBlock(block, fromForger);
         return true;
     }
@@ -150,7 +159,10 @@ export class PeerController extends Controller {
         return processor.accept;
     }
 
-    public async getBlocks(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<Interfaces.IBlockData[] | Contracts.Shared.DownloadBlock[]> {
+    public async getBlocks(
+        request: Hapi.Request,
+        h: Hapi.ResponseToolkit,
+    ): Promise<Interfaces.IBlockData[] | Contracts.Shared.DownloadBlock[]> {
         // Add the peer if not already (on every peer endpoint)
         this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
 

@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Providers, Utils, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Services, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import prettyMs from "pretty-ms";
 
@@ -201,10 +201,13 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         );
 
         if (pingAll || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.75) {
-            await Promise.all(theirPeers.map((p) => this.app
-                .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-                .call("validateAndAcceptPeer", { peer: p, options:  { lessVerbose: true }})
-            ));
+            await Promise.all(
+                theirPeers.map((p) =>
+                    this.app
+                        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                        .call("validateAndAcceptPeer", { peer: p, options: { lessVerbose: true } }),
+                ),
+            );
             this.pingPeerPorts(pingAll);
 
             return true;
@@ -595,7 +598,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
                 return this.app
                     .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-                    .call("validateAndAcceptPeer", { peer, options:  { seed: true, lessVerbose: true } });
+                    .call("validateAndAcceptPeer", { peer, options: { seed: true, lessVerbose: true } });
             }),
         );
     }

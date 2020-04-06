@@ -1,25 +1,20 @@
+import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
-import Boom from "@hapi/boom";
 
 type HapiHandler = (request: Hapi.Request, h: Hapi.ResponseToolkit) => any;
 
 export abstract class Route {
-    protected static makeRouteObject(
-        id: string,
-        handler: HapiHandler,
-        schema?: Joi.Schema,
-        maxBytes?: number
-    ) {
+    protected static makeRouteConfig(id: string, handler: HapiHandler, schema?: Joi.Schema, maxBytes?: number) {
         return {
-            method: 'POST',
+            method: "POST",
             path: `/${id.replace(/\./g, "/")}`, // building a valid path from id, we only use the route id anyway
             config: {
                 id,
                 handler: this.wrapHandler(handler, schema),
                 payload: {
-                    maxBytes
-                }
+                    maxBytes,
+                },
             },
         };
     }
@@ -32,7 +27,7 @@ export abstract class Route {
                     return Boom.badRequest("Validation failed");
                 }
                 return handler(request, h);
-            }
+            };
         }
         return handler;
     }

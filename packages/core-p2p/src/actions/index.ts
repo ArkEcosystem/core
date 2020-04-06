@@ -1,1 +1,1 @@
-export { ValidateAndAcceptPeerAction } from "./validate-and-accept-peer"
+export { ValidateAndAcceptPeerAction } from "./validate-and-accept-peer";
