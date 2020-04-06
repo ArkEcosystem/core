@@ -69,7 +69,7 @@
         "read-last-lines": "^1.7.1",
         "simple-git": "^1.126.0",
         "tar": "^6.0.0",
-        "type-fest": "^0.12.0",
+        "type-fest": "^0.13.0",
         "wif": "^2.0.6"
     },
     "engines": {
