@@ -1,5 +1,4 @@
-import { DatabaseService } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils, Services } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 
 import { Delegate } from "./interfaces";
@@ -10,6 +9,9 @@ import { Delegate } from "./interfaces";
  */
 @Container.injectable()
 export class DelegateTracker {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     /**
      * @private
      * @type {Contracts.Kernel.Logger}
@@ -25,14 +27,6 @@ export class DelegateTracker {
      */
     @Container.inject(Container.Identifiers.BlockchainService)
     private readonly blockchainService!: Contracts.Blockchain.Blockchain;
-
-    /**
-     * @private
-     * @type {DatabaseService}
-     * @memberof DelegateTracker
-     */
-    @Container.inject(Container.Identifiers.DatabaseService)
-    private readonly databaseService!: DatabaseService;
 
     /**
      * @private
@@ -72,7 +66,11 @@ export class DelegateTracker {
         const blockTime: number = Managers.configManager.getMilestone(height).blocktime;
         const round: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(height);
 
-        const activeDelegates: (string | undefined)[] = (await this.databaseService.getActiveDelegates(round)).map(
+        let activeDelegates = (await this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .call("getActiveDelegates", { roundInfo: round })) as Contracts.State.Wallet[];
+
+        const activeDelegatesPublicKeys: (string | undefined)[] = activeDelegates.map(
             (delegate: Contracts.State.Wallet) => delegate.publicKey,
         );
 
@@ -80,18 +78,18 @@ export class DelegateTracker {
         const nextForgers: string[] = [];
         for (let i = 2; i <= delegatesCount; i++) {
             const delegate: string | undefined =
-                activeDelegates[(Crypto.Slots.getSlotNumber(timestamp) + i) % delegatesCount];
+                activeDelegatesPublicKeys[(Crypto.Slots.getSlotNumber(timestamp) + i) % delegatesCount];
 
             if (delegate) {
                 nextForgers.push(delegate);
             }
         }
 
-        if (activeDelegates.length < delegatesCount) {
+        if (activeDelegatesPublicKeys.length < delegatesCount) {
             return this.logger.warning(
                 `Tracker only has ${Utils.pluralize(
                     "active delegate",
-                    activeDelegates.length,
+                    activeDelegatesPublicKeys.length,
                     true,
                 )} from a required ${delegatesCount}`,
             );

@@ -1,5 +1,11 @@
-import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Container, Providers, Services } from "@arkecosystem/core-kernel";
 
+import {
+    ApplyTransactionAction,
+    RevertTransactionAction,
+    ThrowIfCannotEnterPoolAction,
+    VerifyTransactionAction,
+} from "./actions";
 import { Collator } from "./collator";
 import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
 import { ExpirationService } from "./expiration-service";
@@ -22,22 +28,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
-        this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
-        this.app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
-        this.app.bind(Container.Identifiers.TransactionPoolMempool).to(Mempool).inSingletonScope();
-        this.app.bind(Container.Identifiers.TransactionPoolProcessor).to(Processor);
-        this.app
-            .bind(Container.Identifiers.TransactionPoolProcessorFactory)
-            .toAutoFactory(Container.Identifiers.TransactionPoolProcessor);
-        this.app.bind(Container.Identifiers.TransactionPoolQuery).to(Query);
-        this.app.bind(Container.Identifiers.TransactionPoolSenderMempool).to(SenderMempool);
-        this.app
-            .bind(Container.Identifiers.TransactionPoolSenderMempoolFactory)
-            .toAutoFactory(Container.Identifiers.TransactionPoolSenderMempool);
-        this.app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
-        this.app.bind(Container.Identifiers.TransactionPoolService).to(Service).inSingletonScope();
-        this.app.bind(Container.Identifiers.TransactionPoolStorage).to(Storage).inSingletonScope();
+        this.registerServices();
+        this.registerActions();
     }
 
     /**
@@ -63,5 +55,42 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    private registerServices(): void {
+        this.app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
+        this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
+        this.app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
+        this.app.bind(Container.Identifiers.TransactionPoolMempool).to(Mempool).inSingletonScope();
+        this.app.bind(Container.Identifiers.TransactionPoolProcessor).to(Processor);
+        this.app
+            .bind(Container.Identifiers.TransactionPoolProcessorFactory)
+            .toAutoFactory(Container.Identifiers.TransactionPoolProcessor);
+        this.app.bind(Container.Identifiers.TransactionPoolQuery).to(Query);
+        this.app.bind(Container.Identifiers.TransactionPoolSenderMempool).to(SenderMempool);
+        this.app
+            .bind(Container.Identifiers.TransactionPoolSenderMempoolFactory)
+            .toAutoFactory(Container.Identifiers.TransactionPoolSenderMempool);
+        this.app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
+        this.app.bind(Container.Identifiers.TransactionPoolService).to(Service).inSingletonScope();
+        this.app.bind(Container.Identifiers.TransactionPoolStorage).to(Storage).inSingletonScope();
+    }
+
+    private registerActions(): void {
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("applyTransaction", new ApplyTransactionAction());
+
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("revertTransaction", new RevertTransactionAction());
+
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("throwIfCannotEnterPool", new ThrowIfCannotEnterPoolAction());
+
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("verifyTransaction", new VerifyTransactionAction());
     }
 }

@@ -4,7 +4,7 @@ import { ServiceProvider } from "@packages/core-forger/src";
 import { Client } from "@packages/core-forger/src/client";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { ForgerService } from "@packages/core-forger/src/forger-service";
-import { Application, Container, Contracts, Enums, Providers } from "@packages/core-kernel";
+import { Application, Container, Contracts, Enums, Providers, Services } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Identities } from "@packages/crypto";
 import socketCluster from "socketcluster-client";
@@ -50,6 +50,7 @@ describe("ServiceProvider", () => {
         const app: Application = new Application(new Container.Container());
 
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -79,6 +80,7 @@ describe("ServiceProvider", () => {
         const app: Application = new Application(new Container.Container());
 
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -109,6 +111,7 @@ describe("ServiceProvider", () => {
         const app: Application = new Application(new Container.Container());
 
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -152,6 +155,7 @@ describe("ServiceProvider", () => {
         const app: Application = new Application(new Container.Container());
 
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -227,6 +231,7 @@ describe("ServiceProvider", () => {
         app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
 
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -317,6 +322,7 @@ describe("ServiceProvider", () => {
         app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
 
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -371,6 +377,7 @@ describe("ServiceProvider", () => {
         const app: Application = new Application(new Container.Container());
 
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -414,6 +421,7 @@ describe("ServiceProvider", () => {
         const app: Application = new Application(new Container.Container());
 
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -489,6 +497,7 @@ describe("ServiceProvider", () => {
         app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
 
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
