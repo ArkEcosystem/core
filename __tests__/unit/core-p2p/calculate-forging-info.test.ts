@@ -104,17 +104,31 @@ describe("calculateForgingIndex", () => {
 
         expect(calculateForgingInfo(0, 1, 4).blockTimestamp).toEqual(0);
         expect(calculateForgingInfo(7, 1, 4).blockTimestamp).toEqual(0);
+
         expect(calculateForgingInfo(8, 2, 4).blockTimestamp).toEqual(8);
         expect(calculateForgingInfo(11, 2, 4).blockTimestamp).toEqual(8);
+
         expect(calculateForgingInfo(12, 3, 4).blockTimestamp).toEqual(12);
+        expect(calculateForgingInfo(15, 3, 4).blockTimestamp).toEqual(12);
         expect(calculateForgingInfo(16, 4, 4).blockTimestamp).toEqual(16);
+        expect(calculateForgingInfo(17, 4, 4).blockTimestamp).toEqual(16);
+
         expect(calculateForgingInfo(19, 5, 4).blockTimestamp).toEqual(19);
+        expect(calculateForgingInfo(21, 5, 4).blockTimestamp).toEqual(19);
         expect(calculateForgingInfo(22, 6, 4).blockTimestamp).toEqual(22);
+        expect(calculateForgingInfo(25, 6, 4).blockTimestamp).toEqual(22);
+
         expect(calculateForgingInfo(26, 7, 4).blockTimestamp).toEqual(26);
+        expect(calculateForgingInfo(29, 7, 4).blockTimestamp).toEqual(26);
+
         expect(calculateForgingInfo(30, 8, 4).blockTimestamp).toEqual(30);
+        expect(calculateForgingInfo(33, 8, 4).blockTimestamp).toEqual(30);
+
         expect(calculateForgingInfo(34, 9, 4).blockTimestamp).toEqual(34);
         expect(calculateForgingInfo(38, 10, 4).blockTimestamp).toEqual(38);
         expect(calculateForgingInfo(46, 12, 4).blockTimestamp).toEqual(46);
+
+        expect(calculateForgingInfo(53, 12, 4).blockTimestamp).toEqual(42);
         expect(calculateForgingInfo(54, 14, 4).blockTimestamp).toEqual(54);
     });
 
