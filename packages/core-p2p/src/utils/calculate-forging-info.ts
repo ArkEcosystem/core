@@ -1,10 +1,10 @@
-import { Crypto, Utils } from "@arkecosystem/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 
 export const calculateForgingInfo = (timestamp: number, height: number, maxDelegates: number): ForgingInfo => {
-    const blockTime = Utils.calculateBlockTime(height);
-    const blockTimestamp = Crypto.Slots.getSlotNumber(timestamp) * blockTime;
-    const currentForger = parseInt((timestamp / blockTime) as any) % maxDelegates;
-    const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxDelegates;
+    const slotNumber = Crypto.Slots.getSlotNumber(timestamp);
+    const blockTimestamp = Crypto.Slots.getSlotTime(slotNumber);
+    const currentForger = slotNumber % maxDelegates;
+    const nextForger = (slotNumber + 1) % maxDelegates;
 
     /** TODO: write tests for this (and check against previous implementation)
         Why was Slots.isForgingAllowed() not previously used here?

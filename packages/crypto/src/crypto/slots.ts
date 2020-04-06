@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-import { configManager } from "../managers";
+import { configManager } from "../managers/config";
 import { calculateBlockTime, isNewBlockTime } from "../utils/block-time-calculator";
 
 type SlotNumber = number;
@@ -65,7 +65,7 @@ export class Slots {
 
         // TODO: code re-use, consider refactoring
         for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
-            if (timestamp >= slotStartTime && timestamp <= slotEndTime) {
+            if (this.timestampOccursWithinSlot(timestamp, slotStartTime, slotEndTime)) {
                 break;
             }
 
@@ -104,7 +104,7 @@ export class Slots {
         // TODO: should we start from 1 each time, or store these variables somewhere for efficiency when doing the next computation?
         for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
             if (!searchSpecificHeight || currentHeight === height) {
-                if (timestamp >= slotStartTime && timestamp <= slotEndTime) {
+                if (this.timestampOccursWithinSlot(timestamp, slotStartTime, slotEndTime)) {
                     return currentHeight - 1;
                 }
             } else {
@@ -123,7 +123,7 @@ export class Slots {
                 height += numberOfBlocksToPeek;
                 // TODO: code duplication, move out to separate function
                 for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
-                    if (timestamp >= slotStartTime && timestamp <= slotEndTime) {
+                    if (this.timestampOccursWithinSlot(timestamp, slotStartTime, slotEndTime)) {
                         return currentHeight - 1;
                     }
 
@@ -156,5 +156,9 @@ export class Slots {
 
     private static calculateNewBlockTime(height: number, previousBlockTime: number) {
         return isNewBlockTime(height) ? calculateBlockTime(height) : previousBlockTime;
+    }
+
+    private static timestampOccursWithinSlot(timestamp: number, slotStartTime: number, slotEndTime: number): boolean {
+        return timestamp >= slotStartTime && timestamp <= slotEndTime;
     }
 }

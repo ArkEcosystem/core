@@ -1,7 +1,8 @@
 import "jest-extended";
 
 import { calculateForgingInfo } from "@packages/core-p2p/src/utils/calculate-forging-info";
-import { configManager } from "@packages/crypto/src/managers/config";
+import { Managers } from "@packages/crypto";
+import { configManager } from "@packages/crypto/src/managers";
 import { devnet } from "@packages/crypto/src/networks";
 
 afterEach(() => jest.clearAllMocks());
@@ -12,6 +13,7 @@ describe("calculateForgingIndex", () => {
 
         const config = { ...devnet, milestones };
         configManager.setConfig(config);
+        Managers.configManager.setConfig(config);
 
         expect(calculateForgingInfo(0, 1, 4).currentForger).toEqual(0);
         expect(calculateForgingInfo(7, 1, 4).currentForger).toEqual(0);
@@ -31,6 +33,7 @@ describe("calculateForgingIndex", () => {
 
         const config = { ...devnet, milestones };
         configManager.setConfig(config);
+        Managers.configManager.setConfig(config);
 
         expect(calculateForgingInfo(0, 1, 4).blockTimestamp).toEqual(0);
         expect(calculateForgingInfo(7, 1, 4).blockTimestamp).toEqual(0);
@@ -50,6 +53,7 @@ describe("calculateForgingIndex", () => {
 
         const config = { ...devnet, milestones };
         configManager.setConfig(config);
+        Managers.configManager.setConfig(config);
 
         expect(calculateForgingInfo(0, 1, 4).nextForger).toEqual(1);
         expect(calculateForgingInfo(7, 1, 4).nextForger).toEqual(1);
@@ -74,6 +78,7 @@ describe("calculateForgingIndex", () => {
 
         const config = { ...devnet, milestones };
         configManager.setConfig(config);
+        Managers.configManager.setConfig(config);
 
         expect(calculateForgingInfo(0, 1, 4).currentForger).toEqual(0);
         expect(calculateForgingInfo(7, 1, 4).currentForger).toEqual(0);
@@ -100,7 +105,9 @@ describe("calculateForgingIndex", () => {
         ];
 
         const config = { ...devnet, milestones };
+
         configManager.setConfig(config);
+        Managers.configManager.setConfig(config);
 
         expect(calculateForgingInfo(0, 1, 4).blockTimestamp).toEqual(0);
         expect(calculateForgingInfo(7, 1, 4).blockTimestamp).toEqual(0);
@@ -128,7 +135,7 @@ describe("calculateForgingIndex", () => {
         expect(calculateForgingInfo(38, 10, 4).blockTimestamp).toEqual(38);
         expect(calculateForgingInfo(46, 12, 4).blockTimestamp).toEqual(46);
 
-        expect(calculateForgingInfo(53, 12, 4).blockTimestamp).toEqual(42);
+        expect(calculateForgingInfo(53, 12, 4).blockTimestamp).toEqual(50);
         expect(calculateForgingInfo(54, 14, 4).blockTimestamp).toEqual(54);
     });
 
@@ -142,11 +149,12 @@ describe("calculateForgingIndex", () => {
 
         const config = { ...devnet, milestones };
         configManager.setConfig(config);
+        Managers.configManager.setConfig(config);
 
         expect(calculateForgingInfo(0, 1, 4).nextForger).toEqual(1);
         expect(calculateForgingInfo(7, 1, 4).nextForger).toEqual(1);
         expect(calculateForgingInfo(8, 2, 4).nextForger).toEqual(2);
-        expect(calculateForgingInfo(11, 3, 4).nextForger).toEqual(3);
+        expect(calculateForgingInfo(11, 3, 4).nextForger).toEqual(2);
         expect(calculateForgingInfo(12, 3, 4).nextForger).toEqual(3);
         expect(calculateForgingInfo(16, 4, 4).nextForger).toEqual(0);
         expect(calculateForgingInfo(19, 5, 4).nextForger).toEqual(1);
@@ -164,26 +172,31 @@ describe("calculateForgingIndex", () => {
             { height: 1, blocktime: 8, activeDelegates: 4 },
             { height: 2, blocktime: 4 },
             { height: 4, blocktime: 3 },
-            { height: 6, blocktime: 4, activeDelegates: 5 },
+            { height: 5, blocktime: 4, activeDelegates: 5 },
         ];
 
         const config = { ...devnet, milestones };
         // @ts-ignore
         jest.spyOn(configManager, "validateMilestones").mockReturnValue(true);
+        // @ts-ignore
+        jest.spyOn(Managers.configManager, "validateMilestones").mockReturnValue(true);
         configManager.setConfig(config);
+        Managers.configManager.setConfig(config);
 
         expect(calculateForgingInfo(0, 1, 4).currentForger).toEqual(0);
         expect(calculateForgingInfo(7, 1, 4).currentForger).toEqual(0);
         expect(calculateForgingInfo(8, 2, 4).currentForger).toEqual(1);
         expect(calculateForgingInfo(11, 2, 4).currentForger).toEqual(1);
         expect(calculateForgingInfo(12, 3, 4).currentForger).toEqual(2);
+        expect(calculateForgingInfo(15, 3, 4).currentForger).toEqual(2);
         expect(calculateForgingInfo(16, 4, 4).currentForger).toEqual(3);
         expect(calculateForgingInfo(19, 5, 4).currentForger).toEqual(0);
-        expect(calculateForgingInfo(22, 6, 5).currentForger).toEqual(1);
-        expect(calculateForgingInfo(26, 7, 5).currentForger).toEqual(2);
-        expect(calculateForgingInfo(30, 8, 5).currentForger).toEqual(3);
-        expect(calculateForgingInfo(34, 9, 5).currentForger).toEqual(4);
-        expect(calculateForgingInfo(38, 10, 5).currentForger).toEqual(0);
+        expect(calculateForgingInfo(21, 6, 4).currentForger).toEqual(0);
+        expect(calculateForgingInfo(23, 6, 5).currentForger).toEqual(1);
+        expect(calculateForgingInfo(27, 7, 5).currentForger).toEqual(2);
+        expect(calculateForgingInfo(31, 8, 5).currentForger).toEqual(3);
+        expect(calculateForgingInfo(35, 9, 5).currentForger).toEqual(4);
+        expect(calculateForgingInfo(39, 10, 5).currentForger).toEqual(0);
         expect(calculateForgingInfo(46, 12, 5).currentForger).toEqual(2);
         expect(calculateForgingInfo(54, 14, 5).currentForger).toEqual(4);
     });
@@ -193,13 +206,16 @@ describe("calculateForgingIndex", () => {
             { height: 1, blocktime: 8, activeDelegates: 4 },
             { height: 2, blocktime: 4 },
             { height: 4, blocktime: 3 },
-            { height: 6, blocktime: 4, activeDelegates: 5 },
+            { height: 8, blocktime: 4, activeDelegates: 5 },
         ];
 
         const config = { ...devnet, milestones };
         // @ts-ignore
         jest.spyOn(configManager, "validateMilestones").mockReturnValue(true);
+        // @ts-ignore
+        jest.spyOn(Managers.configManager, "validateMilestones").mockReturnValue(true);
         configManager.setConfig(config);
+        Managers.configManager.setConfig(config);
 
         expect(calculateForgingInfo(0, 1, 4).nextForger).toEqual(1);
         expect(calculateForgingInfo(7, 1, 4).nextForger).toEqual(1);
