@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Container, Providers, Services } from "@packages/core-kernel/src";
+import { Container, Providers, Services } from "@packages/core-kernel";
 import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
 import { PluginConfiguration } from "@packages/core-kernel/src/providers";
 import { dposPreviousRoundStateProvider } from "@packages/core-state/src";
@@ -15,6 +15,7 @@ import { registerFactories, registerIndexers } from "@packages/core-state/src/wa
 import { Sandbox } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Managers, Utils } from "@packages/crypto/src";
+import { BuildDelegateRankingAction } from "@packages/core-state/src/actions";
 
 export interface Spies {
     applySpy: jest.SpyInstance;
@@ -144,6 +145,11 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
     sandbox.app
         .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
         .set("storage.maxLastTransactionIds", defaults.storage.maxLastTransactionIds);
+
+    sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("buildDelegateRanking", new BuildDelegateRankingAction());
 
     sandbox.app.bind(Container.Identifiers.StateStore).to(StateStore).inSingletonScope();
 

@@ -1,10 +1,9 @@
-import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Utils, Services } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import prettyMs from "pretty-ms";
 
 import { NetworkState } from "./network-state";
 import { PeerCommunicator } from "./peer-communicator";
-import { PeerProcessor } from "./peer-processor";
 import { RateLimiter } from "./rate-limiter";
 import { buildRateLimiter, checkDNS, checkNTP } from "./utils";
 
@@ -44,9 +43,6 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
     @Container.inject(Container.Identifiers.PeerCommunicator)
     private readonly communicator!: PeerCommunicator;
-
-    @Container.inject(Container.Identifiers.PeerProcessor)
-    private readonly processor!: PeerProcessor;
 
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
@@ -205,7 +201,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         );
 
         if (pingAll || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.75) {
-            await Promise.all(theirPeers.map((p) => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
+            await Promise.all(theirPeers.map((p) => this.app
+                .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                .call("validateAndAcceptPeer", { peer: p, options:  { lessVerbose: true }})
+            ));
             this.pingPeerPorts(pingAll);
 
             return true;
@@ -594,7 +593,9 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             Object.values(peers).map((peer: Contracts.P2P.Peer) => {
                 this.storage.forgetPeer(peer);
 
-                return this.processor.validateAndAcceptPeer(peer, { seed: true, lessVerbose: true });
+                return this.app
+                    .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                    .call("validateAndAcceptPeer", { peer, options:  { seed: true, lessVerbose: true } });
             }),
         );
     }

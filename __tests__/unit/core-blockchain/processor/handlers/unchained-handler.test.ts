@@ -1,34 +1,37 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { UnchainedHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/unchained-handler";
-import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Container, Services } from "@arkecosystem/core-kernel";
+import { UnchainedHandler } from "@packages/core-blockchain/src/processor/handlers/unchained-handler";
+import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
+import { Interfaces } from "@packages/crypto";
+import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
+import { Sandbox } from "@packages/core-test-framework";
+
+let sandbox: Sandbox;
+
+const logger = { warning: jest.fn(), debug: console.log, info: jest.fn() };
+const blockchain = {
+    resetLastDownloadedBlock: jest.fn(),
+    clearQueue: jest.fn(),
+    getLastBlock: jest.fn(),
+    queue: { length: jest.fn() },
+};
+const stateStore = { numberOfBlocksToRollback: undefined };
+const database = { getActiveDelegates: jest.fn() };
+
+beforeEach(() => {
+    sandbox = new Sandbox();
+
+    sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
+    sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
+    sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+    sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
+
+    sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("getActiveDelegates", new GetActiveDelegatesAction(sandbox.app));
+});
 
 describe("UnchainedHandler", () => {
-    const container = new Container.Container();
-
-    const logger = { warning: jest.fn(), debug: console.log, info: jest.fn() };
-    const blockchain = {
-        resetLastDownloadedBlock: jest.fn(),
-        clearQueue: jest.fn(),
-        getLastBlock: jest.fn(),
-        queue: { length: jest.fn() },
-    };
-    const stateStore = { numberOfBlocksToRollback: undefined };
-    const database = { getActiveDelegates: jest.fn() };
-
-    const applicationGetMap = {
-        [Container.Identifiers.DatabaseService]: database,
-        [Container.Identifiers.StateStore]: stateStore,
-    };
-    const application = { get: (key) => applicationGetMap[key] };
-
-    beforeAll(() => {
-        container.unbindAll();
-        container.bind(Container.Identifiers.Application).toConstantValue(application);
-        container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
-        container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-    });
-
     beforeEach(() => {
         jest.resetAllMocks();
     });
@@ -36,7 +39,7 @@ describe("UnchainedHandler", () => {
     describe("execute", () => {
         describe("when it is a double forging case", () => {
             it("should return Rollback if block generator is active delegate", async () => {
-                const unchainedHandler = container.resolve<UnchainedHandler>(UnchainedHandler);
+                const unchainedHandler = sandbox.app.resolve<UnchainedHandler>(UnchainedHandler);
                 unchainedHandler.initialize(true);
 
                 const lastBlock = { data: { id: "123", height: 443, timestamp: 111112 } };
@@ -65,7 +68,7 @@ describe("UnchainedHandler", () => {
             });
 
             it("should return Rejected if block generator is not an active delegate", async () => {
-                const unchainedHandler = container.resolve<UnchainedHandler>(UnchainedHandler);
+                const unchainedHandler = sandbox.app.resolve<UnchainedHandler>(UnchainedHandler);
                 unchainedHandler.initialize(true);
 
                 const lastBlock = { data: { id: "123", height: 443, timestamp: 111112 } };
@@ -95,7 +98,7 @@ describe("UnchainedHandler", () => {
 
         describe("when it is a ExceededNotReadyToAcceptNewHeightMaxAttempts case", () => {
             it("should return DiscardedButCanBeBroadcasted 5 times then Rollback when height > lastBlock height +1", async () => {
-                const unchainedHandler = container.resolve<UnchainedHandler>(UnchainedHandler);
+                const unchainedHandler = sandbox.app.resolve<UnchainedHandler>(UnchainedHandler);
                 unchainedHandler.initialize(true);
 
                 const lastBlock = { data: { id: "123", height: 443, timestamp: 111112 } };
@@ -122,7 +125,7 @@ describe("UnchainedHandler", () => {
 
         describe("when block is already in blockchain (height < last height)", () => {
             it("should return DiscardedButCanBeBroadcasted", async () => {
-                const unchainedHandler = container.resolve<UnchainedHandler>(UnchainedHandler);
+                const unchainedHandler = sandbox.app.resolve<UnchainedHandler>(UnchainedHandler);
 
                 const lastBlock = { data: { id: "123", height: 443, timestamp: 111112 } };
                 const block = {
@@ -143,7 +146,7 @@ describe("UnchainedHandler", () => {
 
         describe("when it is a GeneratorMismatch case", () => {
             it("should return Rejected", async () => {
-                const unchainedHandler = container.resolve<UnchainedHandler>(UnchainedHandler);
+                const unchainedHandler = sandbox.app.resolve<UnchainedHandler>(UnchainedHandler);
 
                 const lastBlock = { data: { id: "123", height: 443, timestamp: 111112 } };
                 const block = {
@@ -164,7 +167,7 @@ describe("UnchainedHandler", () => {
 
         describe("when it is a InvalidTimestamp case", () => {
             it("should return Rejected", async () => {
-                const unchainedHandler = container.resolve<UnchainedHandler>(UnchainedHandler);
+                const unchainedHandler = sandbox.app.resolve<UnchainedHandler>(UnchainedHandler);
 
                 const lastBlock = { data: { id: "123", height: 443, timestamp: 111112 } };
                 const block = {
@@ -184,7 +187,7 @@ describe("UnchainedHandler", () => {
         });
 
         it("should return DiscardedButCanBeBroadcasted when does not match above cases", async () => {
-            const unchainedHandler = container.resolve<UnchainedHandler>(UnchainedHandler);
+            const unchainedHandler = sandbox.app.resolve<UnchainedHandler>(UnchainedHandler);
 
             const lastBlock = { data: { id: "123", height: 443, timestamp: 111112 } };
             const block = lastBlock;

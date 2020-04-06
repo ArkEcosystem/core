@@ -1,5 +1,6 @@
-import { Container, Providers, Types, Utils } from "@arkecosystem/core-kernel";
+import { Container, Providers, Services, Types, Utils } from "@arkecosystem/core-kernel";
 
+import { ValidateAndAcceptPeerAction } from "./actions";
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
 import { Peer } from "./peer";
@@ -17,6 +18,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.registerFactories();
 
         this.registerServices();
+
+        this.registerActions();
 
         if (process.env.DISABLE_P2P_SERVER) {
             return;
@@ -80,5 +83,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
         Utils.assert.defined<Types.JsonObject>(serverConfig);
 
         await server.initialize("P2P Server", serverConfig);
+    }
+    
+    private registerActions(): void {
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("validateAndAcceptPeer", new ValidateAndAcceptPeerAction(this.app));
     }
 }

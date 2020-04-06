@@ -21,9 +21,9 @@
     },
     "dependencies": {
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
-        "chalk": "^3.0.0",
+        "chalk": "^4.0.0",
         "pino": "^6.0.0",
-        "pino-pretty": "^3.5.0",
+        "pino-pretty": "^4.0.0",
         "pump": "^3.0.0",
         "readable-stream": "^3.4.0",
         "rotating-file-stream": "^2.0.0",

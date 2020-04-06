@@ -1,5 +1,5 @@
-import { DatabaseService, Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Repositories } from "@arkecosystem/core-database";
+import { Container, Contracts, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
 
@@ -187,10 +187,12 @@ export class BlockProcessor {
     }
 
     private async validateGenerator(block: Interfaces.IBlock): Promise<boolean> {
-        const database: DatabaseService = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
-
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
-        const delegates: Contracts.State.Wallet[] = await database.getActiveDelegates(roundInfo);
+
+        const delegates: Contracts.State.Wallet[] = (await this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
+
         const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
         const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
 

@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils, Services } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessorResult } from "../block-processor";
@@ -82,9 +82,10 @@ export class UnchainedHandler implements BlockHandler {
         switch (status) {
             case UnchainedBlockStatus.DoubleForging: {
                 const roundInfo: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(block.data.height);
-                const delegates: Contracts.State.Wallet[] = await this.app
-                    .get<any>(Container.Identifiers.DatabaseService)
-                    .getActiveDelegates(roundInfo);
+
+                const delegates: Contracts.State.Wallet[] = (await this.app
+                    .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                    .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
 
                 if (delegates.some((delegate) => delegate.publicKey === block.data.generatorPublicKey)) {
                     return BlockProcessorResult.Rollback;
