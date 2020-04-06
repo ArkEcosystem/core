@@ -1,5 +1,5 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { BlockProcessor } from "../../../../packages/core-blockchain/src/processor/block-processor";
+import { Container, Services } from "@packages/core-kernel";
+import { BlockProcessor } from "@packages/core-blockchain/src/processor/block-processor";
 import {
     AcceptBlockHandler,
     AlreadyForgedHandler,
@@ -9,24 +9,27 @@ import {
     NonceOutOfOrderHandler,
     UnchainedHandler,
     VerificationFailedHandler,
-} from "../../../../packages/core-blockchain/src/processor/handlers";
-import { Managers, Utils, Interfaces } from "@arkecosystem/crypto";
+} from "@packages/core-blockchain/src/processor/handlers";
+import { Managers, Utils, Interfaces } from "@packages/crypto";
+import { Sandbox } from "@packages/core-test-framework";
+import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 
 describe("BlockProcessor", () => {
-    const container = new Container.Container();
+    AcceptBlockHandler.prototype.execute = jest.fn();
+    AlreadyForgedHandler.prototype.execute = jest.fn();
+    ExceptionHandler.prototype.execute = jest.fn();
+    IncompatibleTransactionsHandler.prototype.execute = jest.fn();
+    InvalidGeneratorHandler.prototype.execute = jest.fn();
+    NonceOutOfOrderHandler.prototype.execute = jest.fn();
+    UnchainedHandler.prototype.initialize = jest.fn();
+    UnchainedHandler.prototype.execute = jest.fn();
+    VerificationFailedHandler.prototype.execute = jest.fn();
+
+    const sandbox = new Sandbox();
 
     const logService = { warning: jest.fn(), info: jest.fn(), error: jest.fn(), debug: jest.fn() };
     const blockchain = { getLastBlock: jest.fn() };
     const transactionRepository = { getForgedTransactionsIds: jest.fn() };
-
-    const acceptBlockHandler = { execute: jest.fn() };
-    const alreadyForgedHandler = { execute: jest.fn() };
-    const exceptionHandler = { execute: jest.fn() };
-    const incompatibleTransactionsHandler = { execute: jest.fn() };
-    const invalidGeneratorHandler = { execute: jest.fn() };
-    const nonceOutOfOrderHandler = { execute: jest.fn() };
-    const unchainedHandler = { initialize: jest.fn(), execute: jest.fn() };
-    const verificationFailedHandler = { execute: jest.fn() };
 
     const walletRepository = {
         findByPublicKey: jest.fn(),
@@ -40,46 +43,20 @@ describe("BlockProcessor", () => {
             getNonce: jest.fn(),
         },
     };
-    const mapGetTagged = {
-        [Container.Identifiers.WalletRepository]: walletRepository,
-        [Container.Identifiers.TransactionHandlerRegistry]: transactionHandlerRegistry,
-    };
-    const mapGet = {
-        [Container.Identifiers.DatabaseService]: databaseService,
-    };
-
-    const application = {
-        resolve: (itemToResolve) => {
-            switch (itemToResolve) {
-                case AcceptBlockHandler:
-                    return acceptBlockHandler;
-                case AlreadyForgedHandler:
-                    return alreadyForgedHandler;
-                case ExceptionHandler:
-                    return exceptionHandler;
-                case IncompatibleTransactionsHandler:
-                    return incompatibleTransactionsHandler;
-                case InvalidGeneratorHandler:
-                    return invalidGeneratorHandler;
-                case NonceOutOfOrderHandler:
-                    return nonceOutOfOrderHandler;
-                case UnchainedHandler:
-                    return unchainedHandler;
-                case VerificationFailedHandler:
-                    return verificationFailedHandler;
-            }
-            return undefined;
-        },
-        getTagged: (id) => mapGetTagged[id],
-        get: (id) => mapGet[id],
-    };
 
     beforeAll(() => {
-        container.unbindAll();
-        container.bind(Container.Identifiers.Application).toConstantValue(application);
-        container.bind(Container.Identifiers.LogService).toConstantValue(logService);
-        container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
-        container.bind(Container.Identifiers.TransactionRepository).toConstantValue(transactionRepository);
+        sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logService);
+        sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
+        sandbox.app.bind(Container.Identifiers.TransactionRepository).toConstantValue(transactionRepository);
+        sandbox.app.bind(Container.Identifiers.WalletRepository).toConstantValue(walletRepository);
+        sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
+        sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue({});
+        sandbox.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue({});
+
+        sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+        sandbox.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("getActiveDelegates", new GetActiveDelegatesAction(sandbox.app));
     });
 
     beforeEach(() => {
@@ -117,22 +94,22 @@ describe("BlockProcessor", () => {
 
         const block = { ...baseBlock, data: { ...baseBlock.data, id: "15895730198424359628" } };
 
-        const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+        const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
         await blockProcessor.process(block);
 
-        expect(exceptionHandler.execute).toBeCalledTimes(1);
+        expect(ExceptionHandler.prototype.execute).toBeCalledTimes(1);
     });
 
     describe("when block does not verify", () => {
         it("should execute VerificationFailedHandler when !block.verification.verified", async () => {
             const block = { ...baseBlock, verification: { ...baseBlock.verification, verified: false } };
 
-            const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+            const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
             await blockProcessor.process(block);
 
-            expect(verificationFailedHandler.execute).toBeCalledTimes(1);
+            expect(VerificationFailedHandler.prototype.execute).toBeCalledTimes(1);
         });
 
         it("should execute VerificationFailedHandler when handler.verify() fails on one transaction (containsMultiSignatures)", async () => {
@@ -162,11 +139,11 @@ describe("BlockProcessor", () => {
             transactionHandlerRegistry.getActivatedHandlerForData = jest.fn().mockReturnValueOnce({
                 verify: jest.fn().mockRejectedValueOnce(new Error("oops")),
             });
-            const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+            const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
             await blockProcessor.process(block);
 
-            expect(verificationFailedHandler.execute).toBeCalledTimes(1);
+            expect(VerificationFailedHandler.prototype.execute).toBeCalledTimes(1);
         });
 
         it("should execute VerificationFailedHandler when block.verify() fails (containsMultiSignatures)", async () => {
@@ -176,11 +153,11 @@ describe("BlockProcessor", () => {
                 verify: jest.fn().mockReturnValue(false),
             };
 
-            const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+            const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
             await blockProcessor.process(block);
 
-            expect(verificationFailedHandler.execute).toBeCalledTimes(1);
+            expect(VerificationFailedHandler.prototype.execute).toBeCalledTimes(1);
             expect(block.verify).toBeCalledTimes(1);
         });
     });
@@ -194,11 +171,11 @@ describe("BlockProcessor", () => {
             ],
         };
 
-        const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+        const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
         await blockProcessor.process(block);
 
-        expect(incompatibleTransactionsHandler.execute).toBeCalledTimes(1);
+        expect(IncompatibleTransactionsHandler.prototype.execute).toBeCalledTimes(1);
     });
 
     describe("when nonce out of order", () => {
@@ -221,11 +198,11 @@ describe("BlockProcessor", () => {
 
             databaseService.walletRepository.getNonce = jest.fn().mockReturnValueOnce(Utils.BigNumber.ONE);
 
-            const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+            const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
             await blockProcessor.process(block);
 
-            expect(nonceOutOfOrderHandler.execute).toBeCalledTimes(1);
+            expect(NonceOutOfOrderHandler.prototype.execute).toBeCalledTimes(1);
         });
 
         it("should not execute NonceOutOfOrderHandler when block has v1 transactions", async () => {
@@ -249,13 +226,13 @@ describe("BlockProcessor", () => {
                 getAttribute: jest.fn().mockReturnValue("generatorusername"),
             };
             walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
-            unchainedHandler.initialize = jest.fn().mockReturnValueOnce(unchainedHandler);
+            UnchainedHandler.prototype.initialize = jest.fn().mockReturnValueOnce(new UnchainedHandler());
 
-            const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+            const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
             await blockProcessor.process(block);
 
-            expect(nonceOutOfOrderHandler.execute).toBeCalledTimes(0);
+            expect(NonceOutOfOrderHandler.prototype.execute).toBeCalledTimes(0);
         });
     });
 
@@ -268,14 +245,14 @@ describe("BlockProcessor", () => {
             getAttribute: jest.fn().mockReturnValue("generatorusername"),
         };
         walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
-        unchainedHandler.initialize = jest.fn().mockReturnValueOnce(unchainedHandler);
+        UnchainedHandler.prototype.initialize = jest.fn().mockReturnValueOnce(new UnchainedHandler());
         databaseService.getActiveDelegates = jest.fn().mockReturnValueOnce([]);
 
-        const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+        const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
         await blockProcessor.process(block);
 
-        expect(unchainedHandler.execute).toBeCalledTimes(1);
+        expect(UnchainedHandler.prototype.execute).toBeCalledTimes(1);
     });
 
     const chainedBlock = {
@@ -323,11 +300,11 @@ describe("BlockProcessor", () => {
 
             databaseService.getActiveDelegates = jest.fn().mockReturnValueOnce([notBlockGenerator]);
 
-            const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+            const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
             await blockProcessor.process(block);
 
-            expect(invalidGeneratorHandler.execute).toBeCalledTimes(1);
+            expect(InvalidGeneratorHandler.prototype.execute).toBeCalledTimes(1);
         });
 
         it("should execute InvalidGeneratorHandler when generatorWallet.getAttribute() throws", async () => {
@@ -350,11 +327,11 @@ describe("BlockProcessor", () => {
 
             databaseService.getActiveDelegates = jest.fn().mockReturnValueOnce([notBlockGenerator]);
 
-            const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+            const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
             await blockProcessor.process(block);
 
-            expect(invalidGeneratorHandler.execute).toBeCalledTimes(1);
+            expect(InvalidGeneratorHandler.prototype.execute).toBeCalledTimes(1);
         });
     });
 
@@ -378,11 +355,11 @@ describe("BlockProcessor", () => {
         };
         walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
 
-        const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+        const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
         await blockProcessor.process(block);
 
-        expect(alreadyForgedHandler.execute).toBeCalledTimes(1);
+        expect(AlreadyForgedHandler.prototype.execute).toBeCalledTimes(1);
     });
 
     it("should execute AcceptBlockHandler when all above verifications passed", async () => {
@@ -397,10 +374,10 @@ describe("BlockProcessor", () => {
         };
         walletRepository.findByPublicKey = jest.fn().mockReturnValueOnce(generatorWallet);
 
-        const blockProcessor = container.resolve<BlockProcessor>(BlockProcessor);
+        const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
         await blockProcessor.process(block);
 
-        expect(acceptBlockHandler.execute).toBeCalledTimes(1);
+        expect(AcceptBlockHandler.prototype.execute).toBeCalledTimes(1);
     });
 });

@@ -1,10 +1,11 @@
 import "jest-extended";
 
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
-import { Container, Services } from "@packages/core-kernel/src";
+import { Container, Services } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { Managers } from "@packages/crypto/src";
+import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 
 export const mockLastBlock = {
     data: { height: 3, timestamp: 111150 },
@@ -53,6 +54,12 @@ export const setup = async (activeDelegates) => {
     sandbox.app.bind(Container.Identifiers.BlockchainService).to(MockBlockchainService);
 
     sandbox.app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
+
+    sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("getActiveDelegates", new GetActiveDelegatesAction(sandbox.app));
 
     const delegateTracker = sandbox.app.resolve(DelegateTracker);
 

@@ -1,6 +1,8 @@
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 
+import { ProcessBlockAction } from "./actions";
 import { Blockchain } from "./blockchain";
+import { BlockProcessor } from "./processor";
 import { StateMachine } from "./state-machine";
 import { blockchainMachine } from "./state-machine/machine";
 
@@ -12,9 +14,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
 
+        this.app.bind(Container.Identifiers.BlockProcessor).to(BlockProcessor).inSingletonScope();
+
         blockchain.initialize(this.config().all()); // ? why it isn't in boot?
 
         this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).reset(blockchainMachine);
+
+        this.registerActions();
     }
 
     public async boot(): Promise<void> {
@@ -32,5 +38,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    private registerActions(): void {
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("processBlock", new ProcessBlockAction());
     }
 }
