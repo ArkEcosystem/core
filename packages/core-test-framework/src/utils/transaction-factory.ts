@@ -17,7 +17,7 @@ interface IPassphrasePair {
 
 // todo: replace this by the use of real factories
 export class TransactionFactory {
-    private builder: any;
+    protected builder: any;
     private network: Types.NetworkName = "testnet";
     private networkConfig: Interfaces.NetworkConfig | undefined;
     private nonce: Utils.BigNumber | undefined;
@@ -31,9 +31,9 @@ export class TransactionFactory {
     private senderPublicKey: string | undefined;
     private expiration: number | undefined;
 
-    private app: Contracts.Kernel.Application;
+    protected app: Contracts.Kernel.Application;
 
-    private constructor(app?: Contracts.Kernel.Application) {
+    protected constructor(app?: Contracts.Kernel.Application) {
         // @ts-ignore - this is only needed because of the "getNonce"
         // method so we don't care if it is undefined in certain scenarios
         this.app = app;
