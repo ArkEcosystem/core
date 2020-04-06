@@ -1,4 +1,3 @@
-import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
@@ -11,24 +10,11 @@ export abstract class Route {
             path: `/${id.replace(/\./g, "/")}`, // building a valid path from id, we only use the route id anyway
             config: {
                 id,
-                handler: this.wrapHandler(handler, schema),
+                handler,
                 payload: {
                     maxBytes,
                 },
             },
         };
-    }
-
-    protected static wrapHandler(handler: HapiHandler, schema?: Joi.Schema) {
-        if (schema) {
-            return (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
-                const { error } = schema.validate(request.payload);
-                if (error) {
-                    return Boom.badRequest("Validation failed");
-                }
-                return handler(request, h);
-            };
-        }
-        return handler;
     }
 }

@@ -9,6 +9,7 @@ import { TooManyTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
 import { Controller } from "./controller";
+import { peerSchemas } from "../schemas/peer";
 
 export class PeerController extends Controller {
     @Container.inject(Container.Identifiers.PeerStorage)
@@ -21,6 +22,8 @@ export class PeerController extends Controller {
     private readonly database!: DatabaseService;
 
     public getPeers(request: Hapi.Request, h: Hapi.ResponseToolkit): Contracts.P2P.PeerBroadcast[] {
+        this.validatePayload(request.payload, peerSchemas.getPeers);
+
         // Add the peer if not already (on every peer endpoint)
         this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
 
@@ -42,6 +45,8 @@ export class PeerController extends Controller {
         common: Interfaces.IBlockData;
         lastBlockHeight: number;
     }> {
+        this.validatePayload(request.payload, peerSchemas.getCommonBlocks);
+
         // Add the peer if not already (on every peer endpoint)
         this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
 
@@ -59,6 +64,8 @@ export class PeerController extends Controller {
     }
 
     public async getStatus(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<Contracts.P2P.PeerPingResponse> {
+        this.validatePayload(request.payload, peerSchemas.getStatus);
+        
         // Add the peer if not already (on every peer endpoint)
         this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
 
@@ -77,6 +84,8 @@ export class PeerController extends Controller {
     }
 
     public postBlock(request: Hapi.Request, h: Hapi.ResponseToolkit): boolean {
+        this.validatePayload(request.payload, peerSchemas.postBlock);
+        
         // Add the peer if not already (on every peer endpoint)
         this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
 
@@ -148,6 +157,8 @@ export class PeerController extends Controller {
     }
 
     public async postTransactions(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<string[]> {
+        this.validatePayload(request.payload, peerSchemas.postTransactions);
+        
         // Add the peer if not already (on every peer endpoint)
         this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
 
@@ -163,6 +174,8 @@ export class PeerController extends Controller {
         request: Hapi.Request,
         h: Hapi.ResponseToolkit,
     ): Promise<Interfaces.IBlockData[] | Contracts.Shared.DownloadBlock[]> {
+        this.validatePayload(request.payload, peerSchemas.getBlocks);
+        
         // Add the peer if not already (on every peer endpoint)
         this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
 
