@@ -1,4 +1,4 @@
-import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Container, Providers, Types, Utils } from "@arkecosystem/core-kernel";
 
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
@@ -34,7 +34,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public async dispose(): Promise<void> {
-        this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).dispose();
+        this.app.get<Server>(this.serverSymbol).dispose();
     }
 
     public async required(): Promise<boolean> {
@@ -76,7 +76,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .inSingletonScope();
 
         const server: Server = this.app.get<Server>(id);
+        const serverConfig = this.config().get<Types.JsonObject>("server");
+        Utils.assert.defined<Types.JsonObject>(serverConfig);
 
-        await server.initialize("P2P Server", {});
+        await server.initialize("P2P Server", serverConfig);
     }
 }

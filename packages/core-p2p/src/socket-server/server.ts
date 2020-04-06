@@ -2,8 +2,8 @@ import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import Nes from "@hapi/nes";
 
-import * as routesInternal from "./routes/internal";
-import * as routesPeer from "./routes/peer";
+import { InternalRoute } from "./routes/internal";
+import { PeerRoute } from "./routes/peer";
 
 // todo: review the implementation
 @Container.injectable()
@@ -38,12 +38,12 @@ export class Server {
      */
     public async initialize(name: string, optionsServer: Types.JsonObject): Promise<void> {
         this.name = name;
-        this.server = new HapiServer({ port: 4000 });
+        this.server = new HapiServer({ address: optionsServer.hostname, port: optionsServer.port });
         (this.server.app as any).app = this.app;
 
         await this.server.register(Nes);
-        routesInternal.register(this.server);
-        routesPeer.register(this.server);
+        InternalRoute.register(this.server);
+        PeerRoute.register(this.server);
     }
 
     /**

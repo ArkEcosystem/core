@@ -14,10 +14,16 @@ export class PeerController extends Controller {
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly peerStorage!: Contracts.P2P.PeerStorage;
 
+    @Container.inject(Container.Identifiers.PeerProcessor)
+    private readonly peerProcessor!: Contracts.P2P.PeerProcessor;
+
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;
     
     public getPeers(request: Hapi.Request, h: Hapi.ResponseToolkit): Contracts.P2P.PeerBroadcast[] {
+        // Add the peer if not already (on every peer endpoint)
+        this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
+
         return this.peerStorage.getPeers()
             .map(peer => peer.toBroadcast())
             .sort((a, b) => {
@@ -32,6 +38,9 @@ export class PeerController extends Controller {
         common: Interfaces.IBlockData;
         lastBlockHeight: number;
     }> {
+        // Add the peer if not already (on every peer endpoint)
+        this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
+
         const commonBlocks: Interfaces.IBlockData[] = await this.database.getCommonBlocks((request.payload as any).ids);
 
         if (!commonBlocks.length) {
@@ -46,6 +55,9 @@ export class PeerController extends Controller {
     }
 
     public async getStatus(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<Contracts.P2P.PeerPingResponse> {
+        // Add the peer if not already (on every peer endpoint)
+        this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
+
         const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
         const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
 
@@ -61,6 +73,9 @@ export class PeerController extends Controller {
     }
 
     public postBlock(request: Hapi.Request, h: Hapi.ResponseToolkit): boolean {
+        // Add the peer if not already (on every peer endpoint)
+        this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
+
         this.logger.debug(`postBlock request.info received: ${JSON.stringify(request.info)}`)
         this.logger.debug(`postBlock request.headers received: ${JSON.stringify(request.headers)}`)
         const configuration = this.app.getTagged<Providers.PluginConfiguration>(
@@ -124,6 +139,9 @@ export class PeerController extends Controller {
     }
 
     public async postTransactions(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<string[]> {
+        // Add the peer if not already (on every peer endpoint)
+        this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
+
         const createProcessor: Contracts.TransactionPool.ProcessorFactory = this.app.get(
             Container.Identifiers.TransactionPoolProcessorFactory,
         );
@@ -133,6 +151,9 @@ export class PeerController extends Controller {
     }
 
     public async getBlocks(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<Interfaces.IBlockData[] | Contracts.Shared.DownloadBlock[]> {
+        // Add the peer if not already (on every peer endpoint)
+        this.peerProcessor.validateAndAcceptPeer({ ip: request.info.remoteAddress } as Contracts.P2P.Peer);
+
         const reqBlockHeight: number = +(request.payload as any).lastBlockHeight + 1;
         const reqBlockLimit: number = +(request.payload as any).blockLimit || 400;
         const reqHeadersOnly: boolean = !!(request.payload as any).headersOnly;

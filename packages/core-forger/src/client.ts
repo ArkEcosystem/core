@@ -42,7 +42,10 @@ export class Client {
     public register(hosts: RelayHost[]) {
         this.hosts = hosts.map((host: RelayHost) => {
             const connection = new Nes.Client(`ws://${host.hostname}:${host.port}`);
-            connection.connect();
+            connection.connect().catch(e => {}); // connect promise can fail when p2p is not ready, will retry 
+
+            connection.onError = e => {}; // TODO do something on error ?
+
             host.socket = connection;
 
             return host;

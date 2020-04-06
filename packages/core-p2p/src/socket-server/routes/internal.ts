@@ -1,62 +1,48 @@
 import Hapi from "@hapi/hapi";
 
 import { InternalController } from "../controllers/internal";
+import { Route } from "./route";
+import { internalSchemas } from "../schemas/internal";
 
-export const register = (server: Hapi.Server): void => {
-    const controller: InternalController = (server.app as any).app.resolve(InternalController);
-    server.bind(controller);
-
-    server.route({
-        method: 'POST',
-        path: '/p2p/internal/acceptNewPeer',
-        config: {
-            id: 'p2p.internal.acceptNewPeer',
-            handler: controller.acceptNewPeer
-        }
-    } as any);
-
-    server.route({
-        method: 'POST',
-        path: '/p2p/internal/emitEvent',
-        config: {
-            id: 'p2p.internal.emitEvent',
-            handler: controller.emitEvent
-        }
-    } as any);
+export class InternalRoute extends Route {
+    static register(server: Hapi.Server): void {
+        const controller: InternalController = (server.app as any).app.resolve(InternalController);
+        server.bind(controller);
     
-    server.route({
-        method: 'POST',
-        path: '/p2p/internal/getUnconfirmedTransactions',
-        config: {
-            id: 'p2p.internal.getUnconfirmedTransactions',
-            handler: controller.getUnconfirmedTransactions
-        }
-    } as any);
+        server.route(
+            this.makeRouteObject(
+                "p2p.internal.emitEvent",
+                controller.emitEvent,
+                internalSchemas["p2p.internal.emitEvent"]
+            )
+        );
 
-    server.route({
-        method: 'POST',
-        path: '/p2p/internal/getCurrentRound',
-        config: {
-            id: 'p2p.internal.getCurrentRound',
-            handler: controller.getCurrentRound
-        }
-    } as any);
+        server.route(
+            this.makeRouteObject(
+                "p2p.internal.getUnconfirmedTransactions",
+                controller.getUnconfirmedTransactions,
+            )
+        );
 
-    server.route({
-        method: 'POST',
-        path: '/p2p/internal/getNetworkState',
-        config: {
-            id: 'p2p.internal.getNetworkState',
-            handler: controller.getNetworkState
-        }
-    } as any);
+        server.route(
+            this.makeRouteObject(
+                "p2p.internal.getCurrentRound",
+                controller.getCurrentRound,
+            )
+        );
 
-    server.route({
-        method: 'POST',
-        path: '/p2p/internal/syncBlockchain',
-        config: {
-            id: 'p2p.internal.syncBlockchain',
-            handler: controller.syncBlockchain
-        }
-    } as any);
-};
+        server.route(
+            this.makeRouteObject(
+                "p2p.internal.getNetworkState",
+                controller.getNetworkState,
+            )
+        );
+
+        server.route(
+            this.makeRouteObject(
+                "p2p.internal.syncBlockchain",
+                controller.syncBlockchain,
+            )
+        );
+    }
+}
