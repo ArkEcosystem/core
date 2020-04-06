@@ -162,88 +162,57 @@ export const register = (server: Hapi.Server): void => {
                     orderBy: Joi.string(),
                     limit: Joi.number().min(0),
                     offset: Joi.number().min(0),
-                    criteria: Joi.array().items(
-                        server.app.schemas.searchCriteria("id", server.app.schemas.blockId, ["equal", "in", "like"]),
-                        server.app.schemas.searchCriteria(
-                            "version",
+                    criteria: Joi.object({
+                        id: server.app.schemas.orEqualCriteria(server.app.schemas.blockId),
+                        version: server.app.schemas.orEqualCriteria(
                             Joi.number()
                                 .integer()
                                 .min(0),
-                            ["equal", "in", "like", "lessThanEqual", "greaterThanEqual"],
                         ),
-                        server.app.schemas.searchCriteria("previousBlock", server.app.schemas.blockId, [
-                            "equal",
-                            "in",
-                            "like",
-                        ]),
-                        server.app.schemas.searchCriteria("payloadHash", Joi.string().hex(), ["equal", "in", "like"]),
-                        server.app.schemas.searchCriteria(
-                            "generatorPublicKey",
+                        timestamp: server.app.schemas.orNumericCriteria(
+                            Joi.number()
+                                .integer()
+                                .min(0),
+                        ),
+                        previousBlock: server.app.schemas.orEqualCriteria(server.app.schemas.blockId),
+                        height: server.app.schemas.orNumericCriteria(
+                            Joi.number()
+                                .integer()
+                                .min(0),
+                        ),
+                        numberOfTransactions: server.app.schemas.orNumericCriteria(
+                            Joi.number()
+                                .integer()
+                                .min(0),
+                        ),
+                        totalAmount: server.app.schemas.orNumericCriteria(
+                            Joi.number()
+                                .integer()
+                                .min(0),
+                        ),
+                        totalFee: server.app.schemas.orNumericCriteria(
+                            Joi.number()
+                                .integer()
+                                .min(0),
+                        ),
+                        reward: server.app.schemas.orNumericCriteria(
+                            Joi.number()
+                                .integer()
+                                .min(0),
+                        ),
+                        payloadLength: server.app.schemas.orNumericCriteria(
+                            Joi.number()
+                                .integer()
+                                .min(0),
+                        ),
+                        payloadHash: server.app.schemas.orEqualCriteria(Joi.string().hex()),
+                        generatorPublicKey: server.app.schemas.orEqualCriteria(
                             Joi.string()
                                 .hex()
                                 .length(66),
-                            ["equal", "in", "like"],
                         ),
-                        server.app.schemas.searchCriteria(
-                            "blockSignature",
-                            Joi.string()
-                                .hex()
-                                .max(144),
-                            ["equal", "in", "like"],
-                        ),
-                        server.app.schemas.searchCriteria(
-                            "timestamp",
-                            Joi.number()
-                                .integer()
-                                .min(0),
-                            ["equal", "in", "like", "lessThanEqual", "greaterThanEqual"],
-                        ),
-                        server.app.schemas.searchCriteria("height", server.app.schemas.numberFixedOrBetween, [
-                            "between",
-                            "equal",
-                            "in",
-                            "like",
-                            "lessThanEqual",
-                            "greaterThanEqual",
-                        ]),
-                        server.app.schemas.searchCriteria(
-                            "numberOfTransactions",
-                            server.app.schemas.numberFixedOrBetween,
-                            ["between", "equal", "in", "like", "lessThanEqual", "greaterThanEqual"],
-                        ),
-                        server.app.schemas.searchCriteria("totalAmount", server.app.schemas.numberFixedOrBetween, [
-                            "between",
-                            "equal",
-                            "in",
-                            "like",
-                            "lessThanEqual",
-                            "greaterThanEqual",
-                        ]),
-                        server.app.schemas.searchCriteria("totalFee", server.app.schemas.numberFixedOrBetween, [
-                            "between",
-                            "equal",
-                            "in",
-                            "like",
-                            "lessThanEqual",
-                            "greaterThanEqual",
-                        ]),
-                        server.app.schemas.searchCriteria("reward", server.app.schemas.numberFixedOrBetween, [
-                            "between",
-                            "equal",
-                            "in",
-                            "like",
-                            "lessThanEqual",
-                            "greaterThanEqual",
-                        ]),
-                        server.app.schemas.searchCriteria("payloadLength", server.app.schemas.numberFixedOrBetween, [
-                            "between",
-                            "equal",
-                            "in",
-                            "like",
-                            "lessThanEqual",
-                            "greaterThanEqual",
-                        ]),
-                    ),
+                        blockSignature: server.app.schemas.orEqualCriteria(Joi.string().hex()),
+                    }),
                 }),
             },
         },

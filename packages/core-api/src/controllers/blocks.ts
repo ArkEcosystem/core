@@ -14,19 +14,20 @@ export class BlocksController extends Controller {
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.BlockRepository)
-    protected readonly blockRepository!: Repositories.BlockRepository;
+    @Container.inject(Container.Identifiers.DatabaseBlockSearchService)
+    protected readonly blockSearchService!: Contracts.Database.BlockSearchService;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
-    protected readonly transactionRepository!: Repositories.TransactionRepository;
+    @Container.inject(Container.Identifiers.DatabaseTransactionSearchService)
+    protected readonly transactionSearchService!: Contracts.Database.TransactionSearchService;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blocks: Repositories.RepositorySearchResult<Models.Block> = await this.blockRepository.searchByQuery(
+        const searchResult: Contracts.Database.SearchResult<Contracts.Database.Block> = await this.blockSearchService.search(
             request.query,
+            request.query.orderBy,
             this.paginate(request),
         );
 
-        return this.toPagination(blocks, BlockResource, request.query.transform);
+        return this.toPagination(searchResult, BlockResource, request.query.transform);
     }
 
     public async first(request: Hapi.Request, h: Hapi.ResponseToolkit) {

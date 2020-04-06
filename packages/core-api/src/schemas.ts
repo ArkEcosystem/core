@@ -53,6 +53,7 @@ export const createSchemas = ({ pagination }: { pagination: { limit: number } })
             .min(0)
             .max(100),
     }),
+    orEqualCriteria: ()
     searchCriteria: (field: string, value: any, operator: string[]) =>
         Joi.object().keys({
             field: Joi.string()

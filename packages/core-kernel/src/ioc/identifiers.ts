@@ -53,6 +53,8 @@ export const Identifiers = {
     BlockRepository: Symbol.for("Database<BlockRepository>"),
     RoundRepository: Symbol.for("Database<RoundRepository>"),
     TransactionRepository: Symbol.for("Database<TransactionRepository>"),
+    DatabaseBlockSearchService: Symbol.for("Database<BlockSearchService>"),
+    DatabaseTransactionSearchService: Symbol.for("Database<TransactionSearchService>"),
     // Kernel
     ConfigRepository: Symbol.for("Repository<Config>"),
     ServiceProviderRepository: Symbol.for("Repository<ServiceProvider>"),

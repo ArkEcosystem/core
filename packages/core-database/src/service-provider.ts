@@ -5,6 +5,8 @@ import { DatabaseService } from "./database-service";
 import { DatabaseEvent } from "./events";
 import { SnakeNamingStrategy } from "./models/naming-strategy";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
+import { BlockSearchService } from "./services/block-search-service";
+import { TransactionSearchService } from "./services/transaction-search-service";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -15,15 +17,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.log.debug("Connection established.");
 
         this.app.bind(Container.Identifiers.BlockRepository).toConstantValue(getCustomRepository(BlockRepository));
-
-        const transactionRepository: TransactionRepository = getCustomRepository(TransactionRepository);
-        transactionRepository.getWalletRepository = () => {
-            // Inversify isn't responsible for the instance creation so we can't inject.
-            return this.app.getTagged(Container.Identifiers.WalletRepository, "state", "blockchain");
-        };
-        this.app.bind(Container.Identifiers.TransactionRepository).toConstantValue(transactionRepository);
-
         this.app.bind(Container.Identifiers.RoundRepository).toConstantValue(getCustomRepository(RoundRepository));
+        this.app
+            .bind(Container.Identifiers.TransactionRepository)
+            .toConstantValue(getCustomRepository(TransactionRepository));
+
+        this.app.bind(Container.Identifiers.DatabaseBlockSearchService).to(BlockSearchService);
+        this.app.bind(Container.Identifiers.DatabaseTransactionSearchService).to(TransactionSearchService);
 
         this.app
             .bind(Container.Identifiers.DatabaseService)
