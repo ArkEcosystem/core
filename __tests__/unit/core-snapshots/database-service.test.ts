@@ -44,8 +44,6 @@ beforeEach(() => {
 
     sandbox.app.bind(Container.Identifiers.DatabaseConnection).toConstantValue(connection);
 
-
-    // sandbox.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService);
     sandbox.app.bind(Identifiers.SnapshotBlockRepository).toConstantValue(blockRepository);
     sandbox.app.bind(Identifiers.SnapshotTransactionRepository).toConstantValue(transactionRepository);
     sandbox.app.bind(Identifiers.SnapshotRoundRepository).toConstantValue(roundRepository);

@@ -51,7 +51,11 @@ describe("SnapshotService", () => {
 
     describe("rollback", () => {
         it("", async () => {
-            await expect(snapshotService.rollback()).toResolve();
+            await expect(snapshotService.rollbackByNumber(0, false)).toResolve();
+        });
+
+        it("", async () => {
+            await expect(snapshotService.rollbackByHeight(0, false)).toResolve();
         });
     });
 
