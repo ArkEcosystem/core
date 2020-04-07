@@ -80,7 +80,7 @@ export const getCurrentRound = async ({
 
     const height = lastBlock.data.height + 1;
     const roundInfo = Utils.roundCalculator.calculateRound(height);
-    const { maxDelegates, round } = roundInfo;
+    const { round } = roundInfo;
 
     const reward = Managers.configManager.getMilestone(height).reward;
     const delegates: Contracts.P2P.DelegateWallet[] = (await databaseService.getActiveDelegates(roundInfo)).map(
@@ -91,7 +91,7 @@ export const getCurrentRound = async ({
     );
 
     const timestamp = Crypto.Slots.getTime();
-    const forgingInfo = calculateForgingInfo(timestamp, height, maxDelegates);
+    const forgingInfo = calculateForgingInfo(timestamp, height, roundInfo);
 
     return {
         current: round,
