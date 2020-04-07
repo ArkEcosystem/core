@@ -60,11 +60,13 @@ export const getStatus = async ({
         .get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService)
         .getLastBlock();
 
+    const slotInfo = Crypto.Slots.getSlotInfo();
+
     return {
         state: {
             height: lastBlock ? lastBlock.data.height : 0,
-            forgingAllowed: Crypto.Slots.isForgingAllowed(),
-            currentSlot: Crypto.Slots.getSlotNumber(),
+            forgingAllowed: slotInfo.forgingStatus,
+            currentSlot: slotInfo.slotNumber,
             header: lastBlock ? lastBlock.getHeader() : {},
         },
         config: getPeerConfig(app),
