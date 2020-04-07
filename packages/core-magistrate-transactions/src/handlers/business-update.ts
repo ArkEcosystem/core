@@ -1,4 +1,4 @@
-import { Models, Repositories } from "@arkecosystem/core-database";
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
     Enums,
@@ -18,6 +18,9 @@ import { MagistrateTransactionHandler } from "./magistrate-handler";
 export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandler {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
+
+    @Container.inject(Container.Identifiers.DatabaseTransactionService)
+    private readonly databaseTransactionService!: Contracts.Database.TransactionService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BusinessRegistrationTransactionHandler];
@@ -129,53 +132,21 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         Utils.assert.defined<string>(sender.publicKey);
 
-        const dbRegistrationTransactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
+        const dbRegistrationTransactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
             {
-                criteria: [
-                    {
-                        field: "senderPublicKey",
-                        value: sender.publicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "type",
-                        value: Enums.MagistrateTransactionType.BusinessRegistration,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "typeGroup",
-                        value: transaction.data.typeGroup,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                senderPublicKey: sender.publicKey,
+                typeGroup: transaction.data.typeGroup,
+                type: Enums.MagistrateTransactionType.BusinessRegistration,
             },
         );
-        const dbUpdateTransactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
+
+        const dbUpdateTransactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
             {
-                criteria: [
-                    {
-                        field: "senderPublicKey",
-                        value: sender.publicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "type",
-                        value: Enums.MagistrateTransactionType.BusinessUpdate,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "typeGroup",
-                        value: transaction.data.typeGroup,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-                orderBy: [
-                    {
-                        direction: "ASC",
-                        field: "nonce",
-                    },
-                ],
+                senderPublicKey: sender.publicKey,
+                typeGroup: transaction.data.typeGroup,
+                type: Enums.MagistrateTransactionType.BusinessUpdate,
             },
+            "nonce:asc",
         );
 
         let businessWalletAsset = dbRegistrationTransactions.rows[0].asset

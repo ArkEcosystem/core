@@ -18,6 +18,9 @@ export class WalletsController extends Controller {
     @Container.inject(Container.Identifiers.TransactionRepository)
     protected readonly transactionRepository!: Repositories.TransactionRepository;
 
+    @Container.inject(Container.Identifiers.DatabaseTransactionService)
+    protected readonly databaseTransactionService!: Contracts.Database.TransactionService;
+
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     protected readonly walletRepository!: Contracts.State.WalletRepository;
@@ -50,20 +53,11 @@ export class WalletsController extends Controller {
             return wallet;
         }
 
-        // Overwrite parameters for special wallet treatment inside transaction repository
-        const parameters = {
-            ...request.query,
-            ...request.params,
-            ...this.paginate(request),
-            walletPublicKey: wallet.publicKey,
-            walletAddress: wallet.address,
-        };
-
-        delete parameters.publicKey;
-        delete parameters.recipientId;
-        delete parameters.id;
-
-        const rows = await this.transactionRepository.search(parameters);
+        const rows = await this.databaseTransactionService.search(
+            { ...request.query, wallet },
+            request.query.orderBy,
+            this.paginate(request),
+        );
 
         return this.toPagination(rows, TransactionResource, (request.query.transform as unknown) as boolean);
     }
@@ -75,15 +69,9 @@ export class WalletsController extends Controller {
             return wallet;
         }
 
-        // NOTE: We unset this value because it otherwise will produce a faulty SQL query
-        delete request.params.id;
-
-        const rows = await this.transactionRepository.searchByQuery(
-            {
-                ...request.query,
-                ...request.params,
-                senderPublicKey: wallet.publicKey,
-            },
+        const rows = await this.databaseTransactionService.search(
+            { ...request.query, senderPublicKey: wallet.publicKey },
+            request.query.orderBy,
             this.paginate(request),
         );
 
@@ -97,15 +85,9 @@ export class WalletsController extends Controller {
             return wallet;
         }
 
-        // NOTE: We unset this value because it otherwise will produce a faulty SQL query
-        delete request.params.id;
-
-        const rows = await this.transactionRepository.searchByQuery(
-            {
-                ...request.query,
-                ...request.params,
-                recipientId: wallet.address,
-            },
+        const rows = await this.databaseTransactionService.search(
+            { ...request.query, recipientId: wallet.address },
+            request.query.orderBy,
             this.paginate(request),
         );
 
@@ -119,17 +101,14 @@ export class WalletsController extends Controller {
             return wallet;
         }
 
-        // NOTE: We unset this value because it otherwise will produce a faulty SQL query
-        delete request.params.id;
-
-        const rows = await this.transactionRepository.searchByQuery(
+        const rows = await this.databaseTransactionService.search(
             {
                 ...request.query,
-                ...request.params,
                 senderPublicKey: wallet.publicKey,
-                type: Enums.TransactionType.Vote,
                 typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.Vote,
             },
+            request.query.orderBy,
             this.paginate(request),
         );
 

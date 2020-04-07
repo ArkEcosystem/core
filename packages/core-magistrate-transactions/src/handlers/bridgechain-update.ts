@@ -1,4 +1,4 @@
-import { Models, Repositories } from "@arkecosystem/core-database";
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
     Enums,
@@ -25,6 +25,9 @@ import { packageNameRegex } from "./utils";
 export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHandler {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
+
+    @Container.inject(Container.Identifiers.DatabaseTransactionService)
+    private readonly databaseTransactionService!: Contracts.Database.TransactionService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BridgechainRegistrationTransactionHandler];
@@ -190,52 +193,19 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         );
         const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId;
 
-        const dbRegistrationTransactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
+        const dbRegistrationTransactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
             {
-                criteria: [
-                    {
-                        field: "senderPublicKey",
-                        value: sender.publicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "type",
-                        value: Enums.MagistrateTransactionType.BridgechainRegistration,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "typeGroup",
-                        value: transaction.data.typeGroup,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                senderPublicKey: sender.publicKey,
+                typeGroup: transaction.data.typeGroup,
+                type: Enums.MagistrateTransactionType.BridgechainRegistration,
             },
         );
-        const dbUpdateTransactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
+
+        const dbUpdateTransactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
             {
-                criteria: [
-                    {
-                        field: "senderPublicKey",
-                        value: sender.publicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "type",
-                        value: Enums.MagistrateTransactionType.BridgechainUpdate,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "typeGroup",
-                        value: transaction.data.typeGroup,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-                orderBy: [
-                    {
-                        direction: "ASC",
-                        field: "nonce",
-                    },
-                ],
+                senderPublicKey: sender.publicKey,
+                typeGroup: transaction.data.typeGroup,
+                type: Enums.MagistrateTransactionType.BridgechainUpdate,
             },
         );
 

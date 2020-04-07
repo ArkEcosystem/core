@@ -1,7 +1,13 @@
 import Joi from "@hapi/joi";
 
-export const createSchemas = ({ pagination }: { pagination: { limit: number } }) => ({
+type SchemaSettings = {
     pagination: {
+        limit: number;
+    };
+};
+
+export const createSchemas = (settings: SchemaSettings) => {
+    const pagination = {
         page: Joi.number()
             .integer()
             .positive()
@@ -13,9 +19,10 @@ export const createSchemas = ({ pagination }: { pagination: { limit: number } })
             .integer()
             .min(1)
             .default(100)
-            .max(pagination.limit),
-    },
-    blockId: Joi.alternatives().try(
+            .max(settings.pagination.limit),
+    };
+
+    const blockId = Joi.alternatives().try(
         Joi.string()
             .min(1)
             .max(20)
@@ -23,27 +30,32 @@ export const createSchemas = ({ pagination }: { pagination: { limit: number } })
         Joi.string()
             .length(64)
             .hex(),
-    ),
-    address: Joi.string()
+    );
+
+    const address = Joi.string()
         .alphanum()
-        .length(34),
-    delegateIdentifier: Joi.string()
+        .length(34);
+
+    const delegateIdentifier = Joi.string()
         .regex(/^[a-zA-Z0-9!@$&_.]+$/)
         .min(1)
-        .max(66),
-    username: Joi.string()
+        .max(66);
+
+    const username = Joi.string()
         .regex(/^[a-z0-9!@$&_.]+$/)
         .min(1)
-        .max(20),
-    integerBetween: Joi.object().keys({
+        .max(20);
+
+    const integerBetween = Joi.object().keys({
         from: Joi.number()
             .integer()
             .min(0),
         to: Joi.number()
             .integer()
             .min(0),
-    }),
-    percentage: Joi.object().keys({
+    });
+
+    const percentage = Joi.object().keys({
         from: Joi.number()
             .precision(2)
             .min(0)
@@ -52,19 +64,9 @@ export const createSchemas = ({ pagination }: { pagination: { limit: number } })
             .precision(2)
             .min(0)
             .max(100),
-    }),
-    orEqualCriteria: ()
-    searchCriteria: (field: string, value: any, operator: string[]) =>
-        Joi.object().keys({
-            field: Joi.string()
-                .allow(field)
-                .required(),
-            value: value.required(),
-            operator: Joi.string()
-                .allow(...operator)
-                .required(),
-        }),
-    numberFixedOrBetween: Joi.alternatives().try(
+    });
+
+    const numberFixedOrBetween = Joi.alternatives().try(
         Joi.number()
             .integer()
             .min(0),
@@ -76,8 +78,9 @@ export const createSchemas = ({ pagination }: { pagination: { limit: number } })
                 .integer()
                 .min(0),
         }),
-    ),
-    walletId: Joi.alternatives().try(
+    );
+
+    const walletId = Joi.alternatives().try(
         Joi.string()
             .regex(/^[a-z0-9!@$&_.]+$/)
             .min(1)
@@ -88,6 +91,61 @@ export const createSchemas = ({ pagination }: { pagination: { limit: number } })
         Joi.string()
             .hex()
             .length(66),
-    ),
-    orderBy: Joi.string().regex(/^[a-z._]{1,40}:(asc|desc)$/i, "orderBy query parameter (<iteratee>:<direction>)"),
+    );
+
+    const orderBy = Joi.string().regex(
+        /^[a-z._]{1,40}:(asc|desc)$/i,
+        "orderBy query parameter (<iteratee>:<direction>)",
+    );
+
+    const equalCriteria = (value: any) => value;
+    const numericCriteria = (value: any) =>
+        Joi.alternatives().try(
+            value,
+            Joi.object().keys({ from: value }),
+            Joi.object().keys({ to: value }),
+            Joi.object().keys({ from: value, to: value }),
+        );
+    const likeCriteria = (value: any) => value;
+    const containsCriteria = (value: any) => value;
+    const orCriteria = (criteria: any) => Joi.alternatives().try(criteria, Joi.array().items(criteria));
+    const orEqualCriteria = (value: any) => orCriteria(equalCriteria(value));
+    const orNumericCriteria = (value: any) => orCriteria(numericCriteria(value));
+    const orLikeCriteria = (value: any) => orCriteria(likeCriteria(value));
+    const orContainsCriteria = (value: any) => orCriteria(containsCriteria(value));
+
+    return {
+        pagination,
+        blockId,
+        address,
+        delegateIdentifier,
+        username,
+        integerBetween,
+        percentage,
+        numberFixedOrBetween,
+        walletId,
+        orderBy,
+        equalCriteria,
+        numericCriteria,
+        likeCriteria,
+        containsCriteria,
+        orCriteria,
+        orEqualCriteria,
+        orNumericCriteria,
+        orLikeCriteria,
+        orContainsCriteria,
+    };
+};
+
+({
+    searchCriteria: (field: string, value: any, operator: string[]) =>
+        Joi.object().keys({
+            field: Joi.string()
+                .allow(field)
+                .required(),
+            value: value.required(),
+            operator: Joi.string()
+                .allow(...operator)
+                .required(),
+        }),
 });

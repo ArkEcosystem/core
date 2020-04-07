@@ -22,12 +22,16 @@ export class TransactionsController extends Controller {
     @Container.inject(Container.Identifiers.TransactionRepository)
     private readonly transactionRepository!: Repositories.TransactionRepository;
 
+    @Container.inject(Container.Identifiers.DatabaseTransactionService)
+    private readonly databaseTransactionService!: Contracts.Database.TransactionService;
+
     @Container.inject(Container.Identifiers.TransactionPoolProcessorFactory)
     private readonly createProcessor!: Contracts.TransactionPool.ProcessorFactory;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.searchByQuery(
+        const transactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
             request.query,
+            request.query.orderBy,
             this.paginate(request),
         );
 
@@ -63,7 +67,7 @@ export class TransactionsController extends Controller {
     }
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const pagination: Repositories.Search.SearchPagination = super.paginate(request);
+        const pagination: Contracts.Database.SearchPage = super.paginate(request);
         const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getFromHighestPriority());
         const transactions: Interfaces.ITransaction[] = all.slice(
             pagination.offset,
@@ -90,12 +94,10 @@ export class TransactionsController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
-            {
-                ...request.query, // only for orderBy
-                ...request.payload,
-                ...this.paginate(request),
-            },
+        const transactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
+            request.payload,
+            request.query.orderBy,
+            this.paginate(request),
         );
 
         return this.toPagination(transactions, TransactionResource, (request.query.transform as unknown) as boolean);

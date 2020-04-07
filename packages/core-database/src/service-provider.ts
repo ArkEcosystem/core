@@ -3,10 +3,12 @@ import { Connection, createConnection, getCustomRepository } from "typeorm";
 
 import { DatabaseService } from "./database-service";
 import { DatabaseEvent } from "./events";
+import { BlockFilter } from "./filters/block-filter";
+import { TransactionFilter } from "./filters/transaction-filter";
 import { SnakeNamingStrategy } from "./models/naming-strategy";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
-import { BlockSearchService } from "./services/block-search-service";
-import { TransactionSearchService } from "./services/transaction-search-service";
+import { BlockService } from "./services/block-service";
+import { TransactionService } from "./services/transaction-service";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -22,8 +24,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.TransactionRepository)
             .toConstantValue(getCustomRepository(TransactionRepository));
 
-        this.app.bind(Container.Identifiers.DatabaseBlockSearchService).to(BlockSearchService);
-        this.app.bind(Container.Identifiers.DatabaseTransactionSearchService).to(TransactionSearchService);
+        this.app.bind(Container.Identifiers.DatabaseBlockFilter).to(BlockFilter);
+        this.app.bind(Container.Identifiers.DatabaseTransactionFilter).to(TransactionFilter);
+        this.app.bind(Container.Identifiers.DatabaseBlockService).to(BlockService);
+        this.app.bind(Container.Identifiers.DatabaseTransactionService).to(TransactionService);
 
         this.app
             .bind(Container.Identifiers.DatabaseService)

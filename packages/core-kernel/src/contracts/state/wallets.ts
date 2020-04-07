@@ -1,7 +1,5 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { QueryParameters } from "../database/search";
-
 // todo: review all interfaces in here and document them properly. Remove ones that are no longer needed.
 
 export interface WalletIndex {
@@ -194,7 +192,7 @@ export interface WalletRepository {
 
     hasByUsername(username: string): boolean;
 
-    search<T>(scope: SearchScope, params: QueryParameters): RowsPaginated<T>;
+    search<T>(scope: SearchScope, params: any): RowsPaginated<T>;
 
     findByScope(searchScope: SearchScope, id: string): Wallet;
 

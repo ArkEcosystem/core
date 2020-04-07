@@ -1,4 +1,3 @@
-import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -8,8 +7,8 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class DelegatesController extends Controller {
-    @Container.inject(Container.Identifiers.BlockRepository)
-    protected readonly blockRepository!: Repositories.BlockRepository;
+    @Container.inject(Container.Identifiers.DatabaseBlockService)
+    protected readonly databaseBlockService!: Contracts.Database.BlockService;
 
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
@@ -51,15 +50,13 @@ export class DelegatesController extends Controller {
             return delegate;
         }
 
-        const rows = await this.blockRepository.search({
-            criteria: [
-                {
-                    field: "generatorPublicKey",
-                    operator: Repositories.Search.SearchOperator.Equal,
-                    value: delegate.publicKey!,
-                },
-            ],
-        });
+        const rows = await this.databaseBlockService.search(
+            {
+                generatorPublicKey: delegate.publicKey,
+            },
+            "",
+            this.paginate(request),
+        );
 
         return this.toPagination(rows, BlockResource, request.query.transform);
     }

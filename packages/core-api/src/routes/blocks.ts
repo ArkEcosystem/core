@@ -157,62 +157,58 @@ export const register = (server: Hapi.Server): void => {
                     ...{
                         transform: Joi.bool().default(true),
                     },
+                    orderBy: Joi.string(),
                 }),
                 payload: Joi.object({
-                    orderBy: Joi.string(),
-                    limit: Joi.number().min(0),
-                    offset: Joi.number().min(0),
-                    criteria: Joi.object({
-                        id: server.app.schemas.orEqualCriteria(server.app.schemas.blockId),
-                        version: server.app.schemas.orEqualCriteria(
-                            Joi.number()
-                                .integer()
-                                .min(0),
-                        ),
-                        timestamp: server.app.schemas.orNumericCriteria(
-                            Joi.number()
-                                .integer()
-                                .min(0),
-                        ),
-                        previousBlock: server.app.schemas.orEqualCriteria(server.app.schemas.blockId),
-                        height: server.app.schemas.orNumericCriteria(
-                            Joi.number()
-                                .integer()
-                                .min(0),
-                        ),
-                        numberOfTransactions: server.app.schemas.orNumericCriteria(
-                            Joi.number()
-                                .integer()
-                                .min(0),
-                        ),
-                        totalAmount: server.app.schemas.orNumericCriteria(
-                            Joi.number()
-                                .integer()
-                                .min(0),
-                        ),
-                        totalFee: server.app.schemas.orNumericCriteria(
-                            Joi.number()
-                                .integer()
-                                .min(0),
-                        ),
-                        reward: server.app.schemas.orNumericCriteria(
-                            Joi.number()
-                                .integer()
-                                .min(0),
-                        ),
-                        payloadLength: server.app.schemas.orNumericCriteria(
-                            Joi.number()
-                                .integer()
-                                .min(0),
-                        ),
-                        payloadHash: server.app.schemas.orEqualCriteria(Joi.string().hex()),
-                        generatorPublicKey: server.app.schemas.orEqualCriteria(
-                            Joi.string()
-                                .hex()
-                                .length(66),
-                        ),
-                        blockSignature: server.app.schemas.orEqualCriteria(Joi.string().hex()),
-                    }),
+                    id: server.app.schemas.orEqualCriteria(server.app.schemas.blockId),
+                    version: server.app.schemas.orEqualCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    timestamp: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    previousBlock: server.app.schemas.orEqualCriteria(server.app.schemas.blockId),
+                    height: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    numberOfTransactions: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    totalAmount: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    totalFee: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    reward: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    payloadLength: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    payloadHash: server.app.schemas.orEqualCriteria(Joi.string().hex()),
+                    generatorPublicKey: server.app.schemas.orEqualCriteria(
+                        Joi.string()
+                            .hex()
+                            .length(66),
+                    ),
+                    blockSignature: server.app.schemas.orEqualCriteria(Joi.string().hex()),
                 }),
             },
         },

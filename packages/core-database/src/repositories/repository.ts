@@ -21,25 +21,28 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
 
     public async search(
         expression: Contracts.Database.Expression<TModel>,
-        order: Contracts.Database.SearchOrder<TModel>,
-        page: Contracts.Database.SearchPage,
+        order?: Contracts.Database.SearchOrder<TModel>,
+        page?: Contracts.Database.SearchPage,
     ): Promise<Contracts.Database.SearchResult<TModel>> {
         const queryBuilder = this.createQueryBuilder().select();
 
-        for (const property of order) {
-            const column = this.getColumn(property);
-            queryBuilder.addOrderBy(column);
+        if (order) {
+            for (const item of order.items) {
+                const column = this.getColumn(item.property);
+                queryBuilder.addOrderBy(column, item.direction);
+            }
         }
 
-        queryBuilder.skip(page.offset).take(page.limit);
+        if (page) {
+            queryBuilder.skip(page.offset).take(page.limit);
+        }
 
-        if (expression.type !== "void") {
+        if (expression instanceof Contracts.Database.VoidExpression === false) {
             const sqlExpression = this.buildSqlExpression(expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }
 
         const [rows, count]: [TModel[], number] = await queryBuilder.getManyAndCount();
-
         return { rows, count, countIsEstimate: false };
     }
 
@@ -84,65 +87,78 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
     }
 
     private buildSqlExpression(expression: Contracts.Database.Expression<TModel>): SqlExpression {
-        switch (expression.type) {
-            case "equal": {
-                const column = this.getColumn(expression.property);
-                const param = `p${this.paramNo++}`;
-                const query = `${column} = :${param}`;
-                const parameters = { [param]: expression.value };
-                return new SqlExpression(query, parameters);
-            }
-            case "between": {
-                const column = this.getColumn(expression.property);
-                const paramFrom = `p${this.paramNo++}`;
-                const paramTo = `p${this.paramNo++}`;
-                const query = `${column} BETWEEN :${paramFrom} AND :${paramTo}`;
-                const parameters = { [paramFrom]: expression.from, [paramTo]: expression.to };
-                return new SqlExpression(query, parameters);
-            }
-            case "greaterThanEqual": {
-                const column = this.getColumn(expression.property);
-                const param = `p${this.paramNo++}`;
-                const query = `${column} >= :${param}`;
-                const parameters = { [param]: expression.value };
-                return new SqlExpression(query, parameters);
-            }
-            case "lessThanEqual": {
-                const column = this.getColumn(expression.property);
-                const param = `p${this.paramNo++}`;
-                const query = `${column} <= :${param}`;
-                const parameters = { [param]: expression.value };
-                return new SqlExpression(query, parameters);
-            }
-            case "like": {
-                const column = this.getColumn(expression.property);
-                const param = `p${this.paramNo++}`;
-                const query = `${column} LIKE :${param}`;
-                const parameters = { [param]: expression.value };
-                return new SqlExpression(query, parameters);
-            }
-            case "contains": {
-                const column = this.getColumn(expression.property);
-                const param = `p${this.paramNo++}`;
-                const query = `${column} @> :${param}`;
-                const parameters = { [param]: expression.value };
-                return new SqlExpression(query, parameters);
-            }
-            case "and": {
-                const built: SqlExpression[] = expression.expressions.map(this.buildSqlExpression.bind(this));
-                const query = `(${built.map(b => b.query).join(" AND ")})`;
-                const parameters = built.reduce((acc, b) => Object.assign({}, acc, b.parameters), {});
-                return new SqlExpression(query, parameters);
-            }
-            case "or": {
-                const built: SqlExpression[] = expression.expressions.map(this.buildSqlExpression.bind(this));
-                const query = `(${built.map(b => b.query).join(" OR ")})`;
-                const parameters = built.reduce((acc, b) => Object.assign({}, acc, b.parameters), {});
-                return new SqlExpression(query, parameters);
-            }
-            default:
-                throw new Error(`Unexpected expression ${expression.type}`);
+        if (expression instanceof Contracts.Database.TrueExpression) {
+            return new SqlExpression("TRUE", {});
         }
+
+        if (expression instanceof Contracts.Database.FalseExpression) {
+            return new SqlExpression("FALSE", {});
+        }
+
+        if (expression instanceof Contracts.Database.EqualExpression) {
+            const column = this.getColumn(expression.property);
+            const param = `p${this.paramNo++}`;
+            const query = `${column} = :${param}`;
+            const parameters = { [param]: expression.value };
+            return new SqlExpression(query, parameters);
+        }
+
+        if (expression instanceof Contracts.Database.BetweenExpression) {
+            const column = this.getColumn(expression.property);
+            const paramFrom = `p${this.paramNo++}`;
+            const paramTo = `p${this.paramNo++}`;
+            const query = `${column} BETWEEN :${paramFrom} AND :${paramTo}`;
+            const parameters = { [paramFrom]: expression.from, [paramTo]: expression.to };
+            return new SqlExpression(query, parameters);
+        }
+
+        if (expression instanceof Contracts.Database.GreaterThanEqualExpression) {
+            const column = this.getColumn(expression.property);
+            const param = `p${this.paramNo++}`;
+            const query = `${column} >= :${param}`;
+            const parameters = { [param]: expression.from };
+            return new SqlExpression(query, parameters);
+        }
+
+        if (expression instanceof Contracts.Database.LessThanEqualExpression) {
+            const column = this.getColumn(expression.property);
+            const param = `p${this.paramNo++}`;
+            const query = `${column} <= :${param}`;
+            const parameters = { [param]: expression.to };
+            return new SqlExpression(query, parameters);
+        }
+
+        if (expression instanceof Contracts.Database.LikeExpression) {
+            const column = this.getColumn(expression.property);
+            const param = `p${this.paramNo++}`;
+            const query = `${column} LIKE :${param}`;
+            const parameters = { [param]: expression.value };
+            return new SqlExpression(query, parameters);
+        }
+
+        if (expression instanceof Contracts.Database.ContainsExpression) {
+            const column = this.getColumn(expression.property);
+            const param = `p${this.paramNo++}`;
+            const query = `${column} @> :${param}`;
+            const parameters = { [param]: expression.value };
+            return new SqlExpression(query, parameters);
+        }
+
+        if (expression instanceof Contracts.Database.AndExpression) {
+            const built: SqlExpression[] = expression.expressions.map(this.buildSqlExpression.bind(this));
+            const query = `(${built.map(b => b.query).join(" AND ")})`;
+            const parameters = built.reduce((acc, b) => Object.assign({}, acc, b.parameters), {});
+            return new SqlExpression(query, parameters);
+        }
+
+        if (expression instanceof Contracts.Database.OrExpression) {
+            const built: SqlExpression[] = expression.expressions.map(this.buildSqlExpression.bind(this));
+            const query = `(${built.map(b => b.query).join(" OR ")})`;
+            const parameters = built.reduce((acc, b) => Object.assign({}, acc, b.parameters), {});
+            return new SqlExpression(query, parameters);
+        }
+
+        throw new Error(`Unexpected expression ${expression.constructor.name}`);
     }
 
     private getColumn<TProperty extends keyof TModel>(property: TProperty): string {

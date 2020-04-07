@@ -1,88 +1,226 @@
-import { ContainsCriteria, EqualCriteria, LikeCriteria, Numeric, NumericCriteria, OrCriteria } from "./criteria";
 import {
-    andExpression,
-    betweenExpression,
-    containsExpression,
-    equalExpression,
+    AndExpression,
+    BetweenExpression,
+    ContainsExpression,
+    EqualExpression,
     Expression,
-    greaterThanEqualExpression,
-    lessThanEqualExpression,
-    likeExpression,
-    orExpression,
-    voidExpression,
+    GreaterThanEqualExpression,
+    LessThanEqualExpression,
+    LikeExpression,
+    OrExpression,
+    VoidExpression,
 } from "./expressions";
 
-export type Filter<TModel, TCriteria> = (criteria: TCriteria) => Promise<Expression<TModel>>;
+export type EqualCriteria<T> = T;
+export type NumericCriteria<T> = T | { from: T } | { to: T } | { from: T; to: T };
+export type LikeCriteria<T> = T;
+export type ContainsCriteria<T> = T;
+export type OrCriteria<TCriteria> = TCriteria | TCriteria[];
+export type OrEqualCriteria<T> = OrCriteria<EqualCriteria<T>>;
+export type OrNumericCriteria<T> = OrCriteria<NumericCriteria<T>>;
+export type OrLikeCriteria<T> = OrCriteria<LikeCriteria<T>>;
+export type OrContainsCriteria<T> = OrCriteria<ContainsCriteria<T>>;
 
-export const createOrFilter = <TModel, TCriteria>(
-    filter: Filter<TModel, TCriteria>,
-): Filter<TModel, OrCriteria<TCriteria>> => {
-    return async criteria => {
+export const someOrCriteria = <TCriteria>(
+    criteria: OrCriteria<TCriteria>,
+    predicate: (criteria: TCriteria) => boolean,
+): boolean => {
+    return Array.isArray(criteria) ? criteria.some(predicate) : predicate(criteria);
+};
+
+export const everyOrCriteria = <TCriteria>(
+    criteria: OrCriteria<TCriteria>,
+    predicate: (criteria: TCriteria) => boolean,
+): boolean => {
+    return Array.isArray(criteria) ? criteria.every(predicate) : predicate(criteria);
+};
+
+export const hasOrCriteria = <TCriteria>(criteria: OrCriteria<TCriteria>): boolean => {
+    return someOrCriteria(criteria, () => true);
+};
+
+export interface Filter<TModel, TCriteria> {
+    getExpression(criteria: TCriteria): Promise<Expression<TModel>>;
+}
+
+export class OrFilter<TModel, TCriteria> implements Filter<TModel, OrCriteria<TCriteria>> {
+    private readonly filter: Filter<TModel, TCriteria>;
+
+    public constructor(filter: Filter<TModel, TCriteria>) {
+        this.filter = filter;
+    }
+
+    public async getExpression(criteria: OrCriteria<TCriteria>): Promise<Expression<TModel>> {
         if (Array.isArray(criteria)) {
-            return orExpression(await Promise.all(criteria.map(filter)));
+            const promises = criteria.map(c => this.filter.getExpression(c));
+            const expressions = await Promise.all(promises);
+            return OrExpression.make(expressions);
         } else {
-            return filter(criteria);
+            return this.filter.getExpression(criteria);
         }
-    };
-};
+    }
+}
 
-export const createAndFilter = <TModel, TCriteria>(
-    filters: { [K in keyof TCriteria]: Filter<TModel, NonNullable<TCriteria[K]>> },
-): Filter<TModel, { [K in keyof TCriteria]?: TCriteria[K] }> => {
-    return async criteria => {
-        const promises = Object.keys(filters).map(key => {
-            if (key in criteria) {
-                return filters[key](criteria[key]);
-            } else {
-                return Promise.resolve(voidExpression());
-            }
-        });
+export class EqualFilter<TModel, TProperty extends keyof TModel>
+    implements Filter<TModel, EqualCriteria<TModel[TProperty]>> {
+    private readonly property: TProperty;
 
-        return andExpression(await Promise.all(promises));
-    };
-};
+    public constructor(property: TProperty) {
+        this.property = property;
+    }
 
-export const createValueFilter = <TModel, TProperty extends keyof TModel>(
-    model: new () => TModel,
-    property: TProperty,
-): Filter<TModel, EqualCriteria<any>> => {
-    return async criteria => equalExpression(model, property, criteria);
-};
+    public async getExpression(criteria: EqualCriteria<TModel[TProperty]>): Promise<Expression<TModel>> {
+        return new EqualExpression(this.property, criteria);
+    }
+}
 
-export const createNumericFilter = <TModel, TProperty extends keyof TModel>(
-    model: new () => TModel,
-    property: TProperty,
-): Filter<TModel, NumericCriteria<Numeric>> => {
-    return async criteria => {
+export class OrEqualFilter<TModel, TProperty extends keyof TModel>
+    implements Filter<TModel, OrEqualCriteria<TModel[TProperty]>> {
+    private readonly filter: Filter<TModel, OrEqualCriteria<TModel[TProperty]>>;
+
+    public constructor(property: TProperty) {
+        this.filter = new OrFilter(new EqualFilter(property));
+    }
+
+    public async getExpression(criteria: OrEqualCriteria<TModel[TProperty]>): Promise<Expression<TModel>> {
+        return this.filter.getExpression(criteria);
+    }
+}
+
+export class NumericFilter<TModel, TProperty extends keyof TModel>
+    implements Filter<TModel, NumericCriteria<TModel[TProperty]>> {
+    private readonly property: TProperty;
+
+    public constructor(property: TProperty) {
+        this.property = property;
+    }
+
+    public async getExpression(criteria: NumericCriteria<TModel[TProperty]>): Promise<Expression<TModel>> {
         if (typeof criteria === "object") {
             if ("from" in criteria && "to" in criteria) {
-                return betweenExpression(model, property, criteria.from, criteria.to);
+                return new BetweenExpression(this.property, criteria.from, criteria.to);
             }
             if ("from" in criteria) {
-                return greaterThanEqualExpression(model, property, criteria.from);
+                return new GreaterThanEqualExpression(this.property, criteria.from);
             }
             if ("to" in criteria) {
-                return lessThanEqualExpression(model, property, criteria.to);
+                return new LessThanEqualExpression(this.property, criteria.to);
             }
         }
-        return equalExpression(model, property, criteria);
-    };
+
+        return new EqualExpression(this.property, criteria);
+    }
+}
+
+export class OrNumericFilter<TModel, TProperty extends keyof TModel>
+    implements Filter<TModel, OrNumericCriteria<TModel[TProperty]>> {
+    private readonly filter: Filter<TModel, OrNumericCriteria<TModel[TProperty]>>;
+
+    public constructor(property: TProperty) {
+        this.filter = new OrFilter(new NumericFilter(property));
+    }
+
+    public async getExpression(criteria: OrNumericCriteria<TModel[TProperty]>): Promise<Expression<TModel>> {
+        return this.filter.getExpression(criteria);
+    }
+}
+
+export class LikeFilter<TModel, TProperty extends keyof TModel>
+    implements Filter<TModel, LikeCriteria<TModel[TProperty]>> {
+    private readonly property: TProperty;
+
+    public constructor(property: TProperty) {
+        this.property = property;
+    }
+
+    public async getExpression(criteria: LikeCriteria<TModel[TProperty]>): Promise<Expression<TModel>> {
+        return new LikeExpression(this.property, criteria);
+    }
+}
+
+export class OrLikeFilter<TModel, TProperty extends keyof TModel>
+    implements Filter<TModel, OrLikeCriteria<TModel[TProperty]>> {
+    private readonly filter: Filter<TModel, OrLikeCriteria<TModel[TProperty]>>;
+
+    public constructor(property: TProperty) {
+        this.filter = new OrFilter(new LikeFilter(property));
+    }
+
+    public async getExpression(criteria: OrLikeCriteria<TModel[TProperty]>): Promise<Expression<TModel>> {
+        return this.filter.getExpression(criteria);
+    }
+}
+
+export class ContainsFilter<TModel, TProperty extends keyof TModel>
+    implements Filter<TModel, ContainsCriteria<TModel[TProperty]>> {
+    private readonly property: TProperty;
+
+    public constructor(property: TProperty) {
+        this.property = property;
+    }
+
+    public async getExpression(criteria: ContainsCriteria<TModel[TProperty]>): Promise<Expression<TModel>> {
+        return new ContainsExpression(this.property, criteria);
+    }
+}
+
+export class OrContainsFilter<TModel, TProperty extends keyof TModel>
+    implements Filter<TModel, OrContainsCriteria<TModel[TProperty]>> {
+    private readonly filter: Filter<TModel, OrContainsCriteria<TModel[TProperty]>>;
+
+    public constructor(property: TProperty) {
+        this.filter = new OrFilter(new ContainsFilter(property));
+    }
+
+    public async getExpression(criteria: OrContainsCriteria<TModel[TProperty]>): Promise<Expression<TModel>> {
+        return this.filter.getExpression(criteria);
+    }
+}
+
+export class FnFilter<TModel, TCriteria> implements Filter<TModel, TCriteria> {
+    private readonly fn: (criteria: TCriteria) => Promise<Expression<TModel>>;
+
+    public constructor(fn: (criteria: TCriteria) => Promise<Expression<TModel>>) {
+        this.fn = fn;
+    }
+
+    public async getExpression(criteria: TCriteria): Promise<Expression<TModel>> {
+        return this.fn(criteria);
+    }
+}
+
+export class OrFnFilter<TModel, TCriteria> implements Filter<TModel, OrCriteria<TCriteria>> {
+    private readonly filter: Filter<TModel, OrCriteria<TCriteria>>;
+
+    public constructor(fn: (criteria: TCriteria) => Promise<Expression<TModel>>) {
+        this.filter = new OrFilter(new FnFilter(fn));
+    }
+
+    public async getExpression(criteria: OrCriteria<TCriteria>): Promise<Expression<TModel>> {
+        return this.filter.getExpression(criteria);
+    }
+}
+
+export type AndFilters<TModel, TCriteria> = {
+    [K in keyof TCriteria]: Filter<TModel, NonNullable<TCriteria[K]>>;
 };
 
-export const createStringFilter = <TModel, TProperty extends keyof TModel>(
-    model: new () => TModel,
-    property: TProperty,
-): Filter<TModel, LikeCriteria<string>> => {
-    return async criteria => {
-        return likeExpression(model, property, criteria);
-    };
-};
+export class AndFilter<TModel, TCriteria> implements Filter<TModel, TCriteria> {
+    private readonly filters: AndFilters<TModel, TCriteria>;
 
-export const createJsonFilter = <TModel, TProperty extends keyof TModel>(
-    model: new () => TModel,
-    property: TProperty,
-): Filter<TModel, ContainsCriteria<Record<string, any>>> => {
-    return async criteria => {
-        return containsExpression(model, property, criteria);
-    };
-};
+    public constructor(filters: AndFilters<TModel, TCriteria>) {
+        this.filters = filters;
+    }
+
+    public async getExpression(criteria: TCriteria): Promise<Expression<TModel>> {
+        const promises = Object.keys(this.filters).map(key => {
+            if (key in criteria && typeof criteria[key] !== "undefined") {
+                return this.filters[key].getExpression(criteria[key]);
+            } else {
+                return Promise.resolve(new VoidExpression());
+            }
+        });
+        const expressions = await Promise.all(promises);
+        return AndExpression.make(expressions);
+    }
+}

@@ -1,4 +1,3 @@
-import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -10,7 +9,7 @@ export class Controller {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
 
-    protected paginate(request: Hapi.Request): Repositories.Search.SearchPagination {
+    protected paginate(request: Hapi.Request): Contracts.Database.SearchPage {
         const pagination = {
             offset: (request.query.page - 1) * request.query.limit || 0,
             limit: request.query.limit || 100,

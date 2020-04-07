@@ -14,14 +14,17 @@ export class BlocksController extends Controller {
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.DatabaseBlockSearchService)
-    protected readonly blockSearchService!: Contracts.Database.BlockSearchService;
+    @Container.inject(Container.Identifiers.BlockRepository)
+    protected readonly blockRepository!: Repositories.BlockRepository;
 
-    @Container.inject(Container.Identifiers.DatabaseTransactionSearchService)
-    protected readonly transactionSearchService!: Contracts.Database.TransactionSearchService;
+    @Container.inject(Container.Identifiers.DatabaseBlockService)
+    protected readonly databaseBlockService!: Contracts.Database.BlockService;
+
+    @Container.inject(Container.Identifiers.DatabaseTransactionService)
+    protected readonly databaseTransactionService!: Contracts.Database.TransactionService;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const searchResult: Contracts.Database.SearchResult<Contracts.Database.Block> = await this.blockSearchService.search(
+        const searchResult: Contracts.Database.SearchResult<Contracts.Database.Block> = await this.databaseBlockService.search(
             request.query,
             request.query.orderBy,
             this.paginate(request),
@@ -63,24 +66,22 @@ export class BlocksController extends Controller {
             return Boom.notFound("Block not found");
         }
 
-        const rows: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.searchByQuery(
-            {
-                blockId: block.id,
-                ...request.query,
-            },
+        const searchResult: Contracts.Database.SearchResult<Contracts.Database.Transaction> = await this.databaseTransactionService.search(
+            { ...request.query, blockId: block.id },
+            request.query.orderBy,
             this.paginate(request),
         );
 
-        return this.toPagination(rows, TransactionResource, request.query.transform);
+        return this.toPagination(searchResult, TransactionResource, request.query.transform);
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blocks = await this.blockRepository.search({
-            ...request.query, // only for orderBy
-            ...request.payload,
-            ...this.paginate(request),
-        });
+        const searchResult: Contracts.Database.SearchResult<Contracts.Database.Block> = await this.databaseBlockService.search(
+            request.payload.criteria,
+            request.payload.orderBy,
+            this.paginate(request),
+        );
 
-        return this.toPagination(blocks, BlockResource, request.query.transform);
+        return this.toPagination(searchResult, BlockResource, request.query.transform);
     }
 }

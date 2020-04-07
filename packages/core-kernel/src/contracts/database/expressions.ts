@@ -1,167 +1,146 @@
-export type VoidExpression = {
-    type: "void";
-};
+export class VoidExpression {}
 
-export type EqualExpression<TModel, TProperty extends keyof TModel> = {
-    type: "equal";
-    model: new () => TModel;
-    property: TProperty;
-    value: any;
-};
+export class FalseExpression {}
 
-export type BetweenExpression<TModel, TProperty extends keyof TModel> = {
-    type: "between";
-    model: new () => TModel;
-    property: TProperty;
-    from: any;
-    to: any;
-};
+export class TrueExpression {}
 
-export type GreaterThanEqualExpression<TModel, TProperty extends keyof TModel> = {
-    type: "greaterThanEqual";
-    model: new () => TModel;
-    property: TProperty;
-    value: any;
-};
+export class EqualExpression<TModel> {
+    public readonly property: keyof TModel;
+    public readonly value: any;
 
-export type LessThanEqualExpression<TModel, TProperty extends keyof TModel> = {
-    type: "lessThanEqual";
-    model: new () => TModel;
-    property: TProperty;
-    value: any;
-};
+    public constructor(property: keyof TModel, value: any) {
+        this.property = property;
+        this.value = value;
+    }
+}
 
-export type LikeExpression<TModel, TProperty extends keyof TModel> = {
-    type: "like";
-    model: new () => TModel;
-    property: TProperty;
-    value: string;
-};
+export class BetweenExpression<TModel> {
+    public readonly property: keyof TModel;
+    public readonly from: any;
+    public readonly to: any;
 
-export type ContainsExpression<TModel, TProperty extends keyof TModel> = {
-    type: "contains";
-    model: new () => TModel;
-    property: TProperty;
-    value: Record<string, any>;
-};
+    public constructor(property: keyof TModel, from: any, to: any) {
+        this.property = property;
+        this.from = from;
+        this.to = to;
+    }
+}
 
-export type ModelPropertyExpression<TModel, TProperty extends keyof TModel> =
-    | EqualExpression<TModel, TProperty>
-    | BetweenExpression<TModel, TProperty>
-    | GreaterThanEqualExpression<TModel, TProperty>
-    | LessThanEqualExpression<TModel, TProperty>
-    | LikeExpression<TModel, TProperty>
-    | ContainsExpression<TModel, TProperty>;
+export class GreaterThanEqualExpression<TModel> {
+    public readonly property: keyof TModel;
+    public readonly from: any;
 
-export type AndExpression<TModel> = {
-    type: "and";
-    expressions: (VoidExpression | ModelPropertyExpression<TModel, keyof TModel> | OrExpression<TModel>)[];
-};
+    public constructor(property: keyof TModel, from: any) {
+        this.property = property;
+        this.from = from;
+    }
+}
 
-export type OrExpression<TModel> = {
-    type: "or";
-    expressions: (VoidExpression | ModelPropertyExpression<TModel, keyof TModel> | AndExpression<TModel>)[];
-};
+export class LessThanEqualExpression<TModel> {
+    public readonly property: keyof TModel;
+    public readonly to: any;
+
+    public constructor(property: keyof TModel, to: any) {
+        this.property = property;
+        this.to = to;
+    }
+}
+
+export class LikeExpression<TModel> {
+    public readonly property: keyof TModel;
+    public readonly value: any;
+
+    public constructor(property: keyof TModel, value: any) {
+        this.property = property;
+        this.value = value;
+    }
+}
+
+export class ContainsExpression<TModel> {
+    public readonly property: keyof TModel;
+    public readonly value: any;
+
+    public constructor(property: keyof TModel, value: any) {
+        this.property = property;
+        this.value = value;
+    }
+}
+
+export class AndExpression<TModel> {
+    public readonly expressions: Expression<TModel>[];
+
+    private constructor(expressions: Expression<TModel>[]) {
+        this.expressions = expressions;
+    }
+
+    public static make<TModel>(expressions: Expression<TModel>[]): Expression<TModel> {
+        const flattened = expressions.reduce((acc: Expression<TModel>[], exp) => {
+            if (exp instanceof VoidExpression) {
+                return acc;
+            }
+            if (exp instanceof AndExpression) {
+                return [...acc, ...exp.expressions];
+            }
+
+            return [...acc, exp];
+        }, []);
+
+        if (flattened.length === 0) {
+            return new VoidExpression();
+        }
+        if (flattened.length === 1) {
+            return flattened[0];
+        }
+        if (flattened.find(e => e instanceof FalseExpression)) {
+            return new FalseExpression();
+        }
+
+        return new AndExpression(flattened);
+    }
+}
+
+export class OrExpression<TModel> {
+    public readonly expressions: Expression<TModel>[];
+
+    private constructor(expressions: Expression<TModel>[]) {
+        this.expressions = expressions;
+    }
+
+    public static make<TModel>(expressions: Expression<TModel>[]): Expression<TModel> {
+        const flattened = expressions.reduce((acc: Expression<TModel>[], exp) => {
+            if (exp instanceof VoidExpression) {
+                return acc;
+            }
+            if (exp instanceof OrExpression) {
+                return [...acc, ...exp.expressions];
+            }
+
+            return [...acc, exp];
+        }, []);
+
+        if (flattened.length === 0) {
+            return new VoidExpression();
+        }
+        if (flattened.length === 1) {
+            return flattened[0];
+        }
+        if (flattened.find(e => e instanceof TrueExpression)) {
+            return new TrueExpression();
+        }
+
+        return new OrExpression(flattened);
+    }
+}
 
 export type Expression<TModel> =
     | VoidExpression
-    | ModelPropertyExpression<TModel, keyof TModel>
+    | FalseExpression
+    | TrueExpression
+    | EqualExpression<TModel>
+    | BetweenExpression<TModel>
+    | GreaterThanEqualExpression<TModel>
+    | LessThanEqualExpression<TModel>
+    | LikeExpression<TModel>
+    | ContainsExpression<TModel>
     | AndExpression<TModel>
     | OrExpression<TModel>;
-
-export const voidExpression = (): VoidExpression => {
-    return { type: "void" };
-};
-
-export const equalExpression = <TModel, TProperty extends keyof TModel>(
-    model: new () => TModel,
-    property: TProperty,
-    value: any,
-): EqualExpression<TModel, TProperty> => {
-    return { type: "equal", model, property, value };
-};
-
-export const betweenExpression = <TModel, TProperty extends keyof TModel>(
-    model: new () => TModel,
-    property: TProperty,
-    from: any,
-    to: any,
-): BetweenExpression<TModel, TProperty> => {
-    return { type: "between", model, property, from, to };
-};
-
-export const greaterThanEqualExpression = <TModel, TProperty extends keyof TModel>(
-    model: new () => TModel,
-    property: TProperty,
-    value: any,
-): GreaterThanEqualExpression<TModel, TProperty> => {
-    return { type: "greaterThanEqual", model, property, value };
-};
-
-export const lessThanEqualExpression = <TModel, TProperty extends keyof TModel>(
-    model: new () => TModel,
-    property: TProperty,
-    value: any,
-): LessThanEqualExpression<TModel, TProperty> => {
-    return { type: "lessThanEqual", model, property, value };
-};
-
-export const likeExpression = <TModel, TProperty extends keyof TModel>(
-    model: new () => TModel,
-    property: TProperty,
-    value: string,
-): LikeExpression<TModel, TProperty> => {
-    return { type: "like", model, property, value };
-};
-
-export const containsExpression = <TModel, TProperty extends keyof TModel>(
-    model: new () => TModel,
-    property: TProperty,
-    value: Record<string, any>,
-): ContainsExpression<TModel, TProperty> => {
-    return { type: "contains", model, property, value };
-};
-
-export const andExpression = <TModel>(expressions: Expression<TModel>[]): Expression<TModel> => {
-    const flattened = expressions.reduce((acc, exp) => {
-        if (exp.type === "void") {
-            return acc;
-        }
-        if (exp.type === "and") {
-            return [...acc, ...exp.expressions];
-        }
-
-        return [...acc, exp];
-    }, [] as AndExpression<TModel>["expressions"]);
-
-    if (flattened.length === 0) {
-        return { type: "void" };
-    }
-    if (flattened.length === 1) {
-        return flattened[0];
-    }
-
-    return { type: "and", expressions: flattened };
-};
-
-export const orExpression = <TModel>(expressions: Expression<TModel>[]): Expression<TModel> => {
-    const flattened = expressions.reduce((acc, exp) => {
-        if (exp.type === "void") {
-            return acc;
-        }
-        if (exp.type === "or") {
-            return [...acc, ...exp.expressions];
-        }
-
-        return [...acc, exp];
-    }, [] as OrExpression<TModel>["expressions"]);
-
-    if (flattened.length === 0) {
-        return { type: "void" };
-    }
-    if (flattened.length === 1) {
-        return flattened[0];
-    }
-
-    return { type: "or", expressions: flattened };
-};

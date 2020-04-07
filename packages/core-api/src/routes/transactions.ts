@@ -150,115 +150,64 @@ export const register = (server: Hapi.Server): void => {
                     ...{
                         transform: Joi.bool().default(true),
                     },
+                    orderBy: Joi.string(),
                 }),
                 payload: Joi.object({
-                    orderBy: server.app.schemas.orderBy,
-                    limit: Joi.number().min(0),
-                    offset: Joi.number().min(0),
-                    criteria: Joi.array().items(
-                        server.app.schemas.searchCriteria(
-                            "id",
-                            Joi.string()
-                                .hex()
-                                .length(64),
-                            ["equal", "in", "like"],
-                        ),
-                        server.app.schemas.searchCriteria("blockId", server.app.schemas.blockId, [
-                            "equal",
-                            "in",
-                            "like",
-                        ]),
-                        server.app.schemas.searchCriteria(
-                            "type",
-                            Joi.number()
-                                .integer()
-                                .min(0),
-                            ["equal", "in", "like", "lessThanEqual", "greaterThanEqual"],
-                        ),
-                        server.app.schemas.searchCriteria(
-                            "typeGroup",
-                            Joi.number()
-                                .integer()
-                                .min(0),
-                            ["equal", "in", "like", "lessThanEqual", "greaterThanEqual"],
-                        ),
-                        server.app.schemas.searchCriteria(
-                            "version",
-                            Joi.number()
-                                .integer()
-                                .positive(),
-                            ["equal", "in", "like", "lessThanEqual", "greaterThanEqual"],
-                        ),
-                        server.app.schemas.searchCriteria(
-                            "senderPublicKey",
-                            Joi.string()
-                                .hex()
-                                .length(66),
-                            ["equal", "in", "like"],
-                        ),
-                        server.app.schemas.searchCriteria(
-                            "senderId",
-                            Joi.alternatives().try(
-                                server.app.schemas.address,
-                                Joi.array()
-                                    .unique()
-                                    .min(1)
-                                    .max(50)
-                                    .items(server.app.schemas.address),
-                            ),
-                            ["equal", "in", "like"],
-                        ),
-                        server.app.schemas.searchCriteria(
-                            "recipientId",
-                            Joi.alternatives().try(
-                                server.app.schemas.address,
-                                Joi.array()
-                                    .unique()
-                                    .min(1)
-                                    .max(50)
-                                    .items(server.app.schemas.address),
-                            ),
-                            ["equal", "in", "like"],
-                        ),
-                        server.app.schemas.searchCriteria("vendorField", Joi.string().max(255, "utf8"), [
-                            "equal",
-                            "in",
-                            "like",
-                        ]),
-                        server.app.schemas.searchCriteria("nonce", server.app.schemas.numberFixedOrBetween, [
-                            "between",
-                            "equal",
-                            "in",
-                            "like",
-                            "lessThanEqual",
-                            "greaterThanEqual",
-                        ]),
-                        server.app.schemas.searchCriteria("amount", server.app.schemas.numberFixedOrBetween, [
-                            "between",
-                            "equal",
-                            "in",
-                            "like",
-                            "lessThanEqual",
-                            "greaterThanEqual",
-                        ]),
-                        server.app.schemas.searchCriteria("fee", server.app.schemas.numberFixedOrBetween, [
-                            "between",
-                            "equal",
-                            "in",
-                            "like",
-                            "lessThanEqual",
-                            "greaterThanEqual",
-                        ]),
-                        server.app.schemas.searchCriteria("timestamp", server.app.schemas.numberFixedOrBetween, [
-                            "between",
-                            "equal",
-                            "in",
-                            "like",
-                            "lessThanEqual",
-                            "greaterThanEqual",
-                        ]),
-                        server.app.schemas.searchCriteria("asset", Joi.object(), ["contains"]),
+                    senderId: server.app.schemas.orEqualCriteria(server.app.schemas.address),
+                    id: server.app.schemas.orEqualCriteria(
+                        Joi.string()
+                            .hex()
+                            .length(64),
                     ),
+                    version: server.app.schemas.orEqualCriteria(
+                        Joi.number()
+                            .integer()
+                            .positive(),
+                    ),
+                    blockId: server.app.schemas.orEqualCriteria(server.app.schemas.blockId),
+                    sequence: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .positive(),
+                    ),
+                    timestamp: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    nonce: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .positive(),
+                    ),
+                    senderPublicKey: server.app.schemas.orEqualCriteria(
+                        Joi.string()
+                            .hex()
+                            .length(66),
+                    ),
+                    recipientId: server.app.schemas.orEqualCriteria(server.app.schemas.address),
+                    type: server.app.schemas.orEqualCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    typeGroup: server.app.schemas.orEqualCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    vendorField: server.app.schemas.orLikeCriteria(Joi.string().max(255, "utf8")),
+                    amount: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    fee: server.app.schemas.orNumericCriteria(
+                        Joi.number()
+                            .integer()
+                            .min(0),
+                    ),
+                    asset: server.app.schemas.orContainsCriteria(Joi.object()),
                 }),
             },
         },
