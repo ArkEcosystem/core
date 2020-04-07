@@ -8,6 +8,7 @@ interface SlotInfo {
     endTime: number;
     blockTime: number;
     slotNumber: number;
+    forgingStatus: boolean;
 }
 
 export class Slots {
@@ -36,10 +37,9 @@ export class Slots {
         if (timestamp === undefined) {
             timestamp = this.getTime();
         }
-
         const lastKnownHeight = this.getLatestHeight(height);
 
-        return this.calculateSlotNumber(timestamp, lastKnownHeight, !!height);
+        return this.calculateSlotInfo(timestamp, lastKnownHeight, !!height);
     }
 
     public static getSlotTime(slot: number): number {
@@ -50,44 +50,17 @@ export class Slots {
         return this.getSlotNumber() + 1;
     }
 
+    // TODO: check where this is currently used
+    // If possible, call getSlotInfo once to save computation.
     public static isForgingAllowed(timestamp?: number): boolean {
         if (timestamp === undefined) {
             timestamp = this.getTime();
         }
 
-        /**
-            TODO: consider efficiency here
-            Since the slot number has a deterministic relationship to the height -
-            we can instead calculate the slot number, using the timestamp, to know how far to search (in calculateForgingStatus)
-            This is however less efficient than passing a height directly.
-            Passing a height also allows us to capture other possible error states
-            (such as when the timestamp does not correspond to the height)
-         */
-
-        return this.calculateForgingStatus(timestamp, this.getSlotNumber(timestamp));
+        return this.calculateSlotInfo(timestamp, this.getSlotNumber(timestamp), false, true).forgingStatus;
     }
 
-    private static calculateForgingStatus(timestamp: number, height: number): boolean {
-        const blockTime = calculateBlockTime(1);
-
-        let slotInfo: SlotInfo = {
-            blockTime,
-            startTime: 0,
-            endTime: blockTime - 1,
-            slotNumber: 0, // TODO: should this be handled better by a possible null case?
-        };
-
-        for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
-            if (this.timestampOccursWithinSlot(timestamp, slotInfo)) {
-                break;
-            }
-
-            slotInfo = this.updateSlotInfo(slotInfo, currentHeight);
-        }
-        return timestamp <= slotInfo.endTime - Math.ceil(slotInfo.blockTime / 2);
-    }
-
-    private static calculateSlotTime(slot): number {
+    private static calculateSlotTime(slot: number): number {
         let total = 0;
         let lastHeight = 1;
         let blockTime = calculateBlockTime(lastHeight);
@@ -107,7 +80,12 @@ export class Slots {
         return total;
     }
 
-    private static calculateSlotNumber(timestamp: number, height: number, searchSpecificHeight = true): SlotInfo {
+    private static calculateSlotInfo(
+        timestamp: number,
+        height: number,
+        searchSpecificHeight = true,
+        checkForgingStatus = false,
+    ): SlotInfo {
         const blockTime = calculateBlockTime(1);
 
         let slotInfo: SlotInfo = {
@@ -115,6 +93,7 @@ export class Slots {
             startTime: 0,
             endTime: blockTime - 1,
             slotNumber: 0, // See TODO: above
+            forgingStatus: false,
         };
 
         // TODO: should we start from 1 each time, or store these variables somewhere for efficiency when doing the next computation?
@@ -122,6 +101,7 @@ export class Slots {
             if (!searchSpecificHeight || currentHeight === height) {
                 if (this.timestampOccursWithinSlot(timestamp, slotInfo)) {
                     slotInfo.slotNumber = currentHeight - 1;
+                    slotInfo.forgingStatus = this.determineForgingStatus(slotInfo, timestamp);
                     return slotInfo;
                 }
             } else {
@@ -129,7 +109,7 @@ export class Slots {
             }
         }
 
-        if (slotInfo.endTime < timestamp) {
+        if (slotInfo.endTime < timestamp || checkForgingStatus) {
             if (searchSpecificHeight) {
                 throw new Error(`Given timestamp exists in a future block`);
             } else {
@@ -140,6 +120,7 @@ export class Slots {
                 for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
                     if (this.timestampOccursWithinSlot(timestamp, slotInfo)) {
                         slotInfo.slotNumber = currentHeight - 1;
+                        slotInfo.forgingStatus = this.determineForgingStatus(slotInfo, timestamp);
                         return slotInfo;
                     }
                     slotInfo = this.updateSlotInfo(slotInfo, currentHeight);
@@ -150,6 +131,10 @@ export class Slots {
         } else {
             throw new Error(`Given timestamp exists in a previous block`);
         }
+    }
+
+    private static determineForgingStatus(slotInfo: SlotInfo, timestamp: number): boolean {
+        return timestamp <= slotInfo.endTime - Math.ceil(slotInfo.blockTime / 2);
     }
 
     private static getLatestHeight(height: number | undefined): number {

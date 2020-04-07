@@ -435,10 +435,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
             lastProcessedBlock
         ) {
-            // broadcast last processed block
-            const blocktime: number = Managers.configManager.getMilestone(lastProcessedBlock.data.height).blocktime;
-
-            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= lastProcessedBlock.data.timestamp) {
+            if (this.state.started && Crypto.Slots.getSlotInfo().startTime <= lastProcessedBlock.data.timestamp) {
                 this.app
                     .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                     .broadcastBlock(lastProcessedBlock);

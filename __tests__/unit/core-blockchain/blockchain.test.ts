@@ -1,10 +1,11 @@
 import "jest-extended";
-import delay from "delay";
 
 import { Container, Enums } from "@arkecosystem/core-kernel";
+import { Crypto, Interfaces, Managers, Networks, Utils } from "@arkecosystem/crypto";
+import delay from "delay";
+
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "../../../packages/core-blockchain/src/processor/block-processor";
-import { Interfaces, Crypto, Utils, Managers, Networks } from "@arkecosystem/crypto";
 
 describe("Blockchain", () => {
     const container = new Container.Container();
@@ -613,9 +614,17 @@ describe("Blockchain", () => {
         it("should broadcast a block if (Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
             const blockchain = container.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
+
+            let slotInfo = Crypto.Slots.getSlotInfo();
+
+            // Wait until we get a timestamp at the first half of a slot (allows for computation time)
+            while (!slotInfo.forgingStatus) {
+                slotInfo = Crypto.Slots.getSlotInfo();
+            }
+
             const block = {
                 ...currentBlock,
-                timestamp: Crypto.Slots.getSlotNumber() * Managers.configManager.getMilestone(1).blocktime,
+                timestamp: slotInfo.startTime,
             };
 
             stateStore.started = true;
