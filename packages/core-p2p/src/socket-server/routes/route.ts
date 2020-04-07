@@ -1,20 +1,41 @@
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
-type HapiHandler = (request: Hapi.Request, h: Hapi.ResponseToolkit) => any;
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Controller } from "../controllers/controller";
 
+export type RouteConfig = {
+    id: string;
+    handler: any;
+    validation?: Joi.Schema;
+    maxBytes?: number;
+};
+
+@Container.injectable()
 export abstract class Route {
-    protected static makeRouteConfig(id: string, handler: HapiHandler, schema?: Joi.Schema, maxBytes?: number) {
-        return {
-            method: "POST",
-            path: `/${id.replace(/\./g, "/")}`, // building a valid path from id, we only use the route id anyway
-            config: {
-                id,
-                handler,
-                payload: {
-                    maxBytes,
+    @Container.inject(Container.Identifiers.Application)
+    protected readonly app!: Contracts.Kernel.Application;
+
+    public abstract getRoutesConfigByPath(): { [path: string]: RouteConfig };
+
+    protected abstract getController(server: Hapi.Server): Controller;
+
+    public register(server: Hapi.Server): void {
+        const controller = this.getController(server);
+        server.bind(controller);
+
+        for (const [path, config] of Object.entries(this.getRoutesConfigByPath())) {
+            server.route({
+                method: "POST",
+                path,
+                config: {
+                    id: config.id,
+                    handler: config.handler,
+                    payload: {
+                        maxBytes: config.maxBytes,
+                    },
                 },
-            },
-        };
+            })
+        }
     }
 }

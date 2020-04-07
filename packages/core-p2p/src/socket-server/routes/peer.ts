@@ -1,47 +1,46 @@
-import Hapi from "@hapi/hapi";
-
 import { PeerController } from "../controllers/peer";
 import { peerSchemas } from "../schemas/peer";
-import { Route } from "./route";
+import { Route, RouteConfig } from "./route";
 
 export class PeerRoute extends Route {
-    public static register(server: Hapi.Server): void {
-        const controller: PeerController = (server.app as any).app.resolve(PeerController);
-        server.bind(controller);
+    public getRoutesConfigByPath(): { [path: string]: RouteConfig } {
+        const controller = this.getController();
+        return {
+            "/p2p/peer/getPeers": {
+                id: "p2p.peer.getPeers",
+                handler: controller.getPeers,
+                validation: peerSchemas.getPeers,
+            },
+            "/p2p/peer/getBlocks": {
+                id: "p2p.peer.getBlocks",
+                handler: controller.getBlocks,
+                validation: peerSchemas.getBlocks,
+            },
+            "/p2p/peer/getCommonBlocks": {
+                id: "p2p.peer.getCommonBlocks",
+                handler: controller.getCommonBlocks,
+                validation: peerSchemas.getCommonBlocks,
+            },
+            "/p2p/peer/getStatus": { 
+                id: "p2p.peer.getStatus",
+                handler: controller.getStatus,
+                validation: peerSchemas.getStatus,
+            },
+            "/p2p/peer/postBlock": {
+                id: "p2p.peer.postBlock",
+                handler: controller.postBlock,
+                validation: peerSchemas.postBlock,
+                maxBytes: 20 * 1024 * 1024, // TODO maxBytes for each route
+            },
+            "/p2p/peer/postTransactions": {
+                id: "p2p.peer.postTransactions",
+                handler: controller.postTransactions,
+                validation: peerSchemas.postTransactions,
+            }
+        }
+    }
 
-        server.route(this.makeRouteConfig("p2p.peer.getPeers", controller.getPeers, peerSchemas["p2p.peer.getPeers"]));
-
-        server.route(
-            this.makeRouteConfig("p2p.peer.getBlocks", controller.getBlocks, peerSchemas["p2p.peer.getBlocks"]),
-        );
-
-        server.route(
-            this.makeRouteConfig(
-                "p2p.peer.getCommonBlocks",
-                controller.getCommonBlocks,
-                peerSchemas["p2p.peer.getCommonBlocks"],
-            ),
-        );
-
-        server.route(
-            this.makeRouteConfig("p2p.peer.getStatus", controller.getStatus, peerSchemas["p2p.peer.getStatus"]),
-        );
-
-        server.route(
-            this.makeRouteConfig(
-                "p2p.peer.postBlock",
-                controller.postBlock,
-                peerSchemas["p2p.peer.postBlock"],
-                20 * 1024 * 1024, // TODO maxBytes for each route
-            ),
-        );
-
-        server.route(
-            this.makeRouteConfig(
-                "p2p.peer.postTransactions",
-                controller.postTransactions,
-                peerSchemas["p2p.peer.postTransactions"],
-            ),
-        );
+    protected getController(): PeerController {
+        return this.app.resolve(PeerController);
     }
 }

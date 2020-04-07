@@ -1,30 +1,36 @@
-import Hapi from "@hapi/hapi";
-
 import { InternalController } from "../controllers/internal";
 import { internalSchemas } from "../schemas/internal";
-import { Route } from "./route";
+import { Route, RouteConfig } from "./route";
 
 export class InternalRoute extends Route {
-    public static register(server: Hapi.Server): void {
-        const controller: InternalController = (server.app as any).app.resolve(InternalController);
-        server.bind(controller);
+    public getRoutesConfigByPath(): { [path: string]: RouteConfig } {
+        const controller = this.getController();
+        return {
+            "/p2p/internal/emitEvent": {
+                id: "p2p.internal.emitEvent",
+                handler: controller.emitEvent,
+                validation: internalSchemas.emitEvent
+            },
+            "/p2p/internal/getUnconfirmedTransactions": {
+                id: "p2p.internal.getUnconfirmedTransactions",
+                handler: controller.getUnconfirmedTransactions,
+            },
+            "/p2p/internal/getCurrentRound": {
+                id: "p2p.internal.getCurrentRound",
+                handler: controller.getCurrentRound,
+            },
+            "/p2p/internal/getNetworkState": {
+                id: "p2p.internal.getNetworkState",
+                handler: controller.getNetworkState,
+            },
+            "/p2p/internal/syncBlockchain": {
+                id: "p2p.internal.syncBlockchain",
+                handler: controller.syncBlockchain,
+            },
+        }
+    }
 
-        server.route(
-            this.makeRouteConfig(
-                "p2p.internal.emitEvent",
-                controller.emitEvent,
-                internalSchemas["p2p.internal.emitEvent"],
-            ),
-        );
-
-        server.route(
-            this.makeRouteConfig("p2p.internal.getUnconfirmedTransactions", controller.getUnconfirmedTransactions),
-        );
-
-        server.route(this.makeRouteConfig("p2p.internal.getCurrentRound", controller.getCurrentRound));
-
-        server.route(this.makeRouteConfig("p2p.internal.getNetworkState", controller.getNetworkState));
-
-        server.route(this.makeRouteConfig("p2p.internal.syncBlockchain", controller.syncBlockchain));
+    protected getController(): InternalController {
+        return this.app.resolve(InternalController);
     }
 }

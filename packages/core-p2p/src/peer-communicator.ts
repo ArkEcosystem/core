@@ -73,7 +73,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         const pingResponse: Contracts.P2P.PeerPingResponse = await this.emit(
             peer,
             "p2p.peer.getStatus",
-            undefined,
+            {},
             getStatusTimeout,
         );
 
@@ -165,7 +165,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         this.logger.debug(`Fetching a fresh peer list from ${peer.url}`);
 
         const getPeersTimeout = 5000;
-        return this.emit(peer, "p2p.peer.getPeers", undefined, getPeersTimeout);
+        return this.emit(peer, "p2p.peer.getPeers", {}, getPeersTimeout);
     }
 
     public async hasCommonBlocks(peer: Contracts.P2P.Peer, ids: string[], timeoutMsec?: number): Promise<any> {
@@ -259,7 +259,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         return true;
     }
 
-    private async emit(peer: Contracts.P2P.Peer, event: string, payload?: any, timeout?: number, maxPayload?: number) {
+    private async emit(peer: Contracts.P2P.Peer, event: string, payload: any, timeout?: number, maxPayload?: number) {
         await this.throttle(peer, event);
 
         let response;

@@ -4,6 +4,8 @@ import Nes from "@hapi/nes";
 
 import { InternalRoute } from "./routes/internal";
 import { PeerRoute } from "./routes/peer";
+import { ValidatePlugin } from "./plugins/validate";
+import { AcceptPeerPlugin } from "./plugins/accept-peer";
 
 // todo: review the implementation
 @Container.injectable()
@@ -42,8 +44,12 @@ export class Server {
         (this.server.app as any).app = this.app;
 
         await this.server.register(Nes);
-        InternalRoute.register(this.server);
-        PeerRoute.register(this.server);
+
+        this.app.resolve(InternalRoute).register(this.server);
+        this.app.resolve(PeerRoute).register(this.server);
+
+        this.app.resolve(ValidatePlugin).register(this.server);
+        this.app.resolve(AcceptPeerPlugin).register(this.server);
     }
 
     /**

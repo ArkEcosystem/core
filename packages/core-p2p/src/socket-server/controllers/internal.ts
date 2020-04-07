@@ -4,7 +4,6 @@ import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
 import { Controller } from "./controller";
-import { internalSchemas } from "../schemas/internal";
 
 export class InternalController extends Controller {
     @Container.inject(Container.Identifiers.PeerProcessor)
@@ -24,8 +23,6 @@ export class InternalController extends Controller {
     }
 
     public emitEvent(request: Hapi.Request, h: Hapi.ResponseToolkit): boolean {
-        this.validatePayload(request.payload, internalSchemas.emitEvent);
-
         this.eventDispatcher.dispatch((request.payload as any).event, (request.payload as any).body);
         return true;
     }
