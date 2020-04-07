@@ -16,10 +16,6 @@ export abstract class Route {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
 
-    public abstract getRoutesConfigByPath(): { [path: string]: RouteConfig };
-
-    protected abstract getController(server: Hapi.Server): Controller;
-
     public register(server: Hapi.Server): void {
         const controller = this.getController(server);
         server.bind(controller);
@@ -38,4 +34,8 @@ export abstract class Route {
             })
         }
     }
+
+    public abstract getRoutesConfigByPath(): { [path: string]: RouteConfig };
+
+    protected abstract getController(server: Hapi.Server): Controller;
 }
