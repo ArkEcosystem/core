@@ -14,7 +14,9 @@ export class BlockService implements Contracts.Database.BlockService {
         Contracts.Database.BlockCriteria
     >;
 
-    private readonly orBlockFilter = new Contracts.Database.OrFilter(this.blockFilter);
+    private readonly orBlockFilter = new Contracts.Database.OrFnFilter<Block, Contracts.Database.BlockCriteria>(c =>
+        this.blockFilter.getExpression(c),
+    );
 
     public async search(
         criteria: Contracts.Database.OrBlockCriteria,

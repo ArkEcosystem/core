@@ -178,13 +178,7 @@ describe("API 2.0 - Blocks", () => {
     describe("POST /blocks/search", () => {
         it("should POST a search for blocks with the exact specified blockId", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -198,18 +192,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the exact specified version", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "version",
-                        value: genesisBlock.version,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
+                version: genesisBlock.version,
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -233,18 +217,8 @@ describe("API 2.0 - Blocks", () => {
             await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([block2]);
 
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: block2.data.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "previousBlock",
-                        value: block2.data.previousBlock,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: block2.data.id,
+                previousBlock: block2.data.previousBlock,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -264,18 +238,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the exact specified payloadHash", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "payloadHash",
-                        value: genesisBlock.payloadHash,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
+                payloadHash: genesisBlock.payloadHash,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -292,18 +256,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the exact specified generatorPublicKey", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "generatorPublicKey",
-                        value: genesisBlock.generatorPublicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
+                generatorPublicKey: genesisBlock.generatorPublicKey,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -319,18 +273,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the exact specified blockSignature", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "blockSignature",
-                        value: genesisBlock.blockSignature,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
+                blockSignature: genesisBlock.blockSignature,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -346,18 +290,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the exact specified timestamp", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "timestamp",
-                        value: genesisBlock.timestamp,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
+                timestamp: genesisBlock.timestamp,
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -371,18 +305,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the exact specified height", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "height",
-                        value: genesisBlock.height,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
+                height: genesisBlock.height,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -398,21 +322,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the specified height range", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "height",
-                        value: {
-                            from: genesisBlock.height,
-                            to: genesisBlock.height,
-                        },
-                        operator: Repositories.Search.SearchOperator.Between,
-                    },
-                ],
+                id: genesisBlock.id,
+                height: { from: genesisBlock.height, to: genesisBlock.height },
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -428,18 +339,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the exact specified numberOfTransactions", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "numberOfTransactions",
-                        value: genesisBlock.numberOfTransactions,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
+                numberOfTransactions: genesisBlock.numberOfTransactions,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -455,21 +356,11 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the specified numberOfTransactions range", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "numberOfTransactions",
-                        value: {
-                            from: genesisBlock.numberOfTransactions,
-                            to: genesisBlock.numberOfTransactions,
-                        },
-                        operator: Repositories.Search.SearchOperator.Between,
-                    },
-                ],
+                id: genesisBlock.id,
+                numberOfTransactions: {
+                    from: genesisBlock.numberOfTransactions,
+                    to: genesisBlock.numberOfTransactions,
+                },
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -492,18 +383,8 @@ describe("API 2.0 - Blocks", () => {
             await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([nextBlock]);
 
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: nextBlock.data.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "totalAmount",
-                        value: +nextBlock.data.totalAmount,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: nextBlock.data.id,
+                totalAmount: +nextBlock.data.totalAmount,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -526,21 +407,11 @@ describe("API 2.0 - Blocks", () => {
             await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([nextBlock]);
 
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: nextBlock.data.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "totalAmount",
-                        value: {
-                            from: +nextBlock.data.totalAmount,
-                            to: +nextBlock.data.totalAmount,
-                        },
-                        operator: Repositories.Search.SearchOperator.Between,
-                    },
-                ],
+                id: nextBlock.data.id,
+                totalAmount: {
+                    from: +nextBlock.data.totalAmount,
+                    to: +nextBlock.data.totalAmount,
+                },
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -555,18 +426,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the exact specified totalFee", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "totalFee",
-                        value: 0,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
+                totalFee: 0,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -582,21 +443,11 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the specified totalFee range", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "totalFee",
-                        value: {
-                            from: genesisBlock.totalFee,
-                            to: genesisBlock.totalFee,
-                        },
-                        operator: Repositories.Search.SearchOperator.Between,
-                    },
-                ],
+                id: genesisBlock.id,
+                totalFee: {
+                    from: genesisBlock.totalFee,
+                    to: genesisBlock.totalFee,
+                },
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -612,18 +463,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the exact specified reward", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "reward",
-                        value: genesisBlock.reward,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
+                reward: genesisBlock.reward,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -639,21 +480,11 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the specified reward range", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "reward",
-                        value: {
-                            from: genesisBlock.reward,
-                            to: genesisBlock.reward,
-                        },
-                        operator: Repositories.Search.SearchOperator.Between,
-                    },
-                ],
+                id: genesisBlock.id,
+                reward: {
+                    from: genesisBlock.reward,
+                    to: genesisBlock.reward,
+                },
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -668,18 +499,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the exact specified payloadLength", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "payloadLength",
-                        value: genesisBlock.payloadLength,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
+                payloadLength: genesisBlock.payloadLength,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -695,21 +516,11 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the specified payloadLength range", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "payloadLength",
-                        value: {
-                            from: genesisBlock.payloadLength,
-                            to: genesisBlock.payloadLength,
-                        },
-                        operator: Repositories.Search.SearchOperator.Between,
-                    },
-                ],
+                id: genesisBlock.id,
+                payloadLength: {
+                    from: genesisBlock.payloadLength,
+                    to: genesisBlock.payloadLength,
+                },
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -724,18 +535,8 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the wrong specified version", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: genesisBlock.id,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "version",
-                        value: 2,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: genesisBlock.id,
+                version: 2,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -746,23 +547,9 @@ describe("API 2.0 - Blocks", () => {
 
         it("should POST a search for blocks with the specific criteria", async () => {
             const response = await api.request("POST", "blocks/search", {
-                criteria: [
-                    {
-                        field: "generatorPublicKey",
-                        value: genesisBlock.generatorPublicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "version",
-                        value: genesisBlock.version,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "timestamp",
-                        value: genesisBlock.timestamp,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                generatorPublicKey: genesisBlock.generatorPublicKey,
+                version: genesisBlock.version,
+                timestamp: genesisBlock.timestamp,
             });
 
             expect(response).toBeSuccessfulResponse();
