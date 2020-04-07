@@ -102,6 +102,38 @@ describe("Slots", () => {
 
     describe("Dynamic block times", () => {
         describe("getSlotNumber", () => {
+            it("should return the correct slot number given a timestamp when no height is passed", () => {
+                const milestones = [
+                    { height: 1, blocktime: 8 },
+                    { height: 2, blocktime: 4 },
+                    { height: 4, blocktime: 3 },
+                    { height: 6, blocktime: 4 },
+                ];
+                const config = { ...devnet, milestones };
+                configManager.setConfig(config);
+
+                expect(Slots.getSlotNumber(0)).toBe(0);
+                expect(Slots.getSlotNumber(7)).toBe(0);
+
+                expect(Slots.getSlotNumber(8)).toBe(1);
+                expect(Slots.getSlotNumber(11)).toBe(1);
+
+                expect(Slots.getSlotNumber(12)).toBe(2);
+                expect(Slots.getSlotNumber(15)).toBe(2);
+
+                expect(Slots.getSlotNumber(16)).toBe(3);
+                expect(Slots.getSlotNumber(18)).toBe(3);
+
+                expect(Slots.getSlotNumber(19)).toBe(4);
+                expect(Slots.getSlotNumber(21)).toBe(4);
+
+                expect(Slots.getSlotNumber(22)).toBe(5);
+                expect(Slots.getSlotNumber(25)).toBe(5);
+
+                expect(Slots.getSlotNumber(26)).toBe(6);
+                expect(Slots.getSlotNumber(29)).toBe(6);
+            });
+
             it("should return the correct slot number given a timestamp within a known height", () => {
                 const milestones = [
                     { height: 1, blocktime: 9 },
@@ -110,6 +142,25 @@ describe("Slots", () => {
                 ];
                 const config = { ...devnet, milestones };
                 configManager.setConfig(config);
+
+                expect(Slots.getSlotNumber(1)).toBe(0);
+                expect(Slots.getSlotNumber(8)).toBe(0);
+
+                expect(Slots.getSlotNumber(9)).toBe(1);
+                expect(Slots.getSlotNumber(17)).toBe(1);
+
+                expect(Slots.getSlotNumber(18)).toBe(2);
+                expect(Slots.getSlotNumber(25)).toBe(2);
+
+                expect(Slots.getSlotNumber(26)).toBe(3);
+                expect(Slots.getSlotNumber(30)).toBe(3);
+
+                expect(Slots.getSlotNumber(31)).toBe(4);
+                expect(Slots.getSlotNumber(35)).toBe(4);
+
+                expect(Slots.getSlotNumber(36)).toBe(5);
+
+                // when the height is known
 
                 expect(Slots.getSlotNumber(1, 1)).toBe(0);
                 expect(Slots.getSlotNumber(8, 1)).toBe(0);
@@ -211,6 +262,104 @@ describe("Slots", () => {
                 expect(Slots.getSlotTime(7)).toBe(63);
                 expect(Slots.getSlotTime(8)).toBe(71);
                 expect(Slots.getSlotTime(14)).toBe(119);
+            });
+        });
+
+        describe("getSlotInfo", () => {
+            it("should correctly return the slot start time for any given timestamp", () => {
+                const milestones = [
+                    { height: 1, blocktime: 8 },
+                    { height: 2, blocktime: 4 },
+                    { height: 4, blocktime: 3 },
+                    { height: 6, blocktime: 4 },
+                ];
+                const config = { ...devnet, milestones };
+                configManager.setConfig(config);
+
+                expect(Slots.getSlotInfo(0).startTime).toBe(0);
+                expect(Slots.getSlotInfo(7).startTime).toBe(0);
+
+                expect(Slots.getSlotInfo(8).startTime).toBe(8);
+                expect(Slots.getSlotInfo(11).startTime).toBe(8);
+
+                expect(Slots.getSlotInfo(12).startTime).toBe(12);
+                expect(Slots.getSlotInfo(15).startTime).toBe(12);
+
+                expect(Slots.getSlotInfo(16).startTime).toBe(16);
+                expect(Slots.getSlotInfo(18).startTime).toBe(16);
+
+                expect(Slots.getSlotInfo(19).startTime).toBe(19);
+                expect(Slots.getSlotInfo(21).startTime).toBe(19);
+
+                expect(Slots.getSlotInfo(22).startTime).toBe(22);
+                expect(Slots.getSlotInfo(25).startTime).toBe(22);
+
+                expect(Slots.getSlotInfo(26).startTime).toBe(26);
+                expect(Slots.getSlotInfo(29).startTime).toBe(26);
+            });
+
+            it("should correctly return the slot end time for any given timestamp", () => {
+                const milestones = [
+                    { height: 1, blocktime: 8 },
+                    { height: 2, blocktime: 4 },
+                    { height: 4, blocktime: 3 },
+                    { height: 6, blocktime: 4 },
+                ];
+                const config = { ...devnet, milestones };
+                configManager.setConfig(config);
+
+                expect(Slots.getSlotInfo(0).endTime).toBe(7);
+                expect(Slots.getSlotInfo(7).endTime).toBe(7);
+
+                expect(Slots.getSlotInfo(8).endTime).toBe(11);
+                expect(Slots.getSlotInfo(11).endTime).toBe(11);
+
+                expect(Slots.getSlotInfo(12).endTime).toBe(15);
+                expect(Slots.getSlotInfo(15).endTime).toBe(15);
+
+                expect(Slots.getSlotInfo(16).endTime).toBe(18);
+                expect(Slots.getSlotInfo(18).endTime).toBe(18);
+
+                expect(Slots.getSlotInfo(19).endTime).toBe(21);
+                expect(Slots.getSlotInfo(21).endTime).toBe(21);
+
+                expect(Slots.getSlotInfo(22).endTime).toBe(25);
+                expect(Slots.getSlotInfo(25).endTime).toBe(25);
+
+                expect(Slots.getSlotInfo(26).endTime).toBe(29);
+                expect(Slots.getSlotInfo(29).endTime).toBe(29);
+            });
+
+            it("should correctly return the slot block time for any given timestamp", () => {
+                const milestones = [
+                    { height: 1, blocktime: 8 },
+                    { height: 2, blocktime: 4 },
+                    { height: 4, blocktime: 3 },
+                    { height: 6, blocktime: 4 },
+                ];
+                const config = { ...devnet, milestones };
+                configManager.setConfig(config);
+
+                expect(Slots.getSlotInfo(0).blockTime).toBe(8);
+                expect(Slots.getSlotInfo(7).blockTime).toBe(8);
+
+                expect(Slots.getSlotInfo(8).blockTime).toBe(4);
+                expect(Slots.getSlotInfo(11).blockTime).toBe(4);
+
+                expect(Slots.getSlotInfo(12).blockTime).toBe(4);
+                expect(Slots.getSlotInfo(15).blockTime).toBe(4);
+
+                expect(Slots.getSlotInfo(16).blockTime).toBe(3);
+                expect(Slots.getSlotInfo(18).blockTime).toBe(3);
+
+                expect(Slots.getSlotInfo(19).blockTime).toBe(3);
+                expect(Slots.getSlotInfo(21).blockTime).toBe(3);
+
+                expect(Slots.getSlotInfo(22).blockTime).toBe(4);
+                expect(Slots.getSlotInfo(25).blockTime).toBe(4);
+
+                expect(Slots.getSlotInfo(26).blockTime).toBe(4);
+                expect(Slots.getSlotInfo(29).blockTime).toBe(4);
             });
         });
 

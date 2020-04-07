@@ -3,7 +3,12 @@ import dayjs from "dayjs";
 import { configManager } from "../managers/config";
 import { calculateBlockTime, isNewBlockTime } from "../utils/block-time-calculator";
 
-type SlotNumber = number;
+interface SlotInfo {
+    startTime: number;
+    endTime: number;
+    blockTime: number;
+    slotNumber: number;
+}
 
 export class Slots {
     public static getTime(time?: number): number {
@@ -24,6 +29,10 @@ export class Slots {
     }
 
     public static getSlotNumber(timestamp?: number, height?: number): number {
+        return this.getSlotInfo(timestamp, height).slotNumber;
+    }
+
+    public static getSlotInfo(timestamp?: number, height?: number): SlotInfo {
         if (timestamp === undefined) {
             timestamp = this.getTime();
         }
@@ -59,77 +68,81 @@ export class Slots {
     }
 
     private static calculateForgingStatus(timestamp: number, height: number): boolean {
-        let blocktime = calculateBlockTime(1);
-        let slotStartTime = 0;
-        let slotEndTime = slotStartTime + blocktime - 1;
+        const blockTime = calculateBlockTime(1);
 
-        // TODO: code re-use, consider refactoring
+        let slotInfo: SlotInfo = {
+            blockTime,
+            startTime: 0,
+            endTime: blockTime - 1,
+            slotNumber: 0, // TODO: should this be handled better by a possible null case?
+        };
+
         for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
-            if (this.timestampOccursWithinSlot(timestamp, slotStartTime, slotEndTime)) {
+            if (this.timestampOccursWithinSlot(timestamp, slotInfo)) {
                 break;
             }
 
-            blocktime = this.calculateNewBlockTime(currentHeight + 1, blocktime);
-            slotStartTime = slotEndTime + 1;
-            slotEndTime = slotStartTime + blocktime - 1;
+            slotInfo = this.updateSlotInfo(slotInfo, currentHeight);
         }
-        return timestamp <= slotEndTime - Math.ceil(blocktime / 2);
+        return timestamp <= slotInfo.endTime - Math.ceil(slotInfo.blockTime / 2);
     }
 
     private static calculateSlotTime(slot): number {
         let total = 0;
         let lastHeight = 1;
-        let blocktime = calculateBlockTime(lastHeight);
+        let blockTime = calculateBlockTime(lastHeight);
         let nextMilestone = configManager.getNextMilestoneWithNewKey(lastHeight, "blocktime");
 
         for (let i = 0; i <= configManager.getMilestones().length; i++) {
             if (nextMilestone.found && nextMilestone.height <= slot) {
-                total += blocktime * (nextMilestone.height - lastHeight);
+                total += blockTime * (nextMilestone.height - lastHeight);
                 lastHeight = nextMilestone.height;
-                blocktime = nextMilestone.data;
+                blockTime = nextMilestone.data;
                 nextMilestone = configManager.getNextMilestoneWithNewKey(lastHeight, "blocktime");
             } else {
-                total += blocktime * (slot - lastHeight + 1);
+                total += blockTime * (slot - lastHeight + 1);
                 break;
             }
         }
         return total;
     }
 
-    private static calculateSlotNumber(timestamp: number, height: number, searchSpecificHeight = true): SlotNumber {
-        let blocktime = calculateBlockTime(1);
-        let slotStartTime = 0;
-        let slotEndTime = slotStartTime + blocktime - 1;
+    private static calculateSlotNumber(timestamp: number, height: number, searchSpecificHeight = true): SlotInfo {
+        const blockTime = calculateBlockTime(1);
+
+        let slotInfo: SlotInfo = {
+            blockTime,
+            startTime: 0,
+            endTime: blockTime - 1,
+            slotNumber: 0, // See TODO: above
+        };
 
         // TODO: should we start from 1 each time, or store these variables somewhere for efficiency when doing the next computation?
         for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
             if (!searchSpecificHeight || currentHeight === height) {
-                if (this.timestampOccursWithinSlot(timestamp, slotStartTime, slotEndTime)) {
-                    return currentHeight - 1;
+                if (this.timestampOccursWithinSlot(timestamp, slotInfo)) {
+                    slotInfo.slotNumber = currentHeight - 1;
+                    return slotInfo;
                 }
             } else {
-                blocktime = this.calculateNewBlockTime(currentHeight + 1, blocktime);
-                slotStartTime = slotEndTime + 1;
-                slotEndTime = slotStartTime + blocktime - 1;
+                slotInfo = this.updateSlotInfo(slotInfo, currentHeight);
             }
         }
 
-        if (slotEndTime < timestamp) {
+        if (slotInfo.endTime < timestamp) {
             if (searchSpecificHeight) {
                 throw new Error(`Given timestamp exists in a future block`);
             } else {
                 const numberOfBlocksToPeek = 20000000;
                 // Number is arbitrarily defined - use a while loop instead?
                 height += numberOfBlocksToPeek;
-                // TODO: code duplication, move out to separate function
-                for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
-                    if (this.timestampOccursWithinSlot(timestamp, slotStartTime, slotEndTime)) {
-                        return currentHeight - 1;
-                    }
 
-                    blocktime = this.calculateNewBlockTime(currentHeight + 1, blocktime);
-                    slotStartTime = slotEndTime + 1;
-                    slotEndTime = slotStartTime + blocktime - 1;
+                for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
+                    if (this.timestampOccursWithinSlot(timestamp, slotInfo)) {
+                        slotInfo.slotNumber = currentHeight - 1;
+                        return slotInfo;
+                    }
+                    slotInfo = this.updateSlotInfo(slotInfo, currentHeight);
                 }
 
                 throw new Error(`Slot doesn't appear in the near future`);
@@ -154,11 +167,18 @@ export class Slots {
         return height;
     }
 
+    private static updateSlotInfo(slotInfo: SlotInfo, height: number): SlotInfo {
+        slotInfo.blockTime = this.calculateNewBlockTime(height + 1, slotInfo.blockTime);
+        slotInfo.startTime = slotInfo.endTime + 1;
+        slotInfo.endTime = slotInfo.startTime + slotInfo.blockTime - 1;
+        return slotInfo;
+    }
+
     private static calculateNewBlockTime(height: number, previousBlockTime: number) {
         return isNewBlockTime(height) ? calculateBlockTime(height) : previousBlockTime;
     }
 
-    private static timestampOccursWithinSlot(timestamp: number, slotStartTime: number, slotEndTime: number): boolean {
-        return timestamp >= slotStartTime && timestamp <= slotEndTime;
+    private static timestampOccursWithinSlot(timestamp: number, slotInfo: SlotInfo): boolean {
+        return timestamp >= slotInfo.startTime && timestamp <= slotInfo.endTime;
     }
 }
