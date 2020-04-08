@@ -4,7 +4,6 @@ import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import { process } from "ipaddr.js";
 
 import { PeerService } from "../../contracts";
-import { calculateForgingInfo } from "../../utils/calculate-forging-info";
 
 // todo: turn this into a class so that ioc can be used
 // todo: review the implementation of all methods
@@ -91,7 +90,7 @@ export const getCurrentRound = async ({
     );
 
     const timestamp = Crypto.Slots.getTime();
-    const forgingInfo = calculateForgingInfo(timestamp, height, roundInfo);
+    const forgingInfo = Utils.forgingInfoCalculator.calculateForgingInfo(timestamp, height, roundInfo);
 
     return {
         current: round,

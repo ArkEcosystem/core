@@ -50,8 +50,6 @@ export class Slots {
         return this.getSlotNumber() + 1;
     }
 
-    // TODO: check where this is currently used
-    // If possible, call getSlotInfo once to save computation.
     public static isForgingAllowed(timestamp?: number): boolean {
         if (timestamp === undefined) {
             timestamp = this.getTime();
