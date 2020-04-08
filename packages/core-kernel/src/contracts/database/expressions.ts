@@ -74,16 +74,17 @@ export class AndExpression<TModel> {
     }
 
     public static make<TModel>(expressions: Expression<TModel>[]): Expression<TModel> {
-        const flattened = expressions.reduce((acc: Expression<TModel>[], exp) => {
+        const flattened: Expression<TModel>[] = [];
+
+        for (const exp of expressions) {
             if (exp instanceof VoidExpression) {
-                return acc;
+                continue;
             }
             if (exp instanceof AndExpression) {
-                return [...acc, ...exp.expressions];
+                exp.expressions.forEach((e) => flattened.push(e));
             }
-
-            return [...acc, exp];
-        }, []);
+            flattened.push(exp);
+        }
 
         if (flattened.length === 0) {
             return new VoidExpression();
@@ -104,16 +105,17 @@ export class OrExpression<TModel> {
     }
 
     public static make<TModel>(expressions: Expression<TModel>[]): Expression<TModel> {
-        const flattened = expressions.reduce((acc: Expression<TModel>[], exp) => {
+        const flattened: Expression<TModel>[] = [];
+
+        for (const exp of expressions) {
             if (exp instanceof VoidExpression) {
-                return acc;
+                continue;
             }
             if (exp instanceof OrExpression) {
-                return [...acc, ...exp.expressions];
+                exp.expressions.forEach((e) => flattened.push(e));
             }
-
-            return [...acc, exp];
-        }, []);
+            flattened.push(exp);
+        }
 
         if (flattened.length === 0) {
             return new VoidExpression();
