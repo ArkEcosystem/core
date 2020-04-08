@@ -1,7 +1,6 @@
 import { Container, Enums } from "@arkecosystem/core-kernel";
 import { BlockchainReady } from "../../../../../packages/core-blockchain/src/state-machine/actions/blockchain-ready";
 
-
 describe("BlockchainReady", () => {
     const container = new Container.Container();
 
@@ -15,8 +14,8 @@ describe("BlockchainReady", () => {
         container.unbindAll();
         container.bind(Container.Identifiers.Application).toConstantValue(application);
         container.bind(Container.Identifiers.LogService).toConstantValue(logService);
-        container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);   
-        container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);   
+        container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
+        container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);
     });
 
     beforeEach(() => {
@@ -24,7 +23,7 @@ describe("BlockchainReady", () => {
     });
 
     describe("handle", () => {
-        it("should set stateStore.started = true and dispatch started event",() => {
+        it("should set stateStore.started = true and dispatch started event", () => {
             const blockchainReady = container.resolve<BlockchainReady>(BlockchainReady);
 
             stateStore.started = false;
@@ -33,15 +32,15 @@ describe("BlockchainReady", () => {
             expect(stateStore.started).toBeTrue();
             expect(eventDispatcher.dispatch).toHaveBeenCalledTimes(1);
             expect(eventDispatcher.dispatch).toHaveBeenLastCalledWith(Enums.StateEvent.Started, true);
-        })
-        
-        it("should do nothing if stateStore.started is true",() => {
+        });
+
+        it("should do nothing if stateStore.started is true", () => {
             const blockchainReady = container.resolve<BlockchainReady>(BlockchainReady);
 
             stateStore.started = true;
             blockchainReady.handle();
 
             expect(eventDispatcher.dispatch).toHaveBeenCalledTimes(0);
-        })
-    })
-})
+        });
+    });
+});

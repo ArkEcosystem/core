@@ -1,21 +1,44 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Container, Contracts } from "@packages/core-kernel";
+import { Crypto, Interfaces, Managers } from "@packages/crypto";
 
-import { SenderState } from "../../../packages/core-transaction-pool/src/sender-state";
+import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
+import { Sandbox } from "@packages/core-test-framework";
+import { Services } from "@packages/core-kernel/dist";
+import {
+    ApplyTransactionAction,
+    RevertTransactionAction,
+    ThrowIfCannotEnterPoolAction, VerifyTransactionAction,
+} from "@packages/core-transaction-pool/src/actions";
 
-jest.mock("@arkecosystem/crypto");
+jest.mock("@packages/crypto");
 
 const configuration = { getRequired: jest.fn(), getOptional: jest.fn() };
 const handler = { verify: jest.fn(), throwIfCannotEnterPool: jest.fn(), apply: jest.fn(), revert: jest.fn() };
 const handlerRegistry = { getActivatedHandlerForData: jest.fn() };
 const expirationService = { isExpired: jest.fn(), getExpirationHeight: jest.fn() };
 
-const container = new Container.Container();
-container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
-container.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue(handlerRegistry);
-container.bind(Container.Identifiers.TransactionPoolExpirationService).toConstantValue(expirationService);
+let sandbox: Sandbox;
 
 beforeEach(() => {
+    sandbox = new Sandbox();
+
+    sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
+    sandbox.app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue(handlerRegistry);
+    sandbox.app.bind(Container.Identifiers.TransactionPoolExpirationService).toConstantValue(expirationService);
+    sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+
+    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("applyTransaction", new ApplyTransactionAction());
+
+    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("revertTransaction", new RevertTransactionAction());
+
+    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("throwIfCannotEnterPool", new ThrowIfCannotEnterPoolAction());
+
+    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("verifyTransaction", new VerifyTransactionAction());
+
     (Managers.configManager.get as jest.Mock).mockReset();
     (Crypto.Slots.getTime as jest.Mock).mockReset();
 
@@ -42,7 +65,7 @@ describe("SenderState.apply", () => {
     it("should throw when transaction exceeds maximum byte size", async () => {
         configuration.getRequired.mockReturnValueOnce(0); // maxTransactionBytes
 
-        const senderState = container.resolve(SenderState);
+        const senderState = sandbox.app.resolve(SenderState);
         const promise = senderState.apply(transaction);
 
         await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
@@ -53,7 +76,7 @@ describe("SenderState.apply", () => {
         (Managers.configManager.get as jest.Mock).mockReturnValue(321); // network.pubKeyHash
         configuration.getRequired.mockReturnValueOnce(1024); // maxTransactionBytes
 
-        const senderState = container.resolve(SenderState);
+        const senderState = sandbox.app.resolve(SenderState);
         const promise = senderState.apply(transaction);
 
         await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
@@ -65,7 +88,7 @@ describe("SenderState.apply", () => {
         (Crypto.Slots.getTime as jest.Mock).mockReturnValue(9999);
         configuration.getRequired.mockReturnValueOnce(1024); // maxTransactionBytes
 
-        const senderState = container.resolve(SenderState);
+        const senderState = sandbox.app.resolve(SenderState);
         const promise = senderState.apply(transaction);
 
         await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
@@ -79,7 +102,7 @@ describe("SenderState.apply", () => {
         expirationService.isExpired.mockReturnValueOnce(true);
         expirationService.getExpirationHeight.mockReturnValueOnce(10);
 
-        const senderState = container.resolve(SenderState);
+        const senderState = sandbox.app.resolve(SenderState);
         const promise = senderState.apply(transaction);
 
         await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
@@ -93,7 +116,7 @@ describe("SenderState.apply", () => {
         expirationService.isExpired.mockReturnValueOnce(false);
         handler.verify.mockResolvedValue(false);
 
-        const senderState = container.resolve(SenderState);
+        const senderState = sandbox.app.resolve(SenderState);
         const promise = senderState.apply(transaction);
 
         await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
@@ -109,7 +132,7 @@ describe("SenderState.apply", () => {
         expirationService.isExpired.mockReturnValueOnce(false);
         handler.verify.mockResolvedValue(true);
 
-        const senderState = container.resolve(SenderState);
+        const senderState = sandbox.app.resolve(SenderState);
         await senderState.revert(transaction).catch(() => undefined);
         const promise = senderState.apply(transaction);
 
@@ -125,7 +148,7 @@ describe("SenderState.apply", () => {
         handler.verify.mockResolvedValue(true);
         handler.throwIfCannotEnterPool.mockRejectedValueOnce(new Error("Something terrible"));
 
-        const senderState = container.resolve(SenderState);
+        const senderState = sandbox.app.resolve(SenderState);
         const promise = senderState.apply(transaction);
 
         await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
@@ -139,7 +162,7 @@ describe("SenderState.apply", () => {
         expirationService.isExpired.mockReturnValueOnce(false);
         handler.verify.mockResolvedValue(true);
 
-        const senderState = container.resolve(SenderState);
+        const senderState = sandbox.app.resolve(SenderState);
         await senderState.apply(transaction);
 
         expect(handler.throwIfCannotEnterPool).toBeCalledWith(transaction);
@@ -149,7 +172,7 @@ describe("SenderState.apply", () => {
 
 describe("SenderState.revert", () => {
     it("should call handler to revert transaction", async () => {
-        const senderState = container.resolve(SenderState);
+        const senderState = sandbox.app.resolve(SenderState);
         await senderState.revert(transaction);
 
         expect(handler.revert).toBeCalledWith(transaction);

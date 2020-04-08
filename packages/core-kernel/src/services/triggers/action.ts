@@ -1,6 +1,6 @@
 import { ActionArguments } from "../../types";
 
-export abstract class Action {
+export abstract class Action<T = any> {
     /**
      * @private
      * @type {Set<Function>}
@@ -61,6 +61,7 @@ export abstract class Action {
         return this[`${type}Hooks`];
     }
 
+    // As suggested in: https://stackoverflow.com/questions/54378992/overriding-a-generic-method-in-typescript
     /**
      * @abstract
      * @template T
@@ -68,5 +69,6 @@ export abstract class Action {
      * @returns {T}
      * @memberof Action
      */
-    public abstract execute<T>(args: ActionArguments): T;
+    public abstract async execute<U>(args: ActionArguments): Promise<U>;
+    public abstract async execute<T>(args: ActionArguments): Promise<T>;
 }

@@ -1,17 +1,15 @@
-import "@packages/core-test-framework/src/matchers/blockchain/dispatch"
+import "@packages/core-test-framework/src/matchers/blockchain/dispatch";
 
 class Dispatcher {
-    dispatch(event: string): void {
-    }
+    dispatch(event: string): void {}
 
-    async transitionMethod (): Promise<void> {
+    async transitionMethod(): Promise<void> {
         this.dispatch("TEST");
     }
 }
 
 describe("Dispatch", () => {
     describe("toDispatch", () => {
-
         it("should be successful on valid event", async () => {
             let dispatcher = new Dispatcher();
 

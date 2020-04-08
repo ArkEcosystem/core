@@ -26,6 +26,6 @@ describe("RoundFactory", () => {
             expect(delegate.balance).toBeInstanceOf(Utils.BigNumber);
             expect(delegate.nonce).toBeInstanceOf(Utils.BigNumber);
             expect(delegate.isDelegate()).toBeTrue();
-        })
+        });
     });
 });

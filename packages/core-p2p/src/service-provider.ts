@@ -1,5 +1,6 @@
-import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Container, Providers, Services } from "@arkecosystem/core-kernel";
 
+import { ValidateAndAcceptPeerAction } from "./actions";
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
 import { Peer } from "./peer";
@@ -16,6 +17,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.registerFactories();
 
         this.registerServices();
+
+        this.registerActions();
 
         if (process.env.DISABLE_P2P_SERVER) {
             return;
@@ -53,30 +56,15 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private registerServices(): void {
-        this.app
-            .bind(Container.Identifiers.PeerStorage)
-            .to(PeerStorage)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerStorage).to(PeerStorage).inSingletonScope();
 
-        this.app
-            .bind(Container.Identifiers.PeerConnector)
-            .to(PeerConnector)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerConnector).to(PeerConnector).inSingletonScope();
 
-        this.app
-            .bind(Container.Identifiers.PeerCommunicator)
-            .to(PeerCommunicator)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerCommunicator).to(PeerCommunicator).inSingletonScope();
 
-        this.app
-            .bind(Container.Identifiers.PeerProcessor)
-            .to(PeerProcessor)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerProcessor).to(PeerProcessor).inSingletonScope();
 
-        this.app
-            .bind(Container.Identifiers.PeerNetworkMonitor)
-            .to(NetworkMonitor)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerNetworkMonitor).to(NetworkMonitor).inSingletonScope();
 
         this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).initialize();
 
@@ -84,11 +72,14 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.get<PeerProcessor>(Container.Identifiers.PeerProcessor).initialize();
 
-        this.app
-            .bind("p2p.event-listener")
-            .to(EventListener)
-            .inSingletonScope();
+        this.app.bind("p2p.event-listener").to(EventListener).inSingletonScope();
 
         this.app.bind(Container.Identifiers.PeerTransactionBroadcaster).to(TransactionBroadcaster);
+    }
+
+    private registerActions(): void {
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("validateAndAcceptPeer", new ValidateAndAcceptPeerAction(this.app));
     }
 }

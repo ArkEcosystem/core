@@ -15,9 +15,7 @@ export class InputValidator {
      * @memberof InputValidator
      */
     public validate(data: object, schema: object): object {
-        const { error, value } = Joi.object(schema)
-            .unknown(true)
-            .validate(data);
+        const { error, value } = Joi.object(schema).unknown(true).validate(data);
 
         if (error) {
             let errorMessage: string = "";

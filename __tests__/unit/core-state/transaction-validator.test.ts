@@ -37,6 +37,6 @@ describe("Transaction Validator", () => {
         copiedTransaction.id = "wrong";
 
         expect.assertions(1);
-        transactionValidator.validate(copiedTransaction).catch(e => expect(e).toBeInstanceOf(AssertionError));
+        transactionValidator.validate(copiedTransaction).catch((e) => expect(e).toBeInstanceOf(AssertionError));
     });
 });

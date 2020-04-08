@@ -3,7 +3,7 @@ import "jest-extended";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import { calculate } from "@packages/core-kernel/src/utils/supply-calculator";
 
-const toString = value => Utils.BigNumber.make(value).toFixed();
+const toString = (value) => Utils.BigNumber.make(value).toFixed();
 
 const mockConfig = {
     genesisBlock: { totalAmount: 1000 },
@@ -22,18 +22,18 @@ describe("Supply calculator", () => {
         mockConfig.milestones[0].height = 1;
     });
 
-    describe.each([0, 5, 100, 2000, 4000, 8000])("at height %s", height => {
+    describe.each([0, 5, 100, 2000, 4000, 8000])("at height %s", (height) => {
         it("should calculate the genesis supply without milestone", () => {
             const genesisSupply = mockConfig.genesisBlock.totalAmount;
             expect(calculate(height)).toBe(toString(genesisSupply + height * mockConfig.milestones[0].reward));
         });
     });
 
-    describe.each([0, 2000, 4000, 8000, 16000])("at height %s", height => {
+    describe.each([0, 2000, 4000, 8000, 16000])("at height %s", (height) => {
         it("should calculate the genesis supply with one milestone", () => {
             mockConfig.milestones.push({ height: 8000, reward: 3 });
 
-            const reward = current => {
+            const reward = (current) => {
                 if (current < 8000) {
                     return current * 2;
                 }
@@ -48,14 +48,14 @@ describe("Supply calculator", () => {
         });
     });
 
-    describe.each([0, 4000, 8000, 12000, 16000, 20000, 32000, 48000, 64000, 128000])("at height %s", height => {
+    describe.each([0, 4000, 8000, 12000, 16000, 20000, 32000, 48000, 64000, 128000])("at height %s", (height) => {
         it("should calculate the genesis supply with four milestones", () => {
             mockConfig.milestones.push({ height: 8000, reward: 4 });
             mockConfig.milestones.push({ height: 16000, reward: 5 });
             mockConfig.milestones.push({ height: 32000, reward: 10 });
             mockConfig.milestones.push({ height: 64000, reward: 15 });
 
-            const reward = current => {
+            const reward = (current) => {
                 if (current < 8000) {
                     return current * 2;
                 }

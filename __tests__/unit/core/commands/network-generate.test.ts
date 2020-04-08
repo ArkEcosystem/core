@@ -6,8 +6,6 @@ import fs from "fs-extra";
 import { resolve } from "path";
 import prompts from "prompts";
 
-// jest.mock("fs-extra");
-
 const configCore: string = resolve(__dirname, "../../../../packages/core/bin/config/mynet7");
 const configCrypto: string = resolve(__dirname, "../../../../packages/crypto/src/networks/mynet7");
 
@@ -149,6 +147,28 @@ describe("GenerateCommand", () => {
         await expect(cli.execute(Command)).rejects.toThrow("You'll need to confirm the input to continue.");
     });
 
+    it("should throw if any property is undefined", async () => {
+        prompts.inject([
+            "mynet7",
+            "120000000000",
+            "47",
+            "9",
+            "122",
+            "123444",
+            "23000",
+            "66000",
+            "168",
+            "27",
+            "myn",
+            undefined,
+            "myex.io",
+            true,
+            true,
+        ]);
+
+        await expect(cli.execute(Command)).rejects.toThrow("Please provide all flags and try again!");
+    });
+
     it("should generate a new configuration if the properties are confirmed", async () => {
         const existsSync = jest.spyOn(fs, "existsSync").mockImplementation();
         const ensureDirSync = jest.spyOn(fs, "ensureDirSync").mockImplementation();
@@ -175,6 +195,45 @@ describe("GenerateCommand", () => {
         ]);
 
         await cli.execute(Command);
+
+        expect(existsSync).toHaveBeenCalledWith(configCore);
+        expect(existsSync).toHaveBeenCalledWith(configCrypto);
+
+        expect(ensureDirSync).toHaveBeenCalledWith(configCore);
+        expect(ensureDirSync).toHaveBeenCalledWith(configCrypto);
+
+        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
+
+        expect(writeFileSync).toHaveBeenCalled();
+        expect(copyFileSync).toHaveBeenCalledTimes(2);
+    });
+
+    it("should generate a new configuration if the properties are confirmed and distribute is set to false", async () => {
+        const existsSync = jest.spyOn(fs, "existsSync").mockImplementation();
+        const ensureDirSync = jest.spyOn(fs, "ensureDirSync").mockImplementation();
+        const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
+        const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
+        const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
+
+        prompts.inject([
+            "mynet7",
+            "120000000000",
+            "47",
+            "9",
+            "122",
+            "123444",
+            "23000",
+            "66000",
+            "168",
+            "27",
+            "myn",
+            "my",
+            "myex.io",
+            false,
+            true,
+        ]);
+
+        await cli.withFlags({ distribute: false }).execute(Command);
 
         expect(existsSync).toHaveBeenCalledWith(configCore);
         expect(existsSync).toHaveBeenCalledWith(configCrypto);

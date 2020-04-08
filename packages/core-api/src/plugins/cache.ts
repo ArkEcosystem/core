@@ -42,16 +42,10 @@ export = {
                     }
 
                     if (value.isBoom) {
-                        return h
-                            .response(value.data.payload)
-                            .code(value.data.statusCode)
-                            .takeover();
+                        return h.response(value.data.payload).code(value.data.statusCode).takeover();
                     }
 
-                    return h
-                        .response(value.data)
-                        .code(200)
-                        .takeover();
+                    return h.response(value.data).code(200).takeover();
                 }
 
                 return h.continue;

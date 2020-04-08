@@ -13,9 +13,6 @@ export class ServiceProvider extends BaseServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app
-            .bind<Schedule>(Identifiers.ScheduleService)
-            .to(Schedule)
-            .inSingletonScope();
+        this.app.bind<Schedule>(Identifiers.ScheduleService).to(Schedule).inSingletonScope();
     }
 }

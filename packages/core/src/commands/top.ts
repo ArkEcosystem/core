@@ -67,7 +67,7 @@ export class Command extends Commands.Command {
             this.components.fatal("No processes are running.");
         }
 
-        this.components.table(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], table => {
+        this.components.table(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], (table) => {
             for (const process of processes) {
                 // @ts-ignore
                 table.push([

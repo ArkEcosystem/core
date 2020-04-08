@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/transactions/types/transfer"
+import "@packages/core-test-framework/src/matchers/transactions/types/transfer";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Interfaces } from "@packages/crypto";
 
@@ -12,7 +12,6 @@ beforeEach(() => {
 
 describe("Transfer", () => {
     describe("toBeTransferType", () => {
-
         it("should be transfer type", async () => {
             const transaction: Interfaces.ITransaction = factory.get("Transfer").make();
 

@@ -44,7 +44,7 @@ export class Controller {
 
     /* istanbul ignore next */
     protected toCollection(data, transformer, transform = true): object {
-        return data.map(item => this.toResource(item, transformer, transform));
+        return data.map((item) => this.toResource(item, transformer, transform));
     }
 
     protected toPagination(data, transformer, transform = true): object {

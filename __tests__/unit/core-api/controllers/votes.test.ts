@@ -1,17 +1,17 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-
-import { Application } from "@packages/core-kernel";
-import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { VotesController } from "@packages/core-api/src/controllers/votes";
-import { TransactionRepositoryMocks } from "../mocks";
+import { Application } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Identities, Interfaces, Transactions } from "@packages/crypto";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { Mocks } from "@packages/core-test-framework";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Identities, Interfaces, Transactions } from "@packages/crypto";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
+
+import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 
 let app: Application;
 let controller: VotesController;
@@ -46,63 +46,63 @@ describe("VotesController", () => {
             .sign(passphrases[0])
             .build();
 
-        TransactionRepositoryMocks.setMockTransaction(null);
+        Mocks.TransactionRepository.setTransaction(null);
     });
 
     describe("index", () => {
         it("should return list of votes", async () => {
-            TransactionRepositoryMocks.setMockTransactions([voteTransaction]);
+            Mocks.TransactionRepository.setTransactions([voteTransaction]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <PaginatedResponse>(await controller.index(request, undefined));
+            const response = (await controller.index(request, undefined)) as PaginatedResponse;
 
             expect(response.totalCount).toBeDefined();
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(expect.objectContaining(
-                {
-                    id: voteTransaction.id
-                }
-            ));
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: voteTransaction.id,
+                }),
+            );
         });
     });
 
     describe("show", () => {
         it("should return vote", async () => {
-            TransactionRepositoryMocks.setMockTransaction(voteTransaction);
+            Mocks.TransactionRepository.setTransaction(voteTransaction);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
                     id: voteTransaction.id,
                 },
                 query: {
-                    transform: false
-                }
+                    transform: false,
+                },
             };
 
-            let response = <ItemResponse>(await controller.show(request, undefined));
+            const response = (await controller.show(request, undefined)) as ItemResponse;
 
-            expect(response.data).toEqual(expect.objectContaining(
-                {
+            expect(response.data).toEqual(
+                expect.objectContaining({
                     id: voteTransaction.id,
-                }
-            ));
+                }),
+            );
         });
 
         it("should return error if vote transaction does not exists", async () => {
-            TransactionRepositoryMocks.setMockTransaction(null);
+            Mocks.TransactionRepository.setTransaction(null);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 params: {
-                    id: "unknown_transaction_id"
-                }
+                    id: "unknown_transaction_id",
+                },
             };
 
             await expect(controller.show(request, undefined)).resolves.toThrowError("Vote not found");

@@ -10,9 +10,6 @@ export class ServiceProvider extends BaseServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app
-            .bind<Triggers>(Identifiers.TriggerService)
-            .to(Triggers)
-            .inSingletonScope();
+        this.app.bind<Triggers>(Identifiers.TriggerService).to(Triggers).inSingletonScope();
     }
 }

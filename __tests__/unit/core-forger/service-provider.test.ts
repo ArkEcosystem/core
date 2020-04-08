@@ -4,7 +4,7 @@ import { ServiceProvider } from "@packages/core-forger/src";
 import { Client } from "@packages/core-forger/src/client";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { ForgerService } from "@packages/core-forger/src/forger-service";
-import { Application, Container, Contracts, Enums, Providers } from "@packages/core-kernel";
+import { Application, Container, Contracts, Enums, Providers, Services } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Identities } from "@packages/crypto";
 import socketCluster from "socketcluster-client";
@@ -49,9 +49,8 @@ describe("ServiceProvider", () => {
     it("should fail to register when mock options are now set", async () => {
         const app: Application = new Application(new Container.Container());
 
-        app.bind(Container.Identifiers.PluginConfiguration)
-            .to(Providers.PluginConfiguration)
-            .inSingletonScope();
+        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -80,9 +79,8 @@ describe("ServiceProvider", () => {
     it("should register with the correct config", async () => {
         const app: Application = new Application(new Container.Container());
 
-        app.bind(Container.Identifiers.PluginConfiguration)
-            .to(Providers.PluginConfiguration)
-            .inSingletonScope();
+        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -112,9 +110,8 @@ describe("ServiceProvider", () => {
     it("boot should set bip 39 delegates and start tracker", async () => {
         const app: Application = new Application(new Container.Container());
 
-        app.bind(Container.Identifiers.PluginConfiguration)
-            .to(Providers.PluginConfiguration)
-            .inSingletonScope();
+        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -142,7 +139,7 @@ describe("ServiceProvider", () => {
 
         app.config(
             "delegates.secrets",
-            calculateActiveDelegates().map(delegate => delegate.publicKey),
+            calculateActiveDelegates().map((delegate) => delegate.publicKey),
         );
 
         app.config("app.flags", {
@@ -157,9 +154,8 @@ describe("ServiceProvider", () => {
     it("boot should set bip 38 delegates and start tracker", async () => {
         const app: Application = new Application(new Container.Container());
 
-        app.bind(Container.Identifiers.PluginConfiguration)
-            .to(Providers.PluginConfiguration)
-            .inSingletonScope();
+        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -234,9 +230,8 @@ describe("ServiceProvider", () => {
 
         app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
 
-        app.bind(Container.Identifiers.PluginConfiguration)
-            .to(Providers.PluginConfiguration)
-            .inSingletonScope();
+        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -265,7 +260,7 @@ describe("ServiceProvider", () => {
 
         app.config(
             "delegates.secrets",
-            calculateActiveDelegates().map(delegate => delegate.publicKey),
+            calculateActiveDelegates().map((delegate) => delegate.publicKey),
         );
 
         app.config("app.flags", {
@@ -326,9 +321,8 @@ describe("ServiceProvider", () => {
 
         app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
 
-        app.bind(Container.Identifiers.PluginConfiguration)
-            .to(Providers.PluginConfiguration)
-            .inSingletonScope();
+        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -382,9 +376,8 @@ describe("ServiceProvider", () => {
     it("bootWhen should return true for bip 39 config", async () => {
         const app: Application = new Application(new Container.Container());
 
-        app.bind(Container.Identifiers.PluginConfiguration)
-            .to(Providers.PluginConfiguration)
-            .inSingletonScope();
+        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -412,7 +405,7 @@ describe("ServiceProvider", () => {
 
         app.config(
             "delegates.secrets",
-            calculateActiveDelegates().map(delegate => delegate.publicKey),
+            calculateActiveDelegates().map((delegate) => delegate.publicKey),
         );
 
         app.config("app.flags", {
@@ -427,9 +420,8 @@ describe("ServiceProvider", () => {
     it("bootWhen should return false for bip 38 config", async () => {
         const app: Application = new Application(new Container.Container());
 
-        app.bind(Container.Identifiers.PluginConfiguration)
-            .to(Providers.PluginConfiguration)
-            .inSingletonScope();
+        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -504,9 +496,8 @@ describe("ServiceProvider", () => {
 
         app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
 
-        app.bind(Container.Identifiers.PluginConfiguration)
-            .to(Providers.PluginConfiguration)
-            .inSingletonScope();
+        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         const logger = {
             error: jest.fn(),
@@ -535,7 +526,7 @@ describe("ServiceProvider", () => {
 
         app.config(
             "delegates.secrets",
-            calculateActiveDelegates().map(delegate => delegate.publicKey),
+            calculateActiveDelegates().map((delegate) => delegate.publicKey),
         );
 
         app.config("app.flags", {

@@ -26,6 +26,6 @@ describe("Stopped", () => {
 
             expect(logger.info).toHaveBeenCalledTimes(1);
             expect(logger.info).toHaveBeenCalledWith("The blockchain has been stopped");
-        })
-    })
-})
+        });
+    });
+});

@@ -14,7 +14,7 @@ export default <T = any>(
     params: Contracts.Database.QueryParameters,
     filters: Record<string, string[]>,
 ): T[] => {
-    return wallets.filter(wallet => {
+    return wallets.filter((wallet) => {
         if (filters.hasOwnProperty("exact")) {
             for (const elem of filters.exact) {
                 if (params[elem] !== undefined && getProperty(wallet, elem) !== params[elem]) {
@@ -80,7 +80,7 @@ export default <T = any>(
                     if (Array.isArray(wallet[elem])) {
                         if (Array.isArray(params[elem])) {
                             // @ts-ignore
-                            return params[elem].every(a => wallet[elem].includes(a));
+                            return params[elem].every((a) => wallet[elem].includes(a));
                         } else {
                             throw new Error('Filtering by "every" requires an Array');
                         }
@@ -98,7 +98,7 @@ export default <T = any>(
                 if (params[elem] && getProperty(wallet, elem)) {
                     if (Array.isArray(params[elem])) {
                         // @ts-ignore
-                        if (wallet[elem].every(a => params[elem].indexOf(a) === -1)) {
+                        if (wallet[elem].every((a) => params[elem].indexOf(a) === -1)) {
                             return false;
                         }
                     } else {

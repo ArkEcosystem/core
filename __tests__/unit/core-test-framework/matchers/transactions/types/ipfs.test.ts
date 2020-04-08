@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/transactions/types/ipfs"
+import "@packages/core-test-framework/src/matchers/transactions/types/ipfs";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Interfaces } from "@packages/crypto";
 
@@ -12,7 +12,6 @@ beforeEach(() => {
 
 describe("IPFS", () => {
     describe("toBeIpfsType", () => {
-
         it("should be ipfs type", async () => {
             const transaction: Interfaces.ITransaction = factory.get("Ipfs").make();
 

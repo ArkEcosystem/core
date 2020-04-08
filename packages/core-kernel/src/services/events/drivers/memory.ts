@@ -160,7 +160,7 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
         const resolvers: Array<Promise<void>> = [];
 
         for (const listener of this.getListenersByPattern(event)) {
-            resolvers.push(new Promise(resolve => resolve(listener.handle({ name: event, data }))));
+            resolvers.push(new Promise((resolve) => resolve(listener.handle({ name: event, data }))));
         }
 
         await Promise.all(resolvers);

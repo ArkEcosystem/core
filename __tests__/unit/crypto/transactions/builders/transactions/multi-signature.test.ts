@@ -102,10 +102,7 @@ describe("Multi Signature Transaction", () => {
                 .senderPublicKey("039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22")
                 .nonce("1");
 
-            actual
-                .multiSign("secret 1", 0)
-                .multiSign("secret 2", 1)
-                .multiSign("secret 3", 2);
+            actual.multiSign("secret 1", 0).multiSign("secret 2", 1).multiSign("secret 3", 2);
 
             expect(actual.data.signatures).toEqual([
                 "009fe6ca3b83a9a5e693fecb2b184900c5135a8c07e704c473b2f19117630f840428416f583f1a24ff371ba7e6fbca9a7fb796226ef9ef6542f44ed911951ac88d",

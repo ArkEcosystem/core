@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { delegates } from "@packages/core-test-framework/src/internal/delegates"
+import { delegates } from "@packages/core-test-framework/src/internal/delegates";
 
 describe("Delegates", () => {
     it("should create delegates from passphrases", async () => {

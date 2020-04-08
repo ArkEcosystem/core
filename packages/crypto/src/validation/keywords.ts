@@ -10,7 +10,7 @@ const maxBytes = (ajv: Ajv) => {
     ajv.addKeyword("maxBytes", {
         type: "string",
         compile(schema, parentSchema) {
-            return data => {
+            return (data) => {
                 if ((parentSchema as any).type !== "string") {
                     return false;
                 }
@@ -57,7 +57,7 @@ const transactionType = (ajv: Ajv) => {
 const network = (ajv: Ajv) => {
     ajv.addKeyword("network", {
         compile(schema) {
-            return data => {
+            return (data) => {
                 return schema && data === configManager.get("network.pubKeyHash");
             };
         },

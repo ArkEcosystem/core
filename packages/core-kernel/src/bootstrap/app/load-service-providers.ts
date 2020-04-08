@@ -91,9 +91,6 @@ export class LoadServiceProviders implements Bootstrapper {
                 .merge(options);
         }
 
-        return this.app
-            .resolve(PluginConfiguration)
-            .discover(serviceProviderName)
-            .merge(options);
+        return this.app.resolve(PluginConfiguration).discover(serviceProviderName).merge(options);
     }
 }

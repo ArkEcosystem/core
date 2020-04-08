@@ -1,15 +1,16 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { Application, Container, Providers } from "@packages/core-kernel";
-import { initApp, ItemResponse } from "../__support__";
 import { NodeController } from "@packages/core-api/src/controllers/node";
-import { BlockchainMocks, NetworkMonitorMocks, TransactionRepositoryMocks } from "../mocks";
+import { Application, Container, Providers } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Interfaces, Managers, Transactions } from "@packages/crypto";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Interfaces, Managers, Transactions } from "@packages/crypto";
+
+import { initApp, ItemResponse } from "../__support__";
 
 let app: Application;
 let controller: NodeController;
@@ -38,74 +39,72 @@ afterEach(() => {
 });
 
 describe("NodeController", () => {
-
     let mockBlockData: Partial<Interfaces.IBlockData>;
 
     beforeEach(() => {
-        mockBlockData= {
+        mockBlockData = {
             id: "1",
             height: 1,
         };
 
-        let mockBlock: Partial<Interfaces.IBlock> = {
-            data: mockBlockData as Interfaces.IBlockData
+        const mockBlock = {
+            data: mockBlockData,
         };
 
-        NetworkMonitorMocks.setNetworkHeight(5);
-        BlockchainMocks.setMockBlock(mockBlock);
+        Mocks.NetworkMonitor.setNetworkHeight(5);
+        Mocks.Blockchain.setBlock(mockBlock as Partial<Interfaces.IBlock>);
     });
 
     describe("status", () => {
         it("should return node status", async () => {
-            let response = <ItemResponse>(await controller.status(undefined, undefined));
+            const response = (await controller.status(undefined, undefined)) as ItemResponse;
 
-            expect(response.data).toEqual(expect.objectContaining(
-                {
+            expect(response.data).toEqual(
+                expect.objectContaining({
                     synced: true,
                     now: 1,
-                }
-            ));
+                }),
+            );
         });
 
-
         it("should return node status when last block is undefined", async () => {
-            BlockchainMocks.setMockBlock(null);
-            let response = <ItemResponse>(await controller.status(undefined, undefined));
+            Mocks.Blockchain.setBlock(undefined);
+            const response = (await controller.status(undefined, undefined)) as ItemResponse;
 
-            expect(response.data).toEqual(expect.objectContaining(
-                {
+            expect(response.data).toEqual(
+                expect.objectContaining({
                     synced: true,
                     now: 0,
-                    blocksCount: 0
-                }
-            ));
+                    blocksCount: 0,
+                }),
+            );
         });
     });
 
     describe("syncing", () => {
         it("should return syncing status", async () => {
-            BlockchainMocks.setMockBlock(null);
-            let response = <ItemResponse>(await controller.syncing(undefined, undefined));
+            Mocks.Blockchain.setBlock(undefined);
+            const response = (await controller.syncing(undefined, undefined)) as ItemResponse;
 
-            expect(response.data).toEqual(expect.objectContaining(
-                {
+            expect(response.data).toEqual(
+                expect.objectContaining({
                     syncing: false,
                     height: 0,
                     id: undefined,
-                }
-            ));
+                }),
+            );
         });
 
         it("should return syncing status when last block is undefined", async () => {
-            let response = <ItemResponse>(await controller.syncing(undefined, undefined));
+            const response = (await controller.syncing(undefined, undefined)) as ItemResponse;
 
-            expect(response.data).toEqual(expect.objectContaining(
-                {
+            expect(response.data).toEqual(
+                expect.objectContaining({
                     syncing: false,
                     height: mockBlockData.height,
                     id: mockBlockData.id,
-                }
-            ));
+                }),
+            );
         });
     });
 
@@ -113,11 +112,11 @@ describe("NodeController", () => {
         it("should return node configuration", async () => {
             app.bind(Identifiers.ApplicationVersion).toConstantValue("3.0.0");
 
-            app
-                .get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration)
-                .set("dynamicFees", { enabled: true });
+            app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set("dynamicFees", {
+                enabled: true,
+            });
 
-            let response = <any>(await controller.configuration(undefined, undefined));
+            const response = await controller.configuration(undefined, undefined);
 
             expect(response.data.core).toBeDefined();
             expect(response.data.nethash).toBeDefined();
@@ -136,11 +135,11 @@ describe("NodeController", () => {
         it("should return node configuration when dynamicFees are not enabled", async () => {
             app.bind(Identifiers.ApplicationVersion).toConstantValue("3.0.0");
 
-            app
-                .get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration)
-                .set("dynamicFees", { enabled: false });
+            app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set("dynamicFees", {
+                enabled: false,
+            });
 
-            let response = <any>(await controller.configuration(undefined, undefined));
+            const response = await controller.configuration(undefined, undefined);
 
             expect(response.data.core).toBeDefined();
             expect(response.data.nethash).toBeDefined();
@@ -159,7 +158,7 @@ describe("NodeController", () => {
 
     describe("configurationCrypto", () => {
         it("should return all configurations", async () => {
-            let response = <any>(await controller.configurationCrypto());
+            const response = await controller.configurationCrypto();
 
             expect(response.data.network).toBeDefined();
             expect(response.data.exceptions).toBeDefined();
@@ -170,7 +169,7 @@ describe("NodeController", () => {
 
     describe("fees", () => {
         it("should return transactions fees", async () => {
-            let feeStatistics: TransactionRepositoryMocks.FeeStatistics = {
+            const feeStatistics: Mocks.TransactionRepository.FeeStatistics = {
                 type: 1,
                 typeGroup: 1,
                 avg: "15",
@@ -179,15 +178,15 @@ describe("NodeController", () => {
                 sum: "500",
             };
 
-            TransactionRepositoryMocks.setFeeStatistics([feeStatistics]);
+            Mocks.TransactionRepository.setFeeStatistics([feeStatistics]);
 
-            let request: Hapi.Request = {
+            const request: Hapi.Request = {
                 query: {
                     days: 5,
-                }
+                },
             };
 
-            let response = <any>(await controller.fees(request));
+            const response = await controller.fees(request);
 
             expect(response.data[feeStatistics.type.toString()]).toBeDefined();
         });

@@ -73,7 +73,7 @@ export class TransactionsController extends Controller {
             pagination.offset,
             pagination.offset + pagination.limit,
         );
-        const rows = transactions.map(t => ({ serialized: t.serialized.toString("hex") }));
+        const rows = transactions.map((t) => ({ serialized: t.serialized.toString("hex") }));
 
         return super.toPagination({ count: all.length, rows }, TransactionResource, !!request.query.transform);
     }

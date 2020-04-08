@@ -1,5 +1,4 @@
-import { DatabaseService } from "@arkecosystem/core-database";
-import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils, Services } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import { process } from "ipaddr.js";
 
@@ -63,7 +62,7 @@ export const getUnconfirmedTransactions = async ({
 
     return {
         poolSize: transactionPool.getPoolSize(),
-        transactions: transactions.map(t => t.serialized.toString("hex")),
+        transactions: transactions.map((t) => t.serialized.toString("hex")),
     };
 };
 
@@ -72,7 +71,6 @@ export const getCurrentRound = async ({
 }: {
     app: Contracts.Kernel.Application;
 }): Promise<Contracts.P2P.CurrentRound> => {
-    const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
     const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
 
     const lastBlock = blockchain.getLastBlock();
@@ -83,12 +81,14 @@ export const getCurrentRound = async ({
 
     const blockTime = Managers.configManager.getMilestone(height).blocktime;
     const reward = Managers.configManager.getMilestone(height).reward;
-    const delegates: Contracts.P2P.DelegateWallet[] = (await databaseService.getActiveDelegates(roundInfo)).map(
-        wallet => ({
-            ...wallet,
-            delegate: wallet.getAttribute("delegate"),
-        }),
-    );
+
+    const delegates: Contracts.P2P.DelegateWallet[] = ((await app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[])
+        .map((wallet) => ({
+        ...wallet,
+        delegate: wallet.getAttribute("delegate"),
+    }));
 
     const timestamp = Crypto.Slots.getTime();
     const blockTimestamp = Crypto.Slots.getSlotNumber(timestamp) * blockTime;

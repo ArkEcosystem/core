@@ -50,7 +50,7 @@ export class Client {
                 codecEngine: codec,
             });
 
-            host.socket.on("error", err => {
+            host.socket.on("error", (err) => {
                 if (err.message !== "Socket hung up") {
                     this.logger.error(err.message);
                 }
@@ -91,7 +91,7 @@ export class Client {
             await this.emit("p2p.peer.postBlock", {
                 block: Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
-                    transactions: block.transactions.map(tx => tx.data),
+                    transactions: block.transactions.map((tx) => tx.data),
                 }),
             });
         } catch (error) {
@@ -163,8 +163,8 @@ export class Client {
 
         const allowedHosts: string[] = ["127.0.0.1", "::ffff:127.0.0.1"];
 
-        const host: RelayHost | undefined = this.hosts.find(item =>
-            allowedHosts.some(allowedHost => item.hostname.includes(allowedHost)),
+        const host: RelayHost | undefined = this.hosts.find((item) =>
+            allowedHosts.some((allowedHost) => item.hostname.includes(allowedHost)),
         );
 
         if (!host) {
@@ -197,11 +197,11 @@ export class Client {
 
         this.logger.debug(
             `No open socket connection to any host: ${JSON.stringify(
-                this.hosts.map(host => `${host.hostname}:${host.port}`),
+                this.hosts.map((host) => `${host.hostname}:${host.port}`),
             )}.`,
         );
 
-        throw new HostNoResponseError(this.hosts.map(host => host.hostname).join());
+        throw new HostNoResponseError(this.hosts.map((host) => host.hostname).join());
     }
 
     /**

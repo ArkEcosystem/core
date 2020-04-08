@@ -1,12 +1,13 @@
 import "jest-extended";
 
-import { Application, Container } from "@packages/core-kernel/src";
+import { Application, Container, Services } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-transaction-pool/src";
 
 let app: Application;
 
 beforeEach(() => {
     app = new Application(new Container.Container());
+    app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 });
 
 describe("ServiceProvider", () => {

@@ -1,13 +1,16 @@
 import "jest-extended";
 import delay from "delay";
 
-import { Container, Enums } from "@arkecosystem/core-kernel";
-import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
-import { BlockProcessorResult } from "../../../packages/core-blockchain/src/processor/block-processor";
-import { Interfaces, Crypto, Utils, Blocks, Managers, Networks } from "@arkecosystem/crypto";
+import { Container, Enums, Services } from "@packages/core-kernel";
+import { Blockchain } from "@packages/core-blockchain/src/blockchain";
+import { BlockProcessorResult } from "@packages/core-blockchain/src/processor/block-processor";
+import { Interfaces, Crypto, Utils, Managers, Networks } from "@packages/crypto";
+import { Sandbox } from "@packages/core-test-framework";
+import { ProcessBlockAction } from "@packages/core-blockchain/src/actions";
+import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 
 describe("Blockchain", () => {
-    const container = new Container.Container();
+    let sandbox: Sandbox;
 
     const logService: any = {};
     const stateStore: any = {};
@@ -20,29 +23,31 @@ describe("Blockchain", () => {
     const peerStorage: any = {};
     const blockProcessor: any = {};
 
-    const applicationGet = {
-        [Container.Identifiers.PeerNetworkMonitor]: peerNetworkMonitor,
-        [Container.Identifiers.PeerStorage]: peerStorage,
-        [Container.Identifiers.StateStore]: stateStore,
-    };
-
-    const application = {
-        log: logService,
-        resolve: () => blockProcessor,
-        get: id => applicationGet[id],
-        events: eventDispatcherService
-    };
-
     beforeAll(() => {
-        container.unbindAll();
-        container.bind(Container.Identifiers.Application).toConstantValue(application);
-        container.bind(Container.Identifiers.LogService).toConstantValue(logService);
-        container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
-        container.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
-        container.bind(Container.Identifiers.BlockRepository).toConstantValue(blockRepository);
-        container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPoolService);
-        container.bind(Container.Identifiers.StateMachine).toConstantValue(stateMachine);
-        container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcherService);
+        sandbox = new Sandbox();
+
+        sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logService);
+        sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
+        sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
+        sandbox.app.bind(Container.Identifiers.BlockRepository).toConstantValue(blockRepository);
+        sandbox.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPoolService);
+        sandbox.app.bind(Container.Identifiers.StateMachine).toConstantValue(stateMachine);
+        sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcherService);
+        sandbox.app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);
+        sandbox.app.bind(Container.Identifiers.PeerStorage).toConstantValue(peerStorage);
+        sandbox.app.bind(Container.Identifiers.BlockchainService).to(Blockchain).inSingletonScope();
+        sandbox.app.bind(Container.Identifiers.BlockProcessor).toConstantValue(blockProcessor);
+        sandbox.app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
+        sandbox.app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
+
+        sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+        sandbox.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("processBlock", new ProcessBlockAction());
+
+        sandbox.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("getActiveDelegates", new GetActiveDelegatesAction(sandbox.app));
 
         Managers.configManager.setFromPreset("testnet");
     });
@@ -64,36 +69,37 @@ describe("Blockchain", () => {
         stateStore.setLastBlock = jest.fn();
         stateStore.pushPingBlock = jest.fn();
         stateStore.pingBlock = jest.fn();
-            
+
         databaseService.getTopBlocks = jest.fn();
         databaseService.getLastBlock = jest.fn();
         databaseService.loadBlocksFromCurrentRound = jest.fn();
         databaseService.revertBlock = jest.fn();
         databaseService.deleteRound = jest.fn();
-        
+        databaseService.getActiveDelegates = jest.fn().mockReturnValue([]);
+
         blockRepository.deleteBlocks = jest.fn();
         blockRepository.saveBlocks = jest.fn();
-        
+
         stateMachine.transition = jest.fn();
 
         eventDispatcherService.listen = jest.fn();
         eventDispatcherService.dispatch = jest.fn();
-        
+
         peerNetworkMonitor.cleansePeers = jest.fn();
         peerNetworkMonitor.updateNetworkStatus = jest.fn();
         peerNetworkMonitor.broadcastBlock = jest.fn();
         peerNetworkMonitor.checkNetworkHealth = jest.fn();
-        
+
         peerStorage.hasPeers = jest.fn();
 
         blockProcessor.process = jest.fn();
 
         transactionPoolService.readdTransactions = jest.fn();
-    })
+    });
 
     describe("initialize", () => {
-        it ("should log a warning if networkStart option is provided", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+        it("should log a warning if networkStart option is provided", () => {
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             blockchain.initialize({});
             expect(logService.warning).toBeCalledTimes(0);
@@ -108,7 +114,7 @@ describe("Blockchain", () => {
 
     describe("dispatch", () => {
         it("should call transition method on stateMachine with the event provided", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             const eventToDispatch = "any.event.to.dispatch";
 
             expect(stateMachine.transition).toBeCalledTimes(0);
@@ -120,9 +126,9 @@ describe("Blockchain", () => {
 
     describe("boot", () => {
         it("should dispatch 'START'", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
-            
+
             stateStore.started = true;
             await blockchain.boot();
 
@@ -131,9 +137,9 @@ describe("Blockchain", () => {
         });
 
         it("should dispatch START and return true even if stateStore is not ready when skipStartedCheck === true", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
-            
+
             stateStore.started = false;
             const bootResult = await blockchain.boot(true);
 
@@ -155,14 +161,14 @@ describe("Blockchain", () => {
         });
 
         it("should wait for stateStore to be started before resolving", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
-            
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+
             stateStore.started = false;
             const resolved = jest.fn();
-            const checkBootResolved = async () =>  {
+            const checkBootResolved = async () => {
                 await blockchain.boot();
                 resolved();
-            }
+            };
             checkBootResolved();
 
             // will not resolve after 2 seconds while stateStore.started is false
@@ -177,7 +183,7 @@ describe("Blockchain", () => {
         });
 
         it("should call cleansePeers and set listener on ForgerEvent.Missing and RoundEvent.Applied", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             stateStore.started = true;
 
             expect(peerNetworkMonitor.cleansePeers).toBeCalledTimes(0);
@@ -186,38 +192,42 @@ describe("Blockchain", () => {
 
             expect(peerNetworkMonitor.cleansePeers).toBeCalledTimes(1);
             expect(eventDispatcherService.listen).toHaveBeenCalledTimes(2);
-            expect(eventDispatcherService.listen).toHaveBeenNthCalledWith(1, Enums.ForgerEvent.Missing, { handle: expect.any(Function) });
-            expect(eventDispatcherService.listen).toHaveBeenNthCalledWith(2, Enums.RoundEvent.Applied, { handle: expect.any(Function) });
+            expect(eventDispatcherService.listen).toHaveBeenNthCalledWith(1, Enums.ForgerEvent.Missing, {
+                handle: expect.any(Function),
+            });
+            expect(eventDispatcherService.listen).toHaveBeenNthCalledWith(2, Enums.RoundEvent.Applied, {
+                handle: expect.any(Function),
+            });
         });
     });
 
     describe("dispose", () => {
         it("should call clearWakeUpTimeout on stateStore and dispatch 'STOP'", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
 
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
 
             await blockchain.dispose();
 
-            expect(stateStore.clearWakeUpTimeout).toBeCalledTimes(1)
+            expect(stateStore.clearWakeUpTimeout).toBeCalledTimes(1);
             expect(spyDispatch).toBeCalledTimes(1);
             expect(spyDispatch).toHaveBeenLastCalledWith("STOP");
-        })
+        });
     });
 
     describe("setWakeUp", () => {
         it("should set wakeUpTimeout on stateStore", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             expect(stateStore.wakeUpTimeout).toBeUndefined();
 
             blockchain.setWakeUp();
             expect(stateStore.wakeUpTimeout).toBeDefined();
-        })
+        });
 
         it("should dispatch WAKEUP when wake up function is called", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             jest.useFakeTimers();
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
 
@@ -230,34 +240,34 @@ describe("Blockchain", () => {
             expect(spyDispatch).toBeCalledWith("WAKEUP");
 
             jest.useRealTimers();
-        })
+        });
     });
 
     describe("resetWakeUp", () => {
         it("should call stateStore clearWakeUpTimeout and own setWakeUp method", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             const spySetWakeUp = jest.spyOn(blockchain, "setWakeUp");
 
             blockchain.resetWakeUp();
 
             expect(stateStore.clearWakeUpTimeout).toBeCalledTimes(1);
             expect(spySetWakeUp).toBeCalledTimes(1);
-        })
+        });
     });
 
     describe("updateNetworkStatus", () => {
         it("should call updateNetworkStatus on peerNetworkMonitor", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             blockchain.updateNetworkStatus();
 
             expect(peerNetworkMonitor.updateNetworkStatus).toBeCalledTimes(1);
-        })
+        });
     });
 
     describe("clearAndStopQueue", () => {
         it("should set state.lastDownloadedBlock from this.getLastBlock() and clear queue", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
 
             const spyClearQueue = jest.spyOn(blockchain, "clearQueue");
@@ -269,12 +279,12 @@ describe("Blockchain", () => {
 
             expect(stateStore.lastDownloadedBlock).toEqual(mockLastBlock.data);
             expect(spyClearQueue).toBeCalledTimes(1);
-        })
+        });
     });
 
     describe("clearQueue", () => {
         it("should call queue.remove", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
 
             const spyQueueRemove = jest.spyOn(blockchain.queue, "remove");
@@ -282,7 +292,7 @@ describe("Blockchain", () => {
             blockchain.clearQueue();
 
             expect(spyQueueRemove).toBeCalledTimes(1);
-        })
+        });
     });
 
     describe("handleIncomingBlock", () => {
@@ -294,7 +304,7 @@ describe("Blockchain", () => {
 
         describe("when state is started", () => {
             it("should dispatch 'NEWBLOCK', BlockEvent.Received and enqueue the block", () => {
-                const blockchain = container.resolve<Blockchain>(Blockchain);
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
                 blockchain.initialize({});
                 const spyDispatch = jest.spyOn(blockchain, "dispatch");
                 const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
@@ -311,27 +321,29 @@ describe("Blockchain", () => {
 
                 expect(spyEnqueue).toBeCalledTimes(1);
                 expect(spyEnqueue).toHaveBeenLastCalledWith([blockData]);
-            })
-        })
+            });
+        });
 
         describe("when state is not started", () => {
             it("should dispatch BlockEvent.Disregarded and not enqueue the block", () => {
-                const blockchain = container.resolve<Blockchain>(Blockchain);
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
                 const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
                 stateStore.started = false;
-
 
                 blockchain.handleIncomingBlock(blockData);
 
                 expect(eventDispatcherService.dispatch).toBeCalledTimes(1);
-                expect(eventDispatcherService.dispatch).toHaveBeenLastCalledWith(Enums.BlockEvent.Disregarded, blockData);
+                expect(eventDispatcherService.dispatch).toHaveBeenLastCalledWith(
+                    Enums.BlockEvent.Disregarded,
+                    blockData,
+                );
 
                 expect(spyEnqueue).toBeCalledTimes(0);
-            })
-        })
-        
+            });
+        });
+
         it("should not dispatch anything nor enqueue the block if receivedSlot > currentSlot", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
 
             jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(2);
@@ -340,14 +352,14 @@ describe("Blockchain", () => {
 
             expect(spyEnqueue).toBeCalledTimes(0);
             expect(eventDispatcherService.dispatch).toBeCalledTimes(0);
-        })
+        });
     });
 
     describe("enqueueBlocks", () => {
         const blockData = { height: 30122, numberOfTransactions: 0 } as Interfaces.IBlockData;
 
         it("should just return if blocks provided are an empty array", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
@@ -356,10 +368,10 @@ describe("Blockchain", () => {
         });
 
         it("should enqueue the blocks", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
             stateStore.lastDownloadedBlock = { height: 23111 };
-            
+
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
             blockchain.enqueueBlocks([blockData]);
@@ -368,18 +380,18 @@ describe("Blockchain", () => {
         });
 
         it("should push a chunk to the queue when currentTransactionsCount >= 150", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
             stateStore.lastDownloadedBlock = { height: 23111 };
-            
+
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
-            const blockWith150Txs = { height: blockData.height + 1, numberOfTransactions: 150} as Interfaces.IBlockData;
+            const blockWith150Txs = {
+                height: blockData.height + 1,
+                numberOfTransactions: 150,
+            } as Interfaces.IBlockData;
 
-            blockchain.enqueueBlocks([
-                blockWith150Txs,
-                blockData,
-            ]);
+            blockchain.enqueueBlocks([blockWith150Txs, blockData]);
 
             expect(spyQueuePush).toHaveBeenCalledTimes(2);
             expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [blockWith150Txs] });
@@ -387,14 +399,15 @@ describe("Blockchain", () => {
         });
 
         it("should push a chunk to the queue when currentBlocksChunk.length > 100", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
             stateStore.lastDownloadedBlock = { height: 23111 };
-            
+
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
             const blocksToEnqueue = [];
             for (let i = 0; i <= 101; i++) {
+                // @ts-ignore
                 blocksToEnqueue.push(blockData);
             }
             blockchain.enqueueBlocks(blocksToEnqueue);
@@ -405,19 +418,19 @@ describe("Blockchain", () => {
         });
 
         it("should push a chunk to the queue when hitting new milestone", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
             stateStore.lastDownloadedBlock = { height: 7555 };
-            
+
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
             const blockMilestone = { id: "123", height: 75600 } as Interfaces.IBlockData;
             const blockAfterMilestone = { id: "456", height: 75601 } as Interfaces.IBlockData;
-            blockchain.enqueueBlocks([ blockMilestone, blockAfterMilestone ]);
+            blockchain.enqueueBlocks([blockMilestone, blockAfterMilestone]);
 
             expect(spyQueuePush).toHaveBeenCalledTimes(2);
-            expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [ blockMilestone ] });
-            expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [ blockAfterMilestone ] });
+            expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [blockMilestone] });
+            expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [blockAfterMilestone] });
         });
     });
 
@@ -439,7 +452,7 @@ describe("Blockchain", () => {
                 "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
             createdAt: "2018-09-11T16:48:50.550Z",
         },
-        transactions: []
+        transactions: [],
     };
     const blockHeight3 = {
         data: {
@@ -459,24 +472,25 @@ describe("Blockchain", () => {
                 "304402204087bb1d2c82b9178b02b9b3f285de260cdf0778643064fe6c7aef27321d49520220594c57009c1fca543350126d277c6adeb674c00685a464c3e4bf0d634dc37e39",
             createdAt: "2018-09-11T16:48:58.431Z",
         },
-        transactions: []
+        transactions: [],
     };
     describe("removeBlocks", () => {
         it("should call revertBlock and setLastBlock for each block to be removed, and deleteBlocks with all blocks removed", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
-            
-            const blocksToRemove = [ blockHeight2, blockHeight3 ];
-            stateStore.getLastBlock = jest.fn()
+
+            const blocksToRemove = [blockHeight2, blockHeight3];
+            stateStore.getLastBlock = jest
+                .fn()
                 .mockReturnValueOnce(blocksToRemove[1]) // called in clearAndStopQueue
                 .mockReturnValueOnce(blocksToRemove[1]) // called in removeBlocks
                 .mockReturnValueOnce(blocksToRemove[1]) // called in __removeBlocks
                 .mockReturnValueOnce(blocksToRemove[1]) // called in revertLastBlock
                 .mockReturnValueOnce(blocksToRemove[0]) // called in __removeBlocks
-                .mockReturnValueOnce(blocksToRemove[0]) // called in revertLastBlock
-            databaseService.getBlocks = jest.fn().mockReturnValueOnce(
-                blocksToRemove.map(b => ({ ...b.data, transactions: b.transactions}))
-            );
+                .mockReturnValueOnce(blocksToRemove[0]); // called in revertLastBlock
+            databaseService.getBlocks = jest
+                .fn()
+                .mockReturnValueOnce(blocksToRemove.map((b) => ({ ...b.data, transactions: b.transactions })));
 
             await blockchain.removeBlocks(2);
 
@@ -486,20 +500,20 @@ describe("Blockchain", () => {
         });
 
         it("should default to removing until genesis block when asked to remove more", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
-            
+
             const genesisBlock = Networks.testnet.genesisBlock;
-            stateStore.getLastBlock = jest.fn()
+            stateStore.getLastBlock = jest
+                .fn()
                 .mockReturnValueOnce(blockHeight2) // called in clearAndStopQueue
                 .mockReturnValueOnce(blockHeight2) // called in removeBlocks
                 .mockReturnValueOnce(blockHeight2) // called in __removeBlocks
                 .mockReturnValueOnce(blockHeight2) // called in revertLastBlock
                 .mockReturnValue(genesisBlock);
-            databaseService.getBlocks = jest.fn().mockReturnValueOnce([
-                { ...blockHeight2.data, transactions: blockHeight2.transactions },
-                genesisBlock
-            ]);
+            databaseService.getBlocks = jest
+                .fn()
+                .mockReturnValueOnce([{ ...blockHeight2.data, transactions: blockHeight2.transactions }, genesisBlock]);
 
             await blockchain.removeBlocks(blockHeight2.data.height + 10);
 
@@ -515,11 +529,12 @@ describe("Blockchain", () => {
         it.each([[1], [5], [1329]])(
             "should get the top %i blocks from database and delete them with blockRepository",
             async (numberOfBlocks) => {
-                const blockchain = container.resolve<Blockchain>(Blockchain);
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
                 const mockTopBlocks = [];
                 for (let i = 0; i < numberOfBlocks; i++) {
-                    mockTopBlocks.push({ height: 1000 + i })
+                    // @ts-ignore
+                    mockTopBlocks.push({ height: 1000 + i });
                 }
                 databaseService.getTopBlocks.mockReturnValueOnce(mockTopBlocks);
 
@@ -528,177 +543,162 @@ describe("Blockchain", () => {
                 expect(databaseService.getTopBlocks).toHaveBeenLastCalledWith(numberOfBlocks);
                 expect(blockRepository.deleteBlocks).toHaveBeenLastCalledWith(mockTopBlocks);
                 expect(databaseService.loadBlocksFromCurrentRound).toHaveBeenCalled();
-        });
+            },
+        );
 
         it("should log an error if deleteBlocks throws", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockRepository.deleteBlocks.mockRejectedValueOnce(new Error("error deleteBlocks"));
-            databaseService.getTopBlocks.mockReturnValueOnce([ { height: 48990 }]);
+            databaseService.getTopBlocks.mockReturnValueOnce([{ height: 48990 }]);
 
             await blockchain.removeTopBlocks(1);
 
             expect(logService.error).toBeCalledTimes(1);
-        })
+        });
     });
 
     describe("processBlocks", () => {
         const lastBlock = { ...blockHeight2.data, transactions: [] };
         const currentBlock = { ...blockHeight3.data, transactions: [] };
-        
+
         it("should process a new chained block", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
 
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-            const callback = jest.fn();
+            blockProcessor.validateGenerator = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
 
-            await blockchain.processBlocks([ currentBlock ], callback);
-
-            expect(callback).toBeCalledTimes(1);
-            expect(callback).toHaveBeenLastCalledWith([ expect.any(Blocks.Block) ]);
-            // callback is called with acceptedBlocks, here our currentBlock
+            await blockchain.processBlocks([currentBlock]);
         });
 
         it("should process a valid block already known", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
 
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-            const callback = jest.fn();
             const spyClearQueue = jest.spyOn(blockchain, "clearQueue");
             const spyResetLastDownloadedBlock = jest.spyOn(blockchain, "resetLastDownloadedBlock");
-            
-            await blockchain.processBlocks([ lastBlock ], callback);
 
-            expect(callback).toBeCalledTimes(1);
-            expect(callback).toHaveBeenLastCalledWith();
+            await blockchain.processBlocks([lastBlock]);
+
             expect(spyClearQueue).toBeCalledTimes(1);
             expect(spyResetLastDownloadedBlock).toBeCalledTimes(1);
         });
 
         it("should not process the remaining block if one is not accepted", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
 
             const genesisBlock = Networks.testnet.genesisBlock;
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Rollback);
-            const callback = jest.fn();
             const spyForkBlock = jest.spyOn(blockchain, "forkBlock");
 
-            await blockchain.processBlocks([ lastBlock, currentBlock ], callback);
+            await blockchain.processBlocks([lastBlock, currentBlock]);
 
-            expect(callback).toBeCalledTimes(1);
-            expect(callback).toHaveBeenLastCalledWith([]);
             expect(blockProcessor.process).toBeCalledTimes(1); // only 1 out of the 2 blocks
             expect(spyForkBlock).toBeCalledTimes(1); // because Rollback
         });
 
         it("should revert block when blockRepository saveBlocks fails", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
 
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
             blockRepository.saveBlocks = jest.fn().mockRejectedValue(new Error("oops"));
-            const callback = jest.fn();
             const spyClearQueue = jest.spyOn(blockchain, "clearQueue");
             const spyResetLastDownloadedBlock = jest.spyOn(blockchain, "resetLastDownloadedBlock");
-            
-            await blockchain.processBlocks([ currentBlock ], callback);
 
-            expect(callback).toBeCalledTimes(1);
-            expect(callback).toHaveBeenLastCalledWith();
+            await blockchain.processBlocks([currentBlock]);
+
             expect(spyClearQueue).toBeCalledTimes(1);
             expect(spyResetLastDownloadedBlock).toBeCalledTimes(1);
             expect(databaseService.revertBlock).toBeCalledTimes(1);
         });
 
         it("should broadcast a block if (Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
             const block = {
                 ...currentBlock,
-                timestamp: Crypto.Slots.getSlotNumber() * Managers.configManager.getMilestone(1).blocktime
-            }
+                timestamp: Crypto.Slots.getSlotNumber() * Managers.configManager.getMilestone(1).blocktime,
+            };
 
             stateStore.started = true;
             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-            const callback = jest.fn();
-            
-            await blockchain.processBlocks([ block ], callback);
 
-            expect(callback).toBeCalledTimes(1);
-            expect(callback).toHaveBeenLastCalledWith([ expect.any(Blocks.Block) ]);
+            await blockchain.processBlocks([block]);
+
             expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(1);
         });
 
         describe("calling processBlocks from the queue", () => {
             it("should call processBlocks from queue handler", async () => {
-                const blockchain = container.resolve<Blockchain>(Blockchain);
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
                 blockchain.initialize({});
                 stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
                 blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
                 stateStore.lastDownloadedBlock = { height: 23111 };
-                
+
                 const spyQueuePush = jest.spyOn(blockchain.queue, "push");
                 const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
-    
+
                 blockchain.enqueueBlocks([currentBlock]);
-    
+
                 expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [currentBlock] });
                 await delay(1000);
-    
+
                 expect(spyProcessBlocks).toBeCalledTimes(1);
             });
 
             it("should log an error when processBlocks throws for any reason", async () => {
-                const blockchain = container.resolve<Blockchain>(Blockchain);
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
                 blockchain.initialize({});
                 stateStore.getLastBlock = jest.fn().mockImplementationOnce(() => {
-                    throw new Error("oops")
+                    throw new Error("oops");
                 });
                 blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
                 stateStore.lastDownloadedBlock = { height: 23111 };
-                
+
                 const spyQueuePush = jest.spyOn(blockchain.queue, "push");
                 const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
-    
-                const blocksToEnqueue = [ currentBlock ];
+
+                const blocksToEnqueue = [currentBlock];
                 blockchain.enqueueBlocks(blocksToEnqueue);
-    
+
                 expect(spyQueuePush).toHaveBeenCalledWith({ blocks: blocksToEnqueue });
                 await delay(1000);
-    
+
                 expect(spyProcessBlocks).toBeCalledTimes(1);
                 expect(logService.error).toBeCalledWith(
-                    `Failed to process ${blocksToEnqueue.length} blocks from height ${blocksToEnqueue[0].height} in queue.`
+                    `Failed to process ${blocksToEnqueue.length} blocks from height ${blocksToEnqueue[0].height} in queue.`,
                 );
             });
-        })
+        });
     });
 
     describe("resetLastDownloadedBlock", () => {
         it("should set this.state.lastDownloadedBlock = this.getLastBlock().data", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             stateStore.lastDownloadedBlock = undefined;
-            const mockBlock = { data: { id: "123", height: 444 }};
+            const mockBlock = { data: { id: "123", height: 444 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
 
             blockchain.resetLastDownloadedBlock();
 
             expect(stateStore.lastDownloadedBlock).toEqual(mockBlock.data);
-        })
+        });
     });
 
     describe("forceWakeup", () => {
         it("should clearWakeUpTimeout and dispatch 'WAKEUP", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
 
             blockchain.forceWakeup();
@@ -706,19 +706,19 @@ describe("Blockchain", () => {
             expect(stateStore.clearWakeUpTimeout).toBeCalledTimes(1);
             expect(spyDispatch).toBeCalledTimes(1);
             expect(spyDispatch).toHaveBeenLastCalledWith("WAKEUP");
-        })
+        });
     });
 
     describe("forkBlock", () => {
         it("should set forkedBlock, clear and stop queue and dispatch 'FORK'", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
-            
-            const forkedBlock = { data: { id:"1234", height: 8877 }};
+
+            const forkedBlock = { data: { id: "1234", height: 8877 } };
             const numberOfBlocksToRollback = 34;
             const spyClearAndStopQueue = jest.spyOn(blockchain, "clearAndStopQueue");
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
-            const mockBlock = { data: { id: "123", height: 444 }};
+            const mockBlock = { data: { id: "123", height: 444 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
 
             blockchain.forkBlock(forkedBlock as Interfaces.IBlock, numberOfBlocksToRollback);
@@ -728,12 +728,12 @@ describe("Blockchain", () => {
             expect(spyClearAndStopQueue).toBeCalledTimes(1);
             expect(spyDispatch).toBeCalledTimes(1);
             expect(spyDispatch).toHaveBeenLastCalledWith("FORK");
-        })
+        });
     });
 
     describe("isSynced", () => {
         it("should return true if we have no peer", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             peerStorage.hasPeers = jest.fn().mockReturnValue(false);
 
@@ -741,130 +741,129 @@ describe("Blockchain", () => {
         });
 
         it("should return true if last block is less than 3 blocktimes away from current slot time", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             peerStorage.hasPeers = jest.fn().mockReturnValue(true);
-            const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 16 }};
+            const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 16 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
-            
+
             expect(blockchain.isSynced()).toBeTrue();
         });
 
         it("should return false if last block is more than 3 blocktimes away from current slot time", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             peerStorage.hasPeers = jest.fn().mockReturnValue(true);
-            const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 25 }};
+            const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 25 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
-            
+
             expect(blockchain.isSynced()).toBeFalse();
         });
     });
 
     describe("getLastBlock", () => {
         it("should return the last block from state", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-            const mockBlock = { data: { id: "123", height: 444 }};
+            const mockBlock = { data: { id: "123", height: 444 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
-            
+
             expect(blockchain.getLastBlock()).toEqual(mockBlock);
             expect(stateStore.getLastBlock).toHaveBeenCalledTimes(1);
-        })
+        });
     });
 
     describe("getLastHeight", () => {
         it("should return the last height using getLastBlock", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-            const mockBlock = { data: { id: "123", height: 444 }};
+            const mockBlock = { data: { id: "123", height: 444 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
             const spyGetLastBlock = jest.spyOn(blockchain, "getLastBlock");
-            
+
             expect(blockchain.getLastHeight()).toEqual(mockBlock.data.height);
             expect(spyGetLastBlock).toHaveBeenCalledTimes(1);
-        })
+        });
     });
 
     describe("getLastDownloadedBlock", () => {
         it("should return state.lastDownloadedBlock if it is defined", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-            const mockBlock = { data: { id: "123", height: 444 }};
+            const mockBlock = { data: { id: "123", height: 444 } };
             stateStore.lastDownloadedBlock = mockBlock.data;
-            
+
             expect(blockchain.getLastDownloadedBlock()).toEqual(mockBlock.data);
-        })
+        });
 
         it("should return getLastBlock().data if state.lastDownloadedBlock is undefined", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             stateStore.lastDownloadedBlock = undefined;
-            const mockBlock = { data: { id: "123", height: 444 }};
+            const mockBlock = { data: { id: "123", height: 444 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
             const spyGetLastBlock = jest.spyOn(blockchain, "getLastBlock");
-            
+
             expect(blockchain.getLastDownloadedBlock()).toEqual(mockBlock.data);
             expect(spyGetLastBlock).toHaveBeenCalledTimes(1);
-        })
+        });
     });
 
     describe("getBlockPing", () => {
-        const mockBlock = { data: { id: "123", height: 444 }};
+        const mockBlock = { data: { id: "123", height: 444 } };
 
-        it.each([[undefined], [ { block: mockBlock, count: 3 } ]])(
+        it.each([[undefined], [{ block: mockBlock, count: 3 }]])(
             "should return the value of state.blockPing",
             (blockPing) => {
-                const blockchain = container.resolve<Blockchain>(Blockchain);
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
                 stateStore.blockPing = blockPing;
-                
+
                 expect(blockchain.getBlockPing()).toEqual(blockPing);
-            }
-        )
+            },
+        );
     });
 
     describe("pingBlock", () => {
         it("should call state.pingBlock", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
-            
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+
             const incomingBlock = { id: "123", height: 444 };
             blockchain.pingBlock(incomingBlock as Interfaces.IBlockData);
 
             expect(stateStore.pingBlock).toBeCalledTimes(1);
             expect(stateStore.pingBlock).toHaveBeenLastCalledWith(incomingBlock);
-        })
+        });
     });
 
     describe("pushPingBlock", () => {
         it("should call state.pushPingBlock", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
-            
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+
             const incomingBlock = { id: "123", height: 444 };
             const fromForger = true;
             blockchain.pushPingBlock(incomingBlock as Interfaces.IBlockData, fromForger);
 
             expect(stateStore.pushPingBlock).toBeCalledTimes(1);
             expect(stateStore.pushPingBlock).toHaveBeenLastCalledWith(incomingBlock, fromForger);
-        })
+        });
 
         it("should call state.pushPingBlock with fromForger=false if not specified", () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
-            
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+
             const incomingBlock = { id: "123", height: 444 };
             blockchain.pushPingBlock(incomingBlock as Interfaces.IBlockData);
 
             expect(stateStore.pushPingBlock).toBeCalledTimes(1);
             expect(stateStore.pushPingBlock).toHaveBeenLastCalledWith(incomingBlock, false);
-        })
+        });
     });
-
 
     describe("checkMissingBlocks", () => {
         const threshold = Managers.configManager.getMilestone().activeDelegates / 3 - 1;
 
         it("when missedBlocks passes the threshold and Math.random()<=0.8, should checkNetworkHealth", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             jest.spyOn(Math, "random").mockReturnValue(0.7);
 
             peerNetworkMonitor.checkNetworkHealth = jest.fn().mockReturnValue({});
@@ -878,7 +877,7 @@ describe("Blockchain", () => {
         });
 
         it("when missedBlocks passes the threshold and Math.random()<=0.8, should checkNetworkHealth and dispatch FORK if forked", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             jest.spyOn(Math, "random").mockReturnValue(0.7);
 
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
@@ -897,7 +896,7 @@ describe("Blockchain", () => {
         });
 
         it("when missedBlocks passes the threshold and Math.random()>0.8, should do nothing", async () => {
-            const blockchain = container.resolve<Blockchain>(Blockchain);
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             jest.spyOn(Math, "random").mockReturnValue(0.9);
 
             peerNetworkMonitor.checkNetworkHealth = jest.fn().mockReturnValue({});

@@ -33,7 +33,7 @@ export class Console {
     /**
      * @memberof Console
      */
-    public constructor() {
+    public constructor(private useDefaultFlags = true) {
         this.app = this.createApplication();
     }
 
@@ -94,7 +94,7 @@ export class Console {
      */
     private reset(): void {
         this.args = [];
-        this.flags = { token: "ark", network: "testnet" };
+        this.flags = this.useDefaultFlags ? { token: "ark", network: "testnet" } : {};
     }
 
     /**
@@ -105,7 +105,7 @@ export class Console {
     private createApplication(): Application {
         const app = ApplicationFactory.make(new Container.Container(), this.pkg);
 
-        this.flags = { token: "ark", network: "testnet" };
+        this.flags = this.useDefaultFlags ? { token: "ark", network: "testnet" } : {};
 
         return app;
     }

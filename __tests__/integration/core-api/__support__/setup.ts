@@ -12,6 +12,16 @@ export const setUp = async () => {
     process.env.DISABLE_P2P_SERVER = "true"; // no need for p2p socket server to run
     process.env.CORE_RESET_DATABASE = "1";
 
+    sandbox.withCoreOptions({
+        flags: {
+            token: "ark",
+            network: "unitnet",
+            env: "test",
+        },
+        peers: {
+            list: [{ ip: "127.0.0.1", port: 4000 }], // need some peers defined for the app to run
+        },
+    });
     await sandbox
         .withCoreOptions({
             app: {
@@ -119,7 +129,7 @@ export const calculateRanks = async () => {
             .comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
     );
 
-    AppUtils.sortBy(delegateWallets, wallet => wallet.publicKey).forEach((delegate, i) => {
+    AppUtils.sortBy(delegateWallets, (wallet) => wallet.publicKey).forEach((delegate, i) => {
         const wallet = walletRepository.findByPublicKey(delegate.publicKey!);
         wallet.setAttribute("delegate.rank", i + 1);
 

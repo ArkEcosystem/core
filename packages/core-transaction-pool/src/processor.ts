@@ -26,7 +26,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     public async process(data: Interfaces.ITransactionData[]): Promise<void> {
         const broadcastableTransactions: Interfaces.ITransaction[] = [];
-        const transactions = data.map(d => Transactions.TransactionFactory.fromData(d));
+        const transactions = data.map((d) => Transactions.TransactionFactory.fromData(d));
 
         try {
             for (const transaction of transactions) {

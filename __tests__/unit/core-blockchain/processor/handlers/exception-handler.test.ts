@@ -37,13 +37,13 @@ describe("ExceptionHandler", () => {
             expect(result).toBe(BlockProcessorResult.Rejected);
 
             expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
-        })
+        });
 
         it("should call AcceptHandler when block not already forged", async () => {
             const exceptionHandler = container.resolve<ExceptionHandler>(ExceptionHandler);
 
             const mockAcceptHandler = {
-                execute: () => BlockProcessorResult.Accepted
+                execute: () => BlockProcessorResult.Accepted,
             };
             application.resolve = jest.fn().mockReturnValue(mockAcceptHandler);
 
@@ -53,6 +53,6 @@ describe("ExceptionHandler", () => {
 
             expect(application.resolve).toBeCalledTimes(1);
             expect(application.resolve).toBeCalledWith(AcceptBlockHandler);
-        })
-    })
-})
+        });
+    });
+});

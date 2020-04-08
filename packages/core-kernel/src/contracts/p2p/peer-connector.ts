@@ -6,7 +6,7 @@ import { Peer } from "./peer";
 export interface PeerConnector {
     all(): SCClientSocket[];
 
-    connection(peer: Peer): SCClientSocket;
+    connection(peer: Peer): SCClientSocket | undefined;
 
     connect(peer: Peer, maxPayload?: number): SCClientSocket;
 

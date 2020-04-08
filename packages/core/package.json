@@ -58,7 +58,7 @@
         "bip39": "^3.0.2",
         "bytebuffer": "^5.0.1",
         "env-paths": "^2.2.0",
-        "envfile": "^4.4.0",
+        "envfile": "^5.0.0",
         "execa": "^3.4.0",
         "fs-extra": "^8.1.0",
         "ngrok": "^3.2.5",
@@ -69,7 +69,7 @@
         "read-last-lines": "^1.7.1",
         "simple-git": "^1.126.0",
         "tar": "^6.0.0",
-        "type-fest": "^0.12.0",
+        "type-fest": "^0.13.0",
         "wif": "^2.0.6"
     },
     "engines": {

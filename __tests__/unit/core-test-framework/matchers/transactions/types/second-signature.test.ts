@@ -1,4 +1,4 @@
-import "@packages/core-test-framework/src/matchers/transactions/types/second-signature"
+import "@packages/core-test-framework/src/matchers/transactions/types/second-signature";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Interfaces } from "@packages/crypto";
 
@@ -12,7 +12,6 @@ beforeEach(() => {
 
 describe("Second Signature", () => {
     describe("toBeSecondSignatureType", () => {
-
         it("should be second signature type", async () => {
             const transaction: Interfaces.ITransaction = factory.get("SecondSignature").make();
 

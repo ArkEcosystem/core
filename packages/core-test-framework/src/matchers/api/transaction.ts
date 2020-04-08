@@ -27,7 +27,7 @@ expect.extend({
             "asset",
             "confirmations",
         ]);
-        const actualKeys = Object.keys(actual).filter(key => allowedKeys.includes(key));
+        const actualKeys = Object.keys(actual).filter((key) => allowedKeys.includes(key));
 
         return {
             message: /* istanbul ignore next */ () => `Expected ${JSON.stringify(actual)} to be a valid transaction`,

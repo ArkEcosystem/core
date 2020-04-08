@@ -1,6 +1,6 @@
+import { Services } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Identities } from "@arkecosystem/crypto";
-import { Services } from "@arkecosystem/core-kernel";
 import { generateMnemonic } from "bip39";
 
 import { getWalletAttributeSet } from "../../internal/wallet-attributes";

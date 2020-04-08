@@ -91,7 +91,7 @@ export class Process {
 
         this.app
             .get<Table>(Identifiers.Table)
-            .render(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], table => {
+            .render(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], (table) => {
                 const app: ProcessDescription | undefined = this.processManager.describe(this.processName);
 
                 Utils.assert.defined<ProcessDescription>(app);

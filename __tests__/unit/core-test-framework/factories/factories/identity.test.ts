@@ -37,10 +37,7 @@ describe("IdentityFactory", () => {
     });
 
     it("should make an identity with a second passphrase", () => {
-        const entity: Identity = factory
-            .get("Identity")
-            .withStates("secondPassphrase")
-            .make<Identity>();
+        const entity: Identity = factory.get("Identity").withStates("secondPassphrase").make<Identity>();
 
         expect(entity).toContainAllKeys([
             "keys",

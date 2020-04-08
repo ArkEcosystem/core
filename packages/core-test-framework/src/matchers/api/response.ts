@@ -33,7 +33,7 @@ expect.extend({
                 })} to be a paginated response`,
             pass:
                 actual.data.meta &&
-                ["pageCount", "totalCount", "next", "previous", "self", "first", "last"].every(property =>
+                ["pageCount", "totalCount", "next", "previous", "self", "first", "last"].every((property) =>
                     Object.keys(actual.data.meta).includes(property),
                 ),
         };

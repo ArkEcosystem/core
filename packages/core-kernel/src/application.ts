@@ -40,9 +40,7 @@ export class Application implements Contracts.Kernel.Application {
 
         this.bind<Contracts.Kernel.Application>(Identifiers.Application).toConstantValue(this);
 
-        this.bind<ConfigRepository>(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
+        this.bind<ConfigRepository>(Identifiers.ConfigRepository).to(ConfigRepository).inSingletonScope();
 
         this.bind<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
             .to(ServiceProviderRepository)

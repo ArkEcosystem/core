@@ -17,18 +17,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async register(): Promise<void> {
         // Setup Database...
-        this.app
-            .bind<Database>(Identifiers.Database)
-            .to(Database)
-            .inSingletonScope();
+        this.app.bind<Database>(Identifiers.Database).to(Database).inSingletonScope();
 
         this.app.get<Database>(Identifiers.Database).boot();
 
         // Setup Server...
-        this.app
-            .bind(Identifiers.Server)
-            .to(Server)
-            .inSingletonScope();
+        this.app.bind(Identifiers.Server).to(Server).inSingletonScope();
 
         this.app.get<Server>(Identifiers.Server).register(this.config().get<Types.JsonObject>("server")!);
 

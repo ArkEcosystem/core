@@ -31,7 +31,6 @@ afterEach(() => {
     jest.resetAllMocks();
 });
 
-
 describe("TransactionFactory", () => {
     describe("transfer", () => {
         it("should return transaction factory", async () => {
@@ -129,7 +128,11 @@ describe("TransactionFactory", () => {
 
     describe("htlcLock", () => {
         it("should return transaction factory", async () => {
-            let entity = transactionFactory.htlcLock(htlcLockAsset, Identities.Address.fromPassphrase(passphrases[0]), 5);
+            let entity = transactionFactory.htlcLock(
+                htlcLockAsset,
+                Identities.Address.fromPassphrase(passphrases[0]),
+                5,
+            );
 
             expect(entity).toBeInstanceOf(TransactionFactory);
         });
@@ -203,7 +206,9 @@ describe("TransactionFactory", () => {
 
     describe("bridgechainResignation", () => {
         it("should return transaction factory", async () => {
-            let entity = transactionFactory.bridgechainResignation("127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935");
+            let entity = transactionFactory.bridgechainResignation(
+                "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+            );
 
             expect(entity).toBeInstanceOf(TransactionFactory);
         });
@@ -259,7 +264,9 @@ describe("TransactionFactory", () => {
 
     describe("withSenderPublicKey", () => {
         it("should return transaction factory", async () => {
-            let entity = transactionFactory.transfer().withSenderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]));
+            let entity = transactionFactory
+                .transfer()
+                .withSenderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]));
 
             expect(entity).toBeInstanceOf(TransactionFactory);
         });
@@ -347,7 +354,7 @@ describe("TransactionFactory", () => {
                 expect(transaction.amount).toBeDefined();
                 expect(transaction.recipientId).toBeDefined();
                 expect(transaction.vendorField).toBeDefined();
-            })
+            });
         });
 
         it("should return transactions - with default parameters", async () => {
@@ -367,7 +374,7 @@ describe("TransactionFactory", () => {
                 expect(transaction.amount).toBeDefined();
                 expect(transaction.recipientId).toBeDefined();
                 expect(transaction.vendorField).toBeDefined();
-            })
+            });
         });
     });
 
@@ -406,7 +413,7 @@ describe("TransactionFactory", () => {
                 expect(item.data.amount).toBeDefined();
                 expect(item.data.recipientId).toBeDefined();
                 expect(item.data.vendorField).toBeDefined();
-            })
+            });
         });
 
         it("should return transactions - with default parameters", async () => {
@@ -426,7 +433,7 @@ describe("TransactionFactory", () => {
                 expect(item.data.amount).toBeDefined();
                 expect(item.data.recipientId).toBeDefined();
                 expect(item.data.vendorField).toBeDefined();
-            })
+            });
         });
 
         it("should return transactions - with passphrase pairs", async () => {
@@ -446,12 +453,12 @@ describe("TransactionFactory", () => {
                 expect(item.data.amount).toBeDefined();
                 expect(item.data.recipientId).toBeDefined();
                 expect(item.data.vendorField).toBeDefined();
-            })
+            });
         });
 
         it("should return transactions - without network config", async () => {
-
-            let entity = transactionFactory.transfer()
+            let entity = transactionFactory
+                .transfer()
                 .withVersion(2)
                 .withNetworkConfig(Generators.generateCryptoConfigRaw())
                 .build();
@@ -470,11 +477,12 @@ describe("TransactionFactory", () => {
                 expect(item.data.amount).toBeDefined();
                 expect(item.data.recipientId).toBeDefined();
                 expect(item.data.vendorField).toBeDefined();
-            })
+            });
         });
 
         it("should return transactions - with parameters", async () => {
-            let entity = transactionFactory.transfer()
+            let entity = transactionFactory
+                .transfer()
                 .withVersion(2)
                 .withFee(5)
                 .withTimestamp(5)
@@ -495,13 +503,11 @@ describe("TransactionFactory", () => {
                 expect(item.data.amount).toBeDefined();
                 expect(item.data.recipientId).toBeDefined();
                 expect(item.data.vendorField).toBeDefined();
-            })
+            });
         });
 
         it("should return transactions - delegate registration", async () => {
-            let entity = transactionFactory.delegateRegistration()
-                .withVersion(2)
-                .build();
+            let entity = transactionFactory.delegateRegistration().withVersion(2).build();
 
             expect(entity).toBeArray();
             expect(entity.length).toBeGreaterThan(0);
@@ -515,7 +521,7 @@ describe("TransactionFactory", () => {
                 expect(item.data.senderPublicKey).toBeDefined();
                 expect(item.data.nonce).toBeDefined();
                 expect(item.data.amount).toBeDefined();
-            })
+            });
         });
 
         it("should return transactions - multi signature", async () => {
@@ -538,7 +544,7 @@ describe("TransactionFactory", () => {
                 expect(item.data.nonce).toBeDefined();
                 expect(item.data.amount).toBeDefined();
                 expect(item.data.signatures).toBeArray();
-            })
+            });
         });
 
         it("should return transactions - with aip11 and verision", async () => {
@@ -560,7 +566,7 @@ describe("TransactionFactory", () => {
                 expect(item.data.senderPublicKey).toBeDefined();
                 expect(item.data.nonce).toBeUndefined();
                 expect(item.data.amount).toBeDefined();
-            })
+            });
         });
     });
 });

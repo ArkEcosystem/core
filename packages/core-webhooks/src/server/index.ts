@@ -167,9 +167,9 @@ export class Server {
         this.server.route({
             method: "GET",
             path: "/api/webhooks",
-            handler: request => {
+            handler: (request) => {
                 return {
-                    data: request.server.app.database.all().map(webhook => {
+                    data: request.server.app.database.all().map((webhook) => {
                         webhook = { ...webhook };
                         delete webhook.token;
                         return webhook;

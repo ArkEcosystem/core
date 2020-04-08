@@ -64,6 +64,6 @@ export class PeerStorage implements Contracts.P2P.PeerStorage {
     }
 
     public getSameSubnetPeers(ip: string): Contracts.P2P.Peer[] {
-        return this.getPeers().filter(peer => cidr(`${peer.ip}/24`) === cidr(`${ip}/24`));
+        return this.getPeers().filter((peer) => cidr(`${peer.ip}/24`) === cidr(`${ip}/24`));
     }
 }

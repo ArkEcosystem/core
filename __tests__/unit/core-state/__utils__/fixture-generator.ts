@@ -10,11 +10,11 @@ export class FixtureGenerator {
     private genesisSenders;
 
     public constructor(private genesisBlock, private attributeSet: Services.Attributes.AttributeSet) {
-        this.genesisSenders = unique(compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)));
+        this.genesisSenders = unique(compact(genesisBlock.transactions.map((tx) => tx.senderPublicKey)));
     }
 
     public generateFullWallets(): Wallet[] {
-        return this.genesisSenders.map(senderPublicKey => {
+        return this.genesisSenders.map((senderPublicKey) => {
             const address = Identities.Address.fromPublicKey(senderPublicKey);
             const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
             wallet.publicKey = `${address}`;
@@ -35,7 +35,7 @@ export class FixtureGenerator {
 
     public generateHtlcLocks(): Wallet[] {
         return this.genesisBlock.transactions
-            .filter(transaction => transaction.recipientId)
+            .filter((transaction) => transaction.recipientId)
             .map((transaction, i) => {
                 const address = Identities.Address.fromPublicKey(transaction.senderPublicKey);
                 const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
@@ -106,7 +106,7 @@ export class FixtureGenerator {
     }
 
     public generateVotes(): Wallet[] {
-        return this.genesisSenders.map(senderPublicKey => {
+        return this.genesisSenders.map((senderPublicKey) => {
             const address = Identities.Address.fromPublicKey(senderPublicKey);
             const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
             wallet.setAttribute("vote", wallet.publicKey);

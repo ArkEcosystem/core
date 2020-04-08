@@ -489,12 +489,8 @@ describe("Application", () => {
     });
 
     it("should get tagged value from the IoC container", () => {
-        app.bind("animal")
-            .toConstantValue("bear")
-            .whenTargetTagged("order", "carnivora");
-        app.bind("animal")
-            .toConstantValue("dolphin")
-            .whenTargetTagged("order", "cetacea");
+        app.bind("animal").toConstantValue("bear").whenTargetTagged("order", "carnivora");
+        app.bind("animal").toConstantValue("dolphin").whenTargetTagged("order", "cetacea");
 
         expect(() => app.get("animal")).toThrow();
         expect(app.getTagged("animal", "order", "carnivora")).toBe("bear");

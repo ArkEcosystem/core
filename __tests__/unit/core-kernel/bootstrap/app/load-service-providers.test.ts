@@ -19,9 +19,7 @@ let serviceProviderRepository: ServiceProviderRepository;
 beforeEach(() => {
     app = new Application(new Container());
 
-    app.bind(Identifiers.EventDispatcherService)
-        .to(MemoryEventDispatcher)
-        .inSingletonScope();
+    app.bind(Identifiers.EventDispatcherService).to(MemoryEventDispatcher).inSingletonScope();
 
     configRepository = app.get<ConfigRepository>(Identifiers.ConfigRepository);
     serviceProviderRepository = app.get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository);

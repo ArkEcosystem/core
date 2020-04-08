@@ -111,10 +111,7 @@ describe("Pipeline", () => {
             const removeDash = async (payload: string) => payload.replace("_", "");
             const removeUnderscore = async (payload: string) => payload.replace("-", " ");
 
-            const actual: string = await pipeline
-                .pipe(removeDash)
-                .pipe(removeUnderscore)
-                .process("_Hello-World");
+            const actual: string = await pipeline.pipe(removeDash).pipe(removeUnderscore).process("_Hello-World");
 
             expect(actual).toBe("Hello World");
         });
@@ -123,10 +120,7 @@ describe("Pipeline", () => {
             const removeDash = (payload: string) => payload.replace("_", "");
             const removeUnderscore = (payload: string) => payload.replace("-", " ");
 
-            const actual: string = pipeline
-                .pipe(removeDash)
-                .pipe(removeUnderscore)
-                .processSync("_Hello-World");
+            const actual: string = pipeline.pipe(removeDash).pipe(removeUnderscore).processSync("_Hello-World");
 
             expect(actual).toBe("Hello World");
         });
