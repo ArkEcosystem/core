@@ -7,7 +7,7 @@ interface SlotInfo {
     startTime: number;
     endTime: number;
     blockTime: number;
-    slotNumber: number;
+    slotNumber: number | undefined;
     forgingStatus: boolean;
 }
 
@@ -30,16 +30,17 @@ export class Slots {
     }
 
     public static getSlotNumber(timestamp?: number, height?: number): number {
-        return this.getSlotInfo(timestamp, height).slotNumber;
+        return this.getSlotInfo(timestamp, height).slotNumber as number;
     }
 
     public static getSlotInfo(timestamp?: number, height?: number): SlotInfo {
         if (timestamp === undefined) {
             timestamp = this.getTime();
         }
+
         const lastKnownHeight = this.getLatestHeight(height);
 
-        return this.calculateSlotInfo(timestamp, lastKnownHeight, !!height);
+        return this.calculateSlotInfo(timestamp, lastKnownHeight, !!height, true);
     }
 
     public static getSlotTime(slot: number): number {
@@ -90,7 +91,7 @@ export class Slots {
             blockTime,
             startTime: 0,
             endTime: blockTime - 1,
-            slotNumber: 0, // See TODO: above
+            slotNumber: undefined,
             forgingStatus: false,
         };
 

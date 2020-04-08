@@ -17,6 +17,8 @@ const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
 beforeEach(() => configManager.setFromPreset("devnet"));
 
+afterEach(() => jest.resetAllMocks());
+
 describe("Block", () => {
     const data = {
         id: "187940162505562345",
@@ -139,6 +141,7 @@ describe("Block", () => {
                 },
                 reward: 200000000,
                 vendorFieldLength: 64,
+                epoch: "2017-03-21T13:00:00.000Z",
             }));
             let block = BlockFactory.fromData(dummyBlock);
 
@@ -153,6 +156,7 @@ describe("Block", () => {
                 },
                 reward: 200000000,
                 vendorFieldLength: 64,
+                epoch: "2017-03-21T13:00:00.000Z",
             }));
             block = BlockFactory.fromData(dummyBlock);
 
