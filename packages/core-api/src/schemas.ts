@@ -8,18 +8,9 @@ type SchemaSettings = {
 
 export const createSchemas = (settings: SchemaSettings) => {
     const pagination = {
-        page: Joi.number()
-            .integer()
-            .positive()
-            .default(1),
-        offset: Joi.number()
-            .integer()
-            .min(0),
-        limit: Joi.number()
-            .integer()
-            .min(1)
-            .default(100)
-            .max(settings.pagination.limit),
+        page: Joi.number().integer().positive().default(1),
+        offset: Joi.number().integer().min(0),
+        limit: Joi.number().integer().min(1).default(100).max(settings.pagination.limit),
     };
 
     const blockId = Joi.alternatives().try(
@@ -27,14 +18,10 @@ export const createSchemas = (settings: SchemaSettings) => {
             .min(1)
             .max(20)
             .regex(/^[0-9]+$/, "decimal non-negative integer"),
-        Joi.string()
-            .length(64)
-            .hex(),
+        Joi.string().length(64).hex(),
     );
 
-    const address = Joi.string()
-        .alphanum()
-        .length(34);
+    const address = Joi.string().alphanum().length(34);
 
     const delegateIdentifier = Joi.string()
         .regex(/^[a-zA-Z0-9!@$&_.]+$/)
@@ -47,36 +34,20 @@ export const createSchemas = (settings: SchemaSettings) => {
         .max(20);
 
     const integerBetween = Joi.object().keys({
-        from: Joi.number()
-            .integer()
-            .min(0),
-        to: Joi.number()
-            .integer()
-            .min(0),
+        from: Joi.number().integer().min(0),
+        to: Joi.number().integer().min(0),
     });
 
     const percentage = Joi.object().keys({
-        from: Joi.number()
-            .precision(2)
-            .min(0)
-            .max(100),
-        to: Joi.number()
-            .precision(2)
-            .min(0)
-            .max(100),
+        from: Joi.number().precision(2).min(0).max(100),
+        to: Joi.number().precision(2).min(0).max(100),
     });
 
     const numberFixedOrBetween = Joi.alternatives().try(
-        Joi.number()
-            .integer()
-            .min(0),
+        Joi.number().integer().min(0),
         Joi.object().keys({
-            from: Joi.number()
-                .integer()
-                .min(0),
-            to: Joi.number()
-                .integer()
-                .min(0),
+            from: Joi.number().integer().min(0),
+            to: Joi.number().integer().min(0),
         }),
     );
 
@@ -85,12 +56,8 @@ export const createSchemas = (settings: SchemaSettings) => {
             .regex(/^[a-z0-9!@$&_.]+$/)
             .min(1)
             .max(20),
-        Joi.string()
-            .alphanum()
-            .length(34),
-        Joi.string()
-            .hex()
-            .length(66),
+        Joi.string().alphanum().length(34),
+        Joi.string().hex().length(66),
     );
 
     const orderBy = Joi.string().regex(
@@ -140,9 +107,7 @@ export const createSchemas = (settings: SchemaSettings) => {
 ({
     searchCriteria: (field: string, value: any, operator: string[]) =>
         Joi.object().keys({
-            field: Joi.string()
-                .allow(field)
-                .required(),
+            field: Joi.string().allow(field).required(),
             value: value.required(),
             operator: Joi.string()
                 .allow(...operator)

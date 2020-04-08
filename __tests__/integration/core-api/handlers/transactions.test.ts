@@ -9,7 +9,7 @@ import { generateMnemonic } from "bip39";
 
 import { setUp, tearDown } from "../__support__/setup";
 
-const generateWallets = quantity => {
+const generateWallets = (quantity) => {
     const wallets: { address: string; passphrase: string; publicKey: string }[] = [];
 
     for (let i = 0; i < quantity; i++) {
@@ -55,13 +55,13 @@ beforeAll(async () => {
     app = await setUp();
     api = new ApiHelpers(app);
 
-    delegates = secrets.map(secret => {
+    delegates = secrets.map((secret) => {
         const publicKey: string = Identities.PublicKey.fromPassphrase(secret);
         const address: string = Identities.Address.fromPassphrase(secret);
 
         const transaction: { amount: string } = Managers.configManager
             .get("genesisBlock")
-            .transactions.find(transaction => transaction.recipientId === address && transaction.type === 0);
+            .transactions.find((transaction) => transaction.recipientId === address && transaction.type === 0);
 
         return {
             secret,
@@ -531,7 +531,7 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data.invalid[0]).toBe(transactions[1].id);
         });
 
-        it.each([3, 5, 8])("should accept and broadcast %i transactions emptying a wallet", async txNumber => {
+        it.each([3, 5, 8])("should accept and broadcast %i transactions emptying a wallet", async (txNumber) => {
             const sender = delegates[txNumber]; // use txNumber so that we use a different delegate for each test case
             const receivers = generateWallets(2);
             const amountPlusFee = Math.floor(+sender.balance / txNumber);
@@ -556,16 +556,18 @@ describe("API 2.0 - Transactions", () => {
 
             expect(response).toBeSuccessfulResponse();
 
-            expect(response.data.data.accept.sort()).toEqual(allTransactions.map(transaction => transaction.id).sort());
+            expect(response.data.data.accept.sort()).toEqual(
+                allTransactions.map((transaction) => transaction.id).sort(),
+            );
             expect(response.data.data.broadcast.sort()).toEqual(
-                allTransactions.map(transaction => transaction.id).sort(),
+                allTransactions.map((transaction) => transaction.id).sort(),
             );
             expect(response.data.data.invalid).toHaveLength(0);
         });
 
         it.each([3, 5, 8])(
             "should not accept the last of %i transactions emptying a wallet when the last one is 1 satoshi too much",
-            async txNumber => {
+            async (txNumber) => {
                 const sender = delegates[txNumber + 1]; // use txNumber + 1 so that we don't use the same delegates as the above test
                 const receivers = generateWallets(2);
                 const amountPlusFee = Math.floor(+sender.balance / txNumber);
@@ -595,12 +597,12 @@ describe("API 2.0 - Transactions", () => {
                 expect(response).toBeSuccessfulResponse();
 
                 expect(response.data.data.accept.sort()).toEqual(
-                    transactions.map(transaction => transaction.id).sort(),
+                    transactions.map((transaction) => transaction.id).sort(),
                 );
                 expect(response.data.data.broadcast.sort()).toEqual(
-                    transactions.map(transaction => transaction.id).sort(),
+                    transactions.map((transaction) => transaction.id).sort(),
                 );
-                expect(response.data.data.invalid).toEqual(lastTransaction.map(transaction => transaction.id));
+                expect(response.data.data.invalid).toEqual(lastTransaction.map((transaction) => transaction.id));
             },
         );
     });

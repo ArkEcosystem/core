@@ -18,40 +18,18 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
-                        id: Joi.string()
-                            .hex()
-                            .length(64),
+                        id: Joi.string().hex().length(64),
                         blockId: server.app.schemas.blockId,
-                        type: Joi.number()
-                            .integer()
-                            .min(0),
-                        typeGroup: Joi.number()
-                            .integer()
-                            .min(0),
-                        version: Joi.number()
-                            .integer()
-                            .positive(),
-                        senderPublicKey: Joi.string()
-                            .hex()
-                            .length(66),
-                        senderId: Joi.string()
-                            .alphanum()
-                            .length(34),
-                        recipientId: Joi.string()
-                            .alphanum()
-                            .length(34),
-                        timestamp: Joi.number()
-                            .integer()
-                            .min(0),
-                        nonce: Joi.number()
-                            .integer()
-                            .min(0),
-                        amount: Joi.number()
-                            .integer()
-                            .min(0),
-                        fee: Joi.number()
-                            .integer()
-                            .min(0),
+                        type: Joi.number().integer().min(0),
+                        typeGroup: Joi.number().integer().min(0),
+                        version: Joi.number().integer().positive(),
+                        senderPublicKey: Joi.string().hex().length(66),
+                        senderId: Joi.string().alphanum().length(34),
+                        recipientId: Joi.string().alphanum().length(34),
+                        timestamp: Joi.number().integer().min(0),
+                        nonce: Joi.number().integer().min(0),
+                        amount: Joi.number().integer().min(0),
+                        fee: Joi.number().integer().min(0),
                         vendorField: Joi.string().max(255, "utf8"),
                         transform: Joi.bool().default(true),
                     },
@@ -97,9 +75,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: Joi.string()
-                        .hex()
-                        .length(64),
+                    id: Joi.string().hex().length(64),
                 }),
                 query: Joi.object({
                     transform: Joi.bool().default(true),
@@ -131,9 +107,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: Joi.string()
-                        .hex()
-                        .length(64),
+                    id: Joi.string().hex().length(64),
                 }),
             },
         },
@@ -154,59 +128,19 @@ export const register = (server: Hapi.Server): void => {
                 }),
                 payload: Joi.object({
                     senderId: server.app.schemas.orEqualCriteria(server.app.schemas.address),
-                    id: server.app.schemas.orEqualCriteria(
-                        Joi.string()
-                            .hex()
-                            .length(64),
-                    ),
-                    version: server.app.schemas.orEqualCriteria(
-                        Joi.number()
-                            .integer()
-                            .positive(),
-                    ),
+                    id: server.app.schemas.orEqualCriteria(Joi.string().hex().length(64)),
+                    version: server.app.schemas.orEqualCriteria(Joi.number().integer().positive()),
                     blockId: server.app.schemas.orEqualCriteria(server.app.schemas.blockId),
-                    sequence: server.app.schemas.orNumericCriteria(
-                        Joi.number()
-                            .integer()
-                            .positive(),
-                    ),
-                    timestamp: server.app.schemas.orNumericCriteria(
-                        Joi.number()
-                            .integer()
-                            .min(0),
-                    ),
-                    nonce: server.app.schemas.orNumericCriteria(
-                        Joi.number()
-                            .integer()
-                            .positive(),
-                    ),
-                    senderPublicKey: server.app.schemas.orEqualCriteria(
-                        Joi.string()
-                            .hex()
-                            .length(66),
-                    ),
+                    sequence: server.app.schemas.orNumericCriteria(Joi.number().integer().positive()),
+                    timestamp: server.app.schemas.orNumericCriteria(Joi.number().integer().min(0)),
+                    nonce: server.app.schemas.orNumericCriteria(Joi.number().integer().positive()),
+                    senderPublicKey: server.app.schemas.orEqualCriteria(Joi.string().hex().length(66)),
                     recipientId: server.app.schemas.orEqualCriteria(server.app.schemas.address),
-                    type: server.app.schemas.orEqualCriteria(
-                        Joi.number()
-                            .integer()
-                            .min(0),
-                    ),
-                    typeGroup: server.app.schemas.orEqualCriteria(
-                        Joi.number()
-                            .integer()
-                            .min(0),
-                    ),
+                    type: server.app.schemas.orEqualCriteria(Joi.number().integer().min(0)),
+                    typeGroup: server.app.schemas.orEqualCriteria(Joi.number().integer().min(0)),
                     vendorField: server.app.schemas.orLikeCriteria(Joi.string().max(255, "utf8")),
-                    amount: server.app.schemas.orNumericCriteria(
-                        Joi.number()
-                            .integer()
-                            .min(0),
-                    ),
-                    fee: server.app.schemas.orNumericCriteria(
-                        Joi.number()
-                            .integer()
-                            .min(0),
-                    ),
+                    amount: server.app.schemas.orNumericCriteria(Joi.number().integer().min(0)),
+                    fee: server.app.schemas.orNumericCriteria(Joi.number().integer().min(0)),
                     asset: server.app.schemas.orContainsCriteria(Joi.object()),
                 }),
             },

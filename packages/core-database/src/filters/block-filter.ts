@@ -15,7 +15,7 @@ export class BlockFilter implements Contracts.Database.BlockFilter {
     private async handleBlockCriteria(
         criteria: Contracts.Database.BlockCriteria,
     ): Promise<Contracts.Database.Expression<Block>> {
-        return this.handler.handleAndCriteria(criteria, async key => {
+        return this.handler.handleAndCriteria(criteria, async (key) => {
             switch (key) {
                 case "id":
                     return this.handler.handleOrEqualCriteria("id", criteria.id!);

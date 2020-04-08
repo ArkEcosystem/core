@@ -14,18 +14,18 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     public async getExpression(
         criteria: Contracts.Database.OrTransactionCriteria,
     ): Promise<Contracts.Database.Expression<Transaction>> {
-        return this.handler.handleOrCriteria(criteria, c => this.handleTransactionCriteria(c));
+        return this.handler.handleOrCriteria(criteria, (c) => this.handleTransactionCriteria(c));
     }
 
     private async handleTransactionCriteria(
         criteria: Contracts.Database.TransactionCriteria,
     ): Promise<Contracts.Database.Expression<Transaction>> {
-        const expression = await this.handler.handleAndCriteria(criteria, async key => {
+        const expression = await this.handler.handleAndCriteria(criteria, async (key) => {
             switch (key) {
                 case "wallet":
-                    return this.handler.handleOrCriteria(criteria.wallet!, c => this.handleWalletCriteria(c));
+                    return this.handler.handleOrCriteria(criteria.wallet!, (c) => this.handleWalletCriteria(c));
                 case "senderId":
-                    return this.handler.handleOrCriteria(criteria.senderId!, c => this.handleSenderIdCriteria(c));
+                    return this.handler.handleOrCriteria(criteria.senderId!, (c) => this.handleSenderIdCriteria(c));
                 case "id":
                     return this.handler.handleOrEqualCriteria("id", criteria.id!);
                 case "version":
@@ -41,7 +41,9 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
                 case "senderPublicKey":
                     return this.handler.handleOrEqualCriteria("senderPublicKey", criteria.senderPublicKey!);
                 case "recipientId":
-                    return this.handler.handleOrCriteria(criteria.recipientId!, c => this.handleRecipientIdCriteria(c));
+                    return this.handler.handleOrCriteria(criteria.recipientId!, (c) =>
+                        this.handleRecipientIdCriteria(c),
+                    );
                 case "type":
                     return this.handler.handleOrEqualCriteria("type", criteria.type!);
                 case "typeGroup":

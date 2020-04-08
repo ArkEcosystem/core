@@ -73,11 +73,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     > {
         minFee = minFee || 0;
 
-        const age = Crypto.Slots.getTime(
-            dayjs()
-                .subtract(days, "day")
-                .valueOf(),
-        );
+        const age = Crypto.Slots.getTime(dayjs().subtract(days, "day").valueOf());
 
         return this.createQueryBuilder()
             .select(['type_group AS "typeGroup"', "type"])
@@ -138,7 +134,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
             .take(limit)
             .getRawMany();
 
-        return transactions.map(transaction => {
+        return transactions.map((transaction) => {
             return this.rawToEntity(
                 transaction,
                 // @ts-ignore
@@ -205,7 +201,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
 
         return this.createQueryBuilder()
             .select()
-            .addSelect(subQuery => {
+            .addSelect((subQuery) => {
                 return subQuery
                     .select([])
                     .select("id")
@@ -219,10 +215,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     }
 
     public async getClaimedHtlcLockBalances(): Promise<{ amount: string; recipientId: string }[]> {
-        const lockedIds = this.createQueryBuilder()
-            .select("id")
-            .where("type = 9")
-            .andWhere("type_group = 1");
+        const lockedIds = this.createQueryBuilder().select("id").where("type = 9").andWhere("type_group = 1");
 
         return this.createQueryBuilder()
             .select("recipient_id")
@@ -233,10 +226,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     }
 
     public async getRefundedHtlcLockBalances(): Promise<{ amount: string; senderPublicKey: string }[]> {
-        const lockedIds = this.createQueryBuilder()
-            .select("id")
-            .where("type = 10")
-            .andWhere("type_group = 1");
+        const lockedIds = this.createQueryBuilder().select("id").where("type = 10").andWhere("type_group = 1");
 
         return this.createQueryBuilder()
             .select("sender_public_key")

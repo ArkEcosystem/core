@@ -55,7 +55,7 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
             // Replace auto-generated column name with property name, if any.
             const columnName: string = key.replace(`${this.metadata.givenTableName}_`, "");
             const columnMetadata: ColumnMetadata | undefined = this.metadata.columns.find(
-                column => column.databaseName === columnName,
+                (column) => column.databaseName === columnName,
             );
             if (columnMetadata) {
                 let propertyValue: any;
@@ -146,14 +146,14 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
 
         if (expression instanceof Contracts.Database.AndExpression) {
             const built: SqlExpression[] = expression.expressions.map(this.buildSqlExpression.bind(this));
-            const query = `(${built.map(b => b.query).join(" AND ")})`;
+            const query = `(${built.map((b) => b.query).join(" AND ")})`;
             const parameters = built.reduce((acc, b) => Object.assign({}, acc, b.parameters), {});
             return new SqlExpression(query, parameters);
         }
 
         if (expression instanceof Contracts.Database.OrExpression) {
             const built: SqlExpression[] = expression.expressions.map(this.buildSqlExpression.bind(this));
-            const query = `(${built.map(b => b.query).join(" OR ")})`;
+            const query = `(${built.map((b) => b.query).join(" OR ")})`;
             const parameters = built.reduce((acc, b) => Object.assign({}, acc, b.parameters), {});
             return new SqlExpression(query, parameters);
         }
@@ -162,7 +162,7 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
     }
 
     private getColumn<TProperty extends keyof TModel>(property: TProperty): string {
-        const column = this.metadata.columns.find(c => c.propertyName === property);
+        const column = this.metadata.columns.find((c) => c.propertyName === property);
         if (!column) {
             throw new Error(`Can't find column for ${this.metadata.targetName}.${property}`);
         }

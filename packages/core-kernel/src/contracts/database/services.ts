@@ -27,7 +27,7 @@ export class SearchOrder<TModel> {
     }
 
     public static parse<TModel>(strItems: string): SearchOrder<TModel> {
-        const items = strItems.split(",").map(strItem => ({
+        const items = strItems.split(",").map((strItem) => ({
             property: strItem.split(":")[0],
             direction: (strItem.split(":")[1] || "asc").toUpperCase(),
         }));
