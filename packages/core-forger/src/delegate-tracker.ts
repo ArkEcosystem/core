@@ -1,6 +1,6 @@
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Crypto, Managers } from "@arkecosystem/crypto";
+import { Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 
 import { Delegate } from "./interfaces";
 
@@ -68,32 +68,37 @@ export class DelegateTracker {
     public async handle(): Promise<void> {
         // Arrange...
         const { height, timestamp } = this.blockchainService.getLastBlock().data;
-        const delegatesCount = Managers.configManager.getMilestone(height).activeDelegates;
-        const blockTime: number = Managers.configManager.getMilestone(height).blocktime;
+        const maxDelegates = Managers.configManager.getMilestone(height).activeDelegates;
+        const blockTime: number = CryptoUtils.calculateBlockTime(height);
         const round: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(height);
 
         const activeDelegates: (string | undefined)[] = (await this.databaseService.getActiveDelegates(round)).map(
             (delegate: Contracts.State.Wallet) => delegate.publicKey,
         );
 
+        const forgingInfo: Contracts.Shared.ForgingInfo = Utils.forgingInfoCalculator.calculateForgingInfo(
+            timestamp,
+            height,
+            round,
+        );
+
         // Determine Next Forgers...
         const nextForgers: string[] = [];
-        for (let i = 2; i <= delegatesCount; i++) {
-            const delegate: string | undefined =
-                activeDelegates[(Crypto.Slots.getSlotNumber(timestamp) + i) % delegatesCount];
+        for (let i = 0; i <= maxDelegates; i++) {
+            const delegate: string | undefined = activeDelegates[(forgingInfo.currentForger + i) % maxDelegates];
 
             if (delegate) {
                 nextForgers.push(delegate);
             }
         }
 
-        if (activeDelegates.length < delegatesCount) {
+        if (activeDelegates.length < maxDelegates) {
             return this.logger.warning(
                 `Tracker only has ${Utils.pluralize(
                     "active delegate",
                     activeDelegates.length,
                     true,
-                )} from a required ${delegatesCount}`,
+                )} from a required ${maxDelegates}`,
             );
         }
 
@@ -104,25 +109,24 @@ export class DelegateTracker {
             )}`,
         );
 
-        let secondsToNextRound: number | undefined;
+        const secondsToNextRound: number | undefined = (maxDelegates - forgingInfo.currentForger - 1) * blockTime;
+
         for (const delegate of this.delegates) {
-            let secondsToForge: number = 0;
+            let indexInNextForgers = 0;
             for (let i = 0; i < nextForgers.length; i++) {
                 if (nextForgers[i] === delegate.publicKey) {
+                    indexInNextForgers = i;
                     break;
                 }
-
-                secondsToForge += blockTime;
             }
 
-            // Round Information...
-            secondsToNextRound = (delegatesCount - (height % delegatesCount)) * blockTime;
-
-            if (secondsToForge === 0) {
+            if (indexInNextForgers === 0) {
                 this.logger.debug(`${this.getUsername(delegate.publicKey)} will forge next.`);
-            } else if (secondsToForge > secondsToNextRound) {
+            } else if (indexInNextForgers <= maxDelegates - forgingInfo.nextForger) {
                 this.logger.debug(
-                    `${this.getUsername(delegate.publicKey)} will forge in ${Utils.prettyTime(secondsToForge * 1000)}.`,
+                    `${this.getUsername(delegate.publicKey)} will forge in ${Utils.prettyTime(
+                        indexInNextForgers * blockTime * 1000,
+                    )}.`,
                 );
             } else {
                 this.logger.debug(`${this.getUsername(delegate.publicKey)} has already forged.`);

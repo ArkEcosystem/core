@@ -93,31 +93,27 @@ describe("DelegateTracker", () => {
         it("should log the next forger and the time when it will forge", async () => {
             const slotSpy = jest.spyOn(Crypto.Slots, "getSlotNumber");
             slotSpy.mockReturnValue(0);
-            const mockMileStoneData = {
-                blocktime: 2,
-                activeDelegates: 51,
-            };
-            const milestoneSpy = jest.spyOn(Managers.configManager, "getMilestone");
-            milestoneSpy.mockReturnValue(mockMileStoneData);
 
+            const blockTime = 8;
             delegateTracker.initialize(activeDelegates);
             await delegateTracker.handle();
 
-            let secondsToForge = mockMileStoneData.blocktime * (mockMileStoneData.activeDelegates - 2);
+            let secondsToForge = blockTime;
 
             for (let i = 0; i < activeDelegates.length; i++) {
                 const nextToForge = activeDelegates[i];
+                // mockLastBlock has height of 3
                 if (i === 2) {
                     expect(loggerDebug).toHaveBeenCalledWith(`${nextToForge.publicKey} will forge next.`);
-                } else if (i > 2) {
+                } else if (i < 2) {
                     expect(loggerDebug).toHaveBeenNthCalledWith(i + 2, `${nextToForge.publicKey} has already forged.`);
                 } else {
                     expect(loggerDebug).toHaveBeenNthCalledWith(
                         i + 2,
                         `${nextToForge.publicKey} will forge in ${Utils.prettyTime(secondsToForge * 1000)}.`,
                     );
+                    secondsToForge += blockTime;
                 }
-                secondsToForge += mockMileStoneData.blocktime;
             }
         });
 
