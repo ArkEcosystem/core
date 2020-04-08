@@ -29,7 +29,7 @@ export class TransactionsController extends Controller {
     private readonly createProcessor!: Contracts.TransactionPool.ProcessorFactory;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
+        const transactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
             request.query,
             request.query.orderBy,
             this.paginate(request),
@@ -94,7 +94,7 @@ export class TransactionsController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
+        const transactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
             request.payload,
             request.query.orderBy,
             this.paginate(request),

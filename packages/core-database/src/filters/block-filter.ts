@@ -3,27 +3,49 @@ import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Block } from "../models";
 
 @Container.injectable()
-export class BlockFilter
-    implements Contracts.Database.Filter<Contracts.Database.Block, Contracts.Database.BlockCriteria> {
-    private readonly filter = new Contracts.Database.AndFilter<Block, Contracts.Database.BlockCriteria>({
-        id: new Contracts.Database.OrEqualFilter("id"),
-        version: new Contracts.Database.OrEqualFilter("version"),
-        timestamp: new Contracts.Database.OrNumericFilter("timestamp"),
-        previousBlock: new Contracts.Database.OrEqualFilter("previousBlock"),
-        height: new Contracts.Database.OrNumericFilter("height"),
-        numberOfTransactions: new Contracts.Database.OrNumericFilter("numberOfTransactions"),
-        totalAmount: new Contracts.Database.OrNumericFilter("totalAmount"),
-        totalFee: new Contracts.Database.OrNumericFilter("totalFee"),
-        reward: new Contracts.Database.OrNumericFilter("reward"),
-        payloadLength: new Contracts.Database.OrNumericFilter("payloadLength"),
-        payloadHash: new Contracts.Database.OrEqualFilter("payloadHash"),
-        generatorPublicKey: new Contracts.Database.OrEqualFilter("generatorPublicKey"),
-        blockSignature: new Contracts.Database.OrEqualFilter("blockSignature"),
-    });
+export class BlockFilter implements Contracts.Database.BlockFilter {
+    private readonly handler = new Contracts.Database.CriteriaHandler<Block>();
 
     public async getExpression(
+        criteria: Contracts.Database.OrBlockCriteria,
+    ): Promise<Contracts.Database.Expression<Block>> {
+        return this.handler.handleOrCriteria(criteria, this.handleBlockCriteria.bind(this));
+    }
+
+    private async handleBlockCriteria(
         criteria: Contracts.Database.BlockCriteria,
     ): Promise<Contracts.Database.Expression<Block>> {
-        return this.filter.getExpression(criteria);
+        return this.handler.handleAndCriteria(criteria, async key => {
+            switch (key) {
+                case "id":
+                    return this.handler.handleOrEqualCriteria("id", criteria.id!);
+                case "version":
+                    return this.handler.handleOrEqualCriteria("version", criteria.version!);
+                case "timestamp":
+                    return this.handler.handleOrNumericCriteria("timestamp", criteria.timestamp!);
+                case "previousBlock":
+                    return this.handler.handleOrEqualCriteria("previousBlock", criteria.previousBlock!);
+                case "height":
+                    return this.handler.handleOrNumericCriteria("height", criteria.height!);
+                case "numberOfTransactions":
+                    return this.handler.handleOrNumericCriteria("numberOfTransactions", criteria.numberOfTransactions!);
+                case "totalAmount":
+                    return this.handler.handleOrNumericCriteria("totalAmount", criteria.totalAmount!);
+                case "totalFee":
+                    return this.handler.handleOrNumericCriteria("totalFee", criteria.totalFee!);
+                case "reward":
+                    return this.handler.handleOrNumericCriteria("reward", criteria.reward!);
+                case "payloadLength":
+                    return this.handler.handleOrNumericCriteria("payloadLength", criteria.payloadLength!);
+                case "payloadHash":
+                    return this.handler.handleOrEqualCriteria("payloadHash", criteria.payloadHash!);
+                case "generatorPublicKey":
+                    return this.handler.handleOrEqualCriteria("generatorPublicKey", criteria.generatorPublicKey!);
+                case "blockSignature":
+                    return this.handler.handleOrEqualCriteria("blockSignature", criteria.blockSignature!);
+                default:
+                    return new Contracts.Database.VoidExpression();
+            }
+        });
     }
 }

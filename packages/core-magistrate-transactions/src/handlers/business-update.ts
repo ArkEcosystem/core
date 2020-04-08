@@ -132,7 +132,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         Utils.assert.defined<string>(sender.publicKey);
 
-        const dbRegistrationTransactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
+        const dbRegistrationTransactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
             {
                 senderPublicKey: sender.publicKey,
                 typeGroup: transaction.data.typeGroup,
@@ -140,7 +140,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
             },
         );
 
-        const dbUpdateTransactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
+        const dbUpdateTransactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
             {
                 senderPublicKey: sender.publicKey,
                 typeGroup: transaction.data.typeGroup,
@@ -149,7 +149,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
             "nonce:asc",
         );
 
-        let businessWalletAsset = dbRegistrationTransactions.rows[0].asset
+        let businessWalletAsset = dbRegistrationTransactions.rows[0].asset!
             .businessRegistration as MagistrateInterfaces.IBusinessRegistrationAsset;
 
         for (const dbUpdateTx of dbUpdateTransactions.rows) {
@@ -158,7 +158,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
             }
             businessWalletAsset = {
                 ...businessWalletAsset,
-                ...(dbUpdateTx.asset.businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset),
+                ...(dbUpdateTx.asset!.businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset),
             };
         }
 

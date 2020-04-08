@@ -91,9 +91,6 @@ export class AndExpression<TModel> {
         if (flattened.length === 1) {
             return flattened[0];
         }
-        if (flattened.find(e => e instanceof FalseExpression)) {
-            return new FalseExpression();
-        }
 
         return new AndExpression(flattened);
     }
@@ -123,9 +120,6 @@ export class OrExpression<TModel> {
         }
         if (flattened.length === 1) {
             return flattened[0];
-        }
-        if (flattened.find(e => e instanceof TrueExpression)) {
-            return new TrueExpression();
         }
 
         return new OrExpression(flattened);

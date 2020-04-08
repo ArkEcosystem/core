@@ -193,7 +193,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         );
         const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId;
 
-        const dbRegistrationTransactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
+        const dbRegistrationTransactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
             {
                 senderPublicKey: sender.publicKey,
                 typeGroup: transaction.data.typeGroup,
@@ -201,18 +201,19 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             },
         );
 
-        const dbUpdateTransactions: Contracts.Database.SearchResult<Models.Transaction> = await this.databaseTransactionService.search(
+        const dbUpdateTransactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
             {
                 senderPublicKey: sender.publicKey,
                 typeGroup: transaction.data.typeGroup,
                 type: Enums.MagistrateTransactionType.BridgechainUpdate,
             },
+            "nonce:asc",
         );
 
         let bridgechainAsset: MagistrateInterfaces.IBridgechainRegistrationAsset | undefined = undefined;
         for (const dbRegistrationTx of dbRegistrationTransactions.rows) {
-            if (dbRegistrationTx.asset.bridgechainRegistration.genesisHash === bridgechainId) {
-                bridgechainAsset = dbRegistrationTx.asset
+            if (dbRegistrationTx.asset!.bridgechainRegistration.genesisHash === bridgechainId) {
+                bridgechainAsset = dbRegistrationTx.asset!
                     .bridgechainRegistration as MagistrateInterfaces.IBridgechainRegistrationAsset;
                 break;
             }
@@ -220,7 +221,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         Utils.assert.defined<MagistrateInterfaces.IBridgechainRegistrationAsset>(bridgechainAsset);
 
         for (const dbUpdateTx of dbUpdateTransactions.rows) {
-            const bridgechainUpdateAsset = dbUpdateTx.asset
+            const bridgechainUpdateAsset = dbUpdateTx.asset!
                 .bridgechainUpdate as MagistrateInterfaces.IBridgechainUpdateAsset;
             if (dbUpdateTx.id === transaction.id || bridgechainUpdateAsset.bridgechainId !== bridgechainId) {
                 continue;

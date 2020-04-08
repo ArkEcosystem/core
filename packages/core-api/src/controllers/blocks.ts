@@ -1,5 +1,6 @@
 import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -24,7 +25,7 @@ export class BlocksController extends Controller {
     protected readonly databaseTransactionService!: Contracts.Database.TransactionService;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const searchResult: Contracts.Database.SearchResult<Contracts.Database.Block> = await this.databaseBlockService.search(
+        const searchResult: Contracts.Database.SearchResult<Interfaces.IBlockData> = await this.databaseBlockService.search(
             request.query,
             request.query.orderBy,
             this.paginate(request),
@@ -66,7 +67,7 @@ export class BlocksController extends Controller {
             return Boom.notFound("Block not found");
         }
 
-        const searchResult: Contracts.Database.SearchResult<Contracts.Database.Transaction> = await this.databaseTransactionService.search(
+        const searchResult: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
             { ...request.query, blockId: block.id },
             request.query.orderBy,
             this.paginate(request),
@@ -76,7 +77,7 @@ export class BlocksController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const searchResult: Contracts.Database.SearchResult<Contracts.Database.Block> = await this.databaseBlockService.search(
+        const searchResult: Contracts.Database.SearchResult<Interfaces.IBlockData> = await this.databaseBlockService.search(
             request.payload,
             request.query.orderBy,
             this.paginate(request),
