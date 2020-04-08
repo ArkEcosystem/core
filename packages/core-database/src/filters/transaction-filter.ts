@@ -1,5 +1,4 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { AndExpression } from "@arkecosystem/core-kernel/dist/contracts/database";
 import { Enums } from "@arkecosystem/crypto";
 
 import { Transaction } from "../models";
@@ -21,7 +20,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     private async handleTransactionCriteria(
         criteria: Contracts.Database.TransactionCriteria,
     ): Promise<Contracts.Database.Expression<Transaction>> {
-        const expression = this.handler.handleAndCriteria(criteria, async key => {
+        const expression = await this.handler.handleAndCriteria(criteria, async key => {
             switch (key) {
                 case "wallet":
                     return this.handler.handleOrCriteria(criteria.wallet!, c => this.handleWalletCriteria(c));
@@ -60,7 +59,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
             }
         });
 
-        return AndExpression.make([expression, await this.getTypeGroupAutoExpression(criteria)]);
+        return Contracts.Database.AndExpression.make([expression, await this.getAutoTypeGroupExpression(criteria)]);
     }
 
     private async handleWalletCriteria(
@@ -118,10 +117,10 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
         }
     }
 
-    private async getTypeGroupAutoExpression(
+    private async getAutoTypeGroupExpression(
         criteria: Contracts.Database.TransactionCriteria,
     ): Promise<Contracts.Database.Expression<Transaction>> {
-        if (this.handler.hasOrCriteria(criteria.type) && !this.handler.hasOrCriteria(criteria.typeGroup)) {
+        if (this.handler.hasOrCriteria(criteria.type) && this.handler.hasOrCriteria(criteria.typeGroup) === false) {
             return new Contracts.Database.EqualExpression("typeGroup", Enums.TransactionTypeGroup.Core);
         } else {
             return new Contracts.Database.VoidExpression();
