@@ -7,7 +7,6 @@ import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { Wallets } from "@packages/core-state";
-import { Mocks } from "@packages/core-test-framework";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Identities, Transactions, Utils } from "@packages/crypto";
@@ -18,14 +17,20 @@ let app: Application;
 let controller: DelegatesController;
 let walletRepository: Wallets.WalletRepository;
 
+const databaseBlockService = {
+    search: jest.fn(),
+};
+
 beforeEach(() => {
     app = initApp();
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+    app.bind(Identifiers.DatabaseBlockService).toConstantValue(databaseBlockService);
 
     controller = app.resolve<DelegatesController>(DelegatesController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+    databaseBlockService.search.mockReset();
 });
 
 afterEach(() => {
@@ -164,7 +169,11 @@ describe("DelegatesController", () => {
                 totalAmount: Utils.BigNumber.make("300"),
             };
 
-            Mocks.BlockRepository.setBlocks([mockBlock]);
+            databaseBlockService.search.mockResolvedValue({
+                rows: [mockBlock],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {
@@ -200,7 +209,11 @@ describe("DelegatesController", () => {
                 timestamp: 2,
             };
 
-            Mocks.BlockRepository.setBlocks([mockBlock]);
+            databaseBlockService.search.mockResolvedValue({
+                rows: [mockBlock],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {

@@ -19,15 +19,22 @@ let app: Application;
 let controller: BlocksController;
 let walletRepository: Wallets.WalletRepository;
 
+const databaseBlockService = { search: jest.fn() };
+const databaseTransactionService = { search: jest.fn() };
+
 beforeEach(() => {
     app = initApp();
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+    app.bind(Identifiers.DatabaseBlockService).toConstantValue(databaseBlockService);
+    app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
 
     controller = app.resolve<BlocksController>(BlocksController);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+    databaseBlockService.search.mockReset();
+    databaseTransactionService.search.mockReset();
 });
 
 afterEach(() => {
@@ -81,8 +88,12 @@ describe("BlocksController", () => {
     });
 
     describe("index", () => {
-        it("should return last block from store", async () => {
-            Mocks.BlockRepository.setBlocks([mockBlock]);
+        it("should return last blocks from store", async () => {
+            databaseBlockService.search.mockResolvedValue({
+                rows: [mockBlock],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 query: {
@@ -101,7 +112,11 @@ describe("BlocksController", () => {
         });
 
         it("should return last block from store - transformed", async () => {
-            Mocks.BlockRepository.setBlocks([mockBlock]);
+            databaseBlockService.search.mockResolvedValue({
+                rows: [mockBlock],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 query: {
@@ -193,8 +208,6 @@ describe("BlocksController", () => {
 
     describe("transactions", () => {
         it("should return found transactions", async () => {
-            Mocks.BlockRepository.setBlock(mockBlock);
-
             const transaction = BuilderFactory.transfer()
                 .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
                 .amount("10000000")
@@ -202,7 +215,12 @@ describe("BlocksController", () => {
                 .nonce("1")
                 .build();
 
-            Mocks.TransactionRepository.setTransactions([transaction]);
+            Mocks.BlockRepository.setBlock(mockBlock);
+            databaseTransactionService.search.mockResolvedValue({
+                rows: [transaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {
@@ -259,7 +277,11 @@ describe("BlocksController", () => {
 
     describe("search", () => {
         it("should return found blocks from store", async () => {
-            Mocks.BlockRepository.setBlocks([mockBlock]);
+            databaseBlockService.search.mockResolvedValue({
+                rows: [mockBlock],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {
