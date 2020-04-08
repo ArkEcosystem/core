@@ -52,18 +52,24 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const databaseTransactionService = {
+    search: jest.fn(),
+};
+
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
     Mocks.TransactionRepository.setTransactions([]);
+    databaseTransactionService.search.mockReset();
 
     app = initApp();
 
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainUpdateTransactionHandler);
+    app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -321,11 +327,17 @@ describe("BusinessRegistration", () => {
                 ...bridgechainUpdateAssetClone,
             });
 
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(bridgechainRegistrationTransaction, 1),
-                Mapper.mapTransactionToModel(secondBridgechainUpdateTransaction, 2),
-                Mapper.mapTransactionToModel(bridgechainUpdateTransaction, 3),
-            ]);
+            databaseTransactionService.search.mockResolvedValueOnce({
+                rows: [bridgechainRegistrationTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
+
+            databaseTransactionService.search.mockResolvedValueOnce({
+                rows: [bridgechainUpdateTransaction.data, secondBridgechainUpdateTransaction.data],
+                count: 2,
+                countIsEstimate: false,
+            });
 
             await handler.revert(bridgechainUpdateTransaction, walletRepository);
 

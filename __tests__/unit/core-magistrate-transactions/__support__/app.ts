@@ -32,7 +32,8 @@ import { Identities, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
 import { Mocks } from "@packages/core-test-framework";
 import {
-    ApplyTransactionAction, RevertTransactionAction,
+    ApplyTransactionAction,
+    RevertTransactionAction,
     ThrowIfCannotEnterPoolAction,
     VerifyTransactionAction,
 } from "@packages/core-transaction-pool/src/actions";
@@ -156,21 +157,25 @@ export const initApp = (): Application => {
 
     app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
-    app
-        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-        .bind("verifyTransaction", new VerifyTransactionAction());
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "verifyTransaction",
+        new VerifyTransactionAction(),
+    );
 
-    app
-        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-        .bind("throwIfCannotEnterPool", new ThrowIfCannotEnterPoolAction());
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "throwIfCannotEnterPool",
+        new ThrowIfCannotEnterPoolAction(),
+    );
 
-    app
-        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-        .bind("applyTransaction", new ApplyTransactionAction());
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "applyTransaction",
+        new ApplyTransactionAction(),
+    );
 
-    app
-        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-        .bind("revertTransaction", new RevertTransactionAction());
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "revertTransaction",
+        new RevertTransactionAction(),
+    );
 
     return app;
 };

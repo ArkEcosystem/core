@@ -42,17 +42,23 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const databaseTransactionService = {
+    search: jest.fn(),
+};
+
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
     Mocks.TransactionRepository.setTransactions([]);
+    databaseTransactionService.search.mockReset();
 
     app = initApp();
 
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BusinessUpdateTransactionHandler);
+    app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -199,9 +205,11 @@ describe("BusinessRegistration", () => {
                 .sign(passphrases[0])
                 .build();
 
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(businessRegistrationTransaction),
-            ]);
+            databaseTransactionService.search.mockResolvedValue({
+                rows: [businessRegistrationTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             await handler.revert(businessUpdateTransaction, walletRepository);
 
@@ -244,11 +252,17 @@ describe("BusinessRegistration", () => {
                 ...secondBusinessUpdateAsset,
             });
 
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(businessRegistrationTransaction),
-                Mapper.mapTransactionToModel(secondBusinessUpdateTransaction),
-                Mapper.mapTransactionToModel(businessUpdateTransaction),
-            ]);
+            databaseTransactionService.search.mockResolvedValueOnce({
+                rows: [businessRegistrationTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
+
+            databaseTransactionService.search.mockResolvedValueOnce({
+                rows: [businessUpdateTransaction.data, secondBusinessUpdateTransaction.data],
+                count: 2,
+                countIsEstimate: false,
+            });
 
             await handler.revert(secondBusinessUpdateTransaction, walletRepository);
 
