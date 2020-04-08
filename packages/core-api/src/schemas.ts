@@ -103,14 +103,3 @@ export const createSchemas = (settings: SchemaSettings) => {
         orContainsCriteria,
     };
 };
-
-({
-    searchCriteria: (field: string, value: any, operator: string[]) =>
-        Joi.object().keys({
-            field: Joi.string().allow(field).required(),
-            value: value.required(),
-            operator: Joi.string()
-                .allow(...operator)
-                .required(),
-        }),
-});
