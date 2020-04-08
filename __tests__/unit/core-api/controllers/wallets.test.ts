@@ -28,17 +28,23 @@ const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
 const makeNotExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
 
+const databaseTransactionService = {
+    search: jest.fn(),
+};
+
 beforeEach(() => {
     app = initApp();
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+    app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
 
     controller = app.resolve<WalletsController>(WalletsController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
     Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
     Mocks.TransactionRepository.setTransactions([]);
+    databaseTransactionService.search.mockReset();
 });
 
 afterEach(() => {
@@ -141,7 +147,11 @@ describe("WalletsController", () => {
 
     describe("transactions", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setTransactions([transferTransaction]);
+            databaseTransactionService.search.mockResolvedValue({
+                rows: [transferTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {
@@ -179,7 +189,11 @@ describe("WalletsController", () => {
 
     describe("transactionsSent", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setTransactions([transferTransaction]);
+            databaseTransactionService.search.mockResolvedValue({
+                rows: [transferTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {
@@ -217,7 +231,11 @@ describe("WalletsController", () => {
 
     describe("transactionsReceived", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setTransactions([transferTransaction]);
+            databaseTransactionService.search.mockResolvedValue({
+                rows: [transferTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {
@@ -255,7 +273,11 @@ describe("WalletsController", () => {
 
     describe("votes", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setTransactions([transferTransaction]);
+            databaseTransactionService.search.mockResolvedValue({
+                rows: [transferTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {

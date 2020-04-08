@@ -19,12 +19,17 @@ import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 let app: Application;
 let controller: TransactionsController;
 
+const databaseTransactionService = {
+    search: jest.fn(),
+};
+
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
@@ -34,6 +39,7 @@ beforeEach(() => {
     Mocks.TransactionRepository.setTransaction(null);
     Mocks.TransactionRepository.setTransactions([]);
     Mocks.TransactionPoolQuery.setTransactions([]);
+    databaseTransactionService.search.mockReset();
 });
 
 afterEach(() => {
@@ -61,7 +67,11 @@ describe("TransactionsController", () => {
 
     describe("index", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setTransactions([transferTransaction]);
+            databaseTransactionService.search.mockResolvedValue({
+                rows: [transferTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 query: {
@@ -109,7 +119,7 @@ describe("TransactionsController", () => {
 
     describe("show", () => {
         it("should return transaction", async () => {
-            Mocks.TransactionRepository.setTransaction(transferTransaction);
+            Mocks.TransactionRepository.setTransaction(transferTransaction.data);
 
             const request: Hapi.Request = {
                 params: {
@@ -206,7 +216,11 @@ describe("TransactionsController", () => {
 
     describe("search", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setTransactions([transferTransaction]);
+            databaseTransactionService.search.mockResolvedValue({
+                rows: [transferTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {
@@ -232,7 +246,11 @@ describe("TransactionsController", () => {
         });
 
         it("should return paginated response when defined offset", async () => {
-            Mocks.TransactionRepository.setTransactions([transferTransaction]);
+            databaseTransactionService.search.mockResolvedValue({
+                rows: [transferTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {

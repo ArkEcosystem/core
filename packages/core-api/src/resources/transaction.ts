@@ -30,7 +30,7 @@ export class TransactionResource implements Resource {
      * @memberof Resource
      */
     public raw(resource): object {
-        return Transactions.TransactionFactory.fromBytesUnsafe(resource.serialized, resource.id).toJson();
+        return Transactions.TransactionFactory.fromData(resource).toJson();
     }
 
     /**

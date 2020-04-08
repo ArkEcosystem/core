@@ -73,7 +73,7 @@ export class TransactionsController extends Controller {
             pagination.offset,
             pagination.offset + pagination.limit,
         );
-        const rows = transactions.map((t) => ({ serialized: t.serialized.toString("hex") }));
+        const rows = transactions.map((t) => t.data);
 
         return super.toPagination({ count: all.length, rows }, TransactionResource, !!request.query.transform);
     }
@@ -88,9 +88,8 @@ export class TransactionsController extends Controller {
         }
 
         const transaction: Interfaces.ITransaction = transactionQuery.first();
-        const data = { id: transaction.id, serialized: transaction.serialized.toString("hex") };
 
-        return super.respondWithResource(data, TransactionResource, !!request.query.transform);
+        return super.respondWithResource(transaction.data, TransactionResource, !!request.query.transform);
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
