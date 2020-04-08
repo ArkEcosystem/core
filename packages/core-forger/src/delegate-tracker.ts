@@ -109,7 +109,7 @@ export class DelegateTracker {
             )}`,
         );
 
-        const secondsToNextRound: number | undefined = (maxDelegates - forgingInfo.currentForger - 1) * blockTime;
+        const secondsToNextRound: number = (maxDelegates - forgingInfo.currentForger - 1) * blockTime;
 
         for (const delegate of this.delegates) {
             let indexInNextForgers = 0;
@@ -133,9 +133,7 @@ export class DelegateTracker {
             }
         }
 
-        if (secondsToNextRound) {
-            this.logger.debug(`Round ${round.round} will end in ${Utils.prettyTime(secondsToNextRound * 1000)}.`);
-        }
+        this.logger.debug(`Round ${round.round} will end in ${Utils.prettyTime(secondsToNextRound * 1000)}.`);
     }
 
     /**
