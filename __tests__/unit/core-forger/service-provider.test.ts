@@ -8,11 +8,16 @@ describe("ServiceProvider", () => {
 
     const triggerService = { bind: jest.fn() };
 
+    const bip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4ax"} as any;
+    const bip38DelegateMock = { address: "D6Z26L69gbk8qYmTv5uzk3uGepigtHY4ax"} as any;
+
     beforeEach(() => {
         app = new Application(new Container.Container());
 
         app.bind(Container.Identifiers.LogService).toConstantValue({});
-        app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
+        app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({ listen: jest.fn() });
+        app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
+        app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
         app.bind(Container.Identifiers.TriggerService).toConstantValue(triggerService);
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 
@@ -21,16 +26,20 @@ describe("ServiceProvider", () => {
         
         serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
 
-        jest.spyOn(DelegateFactory, "fromBIP39").mockReturnValue({ address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4ax"} as any);
-        jest.spyOn(DelegateFactory, "fromBIP38").mockReturnValue({ address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4ax"} as any);
+        const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
+        pluginConfiguration.from("core-forger", {
+            // @ts-ignore
+            hosts: [],
+            tracker: true,
+        });
+        serviceProvider.setConfig(pluginConfiguration);
+
+        jest.spyOn(DelegateFactory, "fromBIP39").mockReturnValue(bip39DelegateMock);
+        jest.spyOn(DelegateFactory, "fromBIP38").mockReturnValue(bip38DelegateMock);
     });
 
     describe("register", () => {
         it("should bind ForgerService, ForgeNewBlockAction, IsForgingAllowedAction", async () => {
-            const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
-            pluginConfiguration.set("hosts", []);
-            serviceProvider.setConfig(pluginConfiguration);
-
             expect(app.isBound(Container.Identifiers.ForgerService)).toBeFalse();
 
             await serviceProvider.register();
@@ -44,14 +53,49 @@ describe("ServiceProvider", () => {
 
     describe("boot", () => {
         it("should call boot on forger service", async () => {
-            const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
-            serviceProvider.setConfig(pluginConfiguration);
+            app.config("delegates", { secrets: [ "this is a super secret passphrase" ], bip38: "dummy bip 38" });
+
             const forgerService = { boot: jest.fn() };
             app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
 
             await serviceProvider.boot();
 
             expect(forgerService.boot).toBeCalledTimes(1);
+        });
+
+        it("should create delegates from delegates.secret and flags.bip38 / flags.password", async () => {
+            const secrets = [
+                "this is a super secret passphrase",
+                "this is a super secret passphrase2"
+            ]
+            app.config("delegates", { secrets, bip38: "dummy bip 38" });
+
+            const flagsConfig = { bip38: "dummy bip38", password: "dummy password" };
+            app.config("app.flags", flagsConfig)
+
+            const forgerService = { boot: jest.fn() };
+            app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
+
+            const anotherBip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4fe"} as any;
+            jest.spyOn(DelegateFactory, "fromBIP39").mockReturnValueOnce(anotherBip39DelegateMock);
+            
+            await serviceProvider.boot();
+
+            expect(forgerService.boot).toBeCalledTimes(1);
+            expect(forgerService.boot).toBeCalledWith([anotherBip39DelegateMock, bip39DelegateMock, bip38DelegateMock]);
+        });
+
+        it("should call boot on forger service with empty array when no delegates are configured", async () => {
+            app.config("delegates", { secrets: [], bip38: undefined });
+            app.config("app", { flags: { bip38: undefined, password: undefined } });
+
+            const forgerService = { boot: jest.fn() };
+            app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
+
+            await serviceProvider.boot();
+
+            expect(forgerService.boot).toBeCalledTimes(1);
+            expect(forgerService.boot).toBeCalledWith([]);
         });
     });
 
