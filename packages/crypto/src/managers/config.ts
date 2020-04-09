@@ -8,7 +8,7 @@ import { NetworkConfig } from "../interfaces/networks";
 import * as networks from "../networks";
 import { NetworkName } from "../types";
 
-interface MilestoneSearchResult {
+export interface MilestoneSearchResult {
     found: boolean;
     height: number;
     data: any;

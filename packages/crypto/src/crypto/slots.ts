@@ -1,13 +1,13 @@
 import dayjs from "dayjs";
 
 import { configManager } from "../managers/config";
-import { calculateBlockTime, isNewBlockTime } from "../utils/block-time-calculator";
+import { calculateBlockTime } from "../utils/block-time-calculator";
 
 interface SlotInfo {
     startTime: number;
     endTime: number;
     blockTime: number;
-    slotNumber: number | undefined;
+    slotNumber: number;
     forgingStatus: boolean;
 }
 
@@ -29,18 +29,23 @@ export class Slots {
         return (nextSlotTime - now) * 1000;
     }
 
-    public static getSlotNumber(timestamp?: number, height?: number): number {
-        return this.getSlotInfo(timestamp, height).slotNumber as number;
-    }
-
-    public static getSlotInfo(timestamp?: number, height?: number): SlotInfo {
+    public static getSlotNumber(
+        timestamp?: number,
+        height?: number,
+        getTimeStampForBlock?: (blockheight: number) => number,
+    ): number {
         if (timestamp === undefined) {
             timestamp = this.getTime();
         }
 
-        const lastKnownHeight = this.getLatestHeight(height);
+        const latestHeight = this.getLatestHeight(height);
 
-        return this.calculateSlotInfo(timestamp, lastKnownHeight, !!height, true);
+        // TODO: this is now required when looking up dynamic block times - how should we handle this?
+        if (getTimeStampForBlock === undefined) {
+            throw new Error(`Dynamic block times require lookup`);
+        }
+
+        return this.getSlotInfo(timestamp, latestHeight, getTimeStampForBlock).slotNumber;
     }
 
     public static getSlotTime(slot: number): number {
@@ -51,12 +56,92 @@ export class Slots {
         return this.getSlotNumber() + 1;
     }
 
-    public static isForgingAllowed(timestamp?: number): boolean {
+    public static isForgingAllowed(
+        timestamp?: number,
+        height?: number,
+        getTimeStampForBlock?: (blockheight: number) => number,
+    ): boolean {
         if (timestamp === undefined) {
             timestamp = this.getTime();
         }
 
-        return this.calculateSlotInfo(timestamp, this.getSlotNumber(timestamp), false, true).forgingStatus;
+        const latestHeight = this.getLatestHeight(height);
+
+        // TODO: this is now required when looking up dynamic block times - how should we handle this?
+        if (getTimeStampForBlock === undefined) {
+            throw new Error(`Dynamic block times require blockdata lookup`);
+        }
+
+        return this.getSlotInfo(timestamp, latestHeight, getTimeStampForBlock).forgingStatus;
+    }
+
+    public static getSlotInfo(
+        timestamp: number,
+        height: number,
+        getTimeStampForBlock: (blockheight: number) => number,
+    ): SlotInfo {
+        if (timestamp === undefined) {
+            timestamp = this.getTime();
+        }
+
+        const lastHeight = 1;
+        let blockTime = calculateBlockTime(lastHeight);
+        let totalSlotsFromLastSpan = 0;
+
+        let lastSpanEndTime = 0;
+
+        let previousMilestoneHeight = 1;
+        let nextMilestone = configManager.getNextMilestoneWithNewKey(1, "blocktime");
+
+        for (let i = 0; i < configManager.getMilestones().length - 1; i++) {
+            if (height < nextMilestone.height) {
+                const slotNumerUpUntilThisTimestamp = Math.floor((timestamp - lastSpanEndTime) / blockTime);
+                const slotNumber = totalSlotsFromLastSpan + slotNumerUpUntilThisTimestamp;
+
+                const startTime = lastSpanEndTime + slotNumerUpUntilThisTimestamp * blockTime;
+                const endTime = startTime + blockTime - 1;
+
+                const forgingStatus = timestamp < startTime + Math.ceil(blockTime / 2);
+
+                const slotInfo: SlotInfo = {
+                    blockTime,
+                    startTime,
+                    endTime,
+                    slotNumber,
+                    forgingStatus,
+                };
+
+                return slotInfo;
+            } else {
+                const spanStartTimestamp = getTimeStampForBlock(previousMilestoneHeight);
+                previousMilestoneHeight = nextMilestone.height - 1;
+
+                const spanEndTimestamp = getTimeStampForBlock(nextMilestone.height - 1) + blockTime;
+                lastSpanEndTime = spanEndTimestamp;
+
+                totalSlotsFromLastSpan += Math.floor((spanEndTimestamp - spanStartTimestamp) / blockTime);
+
+                blockTime = nextMilestone.data;
+                nextMilestone = configManager.getNextMilestoneWithNewKey(nextMilestone.height, "blocktime");
+            }
+        }
+
+        const slotNumerUpUntilThisTimestamp = Math.floor((timestamp - lastSpanEndTime) / blockTime);
+        const slotNumber = totalSlotsFromLastSpan + slotNumerUpUntilThisTimestamp - 1;
+
+        const startTime = lastSpanEndTime + slotNumerUpUntilThisTimestamp * blockTime;
+        const endTime = startTime + blockTime - 1;
+        const forgingStatus = timestamp < startTime + Math.ceil(blockTime / 2);
+
+        const slotInfo: SlotInfo = {
+            blockTime,
+            startTime,
+            endTime,
+            slotNumber,
+            forgingStatus,
+        };
+
+        return slotInfo;
     }
 
     private static calculateSlotTime(slot: number): number {
@@ -79,63 +164,6 @@ export class Slots {
         return total;
     }
 
-    private static calculateSlotInfo(
-        timestamp: number,
-        height: number,
-        searchSpecificHeight = true,
-        checkForgingStatus = false,
-    ): SlotInfo {
-        const blockTime = calculateBlockTime(1);
-
-        let slotInfo: SlotInfo = {
-            blockTime,
-            startTime: 0,
-            endTime: blockTime - 1,
-            slotNumber: undefined,
-            forgingStatus: false,
-        };
-
-        // TODO: should we start from 1 each time, or store these variables somewhere for efficiency when doing the next computation?
-        for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
-            if (!searchSpecificHeight || currentHeight === height) {
-                if (this.timestampOccursWithinSlot(timestamp, slotInfo)) {
-                    slotInfo.slotNumber = currentHeight - 1;
-                    slotInfo.forgingStatus = this.determineForgingStatus(slotInfo, timestamp);
-                    return slotInfo;
-                }
-            } else {
-                slotInfo = this.updateSlotInfo(slotInfo, currentHeight);
-            }
-        }
-
-        if (slotInfo.endTime < timestamp || checkForgingStatus) {
-            if (searchSpecificHeight) {
-                throw new Error(`Given timestamp exists in a future block`);
-            } else {
-                const numberOfBlocksToPeek = 20000000;
-                // Number is arbitrarily defined - use a while loop instead?
-                height += numberOfBlocksToPeek;
-
-                for (let currentHeight = 1; currentHeight <= height; currentHeight++) {
-                    if (this.timestampOccursWithinSlot(timestamp, slotInfo)) {
-                        slotInfo.slotNumber = currentHeight - 1;
-                        slotInfo.forgingStatus = this.determineForgingStatus(slotInfo, timestamp);
-                        return slotInfo;
-                    }
-                    slotInfo = this.updateSlotInfo(slotInfo, currentHeight);
-                }
-
-                throw new Error(`Slot doesn't appear in the near future`);
-            }
-        } else {
-            throw new Error(`Given timestamp exists in a previous block`);
-        }
-    }
-
-    private static determineForgingStatus(slotInfo: SlotInfo, timestamp: number): boolean {
-        return timestamp <= slotInfo.endTime - Math.ceil(slotInfo.blockTime / 2);
-    }
-
     private static getLatestHeight(height: number | undefined): number {
         if (!height) {
             // TODO: is the config manager the best way to retrieve most recent height?
@@ -149,20 +177,5 @@ export class Slots {
         }
 
         return height;
-    }
-
-    private static updateSlotInfo(slotInfo: SlotInfo, height: number): SlotInfo {
-        slotInfo.blockTime = this.calculateNewBlockTime(height + 1, slotInfo.blockTime);
-        slotInfo.startTime = slotInfo.endTime + 1;
-        slotInfo.endTime = slotInfo.startTime + slotInfo.blockTime - 1;
-        return slotInfo;
-    }
-
-    private static calculateNewBlockTime(height: number, previousBlockTime: number) {
-        return isNewBlockTime(height) ? calculateBlockTime(height) : previousBlockTime;
-    }
-
-    private static timestampOccursWithinSlot(timestamp: number, slotInfo: SlotInfo): boolean {
-        return timestamp >= slotInfo.startTime && timestamp <= slotInfo.endTime;
     }
 }
