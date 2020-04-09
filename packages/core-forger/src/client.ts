@@ -42,9 +42,11 @@ export class Client {
     public register(hosts: RelayHost[]) {
         this.hosts = hosts.map((host: RelayHost) => {
             const connection = new Nes.Client(`ws://${host.hostname}:${host.port}`);
-            connection.connect().catch(e => {}); // connect promise can fail when p2p is not ready, will retry 
+            connection.connect().catch(e => {}); // connect promise can fail when p2p is not ready, it's fine it will retry 
 
-            connection.onError = e => {}; // TODO do something on error ?
+            connection.onError = e => {
+                this.logger.error(e.message);
+            };
 
             host.socket = connection;
 
@@ -178,7 +180,7 @@ export class Client {
     public async selectHost(): Promise<void> {
         for (let i = 0; i < 10; i++) {
             for (const host of this.hosts) {
-                if (host.socket) {
+                if (host.socket && host.socket._isReady()) {
                     this.host = host;
                     return;
                 }
