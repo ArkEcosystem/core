@@ -9,7 +9,7 @@ export class Controller {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
 
-    protected paginate(request: Hapi.Request): Contracts.Database.SearchPage {
+    protected getListPage(request: Hapi.Request): Contracts.Database.ListPage {
         const pagination = {
             offset: (request.query.page - 1) * request.query.limit || 0,
             limit: request.query.limit || 100,
@@ -20,6 +20,17 @@ export class Controller {
         }
 
         return pagination;
+    }
+
+    protected getListOrder(request: Hapi.Request): Contracts.Database.ListOrder {
+        if (!request.query.orderBy) {
+            return [];
+        }
+
+        return request.query.orderBy.split(",").map((s: string) => ({
+            property: s.split(":")[0],
+            direction: s.split(":")[1] === "desc" ? "desc" : "asc",
+        }));
     }
 
     protected respondWithResource(data, transformer, transform = true): any {

@@ -14,7 +14,7 @@ export class BusinessController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const businesses = this.walletRepository.search(Contracts.State.SearchScope.Businesses, {
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListPage(request),
         });
 
         return this.toPagination(businesses, BusinessResource);
@@ -61,7 +61,7 @@ export class BusinessController extends Controller {
             const bridgechains = this.walletRepository.search(Contracts.State.SearchScope.Bridgechains, {
                 publicKey: wallet.publicKey,
                 ...request.query,
-                ...this.paginate(request),
+                ...this.getListPage(request),
             });
 
             return this.toPagination(bridgechains, BridgechainResource);
@@ -74,7 +74,7 @@ export class BusinessController extends Controller {
         const businesses = this.walletRepository.search(Contracts.State.SearchScope.Businesses, {
             ...request.payload,
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListPage(request),
         });
 
         return this.toPagination(businesses, BusinessResource);

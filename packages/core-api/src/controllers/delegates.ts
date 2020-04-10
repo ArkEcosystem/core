@@ -17,7 +17,7 @@ export class DelegatesController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const delegates = this.walletRepository.search(Contracts.State.SearchScope.Delegates, {
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListPage(request),
         });
 
         return this.toPagination(delegates, DelegateResource);
@@ -37,7 +37,7 @@ export class DelegatesController extends Controller {
         const delegates = this.walletRepository.search(Contracts.State.SearchScope.Delegates, {
             ...request.payload,
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListPage(request),
         });
 
         return this.toPagination(delegates, DelegateResource);
@@ -50,15 +50,13 @@ export class DelegatesController extends Controller {
             return delegate;
         }
 
-        const rows = await this.databaseBlockService.search(
-            {
-                generatorPublicKey: delegate.publicKey,
-            },
-            "",
-            this.paginate(request),
+        const blockListResult = await this.databaseBlockService.listByGeneratorPublicKey(
+            delegate.publicKey!,
+            this.getListOrder(request),
+            this.getListPage(request),
         );
 
-        return this.toPagination(rows, BlockResource, request.query.transform);
+        return this.toPagination(blockListResult, BlockResource, request.query.transform);
     }
 
     public async voters(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -71,7 +69,7 @@ export class DelegatesController extends Controller {
         const wallets = this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
             ...request.query,
             ...{ vote: delegate.publicKey },
-            ...this.paginate(request),
+            ...this.getListPage(request),
         });
 
         return this.toPagination(wallets, WalletResource);

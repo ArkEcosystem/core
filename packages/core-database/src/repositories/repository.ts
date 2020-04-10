@@ -1,5 +1,5 @@
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
-import { ObjectLiteral, Repository } from "typeorm";
+import { ObjectLiteral, Repository, SelectQueryBuilder } from "typeorm";
 import { ColumnMetadata } from "typeorm/metadata/ColumnMetadata";
 
 export class SqlExpression {
@@ -19,27 +19,40 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
         return (await this.findByIds([id]))[0];
     }
 
-    public async search(
+    public async findOneByExpression(expression: Contracts.Database.Expression<TModel>): Promise<TModel | undefined> {
+        const queryBuilder: SelectQueryBuilder<TModel> = this.createQueryBuilder().select();
+        if (expression instanceof Contracts.Database.VoidExpression === false) {
+            const sqlExpression: SqlExpression = this.buildSqlExpression(expression);
+            queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
+        }
+        return queryBuilder.getOne();
+    }
+
+    public async findManyByExpression(expression: Contracts.Database.Expression<TModel>): Promise<TModel[]> {
+        const queryBuilder: SelectQueryBuilder<TModel> = this.createQueryBuilder().select();
+        if (expression instanceof Contracts.Database.VoidExpression === false) {
+            const sqlExpression: SqlExpression = this.buildSqlExpression(expression);
+            queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
+        }
+
+        return queryBuilder.getMany();
+    }
+
+    public async listByExpression(
         expression: Contracts.Database.Expression<TModel>,
-        order?: Contracts.Database.SearchOrder<TModel>,
-        page?: Contracts.Database.SearchPage,
-    ): Promise<Contracts.Database.SearchResult<TModel>> {
-        const queryBuilder = this.createQueryBuilder().select();
-
-        if (order) {
-            for (const item of order.items) {
-                const column = this.getColumn(item.property);
-                queryBuilder.addOrderBy(column, item.direction);
-            }
-        }
-
-        if (page) {
-            queryBuilder.skip(page.offset).take(page.limit);
-        }
+        order: Contracts.Database.ListOrder,
+        page: Contracts.Database.ListPage,
+    ): Promise<Contracts.Database.ListResult<TModel>> {
+        const queryBuilder = this.createQueryBuilder().select().skip(page.offset).take(page.limit);
 
         if (expression instanceof Contracts.Database.VoidExpression === false) {
             const sqlExpression = this.buildSqlExpression(expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
+        }
+
+        for (const item of order) {
+            const column = this.getColumn(item.property);
+            queryBuilder.addOrderBy(column, item.direction.toUpperCase() as "ASC" | "DESC");
         }
 
         const [rows, count]: [TModel[], number] = await queryBuilder.getManyAndCount();

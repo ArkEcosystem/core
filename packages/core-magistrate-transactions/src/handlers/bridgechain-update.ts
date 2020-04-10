@@ -193,45 +193,30 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         );
         const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId;
 
-        const dbRegistrationTransactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
+        const databaseBridgechainTransactions = await this.databaseTransactionService.findManyByCriteria([
             {
                 senderPublicKey: sender.publicKey,
-                typeGroup: transaction.data.typeGroup,
+                typeGroup: Enums.MagistrateTransactionGroup,
                 type: Enums.MagistrateTransactionType.BridgechainRegistration,
+                asset: { bridgechainRegistration: { genesisHash: bridgechainId } },
             },
-        );
-
-        const dbUpdateTransactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
             {
                 senderPublicKey: sender.publicKey,
-                typeGroup: transaction.data.typeGroup,
+                typeGroup: Enums.MagistrateTransactionGroup,
                 type: Enums.MagistrateTransactionType.BridgechainUpdate,
+                asset: { bridgechainUpdateAsset: { bridgechainId: bridgechainId } },
             },
-            "nonce:asc",
-        );
+        ]);
+        databaseBridgechainTransactions.sort((a, b) => a.nonce!.comparedTo(b.nonce!));
 
-        let bridgechainAsset: MagistrateInterfaces.IBridgechainRegistrationAsset | undefined = undefined;
-        for (const dbRegistrationTx of dbRegistrationTransactions.rows) {
-            if (dbRegistrationTx.asset!.bridgechainRegistration.genesisHash === bridgechainId) {
-                bridgechainAsset = dbRegistrationTx.asset!
-                    .bridgechainRegistration as MagistrateInterfaces.IBridgechainRegistrationAsset;
+        const bridgechainAsset = databaseBridgechainTransactions[0].asset!.bridgechainRegistration;
+        for (const databaseUpdateTransaction of databaseBridgechainTransactions.slice(1)) {
+            if (databaseUpdateTransaction.id === transaction.id) {
                 break;
             }
+            Object.assign(bridgechainAsset, databaseUpdateTransaction.asset!.bridgechainUpdate);
         }
-        Utils.assert.defined<MagistrateInterfaces.IBridgechainRegistrationAsset>(bridgechainAsset);
-
-        for (const dbUpdateTx of dbUpdateTransactions.rows) {
-            const bridgechainUpdateAsset = dbUpdateTx.asset!
-                .bridgechainUpdate as MagistrateInterfaces.IBridgechainUpdateAsset;
-            if (dbUpdateTx.id === transaction.id || bridgechainUpdateAsset.bridgechainId !== bridgechainId) {
-                continue;
-            }
-            delete bridgechainUpdateAsset.bridgechainId; // no need for bridgechainId for bridgechain asset
-            bridgechainAsset = {
-                ...bridgechainAsset,
-                ...bridgechainUpdateAsset,
-            };
-        }
+        delete bridgechainAsset.bridgechainId;
 
         Utils.assert.defined<object>(businessAttributes.bridgechains);
         businessAttributes.bridgechains[bridgechainId] = { bridgechainAsset };

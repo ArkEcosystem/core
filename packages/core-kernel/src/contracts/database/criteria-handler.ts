@@ -48,14 +48,14 @@ export class CriteriaHandler<TModel> {
 
     public async handleEqualCriteria<TProperty extends keyof TModel>(
         property: TProperty,
-        criteria: EqualCriteria<TModel[TProperty]>,
+        criteria: EqualCriteria<NonNullable<TModel[TProperty]>>,
     ): Promise<Expression<TModel>> {
         return new EqualExpression(property, criteria);
     }
 
     public async handleNumericCriteria<TProperty extends keyof TModel>(
         property: TProperty,
-        criteria: NumericCriteria<TModel[TProperty]>,
+        criteria: NumericCriteria<NonNullable<TModel[TProperty]>>,
     ): Promise<Expression<TModel>> {
         if (typeof criteria === "object") {
             if ("from" in criteria && "to" in criteria) {
@@ -74,42 +74,42 @@ export class CriteriaHandler<TModel> {
 
     public async handleLikeCriteria<TProperty extends keyof TModel>(
         property: TProperty,
-        criteria: LikeCriteria<TModel[TProperty]>,
+        criteria: LikeCriteria<NonNullable<TModel[TProperty]>>,
     ): Promise<Expression<TModel>> {
         return new LikeExpression(property, criteria);
     }
 
     public async handleContainsCriteria<TProperty extends keyof TModel>(
         property: TProperty,
-        criteria: ContainsCriteria<TModel[TProperty]>,
+        criteria: ContainsCriteria<NonNullable<TModel[TProperty]>>,
     ): Promise<Expression<TModel>> {
         return new ContainsExpression(property, criteria);
     }
 
     public async handleOrEqualCriteria<TProperty extends keyof TModel>(
         property: TProperty,
-        criteria: OrEqualCriteria<TModel[TProperty]>,
+        criteria: OrEqualCriteria<NonNullable<TModel[TProperty]>>,
     ): Promise<Expression<TModel>> {
         return this.handleOrCriteria(criteria, (c) => this.handleEqualCriteria(property, c));
     }
 
     public async handleOrNumericCriteria<TProperty extends keyof TModel>(
         property: TProperty,
-        criteria: OrNumericCriteria<TModel[TProperty]>,
+        criteria: OrNumericCriteria<NonNullable<TModel[TProperty]>>,
     ): Promise<Expression<TModel>> {
         return this.handleOrCriteria(criteria, (c) => this.handleNumericCriteria(property, c));
     }
 
     public async handleOrLikeCriteria<TProperty extends keyof TModel>(
         property: TProperty,
-        criteria: OrLikeCriteria<TModel[TProperty]>,
+        criteria: OrLikeCriteria<NonNullable<TModel[TProperty]>>,
     ): Promise<Expression<TModel>> {
         return this.handleOrCriteria(criteria, (c) => this.handleLikeCriteria(property, c));
     }
 
     public async handleOrContainsCriteria<TProperty extends keyof TModel>(
         property: TProperty,
-        criteria: OrContainsCriteria<TModel[TProperty]>,
+        criteria: OrContainsCriteria<NonNullable<TModel[TProperty]>>,
     ): Promise<Expression<TModel>> {
         return this.handleOrCriteria(criteria, (c) => this.handleContainsCriteria(property, c));
     }

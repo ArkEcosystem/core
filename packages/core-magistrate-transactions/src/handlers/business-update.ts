@@ -132,34 +132,26 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         Utils.assert.defined<string>(sender.publicKey);
 
-        const dbRegistrationTransactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
+        const databaseBusinessTransactions = await this.databaseTransactionService.findManyByCriteria([
             {
                 senderPublicKey: sender.publicKey,
-                typeGroup: transaction.data.typeGroup,
+                typeGroup: Enums.MagistrateTransactionGroup,
                 type: Enums.MagistrateTransactionType.BusinessRegistration,
             },
-        );
-
-        const dbUpdateTransactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
             {
                 senderPublicKey: sender.publicKey,
-                typeGroup: transaction.data.typeGroup,
+                typeGroup: Enums.MagistrateTransactionGroup,
                 type: Enums.MagistrateTransactionType.BusinessUpdate,
             },
-            "nonce:asc",
-        );
+        ]);
+        databaseBusinessTransactions.sort((a, b) => a.nonce!.comparedTo(b.nonce!));
 
-        let businessWalletAsset = dbRegistrationTransactions.rows[0].asset!
-            .businessRegistration as MagistrateInterfaces.IBusinessRegistrationAsset;
-
-        for (const dbUpdateTx of dbUpdateTransactions.rows) {
-            if (dbUpdateTx.id === transaction.id) {
-                continue;
+        const businessWalletAsset = databaseBusinessTransactions[0].asset!.businessRegistration;
+        for (const databaseUpdateTransaction of databaseBusinessTransactions.slice(1)) {
+            if (databaseUpdateTransaction.id === transaction.id) {
+                break;
             }
-            businessWalletAsset = {
-                ...businessWalletAsset,
-                ...(dbUpdateTx.asset!.businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset),
-            };
+            Object.assign(businessWalletAsset, databaseUpdateTransaction.asset!.businessUpdate);
         }
 
         sender.setAttribute("business.businessAsset", businessWalletAsset);

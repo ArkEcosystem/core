@@ -32,7 +32,7 @@ describe("TransactionResource", () => {
 
     describe("raw", () => {
         it("should return raw object", async () => {
-            const result = <any>resource.raw(transferTransaction);
+            const result = <any>resource.raw(transferTransaction.data);
 
             const expectedResult = parseObjectWithBigInt(transferTransaction.data);
             delete expectedResult.typeGroup;
@@ -43,7 +43,7 @@ describe("TransactionResource", () => {
 
     describe("transform", () => {
         it("should return transformed object", async () => {
-            const result = <any>resource.transform(transferTransaction);
+            const result = <any>resource.transform(transferTransaction.data);
 
             const expectedResult = parseObjectWithBigInt(transferTransaction.data);
             expectedResult.confirmations = 0;
@@ -72,7 +72,7 @@ describe("TransactionResource", () => {
             // @ts-ignore
             transferTransaction.block = mockBlock;
 
-            const result = <any>resource.transform(transferTransaction);
+            const result = <any>resource.transform(transferTransaction.data);
 
             const expectedResult = parseObjectWithBigInt(transferTransaction.data);
             expectedResult.confirmations = 1;

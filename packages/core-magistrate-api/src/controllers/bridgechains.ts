@@ -14,7 +14,7 @@ export class BridgechainController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const bridgechains = this.walletRepository.search(Contracts.State.SearchScope.Bridgechains, {
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListPage(request),
         });
 
         return this.toPagination(bridgechains, BridgechainResource);
@@ -36,7 +36,7 @@ export class BridgechainController extends Controller {
         const bridgechains = this.walletRepository.search(Contracts.State.SearchScope.Bridgechains, {
             ...request.payload,
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListPage(request),
         });
 
         return this.toPagination(bridgechains, BridgechainResource);

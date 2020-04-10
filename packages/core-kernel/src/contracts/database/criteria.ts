@@ -29,17 +29,7 @@ export type BlockCriteria = {
     blockSignature?: OrEqualCriteria<string>;
 };
 
-export type OrBlockCriteria = OrCriteria<BlockCriteria>;
-
-export type TransactionWalletCriteria = {
-    address: string;
-    publicKey?: string;
-};
-
-export type OrTransactionWalletCriteria = OrCriteria<TransactionWalletCriteria>;
-
 export type TransactionCriteria = {
-    wallet?: OrTransactionWalletCriteria;
     senderId?: OrEqualCriteria<string>;
 
     id?: OrEqualCriteria<string>;
@@ -58,4 +48,5 @@ export type TransactionCriteria = {
     asset?: OrContainsCriteria<Record<string, any>>;
 };
 
+export type OrBlockCriteria = OrCriteria<BlockCriteria>;
 export type OrTransactionCriteria = OrCriteria<TransactionCriteria>;

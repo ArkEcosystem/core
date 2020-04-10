@@ -11,7 +11,30 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
 
     private readonly handler = new Contracts.Database.CriteriaHandler<Transaction>();
 
-    public async getExpression(
+    public async getWalletExpression(
+        wallet: Contracts.State.Wallet,
+    ): Promise<Contracts.Database.Expression<Transaction>> {
+        const recipientIdExpression = new Contracts.Database.EqualExpression("recipientId", wallet.address);
+        const paymentExpression = new Contracts.Database.ContainsExpression("asset", {
+            payment: [{ recipientId: wallet.address }],
+        });
+        if (wallet.publicKey) {
+            const senderPublicKeyExpression = new Contracts.Database.EqualExpression(
+                "senderPublicKey",
+                wallet.publicKey,
+            );
+
+            return Contracts.Database.OrExpression.make([
+                recipientIdExpression,
+                paymentExpression,
+                senderPublicKeyExpression,
+            ]);
+        }
+
+        return Contracts.Database.OrExpression.make([recipientIdExpression, paymentExpression]);
+    }
+
+    public async getCriteriaExpression(
         criteria: Contracts.Database.OrTransactionCriteria,
     ): Promise<Contracts.Database.Expression<Transaction>> {
         return this.handler.handleOrCriteria(criteria, (c) => this.handleTransactionCriteria(c));
@@ -22,8 +45,6 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     ): Promise<Contracts.Database.Expression<Transaction>> {
         const expression = await this.handler.handleAndCriteria(criteria, async (key) => {
             switch (key) {
-                case "wallet":
-                    return this.handler.handleOrCriteria(criteria.wallet!, (c) => this.handleWalletCriteria(c));
                 case "senderId":
                     return this.handler.handleOrCriteria(criteria.senderId!, (c) => this.handleSenderIdCriteria(c));
                 case "id":
@@ -62,30 +83,6 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
         });
 
         return Contracts.Database.AndExpression.make([expression, await this.getAutoTypeGroupExpression(criteria)]);
-    }
-
-    private async handleWalletCriteria(
-        criteria: Contracts.Database.TransactionWalletCriteria,
-    ): Promise<Contracts.Database.Expression<Transaction>> {
-        const recipientIdExpression = new Contracts.Database.EqualExpression("recipientId", criteria.address);
-        const assetExpression = new Contracts.Database.ContainsExpression("asset", {
-            payment: [{ recipientId: criteria.address }],
-        });
-
-        if (criteria.publicKey) {
-            const senderPublicKeyExpression = new Contracts.Database.EqualExpression(
-                "senderPublicKey",
-                criteria.publicKey,
-            );
-
-            return Contracts.Database.OrExpression.make([
-                recipientIdExpression,
-                assetExpression,
-                senderPublicKeyExpression,
-            ]);
-        } else {
-            return Contracts.Database.OrExpression.make([recipientIdExpression, assetExpression]);
-        }
     }
 
     private async handleSenderIdCriteria(

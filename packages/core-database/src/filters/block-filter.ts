@@ -6,7 +6,7 @@ import { Block } from "../models";
 export class BlockFilter implements Contracts.Database.BlockFilter {
     private readonly handler = new Contracts.Database.CriteriaHandler<Block>();
 
-    public async getExpression(
+    public async getCriteriaExpression(
         criteria: Contracts.Database.OrBlockCriteria,
     ): Promise<Contracts.Database.Expression<Block>> {
         return this.handler.handleOrCriteria(criteria, this.handleBlockCriteria.bind(this));

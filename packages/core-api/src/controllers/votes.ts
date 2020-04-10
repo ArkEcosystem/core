@@ -1,6 +1,5 @@
-import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces } from "@arkecosystem/crypto";
+import { Enums } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -9,39 +8,30 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class VotesController extends Controller {
-    @Container.inject(Container.Identifiers.TransactionRepository)
-    protected readonly transactionRepository!: Repositories.TransactionRepository;
-
     @Container.inject(Container.Identifiers.DatabaseTransactionService)
     private readonly databaseTransactionService!: Contracts.Database.TransactionService;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const searchResult: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
-            { ...request.query, typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.Vote },
-            request.query.orderBy,
-            this.paginate(request),
+        const transactionListResult = await this.databaseTransactionService.listVoteByCriteria(
+            request.query,
+            this.getListOrder(request),
+            this.getListPage(request),
         );
 
-        return this.toPagination(searchResult, TransactionResource, (request.query.transform as unknown) as boolean);
+        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const searchResult: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
-            {
-                id: request.params.id,
-                typeGroup: Enums.TransactionTypeGroup.Core,
-                type: Enums.TransactionType.Vote,
-            },
-        );
+        const transaction = await this.databaseTransactionService.findOneById(request.params.id);
+        const found =
+            transaction &&
+            transaction.typeGroup === Enums.TransactionTypeGroup.Core &&
+            transaction.type === Enums.TransactionType.Vote;
 
-        if (searchResult.count !== 1) {
+        if (!found) {
             return Boom.notFound("Vote not found");
         }
 
-        return this.respondWithResource(
-            searchResult.rows[0],
-            TransactionResource,
-            (request.query.transform as unknown) as boolean,
-        );
+        return this.respondWithResource(transaction, TransactionResource, request.query.transform);
     }
 }

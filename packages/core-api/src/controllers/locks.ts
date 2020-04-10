@@ -1,4 +1,3 @@
-import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -8,8 +7,8 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class LocksController extends Controller {
-    @Container.inject(Container.Identifiers.TransactionRepository)
-    protected readonly transactionRepository!: Repositories.TransactionRepository;
+    @Container.inject(Container.Identifiers.DatabaseTransactionService)
+    protected readonly databaseTransactionService!: Contracts.Database.TransactionService;
 
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
@@ -18,7 +17,7 @@ export class LocksController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListPage(request),
         });
 
         return this.toPagination(locks, LockResource);
@@ -40,21 +39,19 @@ export class LocksController extends Controller {
         const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             ...request.payload,
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListPage(request),
         });
 
         return this.toPagination(locks, LockResource);
     }
 
     public async unlocked(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions = await this.transactionRepository.findByHtlcLocks(request.payload.ids);
-
-        return this.toPagination(
-            {
-                count: transactions.length,
-                rows: transactions,
-            },
-            TransactionResource,
+        const transactionListResult = await this.databaseTransactionService.listHtlcClaimRefundByLockIds(
+            request.payload.ids,
+            this.getListOrder(request),
+            this.getListPage(request),
         );
+
+        return this.toPagination(transactionListResult, TransactionResource);
     }
 }

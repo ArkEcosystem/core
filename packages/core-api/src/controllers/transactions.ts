@@ -1,4 +1,3 @@
-import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
@@ -19,9 +18,6 @@ export class TransactionsController extends Controller {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
-    private readonly transactionRepository!: Repositories.TransactionRepository;
-
     @Container.inject(Container.Identifiers.DatabaseTransactionService)
     private readonly databaseTransactionService!: Contracts.Database.TransactionService;
 
@@ -29,13 +25,13 @@ export class TransactionsController extends Controller {
     private readonly createProcessor!: Contracts.TransactionPool.ProcessorFactory;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
+        const transactionListResult = await this.databaseTransactionService.listByCriteria(
             request.query,
-            request.query.orderBy,
-            this.paginate(request),
+            this.getListOrder(request),
+            this.getListPage(request),
         );
 
-        return this.toPagination(transactions, TransactionResource, (request.query.transform as unknown) as boolean);
+        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async store(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -53,21 +49,16 @@ export class TransactionsController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction: Models.Transaction = await this.transactionRepository.findById(request.params.id);
-
+        const transaction = await this.databaseTransactionService.findOneById(request.params.id);
         if (!transaction) {
             return Boom.notFound("Transaction not found");
         }
 
-        return this.respondWithResource(
-            transaction,
-            TransactionResource,
-            (request.query.transform as unknown) as boolean,
-        );
+        return this.respondWithResource(transaction, TransactionResource, request.query.transform);
     }
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const pagination: Contracts.Database.SearchPage = super.paginate(request);
+        const pagination: Contracts.Database.ListPage = super.getListPage(request);
         const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getFromHighestPriority());
         const transactions: Interfaces.ITransaction[] = all.slice(
             pagination.offset,
@@ -93,13 +84,13 @@ export class TransactionsController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions: Contracts.Database.SearchResult<Interfaces.ITransactionData> = await this.databaseTransactionService.search(
+        const transactionListResult = await this.databaseTransactionService.listByCriteria(
             request.payload,
-            request.query.orderBy,
-            this.paginate(request),
+            this.getListOrder(request),
+            this.getListPage(request),
         );
 
-        return this.toPagination(transactions, TransactionResource, (request.query.transform as unknown) as boolean);
+        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {

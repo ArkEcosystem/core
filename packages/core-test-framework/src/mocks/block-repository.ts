@@ -36,11 +36,11 @@ class BlockRepositoryMock implements Partial<BlockRepository> {
         return mockBlock as Block;
     }
 
-    public async search(
+    public async listByExpression(
         expressions: Contracts.Database.Expression<Block>,
-        order: Contracts.Database.SearchOrder<Block>,
-        page: Contracts.Database.SearchPage,
-    ): Promise<Contracts.Database.SearchResult<Block>> {
+        order: Contracts.Database.ListOrder,
+        page: Contracts.Database.ListPage,
+    ): Promise<Contracts.Database.ListResult<Block>> {
         return {
             rows: mockBlocks as Block[],
             count: mockBlocks.length,

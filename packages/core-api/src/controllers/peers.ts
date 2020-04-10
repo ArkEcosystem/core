@@ -56,7 +56,7 @@ export class PeersController extends Controller {
                     result = Utils.orderBy(
                         result,
                         (el) => el.state[orderByMapped[0]],
-                        orderByMapped[1] === "asc" ? "asc" : "desc",
+                        orderByMapped[1] === "asc" ? "asc" : "desc", // ? why desc is default
                     );
                     break;
                 }
