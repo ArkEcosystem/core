@@ -1,5 +1,5 @@
 import { DatabaseService } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import pluralize from "pluralize";

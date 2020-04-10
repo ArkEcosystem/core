@@ -22,7 +22,7 @@
             {
                 "package": "@arkecosystem/core-p2p",
                 "options": {
-                    "minimumNetworkReach": 3
+                    "minimumNetworkReach": 1
                 }
             },
             {
@@ -65,7 +65,7 @@
             {
                 "package": "@arkecosystem/core-p2p",
                 "options": {
-                    "minimumNetworkReach": 3
+                    "minimumNetworkReach": 1
                 }
             },
             {
