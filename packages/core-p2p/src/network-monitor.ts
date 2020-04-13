@@ -1,7 +1,6 @@
-import { Container, Contracts, Enums, Providers, Utils, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Services, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import prettyMs from "pretty-ms";
-import SocketCluster from "socketcluster";
 
 import { NetworkState } from "./network-state";
 import { PeerCommunicator } from "./peer-communicator";
@@ -11,7 +10,6 @@ import { buildRateLimiter, checkDNS, checkNTP } from "./utils";
 // todo: review the implementation
 @Container.injectable()
 export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
-    public server: SocketCluster | undefined;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean | undefined;
     private coldStart: boolean = false;
@@ -56,15 +54,6 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         this.rateLimiter = buildRateLimiter(this.config);
     }
 
-    public getServer(): SocketCluster {
-        // @ts-ignore
-        return this.server;
-    }
-
-    public setServer(server: SocketCluster): void {
-        this.server = server;
-    }
-
     public async boot(): Promise<void> {
         await this.checkDNSConnectivity(this.config.dns);
         await this.checkNTPConnectivity(this.config.ntp);
@@ -88,14 +77,6 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         await Utils.sleep(1000);
 
         this.initializing = false;
-    }
-
-    public dispose(): void {
-        if (this.server) {
-            this.server.removeAllListeners();
-            this.server.destroy();
-            this.server = undefined;
-        }
     }
 
     public async updateNetworkStatus(initialRun?: boolean): Promise<void> {
@@ -594,7 +575,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 if (!peerList.find((p) => p.ip === peer.ip)) {
                     peerList.push({
                         ip: peer.ip,
-                        ports: { "@arkecosystem/core-api": peer.port },
+                        ports: { "@arkecosystem/core-p2p": peer.port },
                         version: this.app.version(),
                     });
                 }
