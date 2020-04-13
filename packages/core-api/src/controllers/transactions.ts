@@ -84,13 +84,18 @@ export class TransactionsController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactionListResult = await this.databaseTransactionService.listByCriteria(
-            request.payload,
-            this.getListOrder(request),
-            this.getListPage(request),
-        );
+        try {
+            const transactionListResult = await this.databaseTransactionService.listByCriteria(
+                request.payload,
+                this.getListOrder(request),
+                this.getListPage(request),
+            );
 
-        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
+            return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
+        } catch (error) {
+            console.error(error.stack);
+            throw error;
+        }
     }
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -146,34 +151,30 @@ export class TransactionsController extends Controller {
     }
 
     public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        try {
-            const currentHeight: number = this.app
-                .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
-                .getLastHeight();
+        const currentHeight: number = this.app
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
+            .getLastHeight();
 
-            const activatedTransactionHandlers = await this.app
-                .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
-                .getActivatedHandlers();
+        const activatedTransactionHandlers = await this.app
+            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
+            .getActivatedHandlers();
 
-            const typeGroups: Record<string | number, Record<string, string>> = {};
+        const typeGroups: Record<string | number, Record<string, string>> = {};
 
-            for (const handler of activatedTransactionHandlers) {
-                const constructor = handler.getConstructor();
+        for (const handler of activatedTransactionHandlers) {
+            const constructor = handler.getConstructor();
 
-                const { typeGroup, key } = constructor;
-                AppUtils.assert.defined<number>(typeGroup);
-                AppUtils.assert.defined<string>(key);
+            const { typeGroup, key } = constructor;
+            AppUtils.assert.defined<number>(typeGroup);
+            AppUtils.assert.defined<string>(key);
 
-                if (typeGroups[typeGroup] === undefined) {
-                    typeGroups[typeGroup] = {};
-                }
-
-                typeGroups[typeGroup][key] = constructor.staticFee({ height: currentHeight }).toFixed();
+            if (typeGroups[typeGroup] === undefined) {
+                typeGroups[typeGroup] = {};
             }
 
-            return { data: typeGroups };
-        } catch (error) {
-            return Boom.badImplementation(error);
+            typeGroups[typeGroup][key] = constructor.staticFee({ height: currentHeight }).toFixed();
         }
+
+        return { data: typeGroups };
     }
 }

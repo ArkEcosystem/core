@@ -1,20 +1,27 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import { Block } from "../models";
+import { CriteriaHandler } from "./criteria-handler";
 
 @Container.injectable()
 export class BlockFilter implements Contracts.Database.BlockFilter {
-    private readonly handler = new Contracts.Database.CriteriaHandler<Block>();
+    private readonly handler = new CriteriaHandler<Block>();
 
     public async getCriteriaExpression(
-        criteria: Contracts.Database.OrBlockCriteria,
-    ): Promise<Contracts.Database.Expression<Block>> {
-        return this.handler.handleOrCriteria(criteria, this.handleBlockCriteria.bind(this));
+        ...criteria: Contracts.Database.OrBlockCriteria[]
+    ): Promise<Contracts.Database.Expression> {
+        const promises = criteria.map((c) => {
+            return this.handler.handleOrCriteria(c, (c) => {
+                return this.handleBlockCriteria(c);
+            });
+        });
+
+        return Contracts.Database.AndExpression.make(await Promise.all(promises));
     }
 
     private async handleBlockCriteria(
         criteria: Contracts.Database.BlockCriteria,
-    ): Promise<Contracts.Database.Expression<Block>> {
+    ): Promise<Contracts.Database.Expression> {
         return this.handler.handleAndCriteria(criteria, async (key) => {
             switch (key) {
                 case "id":

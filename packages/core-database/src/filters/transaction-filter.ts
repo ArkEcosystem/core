@@ -2,6 +2,7 @@ import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
 
 import { Transaction } from "../models";
+import { CriteriaHandler } from "./criteria-handler";
 
 @Container.injectable()
 export class TransactionFilter implements Contracts.Database.TransactionFilter {
@@ -9,40 +10,23 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
-    private readonly handler = new Contracts.Database.CriteriaHandler<Transaction>();
-
-    public async getWalletExpression(
-        wallet: Contracts.State.Wallet,
-    ): Promise<Contracts.Database.Expression<Transaction>> {
-        const recipientIdExpression = new Contracts.Database.EqualExpression("recipientId", wallet.address);
-        const paymentExpression = new Contracts.Database.ContainsExpression("asset", {
-            payment: [{ recipientId: wallet.address }],
-        });
-        if (wallet.publicKey) {
-            const senderPublicKeyExpression = new Contracts.Database.EqualExpression(
-                "senderPublicKey",
-                wallet.publicKey,
-            );
-
-            return Contracts.Database.OrExpression.make([
-                recipientIdExpression,
-                paymentExpression,
-                senderPublicKeyExpression,
-            ]);
-        }
-
-        return Contracts.Database.OrExpression.make([recipientIdExpression, paymentExpression]);
-    }
+    private readonly handler = new CriteriaHandler<Transaction>();
 
     public async getCriteriaExpression(
-        criteria: Contracts.Database.OrTransactionCriteria,
-    ): Promise<Contracts.Database.Expression<Transaction>> {
-        return this.handler.handleOrCriteria(criteria, (c) => this.handleTransactionCriteria(c));
+        ...criteria: Contracts.Database.OrTransactionCriteria[]
+    ): Promise<Contracts.Database.Expression> {
+        const promises = criteria.map((c) => {
+            return this.handler.handleOrCriteria(c, (c) => {
+                return this.handleTransactionCriteria(c);
+            });
+        });
+
+        return Contracts.Database.AndExpression.make(await Promise.all(promises));
     }
 
     private async handleTransactionCriteria(
         criteria: Contracts.Database.TransactionCriteria,
-    ): Promise<Contracts.Database.Expression<Transaction>> {
+    ): Promise<Contracts.Database.Expression> {
         const expression = await this.handler.handleAndCriteria(criteria, async (key) => {
             switch (key) {
                 case "senderId":
@@ -87,7 +71,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
 
     private async handleSenderIdCriteria(
         criteria: Contracts.Database.EqualCriteria<string>,
-    ): Promise<Contracts.Database.Expression<Transaction>> {
+    ): Promise<Contracts.Database.Expression> {
         const senderWallet = this.walletRepository.findByAddress(criteria);
 
         if (senderWallet && senderWallet.publicKey) {
@@ -99,7 +83,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
 
     private async handleRecipientIdCriteria(
         criteria: Contracts.Database.EqualCriteria<string>,
-    ): Promise<Contracts.Database.Expression<Transaction>> {
+    ): Promise<Contracts.Database.Expression> {
         const recipientIdExpression = new Contracts.Database.EqualExpression("recipientId", criteria);
 
         const recipientWallet = this.walletRepository.findByAddress(criteria);
@@ -118,7 +102,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
 
     private async getAutoTypeGroupExpression(
         criteria: Contracts.Database.TransactionCriteria,
-    ): Promise<Contracts.Database.Expression<Transaction>> {
+    ): Promise<Contracts.Database.Expression> {
         if (this.handler.hasOrCriteria(criteria.type) && this.handler.hasOrCriteria(criteria.typeGroup) === false) {
             return new Contracts.Database.EqualExpression("typeGroup", Enums.TransactionTypeGroup.Core);
         } else {

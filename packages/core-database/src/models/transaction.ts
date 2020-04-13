@@ -1,4 +1,4 @@
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 import { Column, Entity, Index } from "typeorm";
 
 import { transformBigInt, transformVendorField } from "./utils";
@@ -11,7 +11,7 @@ import { transformBigInt, transformVendorField } from "./utils";
 @Index(["senderPublicKey"])
 @Index(["recipientId"])
 @Index(["timestamp"])
-export class Transaction implements Interfaces.ITransactionData {
+export class Transaction {
     @Column({
         primary: true,
         type: "varchar",

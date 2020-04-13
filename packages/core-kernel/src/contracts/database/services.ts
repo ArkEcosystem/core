@@ -21,12 +21,11 @@ export type ListResult<TModel> = {
 };
 
 export interface BlockFilter {
-    getCriteriaExpression(criteria: OrBlockCriteria): Promise<Expression<Interfaces.IBlockData>>;
+    getCriteriaExpression(...criteria: OrBlockCriteria[]): Promise<Expression>;
 }
 
 export interface TransactionFilter {
-    getWalletExpression(wallet: Wallet): Promise<Expression<Interfaces.ITransactionData>>;
-    getCriteriaExpression(criteria: OrTransactionCriteria): Promise<Expression<Interfaces.ITransactionData>>;
+    getCriteriaExpression(...criteria: OrTransactionCriteria[]): Promise<Expression>;
 }
 
 export interface BlockService {

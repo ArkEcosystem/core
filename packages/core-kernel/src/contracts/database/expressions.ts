@@ -1,80 +1,82 @@
-export class VoidExpression {}
+export interface Expression {}
 
-export class FalseExpression {}
+export class VoidExpression implements Expression {}
 
-export class TrueExpression {}
+export class FalseExpression implements Expression {}
 
-export class EqualExpression<TModel> {
-    public readonly property: keyof TModel;
+export class TrueExpression implements Expression {}
+
+export class EqualExpression<TEntity> implements Expression {
+    public readonly property: keyof TEntity;
     public readonly value: any;
 
-    public constructor(property: keyof TModel, value: any) {
+    public constructor(property: keyof TEntity, value: any) {
         this.property = property;
         this.value = value;
     }
 }
 
-export class BetweenExpression<TModel> {
-    public readonly property: keyof TModel;
+export class BetweenExpression<TEntity> implements Expression {
+    public readonly property: keyof TEntity;
     public readonly from: any;
     public readonly to: any;
 
-    public constructor(property: keyof TModel, from: any, to: any) {
+    public constructor(property: keyof TEntity, from: any, to: any) {
         this.property = property;
         this.from = from;
         this.to = to;
     }
 }
 
-export class GreaterThanEqualExpression<TModel> {
-    public readonly property: keyof TModel;
+export class GreaterThanEqualExpression<TEntity> implements Expression {
+    public readonly property: keyof TEntity;
     public readonly from: any;
 
-    public constructor(property: keyof TModel, from: any) {
+    public constructor(property: keyof TEntity, from: any) {
         this.property = property;
         this.from = from;
     }
 }
 
-export class LessThanEqualExpression<TModel> {
-    public readonly property: keyof TModel;
+export class LessThanEqualExpression<TEntity> implements Expression {
+    public readonly property: keyof TEntity;
     public readonly to: any;
 
-    public constructor(property: keyof TModel, to: any) {
+    public constructor(property: keyof TEntity, to: any) {
         this.property = property;
         this.to = to;
     }
 }
 
-export class LikeExpression<TModel> {
-    public readonly property: keyof TModel;
+export class LikeExpression<TEntity> implements Expression {
+    public readonly property: keyof TEntity;
     public readonly value: any;
 
-    public constructor(property: keyof TModel, value: any) {
+    public constructor(property: keyof TEntity, value: any) {
         this.property = property;
         this.value = value;
     }
 }
 
-export class ContainsExpression<TModel> {
-    public readonly property: keyof TModel;
+export class ContainsExpression<TEntity> implements Expression {
+    public readonly property: keyof TEntity;
     public readonly value: any;
 
-    public constructor(property: keyof TModel, value: any) {
+    public constructor(property: keyof TEntity, value: any) {
         this.property = property;
         this.value = value;
     }
 }
 
-export class AndExpression<TModel> {
-    public readonly expressions: Expression<TModel>[];
+export class AndExpression implements Expression {
+    public readonly expressions: Expression[];
 
-    private constructor(expressions: Expression<TModel>[]) {
+    private constructor(expressions: Expression[]) {
         this.expressions = expressions;
     }
 
-    public static make<TModel>(expressions: Expression<TModel>[]): Expression<TModel> {
-        const flattened: Expression<TModel>[] = [];
+    public static make(expressions: Expression[]): Expression {
+        const flattened: Expression[] = [];
 
         for (const exp of expressions) {
             if (exp instanceof VoidExpression) {
@@ -97,15 +99,15 @@ export class AndExpression<TModel> {
     }
 }
 
-export class OrExpression<TModel> {
-    public readonly expressions: Expression<TModel>[];
+export class OrExpression implements Expression {
+    public readonly expressions: Expression[];
 
-    private constructor(expressions: Expression<TModel>[]) {
+    private constructor(expressions: Expression[]) {
         this.expressions = expressions;
     }
 
-    public static make<TModel>(expressions: Expression<TModel>[]): Expression<TModel> {
-        const flattened: Expression<TModel>[] = [];
+    public static make(expressions: Expression[]): Expression {
+        const flattened: Expression[] = [];
 
         for (const exp of expressions) {
             if (exp instanceof VoidExpression) {
@@ -127,16 +129,3 @@ export class OrExpression<TModel> {
         return new OrExpression(flattened);
     }
 }
-
-export type Expression<TModel> =
-    | VoidExpression
-    | FalseExpression
-    | TrueExpression
-    | EqualExpression<TModel>
-    | BetweenExpression<TModel>
-    | GreaterThanEqualExpression<TModel>
-    | LessThanEqualExpression<TModel>
-    | LikeExpression<TModel>
-    | ContainsExpression<TModel>
-    | AndExpression<TModel>
-    | OrExpression<TModel>;

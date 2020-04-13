@@ -129,12 +129,15 @@ describe("API 2.0 - Transactions", () => {
                 timestamp: 0,
                 version: 1,
                 type: 0,
+                typeGroup: 1,
                 fee: "0",
                 amount: "300000000000000",
+                blockId: expect.anything(), // ? how is that blockId isn't constant
                 recipientId: genesisTransaction.recipientId,
                 senderPublicKey: genesisTransaction.senderPublicKey,
                 expiration: 0,
                 network: 23,
+                nonce: "1",
                 signature: genesisTransaction.signature,
             });
         });

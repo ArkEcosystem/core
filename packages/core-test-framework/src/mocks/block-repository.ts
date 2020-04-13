@@ -37,7 +37,7 @@ class BlockRepositoryMock implements Partial<BlockRepository> {
     }
 
     public async listByExpression(
-        expressions: Contracts.Database.Expression<Block>,
+        expressions: Contracts.Database.Expression,
         order: Contracts.Database.ListOrder,
         page: Contracts.Database.ListPage,
     ): Promise<Contracts.Database.ListResult<Block>> {

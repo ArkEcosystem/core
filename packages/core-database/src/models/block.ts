@@ -1,4 +1,4 @@
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 import { Column, Entity, Index } from "typeorm";
 
 import { transformBigInt } from "./utils";
@@ -7,7 +7,7 @@ import { transformBigInt } from "./utils";
     name: "blocks",
 })
 @Index(["generatorPublicKey"])
-export class Block implements Interfaces.IBlockData {
+export class Block {
     @Column({
         primary: true,
         type: "varchar",

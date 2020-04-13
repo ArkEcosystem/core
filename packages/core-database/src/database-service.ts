@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import { Connection } from "typeorm";

@@ -1,6 +1,7 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 
+import { Transaction } from "../models/transaction";
 import { TransactionRepository } from "../repositories/transaction-repository";
 
 @Container.injectable()
@@ -15,19 +16,22 @@ export class TransactionService implements Contracts.Database.TransactionService
         criteria: Contracts.Database.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData | undefined> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria);
-        return this.transactionRepository.findOneByExpression(expression);
+        const model = await this.transactionRepository.findOneByExpression(expression);
+        return model ? this.convertModel(model) : undefined;
     }
 
     public async findOneById(id: string): Promise<Interfaces.ITransactionData | undefined> {
         const expression = await this.transactionFilter.getCriteriaExpression({ id });
-        return this.transactionRepository.findOneByExpression(expression);
+        const model = await this.transactionRepository.findOneByExpression(expression);
+        return model ? this.convertModel(model) : undefined;
     }
 
     public async findManyByCriteria(
         criteria: Contracts.Database.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData[]> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria);
-        return this.transactionRepository.findManyByExpression(expression);
+        const models = await this.transactionRepository.findManyByExpression(expression);
+        return this.convertModels(models);
     }
 
     public async listByCriteria(
@@ -36,7 +40,8 @@ export class TransactionService implements Contracts.Database.TransactionService
         page: Contracts.Database.ListPage,
     ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria);
-        return this.transactionRepository.listByExpression(expression, order, page);
+        const listResult = await this.transactionRepository.listByExpression(expression, order, page);
+        return this.convertListResult(listResult);
     }
 
     public async listByBlockIdAndCriteria(
@@ -45,10 +50,9 @@ export class TransactionService implements Contracts.Database.TransactionService
         order: Contracts.Database.ListOrder,
         page: Contracts.Database.ListPage,
     ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
-        const blockIdExpression = await this.transactionFilter.getCriteriaExpression({ blockId });
-        const criteriaExpression = await this.transactionFilter.getCriteriaExpression(criteria);
-        const expression = Contracts.Database.AndExpression.make([blockIdExpression, criteriaExpression]);
-        return this.transactionRepository.listByExpression(expression, order, page);
+        const expression = await this.transactionFilter.getCriteriaExpression(criteria, { blockId });
+        const listResult = await this.transactionRepository.listByExpression(expression, order, page);
+        return this.convertListResult(listResult);
     }
 
     public async listHtlcClaimRefundByLockIds(
@@ -68,7 +72,8 @@ export class TransactionService implements Contracts.Database.TransactionService
                 asset: lockIds.map((lockId) => ({ refund: { lockTransactionId: lockId } })),
             },
         ]);
-        return this.transactionRepository.listByExpression(expression, order, page);
+        const listResult = await this.transactionRepository.listByExpression(expression, order, page);
+        return this.convertListResult(listResult);
     }
 
     public async listVoteByCriteria(
@@ -76,13 +81,12 @@ export class TransactionService implements Contracts.Database.TransactionService
         order: Contracts.Database.ListOrder,
         page: Contracts.Database.ListPage,
     ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
-        const voteExpression = await this.transactionFilter.getCriteriaExpression({
+        const expression = await this.transactionFilter.getCriteriaExpression(criteria, {
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
         });
-        const criteriaExpression = await this.transactionFilter.getCriteriaExpression(criteria);
-        const expression = Contracts.Database.AndExpression.make([voteExpression, criteriaExpression]);
-        return this.transactionRepository.listByExpression(expression, order, page);
+        const listResult = await this.transactionRepository.listByExpression(expression, order, page);
+        return this.convertListResult(listResult);
     }
 
     public async listByWalletAndCriteria(
@@ -91,10 +95,13 @@ export class TransactionService implements Contracts.Database.TransactionService
         order: Contracts.Database.ListOrder,
         page: Contracts.Database.ListPage,
     ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
-        const walletExpression = await this.transactionFilter.getWalletExpression(wallet);
-        const criteriaExpression = await this.transactionFilter.getCriteriaExpression(criteria);
-        const expression = Contracts.Database.AndExpression.make([walletExpression, criteriaExpression]);
-        return this.transactionRepository.listByExpression(expression, order, page);
+        const expression = await this.transactionFilter.getCriteriaExpression(criteria, {
+            recipientId: wallet.address,
+            asset: { payment: [{ recipientId: wallet.address }] },
+            senderPublicKey: wallet.publicKey,
+        });
+        const listResult = await this.transactionRepository.listByExpression(expression, order, page);
+        return this.convertListResult(listResult);
     }
 
     public async listBySenderPublicKeyAndCriteria(
@@ -103,10 +110,9 @@ export class TransactionService implements Contracts.Database.TransactionService
         order: Contracts.Database.ListOrder,
         page: Contracts.Database.ListPage,
     ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
-        const senderPublicKeyExpression = await this.transactionFilter.getCriteriaExpression({ senderPublicKey });
-        const criteriaExpression = await this.transactionFilter.getCriteriaExpression(criteria);
-        const expression = Contracts.Database.AndExpression.make([senderPublicKeyExpression, criteriaExpression]);
-        return this.transactionRepository.listByExpression(expression, order, page);
+        const expression = await this.transactionFilter.getCriteriaExpression(criteria, { senderPublicKey });
+        const listResult = await this.transactionRepository.listByExpression(expression, order, page);
+        return this.convertListResult(listResult);
     }
 
     public async listByRecipientIdAndCriteria(
@@ -115,10 +121,9 @@ export class TransactionService implements Contracts.Database.TransactionService
         order: Contracts.Database.ListOrder,
         page: Contracts.Database.ListPage,
     ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
-        const recipientIdExpression = await this.transactionFilter.getCriteriaExpression({ recipientId });
-        const criteriaExpression = await this.transactionFilter.getCriteriaExpression(criteria);
-        const expression = Contracts.Database.AndExpression.make([recipientIdExpression, criteriaExpression]);
-        return this.transactionRepository.listByExpression(expression, order, page);
+        const expression = await this.transactionFilter.getCriteriaExpression(criteria, { recipientId });
+        const listResult = await this.transactionRepository.listByExpression(expression, order, page);
+        return this.convertListResult(listResult);
     }
 
     public async listVoteBySenderPublicKeyAndCriteria(
@@ -127,18 +132,13 @@ export class TransactionService implements Contracts.Database.TransactionService
         order: Contracts.Database.ListOrder,
         page: Contracts.Database.ListPage,
     ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
-        const voteExpression = await this.transactionFilter.getCriteriaExpression({
+        const expression = await this.transactionFilter.getCriteriaExpression(criteria, {
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
+            senderPublicKey,
         });
-        const senderPublicKeyExpression = await this.transactionFilter.getCriteriaExpression({ senderPublicKey });
-        const criteriaExpression = await this.transactionFilter.getCriteriaExpression(criteria);
-        const expression = Contracts.Database.AndExpression.make([
-            voteExpression,
-            senderPublicKeyExpression,
-            criteriaExpression,
-        ]);
-        return this.transactionRepository.listByExpression(expression, order, page);
+        const listResult = await this.transactionRepository.listByExpression(expression, order, page);
+        return this.convertListResult(listResult);
     }
 
     public async listHtlcLockBySenderPublicKeyAndCriteria(
@@ -147,17 +147,33 @@ export class TransactionService implements Contracts.Database.TransactionService
         order: Contracts.Database.ListOrder,
         page: Contracts.Database.ListPage,
     ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
-        const lockExpression = await this.transactionFilter.getCriteriaExpression({
+        const expression = await this.transactionFilter.getCriteriaExpression(criteria, {
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.HtlcLock,
+            senderPublicKey,
         });
-        const senderPublicKeyExpression = await this.transactionFilter.getCriteriaExpression({ senderPublicKey });
-        const criteriaExpression = await this.transactionFilter.getCriteriaExpression(criteria);
-        const expression = Contracts.Database.AndExpression.make([
-            lockExpression,
-            senderPublicKeyExpression,
-            criteriaExpression,
-        ]);
-        return this.transactionRepository.listByExpression(expression, order, page);
+        const listResult = await this.transactionRepository.listByExpression(expression, order, page);
+        return this.convertListResult(listResult);
+    }
+
+    private convertModel(model: Transaction): Interfaces.ITransactionData {
+        const data = Transactions.TransactionFactory.fromBytesUnsafe(model.serialized, model.id).data;
+        data.nonce = model.nonce; // set_row_nonce trigger
+        data.blockId = model.blockId; // block constructor
+        return data;
+    }
+
+    private convertModels(models: Transaction[]): Interfaces.ITransactionData[] {
+        return models.map((m) => this.convertModel(m));
+    }
+
+    private convertListResult(
+        listResult: Contracts.Database.ListResult<Transaction>,
+    ): Contracts.Database.ListResult<Interfaces.ITransactionData> {
+        return {
+            rows: this.convertModels(listResult.rows),
+            count: listResult.count,
+            countIsEstimate: listResult.countIsEstimate,
+        };
     }
 }

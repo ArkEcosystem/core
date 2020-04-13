@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import { Resource } from "../interfaces";
 
@@ -14,32 +14,24 @@ export class TransactionResource implements Resource {
     @Container.tagged("state", "blockchain")
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
-    /**
-     * @protected
-     * @type {Contracts.Blockchain.Blockchain}
-     * @memberof Resource
-     */
-    @Container.inject(Container.Identifiers.BlockchainService)
-    protected readonly blockchainService!: Contracts.Blockchain.Blockchain;
-
     @Container.inject(Container.Identifiers.DatabaseBlockService)
     protected readonly databaseBlockService!: Contracts.Database.BlockService;
 
     /**
      * Return the raw representation of the resource.
      *
-     * @param {*} resource
+     * @param {Interfaces.ITransactionData} resource
      * @returns {object}
      * @memberof Resource
      */
     public raw(resource: Interfaces.ITransactionData): object {
-        return Transactions.TransactionFactory.fromData(resource).toJson();
+        return JSON.parse(JSON.stringify(resource));
     }
 
     /**
      * Return the transformed representation of the resource.
      *
-     * @param {*} resource
+     * @param {Interfaces.ITransactionData} resource
      * @returns {object}
      * @memberof Resource
      */
@@ -64,7 +56,9 @@ export class TransactionResource implements Resource {
             signatures: resource.signatures,
             vendorField: resource.vendorField,
             asset: resource.asset,
-            timestamp: resource.timestamp !== undefined ? AppUtils.formatTimestamp(resource.timestamp) : undefined,
+            confirmations: 0, // ! resource.block ? lastBlock.data.height - resource.block.height + 1 : 0
+            timestamp:
+                typeof resource.timestamp !== "undefined" ? AppUtils.formatTimestamp(resource.timestamp) : undefined,
             nonce: resource.nonce!.toFixed(),
         };
     }

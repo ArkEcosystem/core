@@ -12,15 +12,15 @@ export class SqlExpression {
     }
 }
 
-export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> extends Repository<TModel> {
+export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> extends Repository<TEntity> {
     private paramNo = 0;
 
-    public async findById(id: string): Promise<TModel> {
+    public async findById(id: string): Promise<TEntity> {
         return (await this.findByIds([id]))[0];
     }
 
-    public async findOneByExpression(expression: Contracts.Database.Expression<TModel>): Promise<TModel | undefined> {
-        const queryBuilder: SelectQueryBuilder<TModel> = this.createQueryBuilder().select();
+    public async findOneByExpression(expression: Contracts.Database.Expression): Promise<TEntity | undefined> {
+        const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
         if (expression instanceof Contracts.Database.VoidExpression === false) {
             const sqlExpression: SqlExpression = this.buildSqlExpression(expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
@@ -28,8 +28,8 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
         return queryBuilder.getOne();
     }
 
-    public async findManyByExpression(expression: Contracts.Database.Expression<TModel>): Promise<TModel[]> {
-        const queryBuilder: SelectQueryBuilder<TModel> = this.createQueryBuilder().select();
+    public async findManyByExpression(expression: Contracts.Database.Expression): Promise<TEntity[]> {
+        const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
         if (expression instanceof Contracts.Database.VoidExpression === false) {
             const sqlExpression: SqlExpression = this.buildSqlExpression(expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
@@ -39,10 +39,10 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
     }
 
     public async listByExpression(
-        expression: Contracts.Database.Expression<TModel>,
+        expression: Contracts.Database.Expression,
         order: Contracts.Database.ListOrder,
         page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<TModel>> {
+    ): Promise<Contracts.Database.ListResult<TEntity>> {
         const queryBuilder = this.createQueryBuilder().select().skip(page.offset).take(page.limit);
 
         if (expression instanceof Contracts.Database.VoidExpression === false) {
@@ -51,19 +51,19 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
         }
 
         for (const item of order) {
-            const column = this.getColumn(item.property);
+            const column = this.getColumnName(item.property);
             queryBuilder.addOrderBy(column, item.direction.toUpperCase() as "ASC" | "DESC");
         }
 
-        const [rows, count]: [TModel[], number] = await queryBuilder.getManyAndCount();
+        const [rows, count]: [TEntity[], number] = await queryBuilder.getManyAndCount();
         return { rows, count, countIsEstimate: false };
     }
 
     protected rawToEntity(
         rawEntity: Record<string, any>,
-        customPropertyHandler?: (entity: { [P in keyof TModel]?: TModel[P] }, key: string, value: any) => void,
-    ): TModel {
-        const entity: TModel = this.create();
+        customPropertyHandler?: (entity: { [P in keyof TEntity]?: TEntity[P] }, key: string, value: any) => void,
+    ): TEntity {
+        const entity: TEntity = this.create();
         for (const [key, value] of Object.entries(rawEntity)) {
             // Replace auto-generated column name with property name, if any.
             const columnName: string = key.replace(`${this.metadata.givenTableName}_`, "");
@@ -83,15 +83,15 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
                     propertyValue = value;
                 }
 
-                entity[(columnMetadata.propertyName as unknown) as keyof TModel] = propertyValue;
+                entity[(columnMetadata.propertyName as unknown) as keyof TEntity] = propertyValue;
             } else {
                 // Just attach custom properties, which are probably wanted if `rawToEntity` is called.
                 // TODO: add an additional type parameter (i.e. `this.rawToEntity<{ someField }>(result)`) to return
-                // TModel & { someField } from the function.
+                // TEntity & { someField } from the function.
                 if (customPropertyHandler) {
                     customPropertyHandler(entity, key, value);
                 } else {
-                    entity[(key as unknown) as keyof TModel] = value;
+                    entity[(key as unknown) as keyof TEntity] = value;
                 }
             }
         }
@@ -99,7 +99,15 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
         return entity;
     }
 
-    private buildSqlExpression(expression: Contracts.Database.Expression<TModel>): SqlExpression {
+    protected getColumnName<TProperty extends keyof TEntity>(property: TProperty): string {
+        const column = this.metadata.columns.find((c) => c.propertyName === property);
+        if (!column) {
+            throw new Error(`Can't find column for ${this.metadata.targetName}.${property}`);
+        }
+        return column.databaseName;
+    }
+
+    private buildSqlExpression(expression: Contracts.Database.Expression): SqlExpression {
         if (expression instanceof Contracts.Database.TrueExpression) {
             return new SqlExpression("TRUE", {});
         }
@@ -109,7 +117,7 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
         }
 
         if (expression instanceof Contracts.Database.EqualExpression) {
-            const column = this.getColumn(expression.property);
+            const column = this.getColumnName(expression.property as keyof TEntity);
             const param = `p${this.paramNo++}`;
             const query = `${column} = :${param}`;
             const parameters = { [param]: expression.value };
@@ -117,7 +125,7 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
         }
 
         if (expression instanceof Contracts.Database.BetweenExpression) {
-            const column = this.getColumn(expression.property);
+            const column = this.getColumnName(expression.property as keyof TEntity);
             const paramFrom = `p${this.paramNo++}`;
             const paramTo = `p${this.paramNo++}`;
             const query = `${column} BETWEEN :${paramFrom} AND :${paramTo}`;
@@ -126,7 +134,7 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
         }
 
         if (expression instanceof Contracts.Database.GreaterThanEqualExpression) {
-            const column = this.getColumn(expression.property);
+            const column = this.getColumnName(expression.property as keyof TEntity);
             const param = `p${this.paramNo++}`;
             const query = `${column} >= :${param}`;
             const parameters = { [param]: expression.from };
@@ -134,7 +142,7 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
         }
 
         if (expression instanceof Contracts.Database.LessThanEqualExpression) {
-            const column = this.getColumn(expression.property);
+            const column = this.getColumnName(expression.property as keyof TEntity);
             const param = `p${this.paramNo++}`;
             const query = `${column} <= :${param}`;
             const parameters = { [param]: expression.to };
@@ -142,7 +150,7 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
         }
 
         if (expression instanceof Contracts.Database.LikeExpression) {
-            const column = this.getColumn(expression.property);
+            const column = this.getColumnName(expression.property as keyof TEntity);
             const param = `p${this.paramNo++}`;
             const query = `${column} LIKE :${param}`;
             const parameters = { [param]: expression.value };
@@ -150,7 +158,7 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
         }
 
         if (expression instanceof Contracts.Database.ContainsExpression) {
-            const column = this.getColumn(expression.property);
+            const column = this.getColumnName(expression.property as keyof TEntity);
             const param = `p${this.paramNo++}`;
             const query = `${column} @> :${param}`;
             const parameters = { [param]: expression.value };
@@ -172,13 +180,5 @@ export abstract class AbstractEntityRepository<TModel extends ObjectLiteral> ext
         }
 
         throw new Error(`Unexpected expression ${expression.constructor.name}`);
-    }
-
-    private getColumn<TProperty extends keyof TModel>(property: TProperty): string {
-        const column = this.metadata.columns.find((c) => c.propertyName === property);
-        if (!column) {
-            throw new Error(`Can't find column for ${this.metadata.targetName}.${property}`);
-        }
-        return column.databaseName;
     }
 }

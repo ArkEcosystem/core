@@ -29,12 +29,8 @@ export class BlockResource implements Resource {
      * @returns {object}
      * @memberof Resource
      */
-    public raw(resource): object {
-        resource.reward = Utils.BigNumber.make(resource.reward).toFixed();
-        resource.totalFee = Utils.BigNumber.make(resource.totalFee).toFixed();
-        resource.totalAmount = Utils.BigNumber.make(resource.totalAmount).toFixed();
-
-        return resource;
+    public raw(resource: Interfaces.IBlockData): object {
+        return JSON.parse(JSON.stringify(resource));
     }
 
     /**
@@ -44,13 +40,9 @@ export class BlockResource implements Resource {
      * @returns {object}
      * @memberof Resource
      */
-    public transform(resource): object {
+    public transform(resource: Interfaces.IBlockData): object {
         const generator: Contracts.State.Wallet = this.walletRepository.findByPublicKey(resource.generatorPublicKey);
-
         const lastBlock: Interfaces.IBlock = this.blockchainService.getLastBlock();
-
-        resource.reward = Utils.BigNumber.make(resource.reward);
-        resource.totalFee = Utils.BigNumber.make(resource.totalFee);
 
         return {
             id: resource.id,
