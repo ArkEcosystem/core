@@ -43,22 +43,22 @@ export class BlocksController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const block = await this.databaseBlockService.findOneByIdOrHeight(request.params.id);
-        if (!block) {
+        const blockData = await this.databaseBlockService.findOneByIdOrHeight(request.params.id);
+        if (!blockData) {
             return Boom.notFound("Block not found");
         }
 
-        return this.respondWithResource(block, BlockResource, request.query.transform);
+        return this.respondWithResource(blockData, BlockResource, request.query.transform);
     }
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const block = await this.databaseBlockService.findOneByIdOrHeight(request.params.id);
-        if (!block) {
+        const blockData = await this.databaseBlockService.findOneByIdOrHeight(request.params.id);
+        if (!blockData) {
             return Boom.notFound("Block not found");
         }
 
         const transactionListResult = await this.databaseTransactionService.listByBlockIdAndCriteria(
-            block.id!,
+            blockData.id!,
             request.query,
             this.getListOrder(request),
             this.getListPage(request),
