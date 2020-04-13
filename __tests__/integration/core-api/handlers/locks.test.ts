@@ -253,7 +253,11 @@ describe("API 2.0 - Locks", () => {
                 Container.Identifiers.TransactionRepository,
             );
 
-            jest.spyOn(transactionRepository, "findByHtlcLocks").mockResolvedValueOnce([refundTransaction as any]);
+            jest.spyOn(transactionRepository, "listByExpression").mockResolvedValueOnce({
+                rows: [{ ...refundTransaction.data, serialized: refundTransaction.serialized } as any],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const response = await api.request("POST", "locks/unlocked", {
                 ids: [lockIds[0]],
