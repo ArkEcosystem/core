@@ -20,7 +20,8 @@ let app: Application;
 let controller: TransactionsController;
 
 const databaseTransactionService = {
-    search: jest.fn(),
+    findOneById: jest.fn(),
+    listByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
@@ -39,7 +40,8 @@ beforeEach(() => {
     Mocks.TransactionRepository.setTransaction(null);
     Mocks.TransactionRepository.setTransactions([]);
     Mocks.TransactionPoolQuery.setTransactions([]);
-    databaseTransactionService.search.mockReset();
+    databaseTransactionService.findOneById.mockReset();
+    databaseTransactionService.listByCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -67,7 +69,7 @@ describe("TransactionsController", () => {
 
     describe("index", () => {
         it("should return list of transactions", async () => {
-            databaseTransactionService.search.mockResolvedValue({
+            databaseTransactionService.listByCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -119,7 +121,7 @@ describe("TransactionsController", () => {
 
     describe("show", () => {
         it("should return transaction", async () => {
-            Mocks.TransactionRepository.setTransaction(transferTransaction.data);
+            databaseTransactionService.findOneById.mockResolvedValue(transferTransaction.data);
 
             const request: Hapi.Request = {
                 params: {
@@ -216,7 +218,7 @@ describe("TransactionsController", () => {
 
     describe("search", () => {
         it("should return list of transactions", async () => {
-            databaseTransactionService.search.mockResolvedValue({
+            databaseTransactionService.listByCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -246,7 +248,7 @@ describe("TransactionsController", () => {
         });
 
         it("should return paginated response when defined offset", async () => {
-            databaseTransactionService.search.mockResolvedValue({
+            databaseTransactionService.listByCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -317,12 +319,6 @@ describe("TransactionsController", () => {
                     htlcRefund: "0",
                 }),
             );
-        });
-
-        it("should return error ", async () => {
-            Mocks.StateStore.setLastHeight(-1);
-
-            await expect(controller.fees(undefined, undefined)).resolves.toThrowError();
         });
     });
 });
