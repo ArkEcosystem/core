@@ -5,12 +5,22 @@ import { Models } from "@arkecosystem/core-database";
 import { Codec as CodecException } from "../exceptions";
 import { Codec as ICodec  } from "../contracts";
 import { Container } from "@arkecosystem/core-kernel";
+import msgpack from "msgpack-lite";
 
 @Container.injectable()
 export class Codec implements ICodec {
-    public name: string = "default";
+    // public name: string = "default";
 
-    public get blocks() {
+    public createDecodeStream(table: string): NodeJS.ReadWriteStream {
+        return msgpack.createDecodeStream({ codec: this[table]() });
+    }
+
+    public createEncodeStream(table: string): NodeJS.ReadWriteStream {
+        return msgpack.createEncodeStream({ codec: this[table]() });
+    }
+
+    // @ts-ignore
+    private blocks() {
         const codec = createCodec();
         codec.addExtPacker(0x3f, Object, Codec.encodeBlock);
         codec.addExtUnpacker(0x3f, Codec.decodeBlock);
@@ -18,7 +28,8 @@ export class Codec implements ICodec {
         return codec;
     }
 
-    public get transactions() {
+    // @ts-ignore
+    private transactions() {
         const codec = createCodec();
         codec.addExtPacker(0x4f, Object, Codec.encodeTransaction);
         codec.addExtUnpacker(0x4f, Codec.decodeTransaction);
@@ -26,7 +37,8 @@ export class Codec implements ICodec {
         return codec;
     }
 
-    public get rounds() {
+    // @ts-ignore
+    private rounds() {
         const codec = createCodec();
         codec.addExtPacker(0x5f, Object, Codec.encodeRound);
         codec.addExtUnpacker(0x5f, Codec.decodeRound);

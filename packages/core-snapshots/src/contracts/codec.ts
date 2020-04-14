@@ -1,7 +1,4 @@
 export interface Codec {
-    name: string,
-
-    blocks(): any;
-    transactions(): any;
-    rounds(): any
+    createDecodeStream(table: string): NodeJS.ReadWriteStream;
+    createEncodeStream(table: string): NodeJS.ReadWriteStream;
 }

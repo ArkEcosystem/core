@@ -2,12 +2,22 @@ import { createCodec } from "msgpack-lite";
 import { camelizeKeys } from "xcase";
 import { Codec } from "../contracts";
 import { Container } from "@arkecosystem/core-kernel";
+import msgpack from "msgpack-lite";
 
 @Container.injectable()
 export class JSONCodec implements Codec {
-    public name: string = "JSON";
+    // public name: string = "JSON";
 
-    public get blocks() {
+    public createDecodeStream(table: string): NodeJS.ReadWriteStream {
+        return msgpack.createDecodeStream({ codec: this[table]() });
+    }
+
+    public createEncodeStream(table: string): NodeJS.ReadWriteStream {
+        return msgpack.createEncodeStream({ codec: this[table]() });
+    }
+
+    // @ts-ignore
+    private blocks() {
         const codec = createCodec();
         codec.addExtPacker(0x3f, Object, JSONCodec.encodeBlock);
         codec.addExtUnpacker(0x3f, JSONCodec.decodeBlock);
@@ -15,7 +25,8 @@ export class JSONCodec implements Codec {
         return codec;
     }
 
-    public get transactions() {
+    // @ts-ignore
+    private transactions() {
         const codec = createCodec();
         codec.addExtPacker(0x4f, Object, JSONCodec.encodeTransaction);
         codec.addExtUnpacker(0x4f, JSONCodec.decodeTransaction);
@@ -23,7 +34,8 @@ export class JSONCodec implements Codec {
         return codec;
     }
 
-    public get rounds() {
+    // @ts-ignore
+    private rounds() {
         const codec = createCodec();
         codec.addExtPacker(0x5f, Object, JSONCodec.encodeRound);
         codec.addExtUnpacker(0x5f, JSONCodec.decodeRound);

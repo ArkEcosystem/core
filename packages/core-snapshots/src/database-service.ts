@@ -6,7 +6,6 @@ import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import zlib from "zlib";
 import fs from "fs-extra";
-import msgpack from "msgpack-lite";
 import { Verifier } from "./transport/verifier";
 import { Utils as SnapshotUtils } from "./utils";
 import { ProgressDispatcher } from "./progress-dispatcher";
@@ -250,7 +249,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
     private getWriteStream(options: Options.DumpOptions, databaseStream: NodeJS.ReadableStream, table: string): NodeJS.WritableStream {
         const snapshotWriteStream = fs.createWriteStream(`${this.utils.getSnapshotFolderPath()}${table}`, {});
-        const encodeStream = msgpack.createEncodeStream({ codec: this.getCodec()[table] });
+        const encodeStream = this.getCodec().createEncodeStream(table);
         const gzipStream = zlib.createGzip();
 
         let stream: NodeJS.ReadableStream = databaseStream;
@@ -267,7 +266,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     private getReadStream(table: string): NodeJS.ReadableStream {
         const readStream = fs.createReadStream(`${this.utils.getSnapshotFolderPath()}${table}`, {});
         const gunzipStream = zlib.createGunzip();
-        const decodeStream = msgpack.createDecodeStream({ codec: this.getCodec()[table] });
+        const decodeStream = this.getCodec().createDecodeStream(table);
 
         let stream: NodeJS.ReadableStream = readStream;
 
@@ -305,7 +304,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
         // console.log(await this.snapshotBlockRepository.findLast());
         // console.log(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!);
-        console.log(this.getCodec().name);
+        console.log(this.getCodec());
     }
 }
 
