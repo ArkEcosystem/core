@@ -10,6 +10,8 @@ import { Models } from "@arkecosystem/core-database";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
+        this.app.bind(Identifiers.SnapshotVersion).toConstantValue(this.version());
+
         this.app.bind(Identifiers.SnapshotDatabaseConnection).toConstantValue(await this.connect());
 
         this.registerServices();

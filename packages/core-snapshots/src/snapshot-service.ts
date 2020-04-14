@@ -24,7 +24,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
         this.logger.info(`Running DUMP for network: ${options.network}`);
 
-        await this.database.dump();
+        await this.database.dump(options);
 
         this.logger.info(`Snapshot is saved on location: ${this.utils.getSnapshotFolderPath()}`);
     }

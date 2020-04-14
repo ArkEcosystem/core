@@ -12,7 +12,7 @@ import msgpack from "msgpack-lite";
 import { Verifier } from "./transport/verifier";
 import { Utils as SnapshotUtils } from "./utils";
 import { ProgressDispatcher } from "./progress-dispatcher";
-import { Meta } from "./contracts";
+import { Meta, Options } from "./contracts";
 
 @Container.injectable()
 export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseService {
@@ -86,8 +86,10 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         return lastBlock;
     }
 
-    public async dump(): Promise<void> {
-        let metaData = await this.prepareMetaData();
+
+
+    public async dump(options: Options.DumpOptions): Promise<void> {
+        let metaData = await this.prepareMetaData(options);
 
         this.utils.setSnapshot(metaData.folder);
         await this.utils.prepareDir();
@@ -121,19 +123,17 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         });
     }
 
-    private async prepareMetaData(): Promise<Meta.MetaData> {
+    private async prepareMetaData(options: Options.DumpOptions): Promise<Meta.MetaData> {
         const blocksCount = await this.snapshotBlockRepository.count();
         const startHeight = (await this.snapshotBlockRepository.findFirst())?.height;
         const endHeight = (await this.snapshotBlockRepository.findLast())?.height;
 
-        // TODO: Add network name and version
         return {
             blocks: {
                 count: blocksCount,
                 startHeight: startHeight!,
                 endHeight: endHeight!
             },
-
             transactions: {
                 count: await this.snapshotTransactionRepository.count(),
                 startHeight: startHeight!,
@@ -145,7 +145,11 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
                 endHeight: endHeight!
             },
             folder: `${startHeight}-${endHeight}`,
-            skipCompression: false
+
+            skipCompression: options.skipCompression,
+            network: options.network,
+
+            packageVersion: this.app.get<string>(Identifiers.SnapshotVersion)
         };
     }
 

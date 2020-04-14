@@ -6,8 +6,8 @@ export interface MetaData {
     folder: string,
     skipCompression: boolean,
 
-    version?: string
-    network?: string
+    network: string,
+    packageVersion?: string
 }
 
 export interface TableMetaData {
