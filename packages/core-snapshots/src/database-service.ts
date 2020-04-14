@@ -2,7 +2,6 @@ import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kerne
 import { Identifiers } from "./ioc";
 import { SnapshotBlockRepository, SnapshotRoundRepository, SnapshotTransactionRepository } from "./repositories";
 import { Models, Repositories } from "@arkecosystem/core-database";
-// import { Connection } from "typeorm";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 import { Codec } from "./transport";
 
@@ -95,9 +94,9 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         await this.utils.prepareDir();
 
         await Promise.all([
-            this.dumpTable("blocks",  metaData.blocks.count, "height", this.snapshotBlockRepository),
-            this.dumpTable("transactions", metaData.transactions.count,"timestamp", this.snapshotTransactionRepository),
-            this.dumpTable("rounds", metaData.rounds.count,"round", this.snapshotRoundRepository)
+            this.dumpTable(options, "blocks",  metaData.blocks.count, "height", this.snapshotBlockRepository),
+            this.dumpTable(options, "transactions", metaData.transactions.count,"timestamp", this.snapshotTransactionRepository),
+            this.dumpTable(options, "rounds", metaData.rounds.count,"round", this.snapshotRoundRepository)
         ]);
 
         await this.utils.writeMetaData(metaData);
@@ -106,18 +105,18 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     public async restore(meta: Meta.MetaData): Promise<void> {
         await this.truncate();
 
-        await this.restoreTable("blocks", meta.blocks.count, this.snapshotBlockRepository);
+        await this.restoreTable("blocks", meta.blocks.count, meta.skipCompression, this.snapshotBlockRepository);
         await Promise.all([
-            this.restoreTable( "transactions", meta.transactions.count, this.snapshotTransactionRepository),
-            this.restoreTable("rounds", meta.rounds.count, this.snapshotRoundRepository)
+            this.restoreTable( "transactions", meta.transactions.count, meta.skipCompression, this.snapshotTransactionRepository),
+            this.restoreTable("rounds", meta.rounds.count, meta.skipCompression, this.snapshotRoundRepository)
         ]);
     }
 
     public async verify(meta: Meta.MetaData): Promise<void> {
         await Promise.all([
-            this.verifyTable("blocks", meta.blocks.count, Verifier.verifyBlock),
-            this.verifyTable("transactions", meta.transactions.count, Verifier.verifyTransaction),
-            this.verifyTable("rounds", meta.rounds.count, Verifier.verifyRound)
+            this.verifyTable("blocks", meta.blocks.count, meta.skipCompression, Verifier.verifyBlock),
+            this.verifyTable("transactions", meta.transactions.count, meta.skipCompression, Verifier.verifyTransaction),
+            this.verifyTable("rounds", meta.rounds.count, meta.skipCompression, Verifier.verifyRound)
         ]).catch((err) => {
             throw err;
         });
@@ -146,19 +145,19 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
             },
             folder: `${startHeight}-${endHeight}`,
 
-            skipCompression: options.skipCompression,
+            skipCompression: !!options.skipCompression,
             network: options.network,
 
             packageVersion: this.app.get<string>(Identifiers.SnapshotVersion)
         };
     }
 
-    private dumpTable<T>(table: string, count: number, orderBy: string, repository: Repositories.AbstractEntityRepository<T>): Promise<void> {
+    private dumpTable<T>(options: Options.DumpOptions, table: string, count: number, orderBy: string, repository: Repositories.AbstractEntityRepository<T>): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
 
-            const snapshotWriteStream = fs.createWriteStream(`${this.utils.getSnapshotFolderPath()}${table}`, {});
-            const encodeStream = msgpack.createEncodeStream({ codec: Codec[table] });
-            const gzipStream = zlib.createGzip();
+            // const snapshotWriteStream = fs.createWriteStream(`${this.utils.getSnapshotFolderPath()}${table}`, {});
+            // const encodeStream = msgpack.createEncodeStream({ codec: Codec[table] });
+            // const gzipStream = zlib.createGzip();
 
             let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
 
@@ -169,42 +168,58 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
                 .orderBy(orderBy, "ASC")
                 .stream();
 
-            databaseStream
-                .pipe(encodeStream)
-                .pipe(gzipStream)
-                .pipe(snapshotWriteStream)
+            let writeStream = this.getWriteStream(options, databaseStream, table);
+
+            writeStream
                 .on('close', () => {
                     progressDispatcher.end();
                     resolve();
                 });
 
-            const errorHandler = (err: Error) => {
-                reject(err);
-            };
+            // const errorHandler = (err: Error) => {
+            //     reject(err);
+            // };
 
-            snapshotWriteStream.on("error", errorHandler);
-            encodeStream.on("error", errorHandler);
-            databaseStream.on("error", errorHandler);
+            // snapshotWriteStream.on("error", errorHandler);
+            // encodeStream.on("error", errorHandler);
+            // databaseStream.on("error", errorHandler);
 
             databaseStream.on("data", () => { progressDispatcher.update() });
         });
     }
 
-    private async restoreTable<T>(table: string, count: number, repository: Repositories.AbstractEntityRepository<T>): Promise<void> {
-        const snapshotReadStream = fs.createReadStream(`${this.utils.getSnapshotFolderPath()}${table}`, {});
+    private getWriteStream(options: Options.DumpOptions, databaseStream: NodeJS.ReadableStream, table: string): NodeJS.WritableStream {
+        const snapshotWriteStream = fs.createWriteStream(`${this.utils.getSnapshotFolderPath()}${table}`, {});
+        const encodeStream = msgpack.createEncodeStream({ codec: Codec[table] });
+        const gzipStream = zlib.createGzip();
+
+        let stream: NodeJS.ReadableStream = databaseStream;
+
+        stream = stream.pipe(encodeStream);
+
+        if (!options.skipCompression) {
+            stream = stream.pipe(gzipStream);
+        }
+
+        return stream.pipe(snapshotWriteStream);
+    }
+
+    private getReadStream(table: string, skipCompression: boolean): NodeJS.ReadableStream {
+        const readStream = fs.createReadStream(`${this.utils.getSnapshotFolderPath()}${table}`, {});
         const gunzipStream = zlib.createGunzip();
         const decodeStream = msgpack.createDecodeStream({ codec: Codec[table] });
 
-        let readStream = snapshotReadStream
-            .pipe(gunzipStream)
-            .pipe(decodeStream);
+        let stream: NodeJS.ReadableStream = readStream;
 
-        // const errorHandler = (err: Error) => {
-        //     throw(err);
-        // };
-        //
-        // snapshotReadStream.on("error", errorHandler);
-        // decodeStream.on("error", errorHandler);
+        if (!skipCompression) {
+            stream = stream.pipe(gunzipStream);
+        }
+
+        return stream.pipe(decodeStream);
+    }
+
+    private async restoreTable<T>(table: string, count: number, skipCompression: boolean, repository: Repositories.AbstractEntityRepository<T>): Promise<void> {
+        let readStream = this.getReadStream(table, skipCompression);
 
         let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
         await progressDispatcher.start(table, count);
@@ -214,7 +229,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
         for await (const entity of readStream) {
             if (table === "blocks") {
-                this.applyGenesisBlockFix(entity as Models.Block);
+                this.applyGenesisBlockFix(entity as unknown as Models.Block);
             }
 
             entities.push(entity);
@@ -234,14 +249,8 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         await progressDispatcher.end();
     }
 
-    private async verifyTable(table: string, count: number, verifyFunction: Function) {
-        const snapshotReadStream = fs.createReadStream(`${this.utils.getSnapshotFolderPath()}${table}`, {});
-        const gunzipStream = zlib.createGunzip();
-        const decodeStream = msgpack.createDecodeStream({ codec: Codec[table] });
-
-        let readStream = snapshotReadStream
-            .pipe(gunzipStream)
-            .pipe(decodeStream);
+    private async verifyTable(table: string, count: number, skipCompression: boolean, verifyFunction: Function) {
+        let readStream = this.getReadStream(table, skipCompression);
 
         let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
         await progressDispatcher.start(table, count);
@@ -251,7 +260,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
             await progressDispatcher.update();
 
             if (table === "blocks") {
-                this.applyGenesisBlockFix(entity as Models.Block);
+                this.applyGenesisBlockFix(entity as unknown as Models.Block);
             }
 
             const isVerified = verifyFunction(entity, previousEntity);
