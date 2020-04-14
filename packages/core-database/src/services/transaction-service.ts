@@ -95,11 +95,11 @@ export class TransactionService implements Contracts.Database.TransactionService
         order: Contracts.Database.ListOrder,
         page: Contracts.Database.ListPage,
     ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
-        const expression = await this.transactionFilter.getCriteriaExpression(criteria, {
-            recipientId: wallet.address,
-            asset: { payment: [{ recipientId: wallet.address }] },
-            senderPublicKey: wallet.publicKey,
-        });
+        const expression = await this.transactionFilter.getCriteriaExpression(criteria, [
+            { recipientId: wallet.address },
+            { asset: { payment: [{ recipientId: wallet.address }] } },
+            { senderPublicKey: wallet.publicKey },
+        ]);
         const listResult = await this.transactionRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
     }
@@ -135,21 +135,6 @@ export class TransactionService implements Contracts.Database.TransactionService
         const expression = await this.transactionFilter.getCriteriaExpression(criteria, {
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
-            senderPublicKey,
-        });
-        const listResult = await this.transactionRepository.listByExpression(expression, order, page);
-        return this.convertListResult(listResult);
-    }
-
-    public async listHtlcLockBySenderPublicKeyAndCriteria(
-        senderPublicKey: string,
-        criteria: Contracts.Database.OrTransactionCriteria,
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
-        const expression = await this.transactionFilter.getCriteriaExpression(criteria, {
-            typeGroup: Enums.TransactionTypeGroup.Core,
-            type: Enums.TransactionType.HtlcLock,
             senderPublicKey,
         });
         const listResult = await this.transactionRepository.listByExpression(expression, order, page);

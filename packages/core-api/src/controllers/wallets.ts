@@ -1,4 +1,3 @@
-import { Repositories } from "@arkecosystem/core-database";
 import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -10,12 +9,6 @@ import { Controller } from "./controller";
 export class WalletsController extends Controller {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Application;
-
-    @Container.inject(Container.Identifiers.BlockRepository)
-    protected readonly blockRepository!: Repositories.BlockRepository;
-
-    @Container.inject(Container.Identifiers.TransactionRepository)
-    protected readonly transactionRepository!: Repositories.TransactionRepository;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionService)
     protected readonly databaseTransactionService!: Contracts.Database.TransactionService;
@@ -42,7 +35,12 @@ export class WalletsController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        return this.respondWithResource(this.findWallet(request.params.id), WalletResource);
+        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
+        if (wallet instanceof Boom) {
+            return wallet;
+        }
+
+        return this.respondWithResource(wallet, WalletResource);
     }
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -127,14 +125,14 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, LockResource);
         }
 
-        const transactionListResult = await this.databaseTransactionService.listHtlcLockBySenderPublicKeyAndCriteria(
-            wallet.publicKey,
-            request.query,
-            this.getListOrder(request),
-            this.getListPage(request),
-        );
+        const lockListResult = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
+            ...request.params,
+            ...request.query,
+            ...this.getListPage(request),
+            senderPublicKey: wallet.publicKey,
+        });
 
-        return this.toPagination(transactionListResult, LockResource);
+        return this.toPagination(lockListResult, LockResource);
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {

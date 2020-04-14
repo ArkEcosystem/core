@@ -105,11 +105,4 @@ export interface TransactionService {
         order: ListOrder,
         page: ListPage,
     ): Promise<ListResult<Interfaces.ITransactionData>>;
-
-    listHtlcLockBySenderPublicKeyAndCriteria(
-        senderPublicKey: string,
-        criteria: OrTransactionCriteria,
-        order: ListOrder,
-        page: ListPage,
-    ): Promise<ListResult<Interfaces.ITransactionData>>;
 }
