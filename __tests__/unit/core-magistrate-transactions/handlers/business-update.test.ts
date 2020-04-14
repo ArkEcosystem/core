@@ -16,6 +16,7 @@ import {
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -25,11 +26,10 @@ import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
+import _ from "lodash";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 import { Assets } from "./__fixtures__";
-import _ from "lodash";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -43,7 +43,7 @@ StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 const databaseTransactionService = {
-    search: jest.fn(),
+    findManyByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
@@ -52,7 +52,7 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     Mocks.TransactionRepository.setTransactions([]);
-    databaseTransactionService.search.mockReset();
+    databaseTransactionService.findManyByCriteria.mockReset();
 
     app = initApp();
 
@@ -205,11 +205,7 @@ describe("BusinessRegistration", () => {
                 .sign(passphrases[0])
                 .build();
 
-            databaseTransactionService.search.mockResolvedValue({
-                rows: [businessRegistrationTransaction.data],
-                count: 1,
-                countIsEstimate: false,
-            });
+            databaseTransactionService.findManyByCriteria.mockResolvedValue([businessRegistrationTransaction.data]);
 
             await handler.revert(businessUpdateTransaction, walletRepository);
 
@@ -252,17 +248,11 @@ describe("BusinessRegistration", () => {
                 ...secondBusinessUpdateAsset,
             });
 
-            databaseTransactionService.search.mockResolvedValueOnce({
-                rows: [businessRegistrationTransaction.data],
-                count: 1,
-                countIsEstimate: false,
-            });
-
-            databaseTransactionService.search.mockResolvedValueOnce({
-                rows: [businessUpdateTransaction.data, secondBusinessUpdateTransaction.data],
-                count: 2,
-                countIsEstimate: false,
-            });
+            databaseTransactionService.findManyByCriteria.mockResolvedValueOnce([
+                businessRegistrationTransaction.data,
+                businessUpdateTransaction.data,
+                secondBusinessUpdateTransaction.data,
+            ]);
 
             await handler.revert(secondBusinessUpdateTransaction, walletRepository);
 
