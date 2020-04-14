@@ -3,9 +3,14 @@ import { camelizeKeys } from "xcase";
 import { Utils, Blocks, Transactions, Interfaces } from "@arkecosystem/crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Codec as CodecException } from "../exceptions";
+import { Codec as ICodec  } from "../contracts";
+import { Container } from "@arkecosystem/core-kernel";
 
-export class Codec {
-    public static get blocks() {
+@Container.injectable()
+export class Codec implements ICodec {
+    public name: string = "default";
+
+    public get blocks() {
         const codec = createCodec();
         codec.addExtPacker(0x3f, Object, Codec.encodeBlock);
         codec.addExtUnpacker(0x3f, Codec.decodeBlock);
@@ -13,7 +18,7 @@ export class Codec {
         return codec;
     }
 
-    public static get transactions() {
+    public get transactions() {
         const codec = createCodec();
         codec.addExtPacker(0x4f, Object, Codec.encodeTransaction);
         codec.addExtUnpacker(0x4f, Codec.decodeTransaction);
@@ -21,7 +26,7 @@ export class Codec {
         return codec;
     }
 
-    public static get rounds() {
+    public get rounds() {
         const codec = createCodec();
         codec.addExtPacker(0x5f, Object, Codec.encodeRound);
         codec.addExtUnpacker(0x5f, Codec.decodeRound);

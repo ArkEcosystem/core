@@ -1,8 +1,13 @@
 import { createCodec } from "msgpack-lite";
 import { camelizeKeys } from "xcase";
+import { Codec } from "../contracts";
+import { Container } from "@arkecosystem/core-kernel";
 
-export class JSONCodec {
-    public static get blocks() {
+@Container.injectable()
+export class JSONCodec implements Codec {
+    public name: string = "JSON";
+
+    public get blocks() {
         const codec = createCodec();
         codec.addExtPacker(0x3f, Object, JSONCodec.encodeBlock);
         codec.addExtUnpacker(0x3f, JSONCodec.decodeBlock);
@@ -10,7 +15,7 @@ export class JSONCodec {
         return codec;
     }
 
-    public static get transactions() {
+    public get transactions() {
         const codec = createCodec();
         codec.addExtPacker(0x4f, Object, JSONCodec.encodeTransaction);
         codec.addExtUnpacker(0x4f, JSONCodec.decodeTransaction);
@@ -18,7 +23,7 @@ export class JSONCodec {
         return codec;
     }
 
-    public static get rounds() {
+    public get rounds() {
         const codec = createCodec();
         codec.addExtPacker(0x5f, Object, JSONCodec.encodeRound);
         codec.addExtUnpacker(0x5f, JSONCodec.decodeRound);

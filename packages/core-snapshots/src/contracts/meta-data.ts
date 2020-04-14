@@ -5,9 +5,10 @@ export interface MetaData {
 
     folder: string,
     skipCompression: boolean,
-
     network: string,
-    packageVersion?: string
+    packageVersion: string,
+
+    codec?: string
 }
 
 export interface TableMetaData {

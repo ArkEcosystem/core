@@ -40,6 +40,7 @@ export class Command extends Commands.Command {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
+            .setFlag("codec", "The name of the codec.", Joi.string())
             .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
             .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean())
             .setFlag("blocks", "Blocks to append to, correlates to folder name.", Joi.boolean())
@@ -68,11 +69,6 @@ export class Command extends Commands.Command {
             this.logger.error("App is not booted.");
             return;
         }
-
-        // if(!app.isBound(KernelContainer.Identifiers.DatabaseService)) {
-        //     this.logger.error("Database service is not initialized.");
-        //     return;
-        // }
 
         if(!app.isBound(KernelContainer.Identifiers.SnapshotService)) {
             this.logger.error("Snapshot service is not initialized.");

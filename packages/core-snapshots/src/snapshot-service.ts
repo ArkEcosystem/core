@@ -24,6 +24,8 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
         this.logger.info(`Running DUMP for network: ${options.network}`);
 
+        this.database.init(options.codec, options.skipCompression);
+
         await this.database.dump(options);
 
         this.logger.info(`Snapshot is saved on location: ${this.utils.getSnapshotFolderPath()}`);
@@ -50,6 +52,8 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
         this.logger.info(`Running RESTORE for network: ${options.network}`);
 
+        this.database.init(meta!.codec, meta!.skipCompression);
+
         await this.database.restore(meta!);
 
         this.logger.info(`Successfully restore  ${meta!.blocks.count} blocks, ${meta!.transactions.count} transactions, ${meta!.rounds.count} rounds`);
@@ -73,6 +77,8 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
         } catch (e) {
             this.logger.error(`Metadata for snapshot ${options.blocks} of network ${options.network} is not valid.`);
         }
+
+        this.database.init(meta!.codec, meta!.skipCompression);
 
         try {
             await this.database.verify(meta!);

@@ -7,6 +7,7 @@ import { SnapshotBlockRepository, SnapshotRoundRepository, SnapshotTransactionRe
 import { Utils } from "./utils";
 import { ProgressDispatcher } from "./progress-dispatcher";
 import { Models } from "@arkecosystem/core-database";
+import { Codec, JSONCodec } from "./transport";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -16,7 +17,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.registerServices();
     }
-
 
     // public async dispose(): Promise<void> {
     // }
@@ -43,12 +43,23 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind(Identifiers.SnapshotRoundRepository)
             .toConstantValue(getCustomRepository(SnapshotRoundRepository));
+
+        this.app
+            .bind(Identifiers.SnapshotCodec)
+            .to(Codec)
+            .inRequestScope()
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("codec", "default"));
+
+        this.app
+            .bind(Identifiers.SnapshotCodec)
+            .to(JSONCodec)
+            .inSingletonScope()
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("codec", "json"));
     }
 
     private async connect(): Promise<Connection> {
         const options: Record<string, any> = this.config().all();
 
-        console.log("Snapshot options: ", options);
         // this.app
         //     .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
         //     .dispatch(DatabaseEvent.PRE_CONNECT);
