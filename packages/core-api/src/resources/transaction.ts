@@ -14,9 +14,6 @@ export class TransactionResource implements Resource {
     @Container.tagged("state", "blockchain")
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
-    @Container.inject(Container.Identifiers.DatabaseBlockService)
-    protected readonly databaseBlockService!: Contracts.Database.BlockService;
-
     /**
      * Return the raw representation of the resource.
      *

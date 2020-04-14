@@ -10,6 +10,7 @@ import { Mocks } from "@packages/core-test-framework";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
+import { Managers } from "@packages/crypto/src";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
@@ -29,7 +30,10 @@ const makeNotExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
 
 const databaseTransactionService = {
-    search: jest.fn(),
+    listByWalletAndCriteria: jest.fn(),
+    listBySenderPublicKeyAndCriteria: jest.fn(),
+    listByRecipientIdAndCriteria: jest.fn(),
+    listVoteBySenderPublicKeyAndCriteria: jest.fn(),
 };
 
 beforeEach(() => {
@@ -43,8 +47,10 @@ beforeEach(() => {
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
     Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
-    Mocks.TransactionRepository.setTransactions([]);
-    databaseTransactionService.search.mockReset();
+    databaseTransactionService.listByWalletAndCriteria.mockReset();
+    databaseTransactionService.listBySenderPublicKeyAndCriteria.mockReset();
+    databaseTransactionService.listByRecipientIdAndCriteria.mockReset();
+    databaseTransactionService.listVoteBySenderPublicKeyAndCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -66,6 +72,8 @@ describe("WalletsController", () => {
         senderWallet = buildSenderWallet(app);
 
         walletRepository.index(senderWallet);
+
+        Managers.configManager.getMilestone().aip11 = true;
 
         transferTransaction = BuilderFactory.transfer()
             .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
@@ -147,7 +155,7 @@ describe("WalletsController", () => {
 
     describe("transactions", () => {
         it("should return list of transactions", async () => {
-            databaseTransactionService.search.mockResolvedValue({
+            databaseTransactionService.listByWalletAndCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -189,7 +197,7 @@ describe("WalletsController", () => {
 
     describe("transactionsSent", () => {
         it("should return list of transactions", async () => {
-            databaseTransactionService.search.mockResolvedValue({
+            databaseTransactionService.listBySenderPublicKeyAndCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -231,7 +239,7 @@ describe("WalletsController", () => {
 
     describe("transactionsReceived", () => {
         it("should return list of transactions", async () => {
-            databaseTransactionService.search.mockResolvedValue({
+            databaseTransactionService.listByRecipientIdAndCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -273,7 +281,7 @@ describe("WalletsController", () => {
 
     describe("votes", () => {
         it("should return list of transactions", async () => {
-            databaseTransactionService.search.mockResolvedValue({
+            databaseTransactionService.listVoteBySenderPublicKeyAndCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
