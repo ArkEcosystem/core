@@ -182,11 +182,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     /**
      * Push a block to the process queue.
      */
-    public handleIncomingBlock(block: Interfaces.IBlockData, fromForger = false): void {
+    public async handleIncomingBlock(block: Interfaces.IBlockData, fromForger = false): Promise<void> {
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
+
         this.pushPingBlock(block, fromForger);
 
-        const currentSlot: number = Crypto.Slots.getSlotNumber();
-        const receivedSlot: number = Crypto.Slots.getSlotNumber(block.timestamp);
+        const currentSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup);
+        const receivedSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, block.timestamp);
 
         if (receivedSlot > currentSlot) {
             this.app.log.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
@@ -280,8 +282,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
                 Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlockData);
 
+                const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(
+                    this.app,
+                    lastBlock.data.height,
+                );
+
                 const tempNewLastBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(
                     tempNewLastBlockData,
+                    blockTimeLookup,
                     {
                         deserializeTransactionsUnchecked: true,
                     },
@@ -358,15 +366,19 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Process the given block.
      */
     public async processBlocks(blocks: Interfaces.IBlockData[]): Promise<Interfaces.IBlock[] | undefined> {
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blocks[0].height);
+
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult | undefined;
 
         if (
             blocks[0] &&
-            !Utils.isBlockChained(this.getLastBlock().data, blocks[0]) &&
+            !Utils.isBlockChained(this.getLastBlock().data, blocks[0], blockTimeLookup) &&
             !CryptoUtils.isException(blocks[0].id)
         ) {
-            this.app.log.warning(Utils.getBlockNotChainedErrorMessage(this.getLastBlock().data, blocks[0]));
+            this.app.log.warning(
+                Utils.getBlockNotChainedErrorMessage(this.getLastBlock().data, blocks[0], blockTimeLookup),
+            );
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
             this.resetLastDownloadedBlock();
@@ -376,7 +388,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         let forkBlock: Interfaces.IBlock | undefined = undefined;
         let lastProcessedBlock: Interfaces.IBlock | undefined = undefined;
         for (const block of blocks) {
-            const blockInstance = Blocks.BlockFactory.fromData(block);
+            const blockInstance = Blocks.BlockFactory.fromData(block, blockTimeLookup);
             Utils.assert.defined<Interfaces.IBlock>(blockInstance);
 
             lastProcessResult = await this.blockProcessor.process(blockInstance);
@@ -435,7 +447,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
             lastProcessedBlock
         ) {
-            if (this.state.started && Crypto.Slots.getSlotInfo().startTime <= lastProcessedBlock.data.timestamp) {
+            if (
+                this.state.started &&
+                Crypto.Slots.getSlotInfo(blockTimeLookup).startTime <= lastProcessedBlock.data.timestamp
+            ) {
                 this.app
                     .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                     .broadcastBlock(lastProcessedBlock);

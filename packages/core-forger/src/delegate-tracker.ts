@@ -12,6 +12,14 @@ import { Delegate } from "./interfaces";
 export class DelegateTracker {
     /**
      * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof ForgerService
+     */
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
+    /**
+     * @private
      * @type {Contracts.Kernel.Logger}
      * @memberof DelegateTracker
      */
@@ -76,10 +84,13 @@ export class DelegateTracker {
             (delegate: Contracts.State.Wallet) => delegate.publicKey,
         );
 
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
+
         const forgingInfo: Contracts.Shared.ForgingInfo = Utils.forgingInfoCalculator.calculateForgingInfo(
             timestamp,
             height,
             round,
+            blockTimeLookup,
         );
 
         // Determine Next Forgers...

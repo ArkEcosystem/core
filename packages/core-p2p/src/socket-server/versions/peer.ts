@@ -60,7 +60,9 @@ export const getStatus = async ({
         .get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService)
         .getLastBlock();
 
-    const slotInfo = Crypto.Slots.getSlotInfo();
+    const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(app, lastBlock.data.height);
+
+    const slotInfo = Crypto.Slots.getSlotInfo(blockTimeLookup);
 
     return {
         state: {
@@ -113,7 +115,9 @@ export const postBlock = async ({ app, req }: { app: Contracts.Kernel.Applicatio
 
         const lastDownloadedBlock: Interfaces.IBlockData = blockchain.getLastDownloadedBlock();
 
-        if (!Utils.isBlockChained(lastDownloadedBlock, block)) {
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(app, block.height);
+
+        if (!Utils.isBlockChained(lastDownloadedBlock, block, blockTimeLookup)) {
             throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
         }
     }
@@ -130,6 +134,7 @@ export const postBlock = async ({ app, req }: { app: Contracts.Kernel.Applicatio
         )} from ${mapAddr(req.headers.remoteAddress)}`,
     );
 
+    // TODO: check we don't need to await here (this is now an async operation)
     blockchain.handleIncomingBlock(block, fromForger);
 };
 

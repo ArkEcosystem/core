@@ -54,5 +54,9 @@ export interface Delegate {
      * @returns {Interfaces.IBlock}
      * @memberof Delegate
      */
-    forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): Interfaces.IBlock;
+    forge(
+        transactions: Interfaces.ITransactionData[],
+        options: Record<string, any>,
+        getBlockTimeLookup: (height: number) => number,
+    ): Interfaces.IBlock;
 }

@@ -52,8 +52,14 @@ export class BlockProcessor {
             return this.app.resolve<NonceOutOfOrderHandler>(NonceOutOfOrderHandler).execute();
         }
 
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.data.height);
+
         const isValidGenerator: boolean = await this.validateGenerator(block);
-        const isChained: boolean = AppUtils.isBlockChained(this.blockchain.getLastBlock().data, block.data);
+        const isChained: boolean = AppUtils.isBlockChained(
+            this.blockchain.getLastBlock().data,
+            block.data,
+            blockTimeLookup,
+        );
         if (!isChained) {
             return this.app.resolve<UnchainedHandler>(UnchainedHandler).initialize(isValidGenerator).execute(block);
         }
@@ -189,9 +195,11 @@ export class BlockProcessor {
     private async validateGenerator(block: Interfaces.IBlock): Promise<boolean> {
         const database: DatabaseService = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
 
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.data.height);
+
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
         const delegates: Contracts.State.Wallet[] = await database.getActiveDelegates(roundInfo);
-        const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
+        const slot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, block.data.timestamp);
         const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
 
         const walletRepository = this.app.getTagged<Contracts.State.WalletRepository>(

@@ -89,8 +89,10 @@ export const getCurrentRound = async ({
         }),
     );
 
+    const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(app, height);
+
     const timestamp = Crypto.Slots.getTime();
-    const forgingInfo = Utils.forgingInfoCalculator.calculateForgingInfo(timestamp, height, roundInfo);
+    const forgingInfo = Utils.forgingInfoCalculator.calculateForgingInfo(timestamp, height, roundInfo, blockTimeLookup);
 
     return {
         current: round,

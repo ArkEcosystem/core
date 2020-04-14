@@ -34,9 +34,13 @@ export class DownloadBlocks implements Action {
             return;
         }
 
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, blocks[0].height);
+
         const empty: boolean = !blocks || blocks.length === 0;
         const chained: boolean =
-            !empty && (AppUtils.isBlockChained(lastDownloadedBlock, blocks[0]) || Utils.isException(blocks[0].id));
+            !empty &&
+            (AppUtils.isBlockChained(lastDownloadedBlock, blocks[0], blockTimeLookup) ||
+                Utils.isException(blocks[0].id));
 
         if (chained) {
             this.logger.info(

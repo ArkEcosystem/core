@@ -1,12 +1,12 @@
 import { Managers } from "@arkecosystem/crypto";
 
-// TODO: fix naming - mapSpanHeightsToTimestamp
 export const mapHeightToMilestoneSpanTimestamp = async (
     height: number,
     findBlockTimestampByHeight: (height: number) => Promise<number>,
 ): Promise<(height: number) => number> => {
     let nextMilestone = Managers.configManager.getNextMilestoneWithNewKey(1, "blocktime");
 
+    // TODO: could cache this object here to reduce slow calls to DB.
     const heightMappedToBlockTimestamp: Map<number, number> = new Map();
     heightMappedToBlockTimestamp.set(1, 0); // Block of height one always has a timestamp of 0
 
