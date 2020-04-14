@@ -159,22 +159,29 @@ export class Slots {
     ): number {
         let blockTime = calculateBlockTime(1);
         let totalSlotsFromLastSpan = 0;
-        let previousMilestoneHeight = 1;
         let nextMilestone = configManager.getNextMilestoneWithNewKey(1, "blocktime");
-        let totalTimespan = 0;
+        let previousSpanEndTimestamp = 0;
+        let previousMilestoneHeight = 1;
+        let previousMilestoneBlockTime = blockTime;
 
         for (let i = 0; i < this.getMilestonesWhichAffectBlockTimes().length - 1; i++) {
             if (height < nextMilestone.height) {
-                return totalTimespan + (slotNumber - totalSlotsFromLastSpan) * blockTime;
+                return previousSpanEndTimestamp + (slotNumber - totalSlotsFromLastSpan) * blockTime;
             } else {
                 const spanStartTimestamp = getTimeStampForBlock(previousMilestoneHeight);
+                previousSpanEndTimestamp = getTimeStampForBlock(nextMilestone.height - 1) + blockTime;
+
+                let spanTotalTime = previousSpanEndTimestamp - spanStartTimestamp;
+                if (spanStartTimestamp !== 0) {
+                    spanTotalTime -= previousMilestoneBlockTime;
+                }
+                const totalSlotsInThisSpan = Math.floor(spanTotalTime / blockTime);
+
+                totalSlotsFromLastSpan += totalSlotsInThisSpan;
+                previousMilestoneBlockTime = blockTime;
+                blockTime = nextMilestone.data;
                 previousMilestoneHeight = nextMilestone.height - 1;
 
-                totalTimespan = getTimeStampForBlock(nextMilestone.height - 1) + blockTime;
-
-                totalSlotsFromLastSpan += Math.floor((totalTimespan - spanStartTimestamp) / blockTime);
-
-                blockTime = nextMilestone.data;
                 nextMilestone = configManager.getNextMilestoneWithNewKey(nextMilestone.height, "blocktime");
             }
         }
@@ -183,7 +190,7 @@ export class Slots {
             return slotNumber * blockTime;
         }
 
-        return totalTimespan + (slotNumber - totalSlotsFromLastSpan + 1) * blockTime;
+        return previousSpanEndTimestamp + (slotNumber - totalSlotsFromLastSpan) * blockTime;
     }
 
     private static getLatestHeight(height: number | undefined): number {

@@ -150,7 +150,7 @@ describe("Slots", () => {
         });
 
         describe("getSlotTime", () => {
-            it.skip("getSlotTime", () => {
+            it("getSlotTime", () => {
                 const milestones = [
                     { height: 1, blocktime: 8 },
                     { height: 3, blocktime: 9 },
@@ -402,7 +402,6 @@ describe("Slots", () => {
                 const config = { ...devnet, milestones };
                 configManager.setConfig(config);
 
-                // TODO: check that the blockTimestamp uses the start time of a given slot
                 const blockdata = [
                     { height: 1, timestamp: 0 },
                     { height: 3, timestamp: 16 },
