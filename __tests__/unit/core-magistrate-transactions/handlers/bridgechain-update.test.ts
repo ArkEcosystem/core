@@ -27,6 +27,7 @@ import {
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -35,10 +36,9 @@ import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
+import _ from "lodash";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
-import _ from "lodash";
 import { Assets } from "./__fixtures__";
 
 let app: Application;
@@ -53,7 +53,7 @@ StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 const databaseTransactionService = {
-    search: jest.fn(),
+    findManyByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
@@ -62,7 +62,7 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     Mocks.TransactionRepository.setTransactions([]);
-    databaseTransactionService.search.mockReset();
+    databaseTransactionService.findManyByCriteria.mockReset();
 
     app = initApp();
 
@@ -113,11 +113,12 @@ describe("BusinessRegistration", () => {
         const bridgechainUpdateBuilder = new BridgechainUpdateBuilder();
         bridgechainUpdateTransaction = bridgechainUpdateBuilder
             .bridgechainUpdateAsset(bridgechainUpdateAsset)
-            .nonce("1")
+            .nonce("2")
             .sign(passphrases[0])
             .build();
 
         senderWallet.setAttribute("business.businessAsset", businessRegistrationAsset);
+        senderWallet.nonce = Utils.BigNumber.make("1");
 
         const businessAttributes = senderWallet.getAttribute("business");
 
@@ -284,6 +285,15 @@ describe("BusinessRegistration", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
 
+            const bridgechainUpdateAssetClone = Object.assign({}, bridgechainUpdateAsset);
+            delete bridgechainUpdateAssetClone.bridgechainId;
+            const asset = senderWallet.getAttribute("business.bridgechains");
+            asset[bridgechainRegistrationAsset.genesisHash].bridgechainAsset = {
+                ...bridgechainRegistrationAsset,
+                ...bridgechainUpdateAssetClone,
+            };
+            senderWallet.nonce = Utils.BigNumber.make("2");
+
             const secondBridgechainUpdateAsset: IBridgechainUpdateAsset = {
                 bridgechainId: bridgechainRegistrationAsset.genesisHash,
                 seedNodes: [
@@ -300,56 +310,41 @@ describe("BusinessRegistration", () => {
 
             const secondBridgechainUpdateTransaction = new BridgechainUpdateBuilder()
                 .bridgechainUpdateAsset(secondBridgechainUpdateAsset)
-                .nonce("1")
+                .nonce("3")
                 .sign(passphrases[0])
                 .build();
+
+            await handler.apply(secondBridgechainUpdateTransaction, walletRepository);
 
             const secondBridgechainUpdateAssetClone = Object.assign({}, secondBridgechainUpdateAsset);
             delete secondBridgechainUpdateAssetClone.bridgechainId;
 
-            const asset = senderWallet.getAttribute("business.bridgechains");
-            asset[bridgechainRegistrationAsset.genesisHash].bridgechainAsset = {
+            expect(
+                senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash]
+                    .bridgechainAsset,
+            ).toEqual({
                 ...bridgechainRegistrationAsset,
+                ...bridgechainUpdateAssetClone,
                 ...secondBridgechainUpdateAssetClone,
-            };
+            });
 
-            await handler.apply(bridgechainUpdateTransaction, walletRepository);
+            databaseTransactionService.findManyByCriteria.mockResolvedValueOnce([
+                bridgechainRegistrationTransaction.data,
+                bridgechainUpdateTransaction.data,
+                secondBridgechainUpdateTransaction.data,
+            ]);
 
-            const bridgechainUpdateAssetClone = Object.assign({}, bridgechainUpdateAsset);
-            delete bridgechainUpdateAssetClone.bridgechainId;
+            await handler.revert(secondBridgechainUpdateTransaction, walletRepository);
 
             expect(
                 senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash]
                     .bridgechainAsset,
             ).toEqual({
                 ...bridgechainRegistrationAsset,
-                ...secondBridgechainUpdateAssetClone,
                 ...bridgechainUpdateAssetClone,
             });
 
-            databaseTransactionService.search.mockResolvedValueOnce({
-                rows: [bridgechainRegistrationTransaction.data],
-                count: 1,
-                countIsEstimate: false,
-            });
-
-            databaseTransactionService.search.mockResolvedValueOnce({
-                rows: [bridgechainUpdateTransaction.data, secondBridgechainUpdateTransaction.data],
-                count: 2,
-                countIsEstimate: false,
-            });
-
-            await handler.revert(bridgechainUpdateTransaction, walletRepository);
-
-            expect(
-                senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash]
-                    .bridgechainAsset,
-            ).toEqual({
-                ...bridgechainRegistrationAsset,
-                ...secondBridgechainUpdateAssetClone,
-            });
-
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.balance).toEqual(senderBalance);
         });
     });
 });
