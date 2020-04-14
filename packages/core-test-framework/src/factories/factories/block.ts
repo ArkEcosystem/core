@@ -5,7 +5,15 @@ import secrets from "../../internal/passphrases.json";
 import { Signer } from "../../internal/signer";
 import { FactoryBuilder } from "../factory-builder";
 
-export const registerBlockFactory = (factory: FactoryBuilder): void => {
+const defaultblockTimestampLookup = (height: number): number => {
+    if (height === 1) return 0;
+    throw new Error(`Attemped to lookup block with height ${height}, but no lookup implementation was provided`);
+};
+
+export const registerBlockFactory = (
+    factory: FactoryBuilder,
+    blockTimestampLookup = defaultblockTimestampLookup,
+): void => {
     factory.set("Block", ({ options }) => {
         let previousBlock;
         if (options.getPreviousBlock) {
@@ -39,7 +47,9 @@ export const registerBlockFactory = (factory: FactoryBuilder): void => {
 
         return DelegateFactory.fromBIP39(options.passphrase || secrets[0]).forge(transactions, {
             previousBlock,
-            timestamp: Crypto.Slots.getSlotNumber(Crypto.Slots.getTime()) * options.blocktime || blocktime,
+            timestamp:
+                Crypto.Slots.getSlotNumber(blockTimestampLookup, Crypto.Slots.getTime()) * options.blocktime ||
+                blocktime,
             reward: options.reward || reward,
         })!;
     });
