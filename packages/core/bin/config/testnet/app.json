@@ -92,6 +92,16 @@
                 "package": "@arkecosystem/core-logger-pino"
             },
             {
+                "package": "@arkecosystem/core-snapshots"
+            }
+        ]
+    },
+    "snapshot_old": {
+        "plugins": [
+            {
+                "package": "@arkecosystem/core-logger-pino"
+            },
+            {
                 "package": "@arkecosystem/core-state"
             },
             {

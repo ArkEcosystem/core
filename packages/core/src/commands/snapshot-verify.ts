@@ -74,10 +74,10 @@ export class Command extends Commands.Command {
             return;
         }
 
-        if(!app.isBound(KernelContainer.Identifiers.DatabaseService)) {
-            this.logger.error("Database service is not initialized.");
-            return;
-        }
+        // if(!app.isBound(KernelContainer.Identifiers.DatabaseService)) {
+        //     this.logger.error("Database service is not initialized.");
+        //     return;
+        // }
 
         if(!app.isBound(KernelContainer.Identifiers.SnapshotService)) {
             this.logger.error("Snapshot service is not initialized.");

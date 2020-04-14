@@ -77,8 +77,9 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
         try {
             await this.database.verify(meta!);
             this.logger.info((`Snapshot ${options.blocks} of network ${options.network} is successfully verified.`));
-        } catch (e) {
+        } catch (err) {
             this.logger.error(`Snapshot ${options.blocks} of network ${options.network} is not successfully verified.`);
+            throw err;
         }
     }
 
@@ -127,7 +128,6 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
         await this.database.truncate();
     }
-
 
     public async test(options: any): Promise<void> {
         this.utils.setNetwork(options.network);

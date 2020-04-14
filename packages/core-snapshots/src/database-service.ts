@@ -3,7 +3,7 @@ import { Identifiers } from "./ioc";
 import { SnapshotBlockRepository, SnapshotRoundRepository, SnapshotTransactionRepository } from "./repositories";
 import { Models, Repositories } from "@arkecosystem/core-database";
 // import { Connection } from "typeorm";
-import { Blocks, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 import { Codec } from "./transport";
 
 import zlib from "zlib";
@@ -133,6 +133,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
                 startHeight: startHeight!,
                 endHeight: endHeight!
             },
+
             transactions: {
                 count: await this.snapshotTransactionRepository.count(),
                 startHeight: startHeight!,
@@ -263,8 +264,10 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
     private applyGenesisBlockFix(block: Models.Block): void {
         if (block.height === 1) {
-            let genesisBlock = this.app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
-            block.id = genesisBlock.data.id
+            // let genesisBlock = this.app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
+            // TODO: State store instead database should set genesisBlock
+            let genesisBlock = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!;
+            block.id = genesisBlock.data.id!;
         }
     }
 
@@ -278,7 +281,10 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         // console.log(this.utils.getSnapshotFolderPath("testnet","1-222"));
         // console.log(options);
 
-        console.log(this.utils.getSnapshotFolderPath());
+        // console.log(this.utils.getSnapshotFolderPath());
+
+        // console.log(await this.snapshotBlockRepository.findLast());
+        console.log(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!);
     }
 }
 
