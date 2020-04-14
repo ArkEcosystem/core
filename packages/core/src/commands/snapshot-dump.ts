@@ -1,6 +1,8 @@
-import { Commands, Container } from "@arkecosystem/core-cli";
+import { Commands, Container, Contracts, Services, Utils, Components } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
+import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
+import { ProgressRenderer } from "../utils/snapshot-progress-renderer";
 
 /**
  * @export
@@ -9,6 +11,9 @@ import Joi from "@hapi/joi";
  */
 @Container.injectable()
 export class Command extends Commands.Command {
+    @Container.inject(Container.Identifiers.Logger)
+    private readonly logger!: Services.Logger;
+
     /**
      * The console command signature.
      *
@@ -49,6 +54,34 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        this.components.fatal("This command has not been implemented.");
+        // this.components.fatal("This command has not been implemented.");
+        // TODO: abort running processes (core, forger, relay)
+
+        const flags: Contracts.AnyObject = { ...this.getFlags() };
+        flags.processType = "snapshot";
+
+        let app = await Utils.buildApplication({
+            flags,
+        });
+
+        if(!app.isBooted()) {
+            this.logger.error("App is not booted.");
+            return;
+        }
+
+        if(!app.isBound(KernelContainer.Identifiers.DatabaseService)) {
+            this.logger.error("Database service is not initialized.");
+            return;
+        }
+
+        if(!app.isBound(KernelContainer.Identifiers.SnapshotService)) {
+            this.logger.error("Snapshot service is not initialized.");
+            return;
+        }
+
+        let spinner = this.app.get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory).spinner();
+        new ProgressRenderer(spinner, app);
+
+        await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).dump(flags);
     }
 }

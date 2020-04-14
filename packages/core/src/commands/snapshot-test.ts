@@ -88,7 +88,7 @@ export class Command extends Commands.Command {
 
         this.logger.log(JSON.stringify(app.isBound(KernelContainer.Identifiers.SnapshotService)));
 
-        await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).test();
+        await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).test(flags);
 
         this.logger.log("Finish running truncate method from CLI");
     }

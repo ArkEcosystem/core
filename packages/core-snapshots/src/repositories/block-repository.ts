@@ -49,6 +49,18 @@ export class SnapshotBlockRepository extends Repositories.AbstractEntityReposito
         return topBlocks[0];
     }
 
+    public async findFirst(): Promise<Models.Block | undefined> {
+        let topBlocks = await this.find({
+            take: 1,
+            order: {
+                height: "ASC"
+            }
+        });
+
+        return topBlocks[0];
+    }
+
+
     public async findByHeight(height: number): Promise<Models.Block | undefined> {
         return this.findOne({
             height: height

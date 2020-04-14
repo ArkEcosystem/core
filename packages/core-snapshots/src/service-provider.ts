@@ -4,11 +4,11 @@ import { getCustomRepository } from "typeorm";
 import { SnapshotService } from "./snapshot-service";
 import { SnapshotDatabaseService } from "./database-service";
 import { SnapshotBlockRepository, SnapshotRoundRepository, SnapshotTransactionRepository } from "./repositories";
+import { Utils } from "./utils";
+import { ProgressDispatcher } from "./progress-dispatcher";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        // this.registerFactories();
-
         this.registerServices();
     }
 
@@ -19,13 +19,14 @@ export class ServiceProvider extends Providers.ServiceProvider {
         return true;
     }
 
-    // private registerFactories(): void {
-    // }
-
     private registerServices(): void {
-        this.app.bind(Container.Identifiers.SnapshotService).to(SnapshotService);
+        this.app.bind(Container.Identifiers.SnapshotService).to(SnapshotService).inSingletonScope();
 
-        this.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService);
+        this.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
+
+        this.app.bind(Identifiers.SnapshotUtils).to(Utils).inSingletonScope();
+
+        this.app.bind(Identifiers.ProgressDispatcher).to(ProgressDispatcher);
 
         this.app
             .bind(Identifiers.SnapshotBlockRepository)
