@@ -210,7 +210,7 @@ describe("Slots", () => {
                     }
                 };
 
-                expect(Slots.getSlotInfo(0, 1, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 0, 1)).toEqual(
                     expect.objectContaining({
                         startTime: 0,
                         endTime: 3,
@@ -218,7 +218,7 @@ describe("Slots", () => {
                         blockTime: 4,
                     }),
                 );
-                expect(Slots.getSlotInfo(3, 1, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 3, 1)).toEqual(
                     expect.objectContaining({
                         startTime: 0,
                         endTime: 3,
@@ -227,7 +227,7 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(4, 2, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 4, 2)).toEqual(
                     expect.objectContaining({
                         startTime: 4,
                         endTime: 7,
@@ -235,7 +235,7 @@ describe("Slots", () => {
                         blockTime: 4,
                     }),
                 );
-                expect(Slots.getSlotInfo(7, 2, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 7, 2)).toEqual(
                     expect.objectContaining({
                         startTime: 4,
                         endTime: 7,
@@ -244,7 +244,7 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(8, 3, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 8, 3)).toEqual(
                     expect.objectContaining({
                         startTime: 8,
                         endTime: 11,
@@ -252,7 +252,7 @@ describe("Slots", () => {
                         blockTime: 4,
                     }),
                 );
-                expect(Slots.getSlotInfo(11, 3, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 11, 3)).toEqual(
                     expect.objectContaining({
                         startTime: 8,
                         endTime: 11,
@@ -260,7 +260,7 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(12, 4, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 12, 4)).toEqual(
                     expect.objectContaining({
                         startTime: 12,
                         endTime: 14,
@@ -268,7 +268,7 @@ describe("Slots", () => {
                         blockTime: 3,
                     }),
                 );
-                expect(Slots.getSlotInfo(14, 4, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 14, 4)).toEqual(
                     expect.objectContaining({
                         startTime: 12,
                         endTime: 14,
@@ -277,7 +277,7 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(15, 5, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 15, 5)).toEqual(
                     expect.objectContaining({
                         startTime: 15,
                         endTime: 17,
@@ -285,7 +285,7 @@ describe("Slots", () => {
                         blockTime: 3,
                     }),
                 );
-                expect(Slots.getSlotInfo(17, 5, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 17, 5)).toEqual(
                     expect.objectContaining({
                         startTime: 15,
                         endTime: 17,
@@ -294,7 +294,7 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(18, 6, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 18, 6)).toEqual(
                     expect.objectContaining({
                         startTime: 18,
                         endTime: 22,
@@ -302,7 +302,7 @@ describe("Slots", () => {
                         blockTime: 5,
                     }),
                 );
-                expect(Slots.getSlotInfo(22, 6, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 22, 6)).toEqual(
                     expect.objectContaining({
                         startTime: 18,
                         endTime: 22,
@@ -311,7 +311,7 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(23, 7, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 23, 7)).toEqual(
                     expect.objectContaining({
                         startTime: 23,
                         endTime: 27,
@@ -319,7 +319,7 @@ describe("Slots", () => {
                         blockTime: 5,
                     }),
                 );
-                expect(Slots.getSlotInfo(27, 7, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 27, 7)).toEqual(
                     expect.objectContaining({
                         startTime: 23,
                         endTime: 27,
@@ -465,7 +465,7 @@ describe("Slots", () => {
                     }
                 };
 
-                expect(Slots.getSlotInfo(0, 1, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 0, 1)).toEqual(
                     expect.objectContaining({
                         startTime: 0,
                         endTime: 3,
@@ -473,7 +473,7 @@ describe("Slots", () => {
                         forgingStatus: true,
                     }),
                 );
-                expect(Slots.getSlotInfo(1, 1, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 1, 1)).toEqual(
                     expect.objectContaining({
                         startTime: 0,
                         endTime: 3,
@@ -481,7 +481,7 @@ describe("Slots", () => {
                         forgingStatus: true,
                     }),
                 );
-                expect(Slots.getSlotInfo(2, 1, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 2, 1)).toEqual(
                     expect.objectContaining({
                         startTime: 0,
                         endTime: 3,
@@ -489,7 +489,7 @@ describe("Slots", () => {
                         forgingStatus: false,
                     }),
                 );
-                expect(Slots.getSlotInfo(3, 1, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 3, 1)).toEqual(
                     expect.objectContaining({
                         startTime: 0,
                         endTime: 3,
@@ -498,14 +498,14 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(4, 2, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 4, 2)).toEqual(
                     expect.objectContaining({
                         startTime: 4,
                         endTime: 7,
                         slotNumber: 1,
                     }),
                 );
-                expect(Slots.getSlotInfo(7, 2, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 7, 2)).toEqual(
                     expect.objectContaining({
                         startTime: 4,
                         endTime: 7,
@@ -513,14 +513,14 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(8, 3, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 8, 3)).toEqual(
                     expect.objectContaining({
                         startTime: 8,
                         endTime: 11,
                         slotNumber: 2,
                     }),
                 );
-                expect(Slots.getSlotInfo(11, 3, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 11, 3)).toEqual(
                     expect.objectContaining({
                         startTime: 8,
                         endTime: 11,
@@ -528,14 +528,14 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(12, 3, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 12, 3)).toEqual(
                     expect.objectContaining({
                         startTime: 12,
                         endTime: 15,
                         slotNumber: 3,
                     }),
                 );
-                expect(Slots.getSlotInfo(15, 3, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 15, 3)).toEqual(
                     expect.objectContaining({
                         startTime: 12,
                         endTime: 15,
@@ -543,14 +543,14 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(16, 3, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 16, 3)).toEqual(
                     expect.objectContaining({
                         startTime: 16,
                         endTime: 19,
                         slotNumber: 4,
                     }),
                 );
-                expect(Slots.getSlotInfo(19, 3, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 19, 3)).toEqual(
                     expect.objectContaining({
                         startTime: 16,
                         endTime: 19,
@@ -558,14 +558,14 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(20, 4, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 20, 4)).toEqual(
                     expect.objectContaining({
                         startTime: 20,
                         endTime: 22,
                         slotNumber: 5,
                     }),
                 );
-                expect(Slots.getSlotInfo(22, 4, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 22, 4)).toEqual(
                     expect.objectContaining({
                         startTime: 20,
                         endTime: 22,
@@ -573,14 +573,14 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(23, 5, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 23, 5)).toEqual(
                     expect.objectContaining({
                         startTime: 23,
                         endTime: 25,
                         slotNumber: 6,
                     }),
                 );
-                expect(Slots.getSlotInfo(25, 5, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 25, 5)).toEqual(
                     expect.objectContaining({
                         startTime: 23,
                         endTime: 25,
@@ -588,14 +588,14 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(26, 6, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 26, 6)).toEqual(
                     expect.objectContaining({
                         startTime: 26,
                         endTime: 28,
                         slotNumber: 7,
                     }),
                 );
-                expect(Slots.getSlotInfo(28, 6, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 28, 6)).toEqual(
                     expect.objectContaining({
                         startTime: 26,
                         endTime: 28,
@@ -603,14 +603,14 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(29, 6, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 29, 6)).toEqual(
                     expect.objectContaining({
                         startTime: 29,
                         endTime: 31,
                         slotNumber: 8,
                     }),
                 );
-                expect(Slots.getSlotInfo(31, 6, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 31, 6)).toEqual(
                     expect.objectContaining({
                         startTime: 29,
                         endTime: 31,
@@ -618,14 +618,14 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(32, 7, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 32, 7)).toEqual(
                     expect.objectContaining({
                         startTime: 32,
                         endTime: 35,
                         slotNumber: 9,
                     }),
                 );
-                expect(Slots.getSlotInfo(35, 7, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 35, 7)).toEqual(
                     expect.objectContaining({
                         startTime: 32,
                         endTime: 35,
@@ -633,14 +633,14 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(36, 7, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 36, 7)).toEqual(
                     expect.objectContaining({
                         startTime: 36,
                         endTime: 39,
                         slotNumber: 10,
                     }),
                 );
-                expect(Slots.getSlotInfo(39, 7, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 39, 7)).toEqual(
                     expect.objectContaining({
                         startTime: 36,
                         endTime: 39,
@@ -648,7 +648,7 @@ describe("Slots", () => {
                     }),
                 );
 
-                expect(Slots.getSlotInfo(40, 8, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 40, 8)).toEqual(
                     expect.objectContaining({
                         startTime: 40,
                         endTime: 43,
@@ -656,7 +656,7 @@ describe("Slots", () => {
                         forgingStatus: true,
                     }),
                 );
-                expect(Slots.getSlotInfo(41, 8, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 41, 8)).toEqual(
                     expect.objectContaining({
                         startTime: 40,
                         endTime: 43,
@@ -664,7 +664,7 @@ describe("Slots", () => {
                         forgingStatus: true,
                     }),
                 );
-                expect(Slots.getSlotInfo(42, 8, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 42, 8)).toEqual(
                     expect.objectContaining({
                         startTime: 40,
                         endTime: 43,
@@ -672,7 +672,7 @@ describe("Slots", () => {
                         forgingStatus: false,
                     }),
                 );
-                expect(Slots.getSlotInfo(43, 8, getTimeStampForBlock)).toEqual(
+                expect(Slots.getSlotInfo(getTimeStampForBlock, 43, 8)).toEqual(
                     expect.objectContaining({
                         startTime: 40,
                         endTime: 43,

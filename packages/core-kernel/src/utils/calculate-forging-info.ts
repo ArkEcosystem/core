@@ -6,10 +6,10 @@ export const calculateForgingInfo = (
     timestamp: number,
     height: number,
     roundInfo: RoundInfo,
-    getTimeStampForBlock?: (blockheight: number) => number,
+    getTimeStampForBlock: (blockheight: number) => number,
 ): ForgingInfo => {
-    const slotInfo = Crypto.Slots.getSlotInfo(timestamp, height, getTimeStampForBlock);
-    const blockTimestamp = Crypto.Slots.getSlotTime(slotInfo.slotNumber, height, getTimeStampForBlock);
+    const slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock, timestamp, height);
+    const blockTimestamp = Crypto.Slots.getSlotTime(getTimeStampForBlock, slotInfo.slotNumber, height);
 
     if (height > roundInfo.roundHeight + roundInfo.maxDelegates) {
         throw new Error(

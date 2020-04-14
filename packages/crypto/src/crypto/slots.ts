@@ -42,16 +42,11 @@ export class Slots {
 
         const latestHeight = this.getLatestHeight(height);
 
-        return this.getSlotInfo(timestamp, latestHeight, getTimeStampForBlock).slotNumber;
+        return this.getSlotInfo(getTimeStampForBlock, timestamp, latestHeight).slotNumber;
     }
 
     public static getSlotTime(getTimeStampForBlock: GetBlockTimeStampLookup, slot: number, height?: number): number {
         const latestHeight = this.getLatestHeight(height);
-
-        // TODO: this is now required when looking up dynamic block times - how should we handle this?
-        if (getTimeStampForBlock === undefined) {
-            throw new Error(`Dynamic block times require lookup`);
-        }
 
         return this.calculateSlotTime(slot, latestHeight, getTimeStampForBlock);
     }
@@ -71,14 +66,20 @@ export class Slots {
 
         const latestHeight = this.getLatestHeight(height);
 
-        return this.getSlotInfo(timestamp, latestHeight, getTimeStampForBlock).forgingStatus;
+        return this.getSlotInfo(getTimeStampForBlock, timestamp, latestHeight).forgingStatus;
     }
 
     public static getSlotInfo(
-        timestamp: number,
-        height: number,
         getTimeStampForBlock: GetBlockTimeStampLookup,
+        timestamp?: number,
+        height?: number,
     ): SlotInfo {
+        if (timestamp === undefined) {
+            timestamp = this.getTime();
+        }
+
+        height = this.getLatestHeight(height);
+
         let blockTime = calculateBlockTime(1);
         let totalSlotsFromLastSpan = 0;
         let lastSpanEndTime = 0;
