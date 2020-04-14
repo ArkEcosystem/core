@@ -75,7 +75,7 @@ export class PeersController extends Controller {
 
         result = result.slice(offset, offset + limit);
 
-        return super.toPagination({ rows: result, count }, PeerResource);
+        return super.toPagination({ rows: result, count, countIsEstimate: false }, PeerResource);
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {

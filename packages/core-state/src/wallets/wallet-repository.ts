@@ -170,7 +170,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     public search<T>(
         scope: Contracts.State.SearchScope,
         params: Contracts.Database.QueryParameters = {},
-    ): Contracts.State.RowsPaginated<T> {
+    ): Contracts.Database.ListResult<T> {
         let searchContext: Contracts.State.SearchContext;
 
         switch (scope) {
@@ -233,7 +233,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     public top(
         scope: Contracts.State.SearchScope,
         params: Record<string, any> = {},
-    ): Contracts.State.RowsPaginated<Contracts.State.Wallet> {
+    ): Contracts.Database.ListResult<Contracts.State.Wallet> {
         return this.search(scope, { ...params, ...{ orderBy: "balance:desc" } });
     }
 

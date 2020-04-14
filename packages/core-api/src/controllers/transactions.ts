@@ -66,7 +66,11 @@ export class TransactionsController extends Controller {
         );
         const rows = transactions.map((t) => t.data);
 
-        return super.toPagination({ count: all.length, rows }, TransactionResource, !!request.query.transform);
+        return super.toPagination(
+            { rows, count: all.length, countIsEstimate: false },
+            TransactionResource,
+            !!request.query.transform,
+        );
     }
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {

@@ -54,11 +54,11 @@ export class Controller {
     }
 
     /* istanbul ignore next */
-    protected toCollection(data, transformer, transform = true): object {
+    protected toCollection<T>(data: T[], transformer, transform = true): object {
         return data.map((item) => this.toResource(item, transformer, transform));
     }
 
-    protected toPagination(data, transformer, transform = true): object {
+    protected toPagination<T>(data: Contracts.Database.ListResult<T>, transformer, transform = true): object {
         return {
             results: this.toCollection(data.rows, transformer, transform),
             totalCount: data.count,

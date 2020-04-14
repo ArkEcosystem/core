@@ -1,5 +1,7 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
+import { ListResult } from "../database/services";
+
 // todo: review all interfaces in here and document them properly. Remove ones that are no longer needed.
 
 export interface WalletIndex {
@@ -192,13 +194,13 @@ export interface WalletRepository {
 
     hasByUsername(username: string): boolean;
 
-    search<T>(scope: SearchScope, params: any): RowsPaginated<T>;
+    search<T>(scope: SearchScope, params: any): ListResult<T>;
 
     findByScope(searchScope: SearchScope, id: string): Wallet;
 
     count(searchScope: SearchScope): number;
 
-    top(searchScope: SearchScope, params?: Record<string, any>): RowsPaginated<Wallet>;
+    top(searchScope: SearchScope, params?: Record<string, any>): ListResult<Wallet>;
 }
 
 export enum SearchScope {
@@ -207,11 +209,6 @@ export enum SearchScope {
     Locks,
     Businesses,
     Bridgechains,
-}
-
-export interface RowsPaginated<T> {
-    rows: ReadonlyArray<T>;
-    count: number;
 }
 
 export interface SearchContext<T = any> {

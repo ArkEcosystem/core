@@ -67,7 +67,7 @@ export class WalletsController extends Controller {
             return wallet;
         }
         if (!wallet.publicKey) {
-            return this.toPagination({ rows: [], count: 0 }, TransactionResource);
+            return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
         const transactionListResult = await this.databaseTransactionService.listBySenderPublicKeyAndCriteria(
@@ -86,7 +86,7 @@ export class WalletsController extends Controller {
             return wallet;
         }
         if (!wallet.publicKey) {
-            return this.toPagination({ rows: [], count: 0 }, TransactionResource);
+            return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
         const transactionListResult = await this.databaseTransactionService.listByRecipientIdAndCriteria(
@@ -105,7 +105,7 @@ export class WalletsController extends Controller {
             return wallet;
         }
         if (!wallet.publicKey) {
-            return this.toPagination({ rows: [], count: 0 }, TransactionResource);
+            return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
         const transactionListResult = await this.databaseTransactionService.listVoteBySenderPublicKeyAndCriteria(
@@ -124,7 +124,7 @@ export class WalletsController extends Controller {
             return wallet;
         }
         if (!wallet.publicKey) {
-            return this.toPagination({ rows: [], count: 0 }, LockResource);
+            return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, LockResource);
         }
 
         const transactionListResult = await this.databaseTransactionService.listHtlcLockBySenderPublicKeyAndCriteria(
