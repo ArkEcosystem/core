@@ -28,16 +28,22 @@ const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
 const makeNotExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
 
+const databaseTransactionService = {
+    listHtlcClaimRefundByLockIds: jest.fn(),
+};
+
 beforeEach(() => {
     app = initApp();
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+    app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
 
     controller = app.resolve<LocksController>(LocksController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
     Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
+    databaseTransactionService.listHtlcClaimRefundByLockIds.mockReset();
 });
 
 afterEach(() => {
@@ -167,18 +173,14 @@ describe("LocksController", () => {
 
     describe("unlocked", () => {
         it("should return list of locks", async () => {
-            // TODO: From fixtures
-            const mockBlock = {
-                id: "17184958558311101492",
-                reward: Utils.BigNumber.make("100"),
-                totalFee: Utils.BigNumber.make("200"),
-                totalAmount: Utils.BigNumber.make("300"),
-            };
-
-            Mocks.Blockchain.setBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
-            Mocks.TransactionRepository.setTransactions([htlcLockTransaction]);
+            databaseTransactionService.listHtlcClaimRefundByLockIds.mockResolvedValueOnce({
+                rows: [Object.assign({}, htlcLockTransaction.data, { nonce: Utils.BigNumber.make("1") })],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
+                query: {},
                 payload: {
                     ids: [htlcLockTransaction.id],
                 },
