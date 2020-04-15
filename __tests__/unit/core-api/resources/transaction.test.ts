@@ -28,6 +28,8 @@ describe("TransactionResource", () => {
             .nonce("1")
             .sign(passphrases[0])
             .build();
+
+        transferTransaction.data.nonce = Utils.BigNumber.make("1");
     });
 
     describe("raw", () => {
@@ -47,35 +49,6 @@ describe("TransactionResource", () => {
 
             const expectedResult = parseObjectWithBigInt(transferTransaction.data);
             expectedResult.confirmations = 0;
-            delete expectedResult.expiration;
-            delete expectedResult.network;
-            delete expectedResult.timestamp;
-            delete expectedResult.recipientId;
-
-            expect(result).toEqual(expect.objectContaining(expectedResult));
-        });
-
-        it("should return transformed object when contain block", async () => {
-            const mockBlock: Partial<Interfaces.IBlockData> = {
-                id: "17184958558311101492",
-                version: 2,
-                height: 2,
-                timestamp: 2,
-                reward: Utils.BigNumber.make("100"),
-                totalFee: Utils.BigNumber.make("200"),
-                totalAmount: Utils.BigNumber.make("300"),
-                generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
-            };
-
-            Mocks.Blockchain.setBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
-
-            // @ts-ignore
-            transferTransaction.block = mockBlock;
-
-            const result = <any>resource.transform(transferTransaction.data);
-
-            const expectedResult = parseObjectWithBigInt(transferTransaction.data);
-            expectedResult.confirmations = 1;
             delete expectedResult.expiration;
             delete expectedResult.network;
             delete expectedResult.timestamp;
