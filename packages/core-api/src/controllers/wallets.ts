@@ -1,4 +1,5 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Enums } from "@arkecosystem/crypto";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -46,11 +47,16 @@ export class WalletsController extends Controller {
             return wallet;
         }
 
-        const transactionListResult = await this.transactionHistoryService.listByWalletAndCriteria(
-            wallet,
-            request.query,
-            this.getListingOrder(request),
+        const criteria = [
+            { recipientId: wallet.address },
+            { asset: { payment: [{ recipientId: wallet.address }] } },
+            { senderPublicKey: wallet.publicKey },
+        ];
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
             this.getListingPage(request),
+            this.getListingOrder(request),
+            request.query,
+            criteria,
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -65,11 +71,12 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        const transactionListResult = await this.transactionHistoryService.listBySenderPublicKeyAndCriteria(
-            wallet.publicKey,
-            request.query,
-            this.getListingOrder(request),
+        const criteria = { senderPublicKey: wallet.publicKey };
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
             this.getListingPage(request),
+            this.getListingOrder(request),
+            request.query,
+            criteria,
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -84,11 +91,12 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        const transactionListResult = await this.transactionHistoryService.listByRecipientIdAndCriteria(
-            wallet.address,
-            request.query,
-            this.getListingOrder(request),
+        const criteria = { recipientId: wallet.address };
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
             this.getListingPage(request),
+            this.getListingOrder(request),
+            request.query,
+            criteria,
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -103,11 +111,16 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        const transactionListResult = await this.transactionHistoryService.listVoteBySenderPublicKeyAndCriteria(
-            wallet.publicKey,
-            request.query,
-            this.getListingOrder(request),
+        const criteria = {
+            typeGroup: Enums.TransactionTypeGroup.Core,
+            type: Enums.TransactionType.Vote,
+            senderPublicKey: wallet.publicKey,
+        };
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
             this.getListingPage(request),
+            this.getListingOrder(request),
+            request.query,
+            criteria,
         );
 
         return this.toPagination(transactionListResult, TransactionResource);

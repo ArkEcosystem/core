@@ -12,53 +12,26 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
     @Container.inject(Container.Identifiers.DatabaseBlockFilter)
     private readonly blockFilter!: Contracts.Database.BlockFilter;
 
-    @Container.inject(Container.Identifiers.BlockchainService)
-    private readonly blockchain!: Contracts.Blockchain.Blockchain;
-
     public async findOneByCriteria(
-        criteria: Contracts.Shared.OrBlockCriteria,
+        ...criteria: Contracts.Shared.OrBlockCriteria[]
     ): Promise<Interfaces.IBlockData | undefined> {
-        const expression = await this.blockFilter.getCriteriaExpression(criteria);
+        const expression = await this.blockFilter.getCriteriaExpression(...criteria);
         const model = await this.blockRepository.findOneByExpression(expression);
         return model ? this.convertModel(model) : undefined;
     }
 
-    public async findOneByIdOrHeight(idOrHeight: string): Promise<Interfaces.IBlockData | undefined> {
-        const lastHeight = this.blockchain.getLastHeight();
-
-        if (parseFloat(idOrHeight) <= lastHeight) {
-            const expression = await this.blockFilter.getCriteriaExpression({ height: parseFloat(idOrHeight) });
-            const model = await this.blockRepository.findOneByExpression(expression);
-            return model ? this.convertModel(model) : undefined;
-        } else {
-            const expression = await this.blockFilter.getCriteriaExpression({ id: idOrHeight });
-            const model = await this.blockRepository.findOneByExpression(expression);
-            return model ? this.convertModel(model) : undefined;
-        }
-    }
-
-    public async findManyByCriteria(criteria: Contracts.Shared.OrBlockCriteria): Promise<Interfaces.IBlockData[]> {
-        const expression = await this.blockFilter.getCriteriaExpression(criteria);
+    public async findManyByCriteria(...criteria: Contracts.Shared.OrBlockCriteria[]): Promise<Interfaces.IBlockData[]> {
+        const expression = await this.blockFilter.getCriteriaExpression(...criteria);
         const models = await this.blockRepository.findManyByExpression(expression);
         return this.convertModels(models);
     }
 
     public async listByCriteria(
-        criteria: Contracts.Shared.OrBlockCriteria,
-        order: Contracts.Shared.ListingOrder,
         page: Contracts.Shared.ListingPage,
-    ): Promise<Contracts.Shared.ListingResult<Interfaces.IBlockData>> {
-        const expression = await this.blockFilter.getCriteriaExpression(criteria);
-        const listResult = await this.blockRepository.listByExpression(expression, order, page);
-        return this.convertListResult(listResult);
-    }
-
-    public async listByGeneratorPublicKey(
-        generatorPublicKey: string,
         order: Contracts.Shared.ListingOrder,
-        page: Contracts.Shared.ListingPage,
+        ...criteria: Contracts.Shared.OrBlockCriteria[]
     ): Promise<Contracts.Shared.ListingResult<Interfaces.IBlockData>> {
-        const expression = await this.blockFilter.getCriteriaExpression({ generatorPublicKey });
+        const expression = await this.blockFilter.getCriteriaExpression(...criteria);
         const listResult = await this.blockRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
     }

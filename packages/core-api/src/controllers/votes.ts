@@ -12,23 +12,27 @@ export class VotesController extends Controller {
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactionListResult = await this.transactionHistoryService.listVoteByCriteria(
-            request.query,
-            this.getListingOrder(request),
+        const criteria = {
+            typeGroup: Enums.TransactionTypeGroup.Core,
+            type: Enums.TransactionType.Vote,
+        };
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
             this.getListingPage(request),
+            this.getListingOrder(request),
+            request.query,
+            criteria,
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction = await this.transactionHistoryService.findOneById(request.params.id);
-        const found =
-            transaction &&
-            transaction.typeGroup === Enums.TransactionTypeGroup.Core &&
-            transaction.type === Enums.TransactionType.Vote;
-
-        if (!found) {
+        const transaction = await this.transactionHistoryService.findOneByCriteria({
+            typeGroup: Enums.TransactionTypeGroup.Core,
+            type: Enums.TransactionType.Vote,
+            id: request.params.id,
+        });
+        if (!transaction) {
             return Boom.notFound("Vote not found");
         }
 

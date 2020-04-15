@@ -1,4 +1,5 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -21,9 +22,9 @@ export class BlocksController extends Controller {
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const blockListResult = await this.blockHistoryService.listByCriteria(
-            request.query,
-            this.getListingOrder(request),
             this.getListingPage(request),
+            this.getListingOrder(request),
+            request.query,
         );
 
         return this.toPagination(blockListResult, BlockResource, request.query.transform);
@@ -40,25 +41,25 @@ export class BlocksController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blockData = await this.blockHistoryService.findOneByIdOrHeight(request.params.id);
-        if (!blockData) {
+        const block = await this.findBlockByIdOrHeight(request.params.id);
+        if (!block) {
             return Boom.notFound("Block not found");
         }
-
-        return this.respondWithResource(blockData, BlockResource, request.query.transform);
+        return this.respondWithResource(block, BlockResource, request.query.transform);
     }
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blockData = await this.blockHistoryService.findOneByIdOrHeight(request.params.id);
-        if (!blockData) {
+        const block = await this.findBlockByIdOrHeight(request.params.id);
+        if (!block) {
             return Boom.notFound("Block not found");
         }
 
-        const transactionListResult = await this.transactionHistoryService.listByBlockIdAndCriteria(
-            blockData.id!,
-            request.query,
-            this.getListingOrder(request),
+        const criteria = { blockId: block.id! };
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
             this.getListingPage(request),
+            this.getListingOrder(request),
+            request.query,
+            criteria,
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -66,11 +67,21 @@ export class BlocksController extends Controller {
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const blockListResult = await this.blockHistoryService.listByCriteria(
-            request.payload,
-            this.getListingOrder(request),
             this.getListingPage(request),
+            this.getListingOrder(request),
+            request.payload,
         );
 
         return this.toPagination(blockListResult, BlockResource, request.query.transform);
+    }
+
+    private findBlockByIdOrHeight(idOrHeight: string): Promise<Interfaces.IBlockData | undefined> {
+        const asHeight = parseFloat(idOrHeight);
+
+        if (asHeight && asHeight <= this.blockchain.getLastHeight()) {
+            return this.blockHistoryService.findOneByCriteria({ height: asHeight });
+        } else {
+            return this.blockHistoryService.findOneByCriteria({ id: idOrHeight });
+        }
     }
 }

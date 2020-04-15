@@ -1,4 +1,5 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Enums } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -46,10 +47,22 @@ export class LocksController extends Controller {
     }
 
     public async unlocked(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactionListResult = await this.transactionHistoryService.listHtlcClaimRefundByLockIds(
-            request.payload.ids,
-            this.getListingOrder(request),
+        const criteria = [
+            {
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.HtlcClaim,
+                asset: request.payload.ids.map((lockId: string) => ({ claim: { lockTransactionId: lockId } })),
+            },
+            {
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.HtlcRefund,
+                asset: request.payload.ids.map((lockId: string) => ({ refund: { lockTransactionId: lockId } })),
+            },
+        ];
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
             this.getListingPage(request),
+            this.getListingOrder(request),
+            criteria,
         );
 
         return this.toPagination(transactionListResult, TransactionResource);

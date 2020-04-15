@@ -45,15 +45,14 @@ export class DelegatesController extends Controller {
 
     public async blocks(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const delegate: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-
         if (delegate instanceof Boom) {
             return delegate;
         }
 
-        const blockListResult = await this.blockHistoryService.listByGeneratorPublicKey(
-            delegate.publicKey!,
-            this.getListingOrder(request),
+        const blockListResult = await this.blockHistoryService.listByCriteria(
             this.getListingPage(request),
+            this.getListingOrder(request),
+            { generatorPublicKey: delegate.publicKey },
         );
 
         return this.toPagination(blockListResult, BlockResource, request.query.transform);

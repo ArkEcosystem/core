@@ -27,9 +27,9 @@ export class TransactionsController extends Controller {
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            request.query,
-            this.getListingOrder(request),
             this.getListingPage(request),
+            this.getListingOrder(request),
+            request.query,
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -50,7 +50,7 @@ export class TransactionsController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction = await this.transactionHistoryService.findOneById(request.params.id);
+        const transaction = await this.transactionHistoryService.findOneByCriteria({ id: request.params.id });
         if (!transaction) {
             return Boom.notFound("Transaction not found");
         }
@@ -89,18 +89,13 @@ export class TransactionsController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        try {
-            const transactionListResult = await this.transactionHistoryService.listByCriteria(
-                request.payload,
-                this.getListingOrder(request),
-                this.getListingPage(request),
-            );
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
+            this.getListingPage(request),
+            this.getListingOrder(request),
+            request.payload,
+        );
 
-            return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
-        } catch (error) {
-            console.error(error.stack);
-            throw error;
-        }
+        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
