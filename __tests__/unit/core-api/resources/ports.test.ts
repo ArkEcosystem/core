@@ -16,6 +16,8 @@ beforeEach(() => {
     app = initApp();
 
     app.unbind(Identifiers.ServiceProviderRepository);
+    app.bind(Identifiers.DatabaseBlockService).toConstantValue({});
+    app.bind(Identifiers.DatabaseTransactionService).toConstantValue({});
     app.bind(Identifiers.ServiceProviderRepository).toConstantValue(Mocks.ServiceProviderRepository.instance);
 });
 
