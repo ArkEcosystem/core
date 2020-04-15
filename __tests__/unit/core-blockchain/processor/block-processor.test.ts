@@ -1,4 +1,3 @@
-import { Container, Services } from "@packages/core-kernel";
 import { BlockProcessor } from "@packages/core-blockchain/src/processor/block-processor";
 import {
     AcceptBlockHandler,
@@ -10,9 +9,10 @@ import {
     UnchainedHandler,
     VerificationFailedHandler,
 } from "@packages/core-blockchain/src/processor/handlers";
-import { Managers, Utils, Interfaces } from "@packages/crypto";
-import { Sandbox } from "@packages/core-test-framework";
 import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
+import { Container, Services } from "@packages/core-kernel";
+import { Sandbox } from "@packages/core-test-framework";
+import { Interfaces, Managers, Utils } from "@packages/crypto";
 
 describe("BlockProcessor", () => {
     AcceptBlockHandler.prototype.execute = jest.fn();
@@ -298,7 +298,9 @@ describe("BlockProcessor", () => {
                 publicKey: "02ff171adaef486b7db9fc160b28433d20cf43163d56fd28fee72145f0d5219a4b",
             };
 
-            databaseService.getActiveDelegates = jest.fn().mockReturnValueOnce([notBlockGenerator]);
+            databaseService.getActiveDelegates = jest
+                .fn()
+                .mockReturnValueOnce([notBlockGenerator, notBlockGenerator, notBlockGenerator]);
 
             const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 

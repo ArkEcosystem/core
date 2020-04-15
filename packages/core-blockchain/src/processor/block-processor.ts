@@ -1,7 +1,7 @@
 import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import {
     AcceptBlockHandler,
@@ -199,8 +199,15 @@ export class BlockProcessor {
         const delegates: Contracts.State.Wallet[] = (await this.app
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
-        const slot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, block.data.timestamp);
-        const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
+
+        const forgingInfo: Contracts.Shared.ForgingInfo = AppUtils.forgingInfoCalculator.calculateForgingInfo(
+            block.data.timestamp,
+            block.data.height,
+            roundInfo,
+            blockTimeLookup,
+        );
+
+        const forgingDelegate: Contracts.State.Wallet = delegates[forgingInfo.currentForger];
 
         const walletRepository = this.app.getTagged<Contracts.State.WalletRepository>(
             Container.Identifiers.WalletRepository,
