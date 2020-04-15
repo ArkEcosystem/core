@@ -7,12 +7,12 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class LocksController extends Controller {
-    @Container.inject(Container.Identifiers.DatabaseTransactionService)
-    protected readonly databaseTransactionService!: Contracts.Database.TransactionService;
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
-    protected readonly walletRepository!: Contracts.State.WalletRepository;
+    private readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
@@ -46,7 +46,7 @@ export class LocksController extends Controller {
     }
 
     public async unlocked(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactionListResult = await this.databaseTransactionService.listHtlcClaimRefundByLockIds(
+        const transactionListResult = await this.transactionHistoryService.listHtlcClaimRefundByLockIds(
             request.payload.ids,
             this.getListOrder(request),
             this.getListPage(request),

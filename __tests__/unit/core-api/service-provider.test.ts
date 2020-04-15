@@ -24,9 +24,9 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
 
-    app.bind(Container.Identifiers.BlockRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue({});
 
-    app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
 
     app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
 

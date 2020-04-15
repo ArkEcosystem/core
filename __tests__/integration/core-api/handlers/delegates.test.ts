@@ -583,7 +583,9 @@ describe("API 2.0 - Delegates", () => {
                 .make();
 
             // save a new block so that we can make the request with generatorPublicKey
-            await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([block2]);
+            await app
+                .get<Repositories.BlockRepository>(Container.Identifiers.DatabaseBlockRepository)
+                .saveBlocks([block2]);
 
             const response = await api.request("GET", `delegates/${block2.data.generatorPublicKey}/blocks`);
             expect(response).toBeSuccessfulResponse();
@@ -594,7 +596,7 @@ describe("API 2.0 - Delegates", () => {
             }
 
             await app
-                .get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository)
+                .get<Repositories.BlockRepository>(Container.Identifiers.DatabaseBlockRepository)
                 .deleteBlocks([block2.data]); // reset to genesis block
         });
 

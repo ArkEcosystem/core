@@ -131,9 +131,9 @@ export const initApp = (): Application => {
 
     app.bind(Identifiers.EventDispatcherService).to(NullEventDispatcher).inSingletonScope();
 
-    app.bind(Identifiers.BlockRepository).toConstantValue(Mocks.BlockRepository.instance);
+    app.bind(Identifiers.DatabaseBlockRepository).toConstantValue(Mocks.BlockRepository.instance);
 
-    app.bind(Identifiers.TransactionRepository).toConstantValue(Mocks.TransactionRepository.instance);
+    app.bind(Identifiers.DatabaseTransactionRepository).toConstantValue(Mocks.TransactionRepository.instance);
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);

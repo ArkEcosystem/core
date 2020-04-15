@@ -2,36 +2,28 @@ import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { ObjectLiteral, Repository, SelectQueryBuilder } from "typeorm";
 import { ColumnMetadata } from "typeorm/metadata/ColumnMetadata";
 
-export class SqlExpression {
-    public readonly query: string;
-    public readonly parameters: Record<string, any>;
-
-    public constructor(query: string, parameters: Record<string, any> = {}) {
-        this.query = query;
-        this.parameters = parameters;
-    }
-}
+import { MetadataHelper } from "./metadata-helper";
 
 export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> extends Repository<TEntity> {
-    private paramNo = 0;
+    private readonly metadataHelper = new MetadataHelper();
 
     public async findById(id: string): Promise<TEntity> {
         return (await this.findByIds([id]))[0];
     }
 
-    public async findOneByExpression(expression: Contracts.Database.Expression): Promise<TEntity | undefined> {
+    public async findOneByExpression(expression: Contracts.Shared.Expression): Promise<TEntity | undefined> {
         const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
-        if (expression instanceof Contracts.Database.VoidExpression === false) {
-            const sqlExpression: SqlExpression = this.buildSqlExpression(expression);
+        if (expression instanceof Contracts.Shared.VoidExpression === false) {
+            const sqlExpression = this.metadataHelper.getWhereExpression(this.metadata, expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }
         return queryBuilder.getOne();
     }
 
-    public async findManyByExpression(expression: Contracts.Database.Expression): Promise<TEntity[]> {
+    public async findManyByExpression(expression: Contracts.Shared.Expression): Promise<TEntity[]> {
         const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
-        if (expression instanceof Contracts.Database.VoidExpression === false) {
-            const sqlExpression: SqlExpression = this.buildSqlExpression(expression);
+        if (expression instanceof Contracts.Shared.VoidExpression === false) {
+            const sqlExpression = this.metadataHelper.getWhereExpression(this.metadata, expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }
 
@@ -39,19 +31,19 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
     }
 
     public async listByExpression(
-        expression: Contracts.Database.Expression,
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<TEntity>> {
+        expression: Contracts.Shared.Expression,
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<TEntity>> {
         const queryBuilder = this.createQueryBuilder().select().skip(page.offset).take(page.limit);
 
-        if (expression instanceof Contracts.Database.VoidExpression === false) {
-            const sqlExpression = this.buildSqlExpression(expression);
+        if (expression instanceof Contracts.Shared.VoidExpression === false) {
+            const sqlExpression = this.metadataHelper.getWhereExpression(this.metadata, expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }
 
         for (const item of order) {
-            const column = this.getColumnName(item.property);
+            const column = this.metadataHelper.getColumnName(this.metadata, item.property);
             queryBuilder.addOrderBy(column, item.direction.toUpperCase() as "ASC" | "DESC");
         }
 
@@ -97,88 +89,5 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
         }
 
         return entity;
-    }
-
-    protected getColumnName<TProperty extends keyof TEntity>(property: TProperty): string {
-        const column = this.metadata.columns.find((c) => c.propertyName === property);
-        if (!column) {
-            throw new Error(`Can't find column for ${this.metadata.targetName}.${property}`);
-        }
-        return column.databaseName;
-    }
-
-    private buildSqlExpression(expression: Contracts.Database.Expression): SqlExpression {
-        if (expression instanceof Contracts.Database.TrueExpression) {
-            return new SqlExpression("TRUE", {});
-        }
-
-        if (expression instanceof Contracts.Database.FalseExpression) {
-            return new SqlExpression("FALSE", {});
-        }
-
-        if (expression instanceof Contracts.Database.EqualExpression) {
-            const column = this.getColumnName(expression.property as keyof TEntity);
-            const param = `p${this.paramNo++}`;
-            const query = `${column} = :${param}`;
-            const parameters = { [param]: expression.value };
-            return new SqlExpression(query, parameters);
-        }
-
-        if (expression instanceof Contracts.Database.BetweenExpression) {
-            const column = this.getColumnName(expression.property as keyof TEntity);
-            const paramFrom = `p${this.paramNo++}`;
-            const paramTo = `p${this.paramNo++}`;
-            const query = `${column} BETWEEN :${paramFrom} AND :${paramTo}`;
-            const parameters = { [paramFrom]: expression.from, [paramTo]: expression.to };
-            return new SqlExpression(query, parameters);
-        }
-
-        if (expression instanceof Contracts.Database.GreaterThanEqualExpression) {
-            const column = this.getColumnName(expression.property as keyof TEntity);
-            const param = `p${this.paramNo++}`;
-            const query = `${column} >= :${param}`;
-            const parameters = { [param]: expression.from };
-            return new SqlExpression(query, parameters);
-        }
-
-        if (expression instanceof Contracts.Database.LessThanEqualExpression) {
-            const column = this.getColumnName(expression.property as keyof TEntity);
-            const param = `p${this.paramNo++}`;
-            const query = `${column} <= :${param}`;
-            const parameters = { [param]: expression.to };
-            return new SqlExpression(query, parameters);
-        }
-
-        if (expression instanceof Contracts.Database.LikeExpression) {
-            const column = this.getColumnName(expression.property as keyof TEntity);
-            const param = `p${this.paramNo++}`;
-            const query = `${column} LIKE :${param}`;
-            const parameters = { [param]: expression.value };
-            return new SqlExpression(query, parameters);
-        }
-
-        if (expression instanceof Contracts.Database.ContainsExpression) {
-            const column = this.getColumnName(expression.property as keyof TEntity);
-            const param = `p${this.paramNo++}`;
-            const query = `${column} @> :${param}`;
-            const parameters = { [param]: expression.value };
-            return new SqlExpression(query, parameters);
-        }
-
-        if (expression instanceof Contracts.Database.AndExpression) {
-            const built: SqlExpression[] = expression.expressions.map(this.buildSqlExpression.bind(this));
-            const query = `(${built.map((b) => b.query).join(" AND ")})`;
-            const parameters = built.reduce((acc, b) => Object.assign({}, acc, b.parameters), {});
-            return new SqlExpression(query, parameters);
-        }
-
-        if (expression instanceof Contracts.Database.OrExpression) {
-            const built: SqlExpression[] = expression.expressions.map(this.buildSqlExpression.bind(this));
-            const query = `(${built.map((b) => b.query).join(" OR ")})`;
-            const parameters = built.reduce((acc, b) => Object.assign({}, acc, b.parameters), {});
-            return new SqlExpression(query, parameters);
-        }
-
-        throw new Error(`Unexpected expression ${expression.constructor.name}`);
     }
 }

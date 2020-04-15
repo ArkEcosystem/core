@@ -24,13 +24,13 @@ export class DatabaseService {
     @Container.inject(Container.Identifiers.DatabaseConnection)
     private readonly connection!: Connection;
 
-    @Container.inject(Container.Identifiers.BlockRepository)
+    @Container.inject(Container.Identifiers.DatabaseBlockRepository)
     private readonly blockRepository!: BlockRepository;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
+    @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
     private readonly transactionRepository!: TransactionRepository;
 
-    @Container.inject(Container.Identifiers.RoundRepository)
+    @Container.inject(Container.Identifiers.DatabaseRoundRepository)
     private readonly roundRepository!: RoundRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)

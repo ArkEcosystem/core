@@ -39,24 +39,23 @@ export const Identifiers = {
     SnapshotService: Symbol.for("Service<Snapshot>"),
     TriggerService: Symbol.for("Service<Actions>"),
     ValidationService: Symbol.for("Service<Validation>"),
+    BlockHistoryService: Symbol.for("Service<BlockHistory>"),
+    TransactionHistoryService: Symbol.for("Service<TransactionHistory>"),
+
     // Factories
     CacheFactory: Symbol.for("Factory<Cache>"),
     PeerFactory: Symbol.for("Factory<Peer>"),
     PipelineFactory: Symbol.for("Factory<Pipeline>"),
     QueueFactory: Symbol.for("Factory<Queue>"),
+
     // Database
     DatabaseConnection: Symbol.for("Database<Connection>"),
-    // Repositories
-    WalletRepository: Symbol.for("Repository<Wallet>"),
-    WalletRepositoryIndexerIndex: Symbol.for("IndexerIndex<Repository<Wallet>>"),
-    // Database - @todo add database prefix?
-    BlockRepository: Symbol.for("Database<BlockRepository>"),
-    RoundRepository: Symbol.for("Database<RoundRepository>"),
-    TransactionRepository: Symbol.for("Database<TransactionRepository>"),
+    DatabaseBlockRepository: Symbol.for("Database<BlockRepository>"),
+    DatabaseRoundRepository: Symbol.for("Database<RoundRepository>"),
+    DatabaseTransactionRepository: Symbol.for("Database<TransactionRepository>"),
     DatabaseBlockFilter: Symbol.for("Database<BlockFilter>"),
-    DatabaseBlockService: Symbol.for("Database<BlockService>"),
     DatabaseTransactionFilter: Symbol.for("Database<TransactionFilter>"),
-    DatabaseTransactionService: Symbol.for("Database<TransactionService>"),
+
     // Kernel
     ConfigRepository: Symbol.for("Repository<Config>"),
     ServiceProviderRepository: Symbol.for("Repository<ServiceProvider>"),
@@ -69,6 +68,8 @@ export const Identifiers = {
     StateStore: Symbol.for("State<StateStore>"),
     StateTransactionStore: Symbol.for("State<TransactionStore>"),
     WalletFactory: Symbol.for("State<WalletFactory>"),
+    WalletRepository: Symbol.for("Repository<Wallet>"),
+    WalletRepositoryIndexerIndex: Symbol.for("IndexerIndex<Repository<Wallet>>"),
     TransactionValidator: Symbol.for("State<TransactionValidator>"),
     TransactionValidatorFactory: Symbol.for("State<TransactionValidatorFactory>"),
 

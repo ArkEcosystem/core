@@ -26,8 +26,8 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
-    @Container.inject(Container.Identifiers.DatabaseTransactionService)
-    private readonly databaseTransactionService!: Contracts.Database.TransactionService;
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BridgechainRegistrationTransactionHandler];
@@ -193,7 +193,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         );
         const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId;
 
-        const databaseBridgechainTransactions = await this.databaseTransactionService.findManyByCriteria([
+        const bridgechainTransactions = await this.transactionHistoryService.findManyByCriteria([
             {
                 senderPublicKey: sender.publicKey,
                 typeGroup: Enums.MagistrateTransactionGroup,
@@ -207,14 +207,13 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
                 asset: { bridgechainUpdateAsset: { bridgechainId: bridgechainId } },
             },
         ]);
-        databaseBridgechainTransactions.sort((a, b) => a.nonce!.comparedTo(b.nonce!));
 
-        const bridgechainAsset = databaseBridgechainTransactions[0].asset!.bridgechainRegistration;
-        for (const databaseUpdateTransaction of databaseBridgechainTransactions.slice(1)) {
-            if (databaseUpdateTransaction.id === transaction.id) {
+        const bridgechainAsset = bridgechainTransactions[0].asset!.bridgechainRegistration;
+        for (const updateTransaction of bridgechainTransactions.slice(1)) {
+            if (updateTransaction.id === transaction.id) {
                 break;
             }
-            Object.assign(bridgechainAsset, databaseUpdateTransaction.asset!.bridgechainUpdate);
+            Object.assign(bridgechainAsset, updateTransaction.asset!.bridgechainUpdate);
         }
         delete bridgechainAsset.bridgechainId;
 

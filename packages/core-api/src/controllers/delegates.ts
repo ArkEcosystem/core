@@ -7,12 +7,12 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class DelegatesController extends Controller {
-    @Container.inject(Container.Identifiers.DatabaseBlockService)
-    protected readonly databaseBlockService!: Contracts.Database.BlockService;
+    @Container.inject(Container.Identifiers.BlockHistoryService)
+    private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
-    protected readonly walletRepository!: Contracts.State.WalletRepository;
+    private readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const delegates = this.walletRepository.search(Contracts.State.SearchScope.Delegates, {
@@ -50,7 +50,7 @@ export class DelegatesController extends Controller {
             return delegate;
         }
 
-        const blockListResult = await this.databaseBlockService.listByGeneratorPublicKey(
+        const blockListResult = await this.blockHistoryService.listByGeneratorPublicKey(
             delegate.publicKey!,
             this.getListOrder(request),
             this.getListPage(request),

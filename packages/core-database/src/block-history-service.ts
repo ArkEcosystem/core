@@ -1,12 +1,12 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { Block } from "../models/block";
-import { BlockRepository } from "../repositories";
+import { Block } from "./models/block";
+import { BlockRepository } from "./repositories";
 
 @Container.injectable()
-export class BlockService implements Contracts.Database.BlockService {
-    @Container.inject(Container.Identifiers.BlockRepository)
+export class BlockHistoryService implements Contracts.Shared.BlockHistoryService {
+    @Container.inject(Container.Identifiers.DatabaseBlockRepository)
     private readonly blockRepository!: BlockRepository;
 
     @Container.inject(Container.Identifiers.DatabaseBlockFilter)
@@ -16,7 +16,7 @@ export class BlockService implements Contracts.Database.BlockService {
     private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
     public async findOneByCriteria(
-        criteria: Contracts.Database.OrBlockCriteria,
+        criteria: Contracts.Shared.OrBlockCriteria,
     ): Promise<Interfaces.IBlockData | undefined> {
         const expression = await this.blockFilter.getCriteriaExpression(criteria);
         const model = await this.blockRepository.findOneByExpression(expression);
@@ -37,17 +37,17 @@ export class BlockService implements Contracts.Database.BlockService {
         }
     }
 
-    public async findManyByCriteria(criteria: Contracts.Database.OrBlockCriteria): Promise<Interfaces.IBlockData[]> {
+    public async findManyByCriteria(criteria: Contracts.Shared.OrBlockCriteria): Promise<Interfaces.IBlockData[]> {
         const expression = await this.blockFilter.getCriteriaExpression(criteria);
         const models = await this.blockRepository.findManyByExpression(expression);
         return this.convertModels(models);
     }
 
     public async listByCriteria(
-        criteria: Contracts.Database.OrBlockCriteria,
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<Interfaces.IBlockData>> {
+        criteria: Contracts.Shared.OrBlockCriteria,
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Interfaces.IBlockData>> {
         const expression = await this.blockFilter.getCriteriaExpression(criteria);
         const listResult = await this.blockRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
@@ -55,9 +55,9 @@ export class BlockService implements Contracts.Database.BlockService {
 
     public async listByGeneratorPublicKey(
         generatorPublicKey: string,
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<Interfaces.IBlockData>> {
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Interfaces.IBlockData>> {
         const expression = await this.blockFilter.getCriteriaExpression({ generatorPublicKey });
         const listResult = await this.blockRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
@@ -72,8 +72,8 @@ export class BlockService implements Contracts.Database.BlockService {
     }
 
     private convertListResult(
-        listResult: Contracts.Database.ListResult<Block>,
-    ): Contracts.Database.ListResult<Interfaces.IBlockData> {
+        listResult: Contracts.Shared.ListingResult<Block>,
+    ): Contracts.Shared.ListingResult<Interfaces.IBlockData> {
         return {
             rows: this.convertModels(listResult.rows),
             count: listResult.count,

@@ -19,8 +19,8 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
-    @Container.inject(Container.Identifiers.DatabaseTransactionService)
-    private readonly databaseTransactionService!: Contracts.Database.TransactionService;
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BusinessRegistrationTransactionHandler];
@@ -132,7 +132,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         Utils.assert.defined<string>(sender.publicKey);
 
-        const databaseBusinessTransactions = await this.databaseTransactionService.findManyByCriteria([
+        const businessTransactions = await this.transactionHistoryService.findManyByCriteria([
             {
                 senderPublicKey: sender.publicKey,
                 typeGroup: Enums.MagistrateTransactionGroup,
@@ -144,14 +144,13 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
                 type: Enums.MagistrateTransactionType.BusinessUpdate,
             },
         ]);
-        databaseBusinessTransactions.sort((a, b) => a.nonce!.comparedTo(b.nonce!));
 
-        const businessWalletAsset = databaseBusinessTransactions[0].asset!.businessRegistration;
-        for (const databaseUpdateTransaction of databaseBusinessTransactions.slice(1)) {
-            if (databaseUpdateTransaction.id === transaction.id) {
+        const businessWalletAsset = businessTransactions[0].asset!.businessRegistration;
+        for (const updateTransaction of businessTransactions.slice(1)) {
+            if (updateTransaction.id === transaction.id) {
                 break;
             }
-            Object.assign(businessWalletAsset, databaseUpdateTransaction.asset!.businessUpdate);
+            Object.assign(businessWalletAsset, updateTransaction.asset!.businessUpdate);
         }
 
         sender.setAttribute("business.businessAsset", businessWalletAsset);

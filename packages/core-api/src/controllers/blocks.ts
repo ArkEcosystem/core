@@ -7,23 +7,20 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class BlocksController extends Controller {
-    @Container.inject(Container.Identifiers.Application)
-    protected readonly app!: Contracts.Kernel.Application;
-
     @Container.inject(Container.Identifiers.BlockchainService)
-    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
+    private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.DatabaseBlockService)
-    protected readonly databaseBlockService!: Contracts.Database.BlockService;
+    @Container.inject(Container.Identifiers.BlockHistoryService)
+    private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
-    @Container.inject(Container.Identifiers.DatabaseTransactionService)
-    protected readonly databaseTransactionService!: Contracts.Database.TransactionService;
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     @Container.inject(Container.Identifiers.StateStore)
-    protected readonly stateStore!: Contracts.State.StateStore;
+    private readonly stateStore!: Contracts.State.StateStore;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blockListResult = await this.databaseBlockService.listByCriteria(
+        const blockListResult = await this.blockHistoryService.listByCriteria(
             request.query,
             this.getListOrder(request),
             this.getListPage(request),
@@ -43,7 +40,7 @@ export class BlocksController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blockData = await this.databaseBlockService.findOneByIdOrHeight(request.params.id);
+        const blockData = await this.blockHistoryService.findOneByIdOrHeight(request.params.id);
         if (!blockData) {
             return Boom.notFound("Block not found");
         }
@@ -52,12 +49,12 @@ export class BlocksController extends Controller {
     }
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blockData = await this.databaseBlockService.findOneByIdOrHeight(request.params.id);
+        const blockData = await this.blockHistoryService.findOneByIdOrHeight(request.params.id);
         if (!blockData) {
             return Boom.notFound("Block not found");
         }
 
-        const transactionListResult = await this.databaseTransactionService.listByBlockIdAndCriteria(
+        const transactionListResult = await this.transactionHistoryService.listByBlockIdAndCriteria(
             blockData.id!,
             request.query,
             this.getListOrder(request),
@@ -68,7 +65,7 @@ export class BlocksController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blockListResult = await this.databaseBlockService.listByCriteria(
+        const blockListResult = await this.blockHistoryService.listByCriteria(
             request.payload,
             this.getListOrder(request),
             this.getListPage(request),

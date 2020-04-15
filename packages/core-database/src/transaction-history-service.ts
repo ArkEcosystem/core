@@ -1,19 +1,19 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 
-import { Transaction } from "../models/transaction";
-import { TransactionRepository } from "../repositories/transaction-repository";
+import { Transaction } from "./models/transaction";
+import { TransactionRepository } from "./repositories/transaction-repository";
 
 @Container.injectable()
-export class TransactionService implements Contracts.Database.TransactionService {
-    @Container.inject(Container.Identifiers.TransactionRepository)
+export class TransactionHistoryService implements Contracts.Shared.TransactionHistoryService {
+    @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
     private readonly transactionRepository!: TransactionRepository;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionFilter)
     private readonly transactionFilter!: Contracts.Database.TransactionFilter;
 
     public async findOneByCriteria(
-        criteria: Contracts.Database.OrTransactionCriteria,
+        criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData | undefined> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria);
         const model = await this.transactionRepository.findOneByExpression(expression);
@@ -27,7 +27,7 @@ export class TransactionService implements Contracts.Database.TransactionService
     }
 
     public async findManyByCriteria(
-        criteria: Contracts.Database.OrTransactionCriteria,
+        criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData[]> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria);
         const models = await this.transactionRepository.findManyByExpression(expression);
@@ -35,10 +35,10 @@ export class TransactionService implements Contracts.Database.TransactionService
     }
 
     public async listByCriteria(
-        criteria: Contracts.Database.OrTransactionCriteria,
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
+        criteria: Contracts.Shared.OrTransactionCriteria,
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria);
         const listResult = await this.transactionRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
@@ -46,10 +46,10 @@ export class TransactionService implements Contracts.Database.TransactionService
 
     public async listByBlockIdAndCriteria(
         blockId: string,
-        criteria: Contracts.Database.OrTransactionCriteria,
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
+        criteria: Contracts.Shared.OrTransactionCriteria,
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria, { blockId });
         const listResult = await this.transactionRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
@@ -57,9 +57,9 @@ export class TransactionService implements Contracts.Database.TransactionService
 
     public async listHtlcClaimRefundByLockIds(
         lockIds: string[],
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getCriteriaExpression([
             {
                 typeGroup: Enums.TransactionTypeGroup.Core,
@@ -77,10 +77,10 @@ export class TransactionService implements Contracts.Database.TransactionService
     }
 
     public async listVoteByCriteria(
-        criteria: Contracts.Database.OrTransactionCriteria,
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
+        criteria: Contracts.Shared.OrTransactionCriteria,
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria, {
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
@@ -91,10 +91,10 @@ export class TransactionService implements Contracts.Database.TransactionService
 
     public async listByWalletAndCriteria(
         wallet: Contracts.State.Wallet,
-        criteria: Contracts.Database.OrTransactionCriteria,
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
+        criteria: Contracts.Shared.OrTransactionCriteria,
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria, [
             { recipientId: wallet.address },
             { asset: { payment: [{ recipientId: wallet.address }] } },
@@ -106,10 +106,10 @@ export class TransactionService implements Contracts.Database.TransactionService
 
     public async listBySenderPublicKeyAndCriteria(
         senderPublicKey: string,
-        criteria: Contracts.Database.OrTransactionCriteria,
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
+        criteria: Contracts.Shared.OrTransactionCriteria,
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria, { senderPublicKey });
         const listResult = await this.transactionRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
@@ -117,10 +117,10 @@ export class TransactionService implements Contracts.Database.TransactionService
 
     public async listByRecipientIdAndCriteria(
         recipientId: string,
-        criteria: Contracts.Database.OrTransactionCriteria,
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
+        criteria: Contracts.Shared.OrTransactionCriteria,
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria, { recipientId });
         const listResult = await this.transactionRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
@@ -128,10 +128,10 @@ export class TransactionService implements Contracts.Database.TransactionService
 
     public async listVoteBySenderPublicKeyAndCriteria(
         senderPublicKey: string,
-        criteria: Contracts.Database.OrTransactionCriteria,
-        order: Contracts.Database.ListOrder,
-        page: Contracts.Database.ListPage,
-    ): Promise<Contracts.Database.ListResult<Interfaces.ITransactionData>> {
+        criteria: Contracts.Shared.OrTransactionCriteria,
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getCriteriaExpression(criteria, {
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
@@ -153,8 +153,8 @@ export class TransactionService implements Contracts.Database.TransactionService
     }
 
     private convertListResult(
-        listResult: Contracts.Database.ListResult<Transaction>,
-    ): Contracts.Database.ListResult<Interfaces.ITransactionData> {
+        listResult: Contracts.Shared.ListingResult<Transaction>,
+    ): Contracts.Shared.ListingResult<Interfaces.ITransactionData> {
         return {
             rows: this.convertModels(listResult.rows),
             count: listResult.count,

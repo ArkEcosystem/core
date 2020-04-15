@@ -9,7 +9,7 @@ export class Controller {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
 
-    protected getListPage(request: Hapi.Request): Contracts.Database.ListPage {
+    protected getListPage(request: Hapi.Request): Contracts.Shared.ListingPage {
         const pagination = {
             offset: (request.query.page - 1) * request.query.limit || 0,
             limit: request.query.limit || 100,
@@ -22,7 +22,7 @@ export class Controller {
         return pagination;
     }
 
-    protected getListOrder(request: Hapi.Request): Contracts.Database.ListOrder {
+    protected getListOrder(request: Hapi.Request): Contracts.Shared.ListingOrder {
         if (!request.query.orderBy) {
             return [];
         }
@@ -58,7 +58,7 @@ export class Controller {
         return data.map((item) => this.toResource(item, transformer, transform));
     }
 
-    protected toPagination<T>(data: Contracts.Database.ListResult<T>, transformer, transform = true): object {
+    protected toPagination<T>(data: Contracts.Shared.ListingResult<T>, transformer, transform = true): object {
         return {
             results: this.toCollection(data.rows, transformer, transform),
             totalCount: data.count,

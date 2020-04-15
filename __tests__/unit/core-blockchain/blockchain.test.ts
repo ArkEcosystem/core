@@ -1,13 +1,13 @@
 import "jest-extended";
-import delay from "delay";
 
-import { Container, Enums, Services } from "@packages/core-kernel";
+import { ProcessBlockAction } from "@packages/core-blockchain/src/actions";
 import { Blockchain } from "@packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor/block-processor";
-import { Interfaces, Crypto, Utils, Managers, Networks } from "@packages/crypto";
-import { Sandbox } from "@packages/core-test-framework";
-import { ProcessBlockAction } from "@packages/core-blockchain/src/actions";
 import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
+import { Container, Enums, Services } from "@packages/core-kernel";
+import { Sandbox } from "@packages/core-test-framework";
+import { Crypto, Interfaces, Managers, Networks, Utils } from "@packages/crypto";
+import delay from "delay";
 
 describe("Blockchain", () => {
     let sandbox: Sandbox;
@@ -29,7 +29,7 @@ describe("Blockchain", () => {
         sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logService);
         sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
-        sandbox.app.bind(Container.Identifiers.BlockRepository).toConstantValue(blockRepository);
+        sandbox.app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(blockRepository);
         sandbox.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPoolService);
         sandbox.app.bind(Container.Identifiers.StateMachine).toConstantValue(stateMachine);
         sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcherService);
@@ -37,7 +37,7 @@ describe("Blockchain", () => {
         sandbox.app.bind(Container.Identifiers.PeerStorage).toConstantValue(peerStorage);
         sandbox.app.bind(Container.Identifiers.BlockchainService).to(Blockchain).inSingletonScope();
         sandbox.app.bind(Container.Identifiers.BlockProcessor).toConstantValue(blockProcessor);
-        sandbox.app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
+        sandbox.app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
         sandbox.app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
 
         sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();

@@ -1,5 +1,4 @@
 export * from "./search";
-export * from "./criteria";
+export * from "./block-filter";
 export * from "./event-types";
-export * from "./expressions";
-export * from "./services";
+export * from "./transaction-filter";

@@ -8,11 +8,11 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class VotesController extends Controller {
-    @Container.inject(Container.Identifiers.DatabaseTransactionService)
-    private readonly databaseTransactionService!: Contracts.Database.TransactionService;
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactionListResult = await this.databaseTransactionService.listVoteByCriteria(
+        const transactionListResult = await this.transactionHistoryService.listVoteByCriteria(
             request.query,
             this.getListOrder(request),
             this.getListPage(request),
@@ -22,7 +22,7 @@ export class VotesController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction = await this.databaseTransactionService.findOneById(request.params.id);
+        const transaction = await this.transactionHistoryService.findOneById(request.params.id);
         const found =
             transaction &&
             transaction.typeGroup === Enums.TransactionTypeGroup.Core &&

@@ -1,6 +1,6 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { ListResult } from "../database/services";
+import { ListingResult } from "../shared/listing";
 
 // todo: review all interfaces in here and document them properly. Remove ones that are no longer needed.
 
@@ -194,13 +194,13 @@ export interface WalletRepository {
 
     hasByUsername(username: string): boolean;
 
-    search<T>(scope: SearchScope, params: any): ListResult<T>;
+    search<T>(scope: SearchScope, params: any): ListingResult<T>;
 
     findByScope(searchScope: SearchScope, id: string): Wallet;
 
     count(searchScope: SearchScope): number;
 
-    top(searchScope: SearchScope, params?: Record<string, any>): ListResult<Wallet>;
+    top(searchScope: SearchScope, params?: Record<string, any>): ListingResult<Wallet>;
 }
 
 export enum SearchScope {

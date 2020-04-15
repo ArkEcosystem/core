@@ -1,4 +1,4 @@
-import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -7,15 +7,12 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class WalletsController extends Controller {
-    @Container.inject(Container.Identifiers.Application)
-    protected readonly app!: Application;
-
-    @Container.inject(Container.Identifiers.DatabaseTransactionService)
-    protected readonly databaseTransactionService!: Contracts.Database.TransactionService;
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
-    protected readonly walletRepository!: Contracts.State.WalletRepository;
+    private readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         return this.toPagination(
@@ -49,7 +46,7 @@ export class WalletsController extends Controller {
             return wallet;
         }
 
-        const transactionListResult = await this.databaseTransactionService.listByWalletAndCriteria(
+        const transactionListResult = await this.transactionHistoryService.listByWalletAndCriteria(
             wallet,
             request.query,
             this.getListOrder(request),
@@ -68,7 +65,7 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        const transactionListResult = await this.databaseTransactionService.listBySenderPublicKeyAndCriteria(
+        const transactionListResult = await this.transactionHistoryService.listBySenderPublicKeyAndCriteria(
             wallet.publicKey,
             request.query,
             this.getListOrder(request),
@@ -87,7 +84,7 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        const transactionListResult = await this.databaseTransactionService.listByRecipientIdAndCriteria(
+        const transactionListResult = await this.transactionHistoryService.listByRecipientIdAndCriteria(
             wallet.address,
             request.query,
             this.getListOrder(request),
@@ -106,7 +103,7 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        const transactionListResult = await this.databaseTransactionService.listVoteBySenderPublicKeyAndCriteria(
+        const transactionListResult = await this.transactionHistoryService.listVoteBySenderPublicKeyAndCriteria(
             wallet.publicKey,
             request.query,
             this.getListOrder(request),

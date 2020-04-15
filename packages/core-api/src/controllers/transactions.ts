@@ -9,23 +9,24 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class TransactionsController extends Controller {
-    @Container.inject(Container.Identifiers.Application)
-    protected readonly app!: Contracts.Kernel.Application;
+    @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
+    @Container.tagged("state", "null")
+    private readonly nullHandlerRegistry!: Handlers.Registry;
 
-    @Container.inject(Container.Identifiers.BlockchainService)
-    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly stateStore!: Contracts.State.StateStore;
 
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
-    @Container.inject(Container.Identifiers.DatabaseTransactionService)
-    private readonly databaseTransactionService!: Contracts.Database.TransactionService;
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     @Container.inject(Container.Identifiers.TransactionPoolProcessorFactory)
     private readonly createProcessor!: Contracts.TransactionPool.ProcessorFactory;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactionListResult = await this.databaseTransactionService.listByCriteria(
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
             request.query,
             this.getListOrder(request),
             this.getListPage(request),
@@ -49,7 +50,7 @@ export class TransactionsController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction = await this.databaseTransactionService.findOneById(request.params.id);
+        const transaction = await this.transactionHistoryService.findOneById(request.params.id);
         if (!transaction) {
             return Boom.notFound("Transaction not found");
         }
@@ -58,7 +59,7 @@ export class TransactionsController extends Controller {
     }
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const pagination: Contracts.Database.ListPage = super.getListPage(request);
+        const pagination: Contracts.Shared.ListingPage = super.getListPage(request);
         const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getFromHighestPriority());
         const transactions: Interfaces.ITransaction[] = all.slice(
             pagination.offset,
@@ -89,7 +90,7 @@ export class TransactionsController extends Controller {
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const transactionListResult = await this.databaseTransactionService.listByCriteria(
+            const transactionListResult = await this.transactionHistoryService.listByCriteria(
                 request.payload,
                 this.getListOrder(request),
                 this.getListPage(request),
@@ -103,9 +104,7 @@ export class TransactionsController extends Controller {
     }
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const activatedTransactionHandlers = await this.app
-            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
-            .getActivatedHandlers();
+        const activatedTransactionHandlers = await this.nullHandlerRegistry.getActivatedHandlers();
         const typeGroups: Record<string | number, Record<string, number>> = {};
 
         for (const handler of activatedTransactionHandlers) {
@@ -130,9 +129,7 @@ export class TransactionsController extends Controller {
     }
 
     public async schemas(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const activatedTransactionHandlers = await this.app
-            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
-            .getActivatedHandlers();
+        const activatedTransactionHandlers = await this.nullHandlerRegistry.getActivatedHandlers();
         const schemasByType: Record<string, Record<string, any>> = {};
 
         for (const handler of activatedTransactionHandlers) {
@@ -155,14 +152,8 @@ export class TransactionsController extends Controller {
     }
 
     public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const currentHeight: number = this.app
-            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
-            .getLastHeight();
-
-        const activatedTransactionHandlers = await this.app
-            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
-            .getActivatedHandlers();
-
+        const currentHeight: number = this.stateStore.getLastHeight();
+        const activatedTransactionHandlers = await this.nullHandlerRegistry.getActivatedHandlers();
         const typeGroups: Record<string | number, Record<string, string>> = {};
 
         for (const handler of activatedTransactionHandlers) {

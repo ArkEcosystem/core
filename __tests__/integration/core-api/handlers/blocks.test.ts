@@ -214,7 +214,9 @@ describe("API 2.0 - Blocks", () => {
                 .make();
 
             // save a new block so that we can make the request with previousBlock
-            await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([block2]);
+            await app
+                .get<Repositories.BlockRepository>(Container.Identifiers.DatabaseBlockRepository)
+                .saveBlocks([block2]);
 
             const response = await api.request("POST", "blocks/search", {
                 id: block2.data.id,
@@ -232,7 +234,7 @@ describe("API 2.0 - Blocks", () => {
             expect(block.previous).toBe(block2.data.previousBlock);
 
             await app
-                .get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository)
+                .get<Repositories.BlockRepository>(Container.Identifiers.DatabaseBlockRepository)
                 .deleteBlocks([block2.data]); // reset to genesis block
         });
 
@@ -380,7 +382,9 @@ describe("API 2.0 - Blocks", () => {
                 })
                 .make();
 
-            await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([nextBlock]);
+            await app
+                .get<Repositories.BlockRepository>(Container.Identifiers.DatabaseBlockRepository)
+                .saveBlocks([nextBlock]);
 
             const response = await api.request("POST", "blocks/search", {
                 id: nextBlock.data.id,
@@ -404,7 +408,9 @@ describe("API 2.0 - Blocks", () => {
                 })
                 .make();
 
-            await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([nextBlock]);
+            await app
+                .get<Repositories.BlockRepository>(Container.Identifiers.DatabaseBlockRepository)
+                .saveBlocks([nextBlock]);
 
             const response = await api.request("POST", "blocks/search", {
                 id: nextBlock.data.id,

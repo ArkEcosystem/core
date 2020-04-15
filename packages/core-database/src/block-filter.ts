@@ -1,27 +1,24 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 
-import { Block } from "../models";
-import { CriteriaHandler } from "./criteria-handler";
+import { Block } from "./models/block";
 
 @Container.injectable()
 export class BlockFilter implements Contracts.Database.BlockFilter {
-    private readonly handler = new CriteriaHandler<Block>();
+    private readonly handler = new AppUtils.CriteriaHandler<Block>();
 
     public async getCriteriaExpression(
-        ...criteria: Contracts.Database.OrBlockCriteria[]
-    ): Promise<Contracts.Database.Expression> {
+        ...criteria: Contracts.Shared.OrBlockCriteria[]
+    ): Promise<Contracts.Shared.Expression> {
         const promises = criteria.map((c) => {
             return this.handler.handleOrCriteria(c, (c) => {
                 return this.handleBlockCriteria(c);
             });
         });
 
-        return Contracts.Database.AndExpression.make(await Promise.all(promises));
+        return Contracts.Shared.AndExpression.make(await Promise.all(promises));
     }
 
-    private async handleBlockCriteria(
-        criteria: Contracts.Database.BlockCriteria,
-    ): Promise<Contracts.Database.Expression> {
+    private async handleBlockCriteria(criteria: Contracts.Shared.BlockCriteria): Promise<Contracts.Shared.Expression> {
         return this.handler.handleAndCriteria(criteria, async (key) => {
             switch (key) {
                 case "id":
@@ -51,7 +48,7 @@ export class BlockFilter implements Contracts.Database.BlockFilter {
                 case "blockSignature":
                     return this.handler.handleOrEqualCriteria("blockSignature", criteria.blockSignature!);
                 default:
-                    return new Contracts.Database.VoidExpression();
+                    return new Contracts.Shared.VoidExpression();
             }
         });
     }

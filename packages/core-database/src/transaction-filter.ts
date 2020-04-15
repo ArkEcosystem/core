@@ -1,8 +1,7 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
 
-import { Transaction } from "../models";
-import { CriteriaHandler } from "./criteria-handler";
+import { Transaction } from "./models/transaction";
 
 @Container.injectable()
 export class TransactionFilter implements Contracts.Database.TransactionFilter {
@@ -10,23 +9,23 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
-    private readonly handler = new CriteriaHandler<Transaction>();
+    private readonly handler = new AppUtils.CriteriaHandler<Transaction>();
 
     public async getCriteriaExpression(
-        ...criteria: Contracts.Database.OrTransactionCriteria[]
-    ): Promise<Contracts.Database.Expression> {
+        ...criteria: Contracts.Shared.OrTransactionCriteria[]
+    ): Promise<Contracts.Shared.Expression> {
         const promises = criteria.map((c) => {
             return this.handler.handleOrCriteria(c, (c) => {
                 return this.handleTransactionCriteria(c);
             });
         });
 
-        return Contracts.Database.AndExpression.make(await Promise.all(promises));
+        return Contracts.Shared.AndExpression.make(await Promise.all(promises));
     }
 
     private async handleTransactionCriteria(
-        criteria: Contracts.Database.TransactionCriteria,
-    ): Promise<Contracts.Database.Expression> {
+        criteria: Contracts.Shared.TransactionCriteria,
+    ): Promise<Contracts.Shared.Expression> {
         const expression = await this.handler.handleAndCriteria(criteria, async (key) => {
             switch (key) {
                 case "senderId":
@@ -62,51 +61,51 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
                 case "asset":
                     return this.handler.handleOrContainsCriteria("asset", criteria.asset!);
                 default:
-                    return new Contracts.Database.VoidExpression();
+                    return new Contracts.Shared.VoidExpression();
             }
         });
 
-        return Contracts.Database.AndExpression.make([expression, await this.getAutoTypeGroupExpression(criteria)]);
+        return Contracts.Shared.AndExpression.make([expression, await this.getAutoTypeGroupExpression(criteria)]);
     }
 
     private async handleSenderIdCriteria(
-        criteria: Contracts.Database.EqualCriteria<string>,
-    ): Promise<Contracts.Database.Expression> {
+        criteria: Contracts.Shared.EqualCriteria<string>,
+    ): Promise<Contracts.Shared.Expression> {
         const senderWallet = this.walletRepository.findByAddress(criteria);
 
         if (senderWallet && senderWallet.publicKey) {
-            return new Contracts.Database.EqualExpression("senderPublicKey", senderWallet.publicKey);
+            return new Contracts.Shared.EqualExpression("senderPublicKey", senderWallet.publicKey);
         } else {
-            return new Contracts.Database.FalseExpression();
+            return new Contracts.Shared.FalseExpression();
         }
     }
 
     private async handleRecipientIdCriteria(
-        criteria: Contracts.Database.EqualCriteria<string>,
-    ): Promise<Contracts.Database.Expression> {
-        const recipientIdExpression = new Contracts.Database.EqualExpression("recipientId", criteria);
+        criteria: Contracts.Shared.EqualCriteria<string>,
+    ): Promise<Contracts.Shared.Expression> {
+        const recipientIdExpression = new Contracts.Shared.EqualExpression("recipientId", criteria);
 
         const recipientWallet = this.walletRepository.findByAddress(criteria);
         if (recipientWallet && recipientWallet.publicKey) {
-            const senderPublicKeyExpression = Contracts.Database.AndExpression.make([
-                new Contracts.Database.EqualExpression("typeGroup", Enums.TransactionTypeGroup.Core),
-                new Contracts.Database.EqualExpression("type", Enums.TransactionType.DelegateRegistration),
-                new Contracts.Database.EqualExpression("senderPublicKey", recipientWallet.publicKey),
+            const senderPublicKeyExpression = Contracts.Shared.AndExpression.make([
+                new Contracts.Shared.EqualExpression("typeGroup", Enums.TransactionTypeGroup.Core),
+                new Contracts.Shared.EqualExpression("type", Enums.TransactionType.DelegateRegistration),
+                new Contracts.Shared.EqualExpression("senderPublicKey", recipientWallet.publicKey),
             ]);
 
-            return Contracts.Database.OrExpression.make([recipientIdExpression, senderPublicKeyExpression]);
+            return Contracts.Shared.OrExpression.make([recipientIdExpression, senderPublicKeyExpression]);
         } else {
             return recipientIdExpression;
         }
     }
 
     private async getAutoTypeGroupExpression(
-        criteria: Contracts.Database.TransactionCriteria,
-    ): Promise<Contracts.Database.Expression> {
+        criteria: Contracts.Shared.TransactionCriteria,
+    ): Promise<Contracts.Shared.Expression> {
         if (this.handler.hasOrCriteria(criteria.type) && this.handler.hasOrCriteria(criteria.typeGroup) === false) {
-            return new Contracts.Database.EqualExpression("typeGroup", Enums.TransactionTypeGroup.Core);
+            return new Contracts.Shared.EqualExpression("typeGroup", Enums.TransactionTypeGroup.Core);
         } else {
-            return new Contracts.Database.VoidExpression();
+            return new Contracts.Shared.VoidExpression();
         }
     }
 }
