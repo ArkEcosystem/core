@@ -16,7 +16,10 @@ import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 let app: Application;
 let controller: VotesController;
 
-const databaseTransactionService = { search: jest.fn() };
+const databaseTransactionService = {
+    findOneById: jest.fn(),
+    listVoteByCriteria: jest.fn(),
+};
 
 beforeEach(() => {
     app = initApp();
@@ -26,7 +29,8 @@ beforeEach(() => {
     app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
 
     controller = app.resolve<VotesController>(VotesController);
-    databaseTransactionService.search.mockReset();
+    databaseTransactionService.findOneById.mockReset();
+    databaseTransactionService.listVoteByCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -55,7 +59,7 @@ describe("VotesController", () => {
 
     describe("index", () => {
         it("should return list of votes", async () => {
-            databaseTransactionService.search.mockResolvedValue({
+            databaseTransactionService.listVoteByCriteria.mockResolvedValue({
                 rows: [voteTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -84,11 +88,7 @@ describe("VotesController", () => {
 
     describe("show", () => {
         it("should return vote", async () => {
-            databaseTransactionService.search.mockResolvedValue({
-                rows: [voteTransaction.data],
-                count: 1,
-                countIsEstimate: false,
-            });
+            databaseTransactionService.findOneById.mockResolvedValue(voteTransaction.data);
 
             const request: Hapi.Request = {
                 params: {
@@ -109,11 +109,7 @@ describe("VotesController", () => {
         });
 
         it("should return error if vote transaction does not exists", async () => {
-            databaseTransactionService.search.mockResolvedValue({
-                rows: [],
-                count: 0,
-                countIsEstimate: false,
-            });
+            databaseTransactionService.findOneById.mockResolvedValue(undefined);
 
             const request: Hapi.Request = {
                 params: {
