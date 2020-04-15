@@ -10,7 +10,16 @@ beforeAll(() => {
     // Black Magic to get the genesis block to pass
     Managers.configManager.getMilestone().aip11 = false;
 
-    block = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"));
+    const mockGetBlockTimeLookup = (height: number) => {
+        switch (height) {
+            case 1:
+                return 0;
+            default:
+                throw new Error(`Test scenarios should not hit this line`);
+        }
+    };
+
+    block = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"), mockGetBlockTimeLookup);
 });
 
 describe("Assertions", () => {
