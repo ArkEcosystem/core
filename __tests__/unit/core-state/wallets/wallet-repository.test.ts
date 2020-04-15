@@ -890,7 +890,7 @@ describe("Delegate Wallets", () => {
             return Object.assign(wallet, { attributes: { delegate } });
         });
 
-        const search = (params = {}): Contracts.Database.ListResult<Wallet> => {
+        const search = (params = {}): Contracts.Shared.ListingResult<Wallet> => {
             return walletRepo.search(Contracts.State.SearchScope.Delegates, params);
         };
 
