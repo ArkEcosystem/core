@@ -90,10 +90,15 @@ export class ForgerService {
 
             AppUtils.assert.defined<Contracts.P2P.CurrentRound>(this.round);
 
-            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(
-                this.app,
-                this.round.lastBlock.height,
-            );
+            let height;
+            try {
+                AppUtils.assert.defined<string>(this.round.lastBlock.height);
+                height = this.round.lastBlock.height;
+            } catch {
+                height = 1;
+            }
+
+            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
 
             timeout = Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup);
         } catch (error) {
@@ -138,10 +143,15 @@ export class ForgerService {
 
             const delegate: Delegate | undefined = this.isActiveDelegate(this.round.currentForger.publicKey);
 
-            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(
-                this.app,
-                this.round.lastBlock.height,
-            );
+            let height;
+            try {
+                AppUtils.assert.defined<string>(this.round.lastBlock.height);
+                height = this.round.lastBlock.height;
+            } catch {
+                height = 1;
+            }
+
+            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
 
             if (!delegate) {
                 AppUtils.assert.defined<string>(this.round.nextForger.publicKey);

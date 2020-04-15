@@ -45,6 +45,17 @@ const initializeClient = (client: Client) => {
 beforeEach(() => {
     app = new Application(new Container.Container());
     app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+
+    const getTimeStampForBlock = (height: number) => {
+        switch (height) {
+            case 1:
+                return 0;
+            default:
+                throw new Error(`Test scenarios should not hit this line`);
+        }
+    };
+
+    jest.spyOn(Utils.forgingInfoCalculator, "getBlockTimeLookup").mockResolvedValue(getTimeStampForBlock);
 });
 
 afterEach(() => {
