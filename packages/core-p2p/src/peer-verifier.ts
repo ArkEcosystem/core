@@ -1,5 +1,5 @@
 import { DatabaseService } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import pluralize from "pluralize";
@@ -408,7 +408,9 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     private async getDelegatesByRound(
         roundInfo: Contracts.Shared.RoundInfo,
     ): Promise<Record<string, Contracts.State.Wallet>> {
-        let delegates = await this.database.getActiveDelegates(roundInfo);
+        let delegates = (await this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
 
         if (delegates.length === 0) {
             // This must be the current round, still not saved into the database (it is saved

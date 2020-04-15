@@ -1,5 +1,4 @@
-import { DatabaseService } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 import { Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 
 import { Delegate } from "./interfaces";
@@ -33,14 +32,6 @@ export class DelegateTracker {
      */
     @Container.inject(Container.Identifiers.BlockchainService)
     private readonly blockchainService!: Contracts.Blockchain.Blockchain;
-
-    /**
-     * @private
-     * @type {DatabaseService}
-     * @memberof DelegateTracker
-     */
-    @Container.inject(Container.Identifiers.DatabaseService)
-    private readonly databaseService!: DatabaseService;
 
     /**
      * @private
@@ -80,7 +71,11 @@ export class DelegateTracker {
         const blockTime: number = CryptoUtils.calculateBlockTime(height);
         const round: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(height);
 
-        const activeDelegates: (string | undefined)[] = (await this.databaseService.getActiveDelegates(round)).map(
+        const activeDelegates = (await this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .call("getActiveDelegates", { roundInfo: round })) as Contracts.State.Wallet[];
+
+        const activeDelegatesPublicKeys: (string | undefined)[] = activeDelegates.map(
             (delegate: Contracts.State.Wallet) => delegate.publicKey,
         );
 
@@ -96,18 +91,19 @@ export class DelegateTracker {
         // Determine Next Forgers...
         const nextForgers: string[] = [];
         for (let i = 0; i <= maxDelegates; i++) {
-            const delegate: string | undefined = activeDelegates[(forgingInfo.currentForger + i) % maxDelegates];
+            const delegate: string | undefined =
+                activeDelegatesPublicKeys[(forgingInfo.currentForger + i) % maxDelegates];
 
             if (delegate) {
                 nextForgers.push(delegate);
             }
         }
 
-        if (activeDelegates.length < maxDelegates) {
+        if (activeDelegatesPublicKeys.length < maxDelegates) {
             return this.logger.warning(
                 `Tracker only has ${Utils.pluralize(
                     "active delegate",
-                    activeDelegates.length,
+                    activeDelegatesPublicKeys.length,
                     true,
                 )} from a required ${maxDelegates}`,
             );

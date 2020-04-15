@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import { Connection } from "typeorm";
@@ -764,7 +764,9 @@ export class DatabaseService {
         roundInfo: Contracts.Shared.RoundInfo,
         delegates?: Contracts.State.Wallet[],
     ): Promise<void> {
-        this.forgingDelegates = await this.getActiveDelegates(roundInfo, delegates);
+        this.forgingDelegates = (await this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .call("getActiveDelegates", { roundInfo, delegates })) as Contracts.State.Wallet[];
     }
 
     private async calcPreviousActiveDelegates(

@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Crypto, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
@@ -177,8 +177,14 @@ export class ForgerService {
                 );
             }
 
-            if (this.isForgingAllowed(networkState, delegate)) {
-                await this.forgeNewBlock(delegate, this.round, networkState);
+            if (
+                await this.app
+                    .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                    .call("isForgingAllowed", { forgerService: this, delegate, networkState })
+            ) {
+                await this.app
+                    .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                    .call("forgeNewBlock", { forgerService: this, delegate, round: this.round, networkState });
             }
 
             return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup));
