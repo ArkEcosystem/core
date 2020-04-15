@@ -1,12 +1,14 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import { ExpirationService } from "../../../packages/core-transaction-pool/src/expiration-service";
 
 const configuration = { getRequired: jest.fn() };
 const stateStore = { getLastHeight: jest.fn() };
+const app = { get: jest.fn() };
 
 const container = new Container.Container();
+container.bind(Container.Identifiers.Application).toConstantValue(app);
 container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
 container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
 
@@ -14,6 +16,17 @@ beforeEach(() => {
     jest.resetAllMocks();
     configuration.getRequired.mockReset();
     stateStore.getLastHeight.mockReset();
+
+    const getTimeStampForBlock = (height: number) => {
+        switch (height) {
+            case 1:
+                return 0;
+            default:
+                throw new Error(`Test scenarios should not hit this line`);
+        }
+    };
+
+    jest.spyOn(Utils.forgingInfoCalculator, "getBlockTimeLookup").mockResolvedValue(getTimeStampForBlock);
 });
 
 describe("ExpirationService.canExpire", () => {
@@ -51,45 +64,45 @@ describe("ExpirationService.canExpire", () => {
 });
 
 describe("ExpirationService.isExpired", () => {
-    it("should always return false when checking v2 transaction without expiration field", () => {
+    it("should always return false when checking v2 transaction without expiration field", async () => {
         const transaction = { data: { version: 2 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
-        const expired = expirationService.isExpired(transaction);
+        const expired = await expirationService.isExpired(transaction);
 
         expect(expired).toBe(false);
     });
 
-    it("should return true if transaction expired when checking v2 transaction with expiration field", () => {
+    it("should return true if transaction expired when checking v2 transaction with expiration field", async () => {
         stateStore.getLastHeight.mockReturnValue(100);
 
         const transaction = { data: { version: 2, expiration: 50 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
-        const expired = expirationService.isExpired(transaction);
+        const expired = await expirationService.isExpired(transaction);
 
         expect(expired).toBe(true);
     });
 
-    it("should return false if transaction not expired when checking v2 transaction with expiration field", () => {
+    it("should return false if transaction not expired when checking v2 transaction with expiration field", async () => {
         stateStore.getLastHeight.mockReturnValue(100);
 
         const transaction = { data: { version: 2, expiration: 150 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
-        const expired = expirationService.isExpired(transaction);
+        const expired = await expirationService.isExpired(transaction);
 
         expect(expired).toBe(false);
     });
 
-    it("should return true if transaction expires in next block when checking v2 transaciton with expiration field", () => {
+    it("should return true if transaction expires in next block when checking v2 transaciton with expiration field", async () => {
         stateStore.getLastHeight.mockReturnValue(100);
 
         const transaction = { data: { version: 2, expiration: 101 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
-        const expired = expirationService.isExpired(transaction);
+        const expired = await expirationService.isExpired(transaction);
 
         expect(expired).toBe(true);
     });
 
-    it("should return true if transaction expired when checking v1 transaction", () => {
+    it("should return true if transaction expired when checking v1 transaction", async () => {
         jest.spyOn(Managers.configManager, "get").mockReturnValue([{ height: 1, blocktime: 60 }]);
         jest.spyOn(Crypto.Slots, "getTime").mockReturnValue(60 * 180);
         configuration.getRequired.mockReturnValue(60);
@@ -97,12 +110,12 @@ describe("ExpirationService.isExpired", () => {
 
         const transaction = { data: { timestamp: 3600 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
-        const expired = expirationService.isExpired(transaction);
+        const expired = await expirationService.isExpired(transaction);
 
         expect(expired).toBe(true);
     });
 
-    it("should return false if transaction not expired when checking v1 transaction", () => {
+    it("should return false if transaction not expired when checking v1 transaction", async () => {
         jest.spyOn(Managers.configManager, "get").mockReturnValue([{ height: 1, blocktime: 60 }]);
 
         jest.spyOn(Crypto.Slots, "getTime").mockReturnValue(60 * 100);
@@ -112,30 +125,30 @@ describe("ExpirationService.isExpired", () => {
 
         const transaction = { data: { timestamp: 3600 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
-        const expired = expirationService.isExpired(transaction);
+        const expired = await expirationService.isExpired(transaction);
 
         expect(expired).toBe(false);
     });
 });
 
 describe("ExpirationService.getExpirationHeight", () => {
-    it("should throw when checking v2 transaction without expiration field", () => {
+    it("should throw when checking v2 transaction without expiration field", async () => {
         const transaction = { data: { version: 2 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
-        const check = () => expirationService.getExpirationHeight(transaction);
+        const check = async () => await expirationService.getExpirationHeight(transaction);
 
-        expect(check).toThrow();
+        expect(await check).toReject();
     });
 
-    it("should return value stored in expiration field when checking v2 transaciton with expiration field", () => {
+    it("should return value stored in expiration field when checking v2 transaciton with expiration field", async () => {
         const transaction = { data: { version: 2, expiration: 100 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
-        const expirationHeight = expirationService.getExpirationHeight(transaction);
+        const expirationHeight = await expirationService.getExpirationHeight(transaction);
 
         expect(expirationHeight).toBe(100);
     });
 
-    it("should calculate expiration height when checking v1 transaction", () => {
+    it("should calculate expiration height when checking v1 transaction", async () => {
         jest.spyOn(Managers.configManager, "get").mockReturnValue([{ height: 1, blocktime: 60 }]);
 
         jest.spyOn(Crypto.Slots, "getTime").mockReturnValue(60 * 120);
@@ -145,7 +158,7 @@ describe("ExpirationService.getExpirationHeight", () => {
 
         const transaction = { data: { timestamp: 3600 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
-        const expirationHeight = expirationService.getExpirationHeight(transaction);
+        const expirationHeight = await expirationService.getExpirationHeight(transaction);
 
         expect(expirationHeight).toBe(120);
     });
