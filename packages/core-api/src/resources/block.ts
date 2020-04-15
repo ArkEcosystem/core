@@ -52,8 +52,8 @@ export class BlockResource implements Resource {
             forged: {
                 reward: resource.reward.toFixed(),
                 fee: resource.totalFee.toFixed(),
-                total: resource.reward.plus(resource.totalFee).toFixed(),
                 amount: Utils.BigNumber.make(resource.totalAmount).toFixed(),
+                total: resource.reward.plus(resource.totalFee).toFixed(),
             },
             payload: {
                 hash: resource.payloadHash,
