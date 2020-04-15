@@ -2,7 +2,6 @@ import "jest-extended";
 
 import { TransactionResource } from "@packages/core-api/src/resources";
 import { Application } from "@packages/core-kernel";
-import { Mocks } from "@packages/core-test-framework";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { Identities, Interfaces, Utils } from "@packages/crypto";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
