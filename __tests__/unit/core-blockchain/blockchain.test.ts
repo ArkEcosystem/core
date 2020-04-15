@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Container, Enums } from "@arkecosystem/core-kernel";
+import { Container, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers, Networks, Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 
@@ -295,10 +295,23 @@ describe("Blockchain", () => {
 
         beforeEach(() => {
             jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValue(1);
+
+            const getTimeStampForBlock = (height: number) => {
+                switch (height) {
+                    case 1:
+                        return 0;
+                    default:
+                        throw new Error(`Test scenarios should not hit this line`);
+                }
+            };
+
+            const spyblockTimeLookup = jest.spyOn(AppUtils.forgingInfoCalculator, "getBlockTimeLookup");
+
+            spyblockTimeLookup.mockResolvedValue(getTimeStampForBlock);
         });
 
         describe("when state is started", () => {
-            it("should dispatch 'NEWBLOCK', BlockEvent.Received and enqueue the block", () => {
+            it("should dispatch 'NEWBLOCK', BlockEvent.Received and enqueue the block", async () => {
                 const blockchain = container.resolve<Blockchain>(Blockchain);
                 blockchain.initialize({});
                 const spyDispatch = jest.spyOn(blockchain, "dispatch");
@@ -306,7 +319,7 @@ describe("Blockchain", () => {
                 stateStore.started = true;
                 stateStore.getLastBlock = jest.fn().mockReturnValue({ data: blockData });
 
-                blockchain.handleIncomingBlock(blockData);
+                await blockchain.handleIncomingBlock(blockData);
 
                 expect(spyDispatch).toBeCalledTimes(1);
                 expect(spyDispatch).toHaveBeenLastCalledWith("NEWBLOCK");
@@ -320,12 +333,12 @@ describe("Blockchain", () => {
         });
 
         describe("when state is not started", () => {
-            it("should dispatch BlockEvent.Disregarded and not enqueue the block", () => {
+            it("should dispatch BlockEvent.Disregarded and not enqueue the block", async () => {
                 const blockchain = container.resolve<Blockchain>(Blockchain);
                 const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
                 stateStore.started = false;
 
-                blockchain.handleIncomingBlock(blockData);
+                await blockchain.handleIncomingBlock(blockData);
 
                 expect(eventDispatcherService.dispatch).toBeCalledTimes(1);
                 expect(eventDispatcherService.dispatch).toHaveBeenLastCalledWith(
@@ -615,11 +628,20 @@ describe("Blockchain", () => {
             const blockchain = container.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
 
-            let slotInfo = Crypto.Slots.getSlotInfo();
+            const getTimeStampForBlock = (height: number) => {
+                switch (height) {
+                    case 1:
+                        return 0;
+                    default:
+                        throw new Error(`Test scenarios should not hit this line`);
+                }
+            };
+
+            let slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock);
 
             // Wait until we get a timestamp at the first half of a slot (allows for computation time)
             while (!slotInfo.forgingStatus) {
-                slotInfo = Crypto.Slots.getSlotInfo();
+                slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock);
             }
 
             const block = {

@@ -1,5 +1,6 @@
+import { Container, Utils } from "@arkecosystem/core-kernel";
 import delay from "delay";
-import { Container } from "@arkecosystem/core-kernel";
+
 import { DownloadBlocks } from "../../../../../packages/core-blockchain/src/state-machine/actions/download-blocks";
 
 describe("DownloadBlocks", () => {
@@ -35,6 +36,19 @@ describe("DownloadBlocks", () => {
         jest.resetAllMocks();
 
         blockchain.isStopped = false;
+
+        const getTimeStampForBlock = (height: number) => {
+            switch (height) {
+                case 1:
+                    return 0;
+                default:
+                    throw new Error(`Test scenarios should not hit this line`);
+            }
+        };
+
+        const spyblockTimeLookup = jest.spyOn(Utils.forgingInfoCalculator, "getBlockTimeLookup");
+
+        spyblockTimeLookup.mockResolvedValue(getTimeStampForBlock);
     });
 
     describe("handle", () => {
