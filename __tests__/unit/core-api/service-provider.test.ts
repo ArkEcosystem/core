@@ -42,6 +42,10 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
 
+    app.bind(Container.Identifiers.DatabaseBlockService).toConstantValue({});
+
+    app.bind(Container.Identifiers.DatabaseTransactionService).toConstantValue({});
+
     defaults.server.https.enabled = "enabled";
     defaults.server.https.tls.key = path.resolve(__dirname, "./__fixtures__/key.pem");
     defaults.server.https.tls.cert = path.resolve(__dirname, "./__fixtures__/server.crt");
