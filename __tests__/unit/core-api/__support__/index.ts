@@ -1,10 +1,6 @@
 import { Application, Container, Contracts, Providers, Services } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import {
-    BridgechainRegistrationTransactionHandler,
-    BusinessRegistrationTransactionHandler,
-} from "@packages/core-magistrate-transactions/src/handlers";
-import {
     bridgechainIndexer,
     businessIndexer,
     MagistrateIndex,
@@ -99,9 +95,6 @@ export const initApp = (): Application => {
 
     app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
     app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
-
-    app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
-    app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
 
     app.bind<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes)
         .to(Services.Attributes.AttributeSet)
