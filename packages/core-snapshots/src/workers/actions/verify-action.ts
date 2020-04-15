@@ -1,7 +1,7 @@
 import { AbstractWorkerAction } from "./abstract-action";
 import { Container } from "@arkecosystem/core-kernel";
 import { Models } from "@packages/core-database";
-import { Verifier } from "../transport/verifier";
+import { Verifier } from "../../verifier";
 
 @Container.injectable()
 export class VerifyWorkerAction extends AbstractWorkerAction {

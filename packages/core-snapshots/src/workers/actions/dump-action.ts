@@ -1,17 +1,11 @@
-import { AbstractWorkerAction } from "./abstract-action";
+import { parentPort } from "worker_threads";
 import { Container } from "@arkecosystem/core-kernel";
+import { AbstractWorkerAction } from "./abstract-action";
 
 @Container.injectable()
 export class DumpWorkerAction extends AbstractWorkerAction {
-
     public async start() {
-        console.log("DumpWorkerAction START");
-
         return new Promise<void>(async (resolve, reject) => {
-            // let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
-            //
-            // await progressDispatcher.start(table, count);
-
             let databaseStream = await this.getRepository()
                 .createQueryBuilder()
                 .orderBy(this.orderBy(), "ASC")
@@ -21,19 +15,15 @@ export class DumpWorkerAction extends AbstractWorkerAction {
 
             writeStream
                 .on('close', () => {
-                    // progressDispatcher.end();
                     resolve();
                 });
 
-            // const errorHandler = (err: Error) => {
-            //     reject(err);
-            // };
-
-            // snapshotWriteStream.on("error", errorHandler);
-            // encodeStream.on("error", errorHandler);
-            // databaseStream.on("error", errorHandler);
-
-            // databaseStream.on("data", () => { progressDispatcher.update() });
+            let count = 0;
+            databaseStream.on("data", () => {
+                if (count++ % this.updateStep! === 0) {
+                    parentPort?.postMessage(count)
+                }
+            });
         });
     }
 

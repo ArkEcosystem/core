@@ -2,7 +2,7 @@ import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Meta } from "./contracts";
 
 @Container.injectable()
-export class Utils {
+export class Filesystem {
     @Container.inject(Container.Identifiers.FilesystemService)
     private readonly filesystem!: Contracts.Kernel.Filesystem;
 

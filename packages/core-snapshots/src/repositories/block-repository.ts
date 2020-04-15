@@ -4,7 +4,7 @@ import { Repositories, Models } from "@arkecosystem/core-database";
 import { Contracts } from "@packages/core-kernel";
 
 @EntityRepository(Models.Block)
-export class SnapshotBlockRepository extends Repositories.AbstractEntityRepository<Models.Block> {
+export class BlockRepository extends Repositories.AbstractEntityRepository<Models.Block> {
     public async rollbackChain(roundInfo: Contracts.Shared.RoundInfo): Promise<void> {
         const block = await this.findByHeight(roundInfo.roundHeight);
 

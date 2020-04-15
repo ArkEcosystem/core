@@ -2,30 +2,30 @@ import fs from "fs-extra";
 import zlib from "zlib";
 import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Codec } from "../contracts";
-import { Identifiers } from "../ioc";
+import { Codec, Action } from "../../contracts";
+import { Identifiers } from "../../ioc";
 import {
-    SnapshotBlockRepository,
-    SnapshotRoundRepository,
-    SnapshotTransactionRepository,
-} from "../repositories";
+    BlockRepository,
+    RoundRepository,
+    TransactionRepository,
+} from "../../repositories";
 
 @Container.injectable()
-export abstract class AbstractWorkerAction {
+export abstract class AbstractWorkerAction implements Action {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Identifiers.SnapshotBlockRepository)
     // @ts-ignore
-    private readonly snapshotBlockRepository!: SnapshotBlockRepository;
+    private readonly snapshotBlockRepository!: BlockRepository;
 
     @Container.inject(Identifiers.SnapshotRoundRepository)
     // @ts-ignore
-    private readonly snapshotRoundRepository!: SnapshotRoundRepository;
+    private readonly snapshotRoundRepository!: RoundRepository;
 
     @Container.inject(Identifiers.SnapshotTransactionRepository)
     // @ts-ignore
-    private readonly snapshotTransactionRepository!: SnapshotTransactionRepository;
+    private readonly snapshotTransactionRepository!: TransactionRepository;
 
     protected table?: string;
     protected codec?: string;
@@ -33,6 +33,7 @@ export abstract class AbstractWorkerAction {
     protected trace?: boolean;
     protected filePath?: string;
     protected genesisBlockId?: string;
+    protected updateStep?: number;
 
     public init(options: any) {
         this.table = options.table;
@@ -41,6 +42,7 @@ export abstract class AbstractWorkerAction {
         this.trace = options.trace;
         this.filePath = options.filePath;
         this.genesisBlockId = options.genesisBlockId;
+        this.updateStep = options.updateStep;
     }
 
     public abstract async start();

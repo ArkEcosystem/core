@@ -2,7 +2,7 @@ import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Identifiers } from "./ioc";
 import { SnapshotDatabaseService } from "./database-service";
 import { Interfaces } from "@arkecosystem/crypto";
-import { Utils as SnapshotUtils } from "./utils";
+import { Filesystem as SnapshotUtils } from "./filesystem";
 import { Meta } from "./contracts";
 
 @Container.injectable()

@@ -1,6 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 
-// @Container.injectable()
+@Container.injectable()
 export class Application {
     constructor(public readonly container: Contracts.Kernel.Container.Container) {
         this.bind<Contracts.Kernel.Application>(Container.Identifiers.Application).toConstantValue(this as any);

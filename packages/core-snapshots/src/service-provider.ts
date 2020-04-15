@@ -3,11 +3,10 @@ import { Identifiers } from "./ioc";
 import { getCustomRepository, createConnection, Connection } from "typeorm";
 import { SnapshotService } from "./snapshot-service";
 import { SnapshotDatabaseService } from "./database-service";
-import { SnapshotBlockRepository, SnapshotRoundRepository, SnapshotTransactionRepository } from "./repositories";
-import { Utils } from "./utils";
+import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
+import { Filesystem } from "./filesystem";
 import { ProgressDispatcher } from "./progress-dispatcher";
 import { Models } from "@arkecosystem/core-database";
-import { Codec, JSONCodec } from "./transport";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -30,31 +29,19 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
 
-        this.app.bind(Identifiers.SnapshotUtils).to(Utils).inSingletonScope();
+        this.app.bind(Identifiers.SnapshotUtils).to(Filesystem).inSingletonScope();
 
         this.app.bind(Identifiers.ProgressDispatcher).to(ProgressDispatcher);
 
         this.app
             .bind(Identifiers.SnapshotBlockRepository)
-            .toConstantValue(getCustomRepository(SnapshotBlockRepository));
+            .toConstantValue(getCustomRepository(BlockRepository));
         this.app
             .bind(Identifiers.SnapshotTransactionRepository)
-            .toConstantValue(getCustomRepository(SnapshotTransactionRepository));
+            .toConstantValue(getCustomRepository(TransactionRepository));
         this.app
             .bind(Identifiers.SnapshotRoundRepository)
-            .toConstantValue(getCustomRepository(SnapshotRoundRepository));
-
-        this.app
-            .bind(Identifiers.SnapshotCodec)
-            .to(Codec)
-            .inRequestScope()
-            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("codec", "default"));
-
-        this.app
-            .bind(Identifiers.SnapshotCodec)
-            .to(JSONCodec)
-            .inSingletonScope()
-            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("codec", "json"));
+            .toConstantValue(getCustomRepository(RoundRepository));
     }
 
     private async connect(): Promise<Connection> {
@@ -67,9 +54,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         return createConnection({
             ...options.connection,
             namingStrategy: new Models.SnakeNamingStrategy(),
-            // migrations: [__dirname + "/migrations/*.js"],
-            // migrationsRun: false,
-            // entities: [__dirname + "/models/*.js"],
             entities: [Models.Block, Models.Transaction, Models.Round],
         });
     }
