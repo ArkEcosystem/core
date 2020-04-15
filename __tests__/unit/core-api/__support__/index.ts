@@ -68,7 +68,7 @@ export const initApp = (): Application => {
 
     app.bind(Container.Identifiers.PeerStorage).toConstantValue(Mocks.PeerStorage.instance);
 
-    app.bind(Container.Identifiers.RoundRepository).toConstantValue(Mocks.RoundRepository.instance);
+    app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue(Mocks.RoundRepository.instance);
 
     app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(Mocks.TransactionPoolQuery.instance);
 

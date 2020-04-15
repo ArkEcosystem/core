@@ -35,7 +35,7 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.PeerStorage).toConstantValue({});
 
-    app.bind(Container.Identifiers.RoundRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue({});
 
     app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
 

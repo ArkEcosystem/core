@@ -54,9 +54,9 @@ export const initApp = (): Application => {
     app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
     app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue({});
     app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue({});
     app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue({});
     app.bind(Container.Identifiers.PeerStorage).toConstantValue({});
-    app.bind(Container.Identifiers.RoundRepository).toConstantValue({});
     app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
 
