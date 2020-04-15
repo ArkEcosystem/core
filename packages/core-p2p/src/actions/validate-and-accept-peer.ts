@@ -11,8 +11,8 @@ export class ValidateAndAcceptPeerAction extends Services.Triggers.Action {
     }
 
     public async execute(args: ActionArguments): Promise<void> {
-        let peer: Contracts.P2P.Peer = args.peer;
-        let options: Contracts.P2P.AcceptNewPeerOptions = args.options;
+        const peer: Contracts.P2P.Peer = args.peer;
+        const options: Contracts.P2P.AcceptNewPeerOptions = args.options;
 
         return this.app.get<PeerProcessor>(Container.Identifiers.PeerProcessor).validateAndAcceptPeer(peer, options);
     }

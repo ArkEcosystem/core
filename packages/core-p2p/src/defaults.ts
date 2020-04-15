@@ -1,5 +1,4 @@
 export const defaults = {
-    // https://socketcluster.io/#!/docs/api-socketcluster
     server: {
         hostname: process.env.CORE_P2P_HOST || "0.0.0.0",
         port: process.env.CORE_P2P_PORT || 4002,
@@ -65,7 +64,7 @@ export const defaults = {
      */
     ntp: ["pool.ntp.org", "time.google.com"],
     /**
-     * Rate limit config, used in socket-server worker / master
+     * Rate limit config
      */
     rateLimit: process.env.CORE_P2P_RATE_LIMIT || 100, // max number of messages per second per socket connection
 };

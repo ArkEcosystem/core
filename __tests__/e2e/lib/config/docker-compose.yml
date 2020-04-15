@@ -45,6 +45,8 @@ services:
         depends_on:
             - postgres1
             - peerdiscovery
+        ports:
+            - 4000:4000
         environment:
             <<: *coreEnvironment
             CORE_DB_HOST: postgres1
