@@ -37,7 +37,7 @@
         "access": "public"
     },
     "devDependencies": {
-        "@types/pino": "^5.20.0",
+        "@types/pino": "^6.0.0",
         "@types/pump": "^1.1.0",
         "@types/readable-stream": "^2.3.5",
         "@types/split2": "^2.1.6"
