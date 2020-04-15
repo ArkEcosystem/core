@@ -18,7 +18,7 @@ let controller: DelegatesController;
 let walletRepository: Wallets.WalletRepository;
 
 const databaseBlockService = {
-    search: jest.fn(),
+    listByGeneratorPublicKey: jest.fn(),
 };
 
 beforeEach(() => {
@@ -30,7 +30,7 @@ beforeEach(() => {
 
     controller = app.resolve<DelegatesController>(DelegatesController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
-    databaseBlockService.search.mockReset();
+    databaseBlockService.listByGeneratorPublicKey.mockReset();
 });
 
 afterEach(() => {
@@ -169,7 +169,7 @@ describe("DelegatesController", () => {
                 totalAmount: Utils.BigNumber.make("300"),
             };
 
-            databaseBlockService.search.mockResolvedValue({
+            databaseBlockService.listByGeneratorPublicKey.mockResolvedValue({
                 rows: [mockBlock],
                 count: 1,
                 countIsEstimate: false,
@@ -209,7 +209,7 @@ describe("DelegatesController", () => {
                 timestamp: 2,
             };
 
-            databaseBlockService.search.mockResolvedValue({
+            databaseBlockService.listByGeneratorPublicKey.mockResolvedValue({
                 rows: [mockBlock],
                 count: 1,
                 countIsEstimate: false,
