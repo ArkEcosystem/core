@@ -1,9 +1,9 @@
 import "jest-extended";
 
 import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
-import { ServiceProvider } from "@packages/core-magistrate-api/src";
-import { Application, Container, Providers } from "@packages/core-kernel";
 import { defaults } from "@packages/core-api/src/defaults";
+import { Application, Container, Providers } from "@packages/core-kernel";
+import { ServiceProvider } from "@packages/core-magistrate-api/src";
 
 let app: Application;
 
@@ -31,15 +31,19 @@ beforeEach(() => {
     app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
 
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
+
+    app.bind(Container.Identifiers.DatabaseBlockService).toConstantValue({});
+
+    app.bind(Container.Identifiers.DatabaseTransactionService).toConstantValue({});
 });
 
 describe("ServiceProvider", () => {
     let serviceProvider: ServiceProvider;
 
     it("should register", async () => {
-        let coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
+        const coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
         const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-api", defaults);
 
         coreApiServiceProvider.setConfig(instance);
