@@ -14,13 +14,13 @@ export const mapHeightToMilestoneSpanTimestamp = async (
         // to calculate the timespan between two milestones we need to look up the timestamp of the last block
         const endSpanBlockHeight = nextMilestone.height - 1;
 
-        heightMappedToBlockTimestamp[endSpanBlockHeight] = await findBlockTimestampByHeight(endSpanBlockHeight);
+        heightMappedToBlockTimestamp.set(endSpanBlockHeight, await findBlockTimestampByHeight(endSpanBlockHeight));
 
         nextMilestone = Managers.configManager.getNextMilestoneWithNewKey(nextMilestone.height, "blocktime");
     }
 
     return (height) => {
-        const result = heightMappedToBlockTimestamp[height];
+        const result = heightMappedToBlockTimestamp.get(height);
         if (result === undefined) {
             throw new Error(
                 `Attempted lookup of block height ${height} for milestone span calculation, but none exists.`,
