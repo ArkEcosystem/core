@@ -19,7 +19,7 @@ import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 let app: Application;
 let controller: TransactionsController;
 
-const databaseTransactionService = {
+const transactionHistoryService = {
     findOneById: jest.fn(),
     listByCriteria: jest.fn(),
 };
@@ -30,7 +30,7 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     app = initApp();
-    app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
@@ -40,8 +40,8 @@ beforeEach(() => {
     Mocks.TransactionRepository.setTransaction(null);
     Mocks.TransactionRepository.setTransactions([]);
     Mocks.TransactionPoolQuery.setTransactions([]);
-    databaseTransactionService.findOneById.mockReset();
-    databaseTransactionService.listByCriteria.mockReset();
+    transactionHistoryService.findOneById.mockReset();
+    transactionHistoryService.listByCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -69,7 +69,7 @@ describe("TransactionsController", () => {
 
     describe("index", () => {
         it("should return list of transactions", async () => {
-            databaseTransactionService.listByCriteria.mockResolvedValue({
+            transactionHistoryService.listByCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -121,7 +121,7 @@ describe("TransactionsController", () => {
 
     describe("show", () => {
         it("should return transaction", async () => {
-            databaseTransactionService.findOneById.mockResolvedValue(transferTransaction.data);
+            transactionHistoryService.findOneById.mockResolvedValue(transferTransaction.data);
 
             const request: Hapi.Request = {
                 params: {
@@ -218,7 +218,7 @@ describe("TransactionsController", () => {
 
     describe("search", () => {
         it("should return list of transactions", async () => {
-            databaseTransactionService.listByCriteria.mockResolvedValue({
+            transactionHistoryService.listByCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -248,7 +248,7 @@ describe("TransactionsController", () => {
         });
 
         it("should return paginated response when defined offset", async () => {
-            databaseTransactionService.listByCriteria.mockResolvedValue({
+            transactionHistoryService.listByCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,

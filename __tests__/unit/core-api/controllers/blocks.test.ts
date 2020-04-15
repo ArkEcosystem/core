@@ -19,11 +19,11 @@ let app: Application;
 let controller: BlocksController;
 let walletRepository: Wallets.WalletRepository;
 
-const databaseBlockService = {
+const blockHistoryService = {
     findOneByIdOrHeight: jest.fn(),
     listByCriteria: jest.fn(),
 };
-const databaseTransactionService = {
+const transactionHistoryService = {
     listByBlockIdAndCriteria: jest.fn(),
 };
 
@@ -32,15 +32,15 @@ beforeEach(() => {
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-    app.bind(Identifiers.DatabaseBlockService).toConstantValue(databaseBlockService);
-    app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
+    app.bind(Identifiers.BlockHistoryService).toConstantValue(blockHistoryService);
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     controller = app.resolve<BlocksController>(BlocksController);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
-    databaseBlockService.findOneByIdOrHeight.mockReset();
-    databaseBlockService.listByCriteria.mockReset();
-    databaseTransactionService.listByBlockIdAndCriteria.mockReset();
+    blockHistoryService.findOneByIdOrHeight.mockReset();
+    blockHistoryService.listByCriteria.mockReset();
+    transactionHistoryService.listByBlockIdAndCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -103,7 +103,7 @@ describe("BlocksController", () => {
 
     describe("index", () => {
         it("should return last blocks from store", async () => {
-            databaseBlockService.listByCriteria.mockResolvedValue({
+            blockHistoryService.listByCriteria.mockResolvedValue({
                 rows: [mockBlock],
                 count: 1,
                 countIsEstimate: false,
@@ -126,7 +126,7 @@ describe("BlocksController", () => {
         });
 
         it("should return last block from store - transformed", async () => {
-            databaseBlockService.listByCriteria.mockResolvedValue({
+            blockHistoryService.listByCriteria.mockResolvedValue({
                 rows: [mockBlock],
                 count: 1,
                 countIsEstimate: false,
@@ -217,7 +217,7 @@ describe("BlocksController", () => {
 
     describe("show", () => {
         it("should return found block from store", async () => {
-            databaseBlockService.findOneByIdOrHeight.mockResolvedValueOnce(mockBlock);
+            blockHistoryService.findOneByIdOrHeight.mockResolvedValueOnce(mockBlock);
 
             const request: Hapi.Request = {
                 params: {
@@ -257,8 +257,8 @@ describe("BlocksController", () => {
                 .nonce("1")
                 .build();
 
-            databaseBlockService.findOneByIdOrHeight.mockResolvedValueOnce(mockBlock);
-            databaseTransactionService.listByBlockIdAndCriteria.mockResolvedValue({
+            blockHistoryService.findOneByIdOrHeight.mockResolvedValueOnce(mockBlock);
+            transactionHistoryService.listByBlockIdAndCriteria.mockResolvedValue({
                 rows: [transaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -319,7 +319,7 @@ describe("BlocksController", () => {
 
     describe("search", () => {
         it("should return found blocks from store", async () => {
-            databaseBlockService.listByCriteria.mockResolvedValue({
+            blockHistoryService.listByCriteria.mockResolvedValue({
                 rows: [mockBlock],
                 count: 1,
                 countIsEstimate: false,

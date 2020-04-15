@@ -52,7 +52,7 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
-const databaseTransactionService = {
+const transactionHistoryService = {
     findManyByCriteria: jest.fn(),
 };
 
@@ -62,14 +62,14 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     Mocks.TransactionRepository.setTransactions([]);
-    databaseTransactionService.findManyByCriteria.mockReset();
+    transactionHistoryService.findManyByCriteria.mockReset();
 
     app = initApp();
 
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainUpdateTransactionHandler);
-    app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -328,7 +328,7 @@ describe("BusinessRegistration", () => {
                 ...secondBridgechainUpdateAssetClone,
             });
 
-            databaseTransactionService.findManyByCriteria.mockResolvedValueOnce([
+            transactionHistoryService.findManyByCriteria.mockResolvedValueOnce([
                 bridgechainRegistrationTransaction.data,
                 bridgechainUpdateTransaction.data,
                 secondBridgechainUpdateTransaction.data,

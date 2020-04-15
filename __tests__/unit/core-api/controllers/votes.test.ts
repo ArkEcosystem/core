@@ -16,7 +16,7 @@ import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 let app: Application;
 let controller: VotesController;
 
-const databaseTransactionService = {
+const transactionHistoryService = {
     findOneById: jest.fn(),
     listVoteByCriteria: jest.fn(),
 };
@@ -26,11 +26,11 @@ beforeEach(() => {
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-    app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     controller = app.resolve<VotesController>(VotesController);
-    databaseTransactionService.findOneById.mockReset();
-    databaseTransactionService.listVoteByCriteria.mockReset();
+    transactionHistoryService.findOneById.mockReset();
+    transactionHistoryService.listVoteByCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -59,7 +59,7 @@ describe("VotesController", () => {
 
     describe("index", () => {
         it("should return list of votes", async () => {
-            databaseTransactionService.listVoteByCriteria.mockResolvedValue({
+            transactionHistoryService.listVoteByCriteria.mockResolvedValue({
                 rows: [voteTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -88,7 +88,7 @@ describe("VotesController", () => {
 
     describe("show", () => {
         it("should return vote", async () => {
-            databaseTransactionService.findOneById.mockResolvedValue(voteTransaction.data);
+            transactionHistoryService.findOneById.mockResolvedValue(voteTransaction.data);
 
             const request: Hapi.Request = {
                 params: {
@@ -109,7 +109,7 @@ describe("VotesController", () => {
         });
 
         it("should return error if vote transaction does not exists", async () => {
-            databaseTransactionService.findOneById.mockResolvedValue(undefined);
+            transactionHistoryService.findOneById.mockResolvedValue(undefined);
 
             const request: Hapi.Request = {
                 params: {

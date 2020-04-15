@@ -17,7 +17,7 @@ let app: Application;
 let controller: DelegatesController;
 let walletRepository: Wallets.WalletRepository;
 
-const databaseBlockService = {
+const blockHistoryService = {
     listByGeneratorPublicKey: jest.fn(),
 };
 
@@ -26,11 +26,11 @@ beforeEach(() => {
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-    app.bind(Identifiers.DatabaseBlockService).toConstantValue(databaseBlockService);
+    app.bind(Identifiers.BlockHistoryService).toConstantValue(blockHistoryService);
 
     controller = app.resolve<DelegatesController>(DelegatesController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
-    databaseBlockService.listByGeneratorPublicKey.mockReset();
+    blockHistoryService.listByGeneratorPublicKey.mockReset();
 });
 
 afterEach(() => {
@@ -169,7 +169,7 @@ describe("DelegatesController", () => {
                 totalAmount: Utils.BigNumber.make("300"),
             };
 
-            databaseBlockService.listByGeneratorPublicKey.mockResolvedValue({
+            blockHistoryService.listByGeneratorPublicKey.mockResolvedValue({
                 rows: [mockBlock],
                 count: 1,
                 countIsEstimate: false,
@@ -209,7 +209,7 @@ describe("DelegatesController", () => {
                 timestamp: 2,
             };
 
-            databaseBlockService.listByGeneratorPublicKey.mockResolvedValue({
+            blockHistoryService.listByGeneratorPublicKey.mockResolvedValue({
                 rows: [mockBlock],
                 count: 1,
                 countIsEstimate: false,

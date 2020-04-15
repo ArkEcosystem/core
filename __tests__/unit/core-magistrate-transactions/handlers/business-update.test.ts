@@ -42,7 +42,7 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
-const databaseTransactionService = {
+const transactionHistoryService = {
     findManyByCriteria: jest.fn(),
 };
 
@@ -52,13 +52,13 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     Mocks.TransactionRepository.setTransactions([]);
-    databaseTransactionService.findManyByCriteria.mockReset();
+    transactionHistoryService.findManyByCriteria.mockReset();
 
     app = initApp();
 
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BusinessUpdateTransactionHandler);
-    app.bind(Identifiers.DatabaseTransactionService).toConstantValue(databaseTransactionService);
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -205,7 +205,7 @@ describe("BusinessRegistration", () => {
                 .sign(passphrases[0])
                 .build();
 
-            databaseTransactionService.findManyByCriteria.mockResolvedValue([businessRegistrationTransaction.data]);
+            transactionHistoryService.findManyByCriteria.mockResolvedValue([businessRegistrationTransaction.data]);
 
             await handler.revert(businessUpdateTransaction, walletRepository);
 
@@ -248,7 +248,7 @@ describe("BusinessRegistration", () => {
                 ...secondBusinessUpdateAsset,
             });
 
-            databaseTransactionService.findManyByCriteria.mockResolvedValueOnce([
+            transactionHistoryService.findManyByCriteria.mockResolvedValueOnce([
                 businessRegistrationTransaction.data,
                 businessUpdateTransaction.data,
                 secondBusinessUpdateTransaction.data,

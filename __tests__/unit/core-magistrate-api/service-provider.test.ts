@@ -32,9 +32,9 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
 
-    app.bind(Container.Identifiers.DatabaseBlockService).toConstantValue({});
+    app.bind(Container.Identifiers.BlockHistoryService).toConstantValue({});
 
-    app.bind(Container.Identifiers.DatabaseTransactionService).toConstantValue({});
+    app.bind(Container.Identifiers.TransactionHistoryService).toConstantValue({});
 });
 
 describe("ServiceProvider", () => {
