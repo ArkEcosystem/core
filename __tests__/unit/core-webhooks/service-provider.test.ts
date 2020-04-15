@@ -1,10 +1,10 @@
 import "jest-extended";
 
 import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
-import { ServiceProvider } from "@packages/core-webhooks/src";
+import { defaults } from "@packages/core-api/src/defaults";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { NullEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/null";
-import { defaults } from "@packages/core-api/src/defaults";
+import { ServiceProvider } from "@packages/core-webhooks/src";
 import { defaults as webhooksDefaults } from "@packages/core-webhooks/src/defaults";
 import { dirSync, setGracefulCleanup } from "tmp";
 
@@ -41,6 +41,10 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
 
+    app.bind(Container.Identifiers.DatabaseBlockService).toConstantValue({});
+
+    app.bind(Container.Identifiers.DatabaseTransactionService).toConstantValue({});
+
     app.bind(Container.Identifiers.EventDispatcherService).to(NullEventDispatcher);
 
     app.bind(Container.Identifiers.LogService).toConstantValue(logger);
@@ -57,8 +61,8 @@ describe("ServiceProvider", () => {
     beforeEach(async () => {
         coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-        let instance: Providers.PluginConfiguration = pluginConfiguration.from("core-api", defaults);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-api", defaults);
 
         coreApiServiceProvider.setConfig(instance);
 
@@ -70,8 +74,8 @@ describe("ServiceProvider", () => {
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-        let instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
 
         serviceProvider.setConfig(instance);
 
@@ -83,8 +87,8 @@ describe("ServiceProvider", () => {
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-        let instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
 
         serviceProvider.setConfig(instance);
 
@@ -98,8 +102,8 @@ describe("ServiceProvider", () => {
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-        let instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
 
         serviceProvider.setConfig(instance);
 
@@ -115,11 +119,11 @@ describe("ServiceProvider", () => {
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
 
         // @ts-ignore
         webhooksDefaults.enabled = true;
-        let instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
+        const instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
 
         serviceProvider.setConfig(instance);
 
