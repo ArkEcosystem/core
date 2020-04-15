@@ -108,7 +108,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create(210);
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
 
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain("Transactions length is too high");
@@ -131,7 +131,11 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge([transactions[0], transactions[0]], optionsDefault);
+            const block: IBlock = delegate.forge(
+                [transactions[0], transactions[0]],
+                optionsDefault,
+                blockTimestampLookup,
+            );
 
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered duplicate transaction: ${transactions[0].id}`);
@@ -191,7 +195,7 @@ describe("Block", () => {
 
             transactions[0].expiration = 102;
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
             expect(block.verification.verified).toBeTrue();
         });
 
@@ -214,7 +218,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
         });
@@ -240,7 +244,7 @@ describe("Block", () => {
                 .create();
 
             Managers.configManager.getMilestone().aip11 = false;
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
             Managers.configManager.getMilestone().aip11 = true;
@@ -271,7 +275,7 @@ describe("Block", () => {
                 .create();
 
             Managers.configManager.getMilestone().aip11 = false;
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
             expect(block.verification.verified).toBeTrue();
             Managers.configManager.getMilestone().aip11 = true;
         });
@@ -301,7 +305,7 @@ describe("Block", () => {
                 .create();
 
             Managers.configManager.getMilestone().aip11 = false;
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered future transaction: ${transactions[0].id}`);
             Managers.configManager.getMilestone().aip11 = true;
@@ -331,7 +335,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
             expect(block.verification.verified).toBeTrue();
             expect(block.verification.errors).toBeEmpty();
         });
@@ -359,7 +363,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault);
+            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered future transaction: ${transactions[0].id}`);
         });
