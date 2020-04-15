@@ -30,10 +30,7 @@ const makeNotExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
 
 const transactionHistoryService = {
-    listByWalletAndCriteria: jest.fn(),
-    listBySenderPublicKeyAndCriteria: jest.fn(),
-    listByRecipientIdAndCriteria: jest.fn(),
-    listVoteBySenderPublicKeyAndCriteria: jest.fn(),
+    listByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
@@ -47,10 +44,7 @@ beforeEach(() => {
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
     Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
-    transactionHistoryService.listByWalletAndCriteria.mockReset();
-    transactionHistoryService.listBySenderPublicKeyAndCriteria.mockReset();
-    transactionHistoryService.listByRecipientIdAndCriteria.mockReset();
-    transactionHistoryService.listVoteBySenderPublicKeyAndCriteria.mockReset();
+    transactionHistoryService.listByCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -155,7 +149,7 @@ describe("WalletsController", () => {
 
     describe("transactions", () => {
         it("should return list of transactions", async () => {
-            transactionHistoryService.listByWalletAndCriteria.mockResolvedValue({
+            transactionHistoryService.listByCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -197,7 +191,7 @@ describe("WalletsController", () => {
 
     describe("transactionsSent", () => {
         it("should return list of transactions", async () => {
-            transactionHistoryService.listBySenderPublicKeyAndCriteria.mockResolvedValue({
+            transactionHistoryService.listByCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -239,7 +233,7 @@ describe("WalletsController", () => {
 
     describe("transactionsReceived", () => {
         it("should return list of transactions", async () => {
-            transactionHistoryService.listByRecipientIdAndCriteria.mockResolvedValue({
+            transactionHistoryService.listByCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -281,7 +275,7 @@ describe("WalletsController", () => {
 
     describe("votes", () => {
         it("should return list of transactions", async () => {
-            transactionHistoryService.listVoteBySenderPublicKeyAndCriteria.mockResolvedValue({
+            transactionHistoryService.listByCriteria.mockResolvedValue({
                 rows: [transferTransaction.data],
                 count: 1,
                 countIsEstimate: false,

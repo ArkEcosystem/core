@@ -20,7 +20,7 @@ let app: Application;
 let controller: TransactionsController;
 
 const transactionHistoryService = {
-    findOneById: jest.fn(),
+    findOneByCriteria: jest.fn(),
     listByCriteria: jest.fn(),
 };
 
@@ -40,7 +40,7 @@ beforeEach(() => {
     Mocks.TransactionRepository.setTransaction(null);
     Mocks.TransactionRepository.setTransactions([]);
     Mocks.TransactionPoolQuery.setTransactions([]);
-    transactionHistoryService.findOneById.mockReset();
+    transactionHistoryService.findOneByCriteria.mockReset();
     transactionHistoryService.listByCriteria.mockReset();
 });
 
@@ -121,7 +121,7 @@ describe("TransactionsController", () => {
 
     describe("show", () => {
         it("should return transaction", async () => {
-            transactionHistoryService.findOneById.mockResolvedValue(transferTransaction.data);
+            transactionHistoryService.findOneByCriteria.mockResolvedValue(transferTransaction.data);
 
             const request: Hapi.Request = {
                 params: {

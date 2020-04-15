@@ -20,11 +20,11 @@ let controller: BlocksController;
 let walletRepository: Wallets.WalletRepository;
 
 const blockHistoryService = {
-    findOneByIdOrHeight: jest.fn(),
+    findOneByCriteria: jest.fn(),
     listByCriteria: jest.fn(),
 };
 const transactionHistoryService = {
-    listByBlockIdAndCriteria: jest.fn(),
+    listByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
@@ -38,9 +38,9 @@ beforeEach(() => {
     controller = app.resolve<BlocksController>(BlocksController);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
-    blockHistoryService.findOneByIdOrHeight.mockReset();
+    blockHistoryService.findOneByCriteria.mockReset();
     blockHistoryService.listByCriteria.mockReset();
-    transactionHistoryService.listByBlockIdAndCriteria.mockReset();
+    transactionHistoryService.listByCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -217,7 +217,7 @@ describe("BlocksController", () => {
 
     describe("show", () => {
         it("should return found block from store", async () => {
-            blockHistoryService.findOneByIdOrHeight.mockResolvedValueOnce(mockBlock);
+            blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock);
 
             const request: Hapi.Request = {
                 params: {
@@ -257,8 +257,8 @@ describe("BlocksController", () => {
                 .nonce("1")
                 .build();
 
-            blockHistoryService.findOneByIdOrHeight.mockResolvedValueOnce(mockBlock);
-            transactionHistoryService.listByBlockIdAndCriteria.mockResolvedValue({
+            blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock);
+            transactionHistoryService.listByCriteria.mockResolvedValue({
                 rows: [transaction.data],
                 count: 1,
                 countIsEstimate: false,

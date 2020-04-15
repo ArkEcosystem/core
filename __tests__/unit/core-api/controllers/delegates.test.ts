@@ -18,7 +18,7 @@ let controller: DelegatesController;
 let walletRepository: Wallets.WalletRepository;
 
 const blockHistoryService = {
-    listByGeneratorPublicKey: jest.fn(),
+    listByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
@@ -30,7 +30,7 @@ beforeEach(() => {
 
     controller = app.resolve<DelegatesController>(DelegatesController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
-    blockHistoryService.listByGeneratorPublicKey.mockReset();
+    blockHistoryService.listByCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -169,7 +169,7 @@ describe("DelegatesController", () => {
                 totalAmount: Utils.BigNumber.make("300"),
             };
 
-            blockHistoryService.listByGeneratorPublicKey.mockResolvedValue({
+            blockHistoryService.listByCriteria.mockResolvedValue({
                 rows: [mockBlock],
                 count: 1,
                 countIsEstimate: false,
@@ -209,7 +209,7 @@ describe("DelegatesController", () => {
                 timestamp: 2,
             };
 
-            blockHistoryService.listByGeneratorPublicKey.mockResolvedValue({
+            blockHistoryService.listByCriteria.mockResolvedValue({
                 rows: [mockBlock],
                 count: 1,
                 countIsEstimate: false,

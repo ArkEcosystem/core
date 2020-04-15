@@ -17,8 +17,8 @@ let app: Application;
 let controller: VotesController;
 
 const transactionHistoryService = {
-    findOneById: jest.fn(),
-    listVoteByCriteria: jest.fn(),
+    findOneByCriteria: jest.fn(),
+    listByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
@@ -29,8 +29,8 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     controller = app.resolve<VotesController>(VotesController);
-    transactionHistoryService.findOneById.mockReset();
-    transactionHistoryService.listVoteByCriteria.mockReset();
+    transactionHistoryService.findOneByCriteria.mockReset();
+    transactionHistoryService.listByCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -59,7 +59,7 @@ describe("VotesController", () => {
 
     describe("index", () => {
         it("should return list of votes", async () => {
-            transactionHistoryService.listVoteByCriteria.mockResolvedValue({
+            transactionHistoryService.listByCriteria.mockResolvedValue({
                 rows: [voteTransaction.data],
                 count: 1,
                 countIsEstimate: false,
@@ -88,7 +88,7 @@ describe("VotesController", () => {
 
     describe("show", () => {
         it("should return vote", async () => {
-            transactionHistoryService.findOneById.mockResolvedValue(voteTransaction.data);
+            transactionHistoryService.findOneByCriteria.mockResolvedValue(voteTransaction.data);
 
             const request: Hapi.Request = {
                 params: {
@@ -109,7 +109,7 @@ describe("VotesController", () => {
         });
 
         it("should return error if vote transaction does not exists", async () => {
-            transactionHistoryService.findOneById.mockResolvedValue(undefined);
+            transactionHistoryService.findOneByCriteria.mockResolvedValue(undefined);
 
             const request: Hapi.Request = {
                 params: {

@@ -29,7 +29,7 @@ const makeNotExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
 
 const transactionHistoryService = {
-    listHtlcClaimRefundByLockIds: jest.fn(),
+    listByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
@@ -43,7 +43,7 @@ beforeEach(() => {
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
     Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
-    transactionHistoryService.listHtlcClaimRefundByLockIds.mockReset();
+    transactionHistoryService.listByCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -173,7 +173,7 @@ describe("LocksController", () => {
 
     describe("unlocked", () => {
         it("should return list of locks", async () => {
-            transactionHistoryService.listHtlcClaimRefundByLockIds.mockResolvedValueOnce({
+            transactionHistoryService.listByCriteria.mockResolvedValueOnce({
                 rows: [Object.assign({}, htlcLockTransaction.data, { nonce: Utils.BigNumber.make("1") })],
                 count: 1,
                 countIsEstimate: false,
