@@ -17,7 +17,7 @@ export class LocksController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             ...request.query,
-            ...this.getListPage(request),
+            ...this.getListingPage(request),
         });
 
         return this.toPagination(locks, LockResource);
@@ -39,7 +39,7 @@ export class LocksController extends Controller {
         const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             ...request.payload,
             ...request.query,
-            ...this.getListPage(request),
+            ...this.getListingPage(request),
         });
 
         return this.toPagination(locks, LockResource);
@@ -48,8 +48,8 @@ export class LocksController extends Controller {
     public async unlocked(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const transactionListResult = await this.transactionHistoryService.listHtlcClaimRefundByLockIds(
             request.payload.ids,
-            this.getListOrder(request),
-            this.getListPage(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource);

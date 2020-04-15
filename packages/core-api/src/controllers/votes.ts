@@ -14,8 +14,8 @@ export class VotesController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const transactionListResult = await this.transactionHistoryService.listVoteByCriteria(
             request.query,
-            this.getListOrder(request),
-            this.getListPage(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);

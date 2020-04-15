@@ -9,7 +9,7 @@ export class Controller {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
 
-    protected getListPage(request: Hapi.Request): Contracts.Shared.ListingPage {
+    protected getListingPage(request: Hapi.Request): Contracts.Shared.ListingPage {
         const pagination = {
             offset: (request.query.page - 1) * request.query.limit || 0,
             limit: request.query.limit || 100,
@@ -22,7 +22,7 @@ export class Controller {
         return pagination;
     }
 
-    protected getListOrder(request: Hapi.Request): Contracts.Shared.ListingOrder {
+    protected getListingOrder(request: Hapi.Request): Contracts.Shared.ListingOrder {
         if (!request.query.orderBy) {
             return [];
         }

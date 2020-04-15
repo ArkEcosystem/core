@@ -18,7 +18,7 @@ export class WalletsController extends Controller {
         return this.toPagination(
             this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
                 ...request.query,
-                ...this.getListPage(request),
+                ...this.getListingPage(request),
             }),
             WalletResource,
         );
@@ -26,7 +26,7 @@ export class WalletsController extends Controller {
 
     public async top(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         return this.toPagination(
-            this.walletRepository.top(Contracts.State.SearchScope.Wallets, this.getListPage(request)),
+            this.walletRepository.top(Contracts.State.SearchScope.Wallets, this.getListingPage(request)),
             WalletResource,
         );
     }
@@ -49,8 +49,8 @@ export class WalletsController extends Controller {
         const transactionListResult = await this.transactionHistoryService.listByWalletAndCriteria(
             wallet,
             request.query,
-            this.getListOrder(request),
-            this.getListPage(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -68,8 +68,8 @@ export class WalletsController extends Controller {
         const transactionListResult = await this.transactionHistoryService.listBySenderPublicKeyAndCriteria(
             wallet.publicKey,
             request.query,
-            this.getListOrder(request),
-            this.getListPage(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -87,8 +87,8 @@ export class WalletsController extends Controller {
         const transactionListResult = await this.transactionHistoryService.listByRecipientIdAndCriteria(
             wallet.address,
             request.query,
-            this.getListOrder(request),
-            this.getListPage(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -106,8 +106,8 @@ export class WalletsController extends Controller {
         const transactionListResult = await this.transactionHistoryService.listVoteBySenderPublicKeyAndCriteria(
             wallet.publicKey,
             request.query,
-            this.getListOrder(request),
-            this.getListPage(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource);
@@ -125,7 +125,7 @@ export class WalletsController extends Controller {
         const lockListResult = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             ...request.params,
             ...request.query,
-            ...this.getListPage(request),
+            ...this.getListingPage(request),
             senderPublicKey: wallet.publicKey,
         });
 
@@ -136,7 +136,7 @@ export class WalletsController extends Controller {
         const wallets = this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
             ...request.payload,
             ...request.query,
-            ...this.getListPage(request),
+            ...this.getListingPage(request),
         });
 
         return this.toPagination(wallets, WalletResource);

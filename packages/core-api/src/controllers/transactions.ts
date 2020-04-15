@@ -28,8 +28,8 @@ export class TransactionsController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
             request.query,
-            this.getListOrder(request),
-            this.getListPage(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -59,7 +59,7 @@ export class TransactionsController extends Controller {
     }
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const pagination: Contracts.Shared.ListingPage = super.getListPage(request);
+        const pagination: Contracts.Shared.ListingPage = super.getListingPage(request);
         const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getFromHighestPriority());
         const transactions: Interfaces.ITransaction[] = all.slice(
             pagination.offset,
@@ -92,8 +92,8 @@ export class TransactionsController extends Controller {
         try {
             const transactionListResult = await this.transactionHistoryService.listByCriteria(
                 request.payload,
-                this.getListOrder(request),
-                this.getListPage(request),
+                this.getListingOrder(request),
+                this.getListingPage(request),
             );
 
             return this.toPagination(transactionListResult, TransactionResource, request.query.transform);

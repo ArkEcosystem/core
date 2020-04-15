@@ -22,8 +22,8 @@ export class BlocksController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const blockListResult = await this.blockHistoryService.listByCriteria(
             request.query,
-            this.getListOrder(request),
-            this.getListPage(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(blockListResult, BlockResource, request.query.transform);
@@ -57,8 +57,8 @@ export class BlocksController extends Controller {
         const transactionListResult = await this.transactionHistoryService.listByBlockIdAndCriteria(
             blockData.id!,
             request.query,
-            this.getListOrder(request),
-            this.getListPage(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -67,8 +67,8 @@ export class BlocksController extends Controller {
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const blockListResult = await this.blockHistoryService.listByCriteria(
             request.payload,
-            this.getListOrder(request),
-            this.getListPage(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(blockListResult, BlockResource, request.query.transform);
