@@ -9,7 +9,6 @@ export const calculateForgingInfo = (
     getTimeStampForBlock: (blockheight: number) => number,
 ): ForgingInfo => {
     const slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock, timestamp, height);
-    const blockTimestamp = Crypto.Slots.getSlotTime(getTimeStampForBlock, slotInfo.slotNumber, height);
 
     if (height > roundInfo.roundHeight + roundInfo.maxDelegates) {
         throw new Error(
@@ -20,5 +19,5 @@ export const calculateForgingInfo = (
     const nextForger = (height - roundInfo.roundHeight + 1) % roundInfo.maxDelegates;
     const canForge = slotInfo.forgingStatus;
 
-    return { currentForger, nextForger, blockTimestamp, canForge };
+    return { currentForger, nextForger, blockTimestamp: slotInfo.startTime, canForge };
 };
