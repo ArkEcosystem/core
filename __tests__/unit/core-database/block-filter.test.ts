@@ -331,4 +331,27 @@ describe("BlockFilter.getWhereExpression", () => {
             expect(sqlExpression.parameters).toEqual({ p1: "123" });
         });
     });
+
+    describe("BlockCriteria.height and BlockCriteria.generatorPublicKey", () => {
+        it("should join using and expression", async () => {
+            const sqlExpression = await getCriteriaSqlExpression({ height: { from: 100 }, generatorPublicKey: "123" });
+
+            expect(sqlExpression.query).toEqual("(height >= :p1 AND generator_public_key = :p2)");
+            expect(sqlExpression.parameters).toEqual({ p1: 100, p2: "123" });
+        });
+    });
+
+    describe("OrBlockCriteria", () => {
+        it("should join using or expression", async () => {
+            const sqlExpression = await getCriteriaSqlExpression([
+                { height: { from: 100 }, generatorPublicKey: "123" },
+                { height: { from: 300 }, generatorPublicKey: "456" },
+            ]);
+
+            expect(sqlExpression.query).toEqual(
+                "((height >= :p1 AND generator_public_key = :p2) OR (height >= :p3 AND generator_public_key = :p4))",
+            );
+            expect(sqlExpression.parameters).toEqual({ p1: 100, p2: "123", p3: 300, p4: "456" });
+        });
+    });
 });
