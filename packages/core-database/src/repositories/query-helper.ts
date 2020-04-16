@@ -7,9 +7,20 @@ export type SqlExpression = {
 };
 
 export class QueryHelper {
-    private paramNo = 0;
+    private paramNo = 1;
 
-    public getWhereExpression(metadata: EntityMetadata, expression: Contracts.Shared.WhereExpression): SqlExpression {
+    public getColumnName(metadata: EntityMetadata, property: string | number | symbol): string {
+        const column = metadata.columns.find((c) => c.propertyName === property);
+        if (!column) {
+            throw new Error(`Can't find ${String(property)} column`);
+        }
+        return column.databaseName;
+    }
+
+    public getWhereExpressionSql(
+        metadata: EntityMetadata,
+        expression: Contracts.Shared.WhereExpression,
+    ): SqlExpression {
         if (expression instanceof Contracts.Shared.TrueExpression) {
             return { query: "TRUE", parameters: {} };
         }
@@ -68,27 +79,19 @@ export class QueryHelper {
         }
 
         if (expression instanceof Contracts.Shared.AndExpression) {
-            const built = expression.expressions.map((e) => this.getWhereExpression(metadata, e));
+            const built = expression.expressions.map((e) => this.getWhereExpressionSql(metadata, e));
             const query = `(${built.map((b) => b.query).join(" AND ")})`;
             const parameters = built.reduce((acc, b) => Object.assign({}, acc, b.parameters), {});
             return { query, parameters };
         }
 
         if (expression instanceof Contracts.Shared.OrExpression) {
-            const built = expression.expressions.map((e) => this.getWhereExpression(metadata, e));
+            const built = expression.expressions.map((e) => this.getWhereExpressionSql(metadata, e));
             const query = `(${built.map((b) => b.query).join(" OR ")})`;
             const parameters = built.reduce((acc, b) => Object.assign({}, acc, b.parameters), {});
             return { query, parameters };
         }
 
         throw new Error(`Unexpected expression ${expression.constructor.name}`);
-    }
-
-    public getColumnName(metadata: EntityMetadata, property: string | number | symbol): string {
-        const column = metadata.columns.find((c) => c.propertyName === property);
-        if (!column) {
-            throw new Error(`Can't find ${String(property)} column`);
-        }
-        return column.databaseName;
     }
 }

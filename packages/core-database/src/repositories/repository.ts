@@ -14,7 +14,7 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
     public async findOneByExpression(expression: Contracts.Shared.WhereExpression): Promise<TEntity | undefined> {
         const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
         if (expression instanceof Contracts.Shared.VoidExpression === false) {
-            const sqlExpression = this.queryHelper.getWhereExpression(this.metadata, expression);
+            const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }
         return queryBuilder.getOne();
@@ -23,7 +23,7 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
     public async findManyByExpression(expression: Contracts.Shared.WhereExpression): Promise<TEntity[]> {
         const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
         if (expression instanceof Contracts.Shared.VoidExpression === false) {
-            const sqlExpression = this.queryHelper.getWhereExpression(this.metadata, expression);
+            const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }
 
@@ -38,7 +38,7 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
         const queryBuilder = this.createQueryBuilder().select().skip(page.offset).take(page.limit);
 
         if (expression instanceof Contracts.Shared.VoidExpression === false) {
-            const sqlExpression = this.queryHelper.getWhereExpression(this.metadata, expression);
+            const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }
 
