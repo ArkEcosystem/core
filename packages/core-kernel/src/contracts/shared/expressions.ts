@@ -83,9 +83,12 @@ export class AndExpression implements WhereExpression {
                 continue;
             }
             if (exp instanceof AndExpression) {
-                exp.expressions.forEach((e) => flattened.push(e));
+                for (const e of exp.expressions) {
+                    flattened.push(e);
+                }
+            } else {
+                flattened.push(exp);
             }
-            flattened.push(exp);
         }
 
         if (flattened.length === 0) {
@@ -114,9 +117,12 @@ export class OrExpression implements WhereExpression {
                 continue;
             }
             if (exp instanceof OrExpression) {
-                exp.expressions.forEach((e) => flattened.push(e));
+                for (const e of exp.expressions) {
+                    flattened.push(e);
+                }
+            } else {
+                flattened.push(exp);
             }
-            flattened.push(exp);
         }
 
         if (flattened.length === 0) {
