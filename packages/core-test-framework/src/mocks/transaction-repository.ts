@@ -37,7 +37,7 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
     }
 
     public async listByExpression(
-        expressions: Contracts.Shared.Expression,
+        expressions: Contracts.Shared.WhereExpression,
         order: Contracts.Shared.ListingOrder,
         page: Contracts.Shared.ListingPage,
     ): Promise<Contracts.Shared.ListingResult<Transaction>> {

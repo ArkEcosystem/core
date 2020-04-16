@@ -4,13 +4,13 @@ import { OrBlockCriteria } from "./criteria";
 import { ListingOrder, ListingPage, ListingResult } from "./listing";
 
 export interface BlockHistoryService {
-    findOneByCriteria(...criteria: OrBlockCriteria[]): Promise<Interfaces.IBlockData | undefined>;
+    findOneByCriteria(criteria: OrBlockCriteria): Promise<Interfaces.IBlockData | undefined>;
 
-    findManyByCriteria(...criteria: OrBlockCriteria[]): Promise<Interfaces.IBlockData[]>;
+    findManyByCriteria(criteria: OrBlockCriteria): Promise<Interfaces.IBlockData[]>;
 
     listByCriteria(
-        page: ListingPage,
+        criteria: OrBlockCriteria,
         order: ListingOrder,
-        ...criteria: OrBlockCriteria[]
+        page: ListingPage,
     ): Promise<ListingResult<Interfaces.IBlockData>>;
 }

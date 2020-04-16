@@ -13,14 +13,15 @@ export class VotesController extends Controller {
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const criteria = {
+            ...request.query,
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
         };
+
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            this.getListingPage(request),
-            this.getListingOrder(request),
-            request.query,
             criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -32,6 +33,7 @@ export class VotesController extends Controller {
             type: Enums.TransactionType.Vote,
             id: request.params.id,
         });
+
         if (!transaction) {
             return Boom.notFound("Vote not found");
         }

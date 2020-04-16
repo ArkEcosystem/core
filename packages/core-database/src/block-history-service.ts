@@ -13,25 +13,25 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
     private readonly blockFilter!: Contracts.Database.BlockFilter;
 
     public async findOneByCriteria(
-        ...criteria: Contracts.Shared.OrBlockCriteria[]
+        criteria: Contracts.Shared.OrBlockCriteria,
     ): Promise<Interfaces.IBlockData | undefined> {
-        const expression = await this.blockFilter.getCriteriaExpression(...criteria);
+        const expression = await this.blockFilter.getWhereExpression(criteria);
         const model = await this.blockRepository.findOneByExpression(expression);
         return model ? this.convertModel(model) : undefined;
     }
 
-    public async findManyByCriteria(...criteria: Contracts.Shared.OrBlockCriteria[]): Promise<Interfaces.IBlockData[]> {
-        const expression = await this.blockFilter.getCriteriaExpression(...criteria);
+    public async findManyByCriteria(criteria: Contracts.Shared.OrBlockCriteria): Promise<Interfaces.IBlockData[]> {
+        const expression = await this.blockFilter.getWhereExpression(criteria);
         const models = await this.blockRepository.findManyByExpression(expression);
         return this.convertModels(models);
     }
 
     public async listByCriteria(
-        page: Contracts.Shared.ListingPage,
+        criteria: Contracts.Shared.OrBlockCriteria,
         order: Contracts.Shared.ListingOrder,
-        ...criteria: Contracts.Shared.OrBlockCriteria[]
+        page: Contracts.Shared.ListingPage,
     ): Promise<Contracts.Shared.ListingResult<Interfaces.IBlockData>> {
-        const expression = await this.blockFilter.getCriteriaExpression(...criteria);
+        const expression = await this.blockFilter.getWhereExpression(criteria);
         const listResult = await this.blockRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
     }

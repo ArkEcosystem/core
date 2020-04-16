@@ -4,13 +4,13 @@ import { OrTransactionCriteria } from "./criteria";
 import { ListingOrder, ListingPage, ListingResult } from "./listing";
 
 export interface TransactionHistoryService {
-    findOneByCriteria(...criteria: OrTransactionCriteria[]): Promise<Interfaces.ITransactionData | undefined>;
+    findOneByCriteria(criteria: OrTransactionCriteria): Promise<Interfaces.ITransactionData | undefined>;
 
-    findManyByCriteria(...criteria: OrTransactionCriteria[]): Promise<Interfaces.ITransactionData[]>;
+    findManyByCriteria(criteria: OrTransactionCriteria): Promise<Interfaces.ITransactionData[]>;
 
     listByCriteria(
-        page: ListingPage,
+        criteria: OrTransactionCriteria,
         order: ListingOrder,
-        ...criteria: OrTransactionCriteria[]
+        page: ListingPage,
     ): Promise<ListingResult<Interfaces.ITransactionData>>;
 }

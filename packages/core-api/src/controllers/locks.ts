@@ -60,9 +60,9 @@ export class LocksController extends Controller {
             },
         ];
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            this.getListingPage(request),
-            this.getListingOrder(request),
             criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource);

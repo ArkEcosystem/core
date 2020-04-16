@@ -13,27 +13,27 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
     private readonly transactionFilter!: Contracts.Database.TransactionFilter;
 
     public async findOneByCriteria(
-        ...criteria: Contracts.Shared.OrTransactionCriteria[]
+        criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData | undefined> {
-        const expression = await this.transactionFilter.getCriteriaExpression(...criteria);
+        const expression = await this.transactionFilter.getWhereExpression(criteria);
         const model = await this.transactionRepository.findOneByExpression(expression);
         return model ? this.convertModel(model) : undefined;
     }
 
     public async findManyByCriteria(
-        ...criteria: Contracts.Shared.OrTransactionCriteria[]
+        criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData[]> {
-        const expression = await this.transactionFilter.getCriteriaExpression(...criteria);
+        const expression = await this.transactionFilter.getWhereExpression(criteria);
         const models = await this.transactionRepository.findManyByExpression(expression);
         return this.convertModels(models);
     }
 
     public async listByCriteria(
-        page: Contracts.Shared.ListingPage,
+        criteria: Contracts.Shared.OrTransactionCriteria,
         order: Contracts.Shared.ListingOrder,
-        ...criteria: Contracts.Shared.OrTransactionCriteria[]
+        page: Contracts.Shared.ListingPage,
     ): Promise<Contracts.Shared.ListingResult<Interfaces.ITransactionData>> {
-        const expression = await this.transactionFilter.getCriteriaExpression(...criteria);
+        const expression = await this.transactionFilter.getWhereExpression(criteria);
         const listResult = await this.transactionRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
     }

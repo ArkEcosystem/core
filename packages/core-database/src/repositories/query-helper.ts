@@ -6,10 +6,10 @@ export type SqlExpression = {
     parameters: Record<string, any>;
 };
 
-export class MetadataHelper {
+export class QueryHelper {
     private paramNo = 0;
 
-    public getWhereExpression(metadata: EntityMetadata, expression: Contracts.Shared.Expression): SqlExpression {
+    public getWhereExpression(metadata: EntityMetadata, expression: Contracts.Shared.WhereExpression): SqlExpression {
         if (expression instanceof Contracts.Shared.TrueExpression) {
             return { query: "TRUE", parameters: {} };
         }

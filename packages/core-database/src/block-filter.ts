@@ -6,19 +6,17 @@ import { Block } from "./models/block";
 export class BlockFilter implements Contracts.Database.BlockFilter {
     private readonly handler = new AppUtils.CriteriaHandler<Block>();
 
-    public async getCriteriaExpression(
-        ...criteria: Contracts.Shared.OrBlockCriteria[]
-    ): Promise<Contracts.Shared.Expression> {
-        const promises = criteria.map((c) => {
-            return this.handler.handleOrCriteria(c, (c) => {
-                return this.handleBlockCriteria(c);
-            });
+    public async getWhereExpression(
+        criteria: Contracts.Shared.OrBlockCriteria,
+    ): Promise<Contracts.Shared.WhereExpression> {
+        return this.handler.handleOrCriteria(criteria, (c) => {
+            return this.handleBlockCriteria(c);
         });
-
-        return Contracts.Shared.AndExpression.make(await Promise.all(promises));
     }
 
-    private async handleBlockCriteria(criteria: Contracts.Shared.BlockCriteria): Promise<Contracts.Shared.Expression> {
+    private async handleBlockCriteria(
+        criteria: Contracts.Shared.BlockCriteria,
+    ): Promise<Contracts.Shared.WhereExpression> {
         return this.handler.handleAndCriteria(criteria, async (key) => {
             switch (key) {
                 case "id":

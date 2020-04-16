@@ -1,12 +1,12 @@
-export interface Expression {}
+export interface WhereExpression {}
 
-export class VoidExpression implements Expression {}
+export class VoidExpression implements WhereExpression {}
 
-export class FalseExpression implements Expression {}
+export class FalseExpression implements WhereExpression {}
 
-export class TrueExpression implements Expression {}
+export class TrueExpression implements WhereExpression {}
 
-export class EqualExpression<TEntity> implements Expression {
+export class EqualExpression<TEntity> implements WhereExpression {
     public readonly property: keyof TEntity;
     public readonly value: any;
 
@@ -16,7 +16,7 @@ export class EqualExpression<TEntity> implements Expression {
     }
 }
 
-export class BetweenExpression<TEntity> implements Expression {
+export class BetweenExpression<TEntity> implements WhereExpression {
     public readonly property: keyof TEntity;
     public readonly from: any;
     public readonly to: any;
@@ -28,7 +28,7 @@ export class BetweenExpression<TEntity> implements Expression {
     }
 }
 
-export class GreaterThanEqualExpression<TEntity> implements Expression {
+export class GreaterThanEqualExpression<TEntity> implements WhereExpression {
     public readonly property: keyof TEntity;
     public readonly from: any;
 
@@ -38,7 +38,7 @@ export class GreaterThanEqualExpression<TEntity> implements Expression {
     }
 }
 
-export class LessThanEqualExpression<TEntity> implements Expression {
+export class LessThanEqualExpression<TEntity> implements WhereExpression {
     public readonly property: keyof TEntity;
     public readonly to: any;
 
@@ -48,7 +48,7 @@ export class LessThanEqualExpression<TEntity> implements Expression {
     }
 }
 
-export class LikeExpression<TEntity> implements Expression {
+export class LikeExpression<TEntity> implements WhereExpression {
     public readonly property: keyof TEntity;
     public readonly value: any;
 
@@ -58,7 +58,7 @@ export class LikeExpression<TEntity> implements Expression {
     }
 }
 
-export class ContainsExpression<TEntity> implements Expression {
+export class ContainsExpression<TEntity> implements WhereExpression {
     public readonly property: keyof TEntity;
     public readonly value: any;
 
@@ -68,15 +68,15 @@ export class ContainsExpression<TEntity> implements Expression {
     }
 }
 
-export class AndExpression implements Expression {
-    public readonly expressions: Expression[];
+export class AndExpression implements WhereExpression {
+    public readonly expressions: WhereExpression[];
 
-    private constructor(expressions: Expression[]) {
+    private constructor(expressions: WhereExpression[]) {
         this.expressions = expressions;
     }
 
-    public static make(expressions: Expression[]): Expression {
-        const flattened: Expression[] = [];
+    public static make(expressions: WhereExpression[]): WhereExpression {
+        const flattened: WhereExpression[] = [];
 
         for (const exp of expressions) {
             if (exp instanceof VoidExpression) {
@@ -99,15 +99,15 @@ export class AndExpression implements Expression {
     }
 }
 
-export class OrExpression implements Expression {
-    public readonly expressions: Expression[];
+export class OrExpression implements WhereExpression {
+    public readonly expressions: WhereExpression[];
 
-    private constructor(expressions: Expression[]) {
+    private constructor(expressions: WhereExpression[]) {
         this.expressions = expressions;
     }
 
-    public static make(expressions: Expression[]): Expression {
-        const flattened: Expression[] = [];
+    public static make(expressions: WhereExpression[]): WhereExpression {
+        const flattened: WhereExpression[] = [];
 
         for (const exp of expressions) {
             if (exp instanceof VoidExpression) {

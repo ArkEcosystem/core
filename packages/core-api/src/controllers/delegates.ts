@@ -49,10 +49,11 @@ export class DelegatesController extends Controller {
             return delegate;
         }
 
+        const criteria = { generatorPublicKey: delegate.publicKey };
         const blockListResult = await this.blockHistoryService.listByCriteria(
-            this.getListingPage(request),
+            criteria,
             this.getListingOrder(request),
-            { generatorPublicKey: delegate.publicKey },
+            this.getListingPage(request),
         );
 
         return this.toPagination(blockListResult, BlockResource, request.query.transform);

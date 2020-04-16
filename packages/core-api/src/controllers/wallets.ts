@@ -48,15 +48,15 @@ export class WalletsController extends Controller {
         }
 
         const criteria = [
-            { recipientId: wallet.address },
-            { asset: { payment: [{ recipientId: wallet.address }] } },
-            { senderPublicKey: wallet.publicKey },
+            { ...request.query, recipientId: wallet.address },
+            { ...request.query, asset: { payment: [{ recipientId: wallet.address }] } },
+            { ...request.query, senderPublicKey: wallet.publicKey },
         ];
+
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            this.getListingPage(request),
-            this.getListingOrder(request),
-            request.query,
             criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -71,12 +71,11 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        const criteria = { senderPublicKey: wallet.publicKey };
+        const criteria = { ...request.query, senderPublicKey: wallet.publicKey };
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            this.getListingPage(request),
-            this.getListingOrder(request),
-            request.query,
             criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -91,12 +90,11 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        const criteria = { recipientId: wallet.address };
+        const criteria = { ...request.query, recipientId: wallet.address };
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            this.getListingPage(request),
-            this.getListingOrder(request),
-            request.query,
             criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -112,15 +110,16 @@ export class WalletsController extends Controller {
         }
 
         const criteria = {
+            ...request.query,
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
             senderPublicKey: wallet.publicKey,
         };
+
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            this.getListingPage(request),
-            this.getListingOrder(request),
-            request.query,
             criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource);

@@ -11,21 +11,17 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
 
     private readonly handler = new AppUtils.CriteriaHandler<Transaction>();
 
-    public async getCriteriaExpression(
-        ...criteria: Contracts.Shared.OrTransactionCriteria[]
-    ): Promise<Contracts.Shared.Expression> {
-        const promises = criteria.map((c) => {
-            return this.handler.handleOrCriteria(c, (c) => {
-                return this.handleTransactionCriteria(c);
-            });
+    public async getWhereExpression(
+        criteria: Contracts.Shared.OrTransactionCriteria,
+    ): Promise<Contracts.Shared.WhereExpression> {
+        return this.handler.handleOrCriteria(criteria, (c) => {
+            return this.handleTransactionCriteria(c);
         });
-
-        return Contracts.Shared.AndExpression.make(await Promise.all(promises));
     }
 
     private async handleTransactionCriteria(
         criteria: Contracts.Shared.TransactionCriteria,
-    ): Promise<Contracts.Shared.Expression> {
+    ): Promise<Contracts.Shared.WhereExpression> {
         const expression = await this.handler.handleAndCriteria(criteria, async (key) => {
             switch (key) {
                 case "senderId":
@@ -70,7 +66,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
 
     private async handleSenderIdCriteria(
         criteria: Contracts.Shared.EqualCriteria<string>,
-    ): Promise<Contracts.Shared.Expression> {
+    ): Promise<Contracts.Shared.WhereExpression> {
         const senderWallet = this.walletRepository.findByAddress(criteria);
 
         if (senderWallet && senderWallet.publicKey) {
@@ -82,7 +78,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
 
     private async handleRecipientIdCriteria(
         criteria: Contracts.Shared.EqualCriteria<string>,
-    ): Promise<Contracts.Shared.Expression> {
+    ): Promise<Contracts.Shared.WhereExpression> {
         const recipientIdExpression = new Contracts.Shared.EqualExpression("recipientId", criteria);
 
         const recipientWallet = this.walletRepository.findByAddress(criteria);
@@ -101,7 +97,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
 
     private async getAutoTypeGroupExpression(
         criteria: Contracts.Shared.TransactionCriteria,
-    ): Promise<Contracts.Shared.Expression> {
+    ): Promise<Contracts.Shared.WhereExpression> {
         if (this.handler.hasOrCriteria(criteria.type) && this.handler.hasOrCriteria(criteria.typeGroup) === false) {
             return new Contracts.Shared.EqualExpression("typeGroup", Enums.TransactionTypeGroup.Core);
         } else {
