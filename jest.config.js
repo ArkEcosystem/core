@@ -18,7 +18,6 @@ module.exports = {
         "!packages/**/src/**/contracts/**",
         "!packages/**/src/**/enums/**",
         "!packages/**/src/**/exceptions/**",
-        "!packages/core-p2p/**/src/**",
         "!packages/crypto/**/src/**",
         "!**/node_modules/**",
     ],

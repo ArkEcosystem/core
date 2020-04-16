@@ -1,557 +1,136 @@
-import "jest-extended";
-
-import { ServiceProvider } from "@packages/core-forger/src";
-import { Client } from "@packages/core-forger/src/client";
-import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
-import { ForgerService } from "@packages/core-forger/src/forger-service";
-import { Application, Container, Contracts, Enums, Providers, Services } from "@packages/core-kernel";
-import { Wallet } from "@packages/core-state/src/wallets";
-import { Identities } from "@packages/crypto";
-import socketCluster from "socketcluster-client";
-
-jest.mock("socketcluster-client");
-
-afterAll(() => jest.clearAllMocks());
-
-const initializeClient = (client: Client) => {
-    const mockHost = {
-        socket: {
-            on: () => {},
-            disconnect: () => {},
-            emit: () => {},
-            getState: () => "open",
-            OPEN: "open",
-        },
-        port: 4000,
-        hostname: "mock-1",
-    };
-    const socketClusterSpy = jest.spyOn(socketCluster, "create");
-    // @ts-ignore
-    socketClusterSpy.mockImplementation(() => mockHost.socket);
-    // @ts-ignore
-    client.register([mockHost]);
-    return mockHost;
-};
-
-const calculateActiveDelegates = (): Wallet[] => {
-    const activeDelegates = [];
-    for (let i = 0; i < 51; i++) {
-        const address = `Delegate-Wallet-${i}`;
-        const wallet = new Wallet(address, null);
-        wallet.publicKey = Identities.PublicKey.fromPassphrase(address);
-
-        activeDelegates.push(wallet);
-    }
-    return activeDelegates;
-};
+import { ServiceProvider } from "@arkecosystem/core-forger/src/service-provider";
+import { DelegateFactory } from "@arkecosystem/core-forger/src/delegate-factory";
+import { Container, Application, Providers } from "@arkecosystem/core-kernel";
 
 describe("ServiceProvider", () => {
-    it("should fail to register when mock options are now set", async () => {
-        const app: Application = new Application(new Container.Container());
+    let app: Application;
+    let serviceProvider: ServiceProvider;
 
+    const triggerService = { bind: jest.fn() };
+
+    const bip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4ax"} as any;
+    const bip38DelegateMock = { address: "D6Z26L69gbk8qYmTv5uzk3uGepigtHY4ax"} as any;
+
+    beforeEach(() => {
+        app = new Application(new Container.Container());
+
+        app.bind(Container.Identifiers.LogService).toConstantValue({});
+        app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({ listen: jest.fn() });
+        app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
+        app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
+        app.bind(Container.Identifiers.TriggerService).toConstantValue(triggerService);
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
-        const logger = {
-            error: jest.fn(),
-            debug: jest.fn(),
-            info: jest.fn(),
-            warning: jest.fn(),
-        };
+        app.config("delegates", { secrets: [], bip38: "dummy bip 38" });
+        app.config("app", { flags: { bip38: "dummy bip 38", password: "dummy pwd" } });
+        
+        serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
 
-        app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-
-        const serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
-
-        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-
-        app.resolve<ForgerService>(ForgerService);
-        app.resolve<Client>(Client);
-
-        // @ts-ignore
-        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-forger", {});
-
-        serviceProvider.setConfig(instance);
-
-        await expect(serviceProvider.register()).toReject();
-    });
-
-    it("should register with the correct config", async () => {
-        const app: Application = new Application(new Container.Container());
-
-        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
-
-        const logger = {
-            error: jest.fn(),
-            debug: jest.fn(),
-            info: jest.fn(),
-            warning: jest.fn(),
-        };
-
-        app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-
-        const serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
-
-        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-
-        app.resolve<ForgerService>(ForgerService);
-        const client = app.resolve<Client>(Client);
-        const mockHost = initializeClient(client);
-
-        // @ts-ignore
-        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-forger", { hosts: [mockHost] });
-
-        serviceProvider.setConfig(instance);
-
-        await expect(serviceProvider.register()).toResolve();
-    });
-
-    it("boot should set bip 39 delegates and start tracker", async () => {
-        const app: Application = new Application(new Container.Container());
-
-        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
-
-        const logger = {
-            error: jest.fn(),
-            debug: jest.fn(),
-            info: jest.fn(),
-            warning: jest.fn(),
-        };
-
-        app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-
-        const serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
-
-        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-
-        app.resolve<ForgerService>(ForgerService);
-        const client = app.resolve<Client>(Client);
-        const mockHost = initializeClient(client);
-
-        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-forger", {
+        const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
+        pluginConfiguration.from("core-forger", {
             // @ts-ignore
-            hosts: [mockHost],
-        });
-
-        serviceProvider.setConfig(instance);
-
-        app.config(
-            "delegates.secrets",
-            calculateActiveDelegates().map((delegate) => delegate.publicKey),
-        );
-
-        app.config("app.flags", {
-            bip38: false,
-            password: null,
-        });
-
-        await expect(serviceProvider.register()).toResolve();
-        await expect(serviceProvider.boot()).toResolve();
-    });
-
-    it("boot should set bip 38 delegates and start tracker", async () => {
-        const app: Application = new Application(new Container.Container());
-
-        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
-
-        const logger = {
-            error: jest.fn(),
-            debug: jest.fn(),
-            info: jest.fn(),
-            warning: jest.fn(),
-        };
-
-        app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-
-        const serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
-
-        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-
-        app.resolve<ForgerService>(ForgerService);
-        const client = app.resolve<Client>(Client);
-        const mockHost = initializeClient(client);
-
-        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-forger", {
-            // @ts-ignore
-            hosts: [mockHost],
-        });
-
-        serviceProvider.setConfig(instance);
-
-        app.config("delegates.secrets", []);
-
-        const bip38: string = "6PYTQC4c2vBv6PGvV4HibNni6wNsHsGbR1qpL1DfkCNihsiWwXnjvJMU4B";
-
-        app.config("app.flags", {
-            bip38,
-            password: "bip38-password",
-        });
-
-        await expect(serviceProvider.register()).toResolve();
-        await expect(serviceProvider.boot()).toResolve();
-    });
-
-    it("boot should start tracker and emit event", async () => {
-        const app: Application = new Application(new Container.Container());
-
-        const mockLastBlock = {
-            data: { height: 3, timestamp: 111150 },
-        };
-
-        @Container.injectable()
-        class MockDatabaseService {
-            public async getActiveDelegates(): Promise<Wallet[]> {
-                return [];
-            }
-        }
-
-        @Container.injectable()
-        class MockWalletRepository {
-            public findByPublicKey(publicKey: string) {
-                return {
-                    getAttribute: () => [],
-                };
-            }
-        }
-
-        @Container.injectable()
-        class MockBlockchainService {
-            public getLastBlock() {
-                return mockLastBlock;
-            }
-        }
-
-        app.bind(Container.Identifiers.DatabaseService).to(MockDatabaseService);
-
-        app.bind(Container.Identifiers.BlockchainService).to(MockBlockchainService);
-
-        app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
-
-        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
-
-        const logger = {
-            error: jest.fn(),
-            debug: jest.fn(),
-            info: jest.fn(),
-            warning: jest.fn(),
-        };
-
-        app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-
-        const serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
-
-        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-
-        app.resolve<ForgerService>(ForgerService);
-        const client = app.resolve<Client>(Client);
-        const mockHost = initializeClient(client);
-
-        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-forger", {
-            // @ts-ignore
-            hosts: [mockHost],
+            hosts: [],
             tracker: true,
         });
+        serviceProvider.setConfig(pluginConfiguration);
 
-        serviceProvider.setConfig(instance);
-
-        app.config(
-            "delegates.secrets",
-            calculateActiveDelegates().map((delegate) => delegate.publicKey),
-        );
-
-        app.config("app.flags", {
-            bip38: false,
-            password: null,
-        });
-
-        const spyListen = jest.fn();
-
-        const mockEventDispatcher = {
-            listen: spyListen,
-        };
-
-        app.bind<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService).toConstantValue(
-            // @ts-ignore
-            mockEventDispatcher,
-        );
-
-        await expect(serviceProvider.register()).toResolve();
-        await expect(serviceProvider.boot()).toResolve();
-
-        expect(spyListen).toHaveBeenCalledWith(Enums.BlockEvent.Applied, expect.any(DelegateTracker));
+        jest.spyOn(DelegateFactory, "fromBIP39").mockReturnValue(bip39DelegateMock);
+        jest.spyOn(DelegateFactory, "fromBIP38").mockReturnValue(bip38DelegateMock);
     });
 
-    it("boot should not initialise delegate tracker when there are no delegates", async () => {
-        const app: Application = new Application(new Container.Container());
+    describe("register", () => {
+        it("should bind ForgerService, ForgeNewBlockAction, IsForgingAllowedAction", async () => {
+            expect(app.isBound(Container.Identifiers.ForgerService)).toBeFalse();
 
-        const mockLastBlock = {
-            data: { height: 3, timestamp: 111150 },
-        };
+            await serviceProvider.register();
 
-        @Container.injectable()
-        class MockDatabaseService {
-            public async getActiveDelegates(): Promise<Wallet[]> {
-                return [];
-            }
-        }
-
-        @Container.injectable()
-        class MockWalletRepository {
-            public findByPublicKey(publicKey: string) {
-                return {
-                    getAttribute: () => [],
-                };
-            }
-        }
-
-        @Container.injectable()
-        class MockBlockchainService {
-            public getLastBlock() {
-                return mockLastBlock;
-            }
-        }
-
-        app.bind(Container.Identifiers.DatabaseService).to(MockDatabaseService);
-
-        app.bind(Container.Identifiers.BlockchainService).to(MockBlockchainService);
-
-        app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
-
-        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
-
-        const logger = {
-            error: jest.fn(),
-            debug: jest.fn(),
-            info: jest.fn(),
-            warning: jest.fn(),
-        };
-
-        app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-
-        const serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
-
-        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-
-        app.resolve<ForgerService>(ForgerService);
-        const client = app.resolve<Client>(Client);
-        const mockHost = initializeClient(client);
-
-        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-forger", {
-            // @ts-ignore
-            hosts: [mockHost],
-            tracker: true,
+            expect(app.isBound(Container.Identifiers.ForgerService)).toBeTrue();
+            expect(triggerService.bind).toBeCalledTimes(2);
+            expect(triggerService.bind).toBeCalledWith("forgeNewBlock", expect.anything());
+            expect(triggerService.bind).toBeCalledWith("isForgingAllowed", expect.anything());
         });
-
-        serviceProvider.setConfig(instance);
-
-        app.config("delegates.secrets", []);
-
-        app.config("app.flags", {
-            bip38: false,
-            password: null,
-        });
-
-        const spyListen = jest.fn();
-
-        const mockEventDispatcher = {
-            listen: spyListen,
-        };
-
-        app.bind<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService).toConstantValue(
-            // @ts-ignore
-            mockEventDispatcher,
-        );
-
-        await expect(serviceProvider.register()).toResolve();
-        await expect(serviceProvider.boot()).toResolve();
-
-        expect(spyListen).not.toHaveBeenCalled();
     });
 
-    it("bootWhen should return true for bip 39 config", async () => {
-        const app: Application = new Application(new Container.Container());
+    describe("boot", () => {
+        it("should call boot on forger service", async () => {
+            app.config("delegates", { secrets: [ "this is a super secret passphrase" ], bip38: "dummy bip 38" });
 
-        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+            const forgerService = { boot: jest.fn() };
+            app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
 
-        const logger = {
-            error: jest.fn(),
-            debug: jest.fn(),
-            info: jest.fn(),
-            warning: jest.fn(),
-        };
+            await serviceProvider.boot();
 
-        app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-
-        const serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
-
-        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-
-        app.resolve<ForgerService>(ForgerService);
-        const client = app.resolve<Client>(Client);
-        const mockHost = initializeClient(client);
-
-        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-forger", {
-            // @ts-ignore
-            hosts: [mockHost],
+            expect(forgerService.boot).toBeCalledTimes(1);
         });
 
-        serviceProvider.setConfig(instance);
+        it("should create delegates from delegates.secret and flags.bip38 / flags.password", async () => {
+            const secrets = [
+                "this is a super secret passphrase",
+                "this is a super secret passphrase2"
+            ]
+            app.config("delegates", { secrets, bip38: "dummy bip 38" });
 
-        app.config(
-            "delegates.secrets",
-            calculateActiveDelegates().map((delegate) => delegate.publicKey),
-        );
+            const flagsConfig = { bip38: "dummy bip38", password: "dummy password" };
+            app.config("app.flags", flagsConfig)
 
-        app.config("app.flags", {
-            bip38: false,
-            password: null,
+            const forgerService = { boot: jest.fn() };
+            app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
+
+            const anotherBip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4fe"} as any;
+            jest.spyOn(DelegateFactory, "fromBIP39").mockReturnValueOnce(anotherBip39DelegateMock);
+            
+            await serviceProvider.boot();
+
+            expect(forgerService.boot).toBeCalledTimes(1);
+            expect(forgerService.boot).toBeCalledWith([anotherBip39DelegateMock, bip39DelegateMock, bip38DelegateMock]);
         });
 
-        await expect(serviceProvider.register()).toResolve();
-        await expect(serviceProvider.bootWhen()).resolves.toEqual(true);
+        it("should call boot on forger service with empty array when no delegates are configured", async () => {
+            app.config("delegates", { secrets: [], bip38: undefined });
+            app.config("app", { flags: { bip38: undefined, password: undefined } });
+
+            const forgerService = { boot: jest.fn() };
+            app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
+
+            await serviceProvider.boot();
+
+            expect(forgerService.boot).toBeCalledTimes(1);
+            expect(forgerService.boot).toBeCalledWith([]);
+        });
     });
 
-    it("bootWhen should return false for bip 38 config", async () => {
-        const app: Application = new Application(new Container.Container());
+    describe("dispose", () => {
+        it("should call dispose on forger service", async () => {
+            const forgerService = { dispose: jest.fn() };
+            app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
 
-        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+            await serviceProvider.dispose();
 
-        const logger = {
-            error: jest.fn(),
-            debug: jest.fn(),
-            info: jest.fn(),
-            warning: jest.fn(),
-        };
-
-        app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-
-        const serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
-
-        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-
-        app.resolve<ForgerService>(ForgerService);
-        const client = app.resolve<Client>(Client);
-        const mockHost = initializeClient(client);
-
-        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-forger", {
-            // @ts-ignore
-            hosts: [mockHost],
+            expect(forgerService.dispose).toBeCalledTimes(1);
         });
-
-        serviceProvider.setConfig(instance);
-
-        app.config("delegates.secrets", []);
-
-        const bip38: string = "6PYTQC4c2vBv6PGvV4HibNni6wNsHsGbR1qpL1DfkCNihsiWwXnjvJMU4B";
-
-        app.config("app.flags", {
-            bip38,
-            password: "bip38-password",
-        });
-
-        await expect(serviceProvider.register()).toResolve();
-        await expect(serviceProvider.bootWhen()).resolves.toEqual(false);
     });
 
-    it("dispose should of the ForgerService properly", async () => {
-        const app: Application = new Application(new Container.Container());
+    describe("bootWhen", () => {
+        it("should return false when there is not bip38 or secrets defined", async () => {
+            app.config("delegates", { secrets: [], bip38: undefined });
 
-        const mockLastBlock = {
-            data: { height: 3, timestamp: 111150 },
-        };
+            const bootWhenResult = await serviceProvider.bootWhen();
 
-        @Container.injectable()
-        class MockDatabaseService {
-            public async getActiveDelegates(): Promise<Wallet[]> {
-                return [];
-            }
-        }
-
-        @Container.injectable()
-        class MockWalletRepository {
-            public findByPublicKey(publicKey: string) {
-                return {
-                    getAttribute: () => [],
-                };
-            }
-        }
-
-        @Container.injectable()
-        class MockBlockchainService {
-            public getLastBlock() {
-                return mockLastBlock;
-            }
-        }
-
-        app.bind(Container.Identifiers.DatabaseService).to(MockDatabaseService);
-
-        app.bind(Container.Identifiers.BlockchainService).to(MockBlockchainService);
-
-        app.bind(Container.Identifiers.WalletRepository).to(MockWalletRepository);
-
-        app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
-
-        const logger = {
-            error: jest.fn(),
-            debug: jest.fn(),
-            info: jest.fn(),
-            warning: jest.fn(),
-        };
-
-        app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-
-        const serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
-
-        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-
-        app.resolve<ForgerService>(ForgerService);
-        const client = app.resolve<Client>(Client);
-        const mockHost = initializeClient(client);
-
-        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-forger", {
-            // @ts-ignore
-            hosts: [mockHost],
-            tracker: true,
+            expect(bootWhenResult).toBeFalse();
         });
 
-        serviceProvider.setConfig(instance);
+        it("should return true when bip38 or secrets defined", async () => {
+            app.config("delegates", { secrets: [], bip38: "yeah bip 38 defined" });
 
-        app.config(
-            "delegates.secrets",
-            calculateActiveDelegates().map((delegate) => delegate.publicKey),
-        );
+            const bootWhenResultBip38 = await serviceProvider.bootWhen();
 
-        app.config("app.flags", {
-            bip38: false,
-            password: null,
+            expect(bootWhenResultBip38).toBeTrue();
+
+            app.config("delegates", { secrets: [ "shhhh" ], bip38: undefined });
+
+            const bootWhenResultSecrets = await serviceProvider.bootWhen();
+
+            expect(bootWhenResultSecrets).toBeTrue();
         });
-
-        const spyListen = jest.fn();
-
-        const mockEventDispatcher = {
-            listen: spyListen,
-        };
-
-        app.bind<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService).toConstantValue(
-            // @ts-ignore
-            mockEventDispatcher,
-        );
-
-        await expect(serviceProvider.register()).toResolve();
-        await expect(serviceProvider.boot()).toResolve();
-
-        const forger = app.get<ForgerService>(Container.Identifiers.ForgerService);
-        const spyForgerDispose = jest.spyOn(forger, "dispose");
-
-        await expect(serviceProvider.dispose()).toResolve();
-        await expect(spyForgerDispose).toHaveBeenCalled();
     });
 });

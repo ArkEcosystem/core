@@ -1,5 +1,5 @@
+import Nes from "@hapi/nes";
 import { Interfaces } from "@arkecosystem/crypto";
-import { SCClientSocket } from "socketcluster-client";
 
 /**
  * @export
@@ -19,10 +19,10 @@ export interface RelayHost {
     port: number;
 
     /**
-     * @type {SCClientSocket}
+     * @type {Nes.Client}
      * @memberof RelayHost
      */
-    socket?: SCClientSocket;
+    socket?: Nes.Client;
 }
 
 /**
