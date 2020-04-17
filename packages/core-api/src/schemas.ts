@@ -83,7 +83,7 @@ export const createSchemas = (settings: SchemaSettings) => {
 
     const blockCriteriaSchemas = {
         id: orEqualCriteria(blockId),
-        version: orEqualCriteria(Joi.number().integer().positive()),
+        version: orEqualCriteria(Joi.number().integer().min(0)),
         timestamp: orNumericCriteria(Joi.number().integer().min(0)),
         previousBlock: orEqualCriteria(blockId),
         height: orNumericCriteria(Joi.number().integer().min(0)),
@@ -100,7 +100,7 @@ export const createSchemas = (settings: SchemaSettings) => {
     const transactionCriteriaSchemas = {
         senderId: orEqualCriteria(address),
         id: orEqualCriteria(Joi.string().hex().length(64)),
-        version: orEqualCriteria(Joi.number().integer().min(0)),
+        version: orEqualCriteria(Joi.number().integer().positive()),
         blockId: orEqualCriteria(blockId),
         sequence: orNumericCriteria(Joi.number().integer().positive()),
         timestamp: orNumericCriteria(Joi.number().integer().min(0)),
