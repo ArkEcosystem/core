@@ -1,6 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
-import { Boom, notFound } from "@hapi/boom";
+import { notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { LockResource, TransactionResource, WalletResource } from "../resources";
@@ -33,25 +33,28 @@ export class WalletsController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-        if (wallet instanceof Boom) {
-            return wallet;
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
         }
 
         return this.respondWithResource(wallet, WalletResource);
     }
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-        if (wallet instanceof Boom) {
-            return wallet;
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
         }
 
         const criteria = [
             { ...request.query, recipientId: wallet.address },
             { ...request.query, asset: { payment: [{ recipientId: wallet.address }] } },
-            { ...request.query, senderPublicKey: wallet.publicKey },
         ];
+
+        if (wallet.publicKey) {
+            criteria.push({ ...request.query, senderPublicKey: wallet.publicKey });
+        }
 
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
             criteria,
@@ -63,9 +66,9 @@ export class WalletsController extends Controller {
     }
 
     public async transactionsSent(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-        if (wallet instanceof Boom) {
-            return wallet;
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
         }
         if (!wallet.publicKey) {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
@@ -82,12 +85,9 @@ export class WalletsController extends Controller {
     }
 
     public async transactionsReceived(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-        if (wallet instanceof Boom) {
-            return wallet;
-        }
-        if (!wallet.publicKey) {
-            return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
         }
 
         const criteria = { ...request.query, recipientId: wallet.address };
@@ -101,9 +101,9 @@ export class WalletsController extends Controller {
     }
 
     public async votes(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-        if (wallet instanceof Boom) {
-            return wallet;
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
         }
         if (!wallet.publicKey) {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
@@ -126,9 +126,9 @@ export class WalletsController extends Controller {
     }
 
     public async locks(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-        if (wallet instanceof Boom) {
-            return wallet;
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
         }
         if (!wallet.publicKey) {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, LockResource);
@@ -154,11 +154,11 @@ export class WalletsController extends Controller {
         return this.toPagination(wallets, WalletResource);
     }
 
-    private findWallet(id: string): Contracts.State.Wallet | Boom<null> {
+    private findWallet(id: string): Contracts.State.Wallet | undefined {
         try {
             return this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, id);
         } catch (error) {
-            return notFound("Wallet not found");
+            return undefined;
         }
     }
 }

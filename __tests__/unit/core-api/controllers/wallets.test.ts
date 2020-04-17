@@ -178,6 +178,20 @@ describe("WalletsController", () => {
             );
         });
 
+        it("should still return list of transactions when wallet is cold wallet", async () => {
+            walletRepository.findByAddress("01234567890123456789");
+            transactionHistoryService.listByCriteria.mockResolvedValue({
+                rows: [],
+                count: 0,
+                countIsEstimate: false,
+            });
+
+            const request: Hapi.Request = { params: { id: "01234567890123456789" }, query: {} };
+            const response = (await controller.transactions(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toEqual(0);
+        });
+
         it("should return error if wallet does not exists", async () => {
             const request: Hapi.Request = {
                 params: {
@@ -218,6 +232,15 @@ describe("WalletsController", () => {
                     id: transferTransaction.id,
                 }),
             );
+        });
+
+        it("should return empty list of transactions when wallet is cold wallet", async () => {
+            walletRepository.findByAddress("01234567890123456789");
+
+            const request: Hapi.Request = { params: { id: "01234567890123456789" }, query: {} };
+            const response = (await controller.transactionsSent(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toEqual(0);
         });
 
         it("should return error if wallet does not exists", async () => {
@@ -302,6 +325,15 @@ describe("WalletsController", () => {
                     id: transferTransaction.id,
                 }),
             );
+        });
+
+        it("should return empty list of transactions when wallet is cold wallet", async () => {
+            walletRepository.findByAddress("01234567890123456789");
+
+            const request: Hapi.Request = { params: { id: "01234567890123456789" }, query: {} };
+            const response = (await controller.votes(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toEqual(0);
         });
 
         it("should return error if wallet does not exists", async () => {
