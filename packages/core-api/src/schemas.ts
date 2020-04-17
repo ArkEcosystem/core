@@ -81,6 +81,40 @@ export const createSchemas = (settings: SchemaSettings) => {
     const orLikeCriteria = (value: any) => orCriteria(likeCriteria(value));
     const orContainsCriteria = (value: any) => orCriteria(containsCriteria(value));
 
+    const blockCriteriaSchemas = {
+        id: orEqualCriteria(blockId),
+        version: orEqualCriteria(Joi.number().integer().positive()),
+        timestamp: orNumericCriteria(Joi.number().integer().min(0)),
+        previousBlock: orEqualCriteria(blockId),
+        height: orNumericCriteria(Joi.number().integer().min(0)),
+        numberOfTransactions: orNumericCriteria(Joi.number().integer().min(0)),
+        totalAmount: orNumericCriteria(Joi.number().integer().min(0)),
+        totalFee: orNumericCriteria(Joi.number().integer().min(0)),
+        reward: orNumericCriteria(Joi.number().integer().min(0)),
+        payloadLength: orNumericCriteria(Joi.number().integer().min(0)),
+        payloadHash: orEqualCriteria(Joi.string().hex()),
+        generatorPublicKey: orEqualCriteria(Joi.string().hex().length(66)),
+        blockSignature: orEqualCriteria(Joi.string().hex()),
+    };
+
+    const transactionCriteriaSchemas = {
+        senderId: orEqualCriteria(address),
+        id: orEqualCriteria(Joi.string().hex().length(64)),
+        version: orEqualCriteria(Joi.number().integer().positive()),
+        blockId: orEqualCriteria(blockId),
+        sequence: orNumericCriteria(Joi.number().integer().positive()),
+        timestamp: orNumericCriteria(Joi.number().integer().min(0)),
+        nonce: orNumericCriteria(Joi.number().integer().positive()),
+        senderPublicKey: orEqualCriteria(Joi.string().hex().length(66)),
+        recipientId: orEqualCriteria(address),
+        type: orEqualCriteria(Joi.number().integer().min(0)),
+        typeGroup: orEqualCriteria(Joi.number().integer().min(0)),
+        vendorField: orLikeCriteria(Joi.string().max(255, "utf8")),
+        amount: orNumericCriteria(Joi.number().integer().min(0)),
+        fee: orNumericCriteria(Joi.number().integer().min(0)),
+        asset: orContainsCriteria(Joi.object()),
+    };
+
     return {
         pagination,
         blockId,
@@ -101,5 +135,7 @@ export const createSchemas = (settings: SchemaSettings) => {
         orNumericCriteria,
         orLikeCriteria,
         orContainsCriteria,
+        blockCriteriaSchemas,
+        transactionCriteriaSchemas,
     };
 };
