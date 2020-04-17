@@ -1,6 +1,7 @@
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
 
+import { CriteriaHandler } from "./criteria-handler";
 import { Transaction } from "./models/transaction";
 
 @Container.injectable()
@@ -9,7 +10,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
-    private readonly handler = new AppUtils.CriteriaHandler<Transaction>();
+    private readonly handler = new CriteriaHandler<Transaction>();
 
     public async getWhereExpression(
         criteria: Contracts.Shared.OrTransactionCriteria,

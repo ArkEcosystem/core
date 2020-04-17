@@ -1,10 +1,11 @@
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 
+import { CriteriaHandler } from "./criteria-handler";
 import { Block } from "./models/block";
 
 @Container.injectable()
 export class BlockFilter implements Contracts.Database.BlockFilter {
-    private readonly handler = new AppUtils.CriteriaHandler<Block>();
+    private readonly handler = new CriteriaHandler<Block>();
 
     public async getWhereExpression(
         criteria: Contracts.Shared.OrBlockCriteria,

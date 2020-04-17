@@ -10,7 +10,6 @@ import * as Plugins from "./transform-plugins";
 export * from "@arkecosystem/utils";
 export * from "./expiration-calculator";
 export * from "./assert";
-export * from "./criteria-handler";
 
 export const delegateCalculator = { calculateApproval, calculateForgedTotal };
 export const expirationCalculator = { calculateTransactionExpiration, calculateLockExpirationStatus };
