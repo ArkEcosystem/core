@@ -100,7 +100,7 @@ export const createSchemas = (settings: SchemaSettings) => {
     const transactionCriteriaSchemas = {
         senderId: orEqualCriteria(address),
         id: orEqualCriteria(Joi.string().hex().length(64)),
-        version: orEqualCriteria(Joi.number().integer().positive()),
+        version: orEqualCriteria(Joi.number().integer().min(0)),
         blockId: orEqualCriteria(blockId),
         sequence: orNumericCriteria(Joi.number().integer().positive()),
         timestamp: orNumericCriteria(Joi.number().integer().min(0)),
