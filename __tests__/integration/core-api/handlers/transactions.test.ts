@@ -295,6 +295,22 @@ describe("API 2.0 - Transactions", () => {
             }
         });
 
+        it("should POST a search for transactions with the exact specified senderId in descending order by nonce", async () => {
+            const response = await api.request("POST", "transactions/search?orderBy=nonce:desc", {
+                senderId: senderAddress,
+            });
+
+            expect(response).toBeSuccessfulResponse();
+
+            let prevNonce: number = 52;
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.sender).toBe(senderAddress);
+                expect(parseFloat(transaction.nonce)).toBeLessThan(prevNonce);
+                prevNonce = parseFloat(transaction.nonce);
+            }
+        });
+
         it("should POST a search for transactions with the exact specified recipientId (Address)", async () => {
             const response = await api.request("POST", "transactions/search", { recipientId: recipientAddress });
             expect(response).toBeSuccessfulResponse();
