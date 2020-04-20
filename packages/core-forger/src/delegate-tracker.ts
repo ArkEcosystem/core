@@ -84,7 +84,6 @@ export class DelegateTracker {
         const forgingInfo: Contracts.Shared.ForgingInfo = Utils.forgingInfoCalculator.calculateForgingInfo(
             timestamp,
             height,
-            round,
             blockTimeLookup,
         );
 

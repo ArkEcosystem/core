@@ -203,7 +203,6 @@ export class BlockProcessor {
         const forgingInfo: Contracts.Shared.ForgingInfo = AppUtils.forgingInfoCalculator.calculateForgingInfo(
             block.data.timestamp,
             block.data.height,
-            roundInfo,
             blockTimeLookup,
         );
 

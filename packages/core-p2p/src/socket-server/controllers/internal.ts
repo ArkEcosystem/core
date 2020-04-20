@@ -63,12 +63,7 @@ export class InternalController extends Controller {
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
 
         const timestamp = Crypto.Slots.getTime();
-        const forgingInfo = Utils.forgingInfoCalculator.calculateForgingInfo(
-            timestamp,
-            height,
-            roundInfo,
-            blockTimeLookup,
-        );
+        const forgingInfo = Utils.forgingInfoCalculator.calculateForgingInfo(timestamp, height, blockTimeLookup);
 
         return {
             current: roundInfo.round,

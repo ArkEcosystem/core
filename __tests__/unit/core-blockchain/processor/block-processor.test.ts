@@ -298,13 +298,15 @@ describe("BlockProcessor", () => {
                 publicKey: "02ff171adaef486b7db9fc160b28433d20cf43163d56fd28fee72145f0d5219a4b",
             };
 
-            databaseService.getActiveDelegates = jest
-                .fn()
-                .mockReturnValueOnce([notBlockGenerator, notBlockGenerator, notBlockGenerator]);
+            const activeDelegatesWithoutGenerator = [];
+            activeDelegatesWithoutGenerator.length = 51;
+            activeDelegatesWithoutGenerator.fill(notBlockGenerator, 0);
+
+            databaseService.getActiveDelegates = jest.fn().mockReturnValueOnce(activeDelegatesWithoutGenerator);
 
             const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
-            await blockProcessor.process(block);
+            expect(await blockProcessor.process(block)).toResolve();
 
             expect(InvalidGeneratorHandler.prototype.execute).toBeCalledTimes(1);
         });
