@@ -1,53 +1,80 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 
-import { CriteriaHandler } from "./criteria-handler";
 import { Block } from "./models/block";
+
+const { handleAndCriteria, handleOrCriteria, handleNumericCriteria, optimizeExpression } = AppUtils.Search;
 
 @Container.injectable()
 export class BlockFilter implements Contracts.Database.BlockFilter {
-    private readonly handler = new CriteriaHandler<Block>();
-
-    public async getWhereExpression(
+    public async getExpression(
         criteria: Contracts.Shared.OrBlockCriteria,
-    ): Promise<Contracts.Shared.WhereExpression> {
-        return this.handler.handleOrCriteria(criteria, (c) => {
+    ): Promise<Contracts.Search.Expression<Block>> {
+        const expression = await handleOrCriteria(criteria, (c) => {
             return this.handleBlockCriteria(c);
         });
+
+        return optimizeExpression(expression);
     }
 
     private async handleBlockCriteria(
         criteria: Contracts.Shared.BlockCriteria,
-    ): Promise<Contracts.Shared.WhereExpression> {
-        return this.handler.handleAndCriteria(criteria, async (key) => {
+    ): Promise<Contracts.Search.Expression<Block>> {
+        return handleAndCriteria(criteria, async (key) => {
             switch (key) {
                 case "id":
-                    return this.handler.handleOrEqualCriteria("id", criteria.id!);
+                    return handleOrCriteria(criteria.id!, async (c) => {
+                        return { property: "id", type: "equal", value: c };
+                    });
                 case "version":
-                    return this.handler.handleOrEqualCriteria("version", criteria.version!);
+                    return handleOrCriteria(criteria.version!, async (c) => {
+                        return { property: "version", type: "equal", value: c };
+                    });
                 case "timestamp":
-                    return this.handler.handleOrNumericCriteria("timestamp", criteria.timestamp!);
+                    return handleOrCriteria(criteria.timestamp!, async (c) => {
+                        return handleNumericCriteria("timestamp", c);
+                    });
                 case "previousBlock":
-                    return this.handler.handleOrEqualCriteria("previousBlock", criteria.previousBlock!);
+                    return handleOrCriteria(criteria.previousBlock!, async (c) => {
+                        return { property: "previousBlock", type: "equal", value: c };
+                    });
                 case "height":
-                    return this.handler.handleOrNumericCriteria("height", criteria.height!);
+                    return handleOrCriteria(criteria.height!, async (c) => {
+                        return handleNumericCriteria("height", c);
+                    });
                 case "numberOfTransactions":
-                    return this.handler.handleOrNumericCriteria("numberOfTransactions", criteria.numberOfTransactions!);
+                    return handleOrCriteria(criteria.numberOfTransactions!, async (c) => {
+                        return handleNumericCriteria("numberOfTransactions", c);
+                    });
                 case "totalAmount":
-                    return this.handler.handleOrNumericCriteria("totalAmount", criteria.totalAmount!);
+                    return handleOrCriteria(criteria.totalAmount!, async (c) => {
+                        return handleNumericCriteria("totalAmount", c);
+                    });
                 case "totalFee":
-                    return this.handler.handleOrNumericCriteria("totalFee", criteria.totalFee!);
+                    return handleOrCriteria(criteria.totalFee!, async (c) => {
+                        return handleNumericCriteria("totalFee", c);
+                    });
                 case "reward":
-                    return this.handler.handleOrNumericCriteria("reward", criteria.reward!);
+                    return handleOrCriteria(criteria.reward!, async (c) => {
+                        return handleNumericCriteria("reward", c);
+                    });
                 case "payloadLength":
-                    return this.handler.handleOrNumericCriteria("payloadLength", criteria.payloadLength!);
+                    return handleOrCriteria(criteria.payloadLength!, async (c) => {
+                        return handleNumericCriteria("payloadLength", c);
+                    });
                 case "payloadHash":
-                    return this.handler.handleOrEqualCriteria("payloadHash", criteria.payloadHash!);
+                    return handleOrCriteria(criteria.payloadHash!, async (c) => {
+                        return { property: "payloadHash", type: "equal", value: c };
+                    });
                 case "generatorPublicKey":
-                    return this.handler.handleOrEqualCriteria("generatorPublicKey", criteria.generatorPublicKey!);
+                    return handleOrCriteria(criteria.generatorPublicKey!, async (c) => {
+                        return { property: "generatorPublicKey", type: "equal", value: c };
+                    });
                 case "blockSignature":
-                    return this.handler.handleOrEqualCriteria("blockSignature", criteria.blockSignature!);
+                    return handleOrCriteria(criteria.blockSignature!, async (c) => {
+                        return { property: "blockSignature", type: "equal", value: c };
+                    });
                 default:
-                    return new Contracts.Shared.VoidExpression();
+                    return { type: "void" };
             }
         });
     }

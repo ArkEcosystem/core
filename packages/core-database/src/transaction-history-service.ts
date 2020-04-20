@@ -15,7 +15,7 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
     public async findOneByCriteria(
         criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData | undefined> {
-        const expression = await this.transactionFilter.getWhereExpression(criteria);
+        const expression = await this.transactionFilter.getExpression(criteria);
         const model = await this.transactionRepository.findOneByExpression(expression);
         return model ? this.convertModel(model) : undefined;
     }
@@ -23,17 +23,17 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
     public async findManyByCriteria(
         criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData[]> {
-        const expression = await this.transactionFilter.getWhereExpression(criteria);
+        const expression = await this.transactionFilter.getExpression(criteria);
         const models = await this.transactionRepository.findManyByExpression(expression);
         return this.convertModels(models);
     }
 
     public async listByCriteria(
         criteria: Contracts.Shared.OrTransactionCriteria,
-        order: Contracts.Shared.ListingOrder,
-        page: Contracts.Shared.ListingPage,
-    ): Promise<Contracts.Shared.ListingResult<Interfaces.ITransactionData>> {
-        const expression = await this.transactionFilter.getWhereExpression(criteria);
+        order: Contracts.Search.Order,
+        page: Contracts.Search.Page,
+    ): Promise<Contracts.Search.Result<Interfaces.ITransactionData>> {
+        const expression = await this.transactionFilter.getExpression(criteria);
         const listResult = await this.transactionRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
     }
@@ -50,8 +50,8 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
     }
 
     private convertListResult(
-        listResult: Contracts.Shared.ListingResult<Transaction>,
-    ): Contracts.Shared.ListingResult<Interfaces.ITransactionData> {
+        listResult: Contracts.Search.Result<Transaction>,
+    ): Contracts.Search.Result<Interfaces.ITransactionData> {
         return {
             rows: this.convertModels(listResult.rows),
             count: listResult.count,

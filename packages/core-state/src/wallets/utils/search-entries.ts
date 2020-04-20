@@ -47,7 +47,7 @@ export const searchEntries = <T extends Record<string, any>>(
     query: Record<string, string[]>,
     wallets: ReadonlyArray<T>,
     defaultOrder: string[],
-): Contracts.Shared.ListingResult<T> => {
+): Contracts.Search.Result<T> => {
     if (params.addresses) {
         // Use the `in` filter instead of `exact` for the `address` field
         if (!params.address) {

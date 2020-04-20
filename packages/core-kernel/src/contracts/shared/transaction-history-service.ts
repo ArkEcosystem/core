@@ -1,16 +1,43 @@
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { OrTransactionCriteria } from "./criteria";
-import { ListingOrder, ListingPage, ListingResult } from "./listing";
+import {
+    OrContainsCriteria,
+    OrCriteria,
+    Order,
+    OrEqualCriteria,
+    OrLikeCriteria,
+    OrNumericCriteria,
+    Page,
+    Result,
+} from "../search";
+
+export type TransactionCriteria = {
+    senderId?: OrEqualCriteria<string>;
+
+    id?: OrEqualCriteria<string>;
+    version?: OrEqualCriteria<number>;
+    blockId?: OrEqualCriteria<string>;
+    sequence?: OrNumericCriteria<number>;
+    timestamp?: OrNumericCriteria<number>;
+    nonce?: OrNumericCriteria<Utils.BigNumber>;
+    senderPublicKey?: OrEqualCriteria<string>;
+    recipientId?: OrEqualCriteria<string>;
+    type?: OrEqualCriteria<number>;
+    typeGroup?: OrEqualCriteria<number>;
+    vendorField?: OrLikeCriteria<string>;
+    amount?: OrNumericCriteria<Utils.BigNumber>;
+    fee?: OrNumericCriteria<Utils.BigNumber>;
+    asset?: OrContainsCriteria<Record<string, any>>;
+};
+
+export type OrTransactionCriteria = OrCriteria<TransactionCriteria>;
 
 export interface TransactionHistoryService {
     findOneByCriteria(criteria: OrTransactionCriteria): Promise<Interfaces.ITransactionData | undefined>;
-
     findManyByCriteria(criteria: OrTransactionCriteria): Promise<Interfaces.ITransactionData[]>;
-
     listByCriteria(
         criteria: OrTransactionCriteria,
-        order: ListingOrder,
-        page: ListingPage,
-    ): Promise<ListingResult<Interfaces.ITransactionData>>;
+        order: Order,
+        page: Page,
+    ): Promise<Result<Interfaces.ITransactionData>>;
 }

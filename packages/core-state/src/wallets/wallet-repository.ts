@@ -170,7 +170,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     public search<T>(
         scope: Contracts.State.SearchScope,
         params: Contracts.Database.QueryParameters = {},
-    ): Contracts.Shared.ListingResult<T> {
+    ): Contracts.Search.Result<T> {
         let searchContext: Contracts.State.SearchContext;
 
         switch (scope) {
@@ -233,7 +233,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     public top(
         scope: Contracts.State.SearchScope,
         params: Record<string, any> = {},
-    ): Contracts.Shared.ListingResult<Contracts.State.Wallet> {
+    ): Contracts.Search.Result<Contracts.State.Wallet> {
         return this.search(scope, { ...params, ...{ orderBy: "balance:desc" } });
     }
 

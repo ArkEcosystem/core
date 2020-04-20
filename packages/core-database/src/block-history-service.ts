@@ -15,23 +15,23 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
     public async findOneByCriteria(
         criteria: Contracts.Shared.OrBlockCriteria,
     ): Promise<Interfaces.IBlockData | undefined> {
-        const expression = await this.blockFilter.getWhereExpression(criteria);
+        const expression = await this.blockFilter.getExpression(criteria);
         const model = await this.blockRepository.findOneByExpression(expression);
         return model ? this.convertModel(model) : undefined;
     }
 
     public async findManyByCriteria(criteria: Contracts.Shared.OrBlockCriteria): Promise<Interfaces.IBlockData[]> {
-        const expression = await this.blockFilter.getWhereExpression(criteria);
+        const expression = await this.blockFilter.getExpression(criteria);
         const models = await this.blockRepository.findManyByExpression(expression);
         return this.convertModels(models);
     }
 
     public async listByCriteria(
         criteria: Contracts.Shared.OrBlockCriteria,
-        order: Contracts.Shared.ListingOrder,
-        page: Contracts.Shared.ListingPage,
-    ): Promise<Contracts.Shared.ListingResult<Interfaces.IBlockData>> {
-        const expression = await this.blockFilter.getWhereExpression(criteria);
+        order: Contracts.Search.Order,
+        page: Contracts.Search.Page,
+    ): Promise<Contracts.Search.Result<Interfaces.IBlockData>> {
+        const expression = await this.blockFilter.getExpression(criteria);
         const listResult = await this.blockRepository.listByExpression(expression, order, page);
         return this.convertListResult(listResult);
     }
@@ -45,8 +45,8 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
     }
 
     private convertListResult(
-        listResult: Contracts.Shared.ListingResult<Block>,
-    ): Contracts.Shared.ListingResult<Interfaces.IBlockData> {
+        listResult: Contracts.Search.Result<Block>,
+    ): Contracts.Search.Result<Interfaces.IBlockData> {
         return {
             rows: this.convertModels(listResult.rows),
             count: listResult.count,
