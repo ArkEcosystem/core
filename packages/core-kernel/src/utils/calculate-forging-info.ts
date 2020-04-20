@@ -37,34 +37,55 @@ const findIndex = (
     let slotsNeededAboveSpanToCompleteRound = 0;
     let previousMilestoneActiveDelegates = Managers.configManager.getMilestone(1).activeDelegates;
     let nextMilestone = Managers.configManager.getNextMilestoneWithNewKey(1, "activeDelegates");
+    let lastSlotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock, 0, 1);
+    let previousForgerIndex = 0;
 
-    for (let i = 0; i < getMilestonesWhichAffectActiveDelegateCount().length - 1; i++) {
+    const milestones = getMilestonesWhichAffectActiveDelegateCount();
+    if (milestones.length === 1) {
+        return [slotNumber % previousMilestoneActiveDelegates, (slotNumber + 1) % previousMilestoneActiveDelegates];
+    }
+
+    for (let i = 0; i < milestones.length - 1; i++) {
         if (height <= nextMilestone.height) {
             currentForger = (slotNumber - slotsNeededAboveSpanToCompleteRound) % previousMilestoneActiveDelegates;
             nextForger = (currentForger + 1) % previousMilestoneActiveDelegates;
             return [currentForger, nextForger];
         } else {
             const spanEndBlockTimestamp = getTimeStampForBlock(nextMilestone.height - 1);
-            const spanEndSlotInfo = Crypto.Slots.getSlotInfo(
+
+            const newSlotInfo = Crypto.Slots.getSlotInfo(
                 getTimeStampForBlock,
                 spanEndBlockTimestamp,
                 nextMilestone.height - 1,
             );
-            slotsNeededAboveSpanToCompleteRound =
-                spanEndSlotInfo.slotNumber - (slotsNeededAboveSpanToCompleteRound % nextMilestone.data);
 
-            previousMilestoneActiveDelegates = nextMilestone.data;
-            nextMilestone = Managers.configManager.getNextMilestoneWithNewKey(nextMilestone.height, "activeDelegates");
+            previousForgerIndex = (newSlotInfo.slotNumber - lastSlotInfo.slotNumber) % previousMilestoneActiveDelegates;
+            slotsNeededAboveSpanToCompleteRound = previousMilestoneActiveDelegates - previousForgerIndex - 1;
+            lastSlotInfo = newSlotInfo;
+
+            if (i !== 0) previousMilestoneActiveDelegates = nextMilestone.data;
+
+            const nextMilestoneData = Managers.configManager.getNextMilestoneWithNewKey(
+                nextMilestone.height,
+                "activeDelegates",
+            );
+            if (nextMilestoneData.found) {
+                nextMilestone = nextMilestoneData;
+            }
         }
     }
 
-    if (currentForger === undefined) {
-        // TODO: need to account for when the number of active delegates is changing mid-round
-        currentForger = (slotNumber - slotsNeededAboveSpanToCompleteRound) % previousMilestoneActiveDelegates;
+    if (slotNumber - lastSlotInfo.slotNumber <= slotsNeededAboveSpanToCompleteRound) {
+        currentForger = previousForgerIndex + (slotNumber - lastSlotInfo.slotNumber);
         nextForger = (currentForger + 1) % previousMilestoneActiveDelegates;
+    } else {
+        const slotInThisSpan = slotNumber - (lastSlotInfo.slotNumber + slotsNeededAboveSpanToCompleteRound + 1);
+
+        currentForger = slotInThisSpan % nextMilestone.data;
+        nextForger = (currentForger + 1) % nextMilestone.data;
     }
 
-    return [Math.abs(currentForger), Math.abs(nextForger)];
+    return [currentForger, nextForger];
 };
 
 export const calculateForgingInfo = (

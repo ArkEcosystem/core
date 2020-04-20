@@ -106,8 +106,6 @@ describe("calculateForgingInfo", () => {
 
         expect(calculateForgingInfo(0, 1, mockGetBlockTimeLookup).currentForger).toEqual(0);
         expect(calculateForgingInfo(7, 1, mockGetBlockTimeLookup).currentForger).toEqual(0);
-        expect(calculateForgingInfo(8, 2, mockGetBlockTimeLookup).currentForger).toEqual(1);
-        expect(calculateForgingInfo(11, 2, mockGetBlockTimeLookup).currentForger).toEqual(1);
         expect(calculateForgingInfo(16, 4, mockGetBlockTimeLookup).currentForger).toEqual(3);
         expect(calculateForgingInfo(19, 5, mockGetBlockTimeLookup).currentForger).toEqual(0);
         expect(calculateForgingInfo(22, 6, mockGetBlockTimeLookup).currentForger).toEqual(1);
@@ -253,7 +251,6 @@ describe("calculateForgingInfo", () => {
         expect(calculateForgingInfo(18, 6, mockGetBlockTimeLookup).currentForger).toEqual(1);
         expect(calculateForgingInfo(23, 7, mockGetBlockTimeLookup).currentForger).toEqual(2);
         expect(calculateForgingInfo(28, 8, mockGetBlockTimeLookup).currentForger).toEqual(3);
-        // TODO: this should actually go to 0 here... (Because we're already IN a round, so it should stay with previous delegate count and loop...)
         expect(calculateForgingInfo(33, 9, mockGetBlockTimeLookup).currentForger).toEqual(0);
         expect(calculateForgingInfo(38, 10, mockGetBlockTimeLookup).currentForger).toEqual(1);
         expect(calculateForgingInfo(53, 13, mockGetBlockTimeLookup).currentForger).toEqual(4);
@@ -295,13 +292,12 @@ describe("calculateForgingInfo", () => {
         expect(calculateForgingInfo(15, 5, mockGetBlockTimeLookup).nextForger).toEqual(1);
         expect(calculateForgingInfo(18, 6, mockGetBlockTimeLookup).nextForger).toEqual(2);
         expect(calculateForgingInfo(23, 7, mockGetBlockTimeLookup).nextForger).toEqual(3);
-        // TODO: this are broken, need to consider max delegates wrap around...
         expect(calculateForgingInfo(28, 8, mockGetBlockTimeLookup).nextForger).toEqual(0);
         expect(calculateForgingInfo(33, 9, mockGetBlockTimeLookup).nextForger).toEqual(1);
         expect(calculateForgingInfo(38, 10, mockGetBlockTimeLookup).nextForger).toEqual(2);
-        expect(calculateForgingInfo(53, 13, mockGetBlockTimeLookup).nextForger).toEqual(3);
-        expect(calculateForgingInfo(58, 14, mockGetBlockTimeLookup).nextForger).toEqual(4);
-        expect(calculateForgingInfo(68, 15, mockGetBlockTimeLookup).nextForger).toEqual(0);
+        expect(calculateForgingInfo(53, 13, mockGetBlockTimeLookup).nextForger).toEqual(0);
+        expect(calculateForgingInfo(58, 14, mockGetBlockTimeLookup).nextForger).toEqual(1);
+        expect(calculateForgingInfo(68, 15, mockGetBlockTimeLookup).nextForger).toEqual(3);
     });
 
     it("should calculate the currentForger index correctly for dynamic block times, changing max delegate numbers and missed slots", async () => {
@@ -459,6 +455,13 @@ describe("calculateForgingInfo", () => {
         );
 
         expect(calculateForgingInfo(45, 10, mockGetBlockTimeLookup)).toEqual(
+            expect.objectContaining({
+                currentForger: 2,
+                nextForger: 3,
+                blockTimestamp: 45,
+            }),
+        );
+        expect(calculateForgingInfo(49, 10, mockGetBlockTimeLookup)).toEqual(
             expect.objectContaining({
                 currentForger: 2,
                 nextForger: 3,
