@@ -34,10 +34,6 @@ const clear = () => {
 
 describe("BlockRepository", () => {
     describe("default values", () => {
-        it("findByIdOrHeight should return undefined", async () => {
-            await expect(BlockRepository.instance.findByIdOrHeight(1)).resolves.toBeUndefined();
-        });
-
         it("getDelegatesForgedBlocks should return empty array", async () => {
             await expect(BlockRepository.instance.getDelegatesForgedBlocks()).resolves.toEqual([]);
         });
@@ -52,10 +48,6 @@ describe("BlockRepository", () => {
             clear();
 
             BlockRepository.setBlock(block);
-        });
-
-        it("findByIdOrHeight should return mocked block", async () => {
-            await expect(BlockRepository.instance.findByIdOrHeight(1)).resolves.toEqual(block);
         });
     });
 

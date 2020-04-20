@@ -32,10 +32,6 @@ export const setLastForgedBlocks = (blocks: LastForgedBlock[]) => {
 };
 
 class BlockRepositoryMock implements Partial<BlockRepository> {
-    public async findByIdOrHeight(idOrHeight: string | number): Promise<Block> {
-        return mockBlock as Block;
-    }
-
     public async listByExpression(
         expressions: Contracts.Search.Expression<Block>,
         order: Contracts.Search.Order,

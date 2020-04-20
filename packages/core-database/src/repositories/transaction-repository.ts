@@ -1,4 +1,4 @@
-import { Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { EntityRepository, In } from "typeorm";
@@ -8,8 +8,6 @@ import { AbstractEntityRepository } from "./repository";
 
 @EntityRepository(Transaction)
 export class TransactionRepository extends AbstractEntityRepository<Transaction> {
-    public getWalletRepository!: () => Contracts.State.WalletRepository;
-
     public async findByBlockIds(
         blockIds: string[],
     ): Promise<
