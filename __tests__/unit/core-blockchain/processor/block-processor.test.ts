@@ -306,7 +306,7 @@ describe("BlockProcessor", () => {
 
             const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
-            expect(await blockProcessor.process(block)).toResolve();
+            await expect(blockProcessor.process(block)).toResolve();
 
             expect(InvalidGeneratorHandler.prototype.execute).toBeCalledTimes(1);
         });
