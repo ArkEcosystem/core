@@ -4,11 +4,13 @@ import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kerne
 import { Models } from "@arkecosystem/core-database";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 
+
 import { Identifiers } from "./ioc";
-import { Filesystem as SnapshotUtils } from "./filesystem";
+import { Filesystem } from "./filesystem";
 import { Meta, Options } from "./contracts";
 import { ProgressDispatcher } from "./progress-dispatcher";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
+import { WorkerInstance } from "./workers/worker-instance";
 
 @Container.injectable()
 export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseService {
@@ -22,8 +24,8 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    @Container.inject(Identifiers.SnapshotUtils)
-    private readonly utils!: SnapshotUtils;
+    @Container.inject(Identifiers.SnapshotFilesystem)
+    private readonly filesystem!: Filesystem;
 
     @Container.inject(Identifiers.SnapshotBlockRepository)
     private readonly blockRepository!: BlockRepository;
@@ -37,7 +39,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     private codec: string = "default";
     private skipCompression: boolean = false;
 
-    public init(codec: string | undefined, skipCompression: boolean | undefined): void {
+    public init(codec?: string, skipCompression?: boolean): void {
         this.codec = codec || "default";
         this.skipCompression = skipCompression || false;
     }
@@ -53,11 +55,11 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     }
 
     public async rollbackChain(roundInfo: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock> {
-        const lastRemainingBlock = await this.getLastBlock();
+        const lastBlock = await this.getLastBlock();
 
-        Utils.assert.defined<Models.Block>(lastRemainingBlock);
+        Utils.assert.defined<Models.Block>(lastBlock);
 
-        this.logger.info(`Last block height is: ${lastRemainingBlock.height}`);
+        this.logger.info(`Last block height is: ${lastBlock.height}`);
 
         await this.blockRepository.rollbackChain(roundInfo);
 
@@ -65,14 +67,17 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     }
 
     public async dump(options: Options.DumpOptions): Promise<void> {
+        this.logger.info("Start counting blocks");
         let metaData = await this.prepareMetaData(options);
 
-        this.utils.setSnapshot(metaData.folder);
-        await this.utils.prepareDir();
+        this.logger.info(`Start running dump for ${metaData.blocks.count} blocks`);
 
-        const blocksWorker = this.createWorker("dump", "blocks");
-        const transactionsWorker = this.createWorker("dump","transactions");
-        const roundsWorker = this.createWorker("dump","rounds");
+        this.filesystem.setSnapshot(metaData.folder);
+        await this.filesystem.prepareDir();
+
+        const blocksWorker = await this.createWorker("dump", "blocks");
+        const transactionsWorker = await this.createWorker("dump","transactions");
+        const roundsWorker = await this.createWorker("dump","rounds");
 
         try {
             await Promise.all([
@@ -81,7 +86,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
                 this.startWorkerAction(roundsWorker, "rounds", await this.roundRepository.count()),
             ]);
 
-            await this.utils.writeMetaData(metaData);
+            await this.filesystem.writeMetaData(metaData);
         } finally {
             await blocksWorker.terminate();
             await transactionsWorker.terminate();
@@ -92,46 +97,138 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     public async restore(meta: Meta.MetaData): Promise<void> {
         await this.truncate();
 
-        const blocksWorker = this.createWorker("restore", "blocks");
-        const transactionsWorker = this.createWorker("restore", "transactions");
-        const roundsWorker = this.createWorker("restore","rounds");
+        let blocksWorker: WorkerInstance | undefined = undefined;
+        let transactionsWorker: WorkerInstance | undefined = undefined;
+        let roundsWorker: WorkerInstance | undefined = undefined;
 
         try {
-            await this.startWorkerAction(blocksWorker, "blocks", meta.blocks.count);
+            blocksWorker = new WorkerInstance(this.prepareWorkerData("restore", "blocks"));
+            transactionsWorker = new WorkerInstance(this.prepareWorkerData("restore", "transactions"));
+            roundsWorker = new WorkerInstance(this.prepareWorkerData("restore", "rounds"));
 
-            await Promise.all([
-                this.startWorkerAction(transactionsWorker, "transactions", meta.transactions.count),
-                this.startWorkerAction(roundsWorker, "rounds", meta.rounds.count),
-            ]);
-        } finally {
-            await blocksWorker.terminate();
-            await transactionsWorker.terminate();
-            await roundsWorker.terminate();
+            await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+            await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
+            await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+
+            await blocksWorker.init();
+            await transactionsWorker.init();
+            await roundsWorker.init();
+
+            await blocksWorker.start();
+            await transactionsWorker.start();
+            await roundsWorker.start();
+
+            let milestoneHeights = Managers.configManager.getMilestones().map(x => x.height);
+            milestoneHeights.push(Number.POSITIVE_INFINITY);
+
+            let result: any = undefined;
+            let prevHeight = undefined;
+            for (let height of milestoneHeights) {
+                let promises = [] as any;
+
+                promises.push(blocksWorker.sync({ nextValue: height, nextField: "height"}))
+
+                if (result) {
+                    promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: prevHeight }))
+                    promises.push(roundsWorker.sync({ nextCount: result.numberOfRounds, height: prevHeight }))
+                }
+
+                result = (await Promise.all(promises))[0];
+                prevHeight = height;
+            }
+
+        } catch (err) {
+            console.log("ERR:", err);
+            console.log("ERR:", err);
+        }
+        finally {
+            await blocksWorker?.terminate();
+            await transactionsWorker?.terminate();
+            await roundsWorker?.terminate();
         }
     }
+
+    // public async verify(meta: Meta.MetaData): Promise<void> {
+    //     const blocksWorker = await this.createWorker("verify", "blocks");
+    //     const transactionsWorker = await this.createWorker("verify", "transactions");
+    //     const roundsWorker = await this.createWorker("verify","rounds");
+    //
+    //     try {
+    //         await Promise.all([
+    //             this.startWorkerAction(blocksWorker, "blocks", meta.blocks.count),
+    //             this.startWorkerAction(transactionsWorker, "transactions", meta.transactions.count),
+    //             this.startWorkerAction(roundsWorker, "rounds", meta.rounds.count),
+    //         ]);
+    //     } finally {
+    //         await blocksWorker.terminate();
+    //         await transactionsWorker.terminate();
+    //         await roundsWorker.terminate();
+    //     }
+    // }
 
     public async verify(meta: Meta.MetaData): Promise<void> {
-        const blocksWorker = this.createWorker("verify", "blocks");
-        const transactionsWorker = this.createWorker("verify", "transactions");
-        const roundsWorker = this.createWorker("verify","rounds");
+        let blocksWorker: WorkerInstance | undefined = undefined;
+        let transactionsWorker: WorkerInstance | undefined = undefined;
+        let roundsWorker: WorkerInstance | undefined = undefined;
 
         try {
-            await Promise.all([
-                this.startWorkerAction(blocksWorker, "blocks", meta.blocks.count),
-                this.startWorkerAction(transactionsWorker, "transactions", meta.transactions.count),
-                this.startWorkerAction(roundsWorker, "rounds", meta.rounds.count),
-            ]);
-        } finally {
-            await blocksWorker.terminate();
-            await transactionsWorker.terminate();
-            await roundsWorker.terminate();
+            blocksWorker = new WorkerInstance(this.prepareWorkerData("verify", "blocks"));
+            transactionsWorker = new WorkerInstance(this.prepareWorkerData("verify", "transactions"));
+            roundsWorker = new WorkerInstance(this.prepareWorkerData("verify", "rounds"));
+
+            await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+            await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
+            await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+
+            await blocksWorker.init();
+            await transactionsWorker.init();
+            await roundsWorker.init();
+
+            await blocksWorker.start();
+            await transactionsWorker.start();
+            await roundsWorker.start();
+
+            let milestoneHeights = Managers.configManager.getMilestones().map(x => x.height);
+            milestoneHeights.push(Number.POSITIVE_INFINITY);
+
+            let result: any = undefined;
+            let prevHeight = undefined;
+            for (let height of milestoneHeights) {
+                let promises = [] as any;
+
+                promises.push(blocksWorker.sync({ nextValue: height, nextField: "height"}))
+
+                if (result) {
+                    promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: prevHeight }))
+                    promises.push(roundsWorker.sync({ nextCount: result.numberOfRounds, height: prevHeight }))
+                }
+
+                result = (await Promise.all(promises))[0];
+                prevHeight = height;
+            }
+
+        } catch (err) {
+            console.log("ERR:", err);
+            console.log("ERR:", err);
+        }
+        finally {
+            await blocksWorker?.terminate();
+            await transactionsWorker?.terminate();
+            await roundsWorker?.terminate();
         }
     }
 
+    // @ts-ignore
     private async prepareMetaData(options: Options.DumpOptions): Promise<Meta.MetaData> {
         const blocksCount = await this.blockRepository.count();
+        this.logger.info("Finish counting");
+
         const startHeight = (await this.blockRepository.findFirst())?.height;
+        this.logger.info("Found first block");
+
         const endHeight = (await this.blockRepository.findLast())?.height;
+        this.logger.info("Found last block");
+
 
         return {
             blocks: {
@@ -162,45 +259,72 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     public async getLastBlock(): Promise<Interfaces.IBlock> {
         let block: Interfaces.IBlockData | undefined = await this.blockRepository.findLast();
 
-        if (!block) {
-            throw new Error("Cannot find last block")
-        }
+        // TODO: Error
+        // if (!block) {
+        //     throw new Error("Cannot find last block")
+        // }
+
+        Utils.assert.defined<Interfaces.IBlockData>(block);
 
         const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
 
         return lastBlock;
     }
 
-    public async test(options: any): Promise<void> {
-        console.log(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!.data.id);
-    }
-
-    private createWorker(action: string, table: string): Worker {
-        let data = {
+    private prepareWorkerData(action: string, table: string): any {
+        return {
             actionOptions: {
+                network: this.app.network(),
                 action: action,
                 table: table,
                 codec: this.codec,
                 skipCompression: this.skipCompression,
-                filePath: `${this.utils.getSnapshotFolderPath()}${table}`,
+                filePath: `${this.filesystem.getSnapshotPath()}${table}`,
                 genesisBlockId: Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!.data.id,
                 updateStep: this.configuration.getOptional("dispatchUpdateStep", 1000)
             },
             connection: this.configuration.get("connection")
         };
+    }
 
-        return  new Worker(__dirname +  "/workers/worker.js", {workerData: data});
+    private createWorker(action: string, table: string): Promise<Worker> {
+        return new Promise<Worker>((resolve) => {
+            let worker = new Worker(__dirname +  "/workers/worker.js", {workerData: this.prepareWorkerData(action, table)});
+
+            worker.once("message", ({action}) => {
+                if (action === "initialized") {
+                    resolve(worker);
+                }
+            })
+        })
+
+    }
+
+    // @ts-ignore
+    private async prepareProgressDispatcher(worker: WorkerInstance, table: string, count: number): Promise<void> {
+        let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
+
+        await progressDispatcher.start(table, count);
+
+        worker.on("count", async (count: number) => {
+            await progressDispatcher.update(count);
+        });
+
+        worker.on("exit", async () => {
+            await progressDispatcher.end();
+        })
     }
 
     private startWorkerAction(worker: Worker, table: string, count: number): Promise<void> {
         let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
 
-        return new Promise<void>(async (resolve) => {
+        return new Promise<void>(async (resolve, reject) => {
             worker.on("error", (err) => {
-                console.log("ERROR", err);
+                this.logger.error(err.message);
+                reject(err);
             });
 
-            worker.on("message", async (count: number) => {
+            worker.on("count", async (count: number) => {
                 await progressDispatcher.update(count);
             });
 
@@ -213,6 +337,83 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
             worker.postMessage({ action: "start" });
         });
+    }
+
+    public async test(options: any): Promise<void> {
+        // console.log(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!.data.id);
+        this.skipCompression = true;
+        this.codec = "json";
+
+        const blocksWorker = await this.createWorker("verify", "blocks");
+
+        console.log("Starting block worker");
+
+        await this.startSyncProcess(blocksWorker);
+
+        console.log("End of block worker");
+    }
+
+    private startSyncProcess(blockWorker: Worker) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                await this.waitToStart(blockWorker);
+
+                let heights = [1, Number.POSITIVE_INFINITY];
+                // let heights = [4, 3,2,  8, 12];
+
+                // let milestones = Managers.configManager.getMilestones();
+                //
+                // for (let milestone of milestones) {
+                //     console.log("Milestone", milestone.height);
+                // }
+
+                for(let nextHeight of heights) {
+                    await this.waitToReachHeight(blockWorker, nextHeight, "height");
+                }
+
+                console.log("FINSIHED");
+
+                await blockWorker.terminate();
+
+
+            } catch (err) {
+                console.log("ERR", err)
+                reject(err);
+            } finally {
+                await blockWorker.terminate();
+            }
+        })
+    }
+
+    private waitToStart(worker: Worker): Promise<void> {
+        return new Promise((resolve) => {
+            worker.once("message", ({action}) => {
+                if (action === "started") {
+                    resolve();
+                }
+            });
+
+            worker.postMessage({ action: "start" });
+        })
+    }
+
+    private waitToReachHeight(worker: Worker, nextValue: number, field: string): Promise<any> {
+        return new Promise((resolve) => {
+            worker.once("message", (data) => {
+                if (data.action === "synced") {
+                    console.log("SYNCED: ", data.data)
+                    resolve(data.data);
+                }
+            });
+
+            worker.postMessage({
+                action: "sync",
+                data: {
+                    nextField: field,
+                    nextValue: nextValue
+                }
+            })
+        })
     }
 }
 

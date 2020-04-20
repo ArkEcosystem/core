@@ -14,6 +14,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Identifiers.SnapshotDatabaseConnection).toConstantValue(await this.connect());
 
+        console.log(this.app.get<Connection>(Identifiers.SnapshotDatabaseConnection).isConnected);
+
+        console.log("Connected");
+
         this.registerServices();
     }
 
@@ -29,9 +33,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
 
-        this.app.bind(Identifiers.SnapshotUtils).to(Filesystem).inSingletonScope();
+        this.app.bind(Identifiers.SnapshotFilesystem).to(Filesystem).inSingletonScope();
 
-        this.app.bind(Identifiers.ProgressDispatcher).to(ProgressDispatcher);
+        this.app.bind(Identifiers.ProgressDispatcher).to(ProgressDispatcher).inTransientScope();
 
         this.app
             .bind(Identifiers.SnapshotBlockRepository)

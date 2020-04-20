@@ -4,15 +4,18 @@ import { getCustomRepository, Connection, createConnection } from "typeorm";
 import { Container } from "@arkecosystem/core-kernel";
 import { Models } from "@arkecosystem/core-database";
 
-import { Action } from "../contracts";
+import { WorkerAction } from "../contracts";
 import { Identifiers } from "../ioc";
 import { Application } from "./application";
 import * as Codecs from "../codecs";
 import * as Actions from "./actions";
 import * as Repositories from "../repositories";
 
-const run = async () => {
-    const app = new Application(new Container.Container());
+let app: Application;
+let action: WorkerAction;
+
+export const init = async () => {
+    app = new Application(new Container.Container());
 
     app.bind(Identifiers.SnapshotDatabaseConnection).toConstantValue(
         await connect({ connection: workerData.connection }),
@@ -26,7 +29,7 @@ const run = async () => {
 
     app.bind(Identifiers.SnapshotCodec)
         .to(Codecs.Codec)
-        .inRequestScope()
+        .inSingletonScope()
         .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("codec", "default"));
 
     app.bind(Identifiers.SnapshotCodec)
@@ -49,16 +52,16 @@ const run = async () => {
         .inSingletonScope()
         .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("action", "verify"));
 
-    let action = app.getTagged<Action>(Identifiers.SnapshotAction, "action", workerData.actionOptions.action);
+    action = app.getTagged<WorkerAction>(Identifiers.SnapshotAction, "action", workerData.actionOptions.action);
 
     action.init(workerData.actionOptions);
+};
 
-    await action.start();
-
+const dispose = async (): Promise<void> => {
     let connection = app.get<Connection>(Identifiers.SnapshotDatabaseConnection);
 
     await connection.close();
-};
+}
 
 const connect = async (options: any): Promise<Connection> => {
     return createConnection({
@@ -68,15 +71,29 @@ const connect = async (options: any): Promise<Connection> => {
     });
 };
 
-parentPort!.on("message", async (data) => {
-    // console.log("MESSAGE FROM PARENT", data);
-    await run();
+parentPort?.on("message", async (data) => {
+    if (data.action === "initialize") {
+        await init();
 
-    process.exit();
+        // console.log("INITALIZED")
+        parentPort!.postMessage({
+            action: "initialized"
+        });
+    }
+    if (data.action === "start") {
+        await action.start();
+
+        await dispose();
+
+        process.exit();
+    }
+    if (data.action === "sync") {
+        action.sync(data.data);
+    }
 });
 
-// process.on('unhandledRejection', (err) => {
-//     // TODO: Fix
-//     throw err;
-//     // throw new Error("Unhandled Rejection");
-// });
+process.on('unhandledRejection', (err) => {
+    // TODO: Fix
+    throw err;
+    // throw new Error("Unhandled Rejection");
+});

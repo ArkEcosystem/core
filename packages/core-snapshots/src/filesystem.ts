@@ -1,4 +1,4 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Meta } from "./contracts";
 
 @Container.injectable()
@@ -6,8 +6,8 @@ export class Filesystem {
     @Container.inject(Container.Identifiers.FilesystemService)
     private readonly filesystem!: Contracts.Kernel.Filesystem;
 
-    private network: string = "";
-    private snapshot: string = "";
+    private network?: string;
+    private snapshot?: string;
 
     public setNetwork(network: string): void {
         this.network = network;
@@ -17,24 +17,27 @@ export class Filesystem {
         this.snapshot = snapshot;
     }
 
-    public async snapshotExists(): Promise<boolean> {
-        return this.filesystem.exists(this.getSnapshotFolderPath());
-    }
+    public getSnapshotPath(): string {
+        Utils.assert.defined<string>(this.network);
+        Utils.assert.defined<string>(this.snapshot);
 
-    public getSnapshotFolderPath(): string {
         return `${process.env.CORE_PATH_DATA}/snapshots/${this.network}/${this.snapshot}/`
     }
 
-    public async prepareDir(): Promise<void> {
-        await this.filesystem.makeDirectory(this.getSnapshotFolderPath());
+    public async snapshotExists(): Promise<boolean> {
+        return this.filesystem.exists(this.getSnapshotPath());
     }
 
-    public async writeMetaData(meta: any): Promise<void> {
-        await this.filesystem.put(`${this.getSnapshotFolderPath()}meta.json`, JSON.stringify(meta));
+    public async prepareDir(): Promise<void> {
+        await this.filesystem.makeDirectory(this.getSnapshotPath());
+    }
+
+    public async writeMetaData(meta: Meta.MetaData): Promise<void> {
+        await this.filesystem.put(`${this.getSnapshotPath()}meta.json`, JSON.stringify(meta));
     }
 
     public async readMetaData(): Promise<Meta.MetaData> {
-        let buffer = await this.filesystem.get(`${this.getSnapshotFolderPath()}meta.json`);
+        let buffer = await this.filesystem.get(`${this.getSnapshotPath()}meta.json`);
 
         let meta = JSON.parse(buffer.toString());
 
@@ -43,7 +46,12 @@ export class Filesystem {
         return meta;
     }
 
-    public validateMetaData(meta: Meta.MetaData): boolean {
-        return true;
+    private validateMetaData(meta: Meta.MetaData): void {
+        Utils.assert.defined(meta?.codec);
+        Utils.assert.defined(meta?.skipCompression);
+
+        Utils.assert.defined(meta?.blocks?.count);
+        Utils.assert.defined(meta?.transactions?.count);
+        Utils.assert.defined(meta?.rounds?.count);
     }
 }

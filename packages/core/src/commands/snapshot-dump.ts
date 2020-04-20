@@ -78,6 +78,8 @@ export class Command extends Commands.Command {
         let spinner = this.app.get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory).spinner();
         new ProgressRenderer(spinner, app);
 
+        this.logger.error("Starting dump from cli.");
+
         await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).dump(flags);
     }
 }

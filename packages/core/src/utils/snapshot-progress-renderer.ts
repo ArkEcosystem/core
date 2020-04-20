@@ -18,7 +18,7 @@ export class ProgressRenderer {
     // @ts-ignore
     private roundsCount: number = 0;
 
-    private interval?: NodeJS.Timeout;
+    // private interval?: NodeJS.Timeout;
 
     public constructor(spinner: Ora, kernelApp: Contracts.Kernel.Application) {
         this.spinner = spinner;
@@ -38,9 +38,11 @@ export class ProgressRenderer {
 
             if (!this.isAnyStarted) {
                 this.isAnyStarted = true;
-                this.interval = setInterval(() => {
-                    this.render()
-                }, 100);
+
+                this.render();
+                // this.interval = setInterval(() => {
+                //     this.render()
+                // }, 100);
             }
         }
     }
@@ -48,12 +50,14 @@ export class ProgressRenderer {
     private handleUpdate(data: {table:string, value: number}): void {
         if (data.table && data.value) {
             this[`${data.table}Progress`] = this.calculatePercentage(this[`${data.table}Count`], data.value);
+
+            this.render();
         }
     }
 
     private handleComplete(data: {table: string}): void {
         if (data.table) {
-            clearInterval(this.interval!);
+            // clearInterval(this.interval!);
 
             this[`${data.table}Progress`] = "100.00";
             this.render();

@@ -157,7 +157,9 @@ export class Codec implements ICodec {
 
             return encode([roundCamelized.publicKey, roundCamelized.balance, roundCamelized.round]);
         } catch (e) {
-            throw new CodecException.RoundEncodeException(round.round);
+            console.log(e)
+
+            throw new CodecException.RoundEncodeException(round.Round_round);
         }
     };
 

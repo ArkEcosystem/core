@@ -7,7 +7,7 @@ import { Meta } from "./contracts";
 
 @Container.injectable()
 export class SnapshotService implements Contracts.Snapshot.SnapshotService {
-    @Container.inject(Identifiers.SnapshotUtils)
+    @Container.inject(Identifiers.SnapshotFilesystem)
     private readonly utils!: SnapshotUtils;
 
     @Container.inject(Container.Identifiers.LogService)
@@ -28,7 +28,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
         await this.database.dump(options);
 
-        this.logger.info(`Snapshot is saved on location: ${this.utils.getSnapshotFolderPath()}`);
+        this.logger.info(`Snapshot is saved on location: ${this.utils.getSnapshotPath()}`);
     }
 
     public async restore(options: any): Promise<void> {
@@ -137,7 +137,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
     public async test(options: any): Promise<void> {
         this.utils.setNetwork(options.network);
-        this.utils.setSnapshot("1-222");
+        this.utils.setSnapshot(options.blocks);
         this.logger.info("Running TEST method inside SnapshotService");
         await this.database.test(options);
     }

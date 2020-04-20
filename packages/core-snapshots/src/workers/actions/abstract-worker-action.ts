@@ -1,17 +1,19 @@
 import fs from "fs-extra";
 import zlib from "zlib";
-import { Models, Repositories } from "@arkecosystem/core-database";
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Codec, Action } from "../../contracts";
+import { Codec, WorkerAction, Repository } from "../../contracts";
 import { Identifiers } from "../../ioc";
 import {
     BlockRepository,
     RoundRepository,
     TransactionRepository,
 } from "../../repositories";
+import { Managers } from "@arkecosystem/crypto";
+
 
 @Container.injectable()
-export abstract class AbstractWorkerAction implements Action {
+export abstract class AbstractWorkerAction implements WorkerAction {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -43,9 +45,13 @@ export abstract class AbstractWorkerAction implements Action {
         this.filePath = options.filePath;
         this.genesisBlockId = options.genesisBlockId;
         this.updateStep = options.updateStep;
+
+        Managers.configManager.setFromPreset(options.network);
     }
 
     public abstract async start();
+
+    public sync(data: any): void {}
 
     protected getWriteStream(databaseStream: NodeJS.ReadableStream): NodeJS.WritableStream {
         const snapshotWriteStream = fs.createWriteStream(this.filePath!, {});
@@ -77,7 +83,7 @@ export abstract class AbstractWorkerAction implements Action {
         return stream.pipe(decodeStream);
     }
 
-    protected getRepository(): Repositories.AbstractEntityRepository<any> {
+    protected getRepository(): Repository {
         switch (this.table) {
             case "blocks":
                 return this.snapshotBlockRepository;

@@ -1,3 +1,3 @@
-export * from "./dump-action";
-export * from "./restore-action";
-export * from "./verify-action";
+export * from "./dump-worker-action";
+export * from "./restore-worker-action";
+export * from "./verify-worker-action";

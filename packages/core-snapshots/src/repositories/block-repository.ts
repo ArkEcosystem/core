@@ -2,9 +2,17 @@ import { EntityRepository } from "typeorm";
 
 import { Repositories, Models } from "@arkecosystem/core-database";
 import { Contracts } from "@packages/core-kernel";
+import { Repository } from "../contracts";
 
 @EntityRepository(Models.Block)
-export class BlockRepository extends Repositories.AbstractEntityRepository<Models.Block> {
+export class BlockRepository extends Repositories.AbstractEntityRepository<Models.Block> implements Repository{
+
+    public async getReadStream(): Promise<NodeJS.ReadableStream> {
+        return this.createQueryBuilder()
+            .orderBy("height" ,"ASC")
+            .stream();
+    }
+
     public async rollbackChain(roundInfo: Contracts.Shared.RoundInfo): Promise<void> {
         const block = await this.findByHeight(roundInfo.roundHeight);
 

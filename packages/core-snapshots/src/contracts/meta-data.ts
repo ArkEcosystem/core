@@ -8,7 +8,7 @@ export interface MetaData {
     network: string,
     packageVersion: string,
 
-    codec?: string
+    codec: string
 }
 
 export interface TableMetaData {

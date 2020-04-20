@@ -1,10 +1,11 @@
 export const defaults = {
     chunkSize: 50000,
-    dispatchUpdateStep: 1000,
+    dispatchUpdateStep: 50000,
     connection: {
         type: "postgres",
         host: process.env.CORE_DB_HOST || "localhost",
-        port: process.env.CORE_DB_PORT || 5432,
+        // port: process.env.CORE_DB_PORT || 5432,
+        port: 5436,
         database: process.env.CORE_DB_DATABASE || `${process.env.CORE_TOKEN}_${process.env.CORE_NETWORK_NAME}`,
         username: process.env.CORE_DB_USERNAME || process.env.CORE_TOKEN,
         password: process.env.CORE_DB_PASSWORD || "password",

@@ -6,7 +6,6 @@ import msgpack from "msgpack-lite";
 
 @Container.injectable()
 export class JSONCodec implements Codec {
-    // public name: string = "JSON";
 
     public createDecodeStream(table: string): NodeJS.ReadWriteStream {
         return msgpack.createDecodeStream({ codec: this[table]() });
@@ -43,18 +42,28 @@ export class JSONCodec implements Codec {
         return codec;
     }
 
-    private static removePrefix(item: Object, prefix: string): Object {
+    private static prepareData(data: any) {
+        if ( Buffer.isBuffer(data)) {
+            return data.toJSON();
+        } else if (typeof data === "bigint") {
+            return data.toString();
+        } else {
+            return data
+        }
+    }
+
+    private static removePrefix(item: Object, prefix: string): any {
         let itemToReturn = {};
 
         for(let key of Object.keys(item)) {
-            itemToReturn[key.replace(prefix, "")] = item[key];
+            itemToReturn[key.replace(prefix, "")] = JSONCodec.prepareData(item[key]);
         }
 
         return itemToReturn;
     };
 
     private static encodeBlock(block) {
-        return JSON.stringify(camelizeKeys(JSONCodec.removePrefix(block, "Block_")));
+        return JSONCodec.Stringify(camelizeKeys(JSONCodec.removePrefix(block, "Block_")));
     };
 
     private static decodeBlock(buffer: Buffer) {
@@ -62,18 +71,34 @@ export class JSONCodec implements Codec {
     };
 
     private static encodeTransaction(transaction) {
-        return JSON.stringify(camelizeKeys(JSONCodec.removePrefix(transaction, "Transaction_")));
+
+        let tmp = JSONCodec.removePrefix(transaction, "Transaction_");
+        tmp = camelizeKeys(tmp);
+
+        tmp = JSONCodec.Stringify(tmp);
+
+        return tmp;
     };
 
     private static decodeTransaction(buffer: Buffer) {
-        return JSON.parse(buffer.toString());
+        let tmp = JSON.parse(buffer.toString());
+
+        tmp.serialized = Buffer.from(tmp.serialized.data);
+
+        return tmp;
     };
 
     private static encodeRound(round) {
-        return JSON.stringify(camelizeKeys(JSONCodec.removePrefix(round, "Round_")));
+        return JSONCodec.Stringify(camelizeKeys(JSONCodec.removePrefix(round, "Round_")));
     };
 
     private static decodeRound(buffer: Buffer) {
         return JSON.parse(buffer.toString());
+    };
+
+    private static Stringify(item: any): string {
+        return JSON.stringify(item, typeof item === 'bigint'
+            ? item.toString()
+            : item);
     };
 }
