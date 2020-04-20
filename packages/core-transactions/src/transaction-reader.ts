@@ -8,7 +8,7 @@ import { Transactions } from "@arkecosystem/crypto";
 export class TransactionReader {
     public bufferSize: number = 1000000000;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
+    @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
     private transactionRepository!: Repositories.TransactionRepository;
 
     private type!: number;

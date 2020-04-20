@@ -22,10 +22,10 @@ export abstract class TransactionHandler {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
 
-    @Container.inject(Container.Identifiers.BlockRepository)
+    @Container.inject(Container.Identifiers.DatabaseBlockRepository)
     protected readonly blockRepository!: Repositories.BlockRepository;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
+    @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
     protected readonly transactionRepository!: Repositories.TransactionRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)

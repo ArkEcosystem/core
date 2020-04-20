@@ -66,7 +66,15 @@ describe("Controller", () => {
                 },
             ];
 
-            expect(controller.runToCollection(data, BlockResource, false)).toStrictEqual(data);
+            const expected = data.map((d) =>
+                Object.assign({}, d, {
+                    reward: d.reward.toFixed(),
+                    totalFee: d.totalFee.toFixed(),
+                    totalAmount: d.totalAmount.toFixed(),
+                }),
+            );
+
+            expect(controller.runToCollection(data, BlockResource, false)).toStrictEqual(expected);
         });
 
         it("should return transformed data", async () => {

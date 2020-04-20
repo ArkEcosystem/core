@@ -1,6 +1,6 @@
 import { Transaction } from "@arkecosystem/core-database/src/models";
-import { RepositorySearchResult, TransactionRepository } from "@arkecosystem/core-database/src/repositories";
-import { SearchCriteria, SearchFilter, SearchPagination } from "@arkecosystem/core-database/src/repositories/search";
+import { TransactionRepository } from "@arkecosystem/core-database/src/repositories";
+import { Contracts } from "@arkecosystem/core-kernel";
 
 export type FeeStatistics = {
     type: number;
@@ -36,28 +36,11 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
         return mockTransaction as Transaction;
     }
 
-    public async search(filter: SearchFilter): Promise<RepositorySearchResult<Transaction>> {
-        let transitions = mockTransactions as Transaction[];
-
-        const type: SearchCriteria | undefined = filter.criteria
-            ? filter.criteria.find((x) => x.field === "type")
-            : undefined;
-
-        if (type) {
-            transitions = transitions.filter((x) => x.type === type.value);
-        }
-
-        return {
-            rows: transitions,
-            count: transitions.length,
-            countIsEstimate: false,
-        };
-    }
-
-    public async searchByQuery(
-        query: Record<string, any>,
-        pagination: SearchPagination,
-    ): Promise<RepositorySearchResult<Transaction>> {
+    public async listByExpression(
+        expressions: Contracts.Shared.WhereExpression,
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Transaction>> {
         return {
             rows: mockTransactions as Transaction[],
             count: mockTransactions.length,

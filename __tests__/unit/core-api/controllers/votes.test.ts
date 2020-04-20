@@ -16,13 +16,21 @@ import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 let app: Application;
 let controller: VotesController;
 
+const transactionHistoryService = {
+    findOneByCriteria: jest.fn(),
+    listByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
     app = initApp();
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     controller = app.resolve<VotesController>(VotesController);
+    transactionHistoryService.findOneByCriteria.mockReset();
+    transactionHistoryService.listByCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -51,7 +59,11 @@ describe("VotesController", () => {
 
     describe("index", () => {
         it("should return list of votes", async () => {
-            Mocks.TransactionRepository.setTransactions([voteTransaction]);
+            transactionHistoryService.listByCriteria.mockResolvedValue({
+                rows: [voteTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 query: {
@@ -76,7 +88,7 @@ describe("VotesController", () => {
 
     describe("show", () => {
         it("should return vote", async () => {
-            Mocks.TransactionRepository.setTransaction(voteTransaction);
+            transactionHistoryService.findOneByCriteria.mockResolvedValue(voteTransaction.data);
 
             const request: Hapi.Request = {
                 params: {
@@ -97,7 +109,7 @@ describe("VotesController", () => {
         });
 
         it("should return error if vote transaction does not exists", async () => {
-            Mocks.TransactionRepository.setTransaction(null);
+            transactionHistoryService.findOneByCriteria.mockResolvedValue(undefined);
 
             const request: Hapi.Request = {
                 params: {

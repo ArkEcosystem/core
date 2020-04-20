@@ -1,4 +1,3 @@
-import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -8,17 +7,17 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class DelegatesController extends Controller {
-    @Container.inject(Container.Identifiers.BlockRepository)
-    protected readonly blockRepository!: Repositories.BlockRepository;
+    @Container.inject(Container.Identifiers.BlockHistoryService)
+    private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
-    protected readonly walletRepository!: Contracts.State.WalletRepository;
+    private readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const delegates = this.walletRepository.search(Contracts.State.SearchScope.Delegates, {
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListingPage(request),
         });
 
         return this.toPagination(delegates, DelegateResource);
@@ -38,7 +37,7 @@ export class DelegatesController extends Controller {
         const delegates = this.walletRepository.search(Contracts.State.SearchScope.Delegates, {
             ...request.payload,
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListingPage(request),
         });
 
         return this.toPagination(delegates, DelegateResource);
@@ -46,22 +45,18 @@ export class DelegatesController extends Controller {
 
     public async blocks(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const delegate: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-
         if (delegate instanceof Boom) {
             return delegate;
         }
 
-        const rows = await this.blockRepository.search({
-            criteria: [
-                {
-                    field: "generatorPublicKey",
-                    operator: Repositories.Search.SearchOperator.Equal,
-                    value: delegate.publicKey!,
-                },
-            ],
-        });
+        const criteria = { generatorPublicKey: delegate.publicKey };
+        const blockListResult = await this.blockHistoryService.listByCriteria(
+            criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
+        );
 
-        return this.toPagination(rows, BlockResource, request.query.transform);
+        return this.toPagination(blockListResult, BlockResource, request.query.transform);
     }
 
     public async voters(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -74,7 +69,7 @@ export class DelegatesController extends Controller {
         const wallets = this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
             ...request.query,
             ...{ vote: delegate.publicKey },
-            ...this.paginate(request),
+            ...this.getListingPage(request),
         });
 
         return this.toPagination(wallets, WalletResource);

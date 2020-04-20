@@ -47,7 +47,7 @@ export const searchEntries = <T extends Record<string, any>>(
     query: Record<string, string[]>,
     wallets: ReadonlyArray<T>,
     defaultOrder: string[],
-): Contracts.State.RowsPaginated<T> => {
+): Contracts.Shared.ListingResult<T> => {
     if (params.addresses) {
         // Use the `in` filter instead of `exact` for the `address` field
         if (!params.address) {
@@ -68,5 +68,6 @@ export const searchEntries = <T extends Record<string, any>>(
     return {
         rows: limitRows(wallets, params),
         count: wallets.length,
+        countIsEstimate: false,
     };
 };

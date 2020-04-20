@@ -4,7 +4,7 @@ import { Controller } from "./controller";
 
 export class BlockchainController extends Controller {
     @Container.inject(Container.Identifiers.StateStore)
-    protected readonly stateStore!: Contracts.State.StateStore;
+    private readonly stateStore!: Contracts.State.StateStore;
 
     public async index() {
         const { data } = this.stateStore.getLastBlock();
