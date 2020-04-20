@@ -9,7 +9,7 @@ import { Controller } from "./controller";
 @Container.injectable()
 export class PeersController extends Controller {
     @Container.inject(Container.Identifiers.PeerStorage)
-    protected readonly peerStorage!: Contracts.P2P.PeerStorage;
+    private readonly peerStorage!: Contracts.P2P.PeerStorage;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const allPeers: Contracts.P2P.Peer[] = [...this.peerStorage.getPeers()];
@@ -56,7 +56,7 @@ export class PeersController extends Controller {
                     result = Utils.orderBy(
                         result,
                         (el) => el.state[orderByMapped[0]],
-                        orderByMapped[1] === "asc" ? "asc" : "desc",
+                        orderByMapped[1] === "asc" ? "asc" : "desc", // ? why desc is default
                     );
                     break;
                 }
@@ -75,7 +75,7 @@ export class PeersController extends Controller {
 
         result = result.slice(offset, offset + limit);
 
-        return super.toPagination({ rows: result, count }, PeerResource);
+        return super.toPagination({ rows: result, count, countIsEstimate: false }, PeerResource);
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {

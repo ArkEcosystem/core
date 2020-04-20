@@ -10,6 +10,7 @@ import { Mocks } from "@packages/core-test-framework";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
+import { Managers } from "@packages/crypto/src";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
@@ -28,17 +29,22 @@ const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
 const makeNotExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
 
+const transactionHistoryService = {
+    listByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
     app = initApp();
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     controller = app.resolve<WalletsController>(WalletsController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
     Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
-    Mocks.TransactionRepository.setTransactions([]);
+    transactionHistoryService.listByCriteria.mockReset();
 });
 
 afterEach(() => {
@@ -60,6 +66,8 @@ describe("WalletsController", () => {
         senderWallet = buildSenderWallet(app);
 
         walletRepository.index(senderWallet);
+
+        Managers.configManager.getMilestone().aip11 = true;
 
         transferTransaction = BuilderFactory.transfer()
             .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
@@ -141,7 +149,11 @@ describe("WalletsController", () => {
 
     describe("transactions", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setTransactions([transferTransaction]);
+            transactionHistoryService.listByCriteria.mockResolvedValue({
+                rows: [transferTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {
@@ -166,6 +178,20 @@ describe("WalletsController", () => {
             );
         });
 
+        it("should still return list of transactions when wallet is cold wallet", async () => {
+            walletRepository.findByAddress("01234567890123456789");
+            transactionHistoryService.listByCriteria.mockResolvedValue({
+                rows: [],
+                count: 0,
+                countIsEstimate: false,
+            });
+
+            const request: Hapi.Request = { params: { id: "01234567890123456789" }, query: {} };
+            const response = (await controller.transactions(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toEqual(0);
+        });
+
         it("should return error if wallet does not exists", async () => {
             const request: Hapi.Request = {
                 params: {
@@ -179,7 +205,11 @@ describe("WalletsController", () => {
 
     describe("transactionsSent", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setTransactions([transferTransaction]);
+            transactionHistoryService.listByCriteria.mockResolvedValue({
+                rows: [transferTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {
@@ -204,6 +234,15 @@ describe("WalletsController", () => {
             );
         });
 
+        it("should return empty list of transactions when wallet is cold wallet", async () => {
+            walletRepository.findByAddress("01234567890123456789");
+
+            const request: Hapi.Request = { params: { id: "01234567890123456789" }, query: {} };
+            const response = (await controller.transactionsSent(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toEqual(0);
+        });
+
         it("should return error if wallet does not exists", async () => {
             const request: Hapi.Request = {
                 params: {
@@ -217,7 +256,11 @@ describe("WalletsController", () => {
 
     describe("transactionsReceived", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setTransactions([transferTransaction]);
+            transactionHistoryService.listByCriteria.mockResolvedValue({
+                rows: [transferTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {
@@ -255,7 +298,11 @@ describe("WalletsController", () => {
 
     describe("votes", () => {
         it("should return list of transactions", async () => {
-            Mocks.TransactionRepository.setTransactions([transferTransaction]);
+            transactionHistoryService.listByCriteria.mockResolvedValue({
+                rows: [transferTransaction.data],
+                count: 1,
+                countIsEstimate: false,
+            });
 
             const request: Hapi.Request = {
                 params: {
@@ -278,6 +325,15 @@ describe("WalletsController", () => {
                     id: transferTransaction.id,
                 }),
             );
+        });
+
+        it("should return empty list of transactions when wallet is cold wallet", async () => {
+            walletRepository.findByAddress("01234567890123456789");
+
+            const request: Hapi.Request = { params: { id: "01234567890123456789" }, query: {} };
+            const response = (await controller.votes(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toEqual(0);
         });
 
         it("should return error if wallet does not exists", async () => {

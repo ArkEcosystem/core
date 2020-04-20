@@ -1,4 +1,3 @@
-import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
@@ -10,28 +9,30 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class TransactionsController extends Controller {
-    @Container.inject(Container.Identifiers.Application)
-    protected readonly app!: Contracts.Kernel.Application;
+    @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
+    @Container.tagged("state", "null")
+    private readonly nullHandlerRegistry!: Handlers.Registry;
 
-    @Container.inject(Container.Identifiers.BlockchainService)
-    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly stateStore!: Contracts.State.StateStore;
 
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
-    private readonly transactionRepository!: Repositories.TransactionRepository;
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     @Container.inject(Container.Identifiers.TransactionPoolProcessorFactory)
     private readonly createProcessor!: Contracts.TransactionPool.ProcessorFactory;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.searchByQuery(
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
             request.query,
-            this.paginate(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
-        return this.toPagination(transactions, TransactionResource, (request.query.transform as unknown) as boolean);
+        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async store(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -49,29 +50,27 @@ export class TransactionsController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction: Models.Transaction = await this.transactionRepository.findById(request.params.id);
-
+        const transaction = await this.transactionHistoryService.findOneByCriteria({ id: request.params.id });
         if (!transaction) {
             return Boom.notFound("Transaction not found");
         }
-
-        return this.respondWithResource(
-            transaction,
-            TransactionResource,
-            (request.query.transform as unknown) as boolean,
-        );
+        return this.respondWithResource(transaction, TransactionResource, request.query.transform);
     }
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const pagination: Repositories.Search.SearchPagination = super.paginate(request);
+        const pagination: Contracts.Shared.ListingPage = super.getListingPage(request);
         const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getFromHighestPriority());
         const transactions: Interfaces.ITransaction[] = all.slice(
             pagination.offset,
             pagination.offset + pagination.limit,
         );
-        const rows = transactions.map((t) => ({ serialized: t.serialized.toString("hex") }));
+        const rows = transactions.map((t) => t.data);
 
-        return super.toPagination({ count: all.length, rows }, TransactionResource, !!request.query.transform);
+        return super.toPagination(
+            { rows, count: all.length, countIsEstimate: false },
+            TransactionResource,
+            !!request.query.transform,
+        );
     }
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -84,27 +83,22 @@ export class TransactionsController extends Controller {
         }
 
         const transaction: Interfaces.ITransaction = transactionQuery.first();
-        const data = { id: transaction.id, serialized: transaction.serialized.toString("hex") };
 
-        return super.respondWithResource(data, TransactionResource, !!request.query.transform);
+        return super.respondWithResource(transaction.data, TransactionResource, !!request.query.transform);
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
-            {
-                ...request.query, // only for orderBy
-                ...request.payload,
-                ...this.paginate(request),
-            },
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
+            request.payload,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
-        return this.toPagination(transactions, TransactionResource, (request.query.transform as unknown) as boolean);
+        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const activatedTransactionHandlers = await this.app
-            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
-            .getActivatedHandlers();
+        const activatedTransactionHandlers = await this.nullHandlerRegistry.getActivatedHandlers();
         const typeGroups: Record<string | number, Record<string, number>> = {};
 
         for (const handler of activatedTransactionHandlers) {
@@ -129,9 +123,7 @@ export class TransactionsController extends Controller {
     }
 
     public async schemas(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const activatedTransactionHandlers = await this.app
-            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
-            .getActivatedHandlers();
+        const activatedTransactionHandlers = await this.nullHandlerRegistry.getActivatedHandlers();
         const schemasByType: Record<string, Record<string, any>> = {};
 
         for (const handler of activatedTransactionHandlers) {
@@ -154,34 +146,24 @@ export class TransactionsController extends Controller {
     }
 
     public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        try {
-            const currentHeight: number = this.app
-                .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
-                .getLastHeight();
+        const currentHeight: number = this.stateStore.getLastHeight();
+        const activatedTransactionHandlers = await this.nullHandlerRegistry.getActivatedHandlers();
+        const typeGroups: Record<string | number, Record<string, string>> = {};
 
-            const activatedTransactionHandlers = await this.app
-                .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
-                .getActivatedHandlers();
+        for (const handler of activatedTransactionHandlers) {
+            const constructor = handler.getConstructor();
 
-            const typeGroups: Record<string | number, Record<string, string>> = {};
+            const { typeGroup, key } = constructor;
+            AppUtils.assert.defined<number>(typeGroup);
+            AppUtils.assert.defined<string>(key);
 
-            for (const handler of activatedTransactionHandlers) {
-                const constructor = handler.getConstructor();
-
-                const { typeGroup, key } = constructor;
-                AppUtils.assert.defined<number>(typeGroup);
-                AppUtils.assert.defined<string>(key);
-
-                if (typeGroups[typeGroup] === undefined) {
-                    typeGroups[typeGroup] = {};
-                }
-
-                typeGroups[typeGroup][key] = constructor.staticFee({ height: currentHeight }).toFixed();
+            if (typeGroups[typeGroup] === undefined) {
+                typeGroups[typeGroup] = {};
             }
 
-            return { data: typeGroups };
-        } catch (error) {
-            return Boom.badImplementation(error);
+            typeGroups[typeGroup][key] = constructor.staticFee({ height: currentHeight }).toFixed();
         }
+
+        return { data: typeGroups };
     }
 }

@@ -1,5 +1,5 @@
-import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Enums } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -8,17 +8,17 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class LocksController extends Controller {
-    @Container.inject(Container.Identifiers.TransactionRepository)
-    protected readonly transactionRepository!: Repositories.TransactionRepository;
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
-    protected readonly walletRepository!: Contracts.State.WalletRepository;
+    private readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListingPage(request),
         });
 
         return this.toPagination(locks, LockResource);
@@ -40,21 +40,31 @@ export class LocksController extends Controller {
         const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             ...request.payload,
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListingPage(request),
         });
 
         return this.toPagination(locks, LockResource);
     }
 
     public async unlocked(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions = await this.transactionRepository.findByHtlcLocks(request.payload.ids);
-
-        return this.toPagination(
+        const criteria = [
             {
-                count: transactions.length,
-                rows: transactions,
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.HtlcClaim,
+                asset: request.payload.ids.map((lockId: string) => ({ claim: { lockTransactionId: lockId } })),
             },
-            TransactionResource,
+            {
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.HtlcRefund,
+                asset: request.payload.ids.map((lockId: string) => ({ refund: { lockTransactionId: lockId } })),
+            },
+        ];
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
+            criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
+
+        return this.toPagination(transactionListResult, TransactionResource);
     }
 }

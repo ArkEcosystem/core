@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import { Resource } from "../interfaces";
 
@@ -15,61 +15,48 @@ export class TransactionResource implements Resource {
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     /**
-     * @protected
-     * @type {Contracts.Blockchain.Blockchain}
-     * @memberof Resource
-     */
-    @Container.inject(Container.Identifiers.BlockchainService)
-    protected readonly blockchainService!: Contracts.Blockchain.Blockchain;
-
-    /**
      * Return the raw representation of the resource.
      *
-     * @param {*} resource
+     * @param {Interfaces.ITransactionData} resource
      * @returns {object}
      * @memberof Resource
      */
-    public raw(resource): object {
-        return Transactions.TransactionFactory.fromBytesUnsafe(resource.serialized, resource.id).toJson();
+    public raw(resource: Interfaces.ITransactionData): object {
+        return JSON.parse(JSON.stringify(resource));
     }
 
     /**
      * Return the transformed representation of the resource.
      *
-     * @param {*} resource
+     * @param {Interfaces.ITransactionData} resource
      * @returns {object}
      * @memberof Resource
      */
-    public transform(resource): object {
-        const { data } = Transactions.TransactionFactory.fromBytesUnsafe(resource.serialized, resource.id);
+    public transform(resource: Interfaces.ITransactionData): object {
+        AppUtils.assert.defined<string>(resource.senderPublicKey);
 
-        AppUtils.assert.defined<string>(data.senderPublicKey);
-
-        const sender: string = this.walletRepository.findByPublicKey(data.senderPublicKey).address;
-
-        const lastBlock: Interfaces.IBlock = this.blockchainService.getLastBlock();
-        const timestamp: number = data.version === 1 ? data.timestamp : resource.timestamp;
-        const nonce: string = data.nonce ? data.nonce.toFixed() : resource.nonce ? resource.nonce : undefined;
+        const sender: string = this.walletRepository.findByPublicKey(resource.senderPublicKey).address;
 
         return {
-            id: data.id,
+            id: resource.id,
             blockId: resource.blockId,
-            version: data.version,
-            type: data.type,
-            typeGroup: data.typeGroup,
-            amount: data.amount.toFixed(),
-            fee: data.fee.toFixed(),
+            version: resource.version,
+            type: resource.type,
+            typeGroup: resource.typeGroup,
+            amount: resource.amount.toFixed(),
+            fee: resource.fee.toFixed(),
             sender,
-            senderPublicKey: data.senderPublicKey,
-            recipient: data.recipientId || sender,
-            signature: data.signature,
-            signSignature: data.signSignature || data.secondSignature,
-            signatures: data.signatures,
-            vendorField: data.vendorField,
-            asset: data.asset,
-            confirmations: resource.block ? lastBlock.data.height - resource.block.height + 1 : 0,
-            timestamp: timestamp !== undefined ? AppUtils.formatTimestamp(timestamp) : undefined,
-            nonce,
+            senderPublicKey: resource.senderPublicKey,
+            recipient: resource.recipientId || sender,
+            signature: resource.signature,
+            signSignature: resource.signSignature || resource.secondSignature,
+            signatures: resource.signatures,
+            vendorField: resource.vendorField,
+            asset: resource.asset,
+            confirmations: 0, // ! resource.block ? lastBlock.data.height - resource.block.height + 1 : 0
+            timestamp:
+                typeof resource.timestamp !== "undefined" ? AppUtils.formatTimestamp(resource.timestamp) : undefined,
+            nonce: resource.nonce!.toFixed(),
         };
     }
 }

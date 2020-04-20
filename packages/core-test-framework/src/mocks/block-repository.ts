@@ -1,6 +1,6 @@
 import { Block } from "@arkecosystem/core-database/src/models";
-import { BlockRepository, RepositorySearchResult } from "@arkecosystem/core-database/src/repositories";
-import { SearchFilter, SearchPagination } from "@arkecosystem/core-database/src/repositories/search";
+import { BlockRepository } from "@arkecosystem/core-database/src/repositories";
+import { Contracts } from "@arkecosystem/core-kernel";
 
 export type DelegateForgedBlock = {
     generatorPublicKey: string;
@@ -36,18 +36,11 @@ class BlockRepositoryMock implements Partial<BlockRepository> {
         return mockBlock as Block;
     }
 
-    public async search(filter: SearchFilter): Promise<RepositorySearchResult<Block>> {
-        return {
-            rows: mockBlocks as Block[],
-            count: mockBlocks.length,
-            countIsEstimate: false,
-        };
-    }
-
-    public async searchByQuery(
-        query: Record<string, any>,
-        pagination: SearchPagination,
-    ): Promise<RepositorySearchResult<Block>> {
+    public async listByExpression(
+        expressions: Contracts.Shared.WhereExpression,
+        order: Contracts.Shared.ListingOrder,
+        page: Contracts.Shared.ListingPage,
+    ): Promise<Contracts.Shared.ListingResult<Block>> {
         return {
             rows: mockBlocks as Block[],
             count: mockBlocks.length,

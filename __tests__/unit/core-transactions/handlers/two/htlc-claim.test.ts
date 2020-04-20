@@ -487,7 +487,7 @@ describe("Htlc claim", () => {
                 expect(foundLockWallet).toBeDefined();
                 // @ts-ignore
                 expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toEqual({
-                    amount: BigInt(htlcLockTransaction.data.amount),
+                    amount: htlcLockTransaction.data.amount,
                     recipientId: htlcLockTransaction.data.recipientId,
                     ...htlcLockTransaction.data.asset!.lock,
                 });

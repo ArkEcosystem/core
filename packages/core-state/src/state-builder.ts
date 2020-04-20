@@ -9,10 +9,10 @@ export class StateBuilder {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Application;
 
-    @Container.inject(Container.Identifiers.BlockRepository)
+    @Container.inject(Container.Identifiers.DatabaseBlockRepository)
     private blockRepository!: Repositories.BlockRepository;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
+    @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
     private transactionRepository!: Repositories.TransactionRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)

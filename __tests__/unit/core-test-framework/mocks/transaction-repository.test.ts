@@ -1,17 +1,17 @@
 import "jest-extended";
 
-import { TransactionRepository } from "@packages/core-test-framework/src/mocks";
+import { Utils } from "@arkecosystem/crypto";
 import { Models } from "@packages/core-database";
-import { SearchOperator } from "@packages/core-database/src/repositories/search";
+import { TransactionRepository } from "@packages/core-test-framework/src/mocks";
 
-let transaction: Partial<Models.Transaction> = {
+const transaction: Partial<Models.Transaction> = {
     id: "0c79fe9faf214de92847baa322a9e991a49f6f6f0bc774927098c7feae627d77",
     blockId: "6749a4b976e792817d32e1cf06d6b303badd2a5aff3086cc682349b9029290d5",
     version: 2,
     type: 2,
     typeGroup: 1,
-    amount: BigInt("0"),
-    fee: BigInt("2500000000"),
+    amount: Utils.BigNumber.make("0"),
+    fee: Utils.BigNumber.make("2500000000"),
     senderPublicKey: "0272a9fb36e7a7d212aedfab53b2cdd48c8b620583d1927e03104122e6792482db",
     recipientId: "DRwgqrfuuaPCy3AE8Sz1AjdrncKfHjePn5",
 };
@@ -39,22 +39,6 @@ describe("TransactionRepository", () => {
 
         it("findByIdAndType should return empty search result", async () => {
             await expect(TransactionRepository.instance.findByIdAndType(1, "dummy_id")).resolves.toBeUndefined();
-        });
-
-        it("search should return empty search result", async () => {
-            await expect(TransactionRepository.instance.search({ criteria: [] })).resolves.toEqual({
-                rows: [],
-                count: 0,
-                countIsEstimate: false,
-            });
-        });
-
-        it("searchByQuery should return empty search result", async () => {
-            await expect(TransactionRepository.instance.searchByQuery({}, { limit: 100, offset: 0 })).resolves.toEqual({
-                rows: [],
-                count: 0,
-                countIsEstimate: false,
-            });
         });
 
         it("findByIds should return empty search result", async () => {
@@ -111,46 +95,6 @@ describe("TransactionRepository", () => {
             clear();
 
             TransactionRepository.setTransactions([transaction]);
-        });
-
-        it("search should return search result with transaction", async () => {
-            await expect(TransactionRepository.instance.search({ criteria: [] })).resolves.toEqual({
-                rows: [transaction],
-                count: 1,
-                countIsEstimate: false,
-            });
-        });
-
-        it("search should return search result with filtered transaction", async () => {
-            await expect(
-                TransactionRepository.instance.search({
-                    criteria: [{ field: "type", value: 2, operator: SearchOperator.Equal }],
-                }),
-            ).resolves.toEqual({
-                rows: [transaction],
-                count: 1,
-                countIsEstimate: false,
-            });
-        });
-
-        it("search should return empty search result with filtered transaction", async () => {
-            await expect(
-                TransactionRepository.instance.search({
-                    criteria: [{ field: "type", value: 3, operator: SearchOperator.Equal }],
-                }),
-            ).resolves.toEqual({
-                rows: [],
-                count: 0,
-                countIsEstimate: false,
-            });
-        });
-
-        it("searchByQuery should return empty search result", async () => {
-            await expect(TransactionRepository.instance.searchByQuery({}, { limit: 100, offset: 0 })).resolves.toEqual({
-                rows: [transaction],
-                count: 1,
-                countIsEstimate: false,
-            });
         });
 
         it("findByIds should return empty search result", async () => {

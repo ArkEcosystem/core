@@ -16,6 +16,7 @@ import {
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -25,11 +26,10 @@ import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
+import _ from "lodash";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 import { Assets } from "./__fixtures__";
-import _ from "lodash";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -42,17 +42,23 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const transactionHistoryService = {
+    findManyByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
     Mocks.TransactionRepository.setTransactions([]);
+    transactionHistoryService.findManyByCriteria.mockReset();
 
     app = initApp();
 
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BusinessUpdateTransactionHandler);
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -199,9 +205,7 @@ describe("BusinessRegistration", () => {
                 .sign(passphrases[0])
                 .build();
 
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(businessRegistrationTransaction),
-            ]);
+            transactionHistoryService.findManyByCriteria.mockResolvedValue([businessRegistrationTransaction.data]);
 
             await handler.revert(businessUpdateTransaction, walletRepository);
 
@@ -244,10 +248,10 @@ describe("BusinessRegistration", () => {
                 ...secondBusinessUpdateAsset,
             });
 
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(businessRegistrationTransaction),
-                Mapper.mapTransactionToModel(secondBusinessUpdateTransaction),
-                Mapper.mapTransactionToModel(businessUpdateTransaction),
+            transactionHistoryService.findManyByCriteria.mockResolvedValueOnce([
+                businessRegistrationTransaction.data,
+                businessUpdateTransaction.data,
+                secondBusinessUpdateTransaction.data,
             ]);
 
             await handler.revert(secondBusinessUpdateTransaction, walletRepository);

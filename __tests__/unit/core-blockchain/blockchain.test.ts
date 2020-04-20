@@ -29,7 +29,7 @@ describe("Blockchain", () => {
         sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logService);
         sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
-        sandbox.app.bind(Container.Identifiers.BlockRepository).toConstantValue(blockRepository);
+        sandbox.app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(blockRepository);
         sandbox.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPoolService);
         sandbox.app.bind(Container.Identifiers.StateMachine).toConstantValue(stateMachine);
         sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcherService);
@@ -37,7 +37,7 @@ describe("Blockchain", () => {
         sandbox.app.bind(Container.Identifiers.PeerStorage).toConstantValue(peerStorage);
         sandbox.app.bind(Container.Identifiers.BlockchainService).to(Blockchain).inSingletonScope();
         sandbox.app.bind(Container.Identifiers.BlockProcessor).toConstantValue(blockProcessor);
-        sandbox.app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
+        sandbox.app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
         sandbox.app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
 
         sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();

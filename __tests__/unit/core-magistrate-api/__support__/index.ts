@@ -1,16 +1,15 @@
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-
 import { Application, Container, Contracts, Providers, Services } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Wallets } from "@packages/core-state";
-import { Identities, Utils } from "@packages/crypto";
-import { One, Two } from "@packages/core-transactions/src/handlers";
-import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import {
     BridgechainRegistrationTransactionHandler,
     BusinessRegistrationTransactionHandler,
 } from "@packages/core-magistrate-transactions/src/handlers";
+import {
+    bridgechainIndexer,
+    businessIndexer,
+    MagistrateIndex,
+} from "@packages/core-magistrate-transactions/src/wallet-indexes";
+import { Wallets } from "@packages/core-state";
 import {
     addressesIndexer,
     ipfsIndexer,
@@ -18,11 +17,11 @@ import {
     publicKeysIndexer,
     usernamesIndexer,
 } from "@packages/core-state/src/wallets/indexers/indexers";
-import {
-    bridgechainIndexer,
-    businessIndexer,
-    MagistrateIndex,
-} from "@packages/core-magistrate-transactions/src/wallet-indexes";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { One, Two } from "@packages/core-transactions/src/handlers";
+import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Identities, Utils } from "@packages/crypto";
 
 export type PaginatedResponse = {
     totalCount: number;
@@ -53,11 +52,11 @@ export const initApp = (): Application => {
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
     app.bind(Container.Identifiers.StateStore).toConstantValue({});
     app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
-    app.bind(Container.Identifiers.BlockRepository).toConstantValue({});
-    app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue({});
     app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue({});
     app.bind(Container.Identifiers.PeerStorage).toConstantValue({});
-    app.bind(Container.Identifiers.RoundRepository).toConstantValue({});
     app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
 

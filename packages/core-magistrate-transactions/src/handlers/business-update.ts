@@ -1,4 +1,4 @@
-import { Models, Repositories } from "@arkecosystem/core-database";
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
     Enums,
@@ -18,6 +18,9 @@ import { MagistrateTransactionHandler } from "./magistrate-handler";
 export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandler {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
+
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BusinessRegistrationTransactionHandler];
@@ -129,66 +132,25 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         Utils.assert.defined<string>(sender.publicKey);
 
-        const dbRegistrationTransactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
+        const businessTransactions = await this.transactionHistoryService.findManyByCriteria([
             {
-                criteria: [
-                    {
-                        field: "senderPublicKey",
-                        value: sender.publicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "type",
-                        value: Enums.MagistrateTransactionType.BusinessRegistration,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "typeGroup",
-                        value: transaction.data.typeGroup,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                senderPublicKey: sender.publicKey,
+                typeGroup: Enums.MagistrateTransactionGroup,
+                type: Enums.MagistrateTransactionType.BusinessRegistration,
             },
-        );
-        const dbUpdateTransactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
             {
-                criteria: [
-                    {
-                        field: "senderPublicKey",
-                        value: sender.publicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "type",
-                        value: Enums.MagistrateTransactionType.BusinessUpdate,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "typeGroup",
-                        value: transaction.data.typeGroup,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-                orderBy: [
-                    {
-                        direction: "ASC",
-                        field: "nonce",
-                    },
-                ],
+                senderPublicKey: sender.publicKey,
+                typeGroup: Enums.MagistrateTransactionGroup,
+                type: Enums.MagistrateTransactionType.BusinessUpdate,
             },
-        );
+        ]);
 
-        let businessWalletAsset = dbRegistrationTransactions.rows[0].asset
-            .businessRegistration as MagistrateInterfaces.IBusinessRegistrationAsset;
-
-        for (const dbUpdateTx of dbUpdateTransactions.rows) {
-            if (dbUpdateTx.id === transaction.id) {
-                continue;
+        const businessWalletAsset = businessTransactions[0].asset!.businessRegistration;
+        for (const updateTransaction of businessTransactions.slice(1)) {
+            if (updateTransaction.id === transaction.id) {
+                break;
             }
-            businessWalletAsset = {
-                ...businessWalletAsset,
-                ...(dbUpdateTx.asset.businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset),
-            };
+            Object.assign(businessWalletAsset, updateTransaction.asset!.businessUpdate);
         }
 
         sender.setAttribute("business.businessAsset", businessWalletAsset);

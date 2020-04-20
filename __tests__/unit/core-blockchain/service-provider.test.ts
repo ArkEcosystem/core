@@ -1,5 +1,5 @@
 import { ServiceProvider } from "@packages/core-blockchain/src/service-provider";
-import { Container, Application, Providers } from "@packages/core-kernel";
+import { Application, Container, Providers } from "@packages/core-kernel";
 import { Services } from "@packages/core-kernel/dist";
 
 describe("ServiceProvider", () => {
@@ -11,11 +11,11 @@ describe("ServiceProvider", () => {
 
         app.bind(Container.Identifiers.StateStore).toConstantValue({ reset: jest.fn() });
         app.bind(Container.Identifiers.DatabaseService).toConstantValue({});
-        app.bind(Container.Identifiers.BlockRepository).toConstantValue({});
+        app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue({});
         app.bind(Container.Identifiers.TransactionPoolService).toConstantValue({});
         app.bind(Container.Identifiers.LogService).toConstantValue({});
         app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
-        app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
+        app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
         app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 

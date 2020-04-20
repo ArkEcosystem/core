@@ -1,4 +1,3 @@
-import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -10,7 +9,7 @@ export class Controller {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
 
-    protected paginate(request: Hapi.Request): Repositories.Search.SearchPagination {
+    protected getListingPage(request: Hapi.Request): Contracts.Shared.ListingPage {
         const pagination = {
             offset: (request.query.page - 1) * request.query.limit || 0,
             limit: request.query.limit || 100,
@@ -21,6 +20,17 @@ export class Controller {
         }
 
         return pagination;
+    }
+
+    protected getListingOrder(request: Hapi.Request): Contracts.Shared.ListingOrder {
+        if (!request.query.orderBy) {
+            return [];
+        }
+
+        return request.query.orderBy.split(",").map((s: string) => ({
+            property: s.split(":")[0],
+            direction: s.split(":")[1] === "desc" ? "desc" : "asc",
+        }));
     }
 
     protected respondWithResource(data, transformer, transform = true): any {
@@ -44,11 +54,11 @@ export class Controller {
     }
 
     /* istanbul ignore next */
-    protected toCollection(data, transformer, transform = true): object {
+    protected toCollection<T>(data: T[], transformer, transform = true): object {
         return data.map((item) => this.toResource(item, transformer, transform));
     }
 
-    protected toPagination(data, transformer, transform = true): object {
+    protected toPagination<T>(data: Contracts.Shared.ListingResult<T>, transformer, transform = true): object {
         return {
             results: this.toCollection(data.rows, transformer, transform),
             totalCount: data.count,
