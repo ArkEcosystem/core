@@ -276,7 +276,7 @@ describe("TransactionFilter.getExpression", () => {
             expect(expression).toEqual({
                 property: "vendorField",
                 op: "like",
-                value: "%pattern%",
+                pattern: "%pattern%",
             });
         });
     });

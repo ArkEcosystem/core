@@ -61,7 +61,7 @@ export class QueryHelper<TEntity> {
                 const column = this.getColumnName(metadata, expression.property);
                 const param = `p${this.paramNo++}`;
                 const query = `${column} LIKE :${param}`;
-                const parameters = { [param]: expression.value };
+                const parameters = { [param]: expression.pattern };
                 return { query, parameters };
             }
             case "contains": {

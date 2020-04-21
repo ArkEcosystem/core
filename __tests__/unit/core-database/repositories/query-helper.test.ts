@@ -110,7 +110,7 @@ describe("QueryHelper.getWhereExpressionSql", () => {
         const sqlExpression = queryHelper.getWhereExpressionSql(userMetadata as any, {
             property: "fullName",
             op: "like",
-            value: "%Dmitry%",
+            pattern: "%Dmitry%",
         });
 
         expect(sqlExpression.query).toEqual("full_name LIKE :p1");
@@ -140,7 +140,7 @@ describe("QueryHelper.getWhereExpressionSql", () => {
         const sqlExpression = queryHelper.getWhereExpressionSql(userMetadata as any, {
             op: "and",
             expressions: [
-                { property: "fullName", op: "like", value: "%Dmitry%" },
+                { property: "fullName", op: "like", pattern: "%Dmitry%" },
                 { property: "age", op: "greaterThanEqual", value: 35 },
             ],
         });
@@ -154,7 +154,7 @@ describe("QueryHelper.getWhereExpressionSql", () => {
         const sqlExpression = queryHelper.getWhereExpressionSql(userMetadata as any, {
             op: "or",
             expressions: [
-                { property: "fullName", op: "like", value: "%Dmitry%" },
+                { property: "fullName", op: "like", pattern: "%Dmitry%" },
                 { property: "age", op: "greaterThanEqual", value: 35 },
             ],
         });

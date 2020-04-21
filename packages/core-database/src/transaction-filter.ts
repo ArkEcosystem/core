@@ -76,7 +76,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
                     });
                 case "vendorField":
                     return handleOrCriteria(criteria.vendorField!, async (c) => {
-                        return { property: "vendorField", op: "like", value: c };
+                        return { property: "vendorField", op: "like", pattern: c };
                     });
                 case "amount":
                     return handleOrCriteria(criteria.amount!, async (c) => {

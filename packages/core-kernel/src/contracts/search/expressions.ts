@@ -38,7 +38,7 @@ export type LessThanEqualExpression<TEntity> = {
 export type LikeExpression<TEntity> = {
     property: keyof TEntity;
     op: "like";
-    value: any;
+    pattern: any;
 };
 
 export type ContainsExpression<TEntity> = {
