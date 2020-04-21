@@ -20,11 +20,7 @@ export class DumpWorkerAction extends AbstractWorkerAction {
                 resolve();
             });
 
-
-            databaseStream.on("data", () => {
-                // if (count++ % this.updateStep! === 0) {
-                //     parentPort?.postMessage(count);
-                // }
+            databaseStream.on("data", (data) => {
                 count++;
             });
         });

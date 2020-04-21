@@ -72,15 +72,9 @@ const connect = async (options: any): Promise<Connection> => {
 };
 
 parentPort?.on("message", async (data) => {
-    if (data.action === "initialize") {
+    if (data.action === "start") {
         await init();
 
-        // console.log("INITALIZED")
-        parentPort!.postMessage({
-            action: "initialized"
-        });
-    }
-    if (data.action === "start") {
         await action.start();
 
         await dispose();
@@ -92,8 +86,10 @@ parentPort?.on("message", async (data) => {
     }
 });
 
-process.on('unhandledRejection', (err) => {
+process.on('unhandledRejection', (err, promise) => {
     // TODO: Fix
+    console.log("Problem on promise: ", promise)
+
     throw err;
     // throw new Error("Unhandled Rejection");
 });

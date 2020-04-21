@@ -1,7 +1,7 @@
 import { Worker } from "worker_threads";
 import { EventEmitter } from "events";
 
-export class WorkerInstance extends EventEmitter {
+export class WorkerWrapper extends EventEmitter {
     private worker: Worker;
     private isDone: boolean = false;
 
@@ -25,24 +25,12 @@ export class WorkerInstance extends EventEmitter {
         })
     }
 
-    public init(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.once("*", (data) => {
-                if(data.name === "initialized") {
-                    resolve();
-                } else {
-                    reject(data);
-                }
-            })
-
-            this.worker.postMessage({ action: "initialize" });
-        })
-    }
-
     public start(data?: any): Promise<void> {
         return new Promise((resolve, reject) => {
             this.once("*", (data) => {
                 if(data.name === "started") {
+                    resolve();
+                } else if (data.name === "exit") {
                     resolve();
                 } else {
                     reject(data);
@@ -83,7 +71,7 @@ export class WorkerInstance extends EventEmitter {
     private handleMessage(data) {
 
         // console.log("MESSAGE", data);
-        // Actions: initialized, data, count, started, synced, exit, error
+        // Actions: count, started, synced, exit, error
         this.emit(data.action, data.data);
         if (data.action !== "count") {
             this.emit("*", { name: data.action, data: data.data })

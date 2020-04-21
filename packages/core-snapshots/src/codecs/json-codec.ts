@@ -71,7 +71,6 @@ export class JSONCodec implements Codec {
     };
 
     private static encodeTransaction(transaction) {
-
         let tmp = JSONCodec.removePrefix(transaction, "Transaction_");
         tmp = camelizeKeys(tmp);
 

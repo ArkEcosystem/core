@@ -1,16 +1,13 @@
-import { Worker } from "worker_threads";
-
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Models } from "@arkecosystem/core-database";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
-
 
 import { Identifiers } from "./ioc";
 import { Filesystem } from "./filesystem";
 import { Meta, Options } from "./contracts";
 import { ProgressDispatcher } from "./progress-dispatcher";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
-import { WorkerInstance } from "./workers/worker-instance";
+import { WorkerWrapper } from "./workers/worker-wrapper";
 
 @Container.injectable()
 export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseService {
@@ -68,29 +65,37 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
     public async dump(options: Options.DumpOptions): Promise<void> {
         this.logger.info("Start counting blocks");
-        let metaData = await this.prepareMetaData(options);
+        let meta = await this.prepareMetaData(options);
 
-        this.logger.info(`Start running dump for ${metaData.blocks.count} blocks`);
+        this.logger.info(`Start running dump for ${meta.blocks.count} blocks`);
 
-        this.filesystem.setSnapshot(metaData.folder);
+        this.filesystem.setSnapshot(meta.folder);
         await this.filesystem.prepareDir();
 
-        const blocksWorker = await this.createWorker("dump", "blocks");
-        const transactionsWorker = await this.createWorker("dump","transactions");
-        const roundsWorker = await this.createWorker("dump","rounds");
+        let blocksWorker: WorkerWrapper | undefined = undefined;
+        let transactionsWorker: WorkerWrapper | undefined = undefined;
+        let roundsWorker: WorkerWrapper | undefined = undefined;
 
         try {
+            blocksWorker = new WorkerWrapper(this.prepareWorkerData("dump", "blocks"));
+            transactionsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "transactions"));
+            roundsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "rounds"));
+
+            await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+            await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
+            await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+
             await Promise.all([
-                this.startWorkerAction(blocksWorker, "blocks", await this.blockRepository.count()),
-                this.startWorkerAction(transactionsWorker, "transactions", await this.transactionRepository.count()),
-                this.startWorkerAction(roundsWorker, "rounds", await this.roundRepository.count()),
+                blocksWorker.start(),
+                transactionsWorker.start(),
+                roundsWorker.start()
             ]);
 
-            await this.filesystem.writeMetaData(metaData);
+            await this.filesystem.writeMetaData(meta);
         } finally {
-            await blocksWorker.terminate();
-            await transactionsWorker.terminate();
-            await roundsWorker.terminate();
+            await blocksWorker?.terminate();
+            await transactionsWorker?.terminate();
+            await roundsWorker?.terminate();
         }
     }
 
@@ -107,22 +112,18 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     private async runSynchronizedAction(action: string, meta: Meta.MetaData): Promise<void> {
         let error: Error | undefined = undefined;
 
-        let blocksWorker: WorkerInstance | undefined = undefined;
-        let transactionsWorker: WorkerInstance | undefined = undefined;
-        let roundsWorker: WorkerInstance | undefined = undefined;
+        let blocksWorker: WorkerWrapper | undefined = undefined;
+        let transactionsWorker: WorkerWrapper | undefined = undefined;
+        let roundsWorker: WorkerWrapper | undefined = undefined;
 
         try {
-            blocksWorker = new WorkerInstance(this.prepareWorkerData(action, "blocks"));
-            transactionsWorker = new WorkerInstance(this.prepareWorkerData(action, "transactions"));
-            roundsWorker = new WorkerInstance(this.prepareWorkerData(action, "rounds"));
+            blocksWorker = new WorkerWrapper(this.prepareWorkerData(action, "blocks"));
+            transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions"));
+            roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds"));
 
             await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
             await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
             await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
-
-            await blocksWorker.init();
-            await transactionsWorker.init();
-            await roundsWorker.init();
 
             await blocksWorker.start();
             await transactionsWorker.start();
@@ -233,21 +234,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         };
     }
 
-    private createWorker(action: string, table: string): Promise<Worker> {
-        return new Promise<Worker>((resolve) => {
-            let worker = new Worker(__dirname +  "/workers/worker.js", {workerData: this.prepareWorkerData(action, table)});
-
-            worker.once("message", ({action}) => {
-                if (action === "initialized") {
-                    resolve(worker);
-                }
-            })
-        })
-
-    }
-
-    // @ts-ignore
-    private async prepareProgressDispatcher(worker: WorkerInstance, table: string, count: number): Promise<void> {
+    private async prepareProgressDispatcher(worker: WorkerWrapper, table: string, count: number): Promise<void> {
         let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
 
         await progressDispatcher.start(table, count);
@@ -261,29 +248,6 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         })
     }
 
-    private startWorkerAction(worker: Worker, table: string, count: number): Promise<void> {
-        let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
-
-        return new Promise<void>(async (resolve, reject) => {
-            worker.on("error", (err) => {
-                this.logger.error(err.message);
-                reject(err);
-            });
-
-            worker.on("count", async (count: number) => {
-                await progressDispatcher.update(count);
-            });
-
-            worker.once("exit", async (exitCode) => {
-                await progressDispatcher.end();
-                resolve();
-            });
-
-            await progressDispatcher.start(table, count);
-
-            worker.postMessage({ action: "start" });
-        });
-    }
 
     public async test(options: any): Promise<void> {
         // console.log(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!.data.id);
