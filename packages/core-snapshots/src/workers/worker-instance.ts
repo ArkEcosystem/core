@@ -60,7 +60,7 @@ export class WorkerInstance extends EventEmitter {
             }
 
             this.once("*", (data) => {
-                if (data.name === "synced") {
+                if (data.name === "synchronized") {
                     resolve(data.data);
                 } else if (data.name === "exit") {
                     resolve();
