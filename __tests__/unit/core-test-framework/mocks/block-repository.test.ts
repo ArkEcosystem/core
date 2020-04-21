@@ -1,6 +1,5 @@
 import "jest-extended";
 
-import { Models } from "@packages/core-database";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { BlockRepository } from "@packages/core-test-framework/src/mocks";
 import { Identities } from "@packages/crypto";
