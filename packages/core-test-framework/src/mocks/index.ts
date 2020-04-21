@@ -1,3 +1,4 @@
+import * as BlockRepository from "./block-repository";
 import * as Blockchain from "./blockchain";
 import * as NetworkMonitor from "./network-monitor";
 import * as PeerStorage from "./peer-storage";
@@ -10,6 +11,7 @@ import * as TransactionRepository from "./transaction-repository";
 import * as WalletRepository from "./wallet-respository";
 
 export {
+    BlockRepository,
     Blockchain,
     NetworkMonitor,
     PeerStorage,
