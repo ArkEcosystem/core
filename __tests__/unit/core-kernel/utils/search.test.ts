@@ -134,6 +134,13 @@ describe("someOrCriteria", () => {
         const match = someOrCriteria(criteria, predicate);
         expect(match).toBe(false);
     });
+
+    it("should return false when criteria is undefined", () => {
+        const criteria = undefined;
+        const predicate = () => true;
+        const match = someOrCriteria(criteria, predicate);
+        expect(match).toBe(false);
+    });
 });
 
 describe("everyOrCriteria", () => {
@@ -168,6 +175,13 @@ describe("everyOrCriteria", () => {
     it("should return true when there are no criteria to match", () => {
         const criteria = [];
         const predicate = () => false;
+        const match = everyOrCriteria(criteria, predicate);
+        expect(match).toBe(true);
+    });
+
+    it("should return true when criteria is undefined", () => {
+        const criteria = undefined;
+        const predicate = () => true;
         const match = everyOrCriteria(criteria, predicate);
         expect(match).toBe(true);
     });

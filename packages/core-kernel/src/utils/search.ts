@@ -57,7 +57,7 @@ export const everyOrCriteria = <TCriteria>(
     predicate: (c: TCriteria) => boolean,
 ): boolean => {
     if (typeof criteria === "undefined") {
-        return false;
+        return true;
     }
     if (Array.isArray(criteria)) {
         return criteria.every(predicate);
