@@ -1,11 +1,6 @@
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Container } from "@arkecosystem/core-kernel";
 
 import { BlockHistoryService } from "../../../packages/core-database/src/block-history-service";
-
-const blockFilter = {
-    getExpression: jest.fn(),
-};
 
 const blockRepository = {
     findOneByExpression: jest.fn(),
@@ -13,169 +8,114 @@ const blockRepository = {
     listByExpression: jest.fn(),
 };
 
+const blockFilter = {
+    getExpression: jest.fn(),
+};
+
+const blockModelConverter = {
+    getBlockData: jest.fn(),
+};
+
 const container = new Container.Container();
 container.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(blockRepository);
 container.bind(Container.Identifiers.DatabaseBlockFilter).toConstantValue(blockFilter);
+container.bind(Container.Identifiers.DatabaseBlockModelConverter).toConstantValue(blockModelConverter);
 
 describe("BlockHistoryService.findOneByCriteria", () => {
     it("should return undefined when model wasn't found in repository", async () => {
-        const criteria = { id: "123" };
-        const expression = { property: "id", type: "equal", value: "123" };
-        const model = undefined;
+        const criteria = {},
+            expression = {},
+            model = undefined;
 
         blockFilter.getExpression.mockResolvedValueOnce(expression);
         blockRepository.findOneByExpression.mockResolvedValueOnce(model);
 
         const blockHistoryService = container.resolve(BlockHistoryService);
-        const blockData = await blockHistoryService.findOneByCriteria(criteria);
+        const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(blockFilter.getExpression).toBeCalledWith(criteria);
         expect(blockRepository.findOneByExpression).toBeCalledWith(expression);
-        expect(blockData).toBeUndefined();
+        expect(result).toBeUndefined();
     });
 
     it("should return block data when model was found in repository", async () => {
-        const criteria = { id: "123" };
-        const expression = { property: "id", type: "equal", value: "123" };
-        const model: Contracts.Database.BlockModel = {
-            id: "123",
-            version: 2,
-            timestamp: 3600,
-            previousBlock: "456",
-            height: 100,
-            numberOfTransactions: 5,
-            totalAmount: Utils.BigNumber.make("10000"),
-            totalFee: Utils.BigNumber.make("1000"),
-            reward: Utils.BigNumber.make("100"),
-            payloadLength: 1024,
-            payloadHash: "0000000000",
-            generatorPublicKey: "1111111111",
-            blockSignature: "2222222222",
-        };
+        const criteria = {};
+        const expression = {};
+        const model = {};
+        const data = {};
 
         blockFilter.getExpression.mockResolvedValueOnce(expression);
         blockRepository.findOneByExpression.mockResolvedValueOnce(model);
+        blockModelConverter.getBlockData.mockReturnValueOnce(data);
 
         const blockHistoryService = container.resolve(BlockHistoryService);
-        const blockData = await blockHistoryService.findOneByCriteria(criteria);
+        const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(blockFilter.getExpression).toBeCalledWith(criteria);
         expect(blockRepository.findOneByExpression).toBeCalledWith(expression);
+        expect(blockModelConverter.getBlockData).toBeCalledWith(model);
 
-        const expectedBlockData: Interfaces.IBlockData = Object.assign({}, model);
-        expect(blockData).toEqual(expectedBlockData);
+        expect(result).toBe(data);
     });
 });
 
 describe("BlockHistoryService.findManyByCriteria", () => {
     it("should return array of block data", async () => {
-        const criteria = { height: { from: 100 } };
-        const expression = { property: "height", type: "greaterThanEqual", from: 100 };
-        const models: Contracts.Database.BlockModel[] = [
-            {
-                id: "123",
-                version: 2,
-                timestamp: 3600,
-                previousBlock: "456",
-                height: 100,
-                numberOfTransactions: 5,
-                totalAmount: Utils.BigNumber.make("10000"),
-                totalFee: Utils.BigNumber.make("1000"),
-                reward: Utils.BigNumber.make("100"),
-                payloadLength: 1024,
-                payloadHash: "0000000000",
-                generatorPublicKey: "1111111111",
-                blockSignature: "2222222222",
-            },
-            {
-                id: "789",
-                version: 2,
-                timestamp: 7200,
-                previousBlock: "123",
-                height: 101,
-                numberOfTransactions: 5,
-                totalAmount: Utils.BigNumber.make("10000"),
-                totalFee: Utils.BigNumber.make("1000"),
-                reward: Utils.BigNumber.make("100"),
-                payloadLength: 1024,
-                payloadHash: "0000000000",
-                generatorPublicKey: "1111111111",
-                blockSignature: "2222222222",
-            },
-        ];
+        const criteria = {},
+            expression = {},
+            model1 = {},
+            model2 = {},
+            data1 = {},
+            data2 = {};
 
         blockFilter.getExpression.mockResolvedValueOnce(expression);
-        blockRepository.findManyByExpression.mockResolvedValueOnce(models);
+        blockRepository.findManyByExpression.mockResolvedValueOnce([model1, model2]);
+        blockModelConverter.getBlockData.mockReturnValueOnce(data1).mockReturnValueOnce(data2);
 
         const blockHistoryService = container.resolve(BlockHistoryService);
-        const blockData = await blockHistoryService.findManyByCriteria(criteria);
+        const result = await blockHistoryService.findManyByCriteria(criteria);
 
         expect(blockFilter.getExpression).toBeCalledWith(criteria);
         expect(blockRepository.findManyByExpression).toBeCalledWith(expression);
+        expect(blockModelConverter.getBlockData).toBeCalledWith(model1);
+        expect(blockModelConverter.getBlockData).toBeCalledWith(model2);
 
-        const expectedBlockData: Interfaces.IBlockData[] = [Object.assign({}, models[0]), Object.assign({}, models[1])];
-        expect(blockData).toEqual(expectedBlockData);
+        expect(result.length).toBe(2);
+        expect(result[0]).toBe(data1);
+        expect(result[1]).toBe(data2);
     });
 });
 
 describe("BlockHistoryService.listByCriteria", () => {
     it("should return search result", async () => {
-        const criteria = { height: { from: 100 } };
-        const order = [];
-        const page = { offset: 0, limit: 100 };
-        const expression = { property: "height", type: "greaterThanEqual", from: 100 };
-        const models: Contracts.Database.BlockModel[] = [
-            {
-                id: "123",
-                version: 2,
-                timestamp: 3600,
-                previousBlock: "456",
-                height: 100,
-                numberOfTransactions: 5,
-                totalAmount: Utils.BigNumber.make("10000"),
-                totalFee: Utils.BigNumber.make("1000"),
-                reward: Utils.BigNumber.make("100"),
-                payloadLength: 1024,
-                payloadHash: "0000000000",
-                generatorPublicKey: "1111111111",
-                blockSignature: "2222222222",
-            },
-            {
-                id: "789",
-                version: 2,
-                timestamp: 7200,
-                previousBlock: "123",
-                height: 101,
-                numberOfTransactions: 5,
-                totalAmount: Utils.BigNumber.make("10000"),
-                totalFee: Utils.BigNumber.make("1000"),
-                reward: Utils.BigNumber.make("100"),
-                payloadLength: 1024,
-                payloadHash: "0000000000",
-                generatorPublicKey: "1111111111",
-                blockSignature: "2222222222",
-            },
-        ];
-        const result: Contracts.Search.Result<Contracts.Database.BlockModel> = {
-            rows: models,
-            count: 2,
-            countIsEstimate: false,
-        };
+        const criteria = {},
+            expression = {},
+            model1 = {},
+            model2 = {},
+            data1 = {},
+            data2 = {},
+            order = [],
+            page = { offset: 0, limit: 100 };
 
         blockFilter.getExpression.mockResolvedValueOnce(expression);
-        blockRepository.listByExpression.mockResolvedValueOnce(result);
+        blockRepository.listByExpression.mockResolvedValueOnce({
+            rows: [model1, model2],
+            count: 2,
+            countIsEstimate: false,
+        });
+        blockModelConverter.getBlockData.mockReturnValueOnce(data1).mockReturnValueOnce(data2);
 
         const blockHistoryService = container.resolve(BlockHistoryService);
-        const blockData = await blockHistoryService.listByCriteria(criteria, order, page);
+        const result = await blockHistoryService.listByCriteria(criteria, order, page);
 
         expect(blockFilter.getExpression).toBeCalledWith(criteria);
         expect(blockRepository.listByExpression).toBeCalledWith(expression, order, page);
-
-        const expectedResult: Contracts.Search.Result<Interfaces.IBlockData> = {
-            rows: [Object.assign({}, models[0]), Object.assign({}, models[1])],
+        expect(blockModelConverter.getBlockData).toBeCalledWith(model1);
+        expect(blockModelConverter.getBlockData).toBeCalledWith(model2);
+        expect(result).toEqual({
+            rows: [data1, data2],
             count: 2,
             countIsEstimate: false,
-        };
-        expect(blockData).toEqual(expectedResult);
+        });
     });
 });

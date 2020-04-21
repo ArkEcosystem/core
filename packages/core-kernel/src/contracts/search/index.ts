@@ -1,17 +1,17 @@
 export * from "./criteria";
 export * from "./expressions";
 
-export type Order = {
+export type ListOrder = {
     property: string;
     direction: "asc" | "desc";
 }[];
 
-export type Page = {
+export type ListPage = {
     offset: number;
     limit: number;
 };
 
-export type Result<T> = {
+export type ListResult<T> = {
     rows: T[];
     count: number;
     countIsEstimate: boolean;

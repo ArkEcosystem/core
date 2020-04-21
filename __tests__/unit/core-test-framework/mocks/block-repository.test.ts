@@ -26,8 +26,6 @@ const lastForgedBlock: BlockRepository.LastForgedBlock = {
 };
 
 const clear = () => {
-    BlockRepository.setBlock(undefined);
-    BlockRepository.setBlocks([]);
     BlockRepository.setDelegateForgedBlocks([]);
     BlockRepository.setLastForgedBlocks([]);
 };
@@ -40,22 +38,6 @@ describe("BlockRepository", () => {
 
         it("getLastForgedBlocks should return empty array", async () => {
             await expect(BlockRepository.instance.getLastForgedBlocks()).resolves.toEqual([]);
-        });
-    });
-
-    describe("setBlock", () => {
-        beforeEach(() => {
-            clear();
-
-            BlockRepository.setBlock(block);
-        });
-    });
-
-    describe("setBlocks", () => {
-        beforeEach(() => {
-            clear();
-
-            BlockRepository.setBlocks([block]);
         });
     });
 

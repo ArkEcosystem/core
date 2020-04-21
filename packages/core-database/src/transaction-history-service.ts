@@ -1,7 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
-import { Transaction } from "./models/transaction";
 import { TransactionRepository } from "./repositories/transaction-repository";
 
 @Container.injectable()
@@ -12,12 +11,16 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
     @Container.inject(Container.Identifiers.DatabaseTransactionFilter)
     private readonly transactionFilter!: Contracts.Database.TransactionFilter;
 
+    @Container.inject(Container.Identifiers.DatabaseTransactionModelConverter)
+    private readonly transactionModelConverter!: Contracts.Database.TransactionModelConverter;
+
     public async findOneByCriteria(
         criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData | undefined> {
         const expression = await this.transactionFilter.getExpression(criteria);
         const model = await this.transactionRepository.findOneByExpression(expression);
-        return model ? this.convertModel(model) : undefined;
+        const data = model ? this.transactionModelConverter.getTransactionData(model) : undefined;
+        return data;
     }
 
     public async findManyByCriteria(
@@ -25,37 +28,18 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
     ): Promise<Interfaces.ITransactionData[]> {
         const expression = await this.transactionFilter.getExpression(criteria);
         const models = await this.transactionRepository.findManyByExpression(expression);
-        return this.convertModels(models);
+        const data = models.map((m) => this.transactionModelConverter.getTransactionData(m));
+        return data;
     }
 
     public async listByCriteria(
         criteria: Contracts.Shared.OrTransactionCriteria,
-        order: Contracts.Search.Order,
-        page: Contracts.Search.Page,
-    ): Promise<Contracts.Search.Result<Interfaces.ITransactionData>> {
+        order: Contracts.Search.ListOrder,
+        page: Contracts.Search.ListPage,
+    ): Promise<Contracts.Search.ListResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getExpression(criteria);
         const listResult = await this.transactionRepository.listByExpression(expression, order, page);
-        return this.convertListResult(listResult);
-    }
-
-    private convertModel(model: Transaction): Interfaces.ITransactionData {
-        const data = Transactions.TransactionFactory.fromBytesUnsafe(model.serialized, model.id).data;
-        data.nonce = model.nonce; // set_row_nonce trigger
-        data.blockId = model.blockId; // block constructor
-        return data;
-    }
-
-    private convertModels(models: Transaction[]): Interfaces.ITransactionData[] {
-        return models.map((m) => this.convertModel(m));
-    }
-
-    private convertListResult(
-        listResult: Contracts.Search.Result<Transaction>,
-    ): Contracts.Search.Result<Interfaces.ITransactionData> {
-        return {
-            rows: this.convertModels(listResult.rows),
-            count: listResult.count,
-            countIsEstimate: listResult.countIsEstimate,
-        };
+        const rows = listResult.rows.map((m) => this.transactionModelConverter.getTransactionData(m));
+        return { ...listResult, rows };
     }
 }

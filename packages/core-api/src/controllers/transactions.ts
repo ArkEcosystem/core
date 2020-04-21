@@ -58,12 +58,9 @@ export class TransactionsController extends Controller {
     }
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const pagination: Contracts.Search.Page = super.getListingPage(request);
+        const page: Contracts.Search.ListPage = super.getListingPage(request);
         const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getFromHighestPriority());
-        const transactions: Interfaces.ITransaction[] = all.slice(
-            pagination.offset,
-            pagination.offset + pagination.limit,
-        );
+        const transactions: Interfaces.ITransaction[] = all.slice(page.offset, page.offset + page.limit);
         const rows = transactions.map((t) => t.data);
 
         return super.toPagination(

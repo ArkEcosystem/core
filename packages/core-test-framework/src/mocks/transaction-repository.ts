@@ -38,9 +38,9 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
 
     public async listByExpression(
         expressions: Contracts.Search.Expression<Transaction>,
-        order: Contracts.Search.Order,
-        page: Contracts.Search.Page,
-    ): Promise<Contracts.Search.Result<Transaction>> {
+        order: Contracts.Search.ListOrder,
+        page: Contracts.Search.ListPage,
+    ): Promise<Contracts.Search.ListResult<Transaction>> {
         return {
             rows: mockTransactions as Transaction[],
             count: mockTransactions.length,

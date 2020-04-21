@@ -1,59 +1,59 @@
 export type VoidExpression = {
-    type: "void";
+    op: "void";
 };
 
 export type TrueExpression = {
-    type: "true";
+    op: "true";
 };
 
 export type FalseExpression = {
-    type: "false";
+    op: "false";
 };
 
 export type EqualExpression<TEntity> = {
     property: keyof TEntity;
-    type: "equal";
+    op: "equal";
     value: any;
 };
 
 export type BetweenExpression<TEntity> = {
     property: keyof TEntity;
-    type: "between";
+    op: "between";
     from: any;
     to: any;
 };
 
 export type GreaterThanEqualExpression<TEntity> = {
     property: keyof TEntity;
-    type: "greaterThanEqual";
-    from: any;
+    op: "greaterThanEqual";
+    value: any;
 };
 
 export type LessThanEqualExpression<TEntity> = {
     property: keyof TEntity;
-    type: "lessThanEqual";
-    to: any;
+    op: "lessThanEqual";
+    value: any;
 };
 
 export type LikeExpression<TEntity> = {
     property: keyof TEntity;
-    type: "like";
+    op: "like";
     value: any;
 };
 
 export type ContainsExpression<TEntity> = {
     property: keyof TEntity;
-    type: "contains";
+    op: "contains";
     value: any;
 };
 
 export type AndExpression<TEntity> = {
-    type: "and";
+    op: "and";
     expressions: Expression<TEntity>[];
 };
 
 export type OrExpression<TEntity> = {
-    type: "or";
+    op: "or";
     expressions: Expression<TEntity>[];
 };
 

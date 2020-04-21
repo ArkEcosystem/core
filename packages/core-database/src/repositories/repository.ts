@@ -13,7 +13,7 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
 
     public async findOneByExpression(expression: Contracts.Search.Expression<TEntity>): Promise<TEntity | undefined> {
         const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
-        if (expression.type !== "void") {
+        if (expression.op !== "void") {
             const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }
@@ -22,7 +22,7 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
 
     public async findManyByExpression(expression: Contracts.Search.Expression<TEntity>): Promise<TEntity[]> {
         const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
-        if (expression.type !== "void") {
+        if (expression.op !== "void") {
             const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }
@@ -32,12 +32,12 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
 
     public async listByExpression(
         expression: Contracts.Search.Expression<TEntity>,
-        order: Contracts.Search.Order,
-        page: Contracts.Search.Page,
-    ): Promise<Contracts.Search.Result<TEntity>> {
+        order: Contracts.Search.ListOrder,
+        page: Contracts.Search.ListPage,
+    ): Promise<Contracts.Search.ListResult<TEntity>> {
         const queryBuilder = this.createQueryBuilder().select().skip(page.offset).take(page.limit);
 
-        if (expression.type !== "void") {
+        if (expression.op !== "void") {
             const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }

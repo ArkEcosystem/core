@@ -11,7 +11,7 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ id: "123" });
 
-            expect(expression).toEqual({ property: "id", type: "equal", value: "123" });
+            expect(expression).toEqual({ property: "id", op: "equal", value: "123" });
         });
     });
 
@@ -20,7 +20,7 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ version: 1 });
 
-            expect(expression).toEqual({ property: "version", type: "equal", value: 1 });
+            expect(expression).toEqual({ property: "version", op: "equal", value: 1 });
         });
     });
 
@@ -29,28 +29,28 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ timestamp: 3600 });
 
-            expect(expression).toEqual({ property: "timestamp", type: "equal", value: 3600 });
+            expect(expression).toEqual({ property: "timestamp", op: "equal", value: 3600 });
         });
 
         it("should compare using between expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ timestamp: { from: 3600, to: 7200 } });
 
-            expect(expression).toEqual({ property: "timestamp", type: "between", from: 3600, to: 7200 });
+            expect(expression).toEqual({ property: "timestamp", op: "between", from: 3600, to: 7200 });
         });
 
         it("should compare using greater than equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ timestamp: { from: 3600 } });
 
-            expect(expression).toEqual({ property: "timestamp", type: "greaterThanEqual", from: 3600 });
+            expect(expression).toEqual({ property: "timestamp", op: "greaterThanEqual", value: 3600 });
         });
 
         it("should compare using less than equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ timestamp: { to: 3600 } });
 
-            expect(expression).toEqual({ property: "timestamp", type: "lessThanEqual", to: 3600 });
+            expect(expression).toEqual({ property: "timestamp", op: "lessThanEqual", value: 3600 });
         });
     });
 
@@ -59,7 +59,7 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ previousBlock: "456" });
 
-            expect(expression).toEqual({ property: "previousBlock", type: "equal", value: "456" });
+            expect(expression).toEqual({ property: "previousBlock", op: "equal", value: "456" });
         });
     });
 
@@ -68,28 +68,28 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ height: 100 });
 
-            expect(expression).toEqual({ property: "height", type: "equal", value: 100 });
+            expect(expression).toEqual({ property: "height", op: "equal", value: 100 });
         });
 
         it("should compare using between expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ height: { from: 100, to: 200 } });
 
-            expect(expression).toEqual({ property: "height", type: "between", from: 100, to: 200 });
+            expect(expression).toEqual({ property: "height", op: "between", from: 100, to: 200 });
         });
 
         it("should compare using greater than equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ height: { from: 100 } });
 
-            expect(expression).toEqual({ property: "height", type: "greaterThanEqual", from: 100 });
+            expect(expression).toEqual({ property: "height", op: "greaterThanEqual", value: 100 });
         });
 
         it("should compare using less than equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ height: { to: 100 } });
 
-            expect(expression).toEqual({ property: "height", type: "lessThanEqual", to: 100 });
+            expect(expression).toEqual({ property: "height", op: "lessThanEqual", value: 100 });
         });
     });
 
@@ -98,28 +98,28 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ numberOfTransactions: 10 });
 
-            expect(expression).toEqual({ property: "numberOfTransactions", type: "equal", value: 10 });
+            expect(expression).toEqual({ property: "numberOfTransactions", op: "equal", value: 10 });
         });
 
         it("should compare using between expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ numberOfTransactions: { from: 10, to: 20 } });
 
-            expect(expression).toEqual({ property: "numberOfTransactions", type: "between", from: 10, to: 20 });
+            expect(expression).toEqual({ property: "numberOfTransactions", op: "between", from: 10, to: 20 });
         });
 
         it("should compare using greater than equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ numberOfTransactions: { from: 10 } });
 
-            expect(expression).toEqual({ property: "numberOfTransactions", type: "greaterThanEqual", from: 10 });
+            expect(expression).toEqual({ property: "numberOfTransactions", op: "greaterThanEqual", value: 10 });
         });
 
         it("should compare using less than equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ numberOfTransactions: { to: 10 } });
 
-            expect(expression).toEqual({ property: "numberOfTransactions", type: "lessThanEqual", to: 10 });
+            expect(expression).toEqual({ property: "numberOfTransactions", op: "lessThanEqual", value: 10 });
         });
     });
 
@@ -130,7 +130,7 @@ describe("BlockFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "totalAmount",
-                type: "equal",
+                op: "equal",
                 value: Utils.BigNumber.make("10000"),
             });
         });
@@ -146,7 +146,7 @@ describe("BlockFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "totalAmount",
-                type: "between",
+                op: "between",
                 from: Utils.BigNumber.make("10000"),
                 to: Utils.BigNumber.make("20000"),
             });
@@ -162,8 +162,8 @@ describe("BlockFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "totalAmount",
-                type: "greaterThanEqual",
-                from: Utils.BigNumber.make("10000"),
+                op: "greaterThanEqual",
+                value: Utils.BigNumber.make("10000"),
             });
         });
 
@@ -177,8 +177,8 @@ describe("BlockFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "totalAmount",
-                type: "lessThanEqual",
-                to: Utils.BigNumber.make("10000"),
+                op: "lessThanEqual",
+                value: Utils.BigNumber.make("10000"),
             });
         });
     });
@@ -188,7 +188,7 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ totalFee: Utils.BigNumber.make("100") });
 
-            expect(expression).toEqual({ property: "totalFee", type: "equal", value: Utils.BigNumber.make("100") });
+            expect(expression).toEqual({ property: "totalFee", op: "equal", value: Utils.BigNumber.make("100") });
         });
 
         it("should compare using between expression", async () => {
@@ -202,7 +202,7 @@ describe("BlockFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "totalFee",
-                type: "between",
+                op: "between",
                 from: Utils.BigNumber.make("100"),
                 to: Utils.BigNumber.make("200"),
             });
@@ -218,8 +218,8 @@ describe("BlockFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "totalFee",
-                type: "greaterThanEqual",
-                from: Utils.BigNumber.make("100"),
+                op: "greaterThanEqual",
+                value: Utils.BigNumber.make("100"),
             });
         });
 
@@ -233,8 +233,8 @@ describe("BlockFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "totalFee",
-                type: "lessThanEqual",
-                to: Utils.BigNumber.make("100"),
+                op: "lessThanEqual",
+                value: Utils.BigNumber.make("100"),
             });
         });
     });
@@ -244,7 +244,7 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ reward: Utils.BigNumber.make("1000") });
 
-            expect(expression).toEqual({ property: "reward", type: "equal", value: Utils.BigNumber.make("1000") });
+            expect(expression).toEqual({ property: "reward", op: "equal", value: Utils.BigNumber.make("1000") });
         });
 
         it("should compare using between expression", async () => {
@@ -258,7 +258,7 @@ describe("BlockFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "reward",
-                type: "between",
+                op: "between",
                 from: Utils.BigNumber.make("1000"),
                 to: Utils.BigNumber.make("2000"),
             });
@@ -274,8 +274,8 @@ describe("BlockFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "reward",
-                type: "greaterThanEqual",
-                from: Utils.BigNumber.make("1000"),
+                op: "greaterThanEqual",
+                value: Utils.BigNumber.make("1000"),
             });
         });
 
@@ -287,7 +287,11 @@ describe("BlockFilter.getExpression", () => {
                 },
             });
 
-            expect(expression).toEqual({ property: "reward", type: "lessThanEqual", to: Utils.BigNumber.make("1000") });
+            expect(expression).toEqual({
+                property: "reward",
+                op: "lessThanEqual",
+                value: Utils.BigNumber.make("1000"),
+            });
         });
     });
 
@@ -296,28 +300,28 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ payloadLength: 1000 });
 
-            expect(expression).toEqual({ property: "payloadLength", type: "equal", value: 1000 });
+            expect(expression).toEqual({ property: "payloadLength", op: "equal", value: 1000 });
         });
 
         it("should compare using between expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ payloadLength: { from: 1000, to: 2000 } });
 
-            expect(expression).toEqual({ property: "payloadLength", type: "between", from: 1000, to: 2000 });
+            expect(expression).toEqual({ property: "payloadLength", op: "between", from: 1000, to: 2000 });
         });
 
         it("should compare using greater than equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ payloadLength: { from: 1000 } });
 
-            expect(expression).toEqual({ property: "payloadLength", type: "greaterThanEqual", from: 1000 });
+            expect(expression).toEqual({ property: "payloadLength", op: "greaterThanEqual", value: 1000 });
         });
 
         it("should compare using less than equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ payloadLength: { to: 1000 } });
 
-            expect(expression).toEqual({ property: "payloadLength", type: "lessThanEqual", to: 1000 });
+            expect(expression).toEqual({ property: "payloadLength", op: "lessThanEqual", value: 1000 });
         });
     });
 
@@ -326,7 +330,7 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ payloadHash: "123" });
 
-            expect(expression).toEqual({ property: "payloadHash", type: "equal", value: "123" });
+            expect(expression).toEqual({ property: "payloadHash", op: "equal", value: "123" });
         });
     });
 
@@ -335,7 +339,7 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ generatorPublicKey: "123" });
 
-            expect(expression).toEqual({ property: "generatorPublicKey", type: "equal", value: "123" });
+            expect(expression).toEqual({ property: "generatorPublicKey", op: "equal", value: "123" });
         });
     });
 
@@ -344,7 +348,7 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ blockSignature: "123" });
 
-            expect(expression).toEqual({ property: "blockSignature", type: "equal", value: "123" });
+            expect(expression).toEqual({ property: "blockSignature", op: "equal", value: "123" });
         });
     });
 
@@ -357,10 +361,10 @@ describe("BlockFilter.getExpression", () => {
             });
 
             expect(expression).toEqual({
-                type: "and",
+                op: "and",
                 expressions: [
-                    { property: "height", type: "greaterThanEqual", from: 100 },
-                    { property: "generatorPublicKey", type: "equal", value: "123" },
+                    { property: "height", op: "greaterThanEqual", value: 100 },
+                    { property: "generatorPublicKey", op: "equal", value: "123" },
                 ],
             });
         });
@@ -375,20 +379,20 @@ describe("BlockFilter.getExpression", () => {
             ]);
 
             expect(expression).toEqual({
-                type: "or",
+                op: "or",
                 expressions: [
                     {
-                        type: "and",
+                        op: "and",
                         expressions: [
-                            { property: "height", type: "greaterThanEqual", from: 100 },
-                            { property: "generatorPublicKey", type: "equal", value: "123" },
+                            { property: "height", op: "greaterThanEqual", value: 100 },
+                            { property: "generatorPublicKey", op: "equal", value: "123" },
                         ],
                     },
                     {
-                        type: "and",
+                        op: "and",
                         expressions: [
-                            { property: "height", type: "greaterThanEqual", from: 300 },
-                            { property: "generatorPublicKey", type: "equal", value: "456" },
+                            { property: "height", op: "greaterThanEqual", value: 300 },
+                            { property: "generatorPublicKey", op: "equal", value: "456" },
                         ],
                     },
                 ],

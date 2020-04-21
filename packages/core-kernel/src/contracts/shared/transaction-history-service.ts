@@ -1,14 +1,14 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import {
+    ListOrder,
+    ListPage,
+    ListResult,
     OrContainsCriteria,
     OrCriteria,
-    Order,
     OrEqualCriteria,
     OrLikeCriteria,
     OrNumericCriteria,
-    Page,
-    Result,
 } from "../search";
 
 export type TransactionCriteria = {
@@ -37,7 +37,7 @@ export interface TransactionHistoryService {
     findManyByCriteria(criteria: OrTransactionCriteria): Promise<Interfaces.ITransactionData[]>;
     listByCriteria(
         criteria: OrTransactionCriteria,
-        order: Order,
-        page: Page,
-    ): Promise<Result<Interfaces.ITransactionData>>;
+        order: ListOrder,
+        page: ListPage,
+    ): Promise<ListResult<Interfaces.ITransactionData>>;
 }

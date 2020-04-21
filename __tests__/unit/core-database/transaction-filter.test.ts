@@ -25,7 +25,7 @@ describe("TransactionFilter.getExpression", () => {
             const expression = await transactionFilter.getExpression({ senderId: "123" });
 
             expect(walletRepository.findByAddress).toBeCalledWith("123");
-            expect(expression).toEqual({ property: "senderPublicKey", type: "equal", value: "456" });
+            expect(expression).toEqual({ property: "senderPublicKey", op: "equal", value: "456" });
         });
 
         it("should produce false expression when wallet not found", async () => {
@@ -33,7 +33,7 @@ describe("TransactionFilter.getExpression", () => {
             const expression = await transactionFilter.getExpression({ senderId: "123" });
 
             expect(walletRepository.findByAddress).toBeCalledWith("123");
-            expect(expression).toEqual({ type: "false" });
+            expect(expression).toEqual({ op: "false" });
         });
     });
 
@@ -42,7 +42,7 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ id: "123" });
 
-            expect(expression).toEqual({ property: "id", type: "equal", value: "123" });
+            expect(expression).toEqual({ property: "id", op: "equal", value: "123" });
         });
     });
 
@@ -51,7 +51,7 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ version: 2 });
 
-            expect(expression).toEqual({ property: "version", type: "equal", value: 2 });
+            expect(expression).toEqual({ property: "version", op: "equal", value: 2 });
         });
     });
 
@@ -60,7 +60,7 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ blockId: "123" });
 
-            expect(expression).toEqual({ property: "blockId", type: "equal", value: "123" });
+            expect(expression).toEqual({ property: "blockId", op: "equal", value: "123" });
         });
     });
 
@@ -69,28 +69,28 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ sequence: 5 });
 
-            expect(expression).toEqual({ property: "sequence", type: "equal", value: 5 });
+            expect(expression).toEqual({ property: "sequence", op: "equal", value: 5 });
         });
 
         it("should compare using between expression", async () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ sequence: { from: 5, to: 10 } });
 
-            expect(expression).toEqual({ property: "sequence", type: "between", from: 5, to: 10 });
+            expect(expression).toEqual({ property: "sequence", op: "between", from: 5, to: 10 });
         });
 
         it("should compare using greater than equal expression", async () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ sequence: { from: 5 } });
 
-            expect(expression).toEqual({ property: "sequence", type: "greaterThanEqual", from: 5 });
+            expect(expression).toEqual({ property: "sequence", op: "greaterThanEqual", value: 5 });
         });
 
         it("should compare using less than equal expression", async () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ sequence: { to: 5 } });
 
-            expect(expression).toEqual({ property: "sequence", type: "lessThanEqual", to: 5 });
+            expect(expression).toEqual({ property: "sequence", op: "lessThanEqual", value: 5 });
         });
     });
 
@@ -99,28 +99,28 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ timestamp: 3600 });
 
-            expect(expression).toEqual({ property: "timestamp", type: "equal", value: 3600 });
+            expect(expression).toEqual({ property: "timestamp", op: "equal", value: 3600 });
         });
 
         it("should compare using between expression", async () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ timestamp: { from: 3600, to: 7200 } });
 
-            expect(expression).toEqual({ property: "timestamp", type: "between", from: 3600, to: 7200 });
+            expect(expression).toEqual({ property: "timestamp", op: "between", from: 3600, to: 7200 });
         });
 
         it("should compare using greater than equal expression", async () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ timestamp: { from: 3600 } });
 
-            expect(expression).toEqual({ property: "timestamp", type: "greaterThanEqual", from: 3600 });
+            expect(expression).toEqual({ property: "timestamp", op: "greaterThanEqual", value: 3600 });
         });
 
         it("should compare using less than equal expression", async () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ timestamp: { to: 3600 } });
 
-            expect(expression).toEqual({ property: "timestamp", type: "lessThanEqual", to: 3600 });
+            expect(expression).toEqual({ property: "timestamp", op: "lessThanEqual", value: 3600 });
         });
     });
 
@@ -129,7 +129,7 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ nonce: Utils.BigNumber.make("5") });
 
-            expect(expression).toEqual({ property: "nonce", type: "equal", value: Utils.BigNumber.make("5") });
+            expect(expression).toEqual({ property: "nonce", op: "equal", value: Utils.BigNumber.make("5") });
         });
 
         it("should compare using between expression", async () => {
@@ -143,7 +143,7 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "nonce",
-                type: "between",
+                op: "between",
                 from: Utils.BigNumber.make("5"),
                 to: Utils.BigNumber.make("10"),
             });
@@ -159,8 +159,8 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "nonce",
-                type: "greaterThanEqual",
-                from: Utils.BigNumber.make("5"),
+                op: "greaterThanEqual",
+                value: Utils.BigNumber.make("5"),
             });
         });
 
@@ -174,8 +174,8 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "nonce",
-                type: "lessThanEqual",
-                to: Utils.BigNumber.make("5"),
+                op: "lessThanEqual",
+                value: Utils.BigNumber.make("5"),
             });
         });
     });
@@ -185,7 +185,7 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ senderPublicKey: "123" });
 
-            expect(expression).toEqual({ property: "senderPublicKey", type: "equal", value: "123" });
+            expect(expression).toEqual({ property: "senderPublicKey", op: "equal", value: "123" });
         });
     });
 
@@ -200,15 +200,15 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(walletRepository.findByAddress).toBeCalledWith("123");
             expect(expression).toEqual({
-                type: "or",
+                op: "or",
                 expressions: [
-                    { property: "recipientId", type: "equal", value: "123" },
+                    { property: "recipientId", op: "equal", value: "123" },
                     {
-                        type: "and",
+                        op: "and",
                         expressions: [
-                            { property: "typeGroup", type: "equal", value: Enums.TransactionTypeGroup.Core },
-                            { property: "type", type: "equal", value: Enums.TransactionType.DelegateRegistration },
-                            { property: "senderPublicKey", type: "equal", value: "456" },
+                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
+                            { property: "type", op: "equal", value: Enums.TransactionType.DelegateRegistration },
+                            { property: "senderPublicKey", op: "equal", value: "456" },
                         ],
                     },
                 ],
@@ -220,7 +220,7 @@ describe("TransactionFilter.getExpression", () => {
             const expression = await transactionFilter.getExpression({ recipientId: "123" });
 
             expect(walletRepository.findByAddress).toBeCalledWith("123");
-            expect(expression).toEqual({ property: "recipientId", type: "equal", value: "123" });
+            expect(expression).toEqual({ property: "recipientId", op: "equal", value: "123" });
         });
     });
 
@@ -230,10 +230,10 @@ describe("TransactionFilter.getExpression", () => {
             const expression = await transactionFilter.getExpression({ type: Enums.TransactionType.Vote });
 
             expect(expression).toEqual({
-                type: "and",
+                op: "and",
                 expressions: [
-                    { property: "type", type: "equal", value: Enums.TransactionType.Vote },
-                    { property: "typeGroup", type: "equal", value: Enums.TransactionTypeGroup.Core },
+                    { property: "type", op: "equal", value: Enums.TransactionType.Vote },
+                    { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
                 ],
             });
         });
@@ -246,10 +246,10 @@ describe("TransactionFilter.getExpression", () => {
             });
 
             expect(expression).toEqual({
-                type: "and",
+                op: "and",
                 expressions: [
-                    { property: "type", type: "equal", value: Enums.TransactionType.Vote },
-                    { property: "typeGroup", type: "equal", value: Enums.TransactionTypeGroup.Test },
+                    { property: "type", op: "equal", value: Enums.TransactionType.Vote },
+                    { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Test },
                 ],
             });
         });
@@ -262,7 +262,7 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "typeGroup",
-                type: "equal",
+                op: "equal",
                 value: Enums.TransactionTypeGroup.Core,
             });
         });
@@ -275,7 +275,7 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "vendorField",
-                type: "like",
+                op: "like",
                 value: "%pattern%",
             });
         });
@@ -286,7 +286,7 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ amount: Utils.BigNumber.make("5000") });
 
-            expect(expression).toEqual({ property: "amount", type: "equal", value: Utils.BigNumber.make("5000") });
+            expect(expression).toEqual({ property: "amount", op: "equal", value: Utils.BigNumber.make("5000") });
         });
 
         it("should compare using between expression", async () => {
@@ -300,7 +300,7 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "amount",
-                type: "between",
+                op: "between",
                 from: Utils.BigNumber.make("5000"),
                 to: Utils.BigNumber.make("10000"),
             });
@@ -316,8 +316,8 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "amount",
-                type: "greaterThanEqual",
-                from: Utils.BigNumber.make("5000"),
+                op: "greaterThanEqual",
+                value: Utils.BigNumber.make("5000"),
             });
         });
 
@@ -331,8 +331,8 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "amount",
-                type: "lessThanEqual",
-                to: Utils.BigNumber.make("5000"),
+                op: "lessThanEqual",
+                value: Utils.BigNumber.make("5000"),
             });
         });
     });
@@ -342,7 +342,7 @@ describe("TransactionFilter.getExpression", () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ fee: Utils.BigNumber.make("500") });
 
-            expect(expression).toEqual({ property: "fee", type: "equal", value: Utils.BigNumber.make("500") });
+            expect(expression).toEqual({ property: "fee", op: "equal", value: Utils.BigNumber.make("500") });
         });
 
         it("should compare using between expression", async () => {
@@ -356,7 +356,7 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "fee",
-                type: "between",
+                op: "between",
                 from: Utils.BigNumber.make("500"),
                 to: Utils.BigNumber.make("1000"),
             });
@@ -372,8 +372,8 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "fee",
-                type: "greaterThanEqual",
-                from: Utils.BigNumber.make("500"),
+                op: "greaterThanEqual",
+                value: Utils.BigNumber.make("500"),
             });
         });
 
@@ -387,8 +387,8 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "fee",
-                type: "lessThanEqual",
-                to: Utils.BigNumber.make("500"),
+                op: "lessThanEqual",
+                value: Utils.BigNumber.make("500"),
             });
         });
     });
@@ -402,7 +402,7 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(expression).toEqual({
                 property: "asset",
-                type: "contains",
+                op: "contains",
                 value: { payment: [{ recipientId: "123" }] },
             });
         });
@@ -417,10 +417,10 @@ describe("TransactionFilter.getExpression", () => {
             });
 
             expect(expression).toEqual({
-                type: "and",
+                op: "and",
                 expressions: [
-                    { property: "amount", type: "greaterThanEqual", from: Utils.BigNumber.make("10000") },
-                    { property: "senderPublicKey", type: "equal", value: "123" },
+                    { property: "amount", op: "greaterThanEqual", value: Utils.BigNumber.make("10000") },
+                    { property: "senderPublicKey", op: "equal", value: "123" },
                 ],
             });
         });
@@ -435,20 +435,20 @@ describe("TransactionFilter.getExpression", () => {
             ]);
 
             expect(expression).toEqual({
-                type: "or",
+                op: "or",
                 expressions: [
                     {
-                        type: "and",
+                        op: "and",
                         expressions: [
-                            { property: "amount", type: "greaterThanEqual", from: Utils.BigNumber.make("10000") },
-                            { property: "senderPublicKey", type: "equal", value: "123" },
+                            { property: "amount", op: "greaterThanEqual", value: Utils.BigNumber.make("10000") },
+                            { property: "senderPublicKey", op: "equal", value: "123" },
                         ],
                     },
                     {
-                        type: "and",
+                        op: "and",
                         expressions: [
-                            { property: "amount", type: "greaterThanEqual", from: Utils.BigNumber.make("30000") },
-                            { property: "senderPublicKey", type: "equal", value: "456" },
+                            { property: "amount", op: "greaterThanEqual", value: Utils.BigNumber.make("30000") },
+                            { property: "senderPublicKey", op: "equal", value: "456" },
                         ],
                     },
                 ],

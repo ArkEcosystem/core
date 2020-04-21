@@ -21,7 +21,7 @@ export class QueryHelper<TEntity> {
         metadata: EntityMetadata,
         expression: Contracts.Search.Expression<TEntity>,
     ): SqlExpression {
-        switch (expression.type) {
+        switch (expression.op) {
             case "true": {
                 return { query: "TRUE", parameters: {} };
             }
@@ -47,14 +47,14 @@ export class QueryHelper<TEntity> {
                 const column = this.getColumnName(metadata, expression.property);
                 const param = `p${this.paramNo++}`;
                 const query = `${column} >= :${param}`;
-                const parameters = { [param]: expression.from };
+                const parameters = { [param]: expression.value };
                 return { query, parameters };
             }
             case "lessThanEqual": {
                 const column = this.getColumnName(metadata, expression.property);
                 const param = `p${this.paramNo++}`;
                 const query = `${column} <= :${param}`;
-                const parameters = { [param]: expression.to };
+                const parameters = { [param]: expression.value };
                 return { query, parameters };
             }
             case "like": {

@@ -10,15 +10,15 @@ import {
 } from "../contracts/search/expressions";
 
 export const optimizeExpression = <TEntity>(expression: Expression<TEntity>): Expression<TEntity> => {
-    switch (expression.type) {
+    switch (expression.op) {
         case "and":
         case "or": {
             const optimized = expression.expressions.map(optimizeExpression);
             const collapsed = optimized.reduce((acc, e) => {
-                if (e.type === "void") {
+                if (e.op === "void") {
                     return acc;
                 }
-                if (e.type === expression.type) {
+                if (e.op === expression.op) {
                     return [...acc, ...e.expressions];
                 }
 
@@ -26,13 +26,13 @@ export const optimizeExpression = <TEntity>(expression: Expression<TEntity>): Ex
             }, [] as Expression<TEntity>[]);
 
             if (collapsed.length === 0) {
-                return { type: "void" };
+                return { op: "void" };
             }
             if (collapsed.length === 1) {
                 return collapsed[0];
             }
 
-            return { type: expression.type, expressions: collapsed };
+            return { op: expression.op, expressions: collapsed };
         }
         default:
             return expression;
@@ -77,7 +77,7 @@ export const handleAndCriteria = async <TEntity, TCriteria>(
         .filter((key) => typeof criteria[key] !== "undefined")
         .map((key) => cb(key as keyof TCriteria));
     const expressions = await Promise.all(promises);
-    return { type: "and", expressions };
+    return { op: "and", expressions };
 };
 
 export const handleOrCriteria = async <TEntity, TCriteria>(
@@ -87,10 +87,10 @@ export const handleOrCriteria = async <TEntity, TCriteria>(
     if (Array.isArray(criteria)) {
         const promises = criteria.map((c) => cb(c));
         const expressions = await Promise.all(promises);
-        return { type: "or", expressions };
+        return { op: "or", expressions };
     } else {
         const expression = await cb(criteria);
-        return { type: "or", expressions: [expression] };
+        return { op: "or", expressions: [expression] };
     }
 };
 
@@ -105,15 +105,15 @@ export const handleNumericCriteria = async <TEntity, TProperty extends keyof TEn
 > => {
     if (typeof criteria === "object") {
         if ("from" in criteria && "to" in criteria) {
-            return { type: "between", property, from: criteria.from, to: criteria.to };
+            return { op: "between", property, from: criteria.from, to: criteria.to };
         }
         if ("from" in criteria) {
-            return { type: "greaterThanEqual", property, from: criteria.from };
+            return { op: "greaterThanEqual", property, value: criteria.from };
         }
         if ("to" in criteria) {
-            return { type: "lessThanEqual", property, to: criteria.to };
+            return { op: "lessThanEqual", property, value: criteria.to };
         }
     }
 
-    return { type: "equal", property, value: criteria };
+    return { op: "equal", property, value: criteria };
 };

@@ -23,11 +23,11 @@ export class BlockFilter implements Contracts.Database.BlockFilter {
             switch (key) {
                 case "id":
                     return handleOrCriteria(criteria.id!, async (c) => {
-                        return { property: "id", type: "equal", value: c };
+                        return { property: "id", op: "equal", value: c };
                     });
                 case "version":
                     return handleOrCriteria(criteria.version!, async (c) => {
-                        return { property: "version", type: "equal", value: c };
+                        return { property: "version", op: "equal", value: c };
                     });
                 case "timestamp":
                     return handleOrCriteria(criteria.timestamp!, async (c) => {
@@ -35,7 +35,7 @@ export class BlockFilter implements Contracts.Database.BlockFilter {
                     });
                 case "previousBlock":
                     return handleOrCriteria(criteria.previousBlock!, async (c) => {
-                        return { property: "previousBlock", type: "equal", value: c };
+                        return { property: "previousBlock", op: "equal", value: c };
                     });
                 case "height":
                     return handleOrCriteria(criteria.height!, async (c) => {
@@ -63,18 +63,18 @@ export class BlockFilter implements Contracts.Database.BlockFilter {
                     });
                 case "payloadHash":
                     return handleOrCriteria(criteria.payloadHash!, async (c) => {
-                        return { property: "payloadHash", type: "equal", value: c };
+                        return { property: "payloadHash", op: "equal", value: c };
                     });
                 case "generatorPublicKey":
                     return handleOrCriteria(criteria.generatorPublicKey!, async (c) => {
-                        return { property: "generatorPublicKey", type: "equal", value: c };
+                        return { property: "generatorPublicKey", op: "equal", value: c };
                     });
                 case "blockSignature":
                     return handleOrCriteria(criteria.blockSignature!, async (c) => {
-                        return { property: "blockSignature", type: "equal", value: c };
+                        return { property: "blockSignature", op: "equal", value: c };
                     });
                 default:
-                    return { type: "void" };
+                    return { op: "void" };
             }
         });
     }

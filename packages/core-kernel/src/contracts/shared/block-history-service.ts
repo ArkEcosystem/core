@@ -1,6 +1,6 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { OrCriteria, Order, OrEqualCriteria, OrNumericCriteria, Page, Result } from "../search";
+import { ListOrder, ListPage, ListResult, OrCriteria, OrEqualCriteria, OrNumericCriteria } from "../search";
 
 export type BlockCriteria = {
     id?: OrEqualCriteria<string>;
@@ -23,5 +23,9 @@ export type OrBlockCriteria = OrCriteria<BlockCriteria>;
 export interface BlockHistoryService {
     findOneByCriteria(criteria: OrBlockCriteria): Promise<Interfaces.IBlockData | undefined>;
     findManyByCriteria(criteria: OrBlockCriteria): Promise<Interfaces.IBlockData[]>;
-    listByCriteria(criteria: OrBlockCriteria, order: Order, page: Page): Promise<Result<Interfaces.IBlockData>>;
+    listByCriteria(
+        criteria: OrBlockCriteria,
+        order: ListOrder,
+        page: ListPage,
+    ): Promise<ListResult<Interfaces.IBlockData>>;
 }
