@@ -5,12 +5,6 @@ import passphrases from "@packages/core-test-framework/src/internal/passphrases.
 import { BlockRepository } from "@packages/core-test-framework/src/mocks";
 import { Identities } from "@packages/crypto";
 
-const block: Partial<Models.Block> = {
-    id: "717093ac984e1a82a2de1fb334e92bda648547955417bc830d7825c515b5f2f9",
-    version: 2,
-    timestamp: 123132,
-};
-
 const delegateForgedBlock: BlockRepository.DelegateForgedBlock = {
     generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
     totalRewards: "2",
