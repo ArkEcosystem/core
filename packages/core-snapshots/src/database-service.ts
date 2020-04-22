@@ -92,6 +92,8 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
             ]);
 
             await this.filesystem.writeMetaData(meta);
+        } catch (err) {
+            console.log(err);
         } finally {
             await blocksWorker?.terminate();
             await transactionsWorker?.terminate();
@@ -121,9 +123,9 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
             transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions"));
             roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds"));
 
-            await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
-            await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
-            await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+            // await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+            // await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
+            // await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
 
             await blocksWorker.start();
             await transactionsWorker.start();
@@ -131,6 +133,8 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
             let milestoneHeights = Managers.configManager.getMilestones().map(x => x.height);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
+
+            console.log("Milestone heights: ", milestoneHeights)
 
             // @ts-ignore
             let result: any = undefined;
@@ -142,11 +146,20 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
                 promises.push(blocksWorker.sync({ nextValue: height, nextField: "height"}))
 
                 if (result) {
-                    promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: prevHeight }))
-                    promises.push(roundsWorker.sync({ nextCount: result.numberOfRounds, height: prevHeight }))
+                    console.log("Run with: ", { nextCount: result.numberOfTransactions, height: result.height - 1  })
+
+                    promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
+                    promises.push(roundsWorker.sync({ nextValue: Utils.roundCalculator.calculateRound(height).round, nextField: "round"  }))
                 }
 
                 result = (await Promise.all(promises))[0];
+
+                if (!result) {
+                    continue;
+                }
+
+                console.log("result: ", result);
+
                 prevHeight = height;
             }
 
@@ -234,6 +247,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         };
     }
 
+    // @ts-ignore
     private async prepareProgressDispatcher(worker: WorkerWrapper, table: string, count: number): Promise<void> {
         let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
 
@@ -251,6 +265,14 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
     public async test(options: any): Promise<void> {
         // console.log(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!.data.id);
+
+        let result = await this.transactionRepository.createQueryBuilder()
+            .orderBy("timestamp" ,"ASC")
+            .addOrderBy("sequence" ,"ASC")
+            .limit(100)
+            .execute();
+
+        console.log(result);
     }
 }
 

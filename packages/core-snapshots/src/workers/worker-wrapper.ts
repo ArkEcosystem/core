@@ -25,7 +25,7 @@ export class WorkerWrapper extends EventEmitter {
         })
     }
 
-    public start(data?: any): Promise<void> {
+    public start(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.once("*", (data) => {
                 if(data.name === "started") {
@@ -37,7 +37,7 @@ export class WorkerWrapper extends EventEmitter {
                 }
             })
 
-            this.worker.postMessage({ action: "start", data: data });
+            this.worker.postMessage({ action: "start" });
         })
     }
 

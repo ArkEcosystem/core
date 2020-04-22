@@ -38,9 +38,11 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
                 // verify(entity, previousEntity);
             },
             async () => {
-                await this.saveValues()
+                await this.saveValues();
             }
         );
+
+        await this.saveValues();
 
         await this.readProcessor.start();
     }

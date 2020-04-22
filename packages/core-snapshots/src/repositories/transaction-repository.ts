@@ -8,7 +8,7 @@ export class TransactionRepository extends Repositories.AbstractEntityRepository
     public async getReadStream(): Promise<NodeJS.ReadableStream> {
         return this.createQueryBuilder()
             .orderBy("timestamp" ,"ASC")
-            .orderBy("sequence" ,"ASC")
+            .addOrderBy("sequence" ,"ASC")
             .stream();
     }
 }

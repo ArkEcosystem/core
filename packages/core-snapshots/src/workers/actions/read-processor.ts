@@ -19,6 +19,7 @@ export class ReadProcessor {
     private callOnMessage;
     private count = 0;
     private transactionsCount = 0;
+    private height = 0;
     private isRunning = false;
 
     public sync(data: any): void {
@@ -29,6 +30,8 @@ export class ReadProcessor {
         this.nextCount = data.nextCount;
 
         if (data.height) {
+
+            console.log("Height: ", data.height)
             Managers.configManager.setHeight(data.height);
         }
 
@@ -50,7 +53,7 @@ export class ReadProcessor {
             action: "started",
         });
 
-        await this.waitForSynchronization(undefined, false);
+        await this.waitForSynchronization(false);
 
         let interval = setInterval(() => {
             if (this.isRunning) {
@@ -77,6 +80,7 @@ export class ReadProcessor {
 
             if (this.isBlock) {
                 this.transactionsCount += ((entity as unknown) as Models.Block).numberOfTransactions;
+                this.height = ((entity as unknown) as Models.Block).height;
             }
 
             previousEntity = entity;
@@ -84,15 +88,7 @@ export class ReadProcessor {
 
         clearInterval(interval!);
 
-        parentPort!.postMessage({
-            action: "synced",
-            data: {
-                numberOfTransactions: this.transactionsCount,
-                numberOfRounds: this.count,
-                previousEntity: previousEntity,
-                entity: entity,
-            },
-        });
+        this.emitSynchronized();
     }
 
     private emitCount(): void {
@@ -106,12 +102,7 @@ export class ReadProcessor {
         return new Promise<void>(async (resolve) => {
             while (true) {
                 if (entity[this.nextField] > this.nextValue!) {
-                    let data =  {
-                        numberOfTransactions: this.transactionsCount,
-                        numberOfRounds: count,
-                    }
-
-                    await this.waitForSynchronization(data);
+                    await this.waitForSynchronization();
                 } else {
                     break;
                 }
@@ -133,7 +124,7 @@ export class ReadProcessor {
         });
     }
 
-    private waitForSynchronization(data?: any, emit: boolean = true): Promise<void> {
+    private waitForSynchronization(emit: boolean = true): Promise<void> {
         return new Promise<void>(async (resolve) => {
 
             if (this.onWait) {
@@ -147,12 +138,17 @@ export class ReadProcessor {
             };
 
             if (emit) {
-                // console.log("Emitt: ", data ? data : {})
+                this.emitSynchronized();
+            }
+        });
+    }
 
-                parentPort!.postMessage({
-                    action: "synchronized",
-                    data: data ? data : {}
-                });
+    private emitSynchronized() {
+        parentPort!.postMessage({
+            action: "synchronized",
+            data: {
+                numberOfTransactions: this.transactionsCount,
+                height: this.height,
             }
         });
     }

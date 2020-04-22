@@ -12,7 +12,10 @@ export class DumpWorkerAction extends AbstractWorkerAction {
             let count = 0;
 
             let interval = setInterval(() => {
-                parentPort?.postMessage(count);
+                parentPort?.postMessage({
+                    action: "count",
+                    data: count,
+                });
             }, 100);
 
             writeStream.on("close", () => {
