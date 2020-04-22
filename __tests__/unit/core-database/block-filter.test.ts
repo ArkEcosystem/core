@@ -6,6 +6,15 @@ import { BlockFilter } from "../../../packages/core-database/src/block-filter";
 const container = new Container.Container();
 
 describe("BlockFilter.getExpression", () => {
+    describe("BlockCriteria.unknown", () => {
+        it("should return void expression", async () => {
+            const blockFilter = container.resolve(BlockFilter);
+            const expression = await blockFilter.getExpression({ unknown: "123" } as any);
+
+            expect(expression).toEqual({ op: "void" });
+        });
+    });
+
     describe("BlockCriteria.id", () => {
         it("should compare using equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);

@@ -15,6 +15,15 @@ beforeEach(() => {
 });
 
 describe("TransactionFilter.getExpression", () => {
+    describe("TransactionCriteria.unknown", () => {
+        it("should return void expression", async () => {
+            const transactionFilter = container.resolve(TransactionFilter);
+            const expression = await transactionFilter.getExpression({ unknown: "123" } as any);
+
+            expect(expression).toEqual({ op: "void" });
+        });
+    });
+
     describe("TransactionCriteria.senderId", () => {
         it("should compare senderPublicKey using equal expression", async () => {
             walletRepository.findByAddress.mockReturnValueOnce({
