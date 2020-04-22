@@ -1,6 +1,5 @@
 import { Transaction } from "@arkecosystem/core-database/src/models";
 import { TransactionRepository } from "@arkecosystem/core-database/src/repositories";
-import { Contracts } from "@arkecosystem/core-kernel";
 
 export type FeeStatistics = {
     type: number;
@@ -34,18 +33,6 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
 
     public async findById(id: string): Promise<Transaction> {
         return mockTransaction as Transaction;
-    }
-
-    public async listByExpression(
-        expressions: Contracts.Search.Expression<Transaction>,
-        order: Contracts.Search.ListOrder,
-        page: Contracts.Search.ListPage,
-    ): Promise<Contracts.Search.ListResult<Transaction>> {
-        return {
-            rows: mockTransactions as Transaction[],
-            count: mockTransactions.length,
-            countIsEstimate: false,
-        };
     }
 
     public async findByType(type: number, typeGroup: number, limit?: number, offset?: number) {
