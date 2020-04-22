@@ -1,6 +1,7 @@
-import { OrTransactionCriteria } from "../shared/criteria";
-import { WhereExpression } from "../shared/expressions";
+import { Expression } from "../search";
+import { OrTransactionCriteria } from "../shared/transaction-history-service";
+import { TransactionModel } from "./models";
 
 export interface TransactionFilter {
-    getWhereExpression(criteria: OrTransactionCriteria): Promise<WhereExpression>;
+    getExpression(criteria: OrTransactionCriteria): Promise<Expression<TransactionModel>>;
 }

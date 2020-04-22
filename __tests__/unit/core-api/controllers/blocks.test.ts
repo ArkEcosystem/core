@@ -44,8 +44,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    Mocks.BlockRepository.setBlock(undefined);
-    Mocks.BlockRepository.setBlocks([]);
     Mocks.TransactionRepository.setTransactions([]);
     Mocks.StateStore.setBlock(undefined);
 });
