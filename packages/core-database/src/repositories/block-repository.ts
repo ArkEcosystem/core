@@ -32,15 +32,6 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
         });
     }
 
-    public async findByIdOrHeight(idOrHeight: string | number): Promise<Block> {
-        try {
-            const block: Block | undefined = await this.findByHeight(idOrHeight as number);
-            return block ?? this.findById(idOrHeight as string);
-        } catch (error) {
-            return this.findById(idOrHeight as string);
-        }
-    }
-
     public async findByHeight(height: number): Promise<Block | undefined> {
         return this.findOne({
             where: { height },
