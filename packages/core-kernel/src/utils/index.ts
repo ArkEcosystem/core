@@ -6,6 +6,7 @@ import { getBlockTimeLookup } from "./get-blocktime-lookup";
 import { getBlockNotChainedErrorMessage, isBlockChained } from "./is-block-chained";
 import { isWhitelisted } from "./is-whitelisted";
 import { calculateRound, isNewRound } from "./round-calculator";
+import * as Search from "./search";
 import { calculate } from "./supply-calculator";
 import * as Plugins from "./transform-plugins";
 
@@ -19,4 +20,4 @@ export const roundCalculator = { calculateRound, isNewRound };
 export const supplyCalculator = { calculate };
 export const forgingInfoCalculator = { calculateForgingInfo, getBlockTimeLookup };
 
-export { formatTimestamp, isBlockChained, getBlockNotChainedErrorMessage, isWhitelisted, Plugins };
+export { formatTimestamp, isBlockChained, getBlockNotChainedErrorMessage, isWhitelisted, Search, Plugins };

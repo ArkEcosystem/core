@@ -1,3 +1,4 @@
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 import { Column, Entity, Index } from "typeorm";
 
@@ -11,7 +12,7 @@ import { transformBigInt, transformVendorField } from "./utils";
 @Index(["senderPublicKey"])
 @Index(["recipientId"])
 @Index(["timestamp"])
-export class Transaction {
+export class Transaction implements Contracts.Database.TransactionModel {
     @Column({
         primary: true,
         type: "varchar",

@@ -139,6 +139,7 @@ describe("API 2.0 - Transactions", () => {
                 network: 23,
                 nonce: "1",
                 signature: genesisTransaction.signature,
+                sequence: 0,
             });
         });
 

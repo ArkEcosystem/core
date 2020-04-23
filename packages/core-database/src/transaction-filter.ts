@@ -1,8 +1,15 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
 
-import { CriteriaHandler } from "./criteria-handler";
 import { Transaction } from "./models/transaction";
+
+const {
+    handleAndCriteria,
+    handleOrCriteria,
+    handleNumericCriteria,
+    optimizeExpression,
+    hasOrCriteria,
+} = AppUtils.Search;
 
 @Container.injectable()
 export class TransactionFilter implements Contracts.Database.TransactionFilter {
@@ -10,87 +17,120 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
-    private readonly handler = new CriteriaHandler<Transaction>();
-
-    public async getWhereExpression(
+    public async getExpression(
         criteria: Contracts.Shared.OrTransactionCriteria,
-    ): Promise<Contracts.Shared.WhereExpression> {
-        return this.handler.handleOrCriteria(criteria, (c) => {
+    ): Promise<Contracts.Search.Expression<Transaction>> {
+        const expression = await handleOrCriteria(criteria, (c) => {
             return this.handleTransactionCriteria(c);
         });
+
+        return optimizeExpression(expression);
     }
 
     private async handleTransactionCriteria(
         criteria: Contracts.Shared.TransactionCriteria,
-    ): Promise<Contracts.Shared.WhereExpression> {
-        const expression = await this.handler.handleAndCriteria(criteria, async (key) => {
+    ): Promise<Contracts.Search.Expression<Transaction>> {
+        const expression: Contracts.Search.Expression<Transaction> = await handleAndCriteria(criteria, async (key) => {
             switch (key) {
                 case "senderId":
-                    return this.handler.handleOrCriteria(criteria.senderId!, (c) => this.handleSenderIdCriteria(c));
+                    return handleOrCriteria(criteria.senderId!, (c) => this.handleSenderIdCriteria(c));
                 case "id":
-                    return this.handler.handleOrEqualCriteria("id", criteria.id!);
+                    return handleOrCriteria(criteria.id!, async (c) => {
+                        return { property: "id", op: "equal", value: c };
+                    });
                 case "version":
-                    return this.handler.handleOrEqualCriteria("version", criteria.version!);
+                    return handleOrCriteria(criteria.version!, async (c) => {
+                        return { property: "version", op: "equal", value: c };
+                    });
                 case "blockId":
-                    return this.handler.handleOrEqualCriteria("blockId", criteria.blockId!);
+                    return handleOrCriteria(criteria.blockId!, async (c) => {
+                        return { property: "blockId", op: "equal", value: c };
+                    });
                 case "sequence":
-                    return this.handler.handleOrNumericCriteria("sequence", criteria.sequence!);
+                    return handleOrCriteria(criteria.sequence!, async (c) => {
+                        return handleNumericCriteria("sequence", c);
+                    });
                 case "timestamp":
-                    return this.handler.handleOrNumericCriteria("timestamp", criteria.timestamp!);
+                    return handleOrCriteria(criteria.timestamp!, async (c) => {
+                        return handleNumericCriteria("timestamp", c);
+                    });
                 case "nonce":
-                    return this.handler.handleOrNumericCriteria("nonce", criteria.nonce!);
+                    return handleOrCriteria(criteria.nonce!, async (c) => {
+                        return handleNumericCriteria("nonce", c);
+                    });
                 case "senderPublicKey":
-                    return this.handler.handleOrEqualCriteria("senderPublicKey", criteria.senderPublicKey!);
+                    return handleOrCriteria(criteria.senderPublicKey!, async (c) => {
+                        return { property: "senderPublicKey", op: "equal", value: c };
+                    });
                 case "recipientId":
-                    return this.handler.handleOrCriteria(criteria.recipientId!, (c) =>
-                        this.handleRecipientIdCriteria(c),
-                    );
+                    return handleOrCriteria(criteria.recipientId!, (c) => {
+                        return this.handleRecipientIdCriteria(c);
+                    });
                 case "type":
-                    return this.handler.handleOrEqualCriteria("type", criteria.type!);
+                    return handleOrCriteria(criteria.type!, async (c) => {
+                        return { property: "type", op: "equal", value: c };
+                    });
                 case "typeGroup":
-                    return this.handler.handleOrEqualCriteria("typeGroup", criteria.typeGroup!);
+                    return handleOrCriteria(criteria.typeGroup!, async (c) => {
+                        return { property: "typeGroup", op: "equal", value: c };
+                    });
                 case "vendorField":
-                    return this.handler.handleOrLikeCriteria("vendorField", criteria.vendorField!);
+                    return handleOrCriteria(criteria.vendorField!, async (c) => {
+                        return { property: "vendorField", op: "like", pattern: c };
+                    });
                 case "amount":
-                    return this.handler.handleOrNumericCriteria("amount", criteria.amount!);
+                    return handleOrCriteria(criteria.amount!, async (c) => {
+                        return handleNumericCriteria("amount", c);
+                    });
                 case "fee":
-                    return this.handler.handleOrNumericCriteria("fee", criteria.fee!);
+                    return handleOrCriteria(criteria.fee!, async (c) => {
+                        return handleNumericCriteria("fee", c);
+                    });
                 case "asset":
-                    return this.handler.handleOrContainsCriteria("asset", criteria.asset!);
+                    return handleOrCriteria(criteria.asset!, async (c) => {
+                        return { property: "asset", op: "contains", value: c };
+                    });
                 default:
-                    return new Contracts.Shared.VoidExpression();
+                    return { op: "void" };
             }
         });
 
-        return Contracts.Shared.AndExpression.make([expression, await this.getAutoTypeGroupExpression(criteria)]);
+        return { op: "and", expressions: [expression, await this.getAutoTypeGroupExpression(criteria)] };
     }
 
     private async handleSenderIdCriteria(
-        criteria: Contracts.Shared.EqualCriteria<string>,
-    ): Promise<Contracts.Shared.WhereExpression> {
+        criteria: Contracts.Search.EqualCriteria<string>,
+    ): Promise<Contracts.Search.Expression<Transaction>> {
         const senderWallet = this.walletRepository.findByAddress(criteria);
 
         if (senderWallet && senderWallet.publicKey) {
-            return new Contracts.Shared.EqualExpression("senderPublicKey", senderWallet.publicKey);
+            return { op: "equal", property: "senderPublicKey", value: senderWallet.publicKey };
         } else {
-            return new Contracts.Shared.FalseExpression();
+            return { op: "false" };
         }
     }
 
     private async handleRecipientIdCriteria(
-        criteria: Contracts.Shared.EqualCriteria<string>,
-    ): Promise<Contracts.Shared.WhereExpression> {
-        const recipientIdExpression = new Contracts.Shared.EqualExpression("recipientId", criteria);
+        criteria: Contracts.Search.EqualCriteria<string>,
+    ): Promise<Contracts.Search.Expression<Transaction>> {
+        const recipientIdExpression: Contracts.Search.EqualExpression<Transaction> = {
+            op: "equal",
+            property: "recipientId" as keyof Transaction,
+            value: criteria,
+        };
 
         const recipientWallet = this.walletRepository.findByAddress(criteria);
         if (recipientWallet && recipientWallet.publicKey) {
-            const senderPublicKeyExpression = Contracts.Shared.AndExpression.make([
-                new Contracts.Shared.EqualExpression("typeGroup", Enums.TransactionTypeGroup.Core),
-                new Contracts.Shared.EqualExpression("type", Enums.TransactionType.DelegateRegistration),
-                new Contracts.Shared.EqualExpression("senderPublicKey", recipientWallet.publicKey),
-            ]);
+            const senderPublicKeyExpression: Contracts.Search.AndExpression<Transaction> = {
+                op: "and",
+                expressions: [
+                    { op: "equal", property: "typeGroup", value: Enums.TransactionTypeGroup.Core },
+                    { op: "equal", property: "type", value: Enums.TransactionType.DelegateRegistration },
+                    { op: "equal", property: "senderPublicKey", value: recipientWallet.publicKey },
+                ],
+            };
 
-            return Contracts.Shared.OrExpression.make([recipientIdExpression, senderPublicKeyExpression]);
+            return { op: "or", expressions: [recipientIdExpression, senderPublicKeyExpression] };
         } else {
             return recipientIdExpression;
         }
@@ -98,11 +138,11 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
 
     private async getAutoTypeGroupExpression(
         criteria: Contracts.Shared.TransactionCriteria,
-    ): Promise<Contracts.Shared.WhereExpression> {
-        if (this.handler.hasOrCriteria(criteria.type) && this.handler.hasOrCriteria(criteria.typeGroup) === false) {
-            return new Contracts.Shared.EqualExpression("typeGroup", Enums.TransactionTypeGroup.Core);
+    ): Promise<Contracts.Search.Expression<Transaction>> {
+        if (hasOrCriteria(criteria.type) && hasOrCriteria(criteria.typeGroup) === false) {
+            return { op: "equal", property: "typeGroup", value: Enums.TransactionTypeGroup.Core };
         } else {
-            return new Contracts.Shared.VoidExpression();
+            return { op: "void" };
         }
     }
 }
