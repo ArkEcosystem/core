@@ -157,16 +157,19 @@ export class Tree<T> {
             // and replace current value node with that next biggest value.
             const nextBiggerNode = this.findMin(node.right);
             if (this.compareFunction(nextBiggerNode.lastValueAdded, node.right.lastValueAdded) !== 0) {
+                this.removeNode(nextBiggerNode);
+
                 node.values = { ...nextBiggerNode.values };
                 node.lastValueAdded = nextBiggerNode.lastValueAdded;
-
-                this.removeNode(nextBiggerNode);
             } else {
                 // In case if next right value is the next bigger one and it doesn't have left child
                 // then just replace node that is going to be deleted with the right node.
                 node.values = node.right.values;
                 node.lastValueAdded = node.right.lastValueAdded;
                 node.right = node.right.right;
+                if (node.right) {
+                    node.right.parent = node;
+                }
             }
         } else {
             // Node has only one child.
