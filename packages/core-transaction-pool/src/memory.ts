@@ -134,7 +134,7 @@ export class Memory {
         // Algorithm : get the lowest fees transactions : if one of them happen to be the last nonce
         // of the sender, then return it (try that for the 1000 lowest fee transactions)
         const sortedByFee = this.byFee.getAll();
-        for (let i = sortedByFee.length - 1; i > Math.max(sortedByFee.length - 1000, 0); i--) {
+        for (let i = sortedByFee.length - 1; i >= Math.max(sortedByFee.length - 1000, 0); i--) {
             const transaction = sortedByFee[i];
             const lastByNonceSameSender = this.bySender[transaction.data.senderPublicKey].getLast();
             if (lastByNonceSameSender && lastByNonceSameSender[0].data.id === transaction.data.id) {
