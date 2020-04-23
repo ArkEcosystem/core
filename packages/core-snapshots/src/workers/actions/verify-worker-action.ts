@@ -28,7 +28,7 @@ export class VerifyWorkerAction extends AbstractWorkerAction {
             }
         );
 
-        await this.readProcessor.start();
+        await this.readProcessor?.start();
     }
 
     private getVerifyFunction(): Function {

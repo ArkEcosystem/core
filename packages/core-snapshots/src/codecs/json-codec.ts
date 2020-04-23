@@ -62,11 +62,15 @@ export class JSONCodec implements Codec {
         return itemToReturn;
     };
 
-    private static encodeBlock(block) {
-        return JSONCodec.Stringify(camelizeKeys(JSONCodec.removePrefix(block, "Block_")));
+    public static encodeBlock(block) {
+        let blockStringified = JSONCodec.Stringify(camelizeKeys(JSONCodec.removePrefix(block, "Block_")))
+
+        // console.log("BLOCK: ", blockStringified)
+
+        return Buffer.from(blockStringified);
     };
 
-    private static decodeBlock(buffer: Buffer) {
+    public static decodeBlock(buffer: Buffer) {
         return JSON.parse(buffer.toString());
     };
 

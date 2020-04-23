@@ -42,8 +42,6 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
             }
         );
 
-        await this.saveValues();
-
         await this.readProcessor.start();
     }
 

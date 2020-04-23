@@ -6,6 +6,7 @@ import { Codec as CodecException } from "../exceptions";
 import { Codec as ICodec  } from "../contracts";
 import { Container } from "@arkecosystem/core-kernel";
 import msgpack from "msgpack-lite";
+import { parentPort } from "worker_threads";
 
 @Container.injectable()
 export class Codec implements ICodec {
@@ -71,11 +72,17 @@ export class Codec implements ICodec {
     };
 
     private static decodeBlock(buffer: Buffer) {
+
         let blockId = undefined;
         try {
             let block: any = Blocks.Deserializer.deserialize(buffer.toString("hex"), false).data;
 
             blockId = block.id;
+
+            parentPort?.postMessage({
+                action: "log",
+                data: "New block " + blockId
+            });
 
             block.totalAmount = block.totalAmount.toFixed();
             block.totalFee = block.totalFee.toFixed();
@@ -88,6 +95,7 @@ export class Codec implements ICodec {
     };
 
     private static encodeTransaction(transaction) {
+        console.log("New transaction")
         // return JSON.stringify(camelizeKeys(Codec.removePrefix(transaction, "Transaction_")));
         // const transactionCamelized = camelizeKeys(Codec.removePrefix(transaction, "Transaction_"));
         // const transactionCamelized: any = Codec.removePrefix(transaction, "Transaction_");

@@ -80,7 +80,10 @@ export abstract class AbstractWorkerAction implements WorkerAction {
             stream = stream.pipe(gunzipStream);
         }
 
-        return stream.pipe(decodeStream);
+        stream = stream.pipe(decodeStream);
+        stream.pause();
+
+        return stream;
     }
 
     protected getRepository(): Repository {

@@ -19,7 +19,7 @@ export class TransactionVerifyException extends Exceptions.Base.Exception {
 }
 
 export class RoundVerifyException extends Exceptions.Base.Exception {
-    constructor(round: number) {
+    constructor(round: string) {
         super(`Round ${round} could not be verified.`);
     }
 }

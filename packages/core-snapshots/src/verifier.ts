@@ -15,8 +15,8 @@ export class Verifier {
 
     public static verifyRound(round: Models.Round): void {
         if(round.publicKey.length !== 66) {
-            throw new Exceptions.TransactionVerifyException(round.round.toString());
-        };
+            throw new Exceptions.RoundVerifyException(round.round.toString());
+        }
     }
 
     private static isBlockChained(block: Models.Block, previousBlock: Models.Block | undefined): void {

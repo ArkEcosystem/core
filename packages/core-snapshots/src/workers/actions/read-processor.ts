@@ -31,7 +31,8 @@ export class ReadProcessor {
 
         if (data.height) {
 
-            console.log("Height: ", data.height)
+            console.log("Height", data.height)
+
             Managers.configManager.setHeight(data.height);
         }
 
@@ -42,6 +43,7 @@ export class ReadProcessor {
 
         this.emitCount()
 
+        console.log("RESUME: ", data)
         // On first message is not defined
         if (this.callOnMessage) {
             this.callOnMessage();
@@ -65,6 +67,12 @@ export class ReadProcessor {
         let entity: any = undefined;
 
         for await (entity of this.readStream) {
+            this.readStream.pause();
+
+            if (!this.isBlock && this.count > 1002869) {
+                console.log()
+            }
+
             this.count++;
 
             if (this.nextValue && entity[this.nextField] > this.nextValue!) {
@@ -87,6 +95,11 @@ export class ReadProcessor {
         }
 
         clearInterval(interval!);
+
+        // Need to save last entities
+        if (this.onWait) {
+            await this.onWait();
+        }
 
         this.emitSynchronized();
     }
@@ -127,6 +140,8 @@ export class ReadProcessor {
     private waitForSynchronization(emit: boolean = true): Promise<void> {
         return new Promise<void>(async (resolve) => {
 
+            console.log("WAIT")
+
             if (this.onWait) {
                 await this.onWait();
             }
@@ -149,6 +164,7 @@ export class ReadProcessor {
             data: {
                 numberOfTransactions: this.transactionsCount,
                 height: this.height,
+                count: this.count
             }
         });
     }

@@ -10,13 +10,21 @@ export class WorkerWrapper extends EventEmitter {
         this.worker = new Worker(__dirname +  "/worker.js", {workerData: data});
 
         this.worker.on("message", data => {
+            // console.log("Message", data);
+
             this.handleMessage(data);
         })
 
         this.worker.on("error", err => {
-            this.emit("error", err)
-            this.emit("*", { name: "error", data: err })
+            console.log("Message err", err);
+            // this.emit("error", err)
+            // this.emit("*", { name: "error", data: err })
         })
+
+        // this.worker.on("error", err => {
+        //     this.emit("error", err)
+        //     this.emit("*", { name: "error", data: err })
+        // })
 
         this.worker.on("exit", (statusCode) => {
             this.isDone = true;
@@ -32,8 +40,10 @@ export class WorkerWrapper extends EventEmitter {
                     resolve();
                 } else if (data.name === "exit") {
                     resolve();
+                } else if (data.name === "unhandledRejection") {
+                    reject(data.data)
                 } else {
-                    reject(data);
+                    reject();
                 }
             })
 
@@ -52,8 +62,10 @@ export class WorkerWrapper extends EventEmitter {
                     resolve(data.data);
                 } else if (data.name === "exit") {
                     resolve();
+                } else if (data.name === "unhandledRejection") {
+                    reject(data.data)
                 } else {
-                    reject(data);
+                    reject();
                 }
             });
 
@@ -70,10 +82,13 @@ export class WorkerWrapper extends EventEmitter {
 
     private handleMessage(data) {
 
+        if (data.action === "log") {
+            console.log("LOG: ", data.data)
+        }
         // console.log("MESSAGE", data);
         // Actions: count, started, synced, exit, error
         this.emit(data.action, data.data);
-        if (data.action !== "count") {
+        if (data.action !== "count" && data.action !== "log") {
             this.emit("*", { name: data.action, data: data.data })
         }
     }

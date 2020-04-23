@@ -9,6 +9,14 @@ import { ProgressDispatcher } from "./progress-dispatcher";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
 import { WorkerWrapper } from "./workers/worker-wrapper";
 
+// @ts-ignore
+import { Encoder, Decoder, JSONCodec , EncodeTransformer} from "./codecs";
+// @ts-ignore
+import fs from "fs-extra";
+// @ts-ignore
+import ByteBuffer from "bytebuffer";
+
+
 @Container.injectable()
 export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseService {
     @Container.inject(Container.Identifiers.Application)
@@ -43,7 +51,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
     public async truncate(): Promise<void> {
         this.logger.info(
-            `Clearing:  ${await this.blockRepository.count()} blocks,  ${await this.transactionRepository.count()} transactions,  ${await this.roundRepository.count()} rounds.`,
+            `Clearing:  ${await this.blockRepository.count()} blocks,   ${await this.transactionRepository.count()} transactions,  ${await this.roundRepository.count()} rounds`,
         );
 
         await this.transactionRepository.clear();
@@ -72,19 +80,15 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         this.filesystem.setSnapshot(meta.folder);
         await this.filesystem.prepareDir();
 
-        let blocksWorker: WorkerWrapper | undefined = undefined;
-        let transactionsWorker: WorkerWrapper | undefined = undefined;
-        let roundsWorker: WorkerWrapper | undefined = undefined;
+        let blocksWorker = new WorkerWrapper(this.prepareWorkerData("dump", "blocks"));
+        let transactionsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "transactions"));
+        let roundsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "rounds"));
+
+        let stopBlocksDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+        let stopTransactionsDispatcher = await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
+        let stopRoundDispatcher = await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
 
         try {
-            blocksWorker = new WorkerWrapper(this.prepareWorkerData("dump", "blocks"));
-            transactionsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "transactions"));
-            roundsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "rounds"));
-
-            await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
-            await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
-            await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
-
             await Promise.all([
                 blocksWorker.start(),
                 transactionsWorker.start(),
@@ -93,7 +97,11 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
             await this.filesystem.writeMetaData(meta);
         } catch (err) {
-            console.log(err);
+            stopBlocksDispatcher();
+            stopTransactionsDispatcher();
+            stopRoundDispatcher();
+
+            throw err;
         } finally {
             await blocksWorker?.terminate();
             await transactionsWorker?.terminate();
@@ -112,76 +120,79 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     }
 
     private async runSynchronizedAction(action: string, meta: Meta.MetaData): Promise<void> {
-        let error: Error | undefined = undefined;
+        let blocksWorker = new WorkerWrapper(this.prepareWorkerData(action, "blocks"));
+        let transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions"));
+        let roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds"));
 
-        let blocksWorker: WorkerWrapper | undefined = undefined;
-        let transactionsWorker: WorkerWrapper | undefined = undefined;
-        let roundsWorker: WorkerWrapper | undefined = undefined;
+        // let stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+        // let stopTransactionsProgressDispatcher =await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
+        // let stopRoundsProgressDispatcher =await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
 
         try {
-            blocksWorker = new WorkerWrapper(this.prepareWorkerData(action, "blocks"));
-            transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions"));
-            roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds"));
-
-            // await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
-            // await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
-            // await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
-
             await blocksWorker.start();
-            await transactionsWorker.start();
-            await roundsWorker.start();
+            // await transactionsWorker.start();
+            // await roundsWorker.start();
 
             let milestoneHeights = Managers.configManager.getMilestones().map(x => x.height);
+            milestoneHeights.push(Number.POSITIVE_INFINITY);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
 
             console.log("Milestone heights: ", milestoneHeights)
 
+            console.log("Result: ", await blocksWorker.sync({ nextValue: 1, nextField: "height"}))
+
             // @ts-ignore
             let result: any = undefined;
             // @ts-ignore
-            let prevHeight = undefined;
-            for (let height of milestoneHeights) {
-                let promises = [] as any;
+            // for (let height of milestoneHeights) {
+                // let promises = [] as any;
 
-                promises.push(blocksWorker.sync({ nextValue: height, nextField: "height"}))
+                // promises.push(blocksWorker.sync({ nextValue: height, nextField: "height"}))
+                //
+                // if (result) {
+                //     console.log("Run with: ", { nextCount: result.numberOfTransactions, height: result.height - 1  })
+                //
+                //     promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
+                //     promises.push(roundsWorker.sync({ nextValue: Utils.roundCalculator.calculateRound(height).round, nextField: "round"  }))
+                // }
 
-                if (result) {
-                    console.log("Run with: ", { nextCount: result.numberOfTransactions, height: result.height - 1  })
+                // result = (await Promise.all(promises))[0];
 
-                    promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
-                    promises.push(roundsWorker.sync({ nextValue: Utils.roundCalculator.calculateRound(height).round, nextField: "round"  }))
-                }
+                // if (result) {
+                //     console.log("RUN Transactions: ", { nextCount: result.numberOfTransactions, height: result.height - 1  })
+                //     console.log("Tra: ", await transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
+                // }
 
-                result = (await Promise.all(promises))[0];
+                // console.log("RUN Blocks: ", { nextValue: height, nextField: "height"})
+                // result = await blocksWorker.sync({ nextValue: height, nextField: "height"})
+                // result = await blocksWorker.sync({ nextValue: 1, nextField: "height"})
+                //
+                // break;
 
-                if (!result) {
-                    continue;
-                }
-
-                console.log("result: ", result);
-
-                prevHeight = height;
-            }
+                // if (!result) {
+                //     break;
+                // }
+            // }
 
         } catch (err) {
-            error = err
-            console.log("ERR", err);
+            // stopBlocksProgressDispatcher();
+            // stopTransactionsProgressDispatcher();
+            // stopRoundsProgressDispatcher();
+
+            console.log("TERMINATED")
+
+            throw err;
         }
         finally {
             await blocksWorker?.terminate();
             await transactionsWorker?.terminate();
             await roundsWorker?.terminate();
         }
-
-        if (error) {
-            throw error;
-        }
     }
 
-    // @ts-ignore
     private async prepareMetaData(options: Options.DumpOptions): Promise<Meta.MetaData> {
         const blocksCount = await this.blockRepository.count();
-        this.logger.info("Finish counting");
+        this.logger.info("Finish counting ");
 
         const startHeight = (await this.blockRepository.findFirst())?.height;
         this.logger.info("Found first block");
@@ -219,11 +230,6 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     public async getLastBlock(): Promise<Interfaces.IBlock> {
         let block: Interfaces.IBlockData | undefined = await this.blockRepository.findLast();
 
-        // TODO: Error
-        // if (!block) {
-        //     throw new Error("Cannot find last block")
-        // }
-
         Utils.assert.defined<Interfaces.IBlockData>(block);
 
         const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
@@ -247,32 +253,84 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         };
     }
 
-    // @ts-ignore
-    private async prepareProgressDispatcher(worker: WorkerWrapper, table: string, count: number): Promise<void> {
+    private async prepareProgressDispatcher(worker: WorkerWrapper, table: string, count: number): Promise<Function> {
         let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
 
         await progressDispatcher.start(table, count);
 
-        worker.on("count", async (count: number) => {
+        let onCount = async (count: number) => {
             await progressDispatcher.update(count);
-        });
+        }
 
-        worker.on("exit", async () => {
+        let onExit = async () => {
             await progressDispatcher.end();
+        }
+
+        worker.on("count", onCount);
+
+        worker.on("exit", onExit)
+
+        return () => {
+            worker.removeListener("count", onCount)
+            worker.removeListener("exit", onExit)
+        }
+    }
+
+    // @ts-ignore
+    private waitToEnd(writableStream: NodeJS.WritableStream): Promise<void> {
+        return new Promise<void>((resolve) => {
+            writableStream.once("close", () => {
+                resolve();
+            })
         })
     }
 
-
     public async test(options: any): Promise<void> {
-        // console.log(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!.data.id);
+        // @ts-ignore
+        let writeStream = fs.createWriteStream("/Users/sebastijankuzner/Desktop/ARK/Database/Test/asd");
+        let dbStream = await this.blockRepository.getReadStream();
 
-        let result = await this.transactionRepository.createQueryBuilder()
-            .orderBy("timestamp" ,"ASC")
-            .addOrderBy("sequence" ,"ASC")
-            .limit(100)
-            .execute();
+        let transformer = new Encoder(dbStream, writeStream,JSONCodec.encodeBlock);
 
-        console.log(result);
+        await transformer.write();
+
+        // let encodeTransformer = new EncodeTransformer(JSONCodec.encodeBlock);
+        //
+        //
+        // dbStream.pipe(encodeTransformer).pipe(writeStream);
+
+
+        console.log("RESUMING");
+
+
+        // let stream = fs.createReadStream("/Users/sebastijankuzner/Library/Application Support/ark-core/testnet/snapshots/testnet/1-261/blocks", {});
+
+
+        let stream = fs.createReadStream("/Users/sebastijankuzner/Desktop/ARK/Database/Test/asd", {});
+
+        let decoder = new Decoder(stream, JSONCodec.decodeBlock);
+
+
+        for(let i = 0; i < 2; i++) {
+            console.log(await decoder.readNext());
+        }
+
+        console.log("Finish");
+
+
+
+        // await decoder.readNext();
+
+        // // @ts-ignore
+        // for(let i of [1,2,3,4,5,6,7]) {
+        //     await decoder.readNext();
+        // }
+
+
+        // // stream.pipe(transformer)
+        // stream = stream.pipe(transformer)
+        //
+        // stream.pipe(process.stdout);
     }
 }
 

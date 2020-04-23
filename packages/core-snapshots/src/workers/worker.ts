@@ -86,10 +86,27 @@ parentPort?.on("message", async (data) => {
     }
 });
 
-process.on('unhandledRejection', (err, promise) => {
-    // TODO: Fix
-    console.log("Problem on promise: ", promise)
+process.on('unhandledRejection', (err) => {
+    console.log("unhandledRejection", err)
 
-    throw err;
-    // throw new Error("Unhandled Rejection");
+    parentPort!.postMessage({
+        action: "unhandledRejection",
+        data: err,
+    });
+
+    process.exit();
 });
+
+process.on('uncaughtException', (err) => {
+    console.log("uncaughtException", err)
+
+    parentPort!.postMessage({
+        action: "unhandledRejection",
+        data: err,
+    });
+
+    process.exit();
+});
+
+// TODO: uncaughtException
+
