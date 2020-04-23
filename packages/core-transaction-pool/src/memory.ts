@@ -354,7 +354,7 @@ export class Memory {
             i += nMoved;
             allMoved += nMoved;
 
-            if (limit && i > limit) {
+            if (limit && i > limit + allMoved) {
                 break;
             }
         }
