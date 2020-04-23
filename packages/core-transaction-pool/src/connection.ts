@@ -440,7 +440,7 @@ export class Connection implements TransactionPool.IConnection {
 
             if (lowest && lowest.data.fee.isLessThan(transaction.data.fee)) {
                 await this.walletManager.revertTransactionForSender(lowest);
-                this.memory.forget(lowest.id, lowest.data.senderPublicKey);
+                this.memory.forget(lowest.data.id, lowest.data.senderPublicKey);
             } else {
                 return {
                     transaction,
