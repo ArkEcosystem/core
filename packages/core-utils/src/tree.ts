@@ -1,0 +1,214 @@
+/* tslint:disable:max-classes-per-file */
+type CompareFunction<T> = (a: T, b: T) => number;
+
+class Node<T> {
+    public values: { [id: string]: T } = {};
+    public lastValueAdded: T;
+    public left: Node<T> | undefined;
+    public right: Node<T> | undefined;
+    public parent: Node<T> | undefined;
+
+    constructor(parent?: Node<T>) {
+        this.parent = parent;
+    }
+
+    public getStruct() {
+        return {
+            values: this.values,
+            lastValueAdded: this.lastValueAdded,
+            left: this.left ? this.left.getStruct() : undefined,
+            right: this.right ? this.right.getStruct() : undefined,
+            parent: this.parent ? this.parent.lastValueAdded : undefined,
+        };
+    }
+}
+
+export class Tree<T> {
+    private root: Node<T>;
+    private compareFunction: CompareFunction<T>;
+
+    constructor(compareFunction: CompareFunction<T>) {
+        this.root = new Node();
+        this.compareFunction = compareFunction;
+    }
+
+    public getAll(): T[] {
+        const all = [];
+        this.getAllFromChildNodes(this.root, all);
+        return all;
+    }
+
+    public getLast(): T[] {
+        let currentNode = this.root;
+        for (;;) {
+            if (!currentNode.right) {
+                break;
+            } // currentNode is the rightest node
+            currentNode = currentNode.right;
+        }
+        return Object.values(currentNode.values);
+    }
+
+    public insert(id: string, value: T): void {
+        let node = this.root;
+        for (;;) {
+            // node = this.insertChildNode(node, id, value);\
+            const valuesForNode = Object.values(node.values);
+            if (valuesForNode.length === 0) {
+                node.values[id] = value;
+                node.lastValueAdded = value;
+                return;
+            }
+
+            const cmp = this.compareFunction(value, valuesForNode[0]);
+            if (cmp > 0) {
+                node = this.getOrCreateRightNode(node);
+            } else if (cmp < 0) {
+                node = this.getOrCreateLeftNode(node);
+            } else {
+                // exact match, add to the node values
+                node.values[id] = value;
+                node.lastValueAdded = value;
+                return;
+            }
+        }
+    }
+
+    public find(id: string, value: T): Node<T> {
+        let currentNode = this.root;
+        for (;;) {
+            if (!currentNode || !currentNode.lastValueAdded) {
+                return undefined;
+            }
+
+            const cmp = this.compareFunction(value, currentNode.lastValueAdded);
+            if (cmp > 0) {
+                currentNode = currentNode.right;
+            } else if (cmp < 0) {
+                currentNode = currentNode.left;
+            } else {
+                // found
+                return currentNode;
+            }
+        }
+    }
+
+    public remove(id: string, value: T): void {
+        const node = this.find(id, value);
+        if (!node) {
+            return;
+        }
+
+        // Remove from the node values
+        if (node.values[id]) {
+            delete node.values[id];
+        }
+
+        // Still other values in the node ? If yes we don't need to remove the node
+        if (Object.keys(node.values).length) {
+            return;
+        }
+        node.lastValueAdded = undefined;
+
+        // No more values, node needs to be deleted
+        this.removeNode(node);
+    }
+
+    public findMin(node: Node<T>): Node<T> {
+        let currentNode = node;
+        for (;;) {
+            if (!currentNode.left) {
+                break;
+            } // currentNode is the leftest node
+            currentNode = currentNode.left;
+        }
+        return currentNode;
+    }
+
+    public isEmpty(): boolean {
+        if (this.root.lastValueAdded) {
+            return false;
+        }
+        return true;
+    }
+
+    public toJSON(node: Node<T> = this.root): string {
+        return JSON.stringify(node.getStruct(), null, 2);
+    }
+
+    private removeNode(node: Node<T>): void {
+        if (!node.left && !node.right) {
+            // Node is a leaf and thus has no children.
+            if (node.parent) {
+                // Node has a parent. Just remove the pointer to this node from the parent.
+                this.removeChild(node.parent, node);
+            }
+        } else if (node.left && node.right) {
+            // Node has two children.
+            // Find the next biggest value (minimum value in the right branch)
+            // and replace current value node with that next biggest value.
+            const nextBiggerNode = this.findMin(node.right);
+            if (this.compareFunction(nextBiggerNode.lastValueAdded, node.right.lastValueAdded) !== 0) {
+                node.values = { ...nextBiggerNode.values };
+                node.lastValueAdded = nextBiggerNode.lastValueAdded;
+
+                this.removeNode(nextBiggerNode);
+            } else {
+                // In case if next right value is the next bigger one and it doesn't have left child
+                // then just replace node that is going to be deleted with the right node.
+                node.values = node.right.values;
+                node.lastValueAdded = node.right.lastValueAdded;
+                node.right = node.right.right;
+            }
+        } else {
+            // Node has only one child.
+            // Make this child to be a direct child of current node's parent.
+            const child = node.left || node.right;
+
+            if (node.parent) {
+                this.replaceChild(node.parent, node, child);
+            } else {
+                // only the root has no parent, replace root with child
+                this.root = child;
+                this.root.parent = undefined;
+            }
+        }
+    }
+
+    private removeChild(node: Node<T>, child: Node<T>): void {
+        if (node.left === child) {
+            node.left = undefined;
+        } else if (node.right === child) {
+            node.right = undefined;
+        }
+    }
+
+    private replaceChild(node: Node<T>, toReplace: Node<T>, replaceBy: Node<T>): void {
+        replaceBy.parent = node;
+        if (node.left === toReplace) {
+            node.left = replaceBy;
+        } else if (node.right === toReplace) {
+            node.right = replaceBy;
+        }
+    }
+
+    private getAllFromChildNodes(node: Node<T>, all: T[]): void {
+        if (node.left) {
+            this.getAllFromChildNodes(node.left, all);
+        }
+        all.push(...Object.values(node.values));
+        if (node.right) {
+            this.getAllFromChildNodes(node.right, all);
+        }
+    }
+
+    private getOrCreateLeftNode(node: Node<T>): Node<T> {
+        node.left = node.left || new Node(node);
+        return node.left;
+    }
+
+    private getOrCreateRightNode(node: Node<T>): Node<T> {
+        node.right = node.right || new Node(node);
+        return node.right;
+    }
+}
