@@ -47,7 +47,7 @@ export class Memory {
             if (limit) {
                 return this.sort(limit);
             }
-            this.sort();
+            this.all = this.sort();
             this.allIsSorted = true;
         }
 
