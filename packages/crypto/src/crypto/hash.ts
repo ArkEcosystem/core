@@ -1,26 +1,33 @@
-import { secp256k1 } from "bcrypto";
-
 import { IKeyPair } from "../interfaces";
+import { Libraries } from "./interfaces";
 
 export class Hash {
-    public static signECDSA(hash: Buffer, keys: IKeyPair): string {
-        return secp256k1.signatureExport(secp256k1.sign(hash, Buffer.from(keys.privateKey, "hex"))).toString("hex");
+    private secp256k1: any;
+
+    public constructor(libraries: Libraries) {
+        this.secp256k1 = libraries.secp256k1;
     }
 
-    public static verifyECDSA(hash: Buffer, signature: Buffer | string, publicKey: Buffer | string): boolean {
-        return secp256k1.verify(
+    public signECDSA(hash: Buffer, keys: IKeyPair): string {
+        return this.secp256k1
+            .signatureExport(this.secp256k1.sign(hash, Buffer.from(keys.privateKey, "hex")))
+            .toString("hex");
+    }
+
+    public verifyECDSA(hash: Buffer, signature: Buffer | string, publicKey: Buffer | string): boolean {
+        return this.secp256k1.verify(
             hash,
-            secp256k1.signatureImport(signature instanceof Buffer ? signature : Buffer.from(signature, "hex")),
+            this.secp256k1.signatureImport(signature instanceof Buffer ? signature : Buffer.from(signature, "hex")),
             publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, "hex"),
         );
     }
 
-    public static signSchnorr(hash: Buffer, keys: IKeyPair): string {
-        return secp256k1.schnorrSign(hash, Buffer.from(keys.privateKey, "hex")).toString("hex");
+    public signSchnorr(hash: Buffer, keys: IKeyPair): string {
+        return this.secp256k1.schnorrSign(hash, Buffer.from(keys.privateKey, "hex")).toString("hex");
     }
 
-    public static verifySchnorr(hash: Buffer, signature: Buffer | string, publicKey: Buffer | string): boolean {
-        return secp256k1.schnorrVerify(
+    public verifySchnorr(hash: Buffer, signature: Buffer | string, publicKey: Buffer | string): boolean {
+        return this.secp256k1.schnorrVerify(
             hash,
             signature instanceof Buffer ? signature : Buffer.from(signature, "hex"),
             publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, "hex"),

@@ -1,47 +1,49 @@
-import dayjs from "dayjs";
-
-import { configManager } from "../managers";
+import { MilestoneManager } from "../managers/milestone-manager";
+import { Libraries } from "./interfaces";
 
 export class Slots {
-    public static getTime(time?: number): number {
+    public constructor(private libraries: Libraries, private milestoneManager: MilestoneManager) {}
+
+    public getTime(time?: number): number {
         if (time === undefined) {
-            time = dayjs().valueOf();
+            time = this.libraries.dayjs().valueOf();
         }
 
-        const start: number = dayjs(configManager.getMilestone(1).epoch).valueOf();
+        const start: number = this.libraries.dayjs(this.milestoneManager.getMilestone(1).epoch).valueOf();
 
+        // @ts-ignore TODO: use assert here
         return Math.floor((time - start) / 1000);
     }
 
-    public static getTimeInMsUntilNextSlot(): number {
+    public getTimeInMsUntilNextSlot(): number {
         const nextSlotTime: number = this.getSlotTime(this.getNextSlot());
         const now: number = this.getTime();
 
         return (nextSlotTime - now) * 1000;
     }
 
-    public static getSlotNumber(epoch?: number): number {
+    public getSlotNumber(epoch?: number): number {
         if (epoch === undefined) {
             epoch = this.getTime();
         }
 
-        return Math.floor(epoch / configManager.getMilestone(1).blocktime);
+        return Math.floor(epoch / this.milestoneManager.getMilestone(1).blocktime);
     }
 
-    public static getSlotTime(slot: number): number {
-        return slot * configManager.getMilestone(1).blocktime;
+    public getSlotTime(slot: number): number {
+        return slot * this.milestoneManager.getMilestone(1).blocktime;
     }
 
-    public static getNextSlot(): number {
+    public getNextSlot(): number {
         return this.getSlotNumber() + 1;
     }
 
-    public static isForgingAllowed(epoch?: number): boolean {
+    public isForgingAllowed(epoch?: number): boolean {
         if (epoch === undefined) {
             epoch = this.getTime();
         }
 
-        const blockTime: number = configManager.getMilestone(1).blocktime;
+        const blockTime: number = this.milestoneManager.getMilestone(1).blocktime;
 
         return epoch % blockTime < blockTime / 2;
     }

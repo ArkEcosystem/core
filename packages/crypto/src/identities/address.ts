@@ -1,75 +1,72 @@
-import { HashAlgorithms } from "../crypto";
 import { PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
-import { configManager } from "../managers";
-import { NetworkType } from "../types";
-import { Base58 } from "../utils/base58";
 import { PublicKey } from "./public-key";
 
 export class Address {
-    public static fromPassphrase(passphrase: string, networkVersion?: number): string {
-        return Address.fromPublicKey(PublicKey.fromPassphrase(passphrase), networkVersion);
+    /**
+     *
+     * @param base58 // import { Base58 } from "../utils/base58";
+     * @param ripemd160 // import { HashAlgorithms } from "../crypto"; .ripemd160
+     * @param publicKey
+     * @param networkVersion // configManager.get("network.pubKeyHash")
+     */
+    public constructor(
+        private base58: any,
+        private ripemd160: any,
+        private publicKey: PublicKey,
+        private networkVersion: number,
+    ) {}
+
+    public fromPassphrase(passphrase: string): string {
+        return this.fromPublicKey(this.publicKey.fromPassphrase(passphrase));
     }
 
-    public static fromPublicKey(publicKey: string, networkVersion?: number): string {
+    public fromPublicKey(publicKey: string): string {
         if (!/^[0-9A-Fa-f]{66}$/.test(publicKey)) {
             throw new PublicKeyError(publicKey);
         }
 
-        const buffer: Buffer = HashAlgorithms.ripemd160(Buffer.from(publicKey, "hex"));
+        const buffer: Buffer = this.ripemd160(Buffer.from(publicKey, "hex"));
         const payload: Buffer = Buffer.alloc(21);
 
-        if (!networkVersion) {
-            networkVersion = configManager.get("network.pubKeyHash");
-        }
-
-        if (!networkVersion) {
-            throw new Error();
-        }
-
-        payload.writeUInt8(networkVersion, 0);
+        payload.writeUInt8(this.networkVersion, 0);
         buffer.copy(payload, 1);
 
         return this.fromBuffer(payload);
     }
 
-    public static fromWIF(wif: string, network?: NetworkType): string {
-        return Address.fromPublicKey(PublicKey.fromWIF(wif, network));
+    public fromWIF(wif: string): string {
+        return this.fromPublicKey(this.publicKey.fromWIF(wif));
     }
 
-    public static fromMultiSignatureAsset(asset: IMultiSignatureAsset, networkVersion?: number): string {
-        return this.fromPublicKey(PublicKey.fromMultiSignatureAsset(asset), networkVersion);
+    public fromMultiSignatureAsset(asset: IMultiSignatureAsset): string {
+        return this.fromPublicKey(this.publicKey.fromMultiSignatureAsset(asset));
     }
 
-    public static fromPrivateKey(privateKey, networkVersion?: number): string {
-        return Address.fromPublicKey(privateKey.publicKey, networkVersion);
+    public fromPrivateKey(privateKey): string {
+        return this.fromPublicKey(privateKey.publicKey);
     }
 
-    public static fromBuffer(buffer: Buffer): string {
-        return Base58.encodeCheck(buffer);
+    public fromBuffer(buffer: Buffer): string {
+        return this.base58.encodeCheck(buffer);
     }
 
-    public static toBuffer(address: string): { addressBuffer: Buffer; addressError?: string } {
-        const buffer: Buffer = Base58.decodeCheck(address);
-        const networkVersion: number = configManager.get("network.pubKeyHash");
+    public toBuffer(address: string): { addressBuffer: Buffer; addressError?: string } {
+        const buffer: Buffer = this.base58.decodeCheck(address);
         const result: { addressBuffer: Buffer; addressError?: string } = {
             addressBuffer: buffer,
         };
 
-        if (buffer[0] !== networkVersion) {
-            result.addressError = `Expected address network byte ${networkVersion}, but got ${buffer[0]}.`;
+        if (buffer[0] !== this.networkVersion) {
+            result.addressError = `Expected address network byte ${this.networkVersion}, but got ${buffer[0]}.`;
         }
 
         return result;
     }
 
-    public static validate(address: string, networkVersion?: number): boolean {
-        if (!networkVersion) {
-            networkVersion = configManager.get("network.pubKeyHash");
-        }
-
+    public validate(address: string): boolean {
         try {
-            return Base58.decodeCheck(address)[0] === networkVersion;
+            return this.base58.decodeCheck(address)[0] === this.networkVersion;
         } catch (err) {
             return false;
         }

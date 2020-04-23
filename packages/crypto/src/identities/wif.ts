@@ -1,34 +1,32 @@
-import wif from "wif";
-
 import { IKeyPair } from "../interfaces";
-import { Network } from "../interfaces/networks";
-import { configManager } from "../managers";
 import { Keys } from "./keys";
 
+export interface WIFReturn {
+    readonly version: number;
+    readonly privateKey: Buffer;
+    readonly compressed: boolean;
+}
+
+export interface WifAlgorithm {
+    decode(string: string, version: number): WIFReturn;
+    encode(version: number, privateKey: Buffer, compressed: boolean): string;
+}
+
 export class WIF {
-    public static fromPassphrase(passphrase: string, network?: Network): string {
-        const keys: IKeyPair = Keys.fromPassphrase(passphrase);
+    /**
+     * @param wifAlgorithm // import wif from "wif"
+     * @param version // configManager.get("network").wif
+     * @param keys
+     */
+    public constructor(private wifAlgorithm: WifAlgorithm, private version: number, private keys: Keys) {}
 
-        if (!network) {
-            network = configManager.get("network");
-        }
+    public fromPassphrase(passphrase: string): string {
+        const keys: IKeyPair = this.keys.fromPassphrase(passphrase);
 
-        if (!network) {
-            throw new Error();
-        }
-
-        return wif.encode(network.wif, Buffer.from(keys.privateKey, "hex"), keys.compressed);
+        return this.wifAlgorithm.encode(this.version, Buffer.from(keys.privateKey, "hex"), keys.compressed);
     }
 
-    public static fromKeys(keys: IKeyPair, network?: Network): string {
-        if (!network) {
-            network = configManager.get("network");
-        }
-
-        if (!network) {
-            throw new Error();
-        }
-
-        return wif.encode(network.wif, Buffer.from(keys.privateKey, "hex"), keys.compressed);
+    public fromKeys(keys: IKeyPair): string {
+        return this.wifAlgorithm.encode(this.version, Buffer.from(keys.privateKey, "hex"), keys.compressed);
     }
 }

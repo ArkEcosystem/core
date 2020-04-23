@@ -1,21 +1,25 @@
-import { secp256k1 } from "bcrypto";
-
 import { InvalidMultiSignatureAssetError, PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
-import { NetworkType } from "../types";
-import { numberToHex } from "../utils";
 import { Keys } from "./keys";
 
 export class PublicKey {
-    public static fromPassphrase(passphrase: string): string {
-        return Keys.fromPassphrase(passphrase).publicKey;
+    /**
+     *
+     * @param keys
+     * @param secp256k1 // import { secp256k1 } from "bcrypto";
+     * @param numberToHex // import { numberToHex } from "../utils";
+     */
+    public constructor(private keys: Keys, private secp256k1: any, private numberToHex: any) {}
+
+    public fromPassphrase(passphrase: string): string {
+        return this.keys.fromPassphrase(passphrase).publicKey;
     }
 
-    public static fromWIF(wif: string, network?: NetworkType): string {
-        return Keys.fromWIF(wif, network).publicKey;
+    public fromWIF(wif: string): string {
+        return this.keys.fromWIF(wif).publicKey;
     }
 
-    public static fromMultiSignatureAsset(asset: IMultiSignatureAsset): string {
+    public fromMultiSignatureAsset(asset: IMultiSignatureAsset): string {
         const { min, publicKeys }: IMultiSignatureAsset = asset;
 
         for (const publicKey of publicKeys) {
@@ -28,11 +32,11 @@ export class PublicKey {
             throw new InvalidMultiSignatureAssetError();
         }
 
-        const minKey: string = PublicKey.fromPassphrase(numberToHex(min));
+        const minKey: string = this.fromPassphrase(this.numberToHex(min));
         const keys: string[] = [minKey, ...publicKeys];
 
         return keys.reduce((previousValue: string, currentValue: string) =>
-            secp256k1
+            this.secp256k1
                 .publicKeyAdd(Buffer.from(previousValue, "hex"), Buffer.from(currentValue, "hex"), true)
                 .toString("hex"),
         );

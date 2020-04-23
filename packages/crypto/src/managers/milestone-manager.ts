@@ -1,89 +1,36 @@
 import deepmerge from "deepmerge";
-import get from "lodash.get";
-import set from "lodash.set";
 
 import { InvalidMilestoneConfigurationError } from "../errors";
 import { IMilestone } from "../interfaces";
 import { NetworkConfig } from "../interfaces/networks";
-import * as networks from "../networks";
-import { NetworkName } from "../types";
+import { HeightTracker } from "../manager";
 
-export class ConfigManager {
-    private config: NetworkConfig | undefined;
-    private height: number | undefined;
-    private milestone: IMilestone | undefined;
-    private milestones: Record<string, any> | undefined;
+export class MilestoneManager {
+    private milestone: IMilestone;
 
-    public constructor() {
-        this.setConfig((networks.devnet as unknown) as NetworkConfig);
-    }
-
-    public setConfig(config: NetworkConfig): void {
-        this.config = {
-            network: config.network,
-            exceptions: config.exceptions,
-            milestones: config.milestones,
-            genesisBlock: config.genesisBlock,
+    public constructor(
+        private milestones: Record<string, any>,
+        private heightTracker: HeightTracker,
+        private config: NetworkConfig,
+    ) {
+        this.milestones = milestones.sort((a, b) => a.height - b.height);
+        this.milestone = {
+            index: 0,
+            data: this.milestones[0],
         };
 
         this.validateMilestones();
         this.buildConstants();
     }
 
-    public setFromPreset(network: NetworkName): void {
-        this.setConfig(this.getPreset(network));
-    }
-
-    public getPreset(network: NetworkName): NetworkConfig {
-        return networks[network.toLowerCase()];
-    }
-
-    public all(): NetworkConfig | undefined {
-        return this.config;
-    }
-
-    public set<T = any>(key: string, value: T): void {
-        if (!this.config) {
-            throw new Error();
-        }
-
-        set(this.config, key, value);
-    }
-
-    public get<T = any>(key: string): T {
-        return get(this.config, key);
-    }
-
-    public setHeight(value: number): void {
-        this.height = value;
-    }
-
-    public getHeight(): number | undefined {
-        return this.height;
-    }
-
     public isNewMilestone(height?: number): boolean {
-        height = height || this.height;
-
-        if (!this.milestones) {
-            throw new Error();
-        }
+        height = height || this.heightTracker();
 
         return this.milestones.some((milestone) => milestone.height === height);
     }
 
     public getMilestone(height?: number): { [key: string]: any } {
-        if (!this.milestone || !this.milestones) {
-            throw new Error();
-        }
-
-        if (!height && this.height) {
-            height = this.height;
-        }
-
-        if (!height) {
-            height = 1;
-        }
+        height = height || this.heightTracker();
 
         while (
             this.milestone.index < this.milestones.length - 1 &&
@@ -106,16 +53,6 @@ export class ConfigManager {
     }
 
     private buildConstants(): void {
-        if (!this.config) {
-            throw new Error();
-        }
-
-        this.milestones = this.config.milestones.sort((a, b) => a.height - b.height);
-        this.milestone = {
-            index: 0,
-            data: this.milestones[0],
-        };
-
         let lastMerged = 0;
 
         const overwriteMerge = (dest, source, options) => source;
@@ -153,5 +90,3 @@ export class ConfigManager {
         }
     }
 }
-
-export const configManager = new ConfigManager();

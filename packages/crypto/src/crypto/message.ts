@@ -1,40 +1,36 @@
-import { Keys } from "../identities";
+import { Keys } from "../identities/keys";
 import { IKeyPair, IMessage } from "../interfaces";
-import { Network } from "../interfaces/networks";
-import { configManager } from "../managers";
 import { Hash } from "./hash";
 import { HashAlgorithms } from "./hash-algorithms";
 
 export class Message {
-    public static sign(message: string, passphrase: string): IMessage {
-        const keys: IKeyPair = Keys.fromPassphrase(passphrase);
+    public constructor(private hash: Hash, private hashAlgorithms: HashAlgorithms, private keys: Keys) {}
+
+    public sign(message: string, passphrase: string): IMessage {
+        const keys: IKeyPair = this.keys.fromPassphrase(passphrase);
 
         return {
             publicKey: keys.publicKey,
-            signature: Hash.signECDSA(this.createHash(message), keys),
+            signature: this.hash.signECDSA(this.createHash(message), keys),
             message,
         };
     }
 
-    public static signWithWif(message: string, wif: string, network?: Network): IMessage {
-        if (!network) {
-            network = configManager.get("network");
-        }
-
-        const keys: IKeyPair = Keys.fromWIF(wif, network);
+    public signWithWif(message: string, wif: string): IMessage {
+        const keys: IKeyPair = this.keys.fromWIF(wif);
 
         return {
             publicKey: keys.publicKey,
-            signature: Hash.signECDSA(this.createHash(message), keys),
+            signature: this.hash.signECDSA(this.createHash(message), keys),
             message,
         };
     }
 
-    public static verify({ message, publicKey, signature }: IMessage): boolean {
-        return Hash.verifyECDSA(this.createHash(message), signature, publicKey);
+    public verify({ message, publicKey, signature }: IMessage): boolean {
+        return this.hash.verifyECDSA(this.createHash(message), signature, publicKey);
     }
 
-    private static createHash(message: string): Buffer {
-        return HashAlgorithms.sha256(message);
+    private createHash(message: string): Buffer {
+        return this.hashAlgorithms.sha256(message);
     }
 }

@@ -1,17 +1,19 @@
-import { Hash160, Hash256, RIPEMD160, SHA1, SHA256 } from "bcrypto";
+import { Libraries } from "./interfaces";
 
 export class HashAlgorithms {
-    public static ripemd160(buffer: Buffer | string): Buffer {
-        return RIPEMD160.digest(this.bufferize(buffer));
+    public constructor(private libraries: Libraries) {}
+
+    public ripemd160(buffer: Buffer | string): Buffer {
+        return this.libraries.RIPEMD160.digest(this.bufferize(buffer));
     }
 
-    public static sha1(buffer: Buffer | string): Buffer {
-        return SHA1.digest(this.bufferize(buffer));
+    public sha1(buffer: Buffer | string): Buffer {
+        return this.libraries.SHA1.digest(this.bufferize(buffer));
     }
 
-    public static sha256(buffer: Buffer | string | Buffer[]): Buffer {
+    public sha256(buffer: Buffer | string | Buffer[]): Buffer {
         if (Array.isArray(buffer)) {
-            let sha256 = SHA256.ctx;
+            let sha256 = this.libraries.SHA256.ctx;
 
             sha256.init();
 
@@ -22,18 +24,18 @@ export class HashAlgorithms {
             return sha256.final();
         }
 
-        return SHA256.digest(this.bufferize(buffer));
+        return this.libraries.SHA256.digest(this.bufferize(buffer));
     }
 
-    public static hash160(buffer: Buffer | string): Buffer {
-        return Hash160.digest(this.bufferize(buffer));
+    public hash160(buffer: Buffer | string): Buffer {
+        return this.libraries.Hash160.digest(this.bufferize(buffer));
     }
 
-    public static hash256(buffer: Buffer | string): Buffer {
-        return Hash256.digest(this.bufferize(buffer));
+    public hash256(buffer: Buffer | string): Buffer {
+        return this.libraries.Hash256.digest(this.bufferize(buffer));
     }
 
-    private static bufferize(buffer: Buffer | string) {
+    private bufferize(buffer: Buffer | string) {
         return buffer instanceof Buffer ? buffer : Buffer.from(buffer);
     }
 }

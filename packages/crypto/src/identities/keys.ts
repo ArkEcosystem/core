@@ -1,44 +1,40 @@
-import { secp256k1 } from "bcrypto";
-import wif from "wif";
-
-import { HashAlgorithms } from "../crypto";
 import { NetworkVersionError } from "../errors";
 import { IKeyPair } from "../interfaces";
-import { Network } from "../interfaces/networks";
-import { configManager } from "../managers";
 
 export class Keys {
-    public static fromPassphrase(passphrase: string, compressed = true): IKeyPair {
-        return Keys.fromPrivateKey(HashAlgorithms.sha256(Buffer.from(passphrase, "utf8")), compressed);
+    /**
+     * TODO: consider passing methods through as one object
+     * @param sha256 // import { HashAlgorithms } from "../crypto"; HashAlgorithms.sha256
+     * @param secp256k1 // import { secp256k1 } from "bcrypto";
+     * @param wif // import wif from "wif"
+     * @param version // configManager.get("network").wif;
+     */
+    public constructor(private sha256: any, private secp256k1: any, private wif: any, private version: number) {}
+
+    public fromPassphrase(passphrase: string, compressed = true): IKeyPair {
+        return this.fromPrivateKey(this.sha256(Buffer.from(passphrase, "utf8")), compressed);
     }
 
-    public static fromPrivateKey(privateKey: Buffer | string, compressed = true): IKeyPair {
+    public fromPrivateKey(privateKey: Buffer | string, compressed = true): IKeyPair {
         privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, "hex");
 
         return {
-            publicKey: secp256k1.publicKeyCreate(privateKey, compressed).toString("hex"),
+            publicKey: this.secp256k1.publicKeyCreate(privateKey, compressed).toString("hex"),
             privateKey: privateKey.toString("hex"),
             compressed,
         };
     }
 
-    public static fromWIF(wifKey: string, network?: Network): IKeyPair {
-        if (!network) {
-            network = configManager.get("network");
-        }
+    public fromWIF(wifKey: string): IKeyPair {
+        const { version, compressed, privateKey } = this.wif.decode(wifKey, this.version);
 
-        if (!network) {
-            throw new Error();
-        }
-
-        const { version, compressed, privateKey } = wif.decode(wifKey, network.wif);
-
-        if (version !== network.wif) {
-            throw new NetworkVersionError(network.wif, version);
+        // TODO: I think check was probably left over from when this was instance based - can we remove?
+        if (version !== this.version) {
+            throw new NetworkVersionError(this.version, version);
         }
 
         return {
-            publicKey: secp256k1.publicKeyCreate(privateKey, compressed).toString("hex"),
+            publicKey: this.secp256k1.publicKeyCreate(privateKey, compressed).toString("hex"),
             privateKey: privateKey.toString("hex"),
             compressed,
         };
