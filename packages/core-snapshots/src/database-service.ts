@@ -311,7 +311,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         let decoder = new Decoder(stream, JSONCodec.decodeBlock);
 
 
-        for(let i = 0; i < 2; i++) {
+        for(let i = 0; i < 5; i++) {
             console.log(await decoder.readNext());
         }
 

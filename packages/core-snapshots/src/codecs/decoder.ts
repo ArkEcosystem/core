@@ -4,13 +4,7 @@ export class Decoder {
     private isEnd = false;
 
     // @ts-ignore
-    public constructor(private readStream: NodeJS.ReadableStream, private decode: Function) {
-        readStream.once("end", () => {
-            console.log("Close");
-
-            this.isEnd = true;
-        })
-    }
+    public constructor(private readStream: NodeJS.ReadableStream, private decode: Function) {}
 
     async readNext(): Promise<any> {
         if(this.isEnd) {
@@ -28,6 +22,11 @@ export class Decoder {
         let length = bbChunk.readUint32();
 
         console.log("Data length: ", length);
+
+        if (length === 0) {
+            this.isEnd = true;
+            return null;
+        }
 
 
         let dataChunk: Buffer | null = null;

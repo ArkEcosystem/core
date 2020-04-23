@@ -10,25 +10,25 @@ export class Encoder {
 
             let stream = this.dbStream
                 .pipe(transformer)
-                .pipe(this.writeStream)
+                // .pipe(this.writeStream)
 
-            // stream.on("data", (data) => {
-            //     console.log("BLOCK", data)
-            //
-            //     this.writeStream.write(data)
-            // })
-            //
-            // stream.once("end", () => {
-            //     console.log("END")
-            //
-            //     this.writeStream.write("END")
-            //
-            //     resolve();
-            // })
+            stream.on("data", (data) => {
+                console.log("BLOCK", data)
 
-            stream.once("close", () => {
+                this.writeStream.write(data)
+            })
+
+            stream.once("end", () => {
+                console.log("END")
+
+                this.writeStream.write(Buffer.alloc(4));
+
                 resolve();
             })
+
+            // stream.once("close", () => {
+            //     resolve();
+            // })
         })
     }
 
