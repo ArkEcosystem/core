@@ -74,27 +74,13 @@ export class Tree<T> {
         }
     }
 
-    public find(id: string, value: T): Node<T> {
-        let currentNode = this.root;
-        for (;;) {
-            if (!currentNode || !currentNode.lastValueAdded) {
-                return undefined;
-            }
-
-            const cmp = this.compareFunction(value, currentNode.lastValueAdded);
-            if (cmp > 0) {
-                currentNode = currentNode.right;
-            } else if (cmp < 0) {
-                currentNode = currentNode.left;
-            } else {
-                // found
-                return currentNode;
-            }
-        }
+    public find(id: string, value: T): T | undefined {
+        const node = this.findNode(value);
+        return node ? node.values[id] : undefined;
     }
 
     public remove(id: string, value: T): void {
-        const node = this.find(id, value);
+        const node = this.findNode(value);
         if (!node) {
             return;
         }
@@ -134,6 +120,25 @@ export class Tree<T> {
 
     public toJSON(node: Node<T> = this.root): string {
         return JSON.stringify(node.getStruct(), null, 2);
+    }
+
+    private findNode(value: T): Node<T> | undefined {
+        let currentNode = this.root;
+        for (;;) {
+            if (!currentNode || !currentNode.lastValueAdded) {
+                return undefined;
+            }
+
+            const cmp = this.compareFunction(value, currentNode.lastValueAdded);
+            if (cmp > 0) {
+                currentNode = currentNode.right;
+            } else if (cmp < 0) {
+                currentNode = currentNode.left;
+            } else {
+                // found
+                return currentNode;
+            }
+        }
     }
 
     private removeNode(node: Node<T>): void {
