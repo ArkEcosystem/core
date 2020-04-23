@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { State } from "@arkecosystem/core-interfaces";
 import { expirationCalculator, Tree } from "@arkecosystem/core-utils";
-import { Crypto, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
 export class Memory {
@@ -147,8 +147,10 @@ export class Memory {
     public remember(transaction: Interfaces.ITransaction, databaseReady?: boolean): void {
         assert.strictEqual(this.byId[transaction.id], undefined);
 
-        this.byFee.insert(transaction.data.id, transaction);
+        this.all.push(transaction);
         this.allIsSorted = false;
+
+        this.byFee.insert(transaction.data.id, transaction);
 
         this.byId[transaction.id] = transaction;
 
@@ -158,10 +160,13 @@ export class Memory {
         if (this.bySender[sender] === undefined) {
             // First transaction from this sender, create a new Tree.
             this.bySender[sender] = new Tree((a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
-                if (a.data.nonce.isGreaterThan(b.data.fee)) {
+                // if no nonce (v1 transactions), default to BigNumber.ZERO to still be able to use the tree
+                const nonceA = a.data.nonce || Utils.BigNumber.ZERO;
+                const nonceB = b.data.nonce || Utils.BigNumber.ZERO;
+                if (nonceA.isGreaterThan(nonceB)) {
                     return 1;
                 }
-                if (a.data.nonce.isLessThan(b.data.fee)) {
+                if (nonceA.isLessThan(nonceB)) {
                     return -1;
                 }
                 return 0;
@@ -268,6 +273,7 @@ export class Memory {
     public flush(): void {
         this.all = [];
         this.allIsSorted = true;
+        this.byFee = new Tree(this.byFee.getCompareFunction());
         this.byId = {};
         this.bySender = {};
         this.byType.clear();

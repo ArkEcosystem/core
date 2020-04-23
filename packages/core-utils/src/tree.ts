@@ -53,14 +53,13 @@ export class Tree<T> {
         let node = this.root;
         for (;;) {
             // node = this.insertChildNode(node, id, value);\
-            const valuesForNode = Object.values(node.values);
-            if (valuesForNode.length === 0) {
+            if (!node.lastValueAdded) {
                 node.values[id] = value;
                 node.lastValueAdded = value;
                 return;
             }
 
-            const cmp = this.compareFunction(value, valuesForNode[0]);
+            const cmp = this.compareFunction(value, node.lastValueAdded);
             if (cmp > 0) {
                 node = this.getOrCreateRightNode(node);
             } else if (cmp < 0) {
@@ -116,6 +115,10 @@ export class Tree<T> {
             return false;
         }
         return true;
+    }
+
+    public getCompareFunction(): CompareFunction<T> {
+        return this.compareFunction;
     }
 
     public toJSON(node: Node<T> = this.root): string {
