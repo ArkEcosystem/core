@@ -1,3 +1,4 @@
+import { Libraries } from "./crypto/interfaces";
 import { Identities } from "./identities";
 import { NetworkConfig } from "./interfaces";
 import { ConfigManager, HeightTracker, MilestoneManager, NetworkManager } from "./managers";
@@ -16,9 +17,9 @@ export class Crypto {
     /**
      *
      * @param network
-     * @param libraries  // todo: make this a required argument, and type the library defaults
+     * @param libraries
      */
-    public constructor(network: NetworkConfig, private libraries = libraryDefaults) {
+    public constructor(network: NetworkConfig, private libraries: Libraries) {
         this.libraries = { ...libraryDefaults, ...libraries };
         this.heightTracker = new HeightTracker();
         this.configManager = new ConfigManager(network);
