@@ -6,7 +6,7 @@ import { ConfigManager } from "../managers";
 import { MilestoneManager } from "../managers/milestone-manager";
 
 // TODO: BigNumber (@arkecosystem/utils) & Base58(formally in utils folder) used to be (re)exported from here, consider where needs updating
-export class Utils {
+export class NetworkUtils {
     private genesisTransactions: { [key: string]: boolean };
     private whitelistedBlockAndTransactionIds: { [key: string]: boolean };
 
@@ -67,8 +67,6 @@ export class Utils {
         return true;
     }
 
-    // TODO: consider previous todo (refers to all methods below)
-    // todo: review the implementation of all methods
     public isLocalHost(ip: string, includeNetworkInterfaces: boolean = true): boolean {
         try {
             const parsed = parse(ip);

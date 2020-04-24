@@ -25,12 +25,7 @@ export class Bip38 {
         p: 8,
     };
 
-    public constructor(
-        private libraries: Libraries,
-        private hashAlgorithms: HashAlgorithms,
-        private base58: Base58,
-        private keys: Keys,
-    ) {}
+    public constructor(private libraries: Libraries, private hashAlgorithms: HashAlgorithms, private base58: Base58) {}
 
     public encrypt(privateKey: Buffer, compressed: boolean, passphrase: string): string {
         return this.base58.encodeCheck(this.encryptRaw(privateKey, compressed, passphrase));
@@ -81,7 +76,7 @@ export class Bip38 {
     }
 
     private getPublicKey(buffer: Buffer, compressed: boolean): Buffer {
-        return Buffer.from(this.keys.fromPrivateKey(buffer, compressed).publicKey, "hex");
+        return Buffer.from(Keys.fromPrivateKey(buffer, this.libraries.secp256k1, compressed).publicKey, "hex");
     }
 
     private getAddressPrivate(privateKey: Buffer, compressed: boolean): string {

@@ -3,17 +3,14 @@ import deepmerge from "deepmerge";
 import { InvalidMilestoneConfigurationError } from "../errors";
 import { IMilestone } from "../interfaces";
 import { NetworkConfig } from "../interfaces/networks";
-import { HeightTracker } from "../manager";
+import { HeightTracker } from "./height-tracker";
 
 export class MilestoneManager {
     private milestone: IMilestone;
+    private milestones: Record<string, any>;
 
-    public constructor(
-        private milestones: Record<string, any>,
-        private heightTracker: HeightTracker,
-        private config: NetworkConfig,
-    ) {
-        this.milestones = milestones.sort((a, b) => a.height - b.height);
+    public constructor(private heightTracker: HeightTracker, private config: NetworkConfig) {
+        this.milestones = config.milestones.sort((a, b) => a.height - b.height);
         this.milestone = {
             index: 0,
             data: this.milestones[0],
@@ -23,14 +20,15 @@ export class MilestoneManager {
         this.buildConstants();
     }
 
+    // TODO: should we set the height on the tracker whenever height is passed here?
     public isNewMilestone(height?: number): boolean {
-        height = height || this.heightTracker();
+        height = height || this.heightTracker.getHeight();
 
         return this.milestones.some((milestone) => milestone.height === height);
     }
 
     public getMilestone(height?: number): { [key: string]: any } {
-        height = height || this.heightTracker();
+        height = height || this.heightTracker.getHeight();
 
         while (
             this.milestone.index < this.milestones.length - 1 &&

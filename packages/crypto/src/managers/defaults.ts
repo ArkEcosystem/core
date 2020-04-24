@@ -10,7 +10,7 @@ import crypto from "crypto";
 import dayjs from "dayjs";
 import wif from "wif";
 
-import { Libraries } from "./interfaces";
+import { Libraries } from "../crypto/interfaces";
 
 export const libraryDefaults: Libraries = {
     scryptSync: crypto.scryptSync,

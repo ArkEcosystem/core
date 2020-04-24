@@ -9,7 +9,7 @@ export class HeightTracker {
         this.height = value;
     }
 
-    public getHeight(): number | undefined {
+    public getHeight(): number {
         return this.height;
     }
 }

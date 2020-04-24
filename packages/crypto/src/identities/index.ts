@@ -3,6 +3,7 @@ import { Network } from "../interfaces";
 import { LibraryManager } from "../managers/library-manager";
 import { Address } from "./address";
 import { Keys } from "./keys";
+import { Message } from "./message";
 import { PrivateKey } from "./private-key";
 import { PublicKey } from "./public-key";
 import { WIF } from "./wif";
@@ -13,14 +14,11 @@ export class Identities {
     public privateKey: PrivateKey;
     public publicKey: PublicKey;
     public wif: WIF;
+    public message: Message;
 
-    public constructor(
-        private libraryManager: LibraryManager,
-        private hashAlgorithms: HashAlgorithms,
-        private network: Network,
-    ) {
+    public constructor(private libraryManager: LibraryManager, private network: Network) {
         this.keys = new Keys(
-            this.hashAlgorithms.sha256,
+            this.libraryManager.Crypto.HashAlgorithms.sha256,
             this.libraryManager.libraries.secp256k1,
             this.libraryManager.libraries.wif,
             this.network.wif,
@@ -34,10 +32,12 @@ export class Identities {
 
         this.address = new Address(
             this.libraryManager.Crypto.Base58,
-            this.hashAlgorithms.ripemd160,
+            this.libraryManager.Crypto.HashAlgorithms.ripemd160,
             this.publicKey,
             network.pubKeyHash,
         );
+
+        this.message = new Message(this.libraryManager.Crypto, this.keys);
 
         this.privateKey = new PrivateKey(this.keys);
 
