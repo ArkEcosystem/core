@@ -11,7 +11,7 @@ export class LibraryManager {
     public Utils: NetworkUtils;
 
     public constructor(
-        libraries = libraryDefaults,
+        libraries: Libraries,
         network: Network,
         configManager: ConfigManager,
         milestoneManager: MilestoneManager,
