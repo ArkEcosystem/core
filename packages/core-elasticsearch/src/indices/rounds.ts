@@ -24,6 +24,10 @@ export class Rounds extends Index {
                 this.logger.info(`[ES] Indexing ${rows.length} round slots [${first(rounds)} - ${last(rounds)}]`);
 
                 try {
+                    for (const row of rows) {
+                        row.id = `${row.height}_${row.publicKey}`;
+                    }
+
                     await this.bulkUpsert(rows);
 
                     storage.update({
