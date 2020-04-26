@@ -5,4 +5,4 @@ export { Hash } from "./hash";
 export { HashAlgorithms } from "./hash-algorithms";
 export { HDWallet } from "./hdwallet";
 export { Message } from "./message";
-export { Slots } from "./slots";
+export { Slots, GetBlockTimeStampLookup } from "./slots";

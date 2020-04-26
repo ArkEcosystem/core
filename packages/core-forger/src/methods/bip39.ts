@@ -45,7 +45,11 @@ export class BIP39 extends Method implements Delegate {
      * @returns {(Interfaces.IBlock | undefined)}
      * @memberof BIP39
      */
-    public forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): Interfaces.IBlock {
-        return this.createBlock(this.keys!, transactions, options);
+    public forge(
+        transactions: Interfaces.ITransactionData[],
+        options: Record<string, any>,
+        getBlockTimeLookup: (height: number) => number,
+    ): Interfaces.IBlock {
+        return this.createBlock(this.keys!, transactions, options, getBlockTimeLookup);
     }
 }

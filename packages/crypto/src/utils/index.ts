@@ -2,6 +2,7 @@ import { SATOSHI } from "../constants";
 import { configManager } from "../managers/config";
 import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
+import { calculateBlockTime, isNewBlockTime } from "./block-time-calculator";
 import { isLocalHost, isValidPeer } from "./is-valid-peer";
 
 let genesisTransactions: { [key: string]: boolean };
@@ -78,4 +79,4 @@ export const isSupportedTransactionVersion = (version: number): boolean => {
     return true;
 };
 
-export { Base58, BigNumber, isValidPeer, isLocalHost };
+export { Base58, BigNumber, isValidPeer, isLocalHost, calculateBlockTime, isNewBlockTime };
