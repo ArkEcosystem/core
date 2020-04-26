@@ -18,17 +18,13 @@ describe("getLatestVersion", () => {
     });
 
     it("should get the npm registry channel (latest)", async () => {
-        nock(/.*/)
-            .get("/@arkecosystem%2Fcore")
-            .reply(200, versionLatest);
+        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, versionLatest);
 
         await expect(getLatestVersion("@arkecosystem/core", "latest")).resolves.toBe("2.5.24");
     });
 
     it("should get the npm registry channel (next)", async () => {
-        nock(/.*/)
-            .get("/@arkecosystem%2Fcore")
-            .reply(200, versionNext);
+        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, versionNext);
 
         await expect(getLatestVersion("@arkecosystem/core", "next")).resolves.toBe("2.5.0-next.10");
     });

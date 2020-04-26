@@ -1,9 +1,10 @@
 import "jest-extended";
 
-import { Container, Providers, Services } from "@packages/core-kernel/src";
+import { Container, Providers, Services } from "@packages/core-kernel";
 import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
 import { PluginConfiguration } from "@packages/core-kernel/src/providers";
 import { dposPreviousRoundStateProvider } from "@packages/core-state/src";
+import { BuildDelegateRankingAction } from "@packages/core-state/src/actions";
 import { BlockState } from "@packages/core-state/src/block-state";
 import { defaults } from "@packages/core-state/src/defaults";
 import { DposState } from "@packages/core-state/src/dpos/dpos";
@@ -67,10 +68,7 @@ export const setUpDefaults = {
 export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Promise<Setup> => {
     const sandbox = new Sandbox();
 
-    sandbox.app
-        .bind(Container.Identifiers.WalletAttributes)
-        .to(Services.Attributes.AttributeSet)
-        .inSingletonScope();
+    sandbox.app.bind(Container.Identifiers.WalletAttributes).to(Services.Attributes.AttributeSet).inSingletonScope();
 
     sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("delegate");
 
@@ -88,9 +86,7 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
         .set("delegate.forgedTotal");
 
-    sandbox.app
-        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("delegate.approval");
+    sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("delegate.approval");
 
     sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("vote");
 
@@ -140,10 +136,7 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
     registerIndexers(sandbox.app);
     registerFactories(sandbox.app);
 
-    sandbox.app
-        .bind(Container.Identifiers.PluginConfiguration)
-        .to(Providers.PluginConfiguration)
-        .inSingletonScope();
+    sandbox.app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 
     sandbox.app
         .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
@@ -153,10 +146,12 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
         .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
         .set("storage.maxLastTransactionIds", defaults.storage.maxLastTransactionIds);
 
+    sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
     sandbox.app
-        .bind(Container.Identifiers.StateStore)
-        .to(StateStore)
-        .inSingletonScope();
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("buildDelegateRanking", new BuildDelegateRankingAction());
+
+    sandbox.app.bind(Container.Identifiers.StateStore).to(StateStore).inSingletonScope();
 
     const stateStore: StateStore = sandbox.app.get(Container.Identifiers.StateStore);
 
@@ -259,8 +254,8 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
         }
     }
 
-    sandbox.app.container.bind(Container.Identifiers.BlockRepository).to(MockBlockRepository);
-    sandbox.app.container.bind(Container.Identifiers.TransactionRepository).to(MockTransactionRepository);
+    sandbox.app.container.bind(Container.Identifiers.DatabaseBlockRepository).to(MockBlockRepository);
+    sandbox.app.container.bind(Container.Identifiers.DatabaseTransactionRepository).to(MockTransactionRepository);
     sandbox.app.container.bind(Container.Identifiers.EventDispatcherService).to(MockEventDispatcher);
 
     sandbox.app.bind(Container.Identifiers.BlockState).to(BlockState);

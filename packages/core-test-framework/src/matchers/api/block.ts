@@ -12,7 +12,7 @@ declare global {
     }
 }
 
-const isValidBlock = block => {
+const isValidBlock = (block) => {
     const allowedKeys = Utils.sortBy([
         "blockSignature",
         "createdAt",
@@ -31,7 +31,7 @@ const isValidBlock = block => {
         "updatedAt",
         "version",
     ]);
-    const actualKeys = Object.keys(block).filter(key => allowedKeys.includes(key));
+    const actualKeys = Object.keys(block).filter((key) => allowedKeys.includes(key));
 
     return Utils.isEqual(Utils.sortBy(actualKeys), allowedKeys);
 };
@@ -39,11 +39,12 @@ const isValidBlock = block => {
 expect.extend({
     toBeValidBlock: (actual, expected) => {
         return {
-            message: () => `Expected ${JSON.stringify(actual)} to be a valid block`,
+            message: /* istanbul ignore next */ () => `Expected ${JSON.stringify(actual)} to be a valid block`,
             pass: isValidBlock(actual),
         };
     },
     toBeValidArrayOfBlocks: (actual, expected) => {
+        /* istanbul ignore next */
         const message = () => `Expected ${JSON.stringify(actual)} to be a valid array of blocks`;
 
         if (!Array.isArray(actual)) {

@@ -45,7 +45,7 @@ export class Block implements IBlock {
             const fixedOrderIds = wrongTransactionOrder[this.data.id];
 
             this.transactions = fixedOrderIds.map((id: string) =>
-                this.transactions.find(transaction => transaction.id === id),
+                this.transactions.find((transaction) => transaction.id === id),
             );
         }
     }
@@ -150,7 +150,7 @@ export class Block implements IBlock {
         data.reward = this.data.reward.toString();
         data.totalAmount = this.data.totalAmount.toString();
         data.totalFee = this.data.totalFee.toString();
-        data.transactions = this.transactions.map(transaction => transaction.toJson());
+        data.transactions = this.transactions.map((transaction) => transaction.toJson());
 
         return data;
     }
@@ -195,7 +195,7 @@ export class Block implements IBlock {
                 result.errors.push(`Payload is too large: ${size} > ${constants.block.maxPayload}`);
             }
 
-            const invalidTransactions: ITransaction[] = this.transactions.filter(tx => !tx.verified);
+            const invalidTransactions: ITransaction[] = this.transactions.filter((tx) => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
 
@@ -203,7 +203,7 @@ export class Block implements IBlock {
                     result.errors.push(`=> ${invalidTransaction.serialized.toString("hex")}`);
                 }
 
-                result.containsMultiSignatures = invalidTransactions.some(tx => !!tx.data.signatures);
+                result.containsMultiSignatures = invalidTransactions.some((tx) => !!tx.data.signatures);
             }
 
             if (this.transactions.length !== block.numberOfTransactions) {

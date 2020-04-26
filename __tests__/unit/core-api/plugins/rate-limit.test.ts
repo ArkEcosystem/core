@@ -1,7 +1,8 @@
 import "jest-extended";
 
-import { RLWrapperBlackAndWhite } from "rate-limiter-flexible";
 import { Application } from "@packages/core-kernel";
+import { RLWrapperBlackAndWhite } from "rate-limiter-flexible";
+
 import { initApp } from "../__support__";
 import { initServer } from "./__support__";
 
@@ -27,32 +28,31 @@ describe("Rate limit", () => {
                     enabled: true,
                     points: 1,
                     duration: 1,
-                }
+                },
             },
         };
 
         customResponse = {
-            data: "ok"
+            data: "ok",
         };
 
         customRoute = {
-            method: 'GET',
-            path: '/test',
+            method: "GET",
+            path: "/test",
             handler: () => {
-                return customResponse
+                return customResponse;
             },
         };
 
         injectOptions = {
-            method: 'GET',
-            url: '/test',
+            method: "GET",
+            url: "/test",
         };
     });
 
-
     it("shod resolve if rate limit is disabled", async () => {
         defaults.plugins.rateLimit.enabled = false;
-        let server = await initServer(app, defaults, customRoute);
+        const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
         const payload = JSON.parse(response.payload || {});
@@ -62,7 +62,7 @@ describe("Rate limit", () => {
     it("shod return error if rate limit is exceeded", async () => {
         defaults.plugins.rateLimit.whitelist = [];
         defaults.plugins.rateLimit.blacklist = [];
-        let server = await initServer(app, defaults, customRoute);
+        const server = await initServer(app, defaults, customRoute);
 
         let response = await server.inject(injectOptions);
         let payload = JSON.parse(response.payload || {});
@@ -75,7 +75,7 @@ describe("Rate limit", () => {
 
     it("shod resolve if whitelisted", async () => {
         defaults.plugins.rateLimit.whitelist = ["127.0.0.1"];
-        let server = await initServer(app, defaults, customRoute);
+        const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
         const payload = JSON.parse(response.payload || {});
@@ -84,20 +84,19 @@ describe("Rate limit", () => {
 
     it("shod resolve if whitelisted as pattern", async () => {
         defaults.plugins.rateLimit.whitelist = ["*"];
-        let server = await initServer(app, defaults, customRoute);
+        const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
         const payload = JSON.parse(response.payload || {});
         expect(payload.data).toBe("ok");
     });
 
-
     it("shod return error if blacklisted", async () => {
         defaults.plugins.rateLimit.whitelist = [];
         defaults.plugins.rateLimit.blacklist = ["127.0.0.1"];
-        let server = await initServer(app, defaults, customRoute);
+        const server = await initServer(app, defaults, customRoute);
 
-        let response = await server.inject(injectOptions);
+        const response = await server.inject(injectOptions);
         const payload = JSON.parse(response.payload || {});
         expect(payload.statusCode).toBe(429);
     });
@@ -107,9 +106,9 @@ describe("Rate limit", () => {
             throw new Error();
         };
 
-        let server = await initServer(app, defaults, customRoute);
+        const server = await initServer(app, defaults, customRoute);
 
-        let response = await server.inject(injectOptions);
+        const response = await server.inject(injectOptions);
         const payload = JSON.parse(response.payload || {});
         expect(payload.statusCode).toBe(500);
     });

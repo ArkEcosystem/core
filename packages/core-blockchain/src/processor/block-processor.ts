@@ -1,5 +1,5 @@
-import { DatabaseService, Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Repositories } from "@arkecosystem/core-database";
+import { Container, Contracts, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
 
@@ -32,7 +32,7 @@ export class BlockProcessor {
     @Container.inject(Container.Identifiers.BlockchainService)
     private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
+    @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
     private readonly transactionRepository!: Repositories.TransactionRepository;
 
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
@@ -55,10 +55,7 @@ export class BlockProcessor {
         const isValidGenerator: boolean = await this.validateGenerator(block);
         const isChained: boolean = AppUtils.isBlockChained(this.blockchain.getLastBlock().data, block.data);
         if (!isChained) {
-            return this.app
-                .resolve<UnchainedHandler>(UnchainedHandler)
-                .initialize(isValidGenerator)
-                .execute(block);
+            return this.app.resolve<UnchainedHandler>(UnchainedHandler).initialize(isValidGenerator).execute(block);
         }
 
         if (!isValidGenerator) {
@@ -112,7 +109,7 @@ export class BlockProcessor {
     private async checkBlockContainsForgedTransactions(block: Interfaces.IBlock): Promise<boolean> {
         if (block.transactions.length > 0) {
             const forgedIds: string[] = await this.transactionRepository.getForgedTransactionsIds(
-                block.transactions.map(tx => {
+                block.transactions.map((tx) => {
                     AppUtils.assert.defined<string>(tx.id);
 
                     return tx.id;
@@ -190,10 +187,12 @@ export class BlockProcessor {
     }
 
     private async validateGenerator(block: Interfaces.IBlock): Promise<boolean> {
-        const database: DatabaseService = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
-
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
-        const delegates: Contracts.State.Wallet[] = await database.getActiveDelegates(roundInfo);
+
+        const delegates: Contracts.State.Wallet[] = (await this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
+
         const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
         const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
 

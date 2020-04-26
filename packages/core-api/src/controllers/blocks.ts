@@ -1,5 +1,5 @@
-import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -8,78 +8,79 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class BlocksController extends Controller {
-    @Container.inject(Container.Identifiers.Application)
-    protected readonly app!: Contracts.Kernel.Application;
-
     @Container.inject(Container.Identifiers.BlockchainService)
-    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
+    private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.BlockRepository)
-    protected readonly blockRepository!: Repositories.BlockRepository;
+    @Container.inject(Container.Identifiers.BlockHistoryService)
+    private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
-    protected readonly transactionRepository!: Repositories.TransactionRepository;
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
+
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly stateStore!: Contracts.State.StateStore;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blocks: Repositories.RepositorySearchResult<Models.Block> = await this.blockRepository.searchByQuery(
+        const blockListResult = await this.blockHistoryService.listByCriteria(
             request.query,
-            this.paginate(request),
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
-        return this.toPagination(blocks, BlockResource, request.query.transform);
+        return this.toPagination(blockListResult, BlockResource, request.query.transform);
     }
 
     public async first(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        return super.respondWithResource(
-            this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getGenesisBlock().data,
-            BlockResource,
-            (request.query.transform as unknown) as boolean,
-        );
+        const block = this.stateStore.getGenesisBlock().data;
+        return super.respondWithResource(block, BlockResource, request.query.transform);
     }
 
     public async last(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        return super.respondWithResource(
-            this.blockchain.getLastBlock().data,
-            BlockResource,
-            (request.query.transform as unknown) as boolean,
-        );
+        const block = this.blockchain.getLastBlock().data;
+        return super.respondWithResource(block, BlockResource, request.query.transform);
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const block: Models.Block | undefined = await this.blockRepository.findByIdOrHeight(request.params.id);
-
+        const block = await this.findBlockByIdOrHeight(request.params.id);
         if (!block) {
             return Boom.notFound("Block not found");
         }
-
         return this.respondWithResource(block, BlockResource, request.query.transform);
     }
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const block: Models.Block | undefined = await this.blockRepository.findByIdOrHeight(request.params.id);
-
-        if (!block || !block.id) {
+        const block = await this.findBlockByIdOrHeight(request.params.id);
+        if (!block) {
             return Boom.notFound("Block not found");
         }
 
-        const rows: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.searchByQuery(
-            {
-                blockId: block.id,
-                ...request.query,
-            },
-            this.paginate(request),
+        const criteria = { ...request.query, blockId: block.id! };
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
+            criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
-        return this.toPagination(rows, TransactionResource, request.query.transform);
+        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blocks = await this.blockRepository.search({
-            ...request.query, // only for orderBy
-            ...request.payload,
-            ...this.paginate(request),
-        });
+        const blockListResult = await this.blockHistoryService.listByCriteria(
+            request.payload,
+            this.getListingOrder(request),
+            this.getListingPage(request),
+        );
 
-        return this.toPagination(blocks, BlockResource, request.query.transform);
+        return this.toPagination(blockListResult, BlockResource, request.query.transform);
+    }
+
+    private findBlockByIdOrHeight(idOrHeight: string): Promise<Interfaces.IBlockData | undefined> {
+        const asHeight = parseFloat(idOrHeight);
+
+        if (asHeight && asHeight <= this.blockchain.getLastHeight()) {
+            return this.blockHistoryService.findOneByCriteria({ height: asHeight });
+        } else {
+            return this.blockHistoryService.findOneByCriteria({ id: idOrHeight });
+        }
     }
 }

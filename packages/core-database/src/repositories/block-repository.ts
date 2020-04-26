@@ -1,10 +1,9 @@
 import { Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { EntityRepository, In, SelectQueryBuilder } from "typeorm";
+import { EntityRepository, In } from "typeorm";
 
 import { Block, Round, Transaction } from "../models";
-import { AbstractEntityRepository, RepositorySearchResult } from "./repository";
-import { SearchCriteria, SearchFilter, SearchOperator, SearchPagination, SearchQueryConverter } from "./search";
+import { AbstractEntityRepository } from "./repository";
 
 @EntityRepository(Block)
 export class BlockRepository extends AbstractEntityRepository<Block> {
@@ -31,15 +30,6 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
             },
             take: limit,
         });
-    }
-
-    public async findByIdOrHeight(idOrHeight: string | number): Promise<Block> {
-        try {
-            const block: Block | undefined = await this.findByHeight(idOrHeight as number);
-            return block ?? this.findById(idOrHeight as string);
-        } catch (error) {
-            return this.findById(idOrHeight as string);
-        }
     }
 
     public async findByHeight(height: number): Promise<Block | undefined> {
@@ -81,14 +71,14 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
         );
 
         const blocks = await this.query(query, parameters);
-        return blocks.map(block => {
+        return blocks.map((block) => {
             return this.rawToEntity(
                 block,
                 // @ts-ignore
                 (entity: Block & { transactions: Interfaces.ITransactionData[] }, _, value: Buffer[] | undefined) => {
                     if (value && value.length) {
                         entity.transactions = value.map(
-                            buffer => Transactions.TransactionFactory.fromBytesUnsafe(buffer).data,
+                            (buffer) => Transactions.TransactionFactory.fromBytesUnsafe(buffer).data,
                         );
                     } else {
                         entity.transactions = [];
@@ -161,7 +151,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
     }
 
     public async saveBlocks(blocks: Interfaces.IBlock[]): Promise<void> {
-        return this.manager.transaction(async manager => {
+        return this.manager.transaction(async (manager) => {
             const blockEntities: Block[] = [];
             const transactionEntities: Transaction[] = [];
 
@@ -171,7 +161,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                 });
 
                 if (block.transactions.length > 0) {
-                    const transactions = block.transactions.map(tx =>
+                    const transactions = block.transactions.map((tx) =>
                         Object.assign(new Transaction(), {
                             ...tx.data,
                             timestamp: tx.timestamp,
@@ -191,12 +181,12 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
     }
 
     public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
-        return this.manager.transaction(async manager => {
+        return this.manager.transaction(async (manager) => {
             // Delete all rounds after the current round if there are still
             // any left.
             const lastBlockHeight: number = blocks[blocks.length - 1].height;
             const { round } = Utils.roundCalculator.calculateRound(lastBlockHeight);
-            const blockIds = { blockIds: blocks.map(b => b.id) };
+            const blockIds = { blockIds: blocks.map((b) => b.id) };
 
             const afterLastBlockCount = await manager
                 .createQueryBuilder()
@@ -216,12 +206,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                 .where("block_id IN (:...blockIds)", blockIds)
                 .execute();
 
-            await manager
-                .createQueryBuilder()
-                .delete()
-                .from(Block)
-                .where("id IN (:...blockIds)", blockIds)
-                .execute();
+            await manager.createQueryBuilder().delete().from(Block).where("id IN (:...blockIds)", blockIds).execute();
 
             await manager
                 .createQueryBuilder()
@@ -230,25 +215,5 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                 .where("round >= :round", { round: round + 1 })
                 .execute();
         });
-    }
-
-    public async searchByQuery(
-        query: Record<string, any>,
-        pagination: SearchPagination,
-    ): Promise<RepositorySearchResult<Block>> {
-        const filter: SearchFilter = SearchQueryConverter.toSearchFilter(query, pagination, this.metadata.columns);
-        return this.search(filter);
-    }
-
-    public async search(filter: SearchFilter): Promise<RepositorySearchResult<Block>> {
-        const queryBuilder: SelectQueryBuilder<Block> = this.createQueryBuilderFromFilter(filter);
-        const criteria: SearchCriteria[] = filter.criteria;
-
-        for (const item of criteria.filter(param => param.operator !== SearchOperator.Custom)) {
-            const { expression, parameters } = this.criteriaToExpression(item);
-            queryBuilder.andWhere(expression, parameters);
-        }
-
-        return this.performSearch(queryBuilder);
     }
 }

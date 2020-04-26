@@ -17,7 +17,9 @@ interface IPassphrasePair {
 
 // todo: replace this by the use of real factories
 export class TransactionFactory {
-    private builder: any;
+    protected builder: any;
+    protected app: Contracts.Kernel.Application;
+
     private network: Types.NetworkName = "testnet";
     private networkConfig: Interfaces.NetworkConfig | undefined;
     private nonce: Utils.BigNumber | undefined;
@@ -31,9 +33,7 @@ export class TransactionFactory {
     private senderPublicKey: string | undefined;
     private expiration: number | undefined;
 
-    private app: Contracts.Kernel.Application;
-
-    private constructor(app?: Contracts.Kernel.Application) {
+    protected constructor(app?: Contracts.Kernel.Application) {
         // @ts-ignore - this is only needed because of the "getNonce"
         // method so we don't care if it is undefined in certain scenarios
         this.app = app;
@@ -332,6 +332,7 @@ export class TransactionFactory {
         return getWalletNonce(this.app, this.senderPublicKey);
     }
 
+    /* istanbul ignore next */
     private make<T>(quantity = 1, method: string): T[] {
         if (this.passphrasePairs && this.passphrasePairs.length) {
             return this.passphrasePairs.map(
@@ -453,8 +454,6 @@ export class TransactionFactory {
     }
 
     private getRandomUsername(): string {
-        return Math.random()
-            .toString(36)
-            .toLowerCase();
+        return Math.random().toString(36).toLowerCase();
     }
 }

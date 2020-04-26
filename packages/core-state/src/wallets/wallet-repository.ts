@@ -99,7 +99,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     }
 
     public has(key: string): boolean {
-        return Object.values(this.indexes).some(index => index.has(key));
+        return Object.values(this.indexes).some((index) => index.has(key));
     }
 
     public hasByAddress(address: string): boolean {
@@ -170,7 +170,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     public search<T>(
         scope: Contracts.State.SearchScope,
         params: Contracts.Database.QueryParameters = {},
-    ): Contracts.State.RowsPaginated<T> {
+    ): Contracts.Search.ListResult<T> {
         let searchContext: Contracts.State.SearchContext;
 
         switch (scope) {
@@ -233,7 +233,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     public top(
         scope: Contracts.State.SearchScope,
         params: Record<string, any> = {},
-    ): Contracts.State.RowsPaginated<Contracts.State.Wallet> {
+    ): Contracts.Search.ListResult<Contracts.State.Wallet> {
         return this.search(scope, { ...params, ...{ orderBy: "balance:desc" } });
     }
 
@@ -296,7 +296,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                 break;
             }
             case "never-forged": {
-                entries = this.allByUsername().filter(delegate => {
+                entries = this.allByUsername().filter((delegate) => {
                     return delegate.getAttribute("delegate.producedBlocks") === 0;
                 });
                 break;
@@ -313,7 +313,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         };
 
         if (AppUtils.hasSomeProperty(params, Object.keys(manipulators))) {
-            entries = entries.map(delegate => {
+            entries = entries.map((delegate) => {
                 for (const [prop, method] of Object.entries(manipulators)) {
                     if (params.hasOwnProperty(prop)) {
                         delegate.setAttribute(`delegate.${prop}`, method(delegate));
@@ -397,7 +397,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
         const entries: any[] = this.getIndex("businesses")
             .values()
-            .map(wallet => {
+            .map((wallet) => {
                 const business: any = wallet.getAttribute("business");
                 return params.transform
                     ? {

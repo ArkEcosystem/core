@@ -64,7 +64,7 @@ describe("ClassManager.getDrivers", () => {
 
         console.log(drivers);
 
-        expect(drivers.some(d => d instanceof MyMemoryDriver)).toBeTrue();
-        expect(drivers.some(d => d instanceof MyRemoteDriver)).toBeTrue();
+        expect(drivers.some((d) => d instanceof MyMemoryDriver)).toBeTrue();
+        expect(drivers.some((d) => d instanceof MyRemoteDriver)).toBeTrue();
     });
 });

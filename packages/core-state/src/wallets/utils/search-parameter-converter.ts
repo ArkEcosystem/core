@@ -47,7 +47,7 @@ export class SearchParameterConverter implements Contracts.Database.SearchParame
 
     private parseOrderBy(searchParameters: Contracts.Database.SearchParameters, orderBy?: any) {
         if (orderBy && typeof orderBy === "string") {
-            const fieldDirection = orderBy.split(":").map(o => o.toLowerCase());
+            const fieldDirection = orderBy.split(":").map((o) => o.toLowerCase());
             if (fieldDirection.length === 2 && (fieldDirection[1] === "asc" || fieldDirection[1] === "desc")) {
                 Utils.assert.defined<object>(searchParameters.orderBy);
 
@@ -72,7 +72,7 @@ export class SearchParameterConverter implements Contracts.Database.SearchParame
             page, pagination are added automatically by hapi-pagination
          */
         const fieldNames: string[] = Object.keys(params).filter(
-            value => !["orderBy", "limit", "offset", "page", "pagination"].includes(value),
+            (value) => !["orderBy", "limit", "offset", "page", "pagination"].includes(value),
         );
         for (const fieldName of fieldNames) {
             const fieldDescriptor = mapByFieldName[fieldName];

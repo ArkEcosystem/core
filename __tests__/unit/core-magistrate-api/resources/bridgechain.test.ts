@@ -1,7 +1,7 @@
 import "jest-extended";
 import { BridgechainResource } from "@packages/core-magistrate-api/src/resources";
 import { IBridgechainRegistrationAsset } from "@packages/core-magistrate-crypto/src/interfaces";
-import { Assets } from '../__fixtures__';
+import { Assets } from "../__fixtures__";
 
 let resource: BridgechainResource;
 let bridgechainRegistrationAsset: IBridgechainRegistrationAsset;

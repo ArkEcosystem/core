@@ -14,9 +14,9 @@ declare global {
 }
 
 expect.extend({
-    toBeTransferType: received => {
+    toBeTransferType: (received) => {
         return {
-            message: () => "Expected value to be a valid Transfer transaction.",
+            message: /* istanbul ignore next */ () => "Expected value to be a valid Transfer transaction.",
             pass: received.type === Transfer,
         };
     },

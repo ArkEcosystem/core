@@ -1,92 +1,64 @@
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-
 import { Application, Container, Contracts, Providers, Services } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Wallets } from "@packages/core-state";
-import { Identities, Utils } from "@packages/crypto";
-import { One, Two } from "@packages/core-transactions/src/handlers";
-import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import {
     BridgechainRegistrationTransactionHandler,
     BusinessRegistrationTransactionHandler,
 } from "@packages/core-magistrate-transactions/src/handlers";
 import {
-    addressesIndexer,
-    ipfsIndexer, locksIndexer,
-    publicKeysIndexer,
-    usernamesIndexer,
-} from "@packages/core-state/src/wallets/indexers/indexers";
-import {
     bridgechainIndexer,
     businessIndexer,
     MagistrateIndex,
 } from "@packages/core-magistrate-transactions/src/wallet-indexes";
+import { Wallets } from "@packages/core-state";
+import {
+    addressesIndexer,
+    ipfsIndexer,
+    locksIndexer,
+    publicKeysIndexer,
+    usernamesIndexer,
+} from "@packages/core-state/src/wallets/indexers/indexers";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { One, Two } from "@packages/core-transactions/src/handlers";
+import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Identities, Utils } from "@packages/crypto";
 
 export type PaginatedResponse = {
-    totalCount: number,
-    results: [object],
-    meta: object
-}
+    totalCount: number;
+    results: [object];
+    meta: object;
+};
 
 export type ItemResponse = {
-    data: object
-}
+    data: object;
+};
 
 export const buildSenderWallet = (app: Application): Contracts.State.Wallet => {
-    let walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+    const walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    let wallet: Contracts.State.Wallet = walletRepository.createWallet(Identities.Address.fromPassphrase(passphrases[0]));
+    const wallet: Contracts.State.Wallet = walletRepository.createWallet(
+        Identities.Address.fromPassphrase(passphrases[0]),
+    );
 
     wallet.publicKey = Identities.PublicKey.fromPassphrase(passphrases[0]);
     wallet.balance = Utils.BigNumber.make(7527654310);
 
-    return wallet
+    return wallet;
 };
 
 export const initApp = (): Application => {
-    let app = new Application(new Container.Container());
+    const app = new Application(new Container.Container());
 
-    app
-        .bind(Container.Identifiers.PluginConfiguration)
-        .to(Providers.PluginConfiguration)
-        .inSingletonScope();
-
-    app
-        .bind(Container.Identifiers.StateStore)
-        .toConstantValue({});
-
-    app
-        .bind(Container.Identifiers.BlockchainService)
-        .toConstantValue({});
-
-    app
-        .bind(Container.Identifiers.BlockRepository)
-        .toConstantValue({});
-
-    app
-        .bind(Container.Identifiers.TransactionRepository)
-        .toConstantValue({});
-
-    app
-        .bind(Container.Identifiers.PeerNetworkMonitor)
-        .toConstantValue({});
-
-    app
-        .bind(Container.Identifiers.PeerStorage)
-        .toConstantValue({});
-
-    app
-        .bind(Container.Identifiers.RoundRepository)
-        .toConstantValue({});
-
-    app
-        .bind(Container.Identifiers.TransactionPoolQuery)
-        .toConstantValue({});
-
-    app
-        .bind(Container.Identifiers.TransactionPoolProcessorFactory)
-        .toConstantValue({});
+    app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+    app.bind(Container.Identifiers.StateStore).toConstantValue({});
+    app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue({});
+    app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue({});
+    app.bind(Container.Identifiers.PeerStorage).toConstantValue({});
+    app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
+    app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
@@ -111,54 +83,56 @@ export const initApp = (): Application => {
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
 
-    app
-        .bind<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes)
+    app.bind<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes)
         .to(Services.Attributes.AttributeSet)
         .inSingletonScope();
 
-    app
-        .bind<Contracts.State.WalletIndexerIndex>(Identifiers.WalletRepositoryIndexerIndex)
-        .toConstantValue({ name: Contracts.State.WalletIndexes.Addresses, indexer: addressesIndexer });
+    app.bind<Contracts.State.WalletIndexerIndex>(Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: Contracts.State.WalletIndexes.Addresses,
+        indexer: addressesIndexer,
+    });
 
-    app
-        .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-        .toConstantValue({ name: Contracts.State.WalletIndexes.PublicKeys, indexer: publicKeysIndexer });
+    app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: Contracts.State.WalletIndexes.PublicKeys,
+        indexer: publicKeysIndexer,
+    });
 
-    app
-        .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-        .toConstantValue({ name: Contracts.State.WalletIndexes.Usernames, indexer: usernamesIndexer });
+    app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: Contracts.State.WalletIndexes.Usernames,
+        indexer: usernamesIndexer,
+    });
 
-    app
-        .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-        .toConstantValue({ name: Contracts.State.WalletIndexes.Ipfs, indexer: ipfsIndexer });
+    app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: Contracts.State.WalletIndexes.Ipfs,
+        indexer: ipfsIndexer,
+    });
 
-    app
-        .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-        .toConstantValue({ name: Contracts.State.WalletIndexes.Locks, indexer: locksIndexer });
+    app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: Contracts.State.WalletIndexes.Locks,
+        indexer: locksIndexer,
+    });
 
-    app
-        .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-        .toConstantValue({ name: MagistrateIndex.Businesses, indexer: businessIndexer });
+    app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: MagistrateIndex.Businesses,
+        indexer: businessIndexer,
+    });
 
-    app
-        .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-        .toConstantValue({ name: MagistrateIndex.Bridgechains, indexer: bridgechainIndexer });
+    app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: MagistrateIndex.Bridgechains,
+        indexer: bridgechainIndexer,
+    });
 
-    app
-        .bind(Identifiers.WalletFactory)
-        .toFactory<Contracts.State.Wallet>((context: Container.interfaces.Context) => (address: string) =>
+    app.bind(Identifiers.WalletFactory).toFactory<Contracts.State.Wallet>(
+        (context: Container.interfaces.Context) => (address: string) =>
             new Wallets.Wallet(
                 address,
                 new Services.Attributes.AttributeMap(
                     context.container.get<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes),
                 ),
             ),
-        );
+    );
 
-    app
-        .bind(Identifiers.WalletRepository)
-        .to(Wallets.WalletRepository)
-        .inSingletonScope();
+    app.bind(Identifiers.WalletRepository).to(Wallets.WalletRepository).inSingletonScope();
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);

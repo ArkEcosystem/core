@@ -1,44 +1,45 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Application, Contracts } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import {
     BridgechainRegistrationBuilder,
     BridgechainUpdateBuilder,
-} from "@arkecosystem/core-magistrate-crypto/src/builders";
+} from "@packages/core-magistrate-crypto/src/builders";
 import {
     IBridgechainRegistrationAsset,
     IBridgechainUpdateAsset,
     IBusinessRegistrationAsset,
-} from "@arkecosystem/core-magistrate-crypto/src/interfaces";
+} from "@packages/core-magistrate-crypto/src/interfaces";
 import {
     BridgechainIsNotRegisteredByWalletError,
     BridgechainIsResignedError,
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
     PortKeyMustBeValidPackageNameError,
-} from "@arkecosystem/core-magistrate-transactions/src/errors";
-import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
+} from "@packages/core-magistrate-transactions/src/errors";
+import { MagistrateApplicationEvents } from "@packages/core-magistrate-transactions/src/events";
 import {
     BridgechainRegistrationTransactionHandler,
     BridgechainUpdateTransactionHandler,
     BusinessRegistrationTransactionHandler,
-} from "@arkecosystem/core-magistrate-transactions/src/handlers";
-import { Wallets } from "@arkecosystem/core-state";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Mempool } from "@arkecosystem/core-transaction-pool";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { configManager } from "@arkecosystem/crypto/src/managers";
+} from "@packages/core-magistrate-transactions/src/handlers";
+import { Wallets } from "@packages/core-state";
+import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Mempool } from "@packages/core-transaction-pool";
+import { TransactionHandler } from "@packages/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { configManager } from "@packages/crypto/src/managers";
+import _ from "lodash";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { setMockBlock } from "../mocks/block-repository";
-import { setMockTransaction, setMockTransactions } from "../mocks/transaction-repository";
+import { Assets } from "./__fixtures__";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -51,18 +52,24 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const transactionHistoryService = {
+    findManyByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    setMockTransaction(null);
+    Mocks.TransactionRepository.setTransactions([]);
+    transactionHistoryService.findManyByCriteria.mockReset();
 
     app = initApp();
 
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainUpdateTransactionHandler);
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -93,39 +100,9 @@ describe("BusinessRegistration", () => {
             2,
         );
 
-        businessRegistrationAsset = {
-            name: "DummyBusiness",
-            website: "https://www.dummy.example",
-            vat: "EX1234567890",
-            repository: "https://www.dummy.example/repo",
-        };
-        bridgechainRegistrationAsset = {
-            name: "arkecosystem1",
-            seedNodes: [
-                "74.125.224.71",
-                "74.125.224.72",
-                "64.233.173.193",
-                "2001:4860:4860::8888",
-                "2001:4860:4860::8844",
-            ],
-            genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-            bridgechainRepository: "http://www.repository.com/myorg/myrepo",
-            bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
-            ports: { "@arkecosystem/core-api": 12345 },
-        };
-        bridgechainUpdateAsset = {
-            bridgechainId: bridgechainRegistrationAsset.genesisHash,
-            seedNodes: [
-                "74.125.224.71",
-                "74.125.224.72",
-                "64.233.173.193",
-                "2001:4860:4860::8888",
-                "2001:4860:4860::8844",
-            ],
-            bridgechainRepository: "http://www.repository.com/myorg/myrepo",
-            bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
-            ports: { "@arkecosystem/core-api": 12345 },
-        };
+        businessRegistrationAsset = _.cloneDeep(Assets.businessRegistrationAsset);
+        bridgechainRegistrationAsset = _.cloneDeep(Assets.bridgechainRegistrationAsset);
+        bridgechainUpdateAsset = _.cloneDeep(Assets.bridgechainUpdateAsset);
 
         bridgechainRegistrationTransaction = new BridgechainRegistrationBuilder()
             .bridgechainRegistrationAsset(bridgechainRegistrationAsset)
@@ -136,11 +113,12 @@ describe("BusinessRegistration", () => {
         const bridgechainUpdateBuilder = new BridgechainUpdateBuilder();
         bridgechainUpdateTransaction = bridgechainUpdateBuilder
             .bridgechainUpdateAsset(bridgechainUpdateAsset)
-            .nonce("1")
+            .nonce("2")
             .sign(passphrases[0])
             .build();
 
         senderWallet.setAttribute("business.businessAsset", businessRegistrationAsset);
+        senderWallet.nonce = Utils.BigNumber.make("1");
 
         const businessAttributes = senderWallet.getAttribute("business");
 
@@ -168,12 +146,11 @@ describe("BusinessRegistration", () => {
     });
 
     describe("bootstrap", () => {
-        afterEach(() => {
-            setMockBlock(null);
-        });
-
         it("should resolve", async () => {
-            setMockTransaction(bridgechainUpdateTransaction);
+            Mocks.TransactionRepository.setTransactions([
+                Mapper.mapTransactionToModel(bridgechainUpdateTransaction, 1),
+            ]);
+
             await expect(handler.bootstrap()).toResolve();
 
             const bridgechainUpdateAssetClone = Object.assign({}, bridgechainUpdateAsset);
@@ -308,6 +285,15 @@ describe("BusinessRegistration", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
 
+            const bridgechainUpdateAssetClone = Object.assign({}, bridgechainUpdateAsset);
+            delete bridgechainUpdateAssetClone.bridgechainId;
+            const asset = senderWallet.getAttribute("business.bridgechains");
+            asset[bridgechainRegistrationAsset.genesisHash].bridgechainAsset = {
+                ...bridgechainRegistrationAsset,
+                ...bridgechainUpdateAssetClone,
+            };
+            senderWallet.nonce = Utils.BigNumber.make("2");
+
             const secondBridgechainUpdateAsset: IBridgechainUpdateAsset = {
                 bridgechainId: bridgechainRegistrationAsset.genesisHash,
                 seedNodes: [
@@ -318,57 +304,47 @@ describe("BusinessRegistration", () => {
                     "2001:4860:4860::8844",
                 ],
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo/second",
-                bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo/sedond",
+                bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo/second",
                 ports: { "@arkecosystem/core-api": 54321 },
             };
 
             const secondBridgechainUpdateTransaction = new BridgechainUpdateBuilder()
                 .bridgechainUpdateAsset(secondBridgechainUpdateAsset)
-                .nonce("1")
+                .nonce("3")
                 .sign(passphrases[0])
                 .build();
+
+            await handler.apply(secondBridgechainUpdateTransaction, walletRepository);
 
             const secondBridgechainUpdateAssetClone = Object.assign({}, secondBridgechainUpdateAsset);
             delete secondBridgechainUpdateAssetClone.bridgechainId;
 
-            const asset = senderWallet.getAttribute("business.bridgechains");
-            asset[bridgechainRegistrationAsset.genesisHash].bridgechainAsset = {
+            expect(
+                senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash]
+                    .bridgechainAsset,
+            ).toEqual({
                 ...bridgechainRegistrationAsset,
+                ...bridgechainUpdateAssetClone,
                 ...secondBridgechainUpdateAssetClone,
-            };
+            });
 
-            await handler.apply(bridgechainUpdateTransaction, walletRepository);
+            transactionHistoryService.findManyByCriteria.mockResolvedValueOnce([
+                bridgechainRegistrationTransaction.data,
+                bridgechainUpdateTransaction.data,
+                secondBridgechainUpdateTransaction.data,
+            ]);
 
-            const bridgechainUpdateAssetClone = Object.assign({}, bridgechainUpdateAsset);
-            delete bridgechainUpdateAssetClone.bridgechainId;
+            await handler.revert(secondBridgechainUpdateTransaction, walletRepository);
 
             expect(
                 senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash]
                     .bridgechainAsset,
             ).toEqual({
                 ...bridgechainRegistrationAsset,
-                ...secondBridgechainUpdateAssetClone,
                 ...bridgechainUpdateAssetClone,
             });
 
-            // @ts-ignore
-            setMockTransactions([
-                bridgechainRegistrationTransaction,
-                secondBridgechainUpdateTransaction,
-                bridgechainUpdateTransaction,
-            ]);
-
-            await handler.revert(bridgechainUpdateTransaction, walletRepository);
-
-            expect(
-                senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash]
-                    .bridgechainAsset,
-            ).toEqual({
-                ...bridgechainRegistrationAsset,
-                ...secondBridgechainUpdateAssetClone,
-            });
-
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.balance).toEqual(senderBalance);
         });
     });
 });

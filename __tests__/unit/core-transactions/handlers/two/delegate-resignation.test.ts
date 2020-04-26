@@ -1,25 +1,25 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { DelegateEvent } from "@arkecosystem/core-kernel/src/enums";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Wallets } from "@arkecosystem/core-state";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Mempool } from "@arkecosystem/core-transaction-pool/src/mempool";
+import { Application, Contracts } from "@packages/core-kernel";
+import { DelegateEvent } from "@packages/core-kernel/src/enums";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Wallets } from "@packages/core-state";
+import { StateStore } from "@packages/core-state/src/stores/state";
+import { Generators } from "@packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 import {
     InsufficientBalanceError,
     NotEnoughDelegatesError,
     VotedForResignedDelegateError,
     WalletAlreadyResignedError,
     WalletNotADelegateError,
-} from "@arkecosystem/core-transactions/src/errors";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+} from "@packages/core-transactions/src/errors";
+import { TransactionHandler } from "@packages/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
 
 import {
@@ -29,7 +29,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
+import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -49,8 +49,6 @@ beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
-
-    setMockTransaction(null);
 
     app = initApp();
 
@@ -139,7 +137,7 @@ describe("DelegateResignationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            setMockTransaction(delegateResignationTransaction);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(delegateResignationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
 
@@ -148,7 +146,7 @@ describe("DelegateResignationTransaction", () => {
 
             walletRepository.index(allDelegates[0]);
 
-            setMockTransaction(delegateResignationTransaction);
+            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(delegateResignationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
     });

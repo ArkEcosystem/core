@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Wallets } from "@arkecosystem/core-state";
+import { Wallets } from "@packages/core-state";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 
 let factory: FactoryBuilder;
@@ -21,10 +21,7 @@ describe("WalletFactory", () => {
     });
 
     it("should make a wallet with a second public key", () => {
-        const entity: Wallets.Wallet = factory
-            .get("Wallet")
-            .withStates("secondPublicKey")
-            .make<Wallets.Wallet>();
+        const entity: Wallets.Wallet = factory.get("Wallet").withStates("secondPublicKey").make<Wallets.Wallet>();
 
         expect(entity).toBeInstanceOf(Wallets.Wallet);
         expect(entity.address).toBeString();

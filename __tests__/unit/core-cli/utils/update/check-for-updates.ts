@@ -33,9 +33,7 @@ describe("checkForUpdates", () => {
     });
 
     it("should find a new version if the npm registry is up", async () => {
-        nock(/.*/)
-            .get("/@arkecosystem%2Fcore")
-            .reply(200, versionLatest);
+        nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, versionLatest);
 
         await expect(
             checkForUpdates({

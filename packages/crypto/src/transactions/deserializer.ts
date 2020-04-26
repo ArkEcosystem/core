@@ -24,8 +24,8 @@ export class Deserializer {
             transaction.asset &&
             transaction.asset.multiSignatureLegacy
         ) {
-            transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(k =>
-                k.startsWith("+") ? k : `+${k}`,
+            transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(
+                (k) => (k.startsWith("+") ? k : `+${k}`),
             );
         }
     }
@@ -110,10 +110,7 @@ export class Deserializer {
         const currentSignatureLength = (): number => {
             buf.mark();
 
-            const lengthHex: string = buf
-                .skip(1)
-                .readBytes(1)
-                .toString("hex");
+            const lengthHex: string = buf.skip(1).readBytes(1).toString("hex");
 
             buf.reset();
             return parseInt(lengthHex, 16) + 2;

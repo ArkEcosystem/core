@@ -1,4 +1,5 @@
 import "jest-extended";
+
 import { DelegateResource } from "@packages/core-api/src/resources";
 
 let resource: DelegateResource;

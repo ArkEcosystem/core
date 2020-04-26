@@ -9,7 +9,7 @@ import { Controller } from "./controller";
 @Container.injectable()
 export class PeersController extends Controller {
     @Container.inject(Container.Identifiers.PeerStorage)
-    protected readonly peerStorage!: Contracts.P2P.PeerStorage;
+    private readonly peerStorage!: Contracts.P2P.PeerStorage;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const allPeers: Contracts.P2P.Peer[] = [...this.peerStorage.getPeers()];
@@ -20,7 +20,7 @@ export class PeersController extends Controller {
             const versionRange = semver.validRange(decodeURIComponent((request.query as any).version));
 
             if (versionRange) {
-                result = result.filter(peer => peer.version && semver.satisfies(peer.version, versionRange));
+                result = result.filter((peer) => peer.version && semver.satisfies(peer.version, versionRange));
             } else {
                 return Boom.notFound("Invalid version range provided");
             }
@@ -42,7 +42,7 @@ export class PeersController extends Controller {
 
         const order: string = request.query.orderBy as string;
         if (order) {
-            const orderByMapped = order.split(":").map(p => p.toLowerCase());
+            const orderByMapped = order.split(":").map((p) => p.toLowerCase());
 
             switch (orderByMapped[0]) {
                 case "version": {
@@ -55,8 +55,8 @@ export class PeersController extends Controller {
                 case "height": {
                     result = Utils.orderBy(
                         result,
-                        el => el.state[orderByMapped[0]],
-                        orderByMapped[1] === "asc" ? "asc" : "desc",
+                        (el) => el.state[orderByMapped[0]],
+                        orderByMapped[1] === "asc" ? "asc" : "desc", // ? why desc is default
                     );
                     break;
                 }
@@ -75,7 +75,7 @@ export class PeersController extends Controller {
 
         result = result.slice(offset, offset + limit);
 
-        return super.toPagination({ rows: result, count }, PeerResource);
+        return super.toPagination({ rows: result, count, countIsEstimate: false }, PeerResource);
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {

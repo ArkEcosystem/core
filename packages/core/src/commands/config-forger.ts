@@ -56,11 +56,11 @@ export class Command extends Commands.Command {
      */
     public async execute(): Promise<void> {
         if (this.getFlag("method") === "bip38") {
-            return new BIP38Command().execute();
+            return await this.initializeAndExecute(BIP38Command);
         }
 
         if (this.getFlag("method") === "bip39") {
-            return new BIP39Command().execute();
+            return await this.initializeAndExecute(BIP39Command);
         }
 
         let response = await this.components.prompt([
@@ -82,11 +82,25 @@ export class Command extends Commands.Command {
         response = { ...this.getFlags(), ...response };
 
         if (response.method === "bip38") {
-            return new BIP38Command().execute();
+            return await this.initializeAndExecute(BIP38Command);
         }
 
         if (response.method === "bip39") {
-            return new BIP39Command().execute();
+            return await this.initializeAndExecute(BIP39Command);
         }
+    }
+
+    private async initializeAndExecute(commandSignature): Promise<void> {
+        const cmd = this.app.resolve<Commands.Command>(commandSignature);
+
+        const flags = this.getFlags();
+        cmd.configure();
+        cmd.register([]);
+
+        for (const flag in flags) {
+            cmd.setFlag(flag, flags[flag]);
+        }
+
+        return await cmd.run();
     }
 }

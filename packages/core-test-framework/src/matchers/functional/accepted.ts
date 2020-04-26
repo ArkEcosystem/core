@@ -33,14 +33,14 @@ expect.extend({
 
             error = JSON.stringify(parsedBody.errors);
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             error = e.message;
-            console.error(error);
+            // console.error(error);
         }
 
         return {
             pass,
-            message: () =>
+            message: /* istanbul ignore next */ () =>
                 // @ts-ignore
                 `expected ${transaction.id} ${this.isNot ? "not" : ""} to be accepted ${
                     error ? "(error: " + error + ")" : ""
@@ -62,19 +62,19 @@ expect.extend({
             error = JSON.stringify(parsedBody.errors);
         } catch (e) {
             error = e.message;
-            console.error(error);
+            // console.error(error);
         }
 
         return {
             pass,
-            message: () =>
+            message: /* istanbul ignore next */ () =>
                 // @ts-ignore
                 `expected all transactions ${this.isNot ? "not" : ""} to be accepted ${
                     error ? "(error: " + error + ")" : ""
                 }`,
         };
     },
-    toBeEachAccepted: async transactions => {
+    toBeEachAccepted: async (transactions) => {
         let pass = true;
         let error: string | undefined;
 
@@ -93,12 +93,12 @@ expect.extend({
         } catch (e) {
             pass = false;
             error = e.message;
-            console.error(error);
+            // console.error(error);
         }
 
         return {
             pass,
-            message: () =>
+            message: /* istanbul ignore next */ () =>
                 // @ts-ignore
                 `expected transactions ${this.isNot ? "not" : ""} to be accepted ${
                     error ? "(error: " + error + ")" : ""

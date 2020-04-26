@@ -1,18 +1,15 @@
-import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Services, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import prettyMs from "pretty-ms";
-import SocketCluster from "socketcluster";
 
 import { NetworkState } from "./network-state";
 import { PeerCommunicator } from "./peer-communicator";
-import { PeerProcessor } from "./peer-processor";
 import { RateLimiter } from "./rate-limiter";
 import { buildRateLimiter, checkDNS, checkNTP } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
 export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
-    public server: SocketCluster | undefined;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean | undefined;
     private coldStart: boolean = false;
@@ -47,9 +44,6 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     @Container.inject(Container.Identifiers.PeerCommunicator)
     private readonly communicator!: PeerCommunicator;
 
-    @Container.inject(Container.Identifiers.PeerProcessor)
-    private readonly processor!: PeerProcessor;
-
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
 
@@ -58,15 +52,6 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public initialize() {
         this.config = this.configuration.all(); // >_<
         this.rateLimiter = buildRateLimiter(this.config);
-    }
-
-    public getServer(): SocketCluster {
-        // @ts-ignore
-        return this.server;
-    }
-
-    public setServer(server: SocketCluster): void {
-        this.server = server;
     }
 
     public async boot(): Promise<void> {
@@ -82,7 +67,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
             for (const [version, peers] of Object.entries(
                 // @ts-ignore
-                Utils.groupBy(this.storage.getPeers(), peer => peer.version),
+                Utils.groupBy(this.storage.getPeers(), (peer) => peer.version),
             )) {
                 this.logger.info(`Discovered ${Utils.pluralize("peer", peers.length, true)} with v${version}.`);
             }
@@ -92,14 +77,6 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         await Utils.sleep(1000);
 
         this.initializing = false;
-    }
-
-    public dispose(): void {
-        if (this.server) {
-            this.server.removeAllListeners();
-            this.server.destroy();
-            this.server = undefined;
-        }
     }
 
     public async updateNetworkStatus(initialRun?: boolean): Promise<void> {
@@ -158,7 +135,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         this.logger.info(`Checking ${max} peers`);
         const peerErrors = {};
         await Promise.all(
-            peers.map(async peer => {
+            peers.map(async (peer) => {
                 try {
                     return await this.communicator.ping(peer, pingDelay, forcePing);
                 } catch (error) {
@@ -208,7 +185,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                         }),
                 )
             )
-                .map(peers =>
+                .map((peers) =>
                     Utils.shuffle(peers)
                         .slice(0, maxPeersPerPeer)
                         .reduce(
@@ -224,7 +201,13 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         );
 
         if (pingAll || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.75) {
-            await Promise.all(theirPeers.map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
+            await Promise.all(
+                theirPeers.map((p) =>
+                    this.app
+                        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                        .call("validateAndAcceptPeer", { peer: p, options: { lessVerbose: true } }),
+                ),
+            );
             this.pingPeerPorts(pingAll);
 
             return true;
@@ -261,8 +244,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public getNetworkHeight(): number {
         const medians = this.storage
             .getPeers()
-            .filter(peer => peer.state.height)
-            .map(peer => peer.state.height)
+            .filter((peer) => peer.state.height)
+            .map((peer) => peer.state.height)
             .sort((a, b) => {
                 Utils.assert.defined<string>(a);
                 Utils.assert.defined<string>(b);
@@ -309,9 +292,9 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             return { forked: false };
         }
 
-        const groupedByCommonHeight = Utils.groupBy(allPeers, peer => peer.verification.highestCommonHeight);
+        const groupedByCommonHeight = Utils.groupBy(allPeers, (peer) => peer.verification.highestCommonHeight);
 
-        const groupedByLength = Utils.groupBy(Object.values(groupedByCommonHeight), peer => peer.length);
+        const groupedByLength = Utils.groupBy(Object.values(groupedByCommonHeight), (peer) => peer.length);
 
         // Sort by longest
         // @ts-ignore
@@ -344,7 +327,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             return [];
         }
 
-        const peersNotForked: Contracts.P2P.Peer[] = Utils.shuffle(peersAll.filter(peer => !peer.isForked()));
+        const peersNotForked: Contracts.P2P.Peer[] = Utils.shuffle(peersAll.filter((peer) => !peer.isForked()));
 
         if (peersNotForked.length === 0) {
             this.logger.error(
@@ -442,7 +425,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         try {
             // Convert the array of AsyncFunction to an array of Promise by calling the functions.
             // @ts-ignore
-            await Promise.all(downloadJobs.map(f => f()));
+            await Promise.all(downloadJobs.map((f) => f()));
         } catch (error) {
             firstFailureMessage = error.message;
         }
@@ -515,7 +498,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             )}`,
         );
 
-        await Promise.all(peers.map(peer => this.communicator.postBlock(peer, block)));
+        await Promise.all(peers.map((peer) => this.communicator.postBlock(peer, block)));
     }
 
     private async pingPeerPorts(pingAll?: boolean): Promise<void> {
@@ -527,7 +510,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         this.logger.debug(`Checking ports of ${Utils.pluralize("peer", peers.length, true)}.`);
 
         Promise.all(
-            peers.map(async peer => {
+            peers.map(async (peer) => {
                 try {
                     return await this.communicator.pingPorts(peer);
                 } catch (error) {
@@ -586,11 +569,24 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     private async populateSeedPeers(): Promise<any> {
         const peerList: Contracts.P2P.PeerData[] = this.app.config("peers").list;
 
-        if (!peerList) {
+        try {
+            const peersFromUrl = await this.loadPeersFromUrlList();
+            for (const peer of peersFromUrl) {
+                if (!peerList.find((p) => p.ip === peer.ip)) {
+                    peerList.push({
+                        ip: peer.ip,
+                        ports: { "@arkecosystem/core-p2p": peer.port },
+                        version: this.app.version(),
+                    });
+                }
+            }
+        } catch {}
+
+        if (!peerList || !peerList.length) {
             this.app.terminate("No seed peers defined in peers.json");
         }
 
-        const peers: Contracts.P2P.PeerData[] = peerList.map(peer => {
+        const peers: Contracts.P2P.PeerData[] = peerList.map((peer) => {
             peer.version = this.app.version();
             return peer;
         });
@@ -600,8 +596,28 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             Object.values(peers).map((peer: Contracts.P2P.Peer) => {
                 this.storage.forgetPeer(peer);
 
-                return this.processor.validateAndAcceptPeer(peer, { seed: true, lessVerbose: true });
+                return this.app
+                    .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                    .call("validateAndAcceptPeer", { peer, options: { seed: true, lessVerbose: true } });
             }),
         );
+    }
+
+    private async loadPeersFromUrlList(): Promise<Array<{ ip: string; port: number }>> {
+        const urls: string[] = this.app.config("peers").sources || [];
+
+        for (const url of urls) {
+            // Local File...
+            if (url.startsWith("/")) {
+                return require(url);
+            }
+
+            // URL...
+            this.logger.debug(`GET ${url}`);
+            const { data } = await Utils.http.get(url);
+            return data;
+        }
+
+        return [];
     }
 }

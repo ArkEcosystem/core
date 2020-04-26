@@ -1,5 +1,5 @@
 import { DatabaseService, Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Utils, Services } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 import async from "async";
 
@@ -29,7 +29,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;
 
-    @Container.inject(Container.Identifiers.BlockRepository)
+    @Container.inject(Container.Identifiers.DatabaseBlockRepository)
     private readonly blockRepository!: Repositories.BlockRepository;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
@@ -49,7 +49,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public initialize(options: { networkStart?: boolean }): this {
-        this.isStopped = true;
+        this.isStopped = false;
 
         // flag to force a network start
         this.state.networkStart = !!options.networkStart;
@@ -60,19 +60,18 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             );
         }
 
-        this.blockProcessor = this.app.resolve<BlockProcessor>(BlockProcessor);
+        this.blockProcessor = this.app.get<BlockProcessor>(Container.Identifiers.BlockProcessor);
 
-        this.queue = async.queue((blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
+        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }) => {
             try {
-                return this.processBlocks(blockList.blocks, cb);
+                return await this.processBlocks(blockList.blocks);
             } catch (error) {
                 this.app.log.error(
                     `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
                 );
 
                 this.app.log.error(error.stack);
-
-                return cb();
+                return undefined;
             }
         }, 1);
 
@@ -115,11 +114,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.emitter.listen(Enums.ForgerEvent.Missing, { handle: this.checkMissingBlocks });
 
-        this.emitter.listen(Enums.RoundEvent.Applied, {
-            handle: () => {
-                this.missedBlocks = 0;
-            },
-        });
+        this.emitter.listen(Enums.RoundEvent.Applied, { handle: this.resetMissedBlocks });
 
         return true;
     }
@@ -221,9 +216,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         const lastDownloadedHeight: number = this.getLastDownloadedBlock().height;
         const milestoneHeights: number[] = Managers.configManager
             .getMilestones()
-            .map(milestone => milestone.height)
+            .map((milestone) => milestone.height)
             .sort((a, b) => a - b)
-            .filter(height => height >= lastDownloadedHeight);
+            .filter((height) => height >= lastDownloadedHeight);
 
         // divide blocks received into chunks depending on number of transactions
         // this is to avoid blocking the application when processing "heavy" blocks
@@ -301,7 +296,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.state.lastDownloadedBlock = newLastBlock.data;
         };
 
-        const __removeBlocks = async numberOfBlocks => {
+        const __removeBlocks = async (numberOfBlocks) => {
             if (numberOfBlocks < 1) {
                 return;
             }
@@ -362,7 +357,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     /**
      * Process the given block.
      */
-    public async processBlocks(blocks: Interfaces.IBlockData[], callback): Promise<Interfaces.IBlock[]> {
+    public async processBlocks(blocks: Interfaces.IBlockData[]): Promise<Interfaces.IBlock[] | undefined> {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult | undefined;
 
@@ -375,7 +370,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
             this.resetLastDownloadedBlock();
-            return callback();
+            return undefined;
         }
 
         let forkBlock: Interfaces.IBlock | undefined = undefined;
@@ -384,7 +379,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const blockInstance = Blocks.BlockFactory.fromData(block);
             Utils.assert.defined<Interfaces.IBlock>(blockInstance);
 
-            lastProcessResult = await this.blockProcessor.process(blockInstance);
+            lastProcessResult = await this.app
+                .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                .call("processBlock", { blockProcessor: this.blockProcessor, block: blockInstance });
             lastProcessedBlock = blockInstance;
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
@@ -431,7 +428,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 await this.database.deleteRound(deleteRoundsAfter + 1);
                 await this.database.loadBlocksFromCurrentRound();
 
-                return callback();
+                return undefined;
             }
         }
 
@@ -452,7 +449,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.forkBlock(forkBlock);
         }
 
-        return callback(acceptedBlocks);
+        return acceptedBlocks;
     }
 
     /**
@@ -566,7 +563,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 this.dispatch("FORK");
             }
 
-            this.missedBlocks = 0;
+            this.resetMissedBlocks();
         }
+    }
+
+    private resetMissedBlocks(): void {
+        this.missedBlocks = 0;
     }
 }

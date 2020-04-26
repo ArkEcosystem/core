@@ -11,15 +11,7 @@ export class EventListener {
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
-    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
-    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
-
     public initialize() {
         this.emitter.listen(Enums.PeerEvent.Disconnect, this.app.resolve(DisconnectPeer));
-
-        const exitHandler = () => this.networkMonitor.dispose();
-
-        process.on("SIGINT", exitHandler);
-        process.on("exit", exitHandler);
     }
 }

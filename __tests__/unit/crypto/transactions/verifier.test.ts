@@ -60,7 +60,7 @@ describe("Verifier", () => {
         });
 
         // Test each type on it's own
-        describe.each([0, 1, 2, 3])("type %s", type => {
+        describe.each([0, 1, 2, 3])("type %s", (type) => {
             it("should be ok", () => {
                 const tx = createRandomTx(type);
                 expect(tx.verify()).toBeTrue();

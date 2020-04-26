@@ -44,7 +44,7 @@ describe("Identities - Address", () => {
             expect(
                 Address.fromMultiSignatureAsset({
                     min: 3,
-                    publicKeys: ["secret 1", "secret 2", "secret 3"].map(secret => PublicKey.fromPassphrase(secret)),
+                    publicKeys: ["secret 1", "secret 2", "secret 3"].map((secret) => PublicKey.fromPassphrase(secret)),
                 }),
             ).toBe("DMS861mLRrtH47QUMVif3C2rBCAdHbmwsi");
         });
@@ -73,7 +73,7 @@ describe("Identities - Address", () => {
             expect(() => {
                 Address.fromMultiSignatureAsset({
                     min: 7,
-                    publicKeys: ["secret 1", "secret 2", "secret 3"].map(secret => PublicKey.fromPassphrase(secret)),
+                    publicKeys: ["secret 1", "secret 2", "secret 3"].map((secret) => PublicKey.fromPassphrase(secret)),
                 });
             }).toThrowError(InvalidMultiSignatureAssetError);
 

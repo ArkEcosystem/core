@@ -1,22 +1,17 @@
 import "jest-extended";
 
-import { Contracts, Services } from "@arkecosystem/core-kernel";
-import { Application } from "@arkecosystem/core-kernel/src/application";
-import { Container, Identifiers } from "@arkecosystem/core-kernel/src/ioc";
+import { Contracts, Services } from "@packages/core-kernel";
+import { Application } from "@packages/core-kernel/src/application";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import {
     DeactivatedTransactionHandlerError,
     InvalidTransactionTypeError,
-} from "@arkecosystem/core-transactions/src/errors";
-import {
-    One,
-    TransactionHandler,
-    TransactionHandlerConstructor,
-    Two,
-} from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerProvider } from "@arkecosystem/core-transactions/src/handlers/handler-provider";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { TransactionSchema } from "@arkecosystem/crypto/src/transactions/types/schemas";
+} from "@packages/core-transactions/src/errors";
+import { One, TransactionHandler, TransactionHandlerConstructor, Two } from "@packages/core-transactions/src/handlers";
+import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { TransactionSchema } from "@packages/crypto/src/transactions/types/schemas";
 import ByteBuffer from "bytebuffer";
 
 let app: Application;
@@ -136,8 +131,8 @@ beforeEach(() => {
     app.bind<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes)
         .to(Services.Attributes.AttributeSet)
         .inSingletonScope();
-    app.bind(Identifiers.BlockRepository).toConstantValue({});
-    app.bind(Identifiers.TransactionRepository).toConstantValue({});
+    app.bind(Identifiers.DatabaseBlockRepository).toConstantValue({});
+    app.bind(Identifiers.DatabaseTransactionRepository).toConstantValue({});
     app.bind(Identifiers.WalletRepository).toConstantValue({});
     app.bind(Identifiers.TransactionPoolQuery).toConstantValue({});
 
@@ -158,12 +153,8 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcClaimTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
 
-    app.bind(Identifiers.TransactionHandlerProvider)
-        .to(TransactionHandlerProvider)
-        .inSingletonScope();
-    app.bind(Identifiers.TransactionHandlerRegistry)
-        .to(TransactionHandlerRegistry)
-        .inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
 
     Managers.configManager.getMilestone().aip11 = false;
 });

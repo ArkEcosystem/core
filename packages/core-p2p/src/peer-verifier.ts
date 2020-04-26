@@ -1,5 +1,5 @@
 import { DatabaseService } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import pluralize from "pluralize";
@@ -149,7 +149,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
             const ownBlock: Interfaces.IBlock | undefined = this.app
                 .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
                 .getLastBlocks()
-                .find(block => block.data.height === blockHeader.height);
+                .find((block) => block.data.height === blockHeader.height);
 
             // Use shortcut to prevent expensive crypto if the block header equals our own.
             if (ownBlock && JSON.stringify(ownBlock.getHeader()) === JSON.stringify(blockHeader)) {
@@ -297,7 +297,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
                 assert.strictEqual(typeof probesIdByHeight[height], "string");
             }
 
-            const ourBlocksPrint = ourBlocks.map(b => `{ height=${b.height}, id=${b.id} }`).join(", ");
+            const ourBlocksPrint = ourBlocks.map((b) => `{ height=${b.height}, id=${b.id} }`).join(", ");
             const rangePrint = `[${ourBlocks[0].height}, ${ourBlocks[ourBlocks.length - 1].height}]`;
 
             const msRemaining = this.throwIfPastDeadline(deadline);
@@ -403,7 +403,9 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     private async getDelegatesByRound(
         roundInfo: Contracts.Shared.RoundInfo,
     ): Promise<Record<string, Contracts.State.Wallet>> {
-        let delegates = await this.database.getActiveDelegates(roundInfo);
+        let delegates = (await this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
 
         if (delegates.length === 0) {
             // This must be the current round, still not saved into the database (it is saved

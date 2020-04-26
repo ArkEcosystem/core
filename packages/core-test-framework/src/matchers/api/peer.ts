@@ -12,9 +12,9 @@ declare global {
     }
 }
 
-const isValidPeer = peer => {
+const isValidPeer = (peer) => {
     const allowedKeys = Utils.sortBy(["ip", "port"]);
-    const actualKeys = Object.keys(peer).filter(key => allowedKeys.includes(key));
+    const actualKeys = Object.keys(peer).filter((key) => allowedKeys.includes(key));
 
     return Utils.isEqual(Utils.sortBy(actualKeys), allowedKeys);
 };
@@ -22,12 +22,13 @@ const isValidPeer = peer => {
 expect.extend({
     toBeValidPeer: (actual, expected) => {
         return {
-            message: () => `Expected ${JSON.stringify(actual)} to be a valid peer`,
+            message: /* istanbul ignore next */ () => `Expected ${JSON.stringify(actual)} to be a valid peer`,
             pass: isValidPeer(actual),
         };
     },
 
     toBeValidArrayOfPeers: (actual, expected) => {
+        /* istanbul ignore next */
         const message = () => `Expected ${JSON.stringify(actual)} to be a valid array of peers`;
 
         if (!Array.isArray(actual)) {

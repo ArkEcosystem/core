@@ -24,7 +24,7 @@ export class VoteTransaction extends Transaction {
 
         if (data.asset && data.asset.votes) {
             const voteBytes = data.asset.votes
-                .map(vote => (vote.startsWith("+") ? "01" : "00") + vote.slice(1))
+                .map((vote) => (vote.startsWith("+") ? "01" : "00") + vote.slice(1))
                 .join("");
             buffer.writeByte(data.asset.votes.length);
             buffer.append(voteBytes, "hex");

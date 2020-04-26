@@ -72,7 +72,7 @@ export class Command extends Commands.Command {
                 type: "select",
                 name: "network",
                 message: "Please select which network you want to operate on",
-                choices: Object.keys(Networks).map(network => ({ title: network, value: network })),
+                choices: Object.keys(Networks).map((network) => ({ title: network, value: network })),
             },
             {
                 type: "confirm",

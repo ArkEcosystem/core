@@ -1,7 +1,7 @@
+import Nes from "@hapi/nes";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { codec, NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
+import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
-import socketCluster from "socketcluster-client";
 
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 import { RelayHost } from "./interfaces";
@@ -41,20 +41,14 @@ export class Client {
      */
     public register(hosts: RelayHost[]) {
         this.hosts = hosts.map((host: RelayHost) => {
-            host.socket = socketCluster.create({
-                ...host,
-                autoReconnectOptions: {
-                    initialDelay: 1000,
-                    maxDelay: 1000,
-                },
-                codecEngine: codec,
-            });
+            const connection = new Nes.Client(`ws://${host.hostname}:${host.port}`);
+            connection.connect().catch(e => {}); // connect promise can fail when p2p is not ready, it's fine it will retry 
 
-            host.socket.on("error", err => {
-                if (err.message !== "Socket hung up") {
-                    this.logger.error(err.message);
-                }
-            });
+            connection.onError = e => {
+                this.logger.error(e.message);
+            };
+
+            host.socket = connection;
 
             return host;
         });
@@ -67,7 +61,7 @@ export class Client {
      */
     public dispose(): void {
         for (const host of this.hosts) {
-            const socket: socketCluster.SCClientSocket | undefined = host.socket;
+            const socket: Nes.Client | undefined = host.socket;
 
             if (socket) {
                 socket.disconnect();
@@ -91,7 +85,7 @@ export class Client {
             await this.emit("p2p.peer.postBlock", {
                 block: Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
-                    transactions: block.transactions.map(tx => tx.data),
+                    transactions: block.transactions.map((tx) => tx.data),
                 }),
             });
         } catch (error) {
@@ -163,8 +157,8 @@ export class Client {
 
         const allowedHosts: string[] = ["127.0.0.1", "::ffff:127.0.0.1"];
 
-        const host: RelayHost | undefined = this.hosts.find(item =>
-            allowedHosts.some(allowedHost => item.hostname.includes(allowedHost)),
+        const host: RelayHost | undefined = this.hosts.find((item) =>
+            allowedHosts.some((allowedHost) => item.hostname.includes(allowedHost)),
         );
 
         if (!host) {
@@ -186,7 +180,7 @@ export class Client {
     public async selectHost(): Promise<void> {
         for (let i = 0; i < 10; i++) {
             for (const host of this.hosts) {
-                if (host.socket && host.socket.getState() === host.socket.OPEN) {
+                if (host.socket && host.socket._isReady()) {
                     this.host = host;
                     return;
                 }
@@ -197,38 +191,36 @@ export class Client {
 
         this.logger.debug(
             `No open socket connection to any host: ${JSON.stringify(
-                this.hosts.map(host => `${host.hostname}:${host.port}`),
+                this.hosts.map((host) => `${host.hostname}:${host.port}`),
             )}.`,
         );
 
-        throw new HostNoResponseError(this.hosts.map(host => host.hostname).join());
+        throw new HostNoResponseError(this.hosts.map((host) => host.hostname).join());
     }
 
     /**
      * @private
      * @template T
      * @param {string} event
-     * @param {Record<string, any>} [data={}]
+     * @param {Record<string, any>} [payload={}]
      * @param {number} [timeout=4000]
      * @returns {Promise<T>}
      * @memberof Client
      */
-    private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout = 4000): Promise<T> {
+    private async emit<T = object>(event: string, payload: Record<string, any> = {}, timeout = 4000): Promise<T> {
         try {
-            Utils.assert.defined<socketCluster.SCClientSocket>(this.host.socket);
+            Utils.assert.defined<Nes.Client>(this.host.socket);
 
-            const response: Contracts.P2P.Response<T> = await socketEmit(
-                this.host.hostname,
-                this.host.socket,
-                event,
-                data,
-                {
-                    "Content-Type": "application/json",
-                },
-                timeout,
-            );
+            const options = {
+                path: event,
+                headers: {},
+                method: "POST",
+                payload
+            };
+            
+            const response = await this.host.socket.request(options);
 
-            return response.data;
+            return response.payload;
         } catch (error) {
             throw new RelayCommunicationError(`${this.host.hostname}:${this.host.port}<${event}>`, error.message);
         }

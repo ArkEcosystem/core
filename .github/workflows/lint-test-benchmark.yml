@@ -231,9 +231,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-bridgechain-resignation:
         needs: lint
 
@@ -285,9 +282,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-bridgechain-update:
         needs: lint
 
@@ -339,9 +333,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-business-registration:
         needs: lint
 
@@ -393,9 +384,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-business-resignation:
         needs: lint
 
@@ -447,9 +435,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-business-update:
         needs: lint
 
@@ -501,9 +486,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-delegate-registration:
         needs: lint
 
@@ -555,9 +537,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-delegate-resignation:
         needs: lint
 
@@ -609,9 +588,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-htlc-claim:
         needs: lint
 
@@ -663,9 +639,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-htlc-lock:
         needs: lint
 
@@ -717,9 +690,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-htlc-refund:
         needs: lint
 
@@ -771,9 +741,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-ipfs:
         needs: lint
 
@@ -825,9 +792,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-multi-payment:
         needs: lint
 
@@ -879,9 +843,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
 
     test-functional-multi-signature-registration:
         needs: lint
@@ -934,9 +895,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-second-signature-registration:
         needs: lint
 
@@ -988,9 +946,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-transfer:
         needs: lint
 
@@ -1042,9 +997,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     test-functional-vote:
         needs: lint
 
@@ -1096,9 +1048,6 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
     # test-e2e:
     #     runs-on: ubuntu-latest
     #     strategy:

@@ -52,7 +52,7 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
 
     public async removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
         return await this.lock(async () => {
-            const index = this.transactions.findIndex(t => t.id === transaction.id);
+            const index = this.transactions.findIndex((t) => t.id === transaction.id);
             if (index === -1) {
                 return [];
             }
@@ -75,7 +75,7 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
 
     public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
         return await this.lock(async () => {
-            const index: number = this.transactions.findIndex(t => t.id === transaction.id);
+            const index: number = this.transactions.findIndex((t) => t.id === transaction.id);
             if (index === -1) {
                 return this.transactions.splice(0, this.transactions.length);
             } else {

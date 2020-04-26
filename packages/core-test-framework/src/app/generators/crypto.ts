@@ -188,9 +188,7 @@ export class CryptoGenerator extends Generator {
         totalPremine: string,
         pubKeyHash: number,
     ): any {
-        const amount: string = Utils.BigNumber.make(totalPremine)
-            .dividedBy(recipients.length)
-            .toString();
+        const amount: string = Utils.BigNumber.make(totalPremine).dividedBy(recipients.length).toString();
 
         return recipients.map((recipientWallet: Wallet) =>
             this.createTransferTransaction(sender, recipientWallet, amount, pubKeyHash),
@@ -332,11 +330,12 @@ export class CryptoGenerator extends Generator {
             byteBuffer.writeByte(generatorByte);
         }
 
-        if (genesisBlock.blockSignature) {
-            for (const blockSignatureByte of Buffer.from(genesisBlock.blockSignature, "hex")) {
-                byteBuffer.writeByte(blockSignatureByte);
-            }
-        }
+        // Unreachable
+        // if (genesisBlock.blockSignature) {
+        //     for (const blockSignatureByte of Buffer.from(genesisBlock.blockSignature, "hex")) {
+        //         byteBuffer.writeByte(blockSignatureByte);
+        //     }
+        // }
 
         byteBuffer.flip();
 

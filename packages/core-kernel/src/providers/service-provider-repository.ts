@@ -28,7 +28,7 @@ export class ServiceProviderRepository {
      * @memberof ServiceProviderRepository
      */
     @inject(Identifiers.EventDispatcherService)
-    private readonly eventDisaptcher!: EventDispatcher;
+    private readonly eventDispatcher!: EventDispatcher;
 
     /**
      * All of the registered service providers.
@@ -206,7 +206,7 @@ export class ServiceProviderRepository {
             .whenTargetTagged("plugin", name);
 
         await serviceProvider.register();
-        await this.eventDisaptcher.dispatch(KernelEvent.ServiceProviderRegistered, { name });
+        await this.eventDispatcher.dispatch(KernelEvent.ServiceProviderRegistered, { name });
     }
 
     /**
@@ -219,7 +219,7 @@ export class ServiceProviderRepository {
     public async boot(name: string): Promise<void> {
         await this.get(name).boot();
 
-        await this.eventDisaptcher.dispatch(KernelEvent.ServiceProviderBooted, { name });
+        await this.eventDispatcher.dispatch(KernelEvent.ServiceProviderBooted, { name });
 
         this.loadedProviders.add(name);
         this.failedProviders.delete(name);
@@ -236,7 +236,7 @@ export class ServiceProviderRepository {
     public async dispose(name: string): Promise<void> {
         await this.get(name).dispose();
 
-        await this.eventDisaptcher.dispatch(KernelEvent.ServiceProviderDisposed, { name });
+        await this.eventDispatcher.dispatch(KernelEvent.ServiceProviderDisposed, { name });
 
         this.loadedProviders.delete(name);
         this.failedProviders.delete(name);

@@ -14,9 +14,9 @@ declare global {
 }
 
 expect.extend({
-    toBeSecondSignatureType: received => {
+    toBeSecondSignatureType: (received) => {
         return {
-            message: () => "Expected value to be a valid SecondSignature transaction.",
+            message: /* istanbul ignore next */ () => "Expected value to be a valid SecondSignature transaction.",
             pass: received.type === SecondSignature,
         };
     },

@@ -14,9 +14,9 @@ declare global {
 }
 
 expect.extend({
-    toBeMultiPaymentType: received => {
+    toBeMultiPaymentType: (received) => {
         return {
-            message: () => "Expected value to be a valid MultiPayment transaction.",
+            message: /* istanbul ignore next */ () => "Expected value to be a valid MultiPayment transaction.",
             pass: received.type === MultiPayment,
         };
     },

@@ -5,11 +5,11 @@ import { Container, Utils } from "@packages/core-kernel";
 import { Database } from "@packages/core-webhooks/src/database";
 import { Identifiers } from "@packages/core-webhooks/src/identifiers";
 import { Listener } from "@packages/core-webhooks/src/listener";
-import { Webhook } from "@arkecosystem/core-webhooks/src/interfaces";
+import { Webhook } from "@packages/core-webhooks/src/interfaces";
 import { dirSync, setGracefulCleanup } from "tmp";
-import { HttpOptions, HttpResponse } from "@arkecosystem/core-kernel/src/utils";
+import { HttpOptions, HttpResponse } from "@packages/core-kernel/src/utils";
 import { dummyWebhook } from "./__fixtures__/assets";
-import * as coditions from "@arkecosystem/core-webhooks/src/conditions";
+import * as coditions from "@packages/core-webhooks/src/conditions";
 
 let app: Application;
 let database: Database;
@@ -27,12 +27,9 @@ beforeEach(() => {
     app = new Application(new Container.Container());
     app.bind("path.cache").toConstantValue(dirSync().name);
 
-    app.bind<Database>(Identifiers.Database)
-        .to(Database)
-        .inSingletonScope();
+    app.bind<Database>(Identifiers.Database).to(Database).inSingletonScope();
 
-    app.bind(Container.Identifiers.LogService)
-        .toConstantValue(logger);
+    app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
     database = app.get<Database>(Identifiers.Database);
     database.boot();
@@ -41,11 +38,13 @@ beforeEach(() => {
 
     webhook = Object.assign({}, dummyWebhook);
 
-    spyOnPost = jest.spyOn(Utils.http, "post").mockImplementation(async (url: string,  opts?: HttpOptions | undefined) => {
-        return {
-            statusCode: 200
-        } as HttpResponse;
-    });
+    spyOnPost = jest
+        .spyOn(Utils.http, "post")
+        .mockImplementation(async (url: string, opts?: HttpOptions | undefined) => {
+            return {
+                statusCode: 200,
+            } as HttpResponse;
+        });
 });
 
 afterEach(() => {
@@ -59,7 +58,7 @@ describe("Listener", () => {
         it("should broadcast to registered webhooks", async () => {
             database.create(webhook);
 
-            await listener.handle({ name: "event", data: "dummy_data"});
+            await listener.handle({ name: "event", data: "dummy_data" });
 
             expect(spyOnPost).toHaveBeenCalled();
             expect(logger.debug).toHaveBeenCalled();
@@ -68,11 +67,13 @@ describe("Listener", () => {
         it("should log error if broadcast is not successful", async () => {
             database.create(webhook);
 
-            const spyOnPost = jest.spyOn(Utils.http, "post").mockImplementation(async (url: string,  opts?: HttpOptions | undefined) => {
-                throw new Error();
-            });
+            const spyOnPost = jest
+                .spyOn(Utils.http, "post")
+                .mockImplementation(async (url: string, opts?: HttpOptions | undefined) => {
+                    throw new Error();
+                });
 
-            await listener.handle({ name: "event", data: "dummy_data"});
+            await listener.handle({ name: "event", data: "dummy_data" });
 
             expect(spyOnPost).toHaveBeenCalled();
             expect(logger.error).toHaveBeenCalled();
@@ -95,7 +96,7 @@ describe("Listener", () => {
                     key: "test",
                     value: 1,
                     condition: "eq",
-                }
+                },
             ];
             database.create(webhook);
 
@@ -110,7 +111,7 @@ describe("Listener", () => {
                     key: "test",
                     value: 1,
                     condition: "eq",
-                }
+                },
             ];
             database.create(webhook);
 
@@ -129,7 +130,7 @@ describe("Listener", () => {
                     key: "test",
                     value: 1,
                     condition: "eq",
-                }
+                },
             ];
             database.create(webhook);
 

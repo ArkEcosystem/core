@@ -1,0 +1,95 @@
+{
+    "core": {
+        "plugins": [
+            {
+                "package": "@arkecosystem/core-logger-pino"
+            },
+            {
+                "package": "@arkecosystem/core-state"
+            },
+            {
+                "package": "@arkecosystem/core-database"
+            },
+            {
+                "package": "@arkecosystem/core-transactions"
+            },
+            {
+                "package": "@arkecosystem/core-magistrate-transactions"
+            },
+            {
+                "package": "@arkecosystem/core-transaction-pool"
+            },
+            {
+                "package": "@arkecosystem/core-p2p",
+                "options": {
+                    "minimumNetworkReach": 1
+                }
+            },
+            {
+                "package": "@arkecosystem/core-blockchain"
+            },
+            {
+                "package": "@arkecosystem/core-api"
+            },
+            {
+                "package": "@arkecosystem/core-magistrate-api"
+            },
+            {
+                "package": "@arkecosystem/core-webhooks"
+            },
+            {
+                "package": "@arkecosystem/core-forger"
+            }
+        ]
+    },
+    "relay": {
+        "plugins": [
+            {
+                "package": "@arkecosystem/core-logger-pino"
+            },
+            {
+                "package": "@arkecosystem/core-state"
+            },
+            {
+                "package": "@arkecosystem/core-database"
+            },
+            {
+                "package": "@arkecosystem/core-transactions"
+            },
+            {
+                "package": "@arkecosystem/core-magistrate-transactions"
+            },
+            {
+                "package": "@arkecosystem/core-transaction-pool"
+            },
+            {
+                "package": "@arkecosystem/core-p2p",
+                "options": {
+                    "minimumNetworkReach": 1
+                }
+            },
+            {
+                "package": "@arkecosystem/core-blockchain"
+            },
+            {
+                "package": "@arkecosystem/core-api"
+            },
+            {
+                "package": "@arkecosystem/core-magistrate-api"
+            },
+            {
+                "package": "@arkecosystem/core-webhooks"
+            }
+        ]
+    },
+    "forger": {
+        "plugins": [
+            {
+                "package": "@arkecosystem/core-logger-pino"
+            },
+            {
+                "package": "@arkecosystem/core-forger"
+            }
+        ]
+    }
+}

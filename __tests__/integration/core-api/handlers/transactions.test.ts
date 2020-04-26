@@ -1,6 +1,5 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Repositories } from "@arkecosystem/core-database";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Managers } from "@arkecosystem/crypto";
 import { ApiHelpers, getWalletNonce } from "@packages/core-test-framework/src";
@@ -10,7 +9,7 @@ import { generateMnemonic } from "bip39";
 
 import { setUp, tearDown } from "../__support__/setup";
 
-export const generateWallets = quantity => {
+const generateWallets = (quantity) => {
     const wallets: { address: string; passphrase: string; publicKey: string }[] = [];
 
     for (let i = 0; i < quantity; i++) {
@@ -56,13 +55,13 @@ beforeAll(async () => {
     app = await setUp();
     api = new ApiHelpers(app);
 
-    delegates = secrets.map(secret => {
+    delegates = secrets.map((secret) => {
         const publicKey: string = Identities.PublicKey.fromPassphrase(secret);
         const address: string = Identities.Address.fromPassphrase(secret);
 
         const transaction: { amount: string } = Managers.configManager
             .get("genesisBlock")
-            .transactions.find(transaction => transaction.recipientId === address && transaction.type === 0);
+            .transactions.find((transaction) => transaction.recipientId === address && transaction.type === 0);
 
         return {
             secret,
@@ -130,13 +129,17 @@ describe("API 2.0 - Transactions", () => {
                 timestamp: 0,
                 version: 1,
                 type: 0,
+                typeGroup: 1,
                 fee: "0",
                 amount: "300000000000000",
+                blockId: expect.anything(), // ? how is that blockId isn't constant
                 recipientId: genesisTransaction.recipientId,
                 senderPublicKey: genesisTransaction.senderPublicKey,
                 expiration: 0,
                 network: 23,
+                nonce: "1",
                 signature: genesisTransaction.signature,
+                sequence: 0,
             });
         });
 
@@ -222,13 +225,7 @@ describe("API 2.0 - Transactions", () => {
     describe("POST /transactions/search", () => {
         it("should POST a search for transactions with the exact specified transactionId", async () => {
             const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: transactionId,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: transactionId,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -242,15 +239,7 @@ describe("API 2.0 - Transactions", () => {
         });
 
         it("should POST a search for transactions with the exact specified blockId", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "blockId",
-                        value: blockId,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-            });
+            const response = await api.request("POST", "transactions/search", { blockId });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).toHaveLength(100);
@@ -262,15 +251,7 @@ describe("API 2.0 - Transactions", () => {
         });
 
         it("should POST a search for transactions with the exact specified type", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "type",
-                        value: type,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-            });
+            const response = await api.request("POST", "transactions/search", { type });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).toHaveLength(51);
@@ -282,15 +263,7 @@ describe("API 2.0 - Transactions", () => {
         });
 
         it("should POST a search for transactions with the exact specified version", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "version",
-                        value: version,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-            });
+            const response = await api.request("POST", "transactions/search", { version });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).toHaveLength(100);
@@ -302,15 +275,7 @@ describe("API 2.0 - Transactions", () => {
         });
 
         it("should POST a search for transactions with the exact specified senderPublicKey", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "senderPublicKey",
-                        value: senderPublicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-            });
+            const response = await api.request("POST", "transactions/search", { senderPublicKey });
 
             expect(response).toBeSuccessfulResponse();
 
@@ -321,15 +286,7 @@ describe("API 2.0 - Transactions", () => {
         });
 
         it("should POST a search for transactions with the exact specified senderId", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "senderId",
-                        value: senderAddress,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-            });
+            const response = await api.request("POST", "transactions/search", { senderId: senderAddress });
 
             expect(response).toBeSuccessfulResponse();
 
@@ -339,16 +296,24 @@ describe("API 2.0 - Transactions", () => {
             }
         });
 
-        it("should POST a search for transactions with the exact specified recipientId (Address)", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "recipientId",
-                        value: recipientAddress,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+        it("should POST a search for transactions with the exact specified senderId in descending order by nonce", async () => {
+            const response = await api.request("POST", "transactions/search?orderBy=nonce:desc", {
+                senderId: senderAddress,
             });
+
+            expect(response).toBeSuccessfulResponse();
+
+            let prevNonce: number = 52;
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.sender).toBe(senderAddress);
+                expect(parseFloat(transaction.nonce)).toBeLessThan(prevNonce);
+                prevNonce = parseFloat(transaction.nonce);
+            }
+        });
+
+        it("should POST a search for transactions with the exact specified recipientId (Address)", async () => {
+            const response = await api.request("POST", "transactions/search", { recipientId: recipientAddress });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).toHaveLength(3);
@@ -361,19 +326,13 @@ describe("API 2.0 - Transactions", () => {
 
         it("should POST a search for transactions with the any of the specified addresses", async () => {
             const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "recipientId",
-                        value: [genesisTransactions[3].recipientId, genesisTransactions[8].recipientId],
-                        operator: Repositories.Search.SearchOperator.In,
-                    },
-                ],
+                recipientId: [genesisTransactions[3].recipientId, genesisTransactions[8].recipientId],
             });
 
             expect(response).toBeSuccessfulResponse();
 
             expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(4);
+            expect(response.data.data).toHaveLength(6);
 
             for (const transaction of response.data.data) {
                 api.expectTransaction(transaction);
@@ -381,15 +340,7 @@ describe("API 2.0 - Transactions", () => {
         });
 
         it("should POST a search for transactions with the exact specified timestamp", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "timestamp",
-                        value: timestamp,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-            });
+            const response = await api.request("POST", "transactions/search", { timestamp });
 
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -404,16 +355,7 @@ describe("API 2.0 - Transactions", () => {
         // FIXME
         it("should POST a search for transactions with the specified timestamp range", async () => {
             const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "timestamp",
-                        value: {
-                            from: timestampFrom,
-                            to: timestampTo,
-                        },
-                        operator: Repositories.Search.SearchOperator.Between,
-                    },
-                ],
+                timestamp: { from: timestampFrom, to: timestampTo },
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -428,15 +370,7 @@ describe("API 2.0 - Transactions", () => {
         });
 
         it("should POST a search for transactions with the exact specified amount", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "amount",
-                        value: amount,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-            });
+            const response = await api.request("POST", "transactions/search", { amount });
 
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -448,19 +382,9 @@ describe("API 2.0 - Transactions", () => {
             }
         });
 
-        // FIXME
         it("should POST a search for transactions with the specified amount range", async () => {
             const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "amount",
-                        value: {
-                            from: amountFrom,
-                            to: amountTo,
-                        },
-                        operator: Repositories.Search.SearchOperator.Between,
-                    },
-                ],
+                amount: { from: amountFrom, to: amountTo },
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -475,15 +399,7 @@ describe("API 2.0 - Transactions", () => {
         });
 
         it("should POST a search for transactions with the exact specified fee", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "fee",
-                        value: fee,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-            });
+            const response = await api.request("POST", "transactions/search", { fee });
 
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -497,16 +413,7 @@ describe("API 2.0 - Transactions", () => {
 
         it("should POST a search for transactions with the specified fee range", async () => {
             const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "fee",
-                        value: {
-                            from: feeFrom,
-                            to: feeTo,
-                        },
-                        operator: Repositories.Search.SearchOperator.Between,
-                    },
-                ],
+                fee: { from: feeFrom, to: feeTo },
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -524,13 +431,7 @@ describe("API 2.0 - Transactions", () => {
             const dummyTransaction = await api.createTransfer();
 
             const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "vendorField",
-                        value: dummyTransaction.vendorField,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                vendorField: dummyTransaction.vendorField,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -546,18 +447,8 @@ describe("API 2.0 - Transactions", () => {
 
         it("should POST a search for transactions with the wrong specified type", async () => {
             const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "id",
-                        value: transactionId,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "type",
-                        value: wrongType,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                id: transactionId,
+                type: wrongType,
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -566,26 +457,9 @@ describe("API 2.0 - Transactions", () => {
 
         it("should POST a search for transactions with the specific criteria", async () => {
             const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "senderPublicKey",
-                        value: senderPublicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "type",
-                        value: type,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "timestamp",
-                        value: {
-                            from: timestampFrom,
-                            to: timestampTo,
-                        },
-                        operator: Repositories.Search.SearchOperator.Between,
-                    },
-                ],
+                senderPublicKey,
+                type,
+                timestamp: { from: timestampFrom, to: timestampTo },
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -594,15 +468,7 @@ describe("API 2.0 - Transactions", () => {
 
         it("should POST a search for transactions with an asset matching any delegate", async () => {
             const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "asset",
-                        value: {
-                            delegate: {},
-                        },
-                        operator: Repositories.Search.SearchOperator.Contains,
-                    },
-                ],
+                asset: { delegate: {} },
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -612,20 +478,8 @@ describe("API 2.0 - Transactions", () => {
 
         it("should POST a search for transactions with an asset matching any delegate and sender public key", async () => {
             const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "asset",
-                        value: {
-                            delegate: {},
-                        },
-                        operator: Repositories.Search.SearchOperator.Contains,
-                    },
-                    {
-                        field: "senderPublicKey",
-                        value: "02275d8577a0ec2b75fc8683282d53c5db76ebc54514a80c2854e419b793ea259a",
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                asset: { delegate: {} },
+                senderPublicKey: "02275d8577a0ec2b75fc8683282d53c5db76ebc54514a80c2854e419b793ea259a",
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -635,15 +489,7 @@ describe("API 2.0 - Transactions", () => {
 
         it("should POST a search for transactions with an wrong asset", async () => {
             const response = await api.request("POST", "transactions/search", {
-                criteria: [
-                    {
-                        field: "asset",
-                        value: {
-                            garbage: {},
-                        },
-                        operator: Repositories.Search.SearchOperator.Contains,
-                    },
-                ],
+                asset: { garbage: {} },
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -705,7 +551,7 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data.invalid[0]).toBe(transactions[1].id);
         });
 
-        it.each([3, 5, 8])("should accept and broadcast %i transactions emptying a wallet", async txNumber => {
+        it.each([3, 5, 8])("should accept and broadcast %i transactions emptying a wallet", async (txNumber) => {
             const sender = delegates[txNumber]; // use txNumber so that we use a different delegate for each test case
             const receivers = generateWallets(2);
             const amountPlusFee = Math.floor(+sender.balance / txNumber);
@@ -730,16 +576,18 @@ describe("API 2.0 - Transactions", () => {
 
             expect(response).toBeSuccessfulResponse();
 
-            expect(response.data.data.accept.sort()).toEqual(allTransactions.map(transaction => transaction.id).sort());
+            expect(response.data.data.accept.sort()).toEqual(
+                allTransactions.map((transaction) => transaction.id).sort(),
+            );
             expect(response.data.data.broadcast.sort()).toEqual(
-                allTransactions.map(transaction => transaction.id).sort(),
+                allTransactions.map((transaction) => transaction.id).sort(),
             );
             expect(response.data.data.invalid).toHaveLength(0);
         });
 
         it.each([3, 5, 8])(
             "should not accept the last of %i transactions emptying a wallet when the last one is 1 satoshi too much",
-            async txNumber => {
+            async (txNumber) => {
                 const sender = delegates[txNumber + 1]; // use txNumber + 1 so that we don't use the same delegates as the above test
                 const receivers = generateWallets(2);
                 const amountPlusFee = Math.floor(+sender.balance / txNumber);
@@ -769,12 +617,12 @@ describe("API 2.0 - Transactions", () => {
                 expect(response).toBeSuccessfulResponse();
 
                 expect(response.data.data.accept.sort()).toEqual(
-                    transactions.map(transaction => transaction.id).sort(),
+                    transactions.map((transaction) => transaction.id).sort(),
                 );
                 expect(response.data.data.broadcast.sort()).toEqual(
-                    transactions.map(transaction => transaction.id).sort(),
+                    transactions.map((transaction) => transaction.id).sort(),
                 );
-                expect(response.data.data.invalid).toEqual(lastTransaction.map(transaction => transaction.id));
+                expect(response.data.data.invalid).toEqual(lastTransaction.map((transaction) => transaction.id));
             },
         );
     });

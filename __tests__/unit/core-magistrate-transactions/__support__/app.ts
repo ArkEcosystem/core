@@ -15,10 +15,17 @@ import {
     publicKeysIndexer,
     usernamesIndexer,
 } from "@packages/core-state/src/wallets/indexers/indexers";
+import { Mocks } from "@packages/core-test-framework";
 import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { knownAttributes } from "@packages/core-test-framework/src/internal/wallet-attributes";
 import { Collator } from "@packages/core-transaction-pool/src";
+import {
+    ApplyTransactionAction,
+    RevertTransactionAction,
+    ThrowIfCannotEnterPoolAction,
+    VerifyTransactionAction,
+} from "@packages/core-transaction-pool/src/actions";
 import { DynamicFeeMatcher } from "@packages/core-transaction-pool/src/dynamic-fee-matcher";
 import { ExpirationService } from "@packages/core-transaction-pool/src/expiration-service";
 import { Mempool } from "@packages/core-transaction-pool/src/mempool";
@@ -30,9 +37,6 @@ import { TransactionHandlerProvider } from "@packages/core-transactions/src/hand
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Identities, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
-
-import { blockRepository } from "../mocks/block-repository";
-import { transactionRepository } from "../mocks/transaction-repository";
 
 const logger = {
     notice: jest.fn(),
@@ -95,9 +99,7 @@ export const initApp = (): Application => {
             ),
     );
 
-    app.bind(Container.Identifiers.PluginConfiguration)
-        .to(Providers.PluginConfiguration)
-        .inSingletonScope();
+    app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 
     app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set("maxTransactionAge", 500);
     app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set(
@@ -109,17 +111,11 @@ export const initApp = (): Application => {
         300,
     );
 
-    app.bind(Container.Identifiers.StateStore)
-        .to(StateStore)
-        .inTransientScope();
+    app.bind(Container.Identifiers.StateStore).to(StateStore).inTransientScope();
 
-    app.bind(Identifiers.TransactionPoolMempool)
-        .to(Mempool)
-        .inSingletonScope();
+    app.bind(Identifiers.TransactionPoolMempool).to(Mempool).inSingletonScope();
 
-    app.bind(Identifiers.TransactionPoolQuery)
-        .to(Query)
-        .inSingletonScope();
+    app.bind(Identifiers.TransactionPoolQuery).to(Query).inSingletonScope();
 
     app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
     app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
@@ -131,17 +127,13 @@ export const initApp = (): Application => {
     );
     app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
 
-    app.bind(Identifiers.WalletRepository)
-        .to(Wallets.WalletRepository)
-        .inSingletonScope();
+    app.bind(Identifiers.WalletRepository).to(Wallets.WalletRepository).inSingletonScope();
 
-    app.bind(Identifiers.EventDispatcherService)
-        .to(NullEventDispatcher)
-        .inSingletonScope();
+    app.bind(Identifiers.EventDispatcherService).to(NullEventDispatcher).inSingletonScope();
 
-    app.bind(Identifiers.BlockRepository).toConstantValue(blockRepository);
+    app.bind(Identifiers.DatabaseBlockRepository).toConstantValue(Mocks.BlockRepository.instance);
 
-    app.bind(Identifiers.TransactionRepository).toConstantValue(transactionRepository);
+    app.bind(Identifiers.DatabaseTransactionRepository).toConstantValue(Mocks.TransactionRepository.instance);
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
@@ -160,12 +152,30 @@ export const initApp = (): Application => {
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcClaimTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
 
-    app.bind(Identifiers.TransactionHandlerProvider)
-        .to(TransactionHandlerProvider)
-        .inSingletonScope();
-    app.bind(Identifiers.TransactionHandlerRegistry)
-        .to(TransactionHandlerRegistry)
-        .inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
+
+    app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "verifyTransaction",
+        new VerifyTransactionAction(),
+    );
+
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "throwIfCannotEnterPool",
+        new ThrowIfCannotEnterPoolAction(),
+    );
+
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "applyTransaction",
+        new ApplyTransactionAction(),
+    );
+
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "revertTransaction",
+        new RevertTransactionAction(),
+    );
 
     return app;
 };

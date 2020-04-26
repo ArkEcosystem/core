@@ -1,18 +1,19 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Wallets } from "@arkecosystem/core-state";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { HtlcLockExpiredError, InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { Application, Contracts } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Wallets } from "@packages/core-state";
+import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { HtlcLockExpiredError, InsufficientBalanceError } from "@packages/core-transactions/src/errors";
+import { TransactionHandler } from "@packages/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { htlcSecretHashHex } from "../__fixtures__/htlc-secrets";
 import {
@@ -22,7 +23,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -38,7 +38,7 @@ const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Sl
 
 const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
     mockLastBlockData.height! + heightRelativeToLastBlock;
-const makeNotExpiredTimestamp = type =>
+const makeNotExpiredTimestamp = (type) =>
     type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
 
 const mockGetLastBlock = jest.fn();
@@ -49,8 +49,6 @@ beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
-
-    setMockTransaction(null);
 
     app = initApp();
 
@@ -71,8 +69,12 @@ beforeEach(() => {
     walletRepository.index(recipientWallet);
 });
 
+afterEach(() => {
+    Mocks.TransactionRepository.setTransactions([]);
+});
+
 describe("Htlc lock", () => {
-    describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", expirationType => {
+    describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", (expirationType) => {
         let htlcLockTransaction: Interfaces.ITransaction;
         let secondSignatureHtlcLockTransaction: Interfaces.ITransaction;
         let multiSignatureHtlcLockTransaction: Interfaces.ITransaction;
@@ -140,12 +142,17 @@ describe("Htlc lock", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
-                setMockTransaction(htlcLockTransaction);
+                Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
                 await expect(handler.bootstrap()).toResolve();
             });
 
             it("should resolve with open transaction", async () => {
-                setMockTransaction(htlcLockTransaction);
+                const mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
+                // @ts-ignore
+                mockHtlcLockTransacton.open = true;
+
+                Mocks.TransactionRepository.setTransactions([mockHtlcLockTransacton]);
+
                 await expect(handler.bootstrap()).toResolve();
             });
 
@@ -161,7 +168,12 @@ describe("Htlc lock", () => {
                     .vendorField("dummy")
                     .sign(passphrases[0])
                     .build();
-                setMockTransaction(htlcLockTransaction);
+
+                const mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
+                // @ts-ignore
+                mockHtlcLockTransacton.open = true;
+
+                Mocks.TransactionRepository.setTransactions([mockHtlcLockTransacton]);
                 await expect(handler.bootstrap()).toResolve();
             });
         });

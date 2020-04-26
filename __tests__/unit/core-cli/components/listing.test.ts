@@ -9,10 +9,7 @@ beforeEach(() => {
     cli = new Console();
 
     // Bind from src instead of dist to collect coverage.
-    cli.app
-        .rebind(Container.Identifiers.Listing)
-        .to(Listing)
-        .inSingletonScope();
+    cli.app.rebind(Container.Identifiers.Listing).to(Listing).inSingletonScope();
     component = cli.app.get(Container.Identifiers.Listing);
 });
 

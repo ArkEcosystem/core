@@ -1,4 +1,4 @@
-import { Models, Repositories } from "@arkecosystem/core-database";
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
     Enums,
@@ -25,6 +25,9 @@ import { packageNameRegex } from "./utils";
 export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHandler {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
+
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BridgechainRegistrationTransactionHandler];
@@ -120,7 +123,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         const hasUpdate: boolean = this.poolQuery
             .getAllBySender(transaction.data.senderPublicKey)
             .whereKind(transaction)
-            .wherePredicate(t => t.data.asset?.bridgechainUpdate.bridgechainId === bridgechainId)
+            .wherePredicate((t) => t.data.asset?.bridgechainUpdate.bridgechainId === bridgechainId)
             .has();
 
         if (hasUpdate) {
@@ -190,77 +193,29 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         );
         const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId;
 
-        const dbRegistrationTransactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
+        const bridgechainTransactions = await this.transactionHistoryService.findManyByCriteria([
             {
-                criteria: [
-                    {
-                        field: "senderPublicKey",
-                        value: sender.publicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "type",
-                        value: Enums.MagistrateTransactionType.BridgechainRegistration,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "typeGroup",
-                        value: transaction.data.typeGroup,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
+                senderPublicKey: sender.publicKey,
+                typeGroup: Enums.MagistrateTransactionGroup,
+                type: Enums.MagistrateTransactionType.BridgechainRegistration,
+                asset: { bridgechainRegistration: { genesisHash: bridgechainId } },
             },
-        );
-        const dbUpdateTransactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
             {
-                criteria: [
-                    {
-                        field: "senderPublicKey",
-                        value: sender.publicKey,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "type",
-                        value: Enums.MagistrateTransactionType.BridgechainUpdate,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                    {
-                        field: "typeGroup",
-                        value: transaction.data.typeGroup,
-                        operator: Repositories.Search.SearchOperator.Equal,
-                    },
-                ],
-                orderBy: [
-                    {
-                        direction: "ASC",
-                        field: "nonce",
-                    },
-                ],
+                senderPublicKey: sender.publicKey,
+                typeGroup: Enums.MagistrateTransactionGroup,
+                type: Enums.MagistrateTransactionType.BridgechainUpdate,
+                asset: { bridgechainUpdateAsset: { bridgechainId: bridgechainId } },
             },
-        );
+        ]);
 
-        let bridgechainAsset: MagistrateInterfaces.IBridgechainRegistrationAsset | undefined = undefined;
-        for (const dbRegistrationTx of dbRegistrationTransactions.rows) {
-            if (dbRegistrationTx.asset.bridgechainRegistration.genesisHash === bridgechainId) {
-                bridgechainAsset = dbRegistrationTx.asset
-                    .bridgechainRegistration as MagistrateInterfaces.IBridgechainRegistrationAsset;
+        const bridgechainAsset = bridgechainTransactions[0].asset!.bridgechainRegistration;
+        for (const updateTransaction of bridgechainTransactions.slice(1)) {
+            if (updateTransaction.id === transaction.id) {
                 break;
             }
+            Object.assign(bridgechainAsset, updateTransaction.asset!.bridgechainUpdate);
         }
-        Utils.assert.defined<MagistrateInterfaces.IBridgechainRegistrationAsset>(bridgechainAsset);
-
-        for (const dbUpdateTx of dbUpdateTransactions.rows) {
-            const bridgechainUpdateAsset = dbUpdateTx.asset
-                .bridgechainUpdate as MagistrateInterfaces.IBridgechainUpdateAsset;
-            if (dbUpdateTx.id === transaction.id || bridgechainUpdateAsset.bridgechainId !== bridgechainId) {
-                continue;
-            }
-            delete bridgechainUpdateAsset.bridgechainId; // no need for bridgechainId for bridgechain asset
-            bridgechainAsset = {
-                ...bridgechainAsset,
-                ...bridgechainUpdateAsset,
-            };
-        }
+        delete bridgechainAsset.bridgechainId;
 
         Utils.assert.defined<object>(businessAttributes.bridgechains);
         businessAttributes.bridgechains[bridgechainId] = { bridgechainAsset };

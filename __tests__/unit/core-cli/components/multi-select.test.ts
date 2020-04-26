@@ -10,10 +10,7 @@ beforeEach(() => {
     cli = new Console();
 
     // Bind from src instead of dist to collect coverage.
-    cli.app
-        .rebind(Container.Identifiers.MultiSelect)
-        .to(MultiSelect)
-        .inSingletonScope();
+    cli.app.rebind(Container.Identifiers.MultiSelect).to(MultiSelect).inSingletonScope();
     component = cli.app.get(Container.Identifiers.MultiSelect);
 });
 

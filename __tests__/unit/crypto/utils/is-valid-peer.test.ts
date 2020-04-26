@@ -38,7 +38,7 @@ describe("isValidPeer", () => {
 
         // getting local addresses
         for (const iface of Object.keys(interfaces)) {
-            interfaces[iface].some(iface => (addresses as any).push(iface.address));
+            interfaces[iface].some((iface) => (addresses as any).push(iface.address));
         }
 
         for (const ipAddress of addresses) {

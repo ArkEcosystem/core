@@ -23,7 +23,7 @@ describe("Identities - Public Key", () => {
             expect(
                 PublicKey.fromMultiSignatureAsset({
                     min: 3,
-                    publicKeys: ["secret 1", "secret 2", "secret 3"].map(secret => PublicKey.fromPassphrase(secret)),
+                    publicKeys: ["secret 1", "secret 2", "secret 3"].map((secret) => PublicKey.fromPassphrase(secret)),
                 }),
             ).toBe("0279f05076556da7173610a7676399c3620276ebbf8c67552ad3b1f26ec7627794");
         });
@@ -64,7 +64,7 @@ describe("Identities - Public Key", () => {
                 ],
             ];
 
-            permutations.forEach(publicKeys => {
+            permutations.forEach((publicKeys) => {
                 publicKeySet.add(
                     PublicKey.fromMultiSignatureAsset({
                         min: 2,
@@ -100,7 +100,7 @@ describe("Identities - Public Key", () => {
             expect(() => {
                 PublicKey.fromMultiSignatureAsset({
                     min: 7,
-                    publicKeys: ["secret 1", "secret 2", "secret 3"].map(secret => PublicKey.fromPassphrase(secret)),
+                    publicKeys: ["secret 1", "secret 2", "secret 3"].map((secret) => PublicKey.fromPassphrase(secret)),
                 });
             }).toThrowError(InvalidMultiSignatureAssetError);
 

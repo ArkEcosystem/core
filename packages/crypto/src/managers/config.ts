@@ -69,7 +69,7 @@ export class ConfigManager {
             throw new Error();
         }
 
-        return this.milestones.some(milestone => milestone.height === height);
+        return this.milestones.some((milestone) => milestone.height === height);
     }
 
     public getMilestone(height?: number): { [key: string]: any } {
@@ -135,7 +135,7 @@ export class ConfigManager {
 
         const delegateMilestones = this.config.milestones
             .sort((a, b) => a.height - b.height)
-            .filter(milestone => milestone.activeDelegates);
+            .filter((milestone) => milestone.activeDelegates);
 
         for (let i = 1; i < delegateMilestones.length; i++) {
             const previous = delegateMilestones[i - 1];

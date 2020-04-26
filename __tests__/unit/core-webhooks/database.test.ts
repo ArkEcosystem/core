@@ -29,9 +29,7 @@ beforeEach(() => {
     app = new Application(new Container());
     app.bind("path.cache").toConstantValue(dirSync().name);
 
-    app.bind<Database>(Identifiers.Database)
-        .to(Database)
-        .inSingletonScope();
+    app.bind<Database>(Identifiers.Database).to(Database).inSingletonScope();
 
     database = app.get<Database>(Identifiers.Database);
     database.boot();

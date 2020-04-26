@@ -1,9 +1,10 @@
 import "jest-extended";
 
-import { Application, Container, Providers } from "@packages/core-kernel";
-import { initApp } from "./__support__";
-import { Server } from "@packages/core-api/src/server";
 import { preparePlugins } from "@packages/core-api/src/plugins";
+import { Server } from "@packages/core-api/src/server";
+import { Application, Container, Providers } from "@packages/core-kernel";
+
+import { initApp } from "./__support__";
 
 let app: Application;
 
@@ -34,14 +35,18 @@ describe("Server", () => {
             host: "0.0.0.0",
             port: 4003,
             routes: {
-                cors: true
-            }
+                cors: true,
+            },
         };
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-        const pluginConfigurationInstance: Providers.PluginConfiguration = pluginConfiguration.from("core-api", defaults);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const pluginConfigurationInstance: Providers.PluginConfiguration = pluginConfiguration.from(
+            "core-api",
+            defaults,
+        );
 
-        app.bind(Container.Identifiers.PluginConfiguration).toConstantValue(pluginConfigurationInstance)
+        app.bind(Container.Identifiers.PluginConfiguration)
+            .toConstantValue(pluginConfigurationInstance)
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("plugin", "@arkecosystem/core-api"));
     });
 
@@ -54,8 +59,8 @@ describe("Server", () => {
             await expect(server.initialize("Test", serverConfig)).toResolve();
 
             const injectOptions = {
-                method: 'GET',
-                url: '/',
+                method: "GET",
+                url: "/",
             };
 
             const response = await server.inject(injectOptions);
@@ -69,17 +74,17 @@ describe("Server", () => {
         it("should add custom route", async () => {
             await expect(server.initialize("Test", serverConfig)).toResolve();
 
-            let testRoute = {
-                method: 'GET',
-                path: '/test',
-                handler: () => 'ok'
+            const testRoute = {
+                method: "GET",
+                path: "/test",
+                handler: () => "ok",
             };
 
             expect(server.route(testRoute)).toResolve();
 
             const injectOptions = {
-                method: 'GET',
-                url: '/test',
+                method: "GET",
+                url: "/test",
             };
 
             const response = await server.inject(injectOptions);

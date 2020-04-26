@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Application, Container } from "@arkecosystem/core-kernel";
-import { ServiceProvider } from "@arkecosystem/core-magistrate-transactions/src";
+import { Application, Container } from "@packages/core-kernel";
+import { ServiceProvider } from "@packages/core-magistrate-transactions/src";
 
 let app: Application;
 

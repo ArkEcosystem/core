@@ -14,9 +14,9 @@ declare global {
 }
 
 expect.extend({
-    toBeDelegateRegistrationType: received => {
+    toBeDelegateRegistrationType: (received) => {
         return {
-            message: () => "Expected value to be a valid DELEGATE transaction.",
+            message: /* istanbul ignore next */ () => "Expected value to be a valid DELEGATE transaction.",
             pass: received.type === DelegateRegistration,
         };
     },

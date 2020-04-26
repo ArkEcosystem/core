@@ -151,4 +151,25 @@ describe("PublishCommand", () => {
         expect(spyEnsure).not.toHaveBeenCalled();
         expect(spyCopy).not.toHaveBeenCalled();
     });
+
+    it("should publish the configuration via prompt without flag set before", async () => {
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(false)
+            .mockReturnValueOnce(true)
+            .mockReturnValueOnce(true);
+
+        const spyEnsure = jest.spyOn(fs, "ensureDirSync");
+        const spyCopy = jest.spyOn(fs, "copySync");
+
+        jest.spyOn(cli.app.get(Container.Identifiers.Prompt), "render").mockReturnValue({
+            // @ts-ignore
+            network: "mainnet",
+            confirm: true,
+        });
+
+        await cli.withFlags({ network: undefined }).execute(Command);
+
+        expect(spyEnsure).toHaveBeenCalled();
+        expect(spyCopy).toHaveBeenCalledTimes(2);
+    });
 });

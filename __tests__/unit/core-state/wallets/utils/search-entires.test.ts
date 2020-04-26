@@ -29,13 +29,13 @@ describe("searchEntries", () => {
         const wallets = fixtureGenerator.generateFullWallets();
 
         const addresses = [wallets[1].address, wallets[3].address, wallets[9].address];
-        
+
         const query = {
-            exact: [ 'publicKey', 'secondPublicKey', 'username', 'vote' ],
-            between: [ 'balance', 'voteBalance', 'lockedBalance' ],
-            in: [ 'address' ]
+            exact: ["publicKey", "secondPublicKey", "username", "vote"],
+            between: ["balance", "voteBalance", "lockedBalance"],
+            in: ["address"],
         };
-        const defaultOrder = [ 'balance', 'desc' ];
+        const defaultOrder = ["balance", "desc"];
 
         const result = searchEntries({ addresses }, query, wallets, defaultOrder);
 
@@ -47,13 +47,13 @@ describe("searchEntries", () => {
 
         const { address } = wallets[0];
         const addresses = [wallets[1].address, wallets[3].address, wallets[9].address];
-        
+
         const query = {
-            exact: [ 'publicKey', 'secondPublicKey', 'username', 'vote' ],
-            between: [ 'balance', 'voteBalance', 'lockedBalance' ],
-            in: [ 'address' ]
+            exact: ["publicKey", "secondPublicKey", "username", "vote"],
+            between: ["balance", "voteBalance", "lockedBalance"],
+            in: ["address"],
         };
-        const defaultOrder = [ 'balance', 'desc' ];
+        const defaultOrder = ["balance", "desc"];
 
         const result = searchEntries({ addresses, address }, query, wallets, defaultOrder);
 
@@ -76,15 +76,15 @@ describe("searchEntries", () => {
             voteBalance: {
                 from: 11,
                 to: 18,
-            }
+            },
         };
-        
+
         const query = {
-            exact: [ 'publicKey', 'secondPublicKey', 'username', 'vote' ],
-            between: [ 'balance', 'voteBalance', 'lockedBalance' ],
-            in: [ 'address' ]
+            exact: ["publicKey", "secondPublicKey", "username", "vote"],
+            between: ["balance", "voteBalance", "lockedBalance"],
+            in: ["address"],
         };
-        const defaultOrder = [ 'balance', 'desc' ];
+        const defaultOrder = ["balance", "desc"];
 
         const result = searchEntries(params, query, wallets, defaultOrder);
 
@@ -107,15 +107,15 @@ describe("searchEntries", () => {
             voteBalance: {
                 from: 11,
                 to: 18,
-            }
+            },
         };
-        
+
         const query = {
-            exact: [ 'publicKey', 'secondPublicKey', 'username', 'vote' ],
-            between: [ 'balance', 'voteBalance', 'lockedBalance' ],
-            in: [ 'address' ]
+            exact: ["publicKey", "secondPublicKey", "username", "vote"],
+            between: ["balance", "voteBalance", "lockedBalance"],
+            in: ["address"],
         };
-        const defaultOrder = [ 'balance', 'desc' ];
+        const defaultOrder = ["balance", "desc"];
 
         const result = searchEntries(params, query, wallets, defaultOrder);
 

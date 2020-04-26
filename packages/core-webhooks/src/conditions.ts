@@ -4,13 +4,7 @@ import { Utils } from "@arkecosystem/crypto";
  * @param {*} value
  * @returns {boolean}
  */
-const toBoolean = (value): boolean =>
-    value
-        .toString()
-        .toLowerCase()
-        .trim() === "true"
-        ? true
-        : false;
+const toBoolean = (value): boolean => (value.toString().toLowerCase().trim() === "true" ? true : false);
 
 /**
  * @param {*} value
