@@ -11,16 +11,7 @@ export class Keys {
      */
     public constructor(private sha256: any, private secp256k1: any, private wif: any, private version: number) {}
 
-    // TODO: having a static method reimplement here is horrible, but it resolves a circular dependency
-    public static fromPrivateKey(privateKey: Buffer | string, secp256k1: any, compressed = true): IKeyPair {
-        return this.fromPrivateKey(privateKey, compressed, secp256k1);
-    }
-
-    public fromPassphrase(passphrase: string, compressed = true): IKeyPair {
-        return this.fromPrivateKey(this.sha256(Buffer.from(passphrase, "utf8")), compressed);
-    }
-
-    public fromPrivateKey(privateKey: Buffer | string, compressed = true, secp256k1 = this.secp256k1): IKeyPair {
+    public static fromPrivateKeyWithAlgorithm(privateKey, secp256k1, compressed = true): IKeyPair {
         privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, "hex");
 
         return {
@@ -28,6 +19,14 @@ export class Keys {
             privateKey: privateKey.toString("hex"),
             compressed,
         };
+    }
+
+    public fromPassphrase(passphrase: string, compressed = true): IKeyPair {
+        return this.fromPrivateKey(this.sha256(Buffer.from(passphrase, "utf8")), compressed);
+    }
+
+    public fromPrivateKey(privateKey: Buffer | string, compressed = true): IKeyPair {
+        return Keys.fromPrivateKeyWithAlgorithm(privateKey, this.secp256k1, compressed);
     }
 
     public fromWIF(wifKey: string): IKeyPair {

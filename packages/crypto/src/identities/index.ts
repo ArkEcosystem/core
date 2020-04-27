@@ -8,7 +8,7 @@ import { PublicKey } from "./public-key";
 import { WIF } from "./wif";
 
 export class Identities<T> {
-    public address: Address;
+    public address: Address<T>;
     public keys: Keys;
     public privateKey: PrivateKey;
     public publicKey: PublicKey;
@@ -29,12 +29,7 @@ export class Identities<T> {
             this.libraryManager.Crypto.numberToHex,
         );
 
-        this.address = new Address(
-            this.libraryManager.Crypto.Base58,
-            this.libraryManager.Crypto.HashAlgorithms.ripemd160,
-            this.publicKey,
-            network.pubKeyHash,
-        );
+        this.address = new Address(libraryManager, this.publicKey, network.pubKeyHash);
 
         this.message = new Message(this.libraryManager.Crypto, this.keys);
 
