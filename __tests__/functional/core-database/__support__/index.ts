@@ -4,7 +4,7 @@ import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { Connection, createConnection } from "typeorm";
 
 import { Block } from "../../../../packages/core-database/src/models/block";
-import { SnakeNamingStrategy } from "../../../../packages/core-database/src/utils/naming-strategy";
+import { SnakeNamingStrategy } from "../../../../packages/core-database/src/utils/snake-naming-strategy";
 
 export const getCoreDatabasePluginConfiguration = async (): Promise<Providers.PluginConfiguration> => {
     const sandbox: Sandbox = new Sandbox();
