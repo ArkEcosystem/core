@@ -67,6 +67,7 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
             const columnMetadata: ColumnMetadata | undefined = this.metadata.columns.find(
                 (column) => column.databaseName === columnName,
             );
+
             if (columnMetadata) {
                 let propertyValue: any;
 
@@ -81,15 +82,10 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
                 }
 
                 entity[(columnMetadata.propertyName as unknown) as keyof TEntity] = propertyValue;
+            } else if (customPropertyHandler) {
+                customPropertyHandler(entity, key, value);
             } else {
-                // Just attach custom properties, which are probably wanted if `rawToEntity` is called.
-                // TODO: add an additional type parameter (i.e. `this.rawToEntity<{ someField }>(result)`) to return
-                // TEntity & { someField } from the function.
-                if (customPropertyHandler) {
-                    customPropertyHandler(entity, key, value);
-                } else {
-                    entity[(key as unknown) as keyof TEntity] = value;
-                }
+                throw new Error(`Unknown column ${columnName}}`);
             }
         }
 
