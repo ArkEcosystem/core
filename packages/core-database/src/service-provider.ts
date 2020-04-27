@@ -7,11 +7,11 @@ import { BlockHistoryService } from "./block-history-service";
 import { BlockModelConverter } from "./block-model-converter";
 import { DatabaseService } from "./database-service";
 import { DatabaseEvent } from "./events";
-import { SnakeNamingStrategy } from "./models/naming-strategy";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
 import { TransactionFilter } from "./transaction-filter";
 import { TransactionHistoryService } from "./transaction-history-service";
 import { TransactionModelConverter } from "./transaction-model-converter";
+import { SnakeNamingStrategy } from "./utils/naming-strategy";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {

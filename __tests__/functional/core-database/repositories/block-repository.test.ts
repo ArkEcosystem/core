@@ -263,11 +263,11 @@ describe("BlockRepository.listByExpression", () => {
                 op: "greaterThanEqual",
                 value: block1.data.height,
             },
-            [],
+            [{ property: "height", direction: "desc" }],
             { offset: 0, limit: 2 },
         );
         expect(listResult).toStrictEqual({
-            rows: [toBlockModel(block1), toBlockModel(block2)],
+            rows: [toBlockModel(block3), toBlockModel(block2)],
             count: 3,
             countIsEstimate: false,
         });

@@ -62,7 +62,7 @@ describe("TransactionRepository.findByBlockIds", () => {
         await blockRepository.saveBlocks([block1]);
         const block1Transactions = await transactionRepository.findByBlockIds([block1.data.id]);
         expect(block1Transactions).toMatchObject(
-            block1.transactions.map(t => ({
+            block1.transactions.map((t) => ({
                 id: t.data.id,
                 blockId: block1.data.id,
                 serialized: t.serialized,
@@ -126,7 +126,7 @@ describe("TransactionRepository.getSentTransactions", () => {
         await blockRepository.saveBlocks([block1, block2, block3]);
         const sentTransactions = await transactionRepository.getSentTransactions();
         const senderTransaction = sentTransactions.find(
-            t => t.senderPublicKey === Identities.PublicKey.fromPassphrase("sender's secret"),
+            (t) => t.senderPublicKey === Identities.PublicKey.fromPassphrase("sender's secret"),
         );
         expect(senderTransaction).toStrictEqual({
             senderPublicKey: transaction1.data.senderPublicKey,
@@ -143,7 +143,7 @@ describe("TransactionRepository.findReceivedTransactions", () => {
         const transactionRepository = getCustomRepository(TransactionRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
         const receivedTransactions = await transactionRepository.findReceivedTransactions();
-        const recipientTransaction = receivedTransactions.find(t => t.recipientId === transaction1.data.recipientId);
+        const recipientTransaction = receivedTransactions.find((t) => t.recipientId === transaction1.data.recipientId);
         expect(recipientTransaction).toStrictEqual({
             recipientId: transaction1.data.recipientId,
             amount: "300",
@@ -160,9 +160,9 @@ describe("TransactionRepository.findByType", () => {
             Enums.TransactionType.Transfer,
             Enums.TransactionTypeGroup.Core,
         );
-        const foundTransaction1 = transferTransactions.find(t => t.id === transaction1.id);
-        const foundTransaction2 = transferTransactions.find(t => t.id === transaction2.id);
-        const foundTransaction3 = transferTransactions.find(t => t.id === transaction3.id);
+        const foundTransaction1 = transferTransactions.find((t) => t.id === transaction1.id);
+        const foundTransaction2 = transferTransactions.find((t) => t.id === transaction2.id);
+        const foundTransaction3 = transferTransactions.find((t) => t.id === transaction3.id);
         expect(foundTransaction1).not.toBeUndefined();
         expect(foundTransaction2).not.toBeUndefined();
         expect(foundTransaction3).not.toBeUndefined();
@@ -371,5 +371,64 @@ describe("TransactionRepository.getRefundedHtlcLockBalances", () => {
                 refundedBalance: "200",
             },
         ]);
+    });
+});
+
+describe("TransactionRepository.findOneByExpression", () => {
+    it("should return single entity by id equal expression", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const transaction1ById = await transactionRepository.findOneByExpression({
+            property: "id",
+            op: "equal",
+            value: transaction1.id,
+        });
+        expect(transaction1ById.id).toEqual(transaction1.id);
+        expect(transaction1ById.serialized).toEqual(transaction1.serialized);
+    });
+});
+
+describe("TransactionRepository.findManyByExpression", () => {
+    it("should return single entity by id equal expression", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const transactions1And2And3 = await transactionRepository.findManyByExpression({
+            op: "or",
+            expressions: [
+                { property: "id", op: "equal", value: transaction1.id },
+                { property: "id", op: "equal", value: transaction2.id },
+                { property: "id", op: "equal", value: transaction3.id },
+            ],
+        });
+        expect(transactions1And2And3[0].serialized).toEqual(transaction1.serialized);
+        expect(transactions1And2And3[1].serialized).toEqual(transaction2.serialized);
+        expect(transactions1And2And3[2].serialized).toEqual(transaction3.serialized);
+    });
+});
+
+describe("TransactionRepository.listByExpression", () => {
+    it("should return single entity by id equal expression", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const listResult = await transactionRepository.listByExpression(
+            {
+                op: "or",
+                expressions: [
+                    { property: "id", op: "equal", value: transaction1.id },
+                    { property: "id", op: "equal", value: transaction2.id },
+                    { property: "id", op: "equal", value: transaction3.id },
+                ],
+            },
+            [],
+            { offset: 0, limit: 2 },
+        );
+        expect(listResult.count).toBe(3);
+        expect(listResult.countIsEstimate).toBe(false);
+        expect(listResult.rows.length).toBe(2);
+        expect(listResult.rows[0].serialized).toEqual(transaction1.serialized);
+        expect(listResult.rows[1].serialized).toEqual(transaction2.serialized);
     });
 });

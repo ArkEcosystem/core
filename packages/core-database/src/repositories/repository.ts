@@ -2,7 +2,7 @@ import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { ObjectLiteral, Repository, SelectQueryBuilder } from "typeorm";
 import { ColumnMetadata } from "typeorm/metadata/ColumnMetadata";
 
-import { QueryHelper } from "./query-helper";
+import { QueryHelper } from "../utils/query-helper";
 
 export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> extends Repository<TEntity> {
     private readonly queryHelper = new QueryHelper<TEntity>();

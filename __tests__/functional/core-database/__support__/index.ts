@@ -4,7 +4,7 @@ import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { Connection, createConnection } from "typeorm";
 
 import { Block } from "../../../../packages/core-database/src/models/block";
-import { SnakeNamingStrategy } from "../../../../packages/core-database/src/models/naming-strategy";
+import { SnakeNamingStrategy } from "../../../../packages/core-database/src/utils/naming-strategy";
 
 export const getCoreDatabasePluginConfiguration = async (): Promise<Providers.PluginConfiguration> => {
     const sandbox: Sandbox = new Sandbox();
@@ -58,7 +58,7 @@ export const toBlockModel = (block: Interfaces.IBlock): Block => {
 export const toBlockModelWithTransactions = (block: Interfaces.IBlock): Block => {
     const model = toBlockModel(block);
     const transactions = block.transactions.map(
-        t => Transactions.TransactionFactory.fromBytesUnsafe(t.serialized).data,
+        (t) => Transactions.TransactionFactory.fromBytesUnsafe(t.serialized).data,
     );
     Object.assign(model, { transactions });
     return model;
