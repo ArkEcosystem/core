@@ -1,4 +1,4 @@
-import { QueryHelper } from "../../../../packages/core-database/src/repositories/query-helper";
+import { QueryHelper } from "../../../../packages/core-database/src/utils/query-helper";
 
 type UserEntity = {
     id: number;

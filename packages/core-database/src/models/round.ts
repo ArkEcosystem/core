@@ -1,7 +1,7 @@
 import { Utils } from "@arkecosystem/crypto";
 import { Column, Entity } from "typeorm";
 
-import { transformBigInt } from "./utils";
+import { transformBigInt } from "../utils/transform";
 
 @Entity({
     name: "rounds",

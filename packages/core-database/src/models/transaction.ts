@@ -2,7 +2,7 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 import { Column, Entity, Index } from "typeorm";
 
-import { transformBigInt, transformVendorField } from "./utils";
+import { transformBigInt, transformVendorField } from "../utils/transform";
 
 @Entity({
     name: "transactions",

@@ -2,7 +2,7 @@ import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { ObjectLiteral, Repository, SelectQueryBuilder } from "typeorm";
 import { ColumnMetadata } from "typeorm/metadata/ColumnMetadata";
 
-import { QueryHelper } from "./query-helper";
+import { QueryHelper } from "../utils/query-helper";
 
 export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> extends Repository<TEntity> {
     private readonly queryHelper = new QueryHelper<TEntity>();
@@ -42,9 +42,14 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }
 
-        for (const item of order) {
-            const column = this.queryHelper.getColumnName(this.metadata, item.property);
-            queryBuilder.addOrderBy(column, item.direction.toUpperCase() as "ASC" | "DESC");
+        if (order.length) {
+            const column = this.queryHelper.getColumnName(this.metadata, order[0].property);
+            queryBuilder.orderBy(column, order[0].direction === "desc" ? "DESC" : "ASC");
+
+            for (const item of order.slice(1)) {
+                const column = this.queryHelper.getColumnName(this.metadata, item.property);
+                queryBuilder.addOrderBy(column, item.direction === "desc" ? "DESC" : "ASC");
+            }
         }
 
         const [rows, count]: [TEntity[], number] = await queryBuilder.getManyAndCount();
@@ -62,6 +67,7 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
             const columnMetadata: ColumnMetadata | undefined = this.metadata.columns.find(
                 (column) => column.databaseName === columnName,
             );
+
             if (columnMetadata) {
                 let propertyValue: any;
 
@@ -70,21 +76,16 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
                 } else if (columnMetadata.type === "bigint") {
                     propertyValue = Utils.BigNumber.make(value);
                 } else if (columnMetadata.propertyName === "vendorField") {
-                    propertyValue = propertyValue.toString("utf8");
+                    propertyValue = value.toString("utf8");
                 } else {
                     propertyValue = value;
                 }
 
                 entity[(columnMetadata.propertyName as unknown) as keyof TEntity] = propertyValue;
+            } else if (customPropertyHandler) {
+                customPropertyHandler(entity, key, value);
             } else {
-                // Just attach custom properties, which are probably wanted if `rawToEntity` is called.
-                // TODO: add an additional type parameter (i.e. `this.rawToEntity<{ someField }>(result)`) to return
-                // TEntity & { someField } from the function.
-                if (customPropertyHandler) {
-                    customPropertyHandler(entity, key, value);
-                } else {
-                    entity[(key as unknown) as keyof TEntity] = value;
-                }
+                throw new Error(`Unknown column ${columnName}}`);
             }
         }
 
