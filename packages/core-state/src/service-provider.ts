@@ -46,8 +46,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .inRequestScope()
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write"));
 
-        this.app.bind(Container.Identifiers.DposState).to(DposState);
-        this.app.bind(Container.Identifiers.BlockState).to(BlockState);
+        this.app.bind(Container.Identifiers.DposState).to(DposState).inRequestScope();
+        this.app.bind(Container.Identifiers.BlockState).to(BlockState).inRequestScope();
 
         this.app.bind(Container.Identifiers.StateBlockStore).toConstantValue(new BlockStore(1000));
         this.app.bind(Container.Identifiers.StateTransactionStore).toConstantValue(new TransactionStore(1000));
