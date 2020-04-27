@@ -4,16 +4,10 @@ import { HashAlgorithms } from "./hash-algorithms";
 import { Libraries } from "./interfaces";
 
 export class Base58 {
+    public encodeCheck = moize(this.calcEncodeCheck);
+    public decodeCheck = moize(this.calcDecodeCheck);
+
     public constructor(private libraries: Libraries, private hashAlgorithms: HashAlgorithms) {}
-
-    // TODO: check this works as before
-    public encodeCheck() {
-        return moize(this.calcEncodeCheck);
-    }
-
-    public decodeCheck() {
-        return moize(this.calcDecodeCheck);
-    }
 
     private calcEncodeCheck(buffer: Buffer): string {
         const checksum: Buffer = this.hashAlgorithms.hash256(buffer);
