@@ -1,2 +1,2 @@
-export * from "./dpos";
-export * from "./dpos-previous-round";
+export * from "./dpos-state";
+export * from "./dpos-previous-round-state";
