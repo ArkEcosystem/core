@@ -19,6 +19,7 @@ export abstract class Method {
         keys: Interfaces.IKeyPair,
         transactions: Interfaces.ITransactionData[],
         options: Record<string, any>,
+        getBlockTimeLookup: (height: number) => number,
     ): Interfaces.IBlock {
         const totals: { amount: Utils.BigNumber; fee: Utils.BigNumber } = {
             amount: Utils.BigNumber.ZERO,
@@ -52,6 +53,7 @@ export abstract class Method {
                 transactions,
             },
             keys,
+            getBlockTimeLookup,
         )!; // todo: this method should never return undefined
     }
 }

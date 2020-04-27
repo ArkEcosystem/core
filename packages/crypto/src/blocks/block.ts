@@ -1,4 +1,4 @@
-import { Hash, HashAlgorithms, Slots } from "../crypto";
+import { GetBlockTimeStampLookup, Hash, HashAlgorithms, Slots } from "../crypto";
 import { BlockSchemaError } from "../errors";
 import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
@@ -13,7 +13,10 @@ export class Block implements IBlock {
     public transactions: ITransaction[];
     public verification: IBlockVerification;
 
-    public constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
+    public constructor(
+        { data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string },
+        private getBlockTimeStampLookup: GetBlockTimeStampLookup,
+    ) {
         this.data = data;
 
         // TODO genesis block calculated id is wrong for some reason
@@ -186,7 +189,10 @@ export class Block implements IBlock {
                 result.errors.push("Invalid block version");
             }
 
-            if (Slots.getSlotNumber(block.timestamp) > Slots.getSlotNumber()) {
+            if (
+                Slots.getSlotNumber(this.getBlockTimeStampLookup, block.timestamp) >
+                Slots.getSlotNumber(this.getBlockTimeStampLookup)
+            ) {
                 result.errors.push("Invalid block timestamp");
             }
 

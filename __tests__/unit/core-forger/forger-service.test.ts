@@ -1,5 +1,10 @@
 import "jest-extended";
 
+import { ForgeNewBlockAction, IsForgingAllowedAction } from "@arkecosystem/core-forger/src/actions";
+import { Contracts } from "@arkecosystem/core-kernel";
+import { Sandbox } from "@arkecosystem/core-test-framework";
+import { Interfaces } from "@arkecosystem/crypto";
+import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 import { HostNoResponseError, RelayCommunicationError } from "@packages/core-forger/src/errors";
 import { ForgerService } from "@packages/core-forger/src/forger-service";
 import { Container, Enums, Services, Utils } from "@packages/core-kernel";
@@ -9,11 +14,6 @@ import { Address } from "@packages/crypto/src/identities";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { calculateActiveDelegates } from "./__utils__/calculate-active-delegates";
-import { Sandbox } from "@arkecosystem/core-test-framework";
-import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
-import { ForgeNewBlockAction, IsForgingAllowedAction } from "@arkecosystem/core-forger/src/actions";
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 
 let sandbox: Sandbox;
 const logger = {
@@ -51,6 +51,17 @@ beforeEach(() => {
     sandbox.app
         .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
         .bind("isForgingAllowed", new IsForgingAllowedAction());
+
+    const getTimeStampForBlock = (height: number) => {
+        switch (height) {
+            case 1:
+                return 0;
+            default:
+                throw new Error(`Test scenarios should not hit this line`);
+        }
+    };
+
+    jest.spyOn(Utils.forgingInfoCalculator, "getBlockTimeLookup").mockResolvedValue(getTimeStampForBlock);
 });
 
 afterEach(() => {
@@ -59,7 +70,7 @@ afterEach(() => {
 
 describe("ForgerService", () => {
     let forgerService: ForgerService;
-    let mockHost = { hostname: "127.0.0.1", port: 4000 };
+    const mockHost = { hostname: "127.0.0.1", port: 4000 };
     let delegates;
     let mockNetworkState;
     let mockTransaction;
@@ -69,7 +80,7 @@ describe("ForgerService", () => {
 
     beforeEach(() => {
         forgerService = sandbox.app.resolve<ForgerService>(ForgerService);
-        
+
         jest.spyOn(sandbox.app, "resolve").mockReturnValueOnce(client); // forger-service only resolves Client
 
         const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
@@ -374,7 +385,6 @@ describe("ForgerService", () => {
         });
     });
 
-
     describe("checkSlot", () => {
         it("should do nothing when the forging service is stopped", async () => {
             forgerService.register({ hosts: [mockHost] });
@@ -497,7 +507,7 @@ describe("ForgerService", () => {
             expect(logger.warning).not.toHaveBeenCalled();
             expect(logger.error).not.toHaveBeenCalled();
             expect(logger.debug).not.toHaveBeenCalledWith(`Sending wake-up check to relay node ${mockHost.hostname}`);
-            
+
             jest.useRealTimers();
         });
 
@@ -508,8 +518,8 @@ describe("ForgerService", () => {
             const mockBlock = { data: {} } as Interfaces.IBlock;
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
-                forge: jest.fn().mockReturnValue(mockBlock)
-            }
+                forge: jest.fn().mockReturnValue(mockBlock),
+            };
             delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
 
             const round = {
@@ -525,7 +535,7 @@ describe("ForgerService", () => {
                     },
                     timestamp: 0,
                     reward: "0",
-                    current: 1
+                    current: 1,
                 },
             };
 
@@ -562,7 +572,7 @@ describe("ForgerService", () => {
 
             const loggerWarningMessage = `The NetworkState height (${mockNetworkState.nodeHeight}) and round height (${round.data.lastBlock.height}) are out of sync. This indicates delayed blocks on the network.`;
             expect(logger.warning).toHaveBeenCalledWith(loggerWarningMessage);
-            
+
             jest.useRealTimers();
         });
 
@@ -573,8 +583,8 @@ describe("ForgerService", () => {
             const mockBlock = { data: {} } as Interfaces.IBlock;
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
-                forge: jest.fn().mockReturnValue(mockBlock)
-            }
+                forge: jest.fn().mockReturnValue(mockBlock),
+            };
             delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
 
             const round = {
@@ -626,7 +636,7 @@ describe("ForgerService", () => {
 
             const loggerWarningMessage = `The NetworkState height (${mockNetworkState.nodeHeight}) and round height (${round.data.lastBlock.height}) are out of sync. This indicates delayed blocks on the network.`;
             expect(logger.warning).not.toHaveBeenCalledWith(loggerWarningMessage);
-            
+
             jest.useRealTimers();
         });
 
@@ -637,8 +647,8 @@ describe("ForgerService", () => {
             const mockBlock = { data: {} } as Interfaces.IBlock;
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
-                forge: jest.fn().mockReturnValue(mockBlock)
-            }
+                forge: jest.fn().mockReturnValue(mockBlock),
+            };
             delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
 
             const round = {
@@ -691,8 +701,8 @@ describe("ForgerService", () => {
             const mockBlock = { data: {} } as Interfaces.IBlock;
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
-                forge: jest.fn().mockReturnValue(mockBlock)
-            }
+                forge: jest.fn().mockReturnValue(mockBlock),
+            };
             delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
 
             const round = {
@@ -741,7 +751,7 @@ describe("ForgerService", () => {
             expect(spyForgeNewBlock).not.toHaveBeenCalled();
 
             expect(logger.info).toHaveBeenCalledWith(`Waiting for relay to become ready.`);
-            
+
             jest.useRealTimers();
         });
 
@@ -752,8 +762,8 @@ describe("ForgerService", () => {
             const mockBlock = { data: {} } as Interfaces.IBlock;
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
-                forge: jest.fn().mockReturnValue(mockBlock)
-            }
+                forge: jest.fn().mockReturnValue(mockBlock),
+            };
             delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
 
             const round = {
@@ -817,8 +827,8 @@ describe("ForgerService", () => {
             const mockBlock = { data: {} } as Interfaces.IBlock;
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
-                forge: jest.fn().mockReturnValue(mockBlock)
-            }
+                forge: jest.fn().mockReturnValue(mockBlock),
+            };
             delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
 
             const round = {
@@ -876,7 +886,7 @@ describe("ForgerService", () => {
             expect(spyClientEmitEvent).toHaveBeenCalledWith(Enums.ForgerEvent.Failed, { error: mockError });
             const infoMessage = `Round: ${round.data.current.toLocaleString()}, height: ${round.data.lastBlock.height.toLocaleString()}`;
             expect(logger.info).toHaveBeenCalledWith(infoMessage);
-            
+
             jest.useRealTimers();
         });
 
@@ -887,8 +897,8 @@ describe("ForgerService", () => {
             const mockBlock = { data: {} } as Interfaces.IBlock;
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
-                forge: jest.fn().mockReturnValue(mockBlock)
-            }
+                forge: jest.fn().mockReturnValue(mockBlock),
+            };
             delegates[delegates.length - 2] = Object.assign(nextDelegateToForge, delegates[delegates.length - 2]);
 
             const round = undefined;
@@ -922,11 +932,11 @@ describe("ForgerService", () => {
 
             expect(spyClientEmitEvent).toHaveBeenCalledWith(Enums.ForgerEvent.Failed, { error: expect.any(String) });
             expect(logger.info).not.toHaveBeenCalled();
-            
+
             jest.useRealTimers();
         });
     });
-    
+
     describe("ForgeNewBlock", () => {
         it("should fail to forge when delegate is already in next slot", async () => {
             client.getRound.mockReturnValueOnce({ delegates });
@@ -941,8 +951,8 @@ describe("ForgerService", () => {
             const mockBlock = { data: {} } as Interfaces.IBlock;
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
-                forge: jest.fn().mockReturnValue(mockBlock)
-            }
+                forge: jest.fn().mockReturnValue(mockBlock),
+            };
 
             // @ts-ignore
             await expect(forgerService.forgeNewBlock(nextDelegateToForge, mockRound, mockNetworkState)).toResolve();
@@ -971,8 +981,8 @@ describe("ForgerService", () => {
             const mockBlock = { data: {} } as Interfaces.IBlock;
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
-                forge: jest.fn().mockReturnValue(mockBlock)
-            }
+                forge: jest.fn().mockReturnValue(mockBlock),
+            };
 
             const spyNextSlot = jest.spyOn(Crypto.Slots, "getSlotNumber");
             spyNextSlot.mockReturnValue(0);
@@ -1006,8 +1016,8 @@ describe("ForgerService", () => {
             const mockBlock = { data: {} } as Interfaces.IBlock;
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
-                forge: jest.fn().mockReturnValue(mockBlock)
-            }
+                forge: jest.fn().mockReturnValue(mockBlock),
+            };
 
             const spyNextSlot = jest.spyOn(Crypto.Slots, "getSlotNumber");
             spyNextSlot.mockReturnValue(0);
@@ -1054,8 +1064,8 @@ describe("ForgerService", () => {
             const mockBlock = { data: {} } as Interfaces.IBlock;
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
-                forge: jest.fn().mockReturnValue(mockBlock)
-            }
+                forge: jest.fn().mockReturnValue(mockBlock),
+            };
 
             const spyNextSlot = jest.spyOn(Crypto.Slots, "getSlotNumber");
             spyNextSlot.mockReturnValueOnce(0).mockReturnValueOnce(0);
@@ -1080,5 +1090,4 @@ describe("ForgerService", () => {
             jest.useRealTimers();
         });
     });
-
 });

@@ -1,7 +1,7 @@
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { Identities } from "@packages/crypto";
 
-import { dummy, optionsDefault, transactions } from "../__utils__/create-block-with-transactions";
+import { dummy, getTimeStampForBlock, optionsDefault, transactions } from "../__utils__/create-block-with-transactions";
 
 const passphrase: string = "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire";
 
@@ -17,7 +17,7 @@ describe("Methods -> BIP39", () => {
         it("should forge a block", () => {
             const delegate: BIP39 = new BIP39(dummy.plainPassphrase);
 
-            const block = delegate.forge(transactions, optionsDefault);
+            const block = delegate.forge(transactions, optionsDefault, getTimeStampForBlock);
 
             expect(block.verification).toEqual({
                 containsMultiSignatures: false,

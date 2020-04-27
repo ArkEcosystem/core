@@ -259,7 +259,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public async getNetworkState(): Promise<Contracts.P2P.NetworkState> {
         await this.cleansePeers({ fast: true, forcePing: true });
 
-        return NetworkState.analyze(this, this.storage);
+        return await NetworkState.analyze(this, this.storage);
     }
 
     public async refreshPeersAfterFork(): Promise<void> {

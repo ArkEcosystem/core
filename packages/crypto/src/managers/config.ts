@@ -8,6 +8,12 @@ import { NetworkConfig } from "../interfaces/networks";
 import * as networks from "../networks";
 import { NetworkName } from "../types";
 
+export interface MilestoneSearchResult {
+    found: boolean;
+    height: number;
+    data: any;
+}
+
 export class ConfigManager {
     private config: NetworkConfig | undefined;
     private height: number | undefined;
@@ -99,6 +105,33 @@ export class ConfigManager {
         }
 
         return this.milestone.data;
+    }
+
+    public getNextMilestoneWithNewKey(previousMilestone: number, key: string): MilestoneSearchResult {
+        if (!this.milestones || !this.milestones.length) {
+            throw new Error(`Attempted to get next milestone but none were set`);
+        }
+
+        for (let i = 0; i < this.milestones.length; i++) {
+            const milestone = this.milestones[i];
+            if (
+                milestone[key] &&
+                milestone[key] !== this.getMilestone(previousMilestone)[key] &&
+                milestone.height > previousMilestone
+            ) {
+                return {
+                    found: true,
+                    height: milestone.height,
+                    data: milestone[key],
+                };
+            }
+        }
+
+        return {
+            found: false,
+            height: previousMilestone,
+            data: null,
+        };
     }
 
     public getMilestones(): any {
