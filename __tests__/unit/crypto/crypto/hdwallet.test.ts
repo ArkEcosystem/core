@@ -1,16 +1,19 @@
 import "jest-extended";
 
+import { CryptoManager } from "@packages/crypto/src";
 import { fromSeed } from "bip32";
-
-import { HDWallet } from "../../../../packages/crypto/src/crypto";
-import { Address } from "../../../../packages/crypto/src/identities";
-import { configManager } from "../../../../packages/crypto/src/managers/config";
-import { mainnet } from "../../../../packages/crypto/src/networks";
 
 const mnemonic =
     "sorry hawk one science reject employ museum ride into post machine attack bar seminar myself unhappy faculty differ grain fish chest bird muffin mesh";
 
-beforeEach(() => configManager.setConfig(mainnet));
+let Address;
+let HDWallet;
+
+beforeEach(() => {
+    const crypto = CryptoManager.createFromPreset("mainnet");
+    Address = crypto.identities.address;
+    HDWallet = crypto.libraryManager.Crypto.HDWallet;
+});
 
 describe("HDWallet", () => {
     describe("bip32", () => {

@@ -1,11 +1,17 @@
 import "jest-extended";
 
-import { HashAlgorithms } from "../../../../packages/crypto/src/crypto/hash-algorithms";
+import { CryptoManager } from "@packages/crypto/src";
+
 import fixtures from "./fixtures/crypto.json";
 
 const buffer = Buffer.from("Hello World");
 
 describe("Crypto - Utils", () => {
+    let HashAlgorithms;
+    beforeAll(() => {
+        const crypto = CryptoManager.createFromPreset("testnet");
+        HashAlgorithms = crypto.libraryManager.Crypto.HashAlgorithms;
+    });
     it("should return valid ripemd160", () => {
         expect(HashAlgorithms.ripemd160(buffer).toString("hex")).toEqual(fixtures.ripemd160);
     });
