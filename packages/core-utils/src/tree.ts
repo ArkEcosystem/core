@@ -52,7 +52,6 @@ export class Tree<T> {
     public insert(id: string, value: T): void {
         let node = this.root;
         for (;;) {
-            // node = this.insertChildNode(node, id, value);\
             if (!node.lastValueAdded) {
                 node.values[id] = value;
                 node.lastValueAdded = value;
@@ -73,6 +72,8 @@ export class Tree<T> {
         }
     }
 
+    // This method is a bit dumb (to be properly implemented it would need to be like
+    // the array sort method), but it helps for testing.
     public find(id: string, value: T): T | undefined {
         const node = this.findNode(value);
         return node ? node.values[id] : undefined;
@@ -99,17 +100,6 @@ export class Tree<T> {
         this.removeNode(node);
     }
 
-    public findMin(node: Node<T>): Node<T> {
-        let currentNode = node;
-        for (;;) {
-            if (!currentNode.left) {
-                break;
-            } // currentNode is the leftest node
-            currentNode = currentNode.left;
-        }
-        return currentNode;
-    }
-
     public isEmpty(): boolean {
         if (this.root.lastValueAdded) {
             return false;
@@ -123,6 +113,17 @@ export class Tree<T> {
 
     public toJSON(node: Node<T> = this.root): string {
         return JSON.stringify(node.getStruct(), null, 2);
+    }
+
+    private findMin(node: Node<T>): Node<T> {
+        let currentNode = node;
+        for (;;) {
+            if (!currentNode.left) {
+                break;
+            } // currentNode is the leftest node
+            currentNode = currentNode.left;
+        }
+        return currentNode;
     }
 
     private findNode(value: T): Node<T> | undefined {
