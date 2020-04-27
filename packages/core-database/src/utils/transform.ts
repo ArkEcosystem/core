@@ -2,7 +2,7 @@ import { BigNumber } from "@arkecosystem/utils";
 import { FindOperator } from "typeorm";
 
 export const transformBigInt = {
-    from(value: string): BigNumber | undefined {
+    from(value: string | undefined): BigNumber | undefined {
         if (value !== undefined) {
             return BigNumber.make(value);
         }
@@ -19,7 +19,7 @@ export const transformBigInt = {
 };
 
 export const transformVendorField = {
-    from: (value: Buffer): string | undefined => {
+    from: (value: Buffer | undefined | null): string | undefined => {
         if (value !== undefined && value !== null) {
             return value.toString("utf8");
         }
