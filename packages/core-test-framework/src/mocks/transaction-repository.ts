@@ -57,15 +57,15 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
         return mockTransactions as any;
     }
 
-    public async getClaimedHtlcLockBalances(): Promise<{ amount: string; recipientId: string }[]> {
+    public async getClaimedHtlcLockBalances(): Promise<{ claimedBalance: string; recipientId: string }[]> {
         return mockTransactions.map((x) => {
-            return { recipientId: x.recipientId!.toString(), amount: x.amount!.toString() };
+            return { recipientId: x.recipientId!.toString(), claimedBalance: x.amount!.toString() };
         });
     }
 
-    public async getRefundedHtlcLockBalances(): Promise<{ amount: string; senderPublicKey: string }[]> {
+    public async getRefundedHtlcLockBalances(): Promise<{ refundedBalance: string; senderPublicKey: string }[]> {
         return mockTransactions.map((x) => {
-            return { senderPublicKey: x.senderPublicKey!.toString(), amount: x.amount!.toString() };
+            return { senderPublicKey: x.senderPublicKey!.toString(), refundedBalance: x.amount!.toString() };
         });
     }
 

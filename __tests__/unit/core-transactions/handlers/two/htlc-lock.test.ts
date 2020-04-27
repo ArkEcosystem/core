@@ -4,6 +4,7 @@ import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -11,8 +12,8 @@ import { HtlcLockExpiredError, InsufficientBalanceError } from "@packages/core-t
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { htlcSecretHashHex } from "../__fixtures__/htlc-secrets";
 import {
@@ -22,8 +23,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -148,7 +147,7 @@ describe("Htlc lock", () => {
             });
 
             it("should resolve with open transaction", async () => {
-                let mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
+                const mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
                 // @ts-ignore
                 mockHtlcLockTransacton.open = true;
 
@@ -170,7 +169,7 @@ describe("Htlc lock", () => {
                     .sign(passphrases[0])
                     .build();
 
-                let mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
+                const mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
                 // @ts-ignore
                 mockHtlcLockTransacton.open = true;
 

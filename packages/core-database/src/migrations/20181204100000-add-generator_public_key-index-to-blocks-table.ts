@@ -9,7 +9,7 @@ export class AddGeneratorPublicKeyIndexToBlocksTable20181204100000 implements Mi
 
     public async down(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`
-            DROP INDEX "blocks_unique";
+            DROP INDEX "blocks_generator_public_key";
         `);
     }
 }

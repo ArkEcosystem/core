@@ -11,11 +11,11 @@ export class ChangeSetRowNonceToUseMaxNonce20190905000000 implements MigrationIn
             AS
             $$
             BEGIN
-            SELECT COALESCE(MAX(nonce), 0) + 1 INTO NEW.nonce
-            FROM transactions
-            WHERE sender_public_key = NEW.sender_public_key;
+                SELECT COALESCE(MAX(nonce), 0) + 1 INTO NEW.nonce
+                FROM transactions
+                WHERE sender_public_key = NEW.sender_public_key;
 
-            RETURN NEW;
+                RETURN NEW;
             END;
             $$
             LANGUAGE PLPGSQL
