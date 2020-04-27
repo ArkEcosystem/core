@@ -72,6 +72,7 @@ export class DposState implements Contracts.State.DposState {
 
                 if (a.publicKey === b.publicKey) {
                     const username = a.getAttribute("delegate.username");
+
                     throw new Error(
                         `The balance and public key of both delegates are identical! ` +
                             `Delegate "${username}" appears twice in the list.`,
@@ -79,9 +80,9 @@ export class DposState implements Contracts.State.DposState {
                 }
 
                 return a.publicKey.localeCompare(b.publicKey, "en");
+            } else {
+                return diff;
             }
-
-            return diff;
         });
 
         for (let i = 0; i < this.activeDelegates.length; i++) {

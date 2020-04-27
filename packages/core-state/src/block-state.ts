@@ -1,16 +1,10 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 
-// todo: review the implementation and make use of ioc
 @Container.injectable()
 export class BlockState {
-    // @Container.inject(Container.Identifiers.Application)
-    // private readonly app!: Contracts.Kernel.Application;
-
     @Container.inject(Container.Identifiers.WalletRepository)
-    @Container.tagged("state", "blockchain") // TODO: Without this line - and despite
-    // being intialised in the same way as the service provider - the tests fail to find a correct binding
     private walletRepository!: Contracts.State.WalletRepository;
 
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
@@ -20,19 +14,8 @@ export class BlockState {
     private logger!: Contracts.Kernel.Logger;
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
-        if (block.data.height === 1) {
-            this.initGenesisForgerWallet(block.data.generatorPublicKey);
-        }
-
         const forgerWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
-        /**
-         * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
-         * If so, this code can be deleted.
-         */
-        // if (!forgerWallet) {
-        //     const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
-        //     this.app.terminate(msg);
-        // }
+
         const appliedTransactions: Interfaces.ITransaction[] = [];
         try {
             for (const transaction of block.transactions) {
@@ -52,14 +35,6 @@ export class BlockState {
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         const forgerWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
-        /**
-         * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
-         * If so, this code can be deleted.
-         */
-        // if (!forgerWallet) {
-        //     const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
-        //     this.app.terminate(msg);
-        // }
 
         const revertedTransactions: Interfaces.ITransaction[] = [];
         try {
@@ -109,7 +84,7 @@ export class BlockState {
             }
 
             /**
-             * TODO: check this is desired behaviour?
+             * TODO: check this is desired behavior?
              * Presumably if a transaction specifies a recipient, that recipient should exist
              */
             AppUtils.assert.defined<Contracts.State.Wallet>(recipient);
@@ -137,7 +112,7 @@ export class BlockState {
             }
 
             /**
-             * TODO: check this is desired behaviour?
+             * TODO: check this is desired behavior?
              * Presumably if a transaction specifies a recipient, that recipient should exist
              */
             AppUtils.assert.defined<Contracts.State.Wallet>(recipient);
@@ -166,8 +141,8 @@ export class BlockState {
         // ? packages/core-transactions/src/handlers/one/vote.ts:L120 blindly sets "vote" attribute
         // ? is it guaranteed that delegate wallet exists, so delegateWallet.getAttribute("delegate.voteBalance") is safe?
         if (wallet.hasVoted()) {
-            const delegatePulicKey = wallet.getAttribute<string>("vote");
-            const delegateWallet = this.walletRepository.findByPublicKey(delegatePulicKey);
+            const delegatePublicKey = wallet.getAttribute<string>("vote");
+            const delegateWallet = this.walletRepository.findByPublicKey(delegatePublicKey);
             const oldDelegateVoteBalance = delegateWallet.getAttribute<AppUtils.BigNumber>("delegate.voteBalance");
             const newDelegateVoteBalance = oldDelegateVoteBalance.plus(amount);
             delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
@@ -176,8 +151,8 @@ export class BlockState {
 
     public decreaseWalletDelegateVoteBalance(wallet: Contracts.State.Wallet, amount: AppUtils.BigNumber) {
         if (wallet.hasVoted()) {
-            const delegatePulicKey = wallet.getAttribute<string>("vote");
-            const delegateWallet = this.walletRepository.findByPublicKey(delegatePulicKey);
+            const delegatePublicKey = wallet.getAttribute<string>("vote");
+            const delegateWallet = this.walletRepository.findByPublicKey(delegatePublicKey);
             const oldDelegateVoteBalance = delegateWallet.getAttribute<AppUtils.BigNumber>("delegate.voteBalance");
             const newDelegateVoteBalance = oldDelegateVoteBalance.minus(amount);
             delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
@@ -384,16 +359,5 @@ export class BlockState {
                 );
             }
         }
-    }
-
-    private initGenesisForgerWallet(forgerPublicKey: string) {
-        if (this.walletRepository.hasByPublicKey(forgerPublicKey)) {
-            return;
-        }
-
-        const forgerAddress = Identities.Address.fromPublicKey(forgerPublicKey);
-        const forgerWallet = this.walletRepository.createWallet(forgerAddress);
-        forgerWallet.publicKey = forgerPublicKey;
-        this.walletRepository.index(forgerWallet);
     }
 }
