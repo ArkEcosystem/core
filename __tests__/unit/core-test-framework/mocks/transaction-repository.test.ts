@@ -126,7 +126,7 @@ describe("TransactionRepository", () => {
             await expect(TransactionRepository.instance.getClaimedHtlcLockBalances()).resolves.toEqual([
                 {
                     recipientId: transaction.recipientId,
-                    amount: transaction.amount!.toString(),
+                    claimedBalance: transaction.amount!.toString(),
                 },
             ]);
         });
@@ -135,7 +135,7 @@ describe("TransactionRepository", () => {
             await expect(TransactionRepository.instance.getRefundedHtlcLockBalances()).resolves.toEqual([
                 {
                     senderPublicKey: transaction.senderPublicKey,
-                    amount: transaction.amount!.toString(),
+                    refundedBalance: transaction.amount!.toString(),
                 },
             ]);
         });
