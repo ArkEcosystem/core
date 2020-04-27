@@ -32,6 +32,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.DposState)
+    @Container.tagged("state", "blockchain")
     private readonly dposState!: Contracts.State.DposState;
 
     // todo: make use of ioc
