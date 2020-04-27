@@ -7,6 +7,10 @@ import { BlockRepository } from "../../../../packages/core-database/src/reposito
 import { TransactionRepository } from "../../../../packages/core-database/src/repositories/transaction-repository";
 import { BIP39 } from "../../../../packages/core-forger/src/methods/bip39";
 
+const getBlockTimeLookup = (height: number): number => {
+    throw new Error("Mocked getBlockTimeLookup");
+};
+
 let connection: Connection | undefined;
 
 beforeAll(async () => {
@@ -43,17 +47,25 @@ const transaction3 = Transactions.BuilderFactory.transfer()
     .build();
 
 const bip39 = new BIP39("generator's secret");
-const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"));
-const block2 = bip39.forge([transaction1.data], {
-    timestamp: Crypto.Slots.getTime() - 60,
-    previousBlock: block1.data,
-    reward: new Utils.BigNumber("100"),
-});
-const block3 = bip39.forge([transaction2.data, transaction3.data], {
-    timestamp: Crypto.Slots.getTime() - 30,
-    previousBlock: block2.data,
-    reward: new Utils.BigNumber("100"),
-});
+const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"), getBlockTimeLookup);
+const block2 = bip39.forge(
+    [transaction1.data],
+    {
+        timestamp: Crypto.Slots.getTime() - 60,
+        previousBlock: block1.data,
+        reward: new Utils.BigNumber("100"),
+    },
+    getBlockTimeLookup,
+);
+const block3 = bip39.forge(
+    [transaction2.data, transaction3.data],
+    {
+        timestamp: Crypto.Slots.getTime() - 30,
+        previousBlock: block2.data,
+        reward: new Utils.BigNumber("100"),
+    },
+    getBlockTimeLookup,
+);
 
 describe("TransactionRepository.findByBlockIds", () => {
     it("should find transactions by block id", async () => {
@@ -195,11 +207,15 @@ describe("TransactionRepository.findByHtlcLocks", () => {
             .nonce("5")
             .sign("sender's secret")
             .build();
-        const block4 = bip39.forge([htlcLock.data, htlcClaim.data], {
-            timestamp: Crypto.Slots.getTime(),
-            previousBlock: block3.data,
-            reward: new Utils.BigNumber("100"),
-        });
+        const block4 = bip39.forge(
+            [htlcLock.data, htlcClaim.data],
+            {
+                timestamp: Crypto.Slots.getTime(),
+                previousBlock: block3.data,
+                reward: new Utils.BigNumber("100"),
+            },
+            getBlockTimeLookup,
+        );
 
         const blockRepository = getCustomRepository(BlockRepository);
         const transactionRepository = getCustomRepository(TransactionRepository);
@@ -242,11 +258,15 @@ describe("TransactionRepository.getOpenHtlcLocks", () => {
             .nonce("6")
             .sign("sender's secret")
             .build();
-        const block4 = bip39.forge([htlcLock1.data, htlcLock2.data, htlcClaim1.data], {
-            timestamp: Crypto.Slots.getTime(),
-            previousBlock: block3.data,
-            reward: new Utils.BigNumber("100"),
-        });
+        const block4 = bip39.forge(
+            [htlcLock1.data, htlcLock2.data, htlcClaim1.data],
+            {
+                timestamp: Crypto.Slots.getTime(),
+                previousBlock: block3.data,
+                reward: new Utils.BigNumber("100"),
+            },
+            getBlockTimeLookup,
+        );
 
         const blockRepository = getCustomRepository(BlockRepository);
         const transactionRepository = getCustomRepository(TransactionRepository);
@@ -296,11 +316,15 @@ describe("TransactionRepository.getClaimedHtlcLockBalances", () => {
             .nonce("7")
             .sign("sender's secret")
             .build();
-        const block4 = bip39.forge([htlcLock1.data, htlcLock2.data, htlcClaim1.data, htlcClaim2.data], {
-            timestamp: Crypto.Slots.getTime(),
-            previousBlock: block3.data,
-            reward: new Utils.BigNumber("100"),
-        });
+        const block4 = bip39.forge(
+            [htlcLock1.data, htlcLock2.data, htlcClaim1.data, htlcClaim2.data],
+            {
+                timestamp: Crypto.Slots.getTime(),
+                previousBlock: block3.data,
+                reward: new Utils.BigNumber("100"),
+            },
+            getBlockTimeLookup,
+        );
 
         const blockRepository = getCustomRepository(BlockRepository);
         const transactionRepository = getCustomRepository(TransactionRepository);
@@ -354,11 +378,15 @@ describe("TransactionRepository.getRefundedHtlcLockBalances", () => {
             .nonce("7")
             .sign("sender's secret")
             .build();
-        const block4 = bip39.forge([htlcLock1.data, htlcLock2.data, htlcRefund1.data, htlcRefund2.data], {
-            timestamp: Crypto.Slots.getTime(),
-            previousBlock: block3.data,
-            reward: new Utils.BigNumber("100"),
-        });
+        const block4 = bip39.forge(
+            [htlcLock1.data, htlcLock2.data, htlcRefund1.data, htlcRefund2.data],
+            {
+                timestamp: Crypto.Slots.getTime(),
+                previousBlock: block3.data,
+                reward: new Utils.BigNumber("100"),
+            },
+            getBlockTimeLookup,
+        );
 
         const blockRepository = getCustomRepository(BlockRepository);
         const transactionRepository = getCustomRepository(TransactionRepository);
