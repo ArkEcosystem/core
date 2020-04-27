@@ -43,6 +43,7 @@ const transaction3 = Transactions.BuilderFactory.transfer()
     .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("3")
     .fee("300")
+    .vendorField("vendor field value")
     .sign("sender's secret")
     .build();
 

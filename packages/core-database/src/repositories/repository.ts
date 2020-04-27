@@ -42,9 +42,14 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
             queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         }
 
-        for (const item of order) {
-            const column = this.queryHelper.getColumnName(this.metadata, item.property);
-            queryBuilder.addOrderBy(column, item.direction.toUpperCase() as "ASC" | "DESC");
+        if (order.length) {
+            const column = this.queryHelper.getColumnName(this.metadata, order[0].property);
+            queryBuilder.orderBy(column, order[0].direction === "desc" ? "DESC" : "ASC");
+
+            for (const item of order.slice(1)) {
+                const column = this.queryHelper.getColumnName(this.metadata, item.property);
+                queryBuilder.addOrderBy(column, item.direction === "desc" ? "DESC" : "ASC");
+            }
         }
 
         const [rows, count]: [TEntity[], number] = await queryBuilder.getManyAndCount();
@@ -70,7 +75,7 @@ export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> ex
                 } else if (columnMetadata.type === "bigint") {
                     propertyValue = Utils.BigNumber.make(value);
                 } else if (columnMetadata.propertyName === "vendorField") {
-                    propertyValue = propertyValue.toString("utf8");
+                    propertyValue = value.toString("utf8");
                 } else {
                     propertyValue = value;
                 }

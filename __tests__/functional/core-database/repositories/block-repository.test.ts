@@ -275,7 +275,10 @@ describe("BlockRepository.listByExpression", () => {
                 op: "greaterThanEqual",
                 value: block1.data.height,
             },
-            [{ property: "height", direction: "desc" }],
+            [
+                { property: "height", direction: "desc" },
+                { property: "id", direction: "desc" },
+            ],
             { offset: 0, limit: 2 },
         );
         expect(listResult).toStrictEqual({
