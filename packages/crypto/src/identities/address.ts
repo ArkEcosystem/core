@@ -5,10 +5,10 @@ import { PublicKey } from "./public-key";
 export class Address {
     /**
      *
-     * @param base58 // import { Base58 } from "../utils/base58";
-     * @param ripemd160 // import { HashAlgorithms } from "../crypto"; .ripemd160
+     * @param base58
+     * @param ripemd160
      * @param publicKey
-     * @param networkVersion // configManager.get("network.pubKeyHash")
+     * @param networkVersion
      */
     public constructor(
         private base58: any,

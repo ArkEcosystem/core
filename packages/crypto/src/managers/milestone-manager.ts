@@ -5,11 +5,11 @@ import { IMilestone } from "../interfaces";
 import { NetworkConfig } from "../interfaces/networks";
 import { HeightTracker } from "./height-tracker";
 
-export class MilestoneManager {
+export class MilestoneManager<T> {
     private milestone: IMilestone;
     private milestones: Record<string, any>;
 
-    public constructor(private heightTracker: HeightTracker, private config: NetworkConfig) {
+    public constructor(private heightTracker: HeightTracker, private config: NetworkConfig<T>) {
         this.milestones = config.milestones.sort((a, b) => a.height - b.height);
         this.milestone = {
             index: 0,

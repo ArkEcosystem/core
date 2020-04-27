@@ -1,8 +1,8 @@
 import { MilestoneManager } from "../managers/milestone-manager";
 import { Libraries } from "./interfaces";
 
-export class Slots {
-    public constructor(private libraries: Libraries, private milestoneManager: MilestoneManager) {}
+export class Slots<T> {
+    public constructor(private libraries: Libraries, private milestoneManager: MilestoneManager<T>) {}
 
     public getTime(time?: number): number {
         if (time === undefined) {

@@ -6,11 +6,11 @@ import { ConfigManager } from "../managers";
 import { MilestoneManager } from "../managers/milestone-manager";
 
 // TODO: BigNumber (@arkecosystem/utils) & Base58(formally in utils folder) used to be (re)exported from here, consider where needs updating
-export class NetworkUtils {
+export class NetworkUtils<T> {
     private genesisTransactions: { [key: string]: boolean };
     private whitelistedBlockAndTransactionIds: { [key: string]: boolean };
 
-    public constructor(private configManager: ConfigManager, private milestoneManager: MilestoneManager) {
+    public constructor(private configManager: ConfigManager<T>, private milestoneManager: MilestoneManager<T>) {
         this.genesisTransactions = this.configManager
             .get("genesisBlock.transactions")
             .reduce((acc, curr) => Object.assign(acc, { [curr.id]: true }), {});

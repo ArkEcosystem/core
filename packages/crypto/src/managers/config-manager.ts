@@ -3,10 +3,10 @@ import set from "lodash.set";
 
 import { NetworkConfig } from "../interfaces/networks";
 
-export class ConfigManager {
-    private config: NetworkConfig;
+export class ConfigManager<T> {
+    private config: NetworkConfig<T>;
 
-    public constructor(config: NetworkConfig) {
+    public constructor(config: NetworkConfig<T>) {
         this.config = {
             network: config.network,
             exceptions: config.exceptions,
@@ -15,7 +15,7 @@ export class ConfigManager {
         };
     }
 
-    public all(): NetworkConfig | undefined {
+    public all(): NetworkConfig<T> | undefined {
         return this.config;
     }
 

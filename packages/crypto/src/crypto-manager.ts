@@ -6,19 +6,14 @@ import { libraryDefaults } from "./managers/defaults";
 import { LibraryManager } from "./managers/library-manager";
 import { NetworkName } from "./types";
 
-export class Crypto<T> {
-    public identities: Identities;
-    public libraryManager: LibraryManager;
+export class CryptoManager<T> {
+    public identities: Identities<T>;
+    public libraryManager: LibraryManager<T>;
     public heightTracker: HeightTracker;
-    public configManager: ConfigManager;
+    public configManager: ConfigManager<T>;
     public networkManager: NetworkManager;
-    public milestoneManager: MilestoneManager;
+    public milestoneManager: MilestoneManager<T>;
 
-    /**
-     *
-     * @param network
-     * @param libraries
-     */
     public constructor(network: NetworkConfig<T>, private libraries: Libraries) {
         this.libraries = { ...libraryDefaults, ...libraries };
         this.heightTracker = new HeightTracker();
@@ -34,12 +29,12 @@ export class Crypto<T> {
         this.identities = new Identities(this.libraryManager, network.network);
     }
 
-    public static createFromConfig<T>(config: NetworkConfig<T>, libraries = libraryDefaults): Crypto<T> {
-        return new Crypto(config, libraries);
+    public static createFromConfig<T>(config: NetworkConfig<T>, libraries = libraryDefaults): CryptoManager<T> {
+        return new CryptoManager(config, libraries);
     }
 
-    public static createFromPreset<T>(name: NetworkName, libraries = libraryDefaults): Crypto<T> {
-        return new Crypto(NetworkManager.findByName(name), libraries);
+    public static createFromPreset<T>(name: NetworkName, libraries = libraryDefaults): CryptoManager<T> {
+        return new CryptoManager(NetworkManager.findByName(name), libraries);
     }
 
     public static getPresets<T>(): Record<NetworkName, NetworkConfig<T>> {

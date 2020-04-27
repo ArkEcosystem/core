@@ -8,15 +8,15 @@ import { HDWallet } from "./hdwallet";
 import { Libraries } from "./interfaces";
 import { Slots } from "./slots";
 
-export class CryptoTools {
+export class CryptoTools<T> {
     public Bip38: Bip38;
     public Hash: Hash;
     public HashAlgorithms: HashAlgorithms;
     public HDWallet: HDWallet;
-    public Slots: Slots;
+    public Slots: Slots<T>;
     public Base58: Base58;
 
-    public constructor(libraries: Libraries, network: Network, milestoneManager: MilestoneManager) {
+    public constructor(libraries: Libraries, network: Network, milestoneManager: MilestoneManager<T>) {
         this.Hash = new Hash(libraries);
         this.HashAlgorithms = new HashAlgorithms(libraries);
         this.Base58 = new Base58(libraries, this.HashAlgorithms);

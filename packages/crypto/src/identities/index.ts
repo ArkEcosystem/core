@@ -1,4 +1,3 @@
-import { HashAlgorithms } from "../crypto/hash-algorithms";
 import { Network } from "../interfaces";
 import { LibraryManager } from "../managers/library-manager";
 import { Address } from "./address";
@@ -8,15 +7,15 @@ import { PrivateKey } from "./private-key";
 import { PublicKey } from "./public-key";
 import { WIF } from "./wif";
 
-export class Identities {
+export class Identities<T> {
     public address: Address;
     public keys: Keys;
     public privateKey: PrivateKey;
     public publicKey: PublicKey;
     public wif: WIF;
-    public message: Message;
+    public message: Message<T>;
 
-    public constructor(private libraryManager: LibraryManager, private network: Network) {
+    public constructor(private libraryManager: LibraryManager<T>, private network: Network) {
         this.keys = new Keys(
             this.libraryManager.Crypto.HashAlgorithms.sha256,
             this.libraryManager.libraries.secp256k1,
