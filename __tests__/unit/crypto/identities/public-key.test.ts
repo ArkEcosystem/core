@@ -1,9 +1,16 @@
 import "jest-extended";
 
 import { InvalidMultiSignatureAssetError, PublicKeyError } from "@arkecosystem/crypto/src/errors";
+import { CryptoManager } from "@packages/crypto/src";
 
-import { PublicKey } from "../../../../packages/crypto/src/identities/public-key";
 import { data, passphrase } from "./fixture.json";
+
+let PublicKey;
+
+beforeAll(() => {
+    const crypto = CryptoManager.createFromPreset("devnet");
+    PublicKey = crypto.identities.publicKey;
+});
 
 describe("Identities - Public Key", () => {
     describe("fromPassphrase", () => {
