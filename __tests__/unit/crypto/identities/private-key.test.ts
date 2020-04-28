@@ -1,7 +1,15 @@
 import "jest-extended";
 
-import { PrivateKey } from "../../../../packages/crypto/src/identities/private-key";
+import { CryptoManager } from "@packages/crypto/src";
+
 import { data, passphrase } from "./fixture.json";
+
+let PrivateKey;
+
+beforeAll(() => {
+    const crypto = CryptoManager.createFromPreset("devnet");
+    PrivateKey = crypto.identities.privateKey;
+});
 
 describe("Identities - Private Key", () => {
     describe("fromPassphrase", () => {
