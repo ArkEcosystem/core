@@ -1,10 +1,14 @@
 import "jest-extended";
 
-import { Slots } from "../../../../packages/crypto/src/crypto/slots";
-import { configManager } from "../../../../packages/crypto/src/managers/config";
-import { devnet } from "../../../../packages/crypto/src/networks";
+import { CryptoManager } from "@packages/crypto/src";
 
-beforeEach(() => configManager.setConfig(devnet));
+let Slots;
+let crypto;
+
+beforeAll(() => {
+    crypto = CryptoManager.createFromPreset("testnet");
+    Slots = crypto.libraryManager.Crypto.Slots;
+});
 
 describe("Slots", () => {
     describe("getTime", () => {

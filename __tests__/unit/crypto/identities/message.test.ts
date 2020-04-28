@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { CryptoManager } from "@packages/crypto/src";
 
-import { identity, signedMessageEntries } from "./fixtures/identity";
+import { identity, signedMessageEntries } from "../fixtures/identities";
 
 let Message;
 let crypto;
