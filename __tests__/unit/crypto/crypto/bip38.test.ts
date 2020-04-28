@@ -1,10 +1,7 @@
 import "jest-extended";
 
 import { CryptoManager } from "@packages/crypto/src";
-// import { Bip38 } from "@packages/crypto/src/crypto";
 import * as errors from "@packages/crypto/src/errors";
-// import { Base58 } from "@packages/crypto/src/utils";
-// import { base58 } from "bstring";
 import ByteBuffer from "bytebuffer";
 import wif from "wif";
 
