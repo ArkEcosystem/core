@@ -1,4 +1,4 @@
-# Changelog
+3667# Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 
 -   Update @arkecosystem/utils dependency ([#3665])
+-   Use tree memory structure to sort by fee and by sender nonce **(core-transaction-pool)** ([#3667])
 
 ## [2.6.31] - 2020-03-25
 
@@ -1507,6 +1508,7 @@ Closed security vulnerabilities:
 [#3614]: https://github.com/ARKEcosystem/core/pull/3614
 [#3659]: https://github.com/ARKEcosystem/core/pull/3659
 [#3665]: https://github.com/ARKEcosystem/core/pull/3665
+[#3667]: https://github.com/ARKEcosystem/core/pull/3667
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
