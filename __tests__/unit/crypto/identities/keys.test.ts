@@ -1,13 +1,19 @@
 import "jest-extended";
 
-import wif from "wif";
+import { CryptoManager } from "@packages/crypto/src";
 
-import { NetworkVersionError } from "../../../../packages/crypto/src/errors";
-import { Address } from "../../../../packages/crypto/src/identities/address";
-import { Keys } from "../../../../packages/crypto/src/identities/keys";
 import { data, passphrase } from "./fixture.json";
 
+let Keys;
+let Address;
+
 describe("Identities - Keys", () => {
+    beforeAll(() => {
+        const devnetCrypto = CryptoManager.createFromPreset("devnet");
+        Address = devnetCrypto.identities.address;
+        Keys = devnetCrypto.identities.keys;
+    });
+
     describe("fromPassphrase", () => {
         it("should return two keys in hex", () => {
             const keys = Keys.fromPassphrase("secret");
@@ -67,15 +73,6 @@ describe("Identities - Keys", () => {
             expect(keys).toHaveProperty("publicKey");
             expect(keys).toHaveProperty("privateKey");
             expect(keys).toHaveProperty("compressed", false);
-        });
-
-        it("should fail with an invalid network version", () => {
-            // @ts-ignore
-            wif.decode = jest.fn(() => ({ version: 1 }));
-
-            expect(() => {
-                Keys.fromWIF("invalid");
-            }).toThrow(NetworkVersionError);
         });
     });
 });
