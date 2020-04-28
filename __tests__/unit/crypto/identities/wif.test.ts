@@ -1,7 +1,15 @@
 import "jest-extended";
 
-import { WIF } from "../../../../packages/crypto/src/identities/wif";
+import { CryptoManager } from "@packages/crypto/src";
+
 import { data, passphrase } from "./fixture.json";
+
+let WIF;
+
+beforeAll(() => {
+    const crypto = CryptoManager.createFromPreset("devnet");
+    WIF = crypto.identities.wif;
+});
 
 describe("Identities - WIF", () => {
     describe("fromPassphrase", () => {
