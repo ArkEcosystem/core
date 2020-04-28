@@ -27,7 +27,7 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/utils": "0.8.3",
+        "@arkecosystem/utils": "^1.1",
         "@types/bytebuffer": "^5.0.40",
         "ajv": "^6.10.2",
         "ajv-keywords": "^3.4.1",
