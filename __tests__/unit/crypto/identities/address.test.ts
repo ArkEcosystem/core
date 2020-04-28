@@ -1,14 +1,26 @@
 import "jest-extended";
 
-import { PublicKey } from "@arkecosystem/crypto/src/identities";
+import { CryptoManager } from "@packages/crypto/src";
 
 import { InvalidMultiSignatureAssetError, PublicKeyError } from "../../../../packages/crypto/src/errors";
-import { Address } from "../../../../packages/crypto/src/identities/address";
-import { Keys } from "../../../../packages/crypto/src/identities/keys";
-import { configManager } from "../../../../packages/crypto/src/managers";
 import { data, passphrase } from "./fixture.json";
 
 describe("Identities - Address", () => {
+    let Address;
+    let PublicKey;
+    let Keys;
+    let AddressMainNet;
+
+    beforeAll(() => {
+        const devnetCrypto = CryptoManager.createFromPreset("devnet");
+        Address = devnetCrypto.identities.address;
+        PublicKey = devnetCrypto.identities.publicKey;
+        Keys = devnetCrypto.identities.keys;
+
+        const mainnetCrypto = CryptoManager.createFromPreset("mainnet");
+        AddressMainNet = mainnetCrypto.identities.address;
+    });
+
     describe("fromPassphrase", () => {
         it("should be OK", () => {
             expect(Address.fromPassphrase(passphrase)).toBe(data.address);
@@ -126,14 +138,10 @@ describe("Identities - Address", () => {
         });
 
         it("should validate MAINNET addresses", () => {
-            configManager.setConfig(configManager.getPreset("mainnet"));
-
-            expect(Address.validate("AdVSe37niA3uFUPgCgMUH2tMsHF4LpLoiX")).toBeTrue();
+            expect(AddressMainNet.validate("AdVSe37niA3uFUPgCgMUH2tMsHF4LpLoiX")).toBeTrue();
         });
 
         it("should validate DEVNET addresses", () => {
-            configManager.setConfig(configManager.getPreset("devnet"));
-
             expect(Address.validate("DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN")).toBeTrue();
         });
     });
