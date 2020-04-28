@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Meta } from "./contracts";
+import { Meta } from "../contracts";
 
 @Container.injectable()
 export class Filesystem {

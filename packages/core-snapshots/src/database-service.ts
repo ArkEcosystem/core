@@ -3,14 +3,16 @@ import { Models } from "@arkecosystem/core-database";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import { Identifiers } from "./ioc";
-import { Filesystem } from "./filesystem";
+import { Filesystem } from "./filesystem/filesystem";
 import { Meta, Options } from "./contracts";
 import { ProgressDispatcher } from "./progress-dispatcher";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
 import { WorkerWrapper } from "./workers/worker-wrapper";
 
 // @ts-ignore
-import { Encoder, Decoder, JSONCodec , EncodeTransformer} from "./codecs";
+import { JSONCodec, Codec} from "./codecs";
+// @ts-ignore
+import { StreamWriter, StreamReader} from "./filesystem";
 // @ts-ignore
 import fs from "fs-extra";
 // @ts-ignore
@@ -101,6 +103,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
             stopTransactionsDispatcher();
             stopRoundDispatcher();
 
+            this.logger.error(err.message);
             throw err;
         } finally {
             await blocksWorker?.terminate();
@@ -286,51 +289,51 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     }
 
     public async test(options: any): Promise<void> {
-        // @ts-ignore
-        let writeStream = fs.createWriteStream("/Users/sebastijankuzner/Desktop/ARK/Database/Test/asd");
-        let dbStream = await this.blockRepository.getReadStream();
+        try {
+            let worker = new WorkerWrapper(    {actionOptions: {
+                    action: "test",
+                    table: "wait",
+                    codec: "default",
+                    skipCompression: false,
+                    filePath: "",
+                    genesisBlockId: "123",
+                    updateStep: 1000,
+                    network: "testnet"
+                }});
 
-        let transformer = new Encoder(dbStream, writeStream,JSONCodec.encodeBlock);
+            await worker.start();
 
-        await transformer.write();
+            await worker.sync({
+                execute: "throwError"
+            });
+        } catch (e) {
 
-        // let encodeTransformer = new EncodeTransformer(JSONCodec.encodeBlock);
-        //
-        //
-        // dbStream.pipe(encodeTransformer).pipe(writeStream);
-
-
-        console.log("RESUMING");
-
-
-        // let stream = fs.createReadStream("/Users/sebastijankuzner/Library/Application Support/ark-core/testnet/snapshots/testnet/1-261/blocks", {});
-
-
-        let stream = fs.createReadStream("/Users/sebastijankuzner/Desktop/ARK/Database/Test/asd", {});
-
-        let decoder = new Decoder(stream, JSONCodec.decodeBlock);
-
-
-        for(let i = 0; i < 5; i++) {
-            console.log(await decoder.readNext());
         }
 
-        console.log("Finish");
 
-
-
-        // await decoder.readNext();
-
-        // // @ts-ignore
-        // for(let i of [1,2,3,4,5,6,7]) {
-        //     await decoder.readNext();
-        // }
-
-
-        // // stream.pipe(transformer)
-        // stream = stream.pipe(transformer)
+        // @ts-ignore
+        // let writeStream = fs.createWriteStream("/Users/sebastijankuzner/Desktop/ARK/Database/Test/asd");
+        // let dbStream = await this.blockRepository.getReadStream();
         //
-        // stream.pipe(process.stdout);
+        // let transformer = new StreamWriter(dbStream, writeStream,JSONCodec.blocksEncode);
+        //
+        // await transformer.write();
+        //
+        //
+        //
+        // console.log("RESUMING");
+        //
+        //
+        // let stream = fs.createReadStream("/Users/sebastijankuzner/Desktop/ARK/Database/Test/asd", {});
+        //
+        // let decoder = new StreamReader(stream, JSONCodec.blocksDecode);
+        //
+        //
+        // for(let i = 0; i < 5; i++) {
+        //     console.log(await decoder.readNext());
+        // }
+        //
+        // console.log("Finish");
     }
 }
 

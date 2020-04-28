@@ -4,7 +4,7 @@ import { getCustomRepository, createConnection, Connection } from "typeorm";
 import { SnapshotService } from "./snapshot-service";
 import { SnapshotDatabaseService } from "./database-service";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
-import { Filesystem } from "./filesystem";
+import { Filesystem } from "./filesystem/filesystem";
 import { ProgressDispatcher } from "./progress-dispatcher";
 import { Models } from "@arkecosystem/core-database";
 

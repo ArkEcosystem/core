@@ -1,31 +1,26 @@
 import { parentPort } from "worker_threads";
 import { Container } from "@arkecosystem/core-kernel";
 import { AbstractWorkerAction } from "./abstract-worker-action";
+import { StreamWriter } from "../../filesystem";
 
 @Container.injectable()
 export class DumpWorkerAction extends AbstractWorkerAction {
     public async start() {
-        return new Promise<void>(async (resolve, reject) => {
-            const databaseStream = await this.getRepository().getReadStream();
-            let writeStream = await this.getWriteStream(databaseStream);
+        const databaseStream = await this.getRepository().getReadStream();
 
-            let count = 0;
+        let streamWriter = new StreamWriter(databaseStream, this.filePath!, this.getCodec()[`${this.table}Encode`]);
 
-            let interval = setInterval(() => {
-                parentPort?.postMessage({
-                    action: "count",
-                    data: count,
-                });
-            }, 100);
+        await streamWriter.open();
 
-            writeStream.on("close", () => {
-                clearInterval(interval!);
-                resolve();
+        let interval = setInterval(() => {
+            parentPort?.postMessage({
+                action: "count",
+                data: streamWriter.count,
             });
+        }, 100);
 
-            databaseStream.on("data", (data) => {
-                count++;
-            });
-        });
+        await streamWriter.write();
+
+        clearInterval(interval);
     }
 }

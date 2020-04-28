@@ -1,4 +1,6 @@
 export const Identifiers = {
+    StreamWriterFactory: Symbol.for("Factory<StreamWriter>"),
+    StreamReaderFactory: Symbol.for("Factory<StreamReader>"),
     SnapshotVersion: Symbol.for("Snapshot<Version>"),
     SnapshotCodec: Symbol.for("Snapshot<Codec>"),
     SnapshotAction: Symbol.for("Snapshot<Action>"),

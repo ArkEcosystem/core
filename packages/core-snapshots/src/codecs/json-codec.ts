@@ -1,46 +1,83 @@
-import { createCodec } from "msgpack-lite";
 import { camelizeKeys } from "xcase";
 import { Codec } from "../contracts";
 import { Container } from "@arkecosystem/core-kernel";
-import msgpack from "msgpack-lite";
 
 @Container.injectable()
 export class JSONCodec implements Codec {
 
-    public createDecodeStream(table: string): NodeJS.ReadWriteStream {
-        return msgpack.createDecodeStream({ codec: this[table]() });
-    }
+    // public createDecodeStream(table: string): NodeJS.ReadWriteStream {
+    //     return msgpack.createDecodeStream({ codec: this[table]() });
+    // }
+    //
+    // public createEncodeStream(table: string): NodeJS.ReadWriteStream {
+    //     return msgpack.createEncodeStream({ codec: this[table]() });
+    // }
 
-    public createEncodeStream(table: string): NodeJS.ReadWriteStream {
-        return msgpack.createEncodeStream({ codec: this[table]() });
-    }
+    public blocksEncode(block): Buffer {
+        let blockStringified = JSONCodec.stringify(camelizeKeys(JSONCodec.removePrefix(block, "Block_")))
 
-    // @ts-ignore
-    private blocks() {
-        const codec = createCodec();
-        codec.addExtPacker(0x3f, Object, JSONCodec.encodeBlock);
-        codec.addExtUnpacker(0x3f, JSONCodec.decodeBlock);
+        // console.log("BLOCK: ", blockStringified)
 
-        return codec;
-    }
+        return Buffer.from(blockStringified);
+    };
 
-    // @ts-ignore
-    private transactions() {
-        const codec = createCodec();
-        codec.addExtPacker(0x4f, Object, JSONCodec.encodeTransaction);
-        codec.addExtUnpacker(0x4f, JSONCodec.decodeTransaction);
+    public blocksDecode(buffer: Buffer): any {
+        return JSON.parse(buffer.toString());
+    };
 
-        return codec;
-    }
+    public transactionsEncode(transaction) {
+        let tmp = JSONCodec.removePrefix(transaction, "Transaction_");
+        tmp = camelizeKeys(tmp);
 
-    // @ts-ignore
-    private rounds() {
-        const codec = createCodec();
-        codec.addExtPacker(0x5f, Object, JSONCodec.encodeRound);
-        codec.addExtUnpacker(0x5f, JSONCodec.decodeRound);
+        tmp = JSONCodec.stringify(tmp);
 
-        return codec;
-    }
+        return Buffer.from(tmp);
+    };
+
+    public transactionsDecode(buffer: Buffer) {
+        let tmp = JSONCodec.parse(buffer.toString());
+
+        console.log("Transaction: ", tmp)
+
+        tmp.serialized = Buffer.from(tmp.serialized.data);
+
+        return tmp;
+    };
+
+    public roundsEncode(round) {
+        return Buffer.from(JSONCodec.stringify(camelizeKeys(JSONCodec.removePrefix(round, "Round_"))));
+    };
+
+    public roundsDecode(buffer: Buffer) {
+        return JSON.parse(buffer.toString());
+    };
+
+    // // @ts-ignore
+    // private blocks() {
+    //     const codec = createCodec();
+    //     codec.addExtPacker(0x3f, Object, JSONCodec.blocksEncode);
+    //     codec.addExtUnpacker(0x3f, JSONCodec.blocksDecode);
+    //
+    //     return codec;
+    // }
+    //
+    // // @ts-ignore
+    // private transactions() {
+    //     const codec = createCodec();
+    //     codec.addExtPacker(0x4f, Object, JSONCodec.transactionsEncode);
+    //     codec.addExtUnpacker(0x4f, JSONCodec.transactionsDecode);
+    //
+    //     return codec;
+    // }
+    //
+    // // @ts-ignore
+    // private rounds() {
+    //     const codec = createCodec();
+    //     codec.addExtPacker(0x5f, Object, JSONCodec.roundsEncode);
+    //     codec.addExtUnpacker(0x5f, JSONCodec.roundsDecode);
+    //
+    //     return codec;
+    // }
 
     private static prepareData(data: any) {
         if ( Buffer.isBuffer(data)) {
@@ -62,46 +99,25 @@ export class JSONCodec implements Codec {
         return itemToReturn;
     };
 
-    public static encodeBlock(block) {
-        let blockStringified = JSONCodec.Stringify(camelizeKeys(JSONCodec.removePrefix(block, "Block_")))
 
-        // console.log("BLOCK: ", blockStringified)
 
-        return Buffer.from(blockStringified);
+    private static stringify(item: any): string {
+        // return JSON.stringify(item, typeof item === 'bigint'
+        //     ? item.toString()
+        //     : item);
+
+        return JSON.stringify(item, (_, v) => typeof v === 'bigint' ? `${v}n` : v);
     };
 
-    public static decodeBlock(buffer: Buffer) {
-        return JSON.parse(buffer.toString());
-    };
-
-    private static encodeTransaction(transaction) {
-        let tmp = JSONCodec.removePrefix(transaction, "Transaction_");
-        tmp = camelizeKeys(tmp);
-
-        tmp = JSONCodec.Stringify(tmp);
-
-        return tmp;
-    };
-
-    private static decodeTransaction(buffer: Buffer) {
-        let tmp = JSON.parse(buffer.toString());
-
-        tmp.serialized = Buffer.from(tmp.serialized.data);
-
-        return tmp;
-    };
-
-    private static encodeRound(round) {
-        return JSONCodec.Stringify(camelizeKeys(JSONCodec.removePrefix(round, "Round_")));
-    };
-
-    private static decodeRound(buffer: Buffer) {
-        return JSON.parse(buffer.toString());
-    };
-
-    private static Stringify(item: any): string {
-        return JSON.stringify(item, typeof item === 'bigint'
-            ? item.toString()
-            : item);
-    };
+    private static parse(text: string) {
+        return JSON.parse(text, (_, value) => {
+            if (typeof value === 'string') {
+                const m = value.match(/(-?\d+)n/);
+                if (m && m[0] === value) {
+                    value = BigInt(m[1]);
+                }
+            }
+            return value;
+        });
+    }
 }

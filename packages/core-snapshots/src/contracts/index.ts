@@ -3,5 +3,7 @@ export * from "./codec";
 export * from "./repository";
 import * as Meta from "./meta-data";
 import * as Options from "./options";
+import * as Stream from "./stream";
+import * as Worker from "./worker";
 
-export { Meta, Options };
+export { Meta, Options, Stream, Worker };

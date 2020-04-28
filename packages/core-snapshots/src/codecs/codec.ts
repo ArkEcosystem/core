@@ -1,63 +1,54 @@
-import { createCodec, encode, decode } from "msgpack-lite";
+import { encode, decode } from "msgpack-lite";
 import { camelizeKeys } from "xcase";
 import { Utils, Blocks, Transactions, Interfaces } from "@arkecosystem/crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Codec as CodecException } from "../exceptions";
 import { Codec as ICodec  } from "../contracts";
 import { Container } from "@arkecosystem/core-kernel";
-import msgpack from "msgpack-lite";
 import { parentPort } from "worker_threads";
 
 @Container.injectable()
 export class Codec implements ICodec {
-    // public name: string = "default";
+    // // public name: string = "default";
+    //
+    // public createDecodeStream(table: string): NodeJS.ReadWriteStream {
+    //     return msgpack.createDecodeStream({ codec: this[table]() });
+    // }
+    //
+    // public createEncodeStream(table: string): NodeJS.ReadWriteStream {
+    //     return msgpack.createEncodeStream({ codec: this[table]() });
+    // }
+    //
+    // // @ts-ignore
+    // private blocks() {
+    //     const codec = createCodec();
+    //     codec.addExtPacker(0x3f, Object, Codec.blocksEncode);
+    //     codec.addExtUnpacker(0x3f, Codec.blocksDecode);
+    //
+    //     return codec;
+    // }
+    //
+    // // @ts-ignore
+    // private transactions() {
+    //     const codec = createCodec();
+    //     codec.addExtPacker(0x4f, Object, Codec.transactionsEncode);
+    //     codec.addExtUnpacker(0x4f, Codec.transactionsDecode);
+    //
+    //     return codec;
+    // }
+    //
+    // // @ts-ignore
+    // private rounds() {
+    //     const codec = createCodec();
+    //     codec.addExtPacker(0x5f, Object, Codec.roundsEncode);
+    //     codec.addExtUnpacker(0x5f, Codec.roundsDecode);
+    //
+    //     return codec;
+    // }
 
-    public createDecodeStream(table: string): NodeJS.ReadWriteStream {
-        return msgpack.createDecodeStream({ codec: this[table]() });
-    }
 
-    public createEncodeStream(table: string): NodeJS.ReadWriteStream {
-        return msgpack.createEncodeStream({ codec: this[table]() });
-    }
 
-    // @ts-ignore
-    private blocks() {
-        const codec = createCodec();
-        codec.addExtPacker(0x3f, Object, Codec.encodeBlock);
-        codec.addExtUnpacker(0x3f, Codec.decodeBlock);
-
-        return codec;
-    }
-
-    // @ts-ignore
-    private transactions() {
-        const codec = createCodec();
-        codec.addExtPacker(0x4f, Object, Codec.encodeTransaction);
-        codec.addExtUnpacker(0x4f, Codec.decodeTransaction);
-
-        return codec;
-    }
-
-    // @ts-ignore
-    private rounds() {
-        const codec = createCodec();
-        codec.addExtPacker(0x5f, Object, Codec.encodeRound);
-        codec.addExtUnpacker(0x5f, Codec.decodeRound);
-
-        return codec;
-    }
-
-    private static removePrefix(item: Object, prefix: string): Object {
-        let itemToReturn = {};
-
-        for(let key of Object.keys(item)) {
-            itemToReturn[key.replace(prefix, "")] = item[key];
-        }
-
-        return itemToReturn;
-    };
-
-    private static encodeBlock(block: any) {
+    public blocksEncode(block: any) {
         try {
             let blockCamelized = camelizeKeys(Codec.removePrefix(block, "Block_"));
 
@@ -71,7 +62,7 @@ export class Codec implements ICodec {
         }
     };
 
-    private static decodeBlock(buffer: Buffer) {
+    public blocksDecode(buffer: Buffer) {
 
         let blockId = undefined;
         try {
@@ -94,8 +85,7 @@ export class Codec implements ICodec {
         }
     };
 
-    private static encodeTransaction(transaction) {
-        console.log("New transaction")
+    public transactionsEncode(transaction) {
         // return JSON.stringify(camelizeKeys(Codec.removePrefix(transaction, "Transaction_")));
         // const transactionCamelized = camelizeKeys(Codec.removePrefix(transaction, "Transaction_"));
         // const transactionCamelized: any = Codec.removePrefix(transaction, "Transaction_");
@@ -124,7 +114,7 @@ export class Codec implements ICodec {
     };
 
 
-    private static decodeTransaction(buffer: Buffer) {
+    public transactionsDecode(buffer: Buffer) {
         let transactionId = undefined;
         try {
             const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
@@ -159,7 +149,7 @@ export class Codec implements ICodec {
         }
     };
 
-    private static encodeRound(round) {
+    public roundsEncode(round) {
         try {
             let roundCamelized = camelizeKeys(Codec.removePrefix(round, "Round_"));
 
@@ -171,7 +161,7 @@ export class Codec implements ICodec {
         }
     };
 
-    private static decodeRound(buffer: Buffer) {
+    public roundsDecode(buffer: Buffer) {
         let roundRound = undefined;
 
         try {
@@ -189,5 +179,15 @@ export class Codec implements ICodec {
         } catch (e) {
             throw new CodecException.RoundDecodeException(roundRound as unknown as string)
         }
+    };
+
+    private static removePrefix(item: Object, prefix: string): Object {
+        let itemToReturn = {};
+
+        for(let key of Object.keys(item)) {
+            itemToReturn[key.replace(prefix, "")] = item[key];
+        }
+
+        return itemToReturn;
     };
 }

@@ -53,26 +53,26 @@ export abstract class AbstractWorkerAction implements WorkerAction {
 
     public sync(data: any): void {}
 
-    protected getWriteStream(databaseStream: NodeJS.ReadableStream): NodeJS.WritableStream {
-        const snapshotWriteStream = fs.createWriteStream(this.filePath!, {});
-        const encodeStream = this.getCodec().createEncodeStream(this.table!);
-        const gzipStream = zlib.createGzip();
-
-        let stream: NodeJS.ReadableStream = databaseStream;
-
-        stream = stream.pipe(encodeStream);
-
-        if (!this.skipCompression) {
-            stream = stream.pipe(gzipStream);
-        }
-
-        return stream.pipe(snapshotWriteStream);
-    }
+    // protected getWriteStream(databaseStream: NodeJS.ReadableStream): NodeJS.WritableStream {
+    //     const snapshotWriteStream = fs.createWriteStream(this.filePath!, {});
+    //     const encodeStream = this.getCodec().createEncodeStream(this.table!);
+    //     const gzipStream = zlib.createGzip();
+    //
+    //     let stream: NodeJS.ReadableStream = databaseStream;
+    //
+    //     stream = stream.pipe(encodeStream);
+    //
+    //     if (!this.skipCompression) {
+    //         stream = stream.pipe(gzipStream);
+    //     }
+    //
+    //     return stream.pipe(snapshotWriteStream);
+    // }
 
     protected getReadStream(): NodeJS.ReadableStream {
         const readStream = fs.createReadStream(this.filePath!, {});
         const gunzipStream = zlib.createGunzip();
-        const decodeStream = this.getCodec().createDecodeStream(this.table!);
+        // const decodeStream = this.getCodec().createDecodeStream(this.table!);
 
         let stream: NodeJS.ReadableStream = readStream;
 
@@ -80,7 +80,7 @@ export abstract class AbstractWorkerAction implements WorkerAction {
             stream = stream.pipe(gunzipStream);
         }
 
-        stream = stream.pipe(decodeStream);
+        // stream = stream.pipe(decodeStream);
         stream.pause();
 
         return stream;
@@ -105,7 +105,7 @@ export abstract class AbstractWorkerAction implements WorkerAction {
         }
     }
 
-    private getCodec(): Codec {
+    protected getCodec(): Codec {
         return this.app.getTagged<Codec>(Identifiers.SnapshotCodec, "codec", this.codec);
     }
 }

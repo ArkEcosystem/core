@@ -16,9 +16,8 @@ export class WorkerWrapper extends EventEmitter {
         })
 
         this.worker.on("error", err => {
-            console.log("Message err", err);
             // this.emit("error", err)
-            // this.emit("*", { name: "error", data: err })
+            this.emit("*", { name: "error", data: err })
         })
 
         // this.worker.on("error", err => {
@@ -40,7 +39,7 @@ export class WorkerWrapper extends EventEmitter {
                     resolve();
                 } else if (data.name === "exit") {
                     resolve();
-                } else if (data.name === "unhandledRejection") {
+                } else if (data.name === "exception" || data.name === "error") {
                     reject(data.data)
                 } else {
                     reject();
@@ -62,7 +61,7 @@ export class WorkerWrapper extends EventEmitter {
                     resolve(data.data);
                 } else if (data.name === "exit") {
                     resolve();
-                } else if (data.name === "unhandledRejection") {
+                } else if (data.name === "exception" || data.name === "error") {
                     reject(data.data)
                 } else {
                     reject();
@@ -81,11 +80,12 @@ export class WorkerWrapper extends EventEmitter {
     }
 
     private handleMessage(data) {
+        // console.log("MESSAGE", data);
 
         if (data.action === "log") {
             console.log("LOG: ", data.data)
         }
-        // console.log("MESSAGE", data);
+
         // Actions: count, started, synced, exit, error
         this.emit(data.action, data.data);
         if (data.action !== "count" && data.action !== "log") {
