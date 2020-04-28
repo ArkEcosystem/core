@@ -1,15 +1,16 @@
 import { InvalidMultiSignatureAssetError, PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
+import { LibraryManager } from "../managers/library-manager";
 import { Keys } from "./keys";
 
-export class PublicKey {
-    /**
-     *
-     * @param keys
-     * @param secp256k1 // import { secp256k1 } from "bcrypto";
-     * @param numberToHex // import { numberToHex } from "../utils";
-     */
-    public constructor(private keys: Keys, private secp256k1: any, private numberToHex: any) {}
+export class PublicKey<T> {
+    private secp256k1: any;
+    private numberToHex: any;
+
+    public constructor(libraryManager: LibraryManager<T>, private keys: Keys<T>) {
+        this.secp256k1 = libraryManager.libraries.secp256k1;
+        this.numberToHex = libraryManager.Crypto.numberToHex;
+    }
 
     public fromPassphrase(passphrase: string): string {
         return this.keys.fromPassphrase(passphrase).publicKey;

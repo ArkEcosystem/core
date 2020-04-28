@@ -11,7 +11,7 @@ export class Address<T> {
 
     public constructor(
         libraryManager: LibraryManager<T>,
-        private publicKey: PublicKey,
+        private publicKey: PublicKey<T>,
         private networkVersion: number,
     ) {
         this.base58 = libraryManager.Crypto.Base58;

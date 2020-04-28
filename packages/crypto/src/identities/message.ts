@@ -3,7 +3,7 @@ import { IKeyPair, IMessage } from "../interfaces";
 import { Keys } from "./keys";
 
 export class Message<T> {
-    public constructor(private cryptoTools: CryptoTools<T>, private keys: Keys) {}
+    public constructor(private cryptoTools: CryptoTools<T>, private keys: Keys<T>) {}
 
     public sign(message: string, passphrase: string): IMessage {
         const keys: IKeyPair = this.keys.fromPassphrase(passphrase);

@@ -1,3 +1,4 @@
+import { CryptoManager } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
 
 import { Factory } from "./factory";
@@ -14,6 +15,8 @@ export class FactoryBuilder {
      * @memberof FactoryBuilder
      */
     private readonly factories: Map<string, Factory> = new Map<string, Factory>();
+
+    public constructor(public cryptoManager: CryptoManager<any>) {}
 
     /**
      * @param {string} factory

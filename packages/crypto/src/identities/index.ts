@@ -9,32 +9,23 @@ import { WIF } from "./wif";
 
 export class Identities<T> {
     public address: Address<T>;
-    public keys: Keys;
-    public privateKey: PrivateKey;
-    public publicKey: PublicKey;
-    public wif: WIF;
+    public keys: Keys<T>;
+    public privateKey: PrivateKey<T>;
+    public publicKey: PublicKey<T>;
+    public wif: WIF<T>;
     public message: Message<T>;
 
-    public constructor(private libraryManager: LibraryManager<T>, private network: Network) {
-        this.keys = new Keys(
-            this.libraryManager.Crypto.HashAlgorithms.sha256,
-            this.libraryManager.libraries.secp256k1,
-            this.libraryManager.libraries.wif,
-            this.network.wif,
-        );
+    public constructor(libraryManager: LibraryManager<T>, network: Network) {
+        this.keys = new Keys(libraryManager, network.wif);
 
-        this.publicKey = new PublicKey(
-            this.keys,
-            this.libraryManager.libraries.secp256k1,
-            this.libraryManager.Crypto.numberToHex,
-        );
+        this.publicKey = new PublicKey(libraryManager, this.keys);
 
         this.address = new Address(libraryManager, this.publicKey, network.pubKeyHash);
 
-        this.message = new Message(this.libraryManager.Crypto, this.keys);
+        this.message = new Message(libraryManager.Crypto, this.keys);
 
         this.privateKey = new PrivateKey(this.keys);
 
-        this.wif = new WIF(this.libraryManager.libraries.wif, this.network.wif, this.keys);
+        this.wif = new WIF(libraryManager, network.wif, this.keys);
     }
 }

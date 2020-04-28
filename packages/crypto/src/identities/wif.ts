@@ -1,4 +1,5 @@
 import { IKeyPair } from "../interfaces";
+import { LibraryManager } from "../managers/library-manager";
 import { Keys } from "./keys";
 
 export interface WIFReturn {
@@ -12,21 +13,24 @@ export interface WifAlgorithm {
     encode(version: number, privateKey: Buffer, compressed: boolean): string;
 }
 
-export class WIF {
-    /**
-     * @param wifAlgorithm // import wif from "wif"
-     * @param version // configManager.get("network").wif
-     * @param keys
-     */
-    public constructor(private wifAlgorithm: WifAlgorithm, private version: number, private keys: Keys) {}
+export class WIF<T> {
+    public constructor(private libraryManager: LibraryManager<T>, private version: number, private keys: Keys<T>) {}
 
     public fromPassphrase(passphrase: string): string {
         const keys: IKeyPair = this.keys.fromPassphrase(passphrase);
 
-        return this.wifAlgorithm.encode(this.version, Buffer.from(keys.privateKey, "hex"), keys.compressed);
+        return this.libraryManager.libraries.wif.encode(
+            this.version,
+            Buffer.from(keys.privateKey, "hex"),
+            keys.compressed,
+        );
     }
 
     public fromKeys(keys: IKeyPair): string {
-        return this.wifAlgorithm.encode(this.version, Buffer.from(keys.privateKey, "hex"), keys.compressed);
+        return this.libraryManager.libraries.wif.encode(
+            this.version,
+            Buffer.from(keys.privateKey, "hex"),
+            keys.compressed,
+        );
     }
 }

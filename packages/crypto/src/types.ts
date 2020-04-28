@@ -1,5 +1,3 @@
-import { BigNumber as UtilsBigNumber } from "@arkecosystem/utils";
-
 import * as networks from "./networks";
 
 export type NetworkType =
