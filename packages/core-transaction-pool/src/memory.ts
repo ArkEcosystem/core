@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { State } from "@arkecosystem/core-interfaces";
-import { expirationCalculator } from "@arkecosystem/core-utils";
+import { expirationCalculator, Tree } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -15,8 +15,20 @@ export class Memory {
     private all: Interfaces.ITransaction[] = [];
     private allIsSorted: boolean = true;
     private byId: { [key: string]: Interfaces.ITransaction } = {};
-    private bySender: { [key: string]: Set<Interfaces.ITransaction> } = {};
+    private bySender: { [key: string]: Tree<Interfaces.ITransaction> } = {};
     private byType: Map<Transactions.InternalTransactionType, Set<Interfaces.ITransaction>> = new Map();
+
+    private byFee: Tree<Interfaces.ITransaction> = new Tree(
+        (a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
+            if (a.data.fee.isGreaterThan(b.data.fee)) {
+                return -1;
+            }
+            if (a.data.fee.isLessThan(b.data.fee)) {
+                return 1;
+            }
+            return 0;
+        },
+    );
 
     /**
      * Contains only transactions that expire, possibly sorted by height (lower first).
@@ -30,9 +42,12 @@ export class Memory {
 
     constructor(private readonly maxTransactionAge: number) {}
 
-    public allSortedByFee(): Interfaces.ITransaction[] {
+    public sortedByFee(limit?: number): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
-            this.sortAll();
+            if (limit) {
+                return this.sort(limit);
+            }
+            this.all = this.sort();
             this.allIsSorted = true;
         }
 
@@ -60,10 +75,9 @@ export class Memory {
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.byExpiration) {
-            if (expirationCalculator.calculateTransactionExpiration(
-                transaction.data,
-                expirationContext,
-            ) > currentHeight) {
+            if (
+                expirationCalculator.calculateTransactionExpiration(transaction.data, expirationContext) > currentHeight
+            ) {
                 break;
             }
 
@@ -110,10 +124,24 @@ export class Memory {
 
     public getBySender(senderPublicKey: string): Set<Interfaces.ITransaction> {
         if (this.bySender[senderPublicKey] !== undefined) {
-            return this.bySender[senderPublicKey];
+            return new Set(this.bySender[senderPublicKey].getAll());
         }
 
         return new Set();
+    }
+
+    public getLowestFeeLastNonce(): Interfaces.ITransaction | undefined {
+        // Algorithm : get the lowest fees transactions : if one of them happen to be the last nonce
+        // of the sender, then return it (try that for the 1000 lowest fee transactions)
+        const sortedByFee = this.byFee.getAll();
+        for (let i = sortedByFee.length - 1; i >= Math.max(sortedByFee.length - 1000, 0); i--) {
+            const transaction = sortedByFee[i];
+            const lastByNonceSameSender = this.bySender[transaction.data.senderPublicKey].getLast();
+            if (lastByNonceSameSender && lastByNonceSameSender[0].data.id === transaction.data.id) {
+                return transaction;
+            }
+        }
+        return undefined;
     }
 
     public remember(transaction: Interfaces.ITransaction, databaseReady?: boolean): void {
@@ -122,18 +150,30 @@ export class Memory {
         this.all.push(transaction);
         this.allIsSorted = false;
 
+        this.byFee.insert(transaction.data.id, transaction);
+
         this.byId[transaction.id] = transaction;
 
         const sender: string = transaction.data.senderPublicKey;
         const { type, typeGroup } = transaction;
 
         if (this.bySender[sender] === undefined) {
-            // First transaction from this sender, create a new Set.
-            this.bySender[sender] = new Set([transaction]);
-        } else {
-            // Append to existing transaction ids for this sender.
-            this.bySender[sender].add(transaction);
+            // First transaction from this sender, create a new Tree.
+            this.bySender[sender] = new Tree((a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
+                // if no nonce (v1 transactions), default to BigNumber.ZERO to still be able to use the tree
+                const nonceA = a.data.nonce || Utils.BigNumber.ZERO;
+                const nonceB = b.data.nonce || Utils.BigNumber.ZERO;
+                if (nonceA.isGreaterThan(nonceB)) {
+                    return 1;
+                }
+                if (nonceA.isLessThan(nonceB)) {
+                    return -1;
+                }
+                return 0;
+            });
         }
+        // Append to existing transaction ids for this sender.
+        this.bySender[sender].insert(transaction.data.id, transaction);
 
         const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
             type,
@@ -187,14 +227,16 @@ export class Memory {
         const transaction: Interfaces.ITransaction = this.byId[id];
         const { type, typeGroup } = this.byId[id];
 
+        this.byFee.remove(id, transaction);
+
         // XXX worst case: O(n)
         let i: number = this.byExpiration.findIndex(e => e.id === id);
         if (i !== -1) {
             this.byExpiration.splice(i, 1);
         }
 
-        this.bySender[senderPublicKey].delete(transaction);
-        if (this.bySender[senderPublicKey].size === 0) {
+        this.bySender[senderPublicKey].remove(transaction.data.id, transaction);
+        if (this.bySender[senderPublicKey].isEmpty()) {
             delete this.bySender[senderPublicKey];
         }
 
@@ -231,6 +273,7 @@ export class Memory {
     public flush(): void {
         this.all = [];
         this.allIsSorted = true;
+        this.byFee = new Tree(this.byFee.getCompareFunction());
         this.byId = {};
         this.bySender = {};
         this.byType.clear();
@@ -271,46 +314,13 @@ export class Memory {
      * Sort `this.all` by fee (highest fee first) with the exception that transactions
      * from the same sender must be ordered lowest `nonce` first.
      */
-    private sortAll(): void {
-        const currentHeight: number = this.currentHeight();
-        const expirationContext = {
-            blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
-            currentHeight,
-            now: Crypto.Slots.getTime(),
-            maxTransactionAge: this.maxTransactionAge,
-        };
+    private sort(limit?: number): Interfaces.ITransaction[] {
+        const sortedByFee = this.byFee.getAll();
 
-        this.all.sort((a, b) => {
-            const feeA: Utils.BigNumber = a.data.fee;
-            const feeB: Utils.BigNumber = b.data.fee;
-
-            if (feeA.isGreaterThan(feeB)) {
-                return -1;
-            }
-
-            if (feeA.isLessThan(feeB)) {
-                return 1;
-            }
-
-            const expirationA: number = expirationCalculator.calculateTransactionExpiration(
-                a.data,
-                expirationContext,
-            );
-            const expirationB: number = expirationCalculator.calculateTransactionExpiration(
-                b.data,
-                expirationContext,
-            );
-
-            if (expirationA !== null && expirationB !== null) {
-                return expirationA - expirationB;
-            }
-
-            return 0;
-        });
-
+        let allMoved = 0;
         const indexBySender = {};
-        for (let i = 0; i < this.all.length; i++) {
-            const transaction: Interfaces.ITransaction = this.all[i];
+        for (let i = 0; i < sortedByFee.length; i++) {
+            const transaction: Interfaces.ITransaction = sortedByFee[i];
 
             if (transaction.data.version < 2) {
                 continue;
@@ -326,10 +336,10 @@ export class Memory {
 
             for (let j = 0; j < indexBySender[sender].length - 1; j++) {
                 const prevIndex: number = indexBySender[sender][j];
-                if (this.all[i].data.nonce.isLessThan(this.all[prevIndex].data.nonce)) {
+                if (sortedByFee[i].data.nonce.isLessThan(sortedByFee[prevIndex].data.nonce)) {
                     const newIndex = i + 1 + nMoved;
-                    this.all.splice(newIndex, 0, this.all[prevIndex]);
-                    this.all[prevIndex] = undefined;
+                    sortedByFee.splice(newIndex, 0, sortedByFee[prevIndex]);
+                    sortedByFee[prevIndex] = undefined;
 
                     indexBySender[sender][j] = newIndex;
 
@@ -342,9 +352,18 @@ export class Memory {
             }
 
             i += nMoved;
+            allMoved += nMoved;
+
+            if (limit && i > limit + allMoved) {
+                break;
+            }
         }
 
-        this.all = this.all.filter(t => t !== undefined);
+        if (limit) {
+            return sortedByFee.slice(0, limit + allMoved).filter(t => t !== undefined);
+        }
+
+        return sortedByFee.filter(t => t !== undefined);
     }
 
     private currentHeight(): number {

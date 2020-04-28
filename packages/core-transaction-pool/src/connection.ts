@@ -5,7 +5,7 @@ import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 import differencewith from "lodash.differencewith";
 import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
@@ -76,7 +76,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public getAllTransactions(): Interfaces.ITransaction[] {
-        return this.memory.allSortedByFee();
+        return this.memory.sortedByFee();
     }
 
     public async getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>> {
@@ -385,7 +385,9 @@ export class Connection implements TransactionPool.IConnection {
 
         let i = 0;
         // Copy the returned array because validateTransactions() in the loop body we may remove entries.
-        const allTransactions: Interfaces.ITransaction[] = [...this.memory.allSortedByFee()];
+        const allTransactions: Interfaces.ITransaction[] = [
+            ...this.memory.sortedByFee(start + size), // fetch only what we need
+        ];
         for (const transaction of allTransactions) {
             if (data.length === size) {
                 return data;
@@ -434,23 +436,19 @@ export class Connection implements TransactionPool.IConnection {
         if (this.options.maxTransactionsInPool <= poolSize) {
             // The pool can't accommodate more transactions. Either decline the newcomer or remove
             // an existing transaction from the pool in order to free up space.
-            const all: Interfaces.ITransaction[] = this.memory.allSortedByFee();
-            const lowest: Interfaces.ITransaction = all[all.length - 1];
+            const lowest: Interfaces.ITransaction = this.memory.getLowestFeeLastNonce();
 
-            const fee: Utils.BigNumber = transaction.data.fee;
-            const lowestFee: Utils.BigNumber = lowest.data.fee;
-
-            if (lowestFee.isLessThan(fee)) {
+            if (lowest && lowest.data.fee.isLessThan(transaction.data.fee)) {
                 await this.walletManager.revertTransactionForSender(lowest);
-                this.memory.forget(lowest.id, lowest.data.senderPublicKey);
+                this.memory.forget(lowest.data.id, lowest.data.senderPublicKey);
             } else {
                 return {
                     transaction,
                     type: "ERR_POOL_FULL",
                     message:
                         `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
-                        `${fee.toFixed()} is not higher than the lowest fee already in pool ` +
-                        `${lowestFee.toFixed()}`,
+                        `${transaction.data.fee.toFixed()} is not higher than the lowest fee already in pool ` +
+                        `${lowest ? lowest.data.fee.toFixed() : ""}`,
                 };
             }
         }
