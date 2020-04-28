@@ -3,7 +3,7 @@ import "jest-extended";
 import { Container, Utils } from "@packages/core-kernel/src";
 import { RoundInfo } from "@packages/core-kernel/src/contracts/shared";
 import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
-import { DposState } from "@packages/core-state/src/dpos/dpos";
+import { DposState } from "@packages/core-state/src/dpos/dpos-state";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { IBlock } from "@packages/crypto/src/interfaces";
 

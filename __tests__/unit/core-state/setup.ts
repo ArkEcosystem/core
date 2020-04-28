@@ -7,7 +7,7 @@ import { dposPreviousRoundStateProvider } from "@packages/core-state/src";
 import { BuildDelegateRankingAction } from "@packages/core-state/src/actions";
 import { BlockState } from "@packages/core-state/src/block-state";
 import { defaults } from "@packages/core-state/src/defaults";
-import { DposState } from "@packages/core-state/src/dpos/dpos";
+import { DposState } from "@packages/core-state/src/dpos/dpos-state";
 import { StateBuilder } from "@packages/core-state/src/state-builder";
 import { StateStore } from "@packages/core-state/src/stores/state";
 import { TransactionValidator } from "@packages/core-state/src/transaction-validator";

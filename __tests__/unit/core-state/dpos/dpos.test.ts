@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Utils } from "@packages/core-kernel/src";
 import { RoundInfo } from "@packages/core-kernel/src/contracts/shared";
-import { DposState } from "@packages/core-state/src/dpos/dpos";
+import { DposState } from "@packages/core-state/src/dpos/dpos-state";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { Utils as CryptoUtils } from "@packages/crypto/src";
 import { SATOSHI } from "@packages/crypto/src/constants";
