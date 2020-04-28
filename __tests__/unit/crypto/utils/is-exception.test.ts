@@ -1,24 +1,24 @@
 import "jest-extended";
 
-import { configManager } from "../../../../packages/crypto/src/managers";
-import { isException } from "../../../../packages/crypto/src/utils";
+import { CryptoManager } from "@packages/crypto/src";
+
+let Utils;
+
+beforeAll(() => {
+    const crypto = CryptoManager.createFromPreset("devnet");
+    Utils = crypto.libraryManager.Utils;
+});
 
 describe("IsException", () => {
     it("should return true", () => {
-        // @ts-ignore
-        configManager.get = jest.fn(() => ["1"]);
-        expect(isException("1")).toBeTrue();
+        expect(Utils.isException("1")).toBeTrue();
     });
 
     it("should return false", () => {
-        // @ts-ignore
-        configManager.get = jest.fn(() => ["1"]);
-        expect(isException("2")).toBeFalse();
+        expect(Utils.isException("2")).toBeFalse();
 
-        configManager.get = jest.fn(() => undefined);
-        expect(isException("2")).toBeFalse();
+        expect(Utils.isException("2")).toBeFalse();
 
-        configManager.get = jest.fn(() => undefined);
-        expect(isException(undefined)).toBeFalse();
+        expect(Utils.isException(undefined)).toBeFalse();
     });
 });
