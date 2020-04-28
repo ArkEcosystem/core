@@ -1,11 +1,10 @@
-import { parse, process } from "ipaddr.js"; // TODO: consider interchangeable dependencies
+import { parse, process } from "ipaddr.js";
 import os from "os";
 
 import { SATOSHI } from "../constants";
 import { ConfigManager } from "../managers";
 import { MilestoneManager } from "../managers/milestone-manager";
 
-// TODO: BigNumber (@arkecosystem/utils) & Base58(formally in utils folder) used to be (re)exported from here, consider where needs updating
 export class NetworkUtils<T> {
     private genesisTransactions: { [key: string]: boolean };
     private whitelistedBlockAndTransactionIds: { [key: string]: boolean };
