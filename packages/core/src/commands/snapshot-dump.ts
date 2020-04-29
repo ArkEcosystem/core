@@ -1,4 +1,4 @@
-import { Commands, Container, Contracts, Services, Utils, Components } from "@arkecosystem/core-cli";
+import { Commands, Container, Contracts, Utils, Components } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
@@ -11,9 +11,6 @@ import { ProgressRenderer } from "../utils/snapshot-progress-renderer";
  */
 @Container.injectable()
 export class Command extends Commands.Command {
-    @Container.inject(Container.Identifiers.Logger)
-    private readonly logger!: Services.Logger;
-
     /**
      * The console command signature.
      *
@@ -44,8 +41,8 @@ export class Command extends Commands.Command {
             .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
             .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean())
             .setFlag("blocks", "Blocks to append to, correlates to folder name.", Joi.boolean())
-            .setFlag("start", "The start network height to export.", Joi.number().default(-1))
-            .setFlag("end", "The end network height to export.", Joi.number().default(-1));
+            .setFlag("start", "The start network height to export.", Joi.number())
+            .setFlag("end", "The end network height to export.", Joi.number());
     }
 
     /**
@@ -55,9 +52,6 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        // this.components.fatal("This command has not been implemented.");
-        // TODO: abort running processes (core, forger, relay)
-
         const flags: Contracts.AnyObject = { ...this.getFlags() };
         flags.processType = "snapshot";
 
@@ -65,20 +59,8 @@ export class Command extends Commands.Command {
             flags,
         });
 
-        if(!app.isBooted()) {
-            this.logger.error("App is not booted.");
-            return;
-        }
-
-        if(!app.isBound(KernelContainer.Identifiers.SnapshotService)) {
-            this.logger.error("Snapshot service is not initialized.");
-            return;
-        }
-
         let spinner = this.app.get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory).spinner();
         new ProgressRenderer(spinner, app);
-
-        this.logger.error("Starting dump from cli.");
 
         await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).dump(flags);
     }

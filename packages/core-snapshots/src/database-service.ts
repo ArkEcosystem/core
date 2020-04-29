@@ -97,7 +97,6 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
             stopTransactionsDispatcher();
             stopRoundDispatcher();
 
-            this.logger.error(err.message);
             throw err;
         } finally {
             await blocksWorker?.terminate();
@@ -147,7 +146,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
                     // console.log("Run transactions with: ", { nextCount: result.numberOfTransactions, height: result.height - 1  })
                     // console.log("Run rounds with: ", { nextCount: Utils.roundCalculator.calculateRound(result.height).round, height: result.height - 1  })
 
-                    // promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
+                    promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
                     promises.push(roundsWorker.sync({ nextValue: Utils.roundCalculator.calculateRound(result.height).round, nextField: "round"  }))
                 }
 
@@ -162,7 +161,6 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
             stopTransactionsProgressDispatcher();
             stopRoundsProgressDispatcher();
 
-            this.logger.error(err.message)
             throw err;
         }
         finally {
@@ -179,8 +177,8 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
             throw new Error("Database is empty");
         }
 
-        let firstHeight = start || 0;
-        let lastHeight = end || lastBlock?.height || 0;
+        let firstHeight = start || 1;
+        let lastHeight = end || lastBlock?.height || 1;
 
         let firstRound = Utils.roundCalculator.calculateRound(firstHeight);
         let lastRound = Utils.roundCalculator.calculateRound(lastHeight);

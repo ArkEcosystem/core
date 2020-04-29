@@ -1,5 +1,5 @@
 
-import { Commands, Container, Contracts, Services, Utils, Components } from "@arkecosystem/core-cli";
+import { Commands, Container, Contracts, Utils, Components, Services } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
@@ -57,33 +57,17 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        // this.components.fatal("This command has not been implemented.");
-        // TODO: abort running processes (core, forger, relay)
-
-        this.logger.log("Running restore method from CLI");
-
         const flags: Contracts.AnyObject = { ...this.getFlags() };
         flags.processType = "snapshot";
+
+        if (!this.getFlag("blocks")) {
+            this.logger.error("Blocks flag is missing");
+            return;
+        }
 
         let app = await Utils.buildApplication({
             flags,
         });
-
-
-        if(!app.isBooted()) {
-            this.logger.error("App is not booted.");
-            return;
-        }
-
-        // if(!app.isBound(KernelContainer.Identifiers.DatabaseService)) {
-        //     this.logger.error("Database service is not initialized.");
-        //     return;
-        // }
-
-        if(!app.isBound(KernelContainer.Identifiers.SnapshotService)) {
-            this.logger.error("Snapshot service is not initialized.");
-            return;
-        }
 
         let spinner = this.app.get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory).spinner();
         new ProgressRenderer(spinner, app);

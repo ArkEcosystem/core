@@ -42,7 +42,7 @@ export class Command extends Commands.Command {
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
             .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
             .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean())
-            .setFlag("blocks", "Blocks to verify, correlates to folder name.", Joi.string())
+            .setFlag("blocks", "Blocks to verify, correlates to folder name.", Joi.string().required())
             .setFlag("verifySignatures", "Verify signatures of specified snapshot.", Joi.boolean());
     }
 
@@ -53,10 +53,6 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        // this.components.fatal("This command has not been implemented.");
-
-        // TODO: abort running processes (core, forger, relay)
-
         const flags: Contracts.AnyObject = { ...this.getFlags() };
         flags.processType = "snapshot";
 
@@ -69,26 +65,9 @@ export class Command extends Commands.Command {
             flags,
         });
 
-        if(!app.isBooted()) {
-            this.logger.error("App is not booted.");
-            return;
-        }
-
-        // if(!app.isBound(KernelContainer.Identifiers.DatabaseService)) {
-        //     this.logger.error("Database service is not initialized.");
-        //     return;
-        // }
-
-        if(!app.isBound(KernelContainer.Identifiers.SnapshotService)) {
-            this.logger.error("Snapshot service is not initialized.");
-            return;
-        }
-
         let spinner = this.app.get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory).spinner();
         new ProgressRenderer(spinner, app);
 
         await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).verify(flags);
-
-        this.logger.log("Finish running verify method from CLI");
     }
 }
