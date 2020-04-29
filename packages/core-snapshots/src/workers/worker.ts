@@ -107,21 +107,21 @@ const handleException = (err: any) => {
 }
 
 process.on('unhandledRejection', (err) => {
-    // console.log("unhandledRejection", err)
+    console.log("unhandledRejection", err)
 
     handleException(err);
 });
 
 
 process.on('uncaughtException', (err) => {
-    // console.log("uncaughtException", err)
+    console.log("uncaughtException", err)
 
     handleException(err);
 });
 
 
 process.on('multipleResolves', (err) => {
-    // console.log("uncaughtException", err)
+    console.log("multipleResolves", err)
 
     handleException(err);
 });

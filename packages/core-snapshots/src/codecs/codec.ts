@@ -1,11 +1,10 @@
 import { encode, decode } from "msgpack-lite";
 import { camelizeKeys } from "xcase";
-import { Utils, Blocks, Transactions, Interfaces } from "@arkecosystem/crypto";
+import { Utils, Blocks } from "@arkecosystem/crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Codec as CodecException } from "../exceptions";
 import { Codec as ICodec  } from "../contracts";
 import { Container } from "@arkecosystem/core-kernel";
-import { parentPort } from "worker_threads";
 
 @Container.injectable()
 export class Codec implements ICodec {
@@ -70,10 +69,10 @@ export class Codec implements ICodec {
 
             blockId = block.id;
 
-            parentPort?.postMessage({
-                action: "log",
-                data: "New block " + blockId
-            });
+            // parentPort?.postMessage({
+            //     action: "log",
+            //     data: "New block " + blockId
+            // });
 
             block.totalAmount = block.totalAmount.toFixed();
             block.totalFee = block.totalFee.toFixed();
@@ -86,61 +85,66 @@ export class Codec implements ICodec {
     };
 
     public transactionsEncode(transaction) {
-        // return JSON.stringify(camelizeKeys(Codec.removePrefix(transaction, "Transaction_")));
-        // const transactionCamelized = camelizeKeys(Codec.removePrefix(transaction, "Transaction_"));
-        // const transactionCamelized: any = Codec.removePrefix(transaction, "Transaction_");
-
-        // console.log("Transaction", transaction);
-        // console.log("TransactionCamelized", transactionCamelized);
-
-        // return encode([
-        //     transactionCamelized.id,
-        //     transactionCamelized.blockId,
-        //     transactionCamelized.sequence,
-        //     transactionCamelized.timestamp,
-        //     transactionCamelized.serialized,
-        // ]);
         try {
             return encode([
                 transaction.Transaction_id,
+                transaction.Transaction_version,
                 transaction.Transaction_block_id,
                 transaction.Transaction_sequence,
                 transaction.Transaction_timestamp,
+                transaction.Transaction_sender_public_key,
+                transaction.Transaction_recipient_id,
+                transaction.Transaction_type,
+                transaction.Transaction_vendor_field,
+                transaction.Transaction_amount,
+                transaction.Transaction_fee,
                 transaction.Transaction_serialized,
+                transaction.Transaction_type_group,
+                transaction.Transaction_nonce,
+                transaction.Transaction_asset,
             ]);
         } catch (e) {
             throw new CodecException.TransactionEncodeException(transaction.Transaction_id)
         }
     };
 
+    // public transactionsEncode(transaction) {
+    //     try {
+    //         return encode([
+    //             transaction.Transaction_id,
+    //             transaction.Transaction_block_id,
+    //             transaction.Transaction_sequence,
+    //             transaction.Transaction_timestamp,
+    //             transaction.Transaction_serialized,
+    //         ]);
+    //     } catch (e) {
+    //         throw new CodecException.TransactionEncodeException(transaction.Transaction_id)
+    //     }
+    // };
 
     public transactionsDecode(buffer: Buffer) {
         let transactionId = undefined;
         try {
-            const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
+            const [id, version, blockId, sequence, timestamp, senderPublicKey, recipientId, type, vendorField, amount, fee, serialized, typeGroup, nonce, asset] = decode(buffer);
             transactionId = id;
 
-            const transaction: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytesUnsafe(serialized, id);
 
             let transactionEntity: Models.Transaction = {
                 id: id,
-                version: transaction.data.version!,
+                version: version,
                 blockId: blockId,
                 sequence: sequence,
                 timestamp: timestamp,
-                senderPublicKey: transaction.data.senderPublicKey!,
-                // @ts-ignore
-                recipientId: transaction.data.recipientId,
-                type: transaction.data.type,
-                vendorField: transaction.data.vendorField,
-                amount: BigInt(transaction.data.amount.toFixed()),
-                fee: BigInt(transaction.data.fee.toFixed()),
+                senderPublicKey: senderPublicKey,
+                recipientId: recipientId,
+                type: type,
+                vendorField: vendorField,
+                amount: amount,
+                fee: fee,
                 serialized: serialized,
-                typeGroup: transaction.data.typeGroup || 1,
-                // @ts-ignore
-                nonce: BigInt(transaction.data.nonce ? transaction.data.nonce.toFixed() : 0),
-                // @ts-ignore
-                asset: transaction.data.asset
+                typeGroup: typeGroup,
+                nonce: nonce,
+                asset: asset
             };
 
             return transactionEntity;
@@ -148,6 +152,42 @@ export class Codec implements ICodec {
             throw new CodecException.TransactionDecodeException(transactionId as unknown as string);
         }
     };
+
+
+    // public transactionsDecode(buffer: Buffer) {
+    //     let transactionId = undefined;
+    //     try {
+    //         const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
+    //         transactionId = id;
+    //
+    //         const transaction: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytesUnsafe(serialized, id);
+    //
+    //         let transactionEntity: Models.Transaction = {
+    //             id: id,
+    //             version: transaction.data.version!,
+    //             blockId: blockId,
+    //             sequence: sequence,
+    //             timestamp: timestamp,
+    //             senderPublicKey: transaction.data.senderPublicKey!,
+    //             // @ts-ignore
+    //             recipientId: transaction.data.recipientId,
+    //             type: transaction.data.type,
+    //             vendorField: transaction.data.vendorField,
+    //             amount: BigInt(transaction.data.amount.toFixed()),
+    //             fee: BigInt(transaction.data.fee.toFixed()),
+    //             serialized: serialized,
+    //             typeGroup: transaction.data.typeGroup || 1,
+    //             // @ts-ignore
+    //             nonce: BigInt(transaction.data.nonce ? transaction.data.nonce.toFixed() : 0),
+    //             // @ts-ignore
+    //             asset: transaction.data.asset
+    //         };
+    //
+    //         return transactionEntity;
+    //     } catch (e) {
+    //         throw new CodecException.TransactionDecodeException(transactionId as unknown as string);
+    //     }
+    // };
 
     public roundsEncode(round) {
         try {

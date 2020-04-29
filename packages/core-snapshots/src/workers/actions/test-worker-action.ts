@@ -6,7 +6,6 @@ import { parentPort } from "worker_threads";
 @Container.injectable()
 export class TestWorkerAction implements WorkerAction {
     private options: any | undefined;
-    // @ts-ignore
     private resume: Function | undefined;
 
     public init(options: any): void {
@@ -14,21 +13,19 @@ export class TestWorkerAction implements WorkerAction {
     }
 
     public sync(data: any): void {
-        // if (this.resume) {
-        //     this.resume();
-        // }
+        if (this.resume) {
+            this.resume();
+        }
 
-        console.log("SYNC")
+        // console.log("SYNC")
 
         if (data.execute === "throwError") {
-            // console.log("Throwing error")
-
             throw new Error("Sync Error");
         }
     }
 
     public async start() {
-        console.log("START")
+        // console.log("START")
 
         if (this.options.table === "throwError") {
             throw new Error("Start Error");

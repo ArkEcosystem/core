@@ -2,6 +2,7 @@ import { AbstractWorkerAction } from "./abstract-worker-action";
 import { Container } from "@arkecosystem/core-kernel";
 import { Verifier } from "../../verifier";
 import { ReadProcessor } from "./read-processor";
+import { StreamReader } from "../../filesystem";
 
 @Container.injectable()
 export class VerifyWorkerAction extends AbstractWorkerAction {
@@ -13,12 +14,12 @@ export class VerifyWorkerAction extends AbstractWorkerAction {
 
     public async start() {
         let isBlock = this.table === "blocks";
-        let readStream = this.getReadStream();
+        let streamReader = new StreamReader(this.filePath!, this.getCodec()[`${this.table}Decode`])
         let verify = this.getVerifyFunction();
 
         this.readProcessor = new ReadProcessor(
             isBlock,
-            readStream,
+            streamReader,
             async (entity: any, previousEntity: any) => {
                 if (isBlock) {
                     this.applyGenesisBlockFix(entity);
@@ -28,7 +29,7 @@ export class VerifyWorkerAction extends AbstractWorkerAction {
             }
         );
 
-        await this.readProcessor?.start();
+        await this.readProcessor.start();
     }
 
     private getVerifyFunction(): Function {

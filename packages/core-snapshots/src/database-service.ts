@@ -1,6 +1,6 @@
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Models } from "@arkecosystem/core-database";
-import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { Identifiers } from "./ioc";
 import { Filesystem } from "./filesystem/filesystem";
@@ -127,66 +127,69 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         let transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions"));
         let roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds"));
 
-        // let stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
-        // let stopTransactionsProgressDispatcher =await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
-        // let stopRoundsProgressDispatcher =await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+        let stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+        let stopTransactionsProgressDispatcher =await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
+        let stopRoundsProgressDispatcher =await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
 
         try {
             await blocksWorker.start();
-            // await transactionsWorker.start();
-            // await roundsWorker.start();
+            await transactionsWorker.start();
+            await roundsWorker.start();
 
+            // let milestoneHeights = [] as number[];
             let milestoneHeights = Managers.configManager.getMilestones().map(x => x.height);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
 
-            console.log("Milestone heights: ", milestoneHeights)
+            // console.log("Milestone heights: ", milestoneHeights)
 
-            console.log("Result: ", await blocksWorker.sync({ nextValue: 1, nextField: "height"}))
+            // console.log("Result: ", await blocksWorker.sync({ nextValue: 1, nextField: "height"}))
 
             // @ts-ignore
             let result: any = undefined;
             // @ts-ignore
-            // for (let height of milestoneHeights) {
-                // let promises = [] as any;
+            for (let height of milestoneHeights) {
+                let promises = [] as any;
 
-                // promises.push(blocksWorker.sync({ nextValue: height, nextField: "height"}))
-                //
-                // if (result) {
-                //     console.log("Run with: ", { nextCount: result.numberOfTransactions, height: result.height - 1  })
-                //
-                //     promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
-                //     promises.push(roundsWorker.sync({ nextValue: Utils.roundCalculator.calculateRound(height).round, nextField: "round"  }))
-                // }
+                // console.log("Run blocks with: ",{ nextValue: height, nextField: "height"})
+                promises.push(blocksWorker.sync({ nextValue: height, nextField: "height"}))
 
-                // result = (await Promise.all(promises))[0];
+                if (result) {
+                    // console.log("Run transactions with: ", { nextCount: result.numberOfTransactions, height: result.height - 1  })
+                    // console.log("Run rounds with: ", { nextCount: Utils.roundCalculator.calculateRound(result.height).round, height: result.height - 1  })
 
-                // if (result) {
-                //     console.log("RUN Transactions: ", { nextCount: result.numberOfTransactions, height: result.height - 1  })
-                //     console.log("Tra: ", await transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
-                // }
+                    promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
+                    promises.push(roundsWorker.sync({ nextValue: Utils.roundCalculator.calculateRound(result.height).round, nextField: "round"  }))
+                }
 
-                // console.log("RUN Blocks: ", { nextValue: height, nextField: "height"})
-                // result = await blocksWorker.sync({ nextValue: height, nextField: "height"})
-                // result = await blocksWorker.sync({ nextValue: 1, nextField: "height"})
-                //
-                // break;
+                let tmpResult = (await Promise.all(promises));
 
-                // if (!result) {
-                //     break;
-                // }
-            // }
+                // console.log("RESULT: ", tmpResult);
 
+                result = tmpResult[0];
+
+                if (!result) {
+                    // console.log("Calling break");
+                    break;
+                }
+
+                // console.log(await transactionsWorker.sync({ nextCount: 1002869, height: 4005999  }))
+                // console.log(await transactionsWorker.sync({ nextCount: 1014031, height: 4810016  }))
+            }
         } catch (err) {
-            // stopBlocksProgressDispatcher();
-            // stopTransactionsProgressDispatcher();
-            // stopRoundsProgressDispatcher();
+            stopBlocksProgressDispatcher();
+            stopTransactionsProgressDispatcher();
+            stopRoundsProgressDispatcher();
 
-            console.log("TERMINATED")
+            console.log("ERROR", err)
+            console.log("ERROR", err.message)
 
+            this.logger.error(err.message)
             throw err;
         }
         finally {
+            console.log("Calling finaly");
+
             await blocksWorker?.terminate();
             await transactionsWorker?.terminate();
             await roundsWorker?.terminate();
@@ -289,51 +292,54 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     }
 
     public async test(options: any): Promise<void> {
-        try {
-            let worker = new WorkerWrapper(    {actionOptions: {
-                    action: "test",
-                    table: "wait",
-                    codec: "default",
-                    skipCompression: false,
-                    filePath: "",
-                    genesisBlockId: "123",
-                    updateStep: 1000,
-                    network: "testnet"
-                }});
-
-            await worker.start();
-
-            await worker.sync({
-                execute: "throwError"
-            });
-        } catch (e) {
-
-        }
-
-
-        // @ts-ignore
-        // let writeStream = fs.createWriteStream("/Users/sebastijankuzner/Desktop/ARK/Database/Test/asd");
-        // let dbStream = await this.blockRepository.getReadStream();
+        // try {
+        //     let worker = new WorkerWrapper(    {actionOptions: {
+        //             action: "test",
+        //             table: "wait",
+        //             codec: "default",
+        //             skipCompression: false,
+        //             filePath: "",
+        //             genesisBlockId: "123",
+        //             updateStep: 1000,
+        //             network: "testnet"
+        //         }});
         //
-        // let transformer = new StreamWriter(dbStream, writeStream,JSONCodec.blocksEncode);
+        //     await worker.start();
         //
-        // await transformer.write();
+        //     await worker.sync({
+        //         execute: "throwError"
+        //     });
+        // } catch (e) {
         //
-        //
-        //
-        // console.log("RESUMING");
-        //
-        //
-        // let stream = fs.createReadStream("/Users/sebastijankuzner/Desktop/ARK/Database/Test/asd", {});
-        //
-        // let decoder = new StreamReader(stream, JSONCodec.blocksDecode);
-        //
-        //
-        // for(let i = 0; i < 5; i++) {
-        //     console.log(await decoder.readNext());
         // }
+
+
+        // try {
+        //     // let streamReader = new StreamReader("/Users/sebastijankuzner/Library/Application Support/ark-core/devnet/snapshots/devnet/1-4810017/blocks", new Codec().blocksDecode);
+        //     let streamReader = new StreamReader("/Users/sebastijankuzner/Library/Application Support/ark-core/testnet/snapshots/testnet/1-2/transactions", new Codec().transactionsDecode);
         //
-        // console.log("Finish");
+        //     await streamReader.open();
+        //
+        //     // for(let i = 0; i< 342; i++) {
+        //     for(let i = 0; i< 2; i++) {
+        //         console.log(await streamReader.readNext());
+        //         // await streamReader.readNext();
+        //     }
+        //
+        //     console.log(await streamReader.readNext());
+        //     console.log(await streamReader.readNext());
+        // } catch (err) {
+        //     console.log(err)
+        // }
+
+        let transaction = await this.transactionRepository.findById("7fc3fffc2e9d85ffefc5065dc0a8eb7bb1c45718ac879d2688adfe6f9ac5d49b")
+
+        console.log(transaction);
+
+        let result = Transactions.TransactionFactory.fromBytes(transaction.serialized, false);
+
+        console.log(result);
+
     }
 }
 

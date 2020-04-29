@@ -2,11 +2,12 @@ import { parentPort } from "worker_threads";
 
 import { Managers } from "@arkecosystem/crypto";
 import { Models } from "@arkecosystem/core-database";
+import { StreamReader } from "../../filesystem";
 
 export class ReadProcessor {
     constructor(
         private isBlock: boolean,
-        private readStream: NodeJS.ReadableStream,
+        private streamReader: StreamReader,
         private onItem: Function,
         private onWait?: Function,
         private onResume?: Function,
@@ -31,7 +32,7 @@ export class ReadProcessor {
 
         if (data.height) {
 
-            console.log("Height", data.height)
+            // console.log("Height", data.height)
 
             Managers.configManager.setHeight(data.height);
         }
@@ -43,7 +44,12 @@ export class ReadProcessor {
 
         this.emitCount()
 
-        console.log("RESUME: ", data)
+
+        // parentPort?.postMessage({
+        //     action: "log",
+        //     data: "Resume: " + JSON.stringify(data)
+        // })
+
         // On first message is not defined
         if (this.callOnMessage) {
             this.callOnMessage();
@@ -54,6 +60,8 @@ export class ReadProcessor {
         parentPort?.postMessage({
             action: "started",
         });
+
+        await this.streamReader.open();
 
         await this.waitForSynchronization(false);
 
@@ -66,19 +74,18 @@ export class ReadProcessor {
         let previousEntity: any = undefined;
         let entity: any = undefined;
 
-        for await (entity of this.readStream) {
-            this.readStream.pause();
 
-            if (!this.isBlock && this.count > 1002869) {
-                console.log()
-            }
-
+        while(entity = await this.streamReader.readNext()) {
             this.count++;
+
+            // parentPort?.postMessage({
+            //     action: "log",
+            //     data: "count: " + this.count
+            // })
 
             if (this.nextValue && entity[this.nextField] > this.nextValue!) {
                 await this.waitOrContinue(this.count, previousEntity, entity);
             }
-
 
             await this.onItem(entity, previousEntity);
 
@@ -101,7 +108,7 @@ export class ReadProcessor {
             await this.onWait();
         }
 
-        this.emitSynchronized();
+        await this.waitForSynchronization();
     }
 
     private emitCount(): void {
@@ -140,7 +147,10 @@ export class ReadProcessor {
     private waitForSynchronization(emit: boolean = true): Promise<void> {
         return new Promise<void>(async (resolve) => {
 
-            console.log("WAIT")
+            // parentPort?.postMessage({
+            //     action: "log",
+            //     data: "Wait: "
+            // })
 
             if (this.onWait) {
                 await this.onWait();

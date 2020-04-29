@@ -54,18 +54,20 @@ export class Verifier {
         }
 
         try {
-            if (transaction.id === "a454eb013c31e53d058b02ae7b41a713ef177b0d36f03ed5db4ac2f97926d281") {
+            if (transaction.id === "4dfb0a6424946d14469dd6bc9abb622b5a1887ace5e802f66b440d096e67f03e") {
                 console.log(Managers.configManager.getHeight());
                 console.log(Managers.configManager.getHeight());
                 console.log(Managers.configManager.getHeight());
             }
             if (!Transactions.TransactionFactory.fromBytes(transaction.serialized).isVerified) {
 
-                console.log("NOT VERIFIED");
-                throw new Error();
+                console.log("NOT VERIFIED: ", transaction.id);
+                // throw new Error();
             }
         } catch (e) {
-            throw new Exceptions.TransactionVerifyException(transaction.id);
+            console.log("erR", e)
+            console.log("NOT VERIFIED: ", transaction.id);
+            // throw new Exceptions.TransactionVerifyException(transaction.id);
         }
 
 
