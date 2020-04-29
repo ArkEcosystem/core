@@ -1,22 +1,22 @@
-import { CryptoTools } from "../crypto/index";
+import { CryptoToolsManager } from "../crypto/index";
 import { Libraries } from "../crypto/interfaces";
 import { Network } from "../interfaces";
 import { NetworkUtils } from "../utils";
-import { ConfigManager, MilestoneManager } from ".";
+import { MilestoneManager, NetworkConfigManager } from ".";
 
 export class LibraryManager<T> {
-    public libraries: Libraries;
-    public Crypto: CryptoTools<T>;
+    public Libraries: Libraries;
+    public Crypto: CryptoToolsManager<T>;
     public Utils: NetworkUtils<T>;
 
     public constructor(
         libraries: Libraries,
         network: Network,
-        configManager: ConfigManager<T>,
+        networkConfigManager: NetworkConfigManager<T>,
         milestoneManager: MilestoneManager<T>,
     ) {
-        this.libraries = libraries;
-        this.Crypto = new CryptoTools(libraries, network, milestoneManager);
-        this.Utils = new NetworkUtils(configManager, milestoneManager);
+        this.Libraries = libraries;
+        this.Crypto = new CryptoToolsManager(libraries, network, milestoneManager);
+        this.Utils = new NetworkUtils(networkConfigManager, milestoneManager);
     }
 }

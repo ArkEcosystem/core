@@ -7,10 +7,10 @@ describe("Base58", () => {
     let createPayload;
     beforeAll(() => {
         const crypto = CryptoManager.createFromPreset("testnet");
-        Base58 = crypto.libraryManager.Crypto.Base58;
+        Base58 = crypto.LibraryManager.Crypto.Base58;
 
         createPayload = () => {
-            const buffer: Buffer = crypto.libraryManager.Crypto.HashAlgorithms.ripemd160(
+            const buffer: Buffer = crypto.LibraryManager.Crypto.HashAlgorithms.ripemd160(
                 Buffer.from("034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192", "hex"),
             );
             const payload: Buffer = Buffer.alloc(21);

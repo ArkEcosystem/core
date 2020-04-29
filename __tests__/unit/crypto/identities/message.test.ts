@@ -9,7 +9,7 @@ let crypto;
 
 beforeAll(() => {
     crypto = CryptoManager.createFromPreset("testnet");
-    Message = crypto.identities.message;
+    Message = crypto.Identities.Message;
 });
 
 describe("Message", () => {
@@ -59,7 +59,7 @@ describe("Message", () => {
         });
 
         it("should throw when the network version is invalid", () => {
-            crypto.identities.keys.version = 170;
+            crypto.Identities.Keys.version = 170;
 
             expect(() => Message.signWithWif("test", identity.wif)).toThrow(`Invalid network version`);
         });

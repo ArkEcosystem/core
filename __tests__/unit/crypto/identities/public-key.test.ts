@@ -9,7 +9,7 @@ let PublicKey;
 
 beforeAll(() => {
     const crypto = CryptoManager.createFromPreset("devnet");
-    PublicKey = crypto.identities.publicKey;
+    PublicKey = crypto.Identities.PublicKey;
 });
 
 describe("Identities - Public Key", () => {

@@ -1,9 +1,9 @@
-import { CryptoTools } from "../crypto";
+import { CryptoToolsManager } from "../crypto";
 import { IKeyPair, IMessage } from "../interfaces";
 import { Keys } from "./keys";
 
 export class Message<T> {
-    public constructor(private cryptoTools: CryptoTools<T>, private keys: Keys<T>) {}
+    public constructor(private cryptoTools: CryptoToolsManager<T>, private keys: Keys<T>) {}
 
     public sign(message: string, passphrase: string): IMessage {
         const keys: IKeyPair = this.keys.fromPassphrase(passphrase);

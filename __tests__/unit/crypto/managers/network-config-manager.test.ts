@@ -1,21 +1,26 @@
 import "jest-extended";
 
 import { CryptoManager } from "@packages/crypto/src";
+import * as networks from "@packages/crypto/src/networks";
 
 let configManagerDevnet;
 let configManagerMainnet;
 
 beforeAll(() => {
     const devnetCrypto = CryptoManager.createFromPreset("devnet");
-    configManagerDevnet = devnetCrypto.configManager;
+    configManagerDevnet = devnetCrypto.NetworkConfigManager;
 
     const mainnetCrypto = CryptoManager.createFromPreset("mainnet");
-    configManagerMainnet = mainnetCrypto.configManager;
+    configManagerMainnet = mainnetCrypto.NetworkConfigManager;
 });
 
-describe("ConfigManager", () => {
+describe("NetworkConfigManager", () => {
     it("should be instantiated", () => {
         expect(configManagerDevnet).toBeObject();
+    });
+
+    it("should get the current network", () => {
+        expect(configManagerDevnet.all()).toEqual(networks.devnet);
     });
 
     it("should be set on runtime", () => {

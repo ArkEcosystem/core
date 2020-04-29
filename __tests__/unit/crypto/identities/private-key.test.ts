@@ -8,7 +8,7 @@ let PrivateKey;
 
 beforeAll(() => {
     const crypto = CryptoManager.createFromPreset("devnet");
-    PrivateKey = crypto.identities.privateKey;
+    PrivateKey = crypto.Identities.PrivateKey;
 });
 
 describe("Identities - Private Key", () => {

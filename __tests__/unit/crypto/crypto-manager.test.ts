@@ -13,18 +13,17 @@ describe("CryptoManager", () => {
     it("should define other managers and libraries", () => {
         const cryptoManager = CryptoManager.createFromPreset("devnet");
 
-        expect(cryptoManager.identities).toBeDefined();
-        expect(cryptoManager.libraryManager).toBeDefined();
-        expect(cryptoManager.heightTracker).toBeDefined();
-        expect(cryptoManager.configManager).toBeDefined();
-        expect(cryptoManager.networkManager).toBeDefined();
-        expect(cryptoManager.milestoneManager).toBeDefined();
+        expect(cryptoManager.Identities).toBeDefined();
+        expect(cryptoManager.LibraryManager).toBeDefined();
+        expect(cryptoManager.HeightTracker).toBeDefined();
+        expect(cryptoManager.NetworkConfigManager).toBeDefined();
+        expect(cryptoManager.MilestoneManager).toBeDefined();
     });
 
     it("should define a heightTracker which begins at 0", () => {
         const cryptoManager = CryptoManager.createFromPreset("devnet");
 
-        expect(cryptoManager.heightTracker.getHeight()).toEqual(1);
+        expect(cryptoManager.HeightTracker.getHeight()).toEqual(1);
     });
 
     it("should get all presets without being instantiated", () => {
@@ -35,6 +34,11 @@ describe("CryptoManager", () => {
         expect(CryptoManager.createFromPreset("devnet")).toBeObject();
         expect(CryptoManager.createFromPreset("mainnet")).toBeObject();
         expect(CryptoManager.createFromPreset("testnet")).toBeObject();
+    });
+
+    it("should find mainnet by name", () => {
+        const actual = CryptoManager.findNetworkByName("mainnet");
+        expect(actual).toMatchObject(networks.mainnet);
     });
 
     it("should be able to create an instance from custom config", () => {
@@ -52,8 +56,8 @@ describe("CryptoManager", () => {
     it("should be able to pass in custom implementations for some or all of the libraries", () => {
         const testFunction = () => {};
         const cryptoManager = CryptoManager.createFromPreset("devnet", { xor: testFunction });
-        expect(cryptoManager.libraryManager.libraries.xor).toEqual(testFunction);
-        expect(cryptoManager.libraryManager.libraries.aes).toBeDefined();
+        expect(cryptoManager.LibraryManager.Libraries.xor).toEqual(testFunction);
+        expect(cryptoManager.LibraryManager.Libraries.aes).toBeDefined();
     });
 
     it("should be able to pass in custom implementations and config", () => {
@@ -66,8 +70,8 @@ describe("CryptoManager", () => {
         const testFunction = () => {};
         // @ts-ignore
         const cryptoManager = CryptoManager.createFromConfig(customConfig, { xor: testFunction });
-        expect(cryptoManager.libraryManager.libraries.xor).toEqual(testFunction);
-        expect(cryptoManager.libraryManager.libraries.aes).toBeDefined();
+        expect(cryptoManager.LibraryManager.Libraries.xor).toEqual(testFunction);
+        expect(cryptoManager.LibraryManager.Libraries.aes).toBeDefined();
     });
 
     it("should be able to instantiate the class directly", () => {
@@ -80,7 +84,7 @@ describe("CryptoManager", () => {
         const testFunction = () => {};
         // @ts-ignore
         const cryptoManager = new CryptoManager(customConfig, { xor: testFunction });
-        expect(cryptoManager.libraryManager.libraries.xor).toEqual(testFunction);
-        expect(cryptoManager.libraryManager.libraries.aes).toBeDefined();
+        expect(cryptoManager.LibraryManager.Libraries.xor).toEqual(testFunction);
+        expect(cryptoManager.LibraryManager.Libraries.aes).toBeDefined();
     });
 });

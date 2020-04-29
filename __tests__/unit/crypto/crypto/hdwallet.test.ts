@@ -11,8 +11,8 @@ let HDWallet;
 
 beforeEach(() => {
     const crypto = CryptoManager.createFromPreset("mainnet");
-    Address = crypto.identities.address;
-    HDWallet = crypto.libraryManager.Crypto.HDWallet;
+    Address = crypto.Identities.Address;
+    HDWallet = crypto.LibraryManager.Crypto.HDWallet;
 });
 
 describe("HDWallet", () => {

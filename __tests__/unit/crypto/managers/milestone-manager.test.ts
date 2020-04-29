@@ -9,8 +9,8 @@ let heightTrackerDevnet;
 
 beforeAll(() => {
     const devnetCrypto = CryptoManager.createFromPreset("devnet");
-    milestoneManagerDevnet = devnetCrypto.milestoneManager;
-    heightTrackerDevnet = devnetCrypto.heightTracker;
+    milestoneManagerDevnet = devnetCrypto.MilestoneManager;
+    heightTrackerDevnet = devnetCrypto.HeightTracker;
 });
 
 describe("MilestoneManager", () => {

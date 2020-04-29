@@ -6,7 +6,7 @@ let libraryManager;
 
 beforeAll(() => {
     const crypto = CryptoManager.createFromPreset("devnet");
-    libraryManager = crypto.libraryManager;
+    libraryManager = crypto.LibraryManager;
 });
 
 describe("LibraryManager", () => {
@@ -16,7 +16,7 @@ describe("LibraryManager", () => {
 
     it("should defined crypto, utils and libraries", () => {
         expect(libraryManager.Crypto).toBeDefined();
-        expect(libraryManager.libraries).toBeDefined();
+        expect(libraryManager.Libraries).toBeDefined();
         expect(libraryManager.Utils).toBeDefined();
     });
 });

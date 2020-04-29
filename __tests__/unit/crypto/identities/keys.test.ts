@@ -10,8 +10,8 @@ let Address;
 describe("Identities - Keys", () => {
     beforeAll(() => {
         const devnetCrypto = CryptoManager.createFromPreset("devnet");
-        Address = devnetCrypto.identities.address;
-        Keys = devnetCrypto.identities.keys;
+        Address = devnetCrypto.Identities.Address;
+        Keys = devnetCrypto.Identities.Keys;
     });
 
     describe("fromPassphrase", () => {

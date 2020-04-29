@@ -7,7 +7,7 @@ let crypto;
 
 beforeAll(() => {
     crypto = CryptoManager.createFromPreset("testnet");
-    Slots = crypto.libraryManager.Crypto.Slots;
+    Slots = crypto.LibraryManager.Crypto.Slots;
 });
 
 describe("Slots", () => {

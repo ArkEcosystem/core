@@ -12,8 +12,8 @@ describe("BIP38", () => {
     let base58;
     beforeAll(() => {
         const crypto = CryptoManager.createFromPreset("testnet");
-        bip38 = crypto.libraryManager.Crypto.Bip38;
-        base58 = crypto.libraryManager.Crypto.Base58;
+        bip38 = crypto.LibraryManager.Crypto.Bip38;
+        base58 = crypto.LibraryManager.Crypto.Base58;
     });
     describe("decrypt", () => {
         for (const fixture of fixtures.valid) {

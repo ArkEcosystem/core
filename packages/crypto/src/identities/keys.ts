@@ -22,14 +22,14 @@ export class Keys<T> {
     }
 
     public fromPrivateKey(privateKey: Buffer | string, compressed = true): IKeyPair {
-        return Keys.fromPrivateKeyWithAlgorithm(privateKey, this.libraryManager.libraries.secp256k1, compressed);
+        return Keys.fromPrivateKeyWithAlgorithm(privateKey, this.libraryManager.Libraries.secp256k1, compressed);
     }
 
     public fromWIF(wifKey: string): IKeyPair {
-        const { compressed, privateKey } = this.libraryManager.libraries.wif.decode(wifKey, this.version);
+        const { compressed, privateKey } = this.libraryManager.Libraries.wif.decode(wifKey, this.version);
 
         return {
-            publicKey: this.libraryManager.libraries.secp256k1.publicKeyCreate(privateKey, compressed).toString("hex"),
+            publicKey: this.libraryManager.Libraries.secp256k1.publicKeyCreate(privateKey, compressed).toString("hex"),
             privateKey: privateKey.toString("hex"),
             compressed,
         };

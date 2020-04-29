@@ -8,7 +8,7 @@ export class PublicKey<T> {
     private numberToHex: any;
 
     public constructor(libraryManager: LibraryManager<T>, private keys: Keys<T>) {
-        this.secp256k1 = libraryManager.libraries.secp256k1;
+        this.secp256k1 = libraryManager.Libraries.secp256k1;
         this.numberToHex = libraryManager.Crypto.numberToHex;
     }
 

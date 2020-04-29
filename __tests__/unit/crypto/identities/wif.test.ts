@@ -8,7 +8,7 @@ let WIF;
 
 beforeAll(() => {
     const crypto = CryptoManager.createFromPreset("devnet");
-    WIF = crypto.identities.wif;
+    WIF = crypto.Identities.Wif;
 });
 
 describe("Identities - WIF", () => {

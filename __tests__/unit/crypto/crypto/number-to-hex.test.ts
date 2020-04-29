@@ -6,7 +6,7 @@ let Crypto;
 
 beforeAll(() => {
     const crypto = CryptoManager.createFromPreset("devnet");
-    Crypto = crypto.libraryManager.Crypto;
+    Crypto = crypto.LibraryManager.Crypto;
 });
 
 describe("NumberToHex", () => {

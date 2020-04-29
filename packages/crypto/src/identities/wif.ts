@@ -19,7 +19,7 @@ export class WIF<T> {
     public fromPassphrase(passphrase: string): string {
         const keys: IKeyPair = this.keys.fromPassphrase(passphrase);
 
-        return this.libraryManager.libraries.wif.encode(
+        return this.libraryManager.Libraries.wif.encode(
             this.version,
             Buffer.from(keys.privateKey, "hex"),
             keys.compressed,
@@ -27,7 +27,7 @@ export class WIF<T> {
     }
 
     public fromKeys(keys: IKeyPair): string {
-        return this.libraryManager.libraries.wif.encode(
+        return this.libraryManager.Libraries.wif.encode(
             this.version,
             Buffer.from(keys.privateKey, "hex"),
             keys.compressed,

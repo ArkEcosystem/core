@@ -7,7 +7,7 @@ let Utils;
 
 beforeAll(() => {
     const crypto = CryptoManager.createFromPreset("devnet");
-    Utils = crypto.libraryManager.Utils;
+    Utils = crypto.LibraryManager.Utils;
 });
 
 describe("isValidPeer", () => {

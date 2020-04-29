@@ -10,7 +10,7 @@ describe("Crypto - Utils", () => {
     let HashAlgorithms;
     beforeAll(() => {
         const crypto = CryptoManager.createFromPreset("testnet");
-        HashAlgorithms = crypto.libraryManager.Crypto.HashAlgorithms;
+        HashAlgorithms = crypto.LibraryManager.Crypto.HashAlgorithms;
     });
     it("should return valid ripemd160", () => {
         expect(HashAlgorithms.ripemd160(buffer).toString("hex")).toEqual(fixtures.ripemd160);

@@ -9,8 +9,8 @@ let Utils;
 
 beforeAll(() => {
     const crypto = CryptoManager.createFromPreset("devnet");
-    BigNumber = crypto.libraryManager.libraries.BigNumber;
-    Utils = crypto.libraryManager.Utils;
+    BigNumber = crypto.LibraryManager.Libraries.BigNumber;
+    Utils = crypto.LibraryManager.Utils;
 });
 
 describe("Format Satoshi", () => {

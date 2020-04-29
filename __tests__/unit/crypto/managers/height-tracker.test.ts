@@ -6,7 +6,7 @@ let heightTracker;
 
 beforeAll(() => {
     const devnetCrypto = CryptoManager.createFromPreset("devnet");
-    heightTracker = devnetCrypto.heightTracker;
+    heightTracker = devnetCrypto.HeightTracker;
 });
 
 describe("HeightTracker", () => {

@@ -9,7 +9,7 @@ let transactionHash;
 
 beforeEach(() => {
     const crypto = CryptoManager.createFromPreset("testnet");
-    Hash = crypto.libraryManager.Crypto.Hash;
+    Hash = crypto.LibraryManager.Crypto.Hash;
     const hex = "27f68f1e62b9e6e3bc13b7113488f1e27263a4e47e7d9c7acd9c9af67d7fa11c";
     transactionHash = Buffer.from(hex, "hex");
 });

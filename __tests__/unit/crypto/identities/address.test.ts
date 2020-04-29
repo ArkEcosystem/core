@@ -13,12 +13,12 @@ describe("Identities - Address", () => {
 
     beforeAll(() => {
         const devnetCrypto = CryptoManager.createFromPreset("devnet");
-        Address = devnetCrypto.identities.address;
-        PublicKey = devnetCrypto.identities.publicKey;
-        Keys = devnetCrypto.identities.keys;
+        Address = devnetCrypto.Identities.Address;
+        PublicKey = devnetCrypto.Identities.PublicKey;
+        Keys = devnetCrypto.Identities.Keys;
 
         const mainnetCrypto = CryptoManager.createFromPreset("mainnet");
-        AddressMainNet = mainnetCrypto.identities.address;
+        AddressMainNet = mainnetCrypto.Identities.Address;
     });
 
     describe("fromPassphrase", () => {

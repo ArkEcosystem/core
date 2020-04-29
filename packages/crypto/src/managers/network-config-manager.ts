@@ -3,11 +3,11 @@ import set from "lodash.set";
 
 import { NetworkConfig } from "../interfaces/networks";
 
-export class ConfigManager<T> {
-    private config: NetworkConfig<T>;
+export class NetworkConfigManager<T> {
+    private networkConfig: NetworkConfig<T>;
 
     public constructor(config: NetworkConfig<T>) {
-        this.config = {
+        this.networkConfig = {
             network: config.network,
             exceptions: config.exceptions,
             milestones: config.milestones,
@@ -16,16 +16,16 @@ export class ConfigManager<T> {
     }
 
     public all(): NetworkConfig<T> | undefined {
-        return this.config;
+        return this.networkConfig;
     }
 
     // TODO: Is this method still necessary?
     // If instances are specific to a network configuration - would it not be easier to instantiate a new Crypto package with other configuration rather than set
     public set<T = any>(key: string, value: T): void {
-        set(this.config, key, value);
+        set(this.networkConfig, key, value);
     }
 
     public get<T = any>(key: string): T {
-        return get(this.config, key);
+        return get(this.networkConfig, key);
     }
 }
