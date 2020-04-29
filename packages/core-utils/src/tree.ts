@@ -34,8 +34,14 @@ export class Tree<T> {
 
     public getAll(): T[] {
         const all = [];
-        this.getAllFromChildNodes(this.root, all);
+        this.getFromChildNodes(this.root, all);
         return all;
+    }
+
+    public getValuesLastToFirst(limit: number): T[] {
+        const values = [];
+        this.getFromChildNodesReverseOrder(this.root, values, limit);
+        return values;
     }
 
     public getLast(): T[] {
@@ -47,6 +53,18 @@ export class Tree<T> {
             currentNode = currentNode.right;
         }
         return Object.values(currentNode.values);
+    }
+
+    public getAllStrictlyBelow(max: T): T[] {
+        const all: T[] = [];
+        this.getAllStrictlyBelowFromChildNodes(max, this.root, all);
+        return all;
+    }
+
+    public getAllStrictlyBetween(min: T, max: T): T[] {
+        const all: T[] = [];
+        this.getAllStrictlyBetweenFromChildNodes(min, max, this.root, all);
+        return all;
     }
 
     public insert(id: string, value: T): void {
@@ -204,13 +222,76 @@ export class Tree<T> {
         }
     }
 
-    private getAllFromChildNodes(node: Node<T>, all: T[]): void {
+    private getAllStrictlyBelowFromChildNodes(max: T, node: Node<T>, all: T[]): void {
         if (node.left) {
-            this.getAllFromChildNodes(node.left, all);
+            this.getAllStrictlyBelowFromChildNodes(max, node.left, all);
         }
+
+        if (!node.lastValueAdded) {
+            return; // should only be when tree is empty
+        }
+        const cmpCurrentToMax = this.compareFunction(node.lastValueAdded, max);
+        if (cmpCurrentToMax < 0) {
+            // we are below max
+            all.push(...Object.values(node.values));
+            if (node.right) {
+                // we are strictly below max, fetch from right nodes
+                this.getAllStrictlyBelowFromChildNodes(max, node.right, all);
+            }
+        }
+    }
+
+    private getAllStrictlyBetweenFromChildNodes(min: T, max: T, node: Node<T>, all: T[]): void {
+        if (!node.lastValueAdded) {
+            return; // should only be when tree is empty
+        }
+        const cmpCurrentToMin = this.compareFunction(node.lastValueAdded, min);
+        const cmpCurrentToMax = this.compareFunction(node.lastValueAdded, max);
+        if (cmpCurrentToMin > 0) {
+            if (node.left) {
+                // we are above min, we can fetch from left node
+                this.getAllStrictlyBetweenFromChildNodes(min, max, node.left, all);
+            }
+
+            if (cmpCurrentToMax < 0) {
+                // threshold is between min and max
+                all.push(...Object.values(node.values));
+            }
+        }
+
+        if (cmpCurrentToMax < 0 && node.right) {
+            // we are below max, we can fetch from right node
+            this.getAllStrictlyBetweenFromChildNodes(min, max, node.right, all);
+        }
+    }
+
+    private getFromChildNodes(node: Node<T>, all: T[], limit?: number): void {
+        if (node.left) {
+            this.getFromChildNodes(node.left, all);
+        }
+
+        if (limit && all.length >= limit) {
+            return;
+        }
+
         all.push(...Object.values(node.values));
         if (node.right) {
-            this.getAllFromChildNodes(node.right, all);
+            this.getFromChildNodes(node.right, all);
+        }
+    }
+
+    private getFromChildNodesReverseOrder(node: Node<T>, all: T[], limit?: number): void {
+        if (node.right) {
+            this.getFromChildNodesReverseOrder(node.right, all, limit);
+        }
+
+        if (limit && all.length >= limit) {
+            return;
+        }
+
+        all.push(...Object.values(node.values));
+        if (node.left) {
+            this.getFromChildNodesReverseOrder(node.left, all, limit);
         }
     }
 

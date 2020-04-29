@@ -132,12 +132,12 @@ export class Memory {
 
     public getLowestFeeLastNonce(): Interfaces.ITransaction | undefined {
         // Algorithm : get the lowest fees transactions : if one of them happen to be the last nonce
-        // of the sender, then return it (try that for the 1000 lowest fee transactions)
-        const sortedByFee = this.byFee.getAll();
-        for (let i = sortedByFee.length - 1; i >= Math.max(sortedByFee.length - 1000, 0); i--) {
-            const transaction = sortedByFee[i];
+        // of the sender, then return it (try that for the 100 lowest fee transactions)
+        const maxTxsToFetch = 100;
+        const sortedByFee = this.byFee.getValuesLastToFirst(maxTxsToFetch).slice(0, maxTxsToFetch);
+        for (const transaction of sortedByFee) {
             const lastByNonceSameSender = this.bySender[transaction.data.senderPublicKey].getLast();
-            if (lastByNonceSameSender && lastByNonceSameSender[0].data.id === transaction.data.id) {
+            if (lastByNonceSameSender && lastByNonceSameSender[0].id === transaction.id) {
                 return transaction;
             }
         }
@@ -150,7 +150,7 @@ export class Memory {
         this.all.push(transaction);
         this.allIsSorted = false;
 
-        this.byFee.insert(transaction.data.id, transaction);
+        this.byFee.insert(transaction.id, transaction);
 
         this.byId[transaction.id] = transaction;
 
@@ -173,7 +173,7 @@ export class Memory {
             });
         }
         // Append to existing transaction ids for this sender.
-        this.bySender[sender].insert(transaction.data.id, transaction);
+        this.bySender[sender].insert(transaction.id, transaction);
 
         const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
             type,
@@ -235,7 +235,7 @@ export class Memory {
             this.byExpiration.splice(i, 1);
         }
 
-        this.bySender[senderPublicKey].remove(transaction.data.id, transaction);
+        this.bySender[senderPublicKey].remove(transaction.id, transaction);
         if (this.bySender[senderPublicKey].isEmpty()) {
             delete this.bySender[senderPublicKey];
         }
@@ -317,53 +317,34 @@ export class Memory {
     private sort(limit?: number): Interfaces.ITransaction[] {
         const sortedByFee = this.byFee.getAll();
 
-        let allMoved = 0;
-        const indexBySender = {};
-        for (let i = 0; i < sortedByFee.length; i++) {
-            const transaction: Interfaces.ITransaction = sortedByFee[i];
-
+        const sortedByFeeAndNonce = [];
+        const lastAddedBySender = {};
+        for (const transaction of sortedByFee) {
             if (transaction.data.version < 2) {
+                sortedByFeeAndNonce.push(transaction);
                 continue;
             }
 
             const sender: string = transaction.data.senderPublicKey;
-            if (indexBySender[sender] === undefined) {
-                indexBySender[sender] = [];
-            }
-            indexBySender[sender].push(i);
-
-            let nMoved = 0;
-
-            for (let j = 0; j < indexBySender[sender].length - 1; j++) {
-                const prevIndex: number = indexBySender[sender][j];
-                if (sortedByFee[i].data.nonce.isLessThan(sortedByFee[prevIndex].data.nonce)) {
-                    const newIndex = i + 1 + nMoved;
-                    sortedByFee.splice(newIndex, 0, sortedByFee[prevIndex]);
-                    sortedByFee[prevIndex] = undefined;
-
-                    indexBySender[sender][j] = newIndex;
-
-                    nMoved++;
-                }
+            if (!lastAddedBySender[sender]) {
+                const lowerNonceTxsForSender = this.bySender[sender].getAllStrictlyBelow(transaction);
+                sortedByFeeAndNonce.push(...lowerNonceTxsForSender, transaction);
+            } else {
+                const lowerNonceTxsForSender = this.bySender[sender].getAllStrictlyBetween(
+                    lastAddedBySender[sender],
+                    transaction,
+                );
+                sortedByFeeAndNonce.push(...lowerNonceTxsForSender, transaction);
             }
 
-            if (nMoved > 0) {
-                indexBySender[sender].sort((a, b) => a - b);
-            }
+            lastAddedBySender[sender] = transaction;
 
-            i += nMoved;
-            allMoved += nMoved;
-
-            if (limit && i > limit + allMoved) {
+            if (limit && sortedByFeeAndNonce.length >= limit) {
                 break;
             }
         }
 
-        if (limit) {
-            return sortedByFee.slice(0, limit + allMoved).filter(t => t !== undefined);
-        }
-
-        return sortedByFee.filter(t => t !== undefined);
+        return sortedByFeeAndNonce;
     }
 
     private currentHeight(): number {
