@@ -14,14 +14,11 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
     private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Identifiers.SnapshotDatabaseService)
-    // private readonly database!: Contracts.Snapshot.DatabaseService;
     private readonly database!: SnapshotDatabaseService;
 
     public async dump(options: any): Promise<void> {
         try {
             Utils.assert.defined<string>(options.network);
-
-            this.filesystem.setNetwork(options.network);
 
             this.logger.info(`Running DUMP for network: ${options.network}`);
 
@@ -42,7 +39,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             Utils.assert.defined<string>(options.network);
             Utils.assert.defined<string>(options.blocks);
 
-            this.filesystem.setNetwork(options.network);
+            // this.filesystem.setNetwork(options.network);
             this.filesystem.setSnapshot(options.blocks);
 
             if (! await this.filesystem.snapshotExists()) {
@@ -62,7 +59,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
             this.database.init(meta!.codec, meta!.skipCompression);
 
-            await this.database.restore(meta!);
+            await this.database.restore(meta!, { truncate: !!options.truncate });
 
             this.logger.info(`Successfully restore  ${meta!.blocks.count} blocks, ${meta!.transactions.count} transactions, ${meta!.rounds.count} rounds`);
         } catch (err) {
@@ -78,7 +75,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             Utils.assert.defined<string>(options.network);
             Utils.assert.defined<string>(options.blocks);
 
-            this.filesystem.setNetwork(options.network);
+            // this.filesystem.setNetwork(options.network);
             this.filesystem.setSnapshot(options.blocks);
 
             if (!await this.filesystem.snapshotExists()) {
@@ -156,7 +153,6 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
     }
 
     public async test(options: any): Promise<void> {
-        this.filesystem.setNetwork(options.network);
         this.filesystem.setSnapshot(options.blocks);
         this.logger.info("Running TEST method inside SnapshotService");
         await this.database.test(options);

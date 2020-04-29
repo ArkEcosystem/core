@@ -13,6 +13,6 @@ export interface MetaData {
 
 export interface TableMetaData {
     count: number,
-    startHeight: number,
-    endHeight: number
+    start: number,
+    end: number
 }

@@ -1,23 +1,14 @@
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Models } from "@arkecosystem/core-database";
-import { Blocks, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers, Types } from "@arkecosystem/crypto";
 
 import { Identifiers } from "./ioc";
 import { Filesystem } from "./filesystem/filesystem";
-import { Meta, Options } from "./contracts";
+import { Meta, Options, Database, Worker } from "./contracts";
 import { ProgressDispatcher } from "./progress-dispatcher";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
 import { WorkerWrapper } from "./workers/worker-wrapper";
-
-// @ts-ignore
-import { JSONCodec, Codec} from "./codecs";
-// @ts-ignore
-import { StreamWriter, StreamReader} from "./filesystem";
-// @ts-ignore
-import fs from "fs-extra";
-// @ts-ignore
-import ByteBuffer from "bytebuffer";
-
+// import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 
 @Container.injectable()
 export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseService {
@@ -42,6 +33,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
     @Container.inject(Identifiers.SnapshotTransactionRepository)
     private readonly transactionRepository!: TransactionRepository;
+
 
     private codec: string = "default";
     private skipCompression: boolean = false;
@@ -74,17 +66,19 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     }
 
     public async dump(options: Options.DumpOptions): Promise<void> {
-        this.logger.info("Start counting blocks");
-        let meta = await this.prepareMetaData(options);
+        this.logger.info("Start counting blocks, rounds and transactions");
 
-        this.logger.info(`Start running dump for ${meta.blocks.count} blocks`);
+        let dumpRage = await this.getDumpRange(options.start, options.end);
+        let meta = this.prepareMetaData(options, dumpRage);
+
+        this.logger.info(`Start running dump for ${dumpRage.blocksCount} blocks, ${dumpRage.roundsCount} rounds and ${dumpRage.transactionsCount} transactions`);
 
         this.filesystem.setSnapshot(meta.folder);
         await this.filesystem.prepareDir();
 
-        let blocksWorker = new WorkerWrapper(this.prepareWorkerData("dump", "blocks"));
-        let transactionsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "transactions"));
-        let roundsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "rounds"));
+        let blocksWorker = new WorkerWrapper(this.prepareWorkerData("dump", "blocks", meta));
+        let transactionsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "transactions", meta));
+        let roundsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "rounds", meta));
 
         let stopBlocksDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
         let stopTransactionsDispatcher = await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
@@ -112,8 +106,10 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         }
     }
 
-    public async restore(meta: Meta.MetaData): Promise<void> {
-        await this.truncate();
+    public async restore(meta: Meta.MetaData, options: Options.RestoreOptions): Promise<void> {
+        if (options.truncate) {
+            await this.truncate();
+        }
 
         await this.runSynchronizedAction("restore", meta);
     }
@@ -123,9 +119,9 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
     }
 
     private async runSynchronizedAction(action: string, meta: Meta.MetaData): Promise<void> {
-        let blocksWorker = new WorkerWrapper(this.prepareWorkerData(action, "blocks"));
-        let transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions"));
-        let roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds"));
+        let blocksWorker = new WorkerWrapper(this.prepareWorkerData(action, "blocks", meta));
+        let transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions", meta));
+        let roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds", meta));
 
         let stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
         let stopTransactionsProgressDispatcher =await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
@@ -136,94 +132,104 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
             await transactionsWorker.start();
             await roundsWorker.start();
 
-            // let milestoneHeights = [] as number[];
             let milestoneHeights = Managers.configManager.getMilestones().map(x => x.height);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
 
-            // console.log("Milestone heights: ", milestoneHeights)
-
-            // console.log("Result: ", await blocksWorker.sync({ nextValue: 1, nextField: "height"}))
-
-            // @ts-ignore
             let result: any = undefined;
-            // @ts-ignore
             for (let height of milestoneHeights) {
                 let promises = [] as any;
 
                 // console.log("Run blocks with: ",{ nextValue: height, nextField: "height"})
                 promises.push(blocksWorker.sync({ nextValue: height, nextField: "height"}))
 
-                if (result) {
+                if (result && result.height > 0) {
                     // console.log("Run transactions with: ", { nextCount: result.numberOfTransactions, height: result.height - 1  })
                     // console.log("Run rounds with: ", { nextCount: Utils.roundCalculator.calculateRound(result.height).round, height: result.height - 1  })
 
-                    promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
+                    // promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
                     promises.push(roundsWorker.sync({ nextValue: Utils.roundCalculator.calculateRound(result.height).round, nextField: "round"  }))
                 }
 
-                let tmpResult = (await Promise.all(promises));
-
-                // console.log("RESULT: ", tmpResult);
-
-                result = tmpResult[0];
+                result = (await Promise.all(promises))[0];
 
                 if (!result) {
-                    // console.log("Calling break");
                     break;
                 }
-
-                // console.log(await transactionsWorker.sync({ nextCount: 1002869, height: 4005999  }))
-                // console.log(await transactionsWorker.sync({ nextCount: 1014031, height: 4810016  }))
             }
         } catch (err) {
             stopBlocksProgressDispatcher();
             stopTransactionsProgressDispatcher();
             stopRoundsProgressDispatcher();
 
-            console.log("ERROR", err)
-            console.log("ERROR", err.message)
-
             this.logger.error(err.message)
             throw err;
         }
         finally {
-            console.log("Calling finaly");
-
             await blocksWorker?.terminate();
             await transactionsWorker?.terminate();
             await roundsWorker?.terminate();
         }
     }
 
-    private async prepareMetaData(options: Options.DumpOptions): Promise<Meta.MetaData> {
-        const blocksCount = await this.blockRepository.count();
-        this.logger.info("Finish counting ");
+    private async getDumpRange(start?: number, end?: number): Promise<Database.DumpRange> {
+        let lastBlock = await this.blockRepository.findLast();
 
-        const startHeight = (await this.blockRepository.findFirst())?.height;
-        this.logger.info("Found first block");
+        if (!lastBlock) {
+            throw new Error("Database is empty");
+        }
 
-        const endHeight = (await this.blockRepository.findLast())?.height;
-        this.logger.info("Found last block");
+        let firstHeight = start || 0;
+        let lastHeight = end || lastBlock?.height || 0;
 
+        let firstRound = Utils.roundCalculator.calculateRound(firstHeight);
+        let lastRound = Utils.roundCalculator.calculateRound(lastHeight);
 
+        if (firstRound.roundHeight >= lastRound.roundHeight) {
+            throw new Error("Start round is greater or equal to end round")
+        }
+
+        let firstBlock = await this.blockRepository.findByHeight(firstRound.roundHeight);
+        lastBlock = await this.blockRepository.findByHeight(lastRound.roundHeight);
+
+        Utils.assert.defined<Models.Block>(firstBlock);
+        Utils.assert.defined<Models.Block>(lastBlock);
+
+        let result: Database.DumpRange = {
+            firstBlockHeight: firstBlock!.height,
+            lastBlockHeight: lastBlock!.height,
+            blocksCount: await this.blockRepository.countInRange(firstBlock!.height, lastBlock!.height),
+
+            firstRoundRound: firstRound.round,
+            lastRoundRound: lastRound.round,
+            roundsCount: await this.roundRepository.countInRange(firstRound.round, lastRound.round),
+
+            firstTransactionTimestamp: firstBlock!.timestamp,
+            lastTransactionTimestamp: lastBlock!.timestamp,
+            transactionsCount: await this.transactionRepository.countInRange(firstBlock!.timestamp, lastBlock!.timestamp),
+        }
+
+        return result;
+    }
+
+    private prepareMetaData(options: Options.DumpOptions, dumpRange: Database.DumpRange): Meta.MetaData {
         return {
             blocks: {
-                count: blocksCount,
-                startHeight: startHeight!,
-                endHeight: endHeight!
+                count: dumpRange.blocksCount,
+                start: dumpRange.firstBlockHeight,
+                end: dumpRange.lastBlockHeight
             },
             transactions: {
-                count: await this.transactionRepository.count(),
-                startHeight: startHeight!,
-                endHeight: endHeight!
+                count: dumpRange.transactionsCount,
+                start: dumpRange.firstTransactionTimestamp,
+                end: dumpRange.lastTransactionTimestamp
             },
             rounds: {
-                count: await this.roundRepository.count(),
-                startHeight: startHeight!,
-                endHeight: endHeight!
+                count: dumpRange.roundsCount,
+                start: dumpRange.firstRoundRound,
+                end: dumpRange.lastRoundRound
             },
-            folder: `${startHeight}-${endHeight}`,
+            folder: `${dumpRange.firstBlockHeight}-${dumpRange.lastBlockHeight}`,
 
             skipCompression: this.skipCompression,
             network: options.network,
@@ -243,12 +249,14 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         return lastBlock;
     }
 
-    private prepareWorkerData(action: string, table: string): any {
-        return {
+    private prepareWorkerData(action: string, table: string, meta: Meta.MetaData): any {
+        let result: Worker.WorkerData = {
             actionOptions: {
-                network: this.app.network(),
+                network: this.app.network() as Types.NetworkName,
                 action: action,
                 table: table,
+                start: meta[table].start,
+                end: meta[table].end,
                 codec: this.codec,
                 skipCompression: this.skipCompression,
                 filePath: `${this.filesystem.getSnapshotPath()}${table}`,
@@ -256,7 +264,9 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
                 updateStep: this.configuration.getOptional("dispatchUpdateStep", 1000)
             },
             connection: this.configuration.get("connection")
-        };
+        }
+
+        return result;
     }
 
     private async prepareProgressDispatcher(worker: WorkerWrapper, table: string, count: number): Promise<Function> {
@@ -282,14 +292,14 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         }
     }
 
-    // @ts-ignore
-    private waitToEnd(writableStream: NodeJS.WritableStream): Promise<void> {
-        return new Promise<void>((resolve) => {
-            writableStream.once("close", () => {
-                resolve();
-            })
-        })
-    }
+    // // @ts-ignore
+    // private waitToEnd(writableStream: NodeJS.WritableStream): Promise<void> {
+    //     return new Promise<void>((resolve) => {
+    //         writableStream.once("close", () => {
+    //             resolve();
+    //         })
+    //     })
+    // }
 
     public async test(options: any): Promise<void> {
         // try {
@@ -332,14 +342,35 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         //     console.log(err)
         // }
 
-        let transaction = await this.transactionRepository.findById("7fc3fffc2e9d85ffefc5065dc0a8eb7bb1c45718ac879d2688adfe6f9ac5d49b")
+        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainRegistrationTransaction);
+        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainResignationTransaction);
+        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainUpdateTransaction);
+        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessRegistrationTransaction);
+        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessResignationTransaction);
+        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessUpdateTransaction);
+        //
+        // let transaction = await this.transactionRepository.findById("72eb7e9f5163f33a96afe4e752c9d64e4e19b7f3223cf1d198201f9ee2cea5d4")
+        //
+        // Managers.configManager.setHeight(4810016);
+        //
+        // console.log(transaction);
+        //
+        // let result = Transactions.TransactionFactory.fromBytes(transaction.serialized, false);
+        //
+        // console.log(result);
 
-        console.log(transaction);
+        let firstRound = Utils.roundCalculator.calculateRound(1);
+        let lastRound = Utils.roundCalculator.calculateRound(52);
 
-        let result = Transactions.TransactionFactory.fromBytes(transaction.serialized, false);
+        console.log(firstRound, lastRound)
 
-        console.log(result);
+        console.log(await this.blockRepository.countInRange(firstRound.roundHeight, lastRound.roundHeight));
+        console.log(await this.roundRepository.countInRange(firstRound.round, lastRound.round));
 
+        let firstBlock = await this.blockRepository.findByHeight(firstRound.roundHeight);
+        let lastBlock = await this.blockRepository.findByHeight(lastRound.roundHeight);
+
+        console.log(await this.transactionRepository.countInRange(firstBlock!.timestamp, lastBlock!.timestamp));
     }
 }
 

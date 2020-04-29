@@ -3,6 +3,8 @@ import { getCustomRepository, Connection, createConnection } from "typeorm";
 
 import { Container } from "@arkecosystem/core-kernel";
 import { Models } from "@arkecosystem/core-database";
+import { Transactions } from "@arkecosystem/crypto";
+import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 
 import { WorkerAction, Worker } from "../contracts";
 import { Identifiers } from "../ioc";
@@ -11,11 +13,19 @@ import * as Codecs from "../codecs";
 import * as Actions from "./actions";
 import * as Repositories from "../repositories";
 
+
 let app: Application;
 let action: WorkerAction;
 let _workerData: Worker.WorkerData = workerData;
 
 export const init = async () => {
+    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainRegistrationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainResignationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainUpdateTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessRegistrationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessResignationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessUpdateTransaction);
+
     app = new Application(new Container.Container());
 
     if (_workerData.connection) {
@@ -107,22 +117,16 @@ const handleException = (err: any) => {
 }
 
 process.on('unhandledRejection', (err) => {
-    console.log("unhandledRejection", err)
-
     handleException(err);
 });
 
 
 process.on('uncaughtException', (err) => {
-    console.log("uncaughtException", err)
-
     handleException(err);
 });
 
 
 process.on('multipleResolves', (err) => {
-    console.log("multipleResolves", err)
-
     handleException(err);
 });
 

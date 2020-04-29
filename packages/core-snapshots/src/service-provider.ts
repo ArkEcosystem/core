@@ -31,6 +31,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
     private registerServices(): void {
         this.app.bind(Container.Identifiers.SnapshotService).to(SnapshotService).inSingletonScope();
 
+        // this.app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
+        // this.app.bind(Container.Identifiers.BlockRepository).toConstantValue({});
+        // this.app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
+        // this.app.bind(Container.Identifiers.RoundRepository).toConstantValue({});
+        // this.app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
+
         this.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
 
         this.app.bind(Identifiers.SnapshotFilesystem).to(Filesystem).inSingletonScope();

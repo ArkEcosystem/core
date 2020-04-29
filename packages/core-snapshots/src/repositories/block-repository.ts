@@ -7,10 +7,17 @@ import { Repository } from "../contracts";
 @EntityRepository(Models.Block)
 export class BlockRepository extends Repositories.AbstractEntityRepository<Models.Block> implements Repository{
 
-    public async getReadStream(): Promise<NodeJS.ReadableStream> {
+    public async getReadStream(start: number, end: number): Promise<NodeJS.ReadableStream> {
         return this.createQueryBuilder()
+            .where("height >= :start AND height < :end", { start, end })
             .orderBy("height" ,"ASC")
             .stream();
+    }
+
+    public async countInRange(start: number, end: number): Promise<number> {
+        return this.createQueryBuilder()
+            .where("height >= :start AND height < :end", { start, end })
+            .getCount()
     }
 
     public async rollbackChain(roundInfo: Contracts.Shared.RoundInfo): Promise<void> {

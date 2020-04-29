@@ -16,7 +16,6 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
     public async start() {
         let isBlock = this.table === "blocks";
         let streamReader = new StreamReader(this.filePath!, this.getCodec()[`${this.table}Decode`])
-        // let verify = this.getVerifyFunction();
 
         const chunkSize = 1000;
 

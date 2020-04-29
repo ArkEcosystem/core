@@ -1,16 +1,13 @@
-import fs from "fs-extra";
-import zlib from "zlib";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Codec, WorkerAction, Repository } from "../../contracts";
+import { Managers } from "@arkecosystem/crypto";
+import { Codec, WorkerAction, Repository, Worker } from "../../contracts";
 import { Identifiers } from "../../ioc";
 import {
     BlockRepository,
     RoundRepository,
     TransactionRepository,
 } from "../../repositories";
-import { Managers } from "@arkecosystem/crypto";
-
 
 @Container.injectable()
 export abstract class AbstractWorkerAction implements WorkerAction {
@@ -18,33 +15,32 @@ export abstract class AbstractWorkerAction implements WorkerAction {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Identifiers.SnapshotBlockRepository)
-    // @ts-ignore
-    private readonly snapshotBlockRepository!: BlockRepository;
+    private readonly blockRepository!: BlockRepository;
 
     @Container.inject(Identifiers.SnapshotRoundRepository)
-    // @ts-ignore
-    private readonly snapshotRoundRepository!: RoundRepository;
+    private readonly roundRepository!: RoundRepository;
 
     @Container.inject(Identifiers.SnapshotTransactionRepository)
-    // @ts-ignore
-    private readonly snapshotTransactionRepository!: TransactionRepository;
+    private readonly transactionRepository!: TransactionRepository;
 
     protected table?: string;
     protected codec?: string;
     protected skipCompression?: boolean;
-    protected trace?: boolean;
     protected filePath?: string;
     protected genesisBlockId?: string;
     protected updateStep?: number;
 
-    public init(options: any) {
+    protected options?: Worker.ActionOptions;
+
+    public init(options: Worker.ActionOptions) {
         this.table = options.table;
         this.codec = options.codec;
         this.skipCompression = options.skipCompression;
-        this.trace = options.trace;
         this.filePath = options.filePath;
         this.genesisBlockId = options.genesisBlockId;
         this.updateStep = options.updateStep;
+
+        this.options = options;
 
         Managers.configManager.setFromPreset(options.network);
     }
@@ -53,49 +49,16 @@ export abstract class AbstractWorkerAction implements WorkerAction {
 
     public sync(data: any): void {}
 
-    // protected getWriteStream(databaseStream: NodeJS.ReadableStream): NodeJS.WritableStream {
-    //     const snapshotWriteStream = fs.createWriteStream(this.filePath!, {});
-    //     const encodeStream = this.getCodec().createEncodeStream(this.table!);
-    //     const gzipStream = zlib.createGzip();
-    //
-    //     let stream: NodeJS.ReadableStream = databaseStream;
-    //
-    //     stream = stream.pipe(encodeStream);
-    //
-    //     if (!this.skipCompression) {
-    //         stream = stream.pipe(gzipStream);
-    //     }
-    //
-    //     return stream.pipe(snapshotWriteStream);
-    // }
-
-    protected getReadStream(): NodeJS.ReadableStream {
-        const readStream = fs.createReadStream(this.filePath!, {});
-        const gunzipStream = zlib.createGunzip();
-        // const decodeStream = this.getCodec().createDecodeStream(this.table!);
-
-        let stream: NodeJS.ReadableStream = readStream;
-
-        if (!this.skipCompression) {
-            stream = stream.pipe(gunzipStream);
-        }
-
-        // stream = stream.pipe(decodeStream);
-        stream.pause();
-
-        return stream;
-    }
-
     protected getRepository(): Repository {
         switch (this.table) {
             case "blocks":
-                return this.snapshotBlockRepository;
+                return this.blockRepository;
             case "transactions":
-                return this.snapshotTransactionRepository;
+                return this.transactionRepository;
             case "rounds":
-                return this.snapshotRoundRepository;
+                return this.roundRepository;
             default:
-                throw new Error();
+                throw new Error("Invalid table name");
         }
     }
 

@@ -6,22 +6,21 @@ export class Filesystem {
     @Container.inject(Container.Identifiers.FilesystemService)
     private readonly filesystem!: Contracts.Kernel.Filesystem;
 
-    private network?: string;
+    // private network?: string;
     private snapshot?: string;
 
-    public setNetwork(network: string): void {
-        this.network = network;
-    }
+    // public setNetwork(network: string): void {
+    //     this.network = network;
+    // }
 
     public setSnapshot(snapshot: string): void {
         this.snapshot = snapshot;
     }
 
     public getSnapshotPath(): string {
-        Utils.assert.defined<string>(this.network);
         Utils.assert.defined<string>(this.snapshot);
 
-        return `${process.env.CORE_PATH_DATA}/snapshots/${this.network}/${this.snapshot}/`
+        return `${process.env.CORE_PATH_DATA}/snapshots/${this.snapshot}/`
     }
 
     public async snapshotExists(): Promise<boolean> {
