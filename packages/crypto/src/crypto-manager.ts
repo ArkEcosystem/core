@@ -13,8 +13,9 @@ export class CryptoManager<T> {
     public configManager: ConfigManager<T>;
     public networkManager: NetworkManager;
     public milestoneManager: MilestoneManager<T>;
+    private libraries: Libraries;
 
-    public constructor(network: NetworkConfig<T>, private libraries: Libraries) {
+    public constructor(network: NetworkConfig<T>, libraries: Partial<Libraries>) {
         this.libraries = { ...libraryDefaults, ...libraries };
         this.heightTracker = new HeightTracker();
         this.configManager = new ConfigManager(network);
@@ -29,11 +30,17 @@ export class CryptoManager<T> {
         this.identities = new Identities(this.libraryManager, network.network);
     }
 
-    public static createFromConfig<T>(config: NetworkConfig<T>, libraries = libraryDefaults): CryptoManager<T> {
+    public static createFromConfig<T>(
+        config: NetworkConfig<T>,
+        libraries: Partial<Libraries> = libraryDefaults,
+    ): CryptoManager<T> {
         return new CryptoManager(config, libraries);
     }
 
-    public static createFromPreset<T>(name: NetworkName, libraries = libraryDefaults): CryptoManager<T> {
+    public static createFromPreset<T>(
+        name: NetworkName,
+        libraries: Partial<Libraries> = libraryDefaults,
+    ): CryptoManager<T> {
         return new CryptoManager(NetworkManager.findByName(name), libraries);
     }
 
