@@ -3,7 +3,7 @@ import "jest-extended";
 import { CryptoManager } from "@packages/crypto/src";
 import * as networks from "@packages/crypto/src/networks";
 
-describe("LibraryManager", () => {
+describe("CryptoManager", () => {
     it("should be instantiated from a preset", () => {
         const cryptoManager = CryptoManager.createFromPreset("devnet");
 
