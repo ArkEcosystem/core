@@ -130,7 +130,7 @@ export class Tree<T> {
     }
 
     public toJSON(node: Node<T> = this.root): string {
-        return JSON.stringify(node.getStruct(), null, 2);
+        return JSON.stringify(node.getStruct(), undefined, 2);
     }
 
     private findMin(node: Node<T>): Node<T> {

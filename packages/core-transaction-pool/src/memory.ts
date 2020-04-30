@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { State } from "@arkecosystem/core-interfaces";
-import { expirationCalculator, Tree } from "@arkecosystem/core-utils";
+import { expirationCalculator, SortedArray } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -15,10 +15,10 @@ export class Memory {
     private all: Interfaces.ITransaction[] = [];
     private allIsSorted: boolean = true;
     private byId: { [key: string]: Interfaces.ITransaction } = {};
-    private bySender: { [key: string]: Tree<Interfaces.ITransaction> } = {};
+    private bySender: { [key: string]: SortedArray<Interfaces.ITransaction> } = {};
     private byType: Map<Transactions.InternalTransactionType, Set<Interfaces.ITransaction>> = new Map();
 
-    private byFee: Tree<Interfaces.ITransaction> = new Tree(
+    private byFee: SortedArray<Interfaces.ITransaction> = new SortedArray(
         (a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
             if (a.data.fee.isGreaterThan(b.data.fee)) {
                 return -1;
@@ -122,22 +122,24 @@ export class Memory {
         return new Set();
     }
 
-    public getBySender(senderPublicKey: string): Set<Interfaces.ITransaction> {
+    public getBySender(senderPublicKey: string): Interfaces.ITransaction[] {
         if (this.bySender[senderPublicKey] !== undefined) {
-            return new Set(this.bySender[senderPublicKey].getAll());
+            return this.bySender[senderPublicKey].getAll();
         }
 
-        return new Set();
+        return [];
     }
 
     public getLowestFeeLastNonce(): Interfaces.ITransaction | undefined {
         // Algorithm : get the lowest fees transactions : if one of them happen to be the last nonce
         // of the sender, then return it (try that for the 100 lowest fee transactions)
         const maxTxsToFetch = 100;
-        const sortedByFee = this.byFee.getValuesLastToFirst(maxTxsToFetch).slice(0, maxTxsToFetch);
-        for (const transaction of sortedByFee) {
-            const lastByNonceSameSender = this.bySender[transaction.data.senderPublicKey].getLast();
-            if (lastByNonceSameSender && lastByNonceSameSender[0].id === transaction.id) {
+        const all = this.byFee.getAll();
+        const lowestFeeTxs = all.slice(Math.max(all.length - maxTxsToFetch, 0)).reverse();
+        for (const transaction of lowestFeeTxs) {
+            const allBySameSender = this.bySender[transaction.data.senderPublicKey].getAll();
+            const lastByNonceSameSender = allBySameSender[allBySameSender.length - 1];
+            if (lastByNonceSameSender && lastByNonceSameSender.id === transaction.id) {
                 return transaction;
             }
         }
@@ -150,7 +152,7 @@ export class Memory {
         this.all.push(transaction);
         this.allIsSorted = false;
 
-        this.byFee.insert(transaction.id, transaction);
+        this.byFee.insert(transaction);
 
         this.byId[transaction.id] = transaction;
 
@@ -159,7 +161,7 @@ export class Memory {
 
         if (this.bySender[sender] === undefined) {
             // First transaction from this sender, create a new Tree.
-            this.bySender[sender] = new Tree((a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
+            this.bySender[sender] = new SortedArray((a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
                 // if no nonce (v1 transactions), default to BigNumber.ZERO to still be able to use the tree
                 const nonceA = a.data.nonce || Utils.BigNumber.ZERO;
                 const nonceB = b.data.nonce || Utils.BigNumber.ZERO;
@@ -173,7 +175,7 @@ export class Memory {
             });
         }
         // Append to existing transaction ids for this sender.
-        this.bySender[sender].insert(transaction.id, transaction);
+        this.bySender[sender].insert(transaction);
 
         const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
             type,
@@ -227,7 +229,8 @@ export class Memory {
         const transaction: Interfaces.ITransaction = this.byId[id];
         const { type, typeGroup } = this.byId[id];
 
-        this.byFee.remove(id, transaction);
+        const byFeeIndex = this.byFee.findIndex(tx => tx.id === transaction.id);
+        this.byFee.removeAtIndex(byFeeIndex);
 
         // XXX worst case: O(n)
         let i: number = this.byExpiration.findIndex(e => e.id === id);
@@ -235,7 +238,8 @@ export class Memory {
             this.byExpiration.splice(i, 1);
         }
 
-        this.bySender[senderPublicKey].remove(transaction.id, transaction);
+        const bySenderIndex = this.bySender[senderPublicKey].findIndex(tx => tx.id === transaction.id);
+        this.bySender[senderPublicKey].removeAtIndex(bySenderIndex);
         if (this.bySender[senderPublicKey].isEmpty()) {
             delete this.bySender[senderPublicKey];
         }
@@ -273,7 +277,7 @@ export class Memory {
     public flush(): void {
         this.all = [];
         this.allIsSorted = true;
-        this.byFee = new Tree(this.byFee.getCompareFunction());
+        this.byFee = new SortedArray(this.byFee.getCompareFunction());
         this.byId = {};
         this.bySender = {};
         this.byType.clear();
@@ -327,10 +331,10 @@ export class Memory {
 
             const sender: string = transaction.data.senderPublicKey;
             if (!lastAddedBySender[sender]) {
-                const lowerNonceTxsForSender = this.bySender[sender].getAllStrictlyBelow(transaction);
+                const lowerNonceTxsForSender = this.bySender[sender].getStrictlyBelow(transaction);
                 sortedByFeeAndNonce.push(...lowerNonceTxsForSender, transaction);
             } else {
-                const lowerNonceTxsForSender = this.bySender[sender].getAllStrictlyBetween(
+                const lowerNonceTxsForSender = this.bySender[sender].getStrictlyBetween(
                     lastAddedBySender[sender],
                     transaction,
                 );
