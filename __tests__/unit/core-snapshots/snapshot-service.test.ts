@@ -220,7 +220,7 @@ describe("SnapshotService", () => {
 
     describe("rollback by height", () => {
         it("should be ok", async () => {
-            await expect(snapshotService.rollbackByHeight(1, false)).toResolve();
+            await expect(snapshotService.rollbackByHeight(1)).toResolve();
 
             expect(database.rollback).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
@@ -229,7 +229,7 @@ describe("SnapshotService", () => {
         });
 
         it("should log error if height is not valid", async () => {
-            await expect(snapshotService.rollbackByHeight(0, false)).toResolve();
+            await expect(snapshotService.rollbackByHeight(0)).toResolve();
 
             expect(database.rollback).not.toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
@@ -238,7 +238,7 @@ describe("SnapshotService", () => {
         });
 
         it("should log error if height greater than last block height", async () => {
-            await expect(snapshotService.rollbackByHeight(100, false)).toResolve();
+            await expect(snapshotService.rollbackByHeight(100)).toResolve();
 
             expect(database.rollback).not.toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
@@ -249,7 +249,7 @@ describe("SnapshotService", () => {
         it("should log error if error in rollback", async () => {
             database.rollback = jest.fn().mockRejectedValue(new Error());
 
-            await expect(snapshotService.rollbackByHeight(1, false)).toResolve();
+            await expect(snapshotService.rollbackByHeight(1)).toResolve();
 
             expect(database.rollback).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
@@ -260,7 +260,7 @@ describe("SnapshotService", () => {
 
     describe("rollback by number", () => {
         it("should be ok", async () => {
-            await expect(snapshotService.rollbackByNumber(1, false)).toResolve();
+            await expect(snapshotService.rollbackByNumber(1)).toResolve();
 
             expect(database.rollback).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
@@ -287,7 +287,7 @@ describe("SnapshotService", () => {
             expect(database.truncate).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).toHaveBeenCalled()
+            expect(logger.error).toHaveBeenCalled();
         });
     });
 });

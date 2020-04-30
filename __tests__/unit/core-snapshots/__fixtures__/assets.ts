@@ -87,15 +87,15 @@ export const blocks: Models.Block[]  = [
         previousBlock: "17184958558311101492",
         height:2,
         numberOfTransactions:0,
-        // totalAmount: BigNumber.make(0),
-        // totalFee: BigNumber.make(0),
-        // reward: BigNumber.make(0),
+        totalAmount: BigNumber.make(0),
+        totalFee: BigNumber.make(0),
+        reward: BigNumber.make(0),
         // @ts-ignore
-        totalAmount: BigInt(0),
-        // @ts-ignore
-        totalFee: BigInt(0),
-        // @ts-ignore
-        reward: BigInt(0),
+        // totalAmount: BigNumber(0),
+        // // @ts-ignore
+        // totalFee: BigInt(0),
+        // // @ts-ignore
+        // reward: BigInt(0),
         payloadLength: 0,
         payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         generatorPublicKey: "022f2978d57f95c021b9d4bf082b482738ce392bcf6bc213710e7a21504cfeb5a0",
@@ -116,8 +116,8 @@ export const transactions: Models.Transaction[]  = [
         type:0,
         typeGroup:1,
         vendorField: undefined,
-        amount: BigInt(245098000000000),
-        fee: BigInt(0),
+        amount: BigNumber.make(245098000000000),
+        fee: BigNumber.make(0),
         serialized: Buffer.from([255,1,23,0,0,0,0,0,3,91,99,180,102,142,226,97,193,108,169,20,67,243,55,30,47,227,73,225,49,203,123,245,248,163,233,58,61,223,223,199,136,0,0,0,0,0,0,0,0,0,0,164,57,83,234,222,0,0,0,0,0,0,23,19,75,91,228,179,39,221,249,194,187,71,254,200,161,164,65,137,233,15,116,48,68,2,32,95,203,6,119,224,107,222,122,172,61,199,118,102,86,21,244,185,62,248,195,237,15,221,236,239,153,0,231,79,203,0,243,2,32,105,88,160,201,134,142,161,177,243,209,81,189,250,146,218,28,226,77,224,177,252,217,25,51,230,79,183,151,30,146,244,141]),
         asset: {}
     }
@@ -130,16 +130,5 @@ export const rounds: Models.Round[]  = [
         round: 1,
         // @ts-ignore
         balance: 245098000000000,
-        // // @ts-ignore
-        // round: BigInt(1),
-        // // @ts-ignore
-        // balance: BigInt(245098000000000)
     },
-    // {
-    //     publicKey: "021770413ad01c60b94e1d3ed44c00e0145fe7897e40f5f6265e220f4e65cf427f",
-    //     // @ts-ignore
-    //     round: BigInt(1),
-    //     // @ts-ignore
-    //     balance: BigInt(245098000000000)
-    // }
 ];

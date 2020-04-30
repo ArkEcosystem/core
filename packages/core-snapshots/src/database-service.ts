@@ -123,7 +123,8 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
         Utils.assert.defined<Interfaces.IBlockData>(block);
 
-        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
+        /* istanbul ignore next */
+        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block, () => {return block!.timestamp})!;
 
         return lastBlock;
     }
@@ -262,7 +263,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                 skipCompression: this.skipCompression,
                 verify: this.verifyData,
                 filePath: `${this.filesystem.getSnapshotPath()}${table}`,
-                genesisBlockId: Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!.data.id,
+                genesisBlockId: Managers.configManager.get("genesisBlock").id,
                 updateStep: this.configuration.getOptional("updateStep", 1000)
             },
             connection: this.configuration.get("connection")

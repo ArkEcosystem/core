@@ -2,7 +2,7 @@ import { workerData, parentPort } from "worker_threads";
 import { getCustomRepository, Connection, createConnection } from "typeorm";
 
 import { Container } from "@arkecosystem/core-kernel";
-import { Models } from "@arkecosystem/core-database";
+import { Models, Utils } from "@arkecosystem/core-database";
 import { Transactions } from "@arkecosystem/crypto";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 
@@ -112,7 +112,7 @@ export const dispose = async (): Promise<void> => {
 const connect = async (options: any): Promise<Connection> => {
     return createConnection({
         ...options.connection,
-        namingStrategy: new Models.SnakeNamingStrategy(),
+        namingStrategy: new Utils.SnakeNamingStrategy(),
         entities: [Models.Block, Models.Transaction, Models.Round],
     });
 };

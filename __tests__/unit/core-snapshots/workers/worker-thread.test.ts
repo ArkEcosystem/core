@@ -15,6 +15,7 @@ let _workerData: Contracts.Worker.WorkerData = {
         filePath: "",
         genesisBlockId: "123",
         updateStep: 1000,
+        verify: true,
         network: "testnet"
     }
 }
@@ -35,7 +36,6 @@ const appendListeners = (worker: Worker) => {
     })
 
     worker.on("message", (data) => {
-        console.log(data)
         eventListener.onMessage(data);
     })
 }
@@ -44,8 +44,6 @@ const waitForEvent = (worker: Worker, message?: any): Promise<void> => {
     return new Promise<void>((resolve) => {
         let onEvent = (event, data) => {
             worker.removeAllListeners();
-
-            console.log("EVENT: ", event, "DATA: ", data)
 
             resolve();
         }

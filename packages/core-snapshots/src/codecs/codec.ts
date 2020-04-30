@@ -12,10 +12,6 @@ export class Codec implements ICodec {
         try {
             let blockCamelized = camelizeKeys(Codec.removePrefix(block, "Block_"));
 
-            blockCamelized.totalAmount = Utils.BigNumber.make(blockCamelized.totalAmount);
-            blockCamelized.totalFee = Utils.BigNumber.make(blockCamelized.totalFee);
-            blockCamelized.reward = Utils.BigNumber.make(blockCamelized.reward);
-
             return Blocks.Serializer.serialize(blockCamelized, true);
         } catch (e) {
             throw new CodecException.BlockEncodeException(block.Block_id);
@@ -28,10 +24,6 @@ export class Codec implements ICodec {
             let block: any = Blocks.Deserializer.deserialize(buffer.toString("hex"), false).data;
 
             blockId = block.id;
-
-            block.totalAmount = block.totalAmount.toFixed();
-            block.totalFee = block.totalFee.toFixed();
-            block.reward = block.reward.toFixed();
 
             return block;
         } catch (e) {
@@ -72,12 +64,11 @@ export class Codec implements ICodec {
                 recipientId: transaction.data.recipientId,
                 type: transaction.data.type,
                 vendorField: transaction.data.vendorField,
-                amount: BigInt(transaction.data.amount.toFixed()),
-                fee: BigInt(transaction.data.fee.toFixed()),
+                amount: transaction.data.amount,
+                fee: transaction.data.fee,
                 serialized: serialized,
                 typeGroup: transaction.data.typeGroup || 1,
-                // @ts-ignore
-                nonce: BigInt(transaction.data.nonce ? transaction.data.nonce.toFixed() : 0),
+                nonce: Utils.BigNumber.make(transaction.data.nonce || 0),
                 // @ts-ignore
                 asset: transaction.data.asset
             };
@@ -104,13 +95,13 @@ export class Codec implements ICodec {
         try {
             const [publicKey, balance, round] = decode(buffer);
 
+            roundRound = round;
+
             let roundEntity: Models.Round = {
                 publicKey,
                 balance,
                 round
             };
-
-            roundRound = round;
 
             return roundEntity;
         } catch (e) {

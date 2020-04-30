@@ -158,6 +158,7 @@ describe("WorkerAction", () => {
                 filePath: dir + "/" + table,
                 genesisBlockId: genesisBlockId,
                 updateStep: 1,
+                verify: true,
                 network: "testnet" as Types.NetworkName
             }
 
@@ -178,6 +179,7 @@ describe("WorkerAction", () => {
                 filePath: dir + "/" + table,
                 genesisBlockId: genesisBlockId,
                 updateStep: 1,
+                verify: true,
                 network: "testnet" as Types.NetworkName
             }
 
@@ -207,6 +209,7 @@ describe("WorkerAction", () => {
                 filePath: dir + "/" + table,
                 genesisBlockId: genesisBlockId,
                 updateStep: 1,
+                verify: true,
                 network: "testnet" as Types.NetworkName
             }
 

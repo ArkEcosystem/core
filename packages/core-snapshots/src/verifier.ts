@@ -34,7 +34,8 @@ export class Verifier {
         let isVerified = false;
 
         try {
-            let block = Blocks.BlockFactory.fromData(blockEntity as Interfaces.IBlockData)!;
+            /* istanbul ignore next */
+            let block = Blocks.BlockFactory.fromData(blockEntity as Interfaces.IBlockData, () => { return blockEntity.timestamp })!;
 
             const bytes = Blocks.Serializer.serialize(block.data, false);
             const hash = Crypto.HashAlgorithms.sha256(bytes);

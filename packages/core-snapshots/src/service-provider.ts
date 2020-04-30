@@ -6,7 +6,7 @@ import { SnapshotDatabaseService } from "./database-service";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
 import { Filesystem } from "./filesystem/filesystem";
 import { ProgressDispatcher } from "./progress-dispatcher";
-import { Models } from "@arkecosystem/core-database";
+import { Models, Utils } from "@arkecosystem/core-database";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -16,13 +16,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         console.log(this.app.get<Connection>(Identifiers.SnapshotDatabaseConnection).isConnected);
 
-        console.log("Connected");
-
         this.registerServices();
     }
-
-    // public async dispose(): Promise<void> {
-    // }
 
     public async required(): Promise<boolean> {
         return true;
@@ -30,12 +25,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     private registerServices(): void {
         this.app.bind(Container.Identifiers.SnapshotService).to(SnapshotService).inSingletonScope();
-
-        // this.app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
-        // this.app.bind(Container.Identifiers.BlockRepository).toConstantValue({});
-        // this.app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
-        // this.app.bind(Container.Identifiers.RoundRepository).toConstantValue({});
-        // this.app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
 
         this.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
 
@@ -57,13 +46,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
     private async connect(): Promise<Connection> {
         const options: Record<string, any> = this.config().all();
 
-        // this.app
-        //     .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
-        //     .dispatch(DatabaseEvent.PRE_CONNECT);
-
         return createConnection({
             ...options.connection,
-            namingStrategy: new Models.SnakeNamingStrategy(),
+            namingStrategy: new Utils.SnakeNamingStrategy(),
             entities: [Models.Block, Models.Transaction, Models.Round],
         });
     }
