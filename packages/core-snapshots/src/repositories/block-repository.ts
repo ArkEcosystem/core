@@ -20,7 +20,7 @@ export class BlockRepository extends Repositories.AbstractEntityRepository<Model
             .getCount()
     }
 
-    public async rollbackChain(roundInfo: Contracts.Shared.RoundInfo): Promise<void> {
+    public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<void> {
         const block = await this.findByHeight(roundInfo.roundHeight);
 
         console.log("Block height to delete: " +  block?.height);

@@ -8,7 +8,13 @@ import { Meta, Options, Database, Worker } from "./contracts";
 import { ProgressDispatcher } from "./progress-dispatcher";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
 import { WorkerWrapper } from "./workers/worker-wrapper";
-// import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+// @ts-ignore
+import fs from "fs-extra";
+import zlib from "zlib";
+// @ts-ignore
+import { TransformEncoder } from "./filesystem/transform-encoder";
+// @ts-ignore
+import { JSONCodec } from "./codecs";
 
 @Container.injectable()
 export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseService {
@@ -53,14 +59,14 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         await this.blockRepository.delete({}); // Clear does't work on tables with relations
     }
 
-    public async rollbackChain(roundInfo: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock> {
-        const lastBlock = await this.getLastBlock();
+    public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock> {
+        const lastBlock = await this.blockRepository.findLast();
 
         Utils.assert.defined<Models.Block>(lastBlock);
 
         this.logger.info(`Last block height is: ${lastBlock.height}`);
 
-        await this.blockRepository.rollbackChain(roundInfo);
+        await this.blockRepository.rollback(roundInfo);
 
         return this.getLastBlock();
     }
@@ -80,9 +86,9 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         let transactionsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "transactions", meta));
         let roundsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "rounds", meta));
 
-        let stopBlocksDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
-        let stopTransactionsDispatcher = await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
-        let stopRoundDispatcher = await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+        // let stopBlocksDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+        // let stopTransactionsDispatcher = await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
+        // let stopRoundDispatcher = await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
 
         try {
             await Promise.all([
@@ -93,9 +99,9 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
             await this.filesystem.writeMetaData(meta);
         } catch (err) {
-            stopBlocksDispatcher();
-            stopTransactionsDispatcher();
-            stopRoundDispatcher();
+            // stopBlocksDispatcher();
+            // stopTransactionsDispatcher();
+            // stopRoundDispatcher();
 
             throw err;
         } finally {
@@ -357,18 +363,41 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         //
         // console.log(result);
 
-        let firstRound = Utils.roundCalculator.calculateRound(1);
-        let lastRound = Utils.roundCalculator.calculateRound(52);
+        // let firstRound = Utils.roundCalculator.calculateRound(1);
+        // let lastRound = Utils.roundCalculator.calculateRound(52);
+        //
+        // console.log(firstRound, lastRound)
+        //
+        // console.log(await this.blockRepository.countInRange(firstRound.roundHeight, lastRound.roundHeight));
+        // console.log(await this.roundRepository.countInRange(firstRound.round, lastRound.round));
+        //
+        // let firstBlock = await this.blockRepository.findByHeight(firstRound.roundHeight);
+        // let lastBlock = await this.blockRepository.findByHeight(lastRound.roundHeight);
+        //
+        // console.log(await this.transactionRepository.countInRange(firstBlock!.timestamp, lastBlock!.timestamp));
 
-        console.log(firstRound, lastRound)
+        // @ts-ignore
+        let dbStream = await this.blockRepository.getReadStream(1, 100);
 
-        console.log(await this.blockRepository.countInRange(firstRound.roundHeight, lastRound.roundHeight));
-        console.log(await this.roundRepository.countInRange(firstRound.round, lastRound.round));
+        // @ts-ignore
+        let gzipStream = zlib.createGzip();
 
-        let firstBlock = await this.blockRepository.findByHeight(firstRound.roundHeight);
-        let lastBlock = await this.blockRepository.findByHeight(lastRound.roundHeight);
+        // @ts-ignore
+        let encoder = new TransformEncoder(new JSONCodec().blocksEncode);
 
-        console.log(await this.transactionRepository.countInRange(firstBlock!.timestamp, lastBlock!.timestamp));
+        // @ts-ignore
+        let writeStream = fs.createWriteStream("/Users/sebastijankuzner/Desktop/ARK/Database/Test/asd2");
+
+        // @ts-ignore
+        // let stream = dbStream.pipe(encoder).pipe(gzipStream).pipe(process.stdout);
+        // @ts-ignore
+        gzipStream.pipe(writeStream);
+
+        gzipStream.write(Buffer.from("Test test test"))
+        gzipStream.write(Buffer.from("Test test test"))
+        gzipStream.write(Buffer.from("Test test test"))
+        gzipStream.write(Buffer.from("Test test test"))
+        gzipStream.write(Buffer.from("Test test test"))
     }
 }
 

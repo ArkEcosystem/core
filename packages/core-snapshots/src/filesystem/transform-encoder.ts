@@ -14,13 +14,6 @@ export class TransformEncoder extends Transform {
         buffer.writeUInt32(encoded.length)
         buffer.append(encoded)
 
-        // console.log("Encoded: ", encoded)
-        // console.log("Encoded len: ", encoded.length)
-        // console.log("Buffer: ", buffer.buffer)
-        // console.log("Buffer Len: ", buffer.capacity())
-        //
-        // console.log("----")
-
         this.push(buffer.buffer);
 
         callback();

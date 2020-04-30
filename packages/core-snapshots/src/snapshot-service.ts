@@ -122,7 +122,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
             const roundInfo = Utils.roundCalculator.calculateRound(height);
 
-            let newLastBlock = await this.database.rollbackChain(roundInfo);
+            let newLastBlock = await this.database.rollback(roundInfo);
 
             this.logger.info(
                 `Rolling back chain to last finished round ${roundInfo.round.toLocaleString()} with last block height ${newLastBlock.data.height.toString()}`,

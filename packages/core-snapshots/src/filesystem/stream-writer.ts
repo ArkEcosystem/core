@@ -1,32 +1,33 @@
 import { TransformEncoder } from "./transform-encoder";
 import fs from "fs-extra";
+import zlib from "zlib";
 
 import { Stream as StreamExceptions } from "../exceptions";
-
 
 export class StreamWriter {
     public count: number = 0;
 
-    private writeStream: fs.WriteStream | undefined;
+    private writeStream: NodeJS.WritableStream | undefined;
 
-    public constructor(private dbStream: NodeJS.ReadableStream, private path: string, private encode: Function) {}
+    // @ts-ignore
+    public constructor(private dbStream: NodeJS.ReadableStream, private path: string, private useCompression: boolean, private encode: Function) {}
 
     public open(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.writeStream = fs.createWriteStream(this.path);
 
-            let clean = () => {
+            let removeListeners = () => {
                 this.writeStream!.removeListener("open", onOpen);
                 this.writeStream!.removeListener("error", onError);
             }
 
             let onOpen = () => {
-                clean();
+                removeListeners();
                 resolve();
             }
 
             let onError = (err) => {
-                clean();
+                removeListeners();
                 reject(err);
             }
 
@@ -43,26 +44,47 @@ export class StreamWriter {
 
             let transformer = new TransformEncoder(this.encode);
 
-            let stream = this.dbStream
-                .pipe(transformer)
+            let stream;
+            if (this.useCompression) {
+                stream = this.dbStream
+                    .pipe(transformer)
+                    .pipe(zlib.createGzip())
+            } else {
+                stream = this.dbStream
+                    .pipe(transformer)
+            }
 
-            stream.on("data", (data) => {
+            let removeListeners = () => {
+                stream.removeListener("data", onData);
+                stream.removeListener("end", onEnd);
+                stream.removeListener("error", onError);
+            }
+
+            let onData = (data) => {
                 this.writeStream!.write(data)
                 this.count++;
-            })
+            }
 
-            stream.once("end", () => {
+            let onEnd = () => {
+                removeListeners();
                 this.writeStream!.write(Buffer.alloc(4), () => {
-                    this.writeStream!.close()
+                    this.writeStream!.end()
                     this.writeStream = undefined;
 
                     resolve();
                 });
-            })
+            }
 
-            stream.once("error", (err) => {
+            let onError = (err) => {
+                removeListeners();
                 reject(err);
-            })
+            }
+
+            stream.on("data", onData);
+
+            stream.once("end", onEnd)
+
+            stream.once("error", onError)
         })
     }
 }

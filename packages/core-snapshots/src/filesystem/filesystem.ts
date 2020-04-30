@@ -6,12 +6,7 @@ export class Filesystem {
     @Container.inject(Container.Identifiers.FilesystemService)
     private readonly filesystem!: Contracts.Kernel.Filesystem;
 
-    // private network?: string;
     private snapshot?: string;
-
-    // public setNetwork(network: string): void {
-    //     this.network = network;
-    // }
 
     public setSnapshot(snapshot: string): void {
         this.snapshot = snapshot;

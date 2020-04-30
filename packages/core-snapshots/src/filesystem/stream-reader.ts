@@ -1,5 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import fs from "fs-extra";
+import zlib from "zlib";
 
 import { Stream as StreamExceptions } from "../exceptions";
 
@@ -13,24 +14,28 @@ export class StreamReader {
     private offset = 0;
     private length = 0;
 
-    public constructor(private path: string, private decode: Function) {}
+    public constructor(private path: string, private useCompression: boolean, private decode: Function) {}
 
     public open(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.readStream = fs.createReadStream(this.path);
 
-            let clean = () => {
+            if (this.useCompression) {
+                this.readStream.pipe(zlib.createGunzip())
+            }
+
+            let removeListeners = () => {
                 this.readStream!.removeListener("open", onOpen);
                 this.readStream!.removeListener("error", onError);
             }
 
             let onOpen = () => {
-                clean();
+                removeListeners();
                 resolve();
             }
 
             let onError = (err) => {
-                clean();
+                removeListeners();
                 reject(err);
             }
 
@@ -71,12 +76,6 @@ export class StreamReader {
 
         await this.waitUntilReadable();
 
-        // let chunk: Buffer | null = null;
-        // while (chunk === null) {
-        //     chunk = this.readStream.read() as Buffer;
-        // }
-
-        // @ts-ignore
         let chunk: Buffer | null = this.readStream.read() as Buffer;
 
         if (chunk === null) {
@@ -91,8 +90,6 @@ export class StreamReader {
 
     private waitUntilReadable(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            // console.log("WAIT untill readable")
-
             let removeListeners = () => {
                 this.readStream!.removeListener("readable", onReadable)
                 this.readStream!.removeListener("error", onError)

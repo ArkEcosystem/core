@@ -23,7 +23,6 @@ export class Codec implements ICodec {
     };
 
     public blocksDecode(buffer: Buffer) {
-
         let blockId = undefined;
         try {
             let block: any = Blocks.Deserializer.deserialize(buffer.toString("hex"), false).data;
@@ -40,30 +39,6 @@ export class Codec implements ICodec {
         }
     };
 
-    // public transactionsEncode(transaction) {
-    //     try {
-    //         return encode([
-    //             transaction.Transaction_id,
-    //             transaction.Transaction_version,
-    //             transaction.Transaction_block_id,
-    //             transaction.Transaction_sequence,
-    //             transaction.Transaction_timestamp,
-    //             transaction.Transaction_sender_public_key,
-    //             transaction.Transaction_recipient_id,
-    //             transaction.Transaction_type,
-    //             transaction.Transaction_vendor_field,
-    //             transaction.Transaction_amount,
-    //             transaction.Transaction_fee,
-    //             transaction.Transaction_serialized,
-    //             transaction.Transaction_type_group,
-    //             transaction.Transaction_nonce,
-    //             transaction.Transaction_asset,
-    //         ]);
-    //     } catch (e) {
-    //         throw new CodecException.TransactionEncodeException(transaction.Transaction_id)
-    //     }
-    // };
-
     public transactionsEncode(transaction) {
         try {
             return encode([
@@ -77,38 +52,6 @@ export class Codec implements ICodec {
             throw new CodecException.TransactionEncodeException(transaction.Transaction_id)
         }
     };
-
-    // public transactionsDecode(buffer: Buffer) {
-    //     let transactionId = undefined;
-    //     try {
-    //         const [id, version, blockId, sequence, timestamp, senderPublicKey, recipientId, type, vendorField, amount, fee, serialized, typeGroup, nonce, asset] = decode(buffer);
-    //         transactionId = id;
-    //
-    //
-    //         let transactionEntity: Models.Transaction = {
-    //             id: id,
-    //             version: version,
-    //             blockId: blockId,
-    //             sequence: sequence,
-    //             timestamp: timestamp,
-    //             senderPublicKey: senderPublicKey,
-    //             recipientId: recipientId,
-    //             type: type,
-    //             vendorField: vendorField,
-    //             amount: amount,
-    //             fee: fee,
-    //             serialized: serialized,
-    //             typeGroup: typeGroup,
-    //             nonce: nonce,
-    //             asset: asset
-    //         };
-    //
-    //         return transactionEntity;
-    //     } catch (e) {
-    //         throw new CodecException.TransactionDecodeException(transactionId as unknown as string);
-    //     }
-    // };
-
 
     public transactionsDecode(buffer: Buffer) {
         let transactionId = undefined;
@@ -151,8 +94,6 @@ export class Codec implements ICodec {
 
             return encode([roundCamelized.publicKey, roundCamelized.balance, roundCamelized.round]);
         } catch (e) {
-            console.log(e)
-
             throw new CodecException.RoundEncodeException(round.Round_round);
         }
     };

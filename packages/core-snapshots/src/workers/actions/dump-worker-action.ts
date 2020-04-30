@@ -8,7 +8,7 @@ export class DumpWorkerAction extends AbstractWorkerAction {
     public async start() {
         const databaseStream = await this.getRepository().getReadStream(this.options!.start, this.options!.end);
 
-        let streamWriter = new StreamWriter(databaseStream, this.filePath!, this.getCodec()[`${this.table}Encode`]);
+        let streamWriter = new StreamWriter(databaseStream, this.filePath!, !this.skipCompression, this.getCodec()[`${this.table}Encode`]);
 
         await streamWriter.open();
 

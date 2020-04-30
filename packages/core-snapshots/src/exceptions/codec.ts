@@ -1,7 +1,7 @@
 import { Exceptions } from "@arkecosystem/core-kernel";
 
 export class BlockDecodeException extends Exceptions.Base.Exception {
-    constructor(id: string) {
+    constructor(id?: string) {
         super(`Block with id ${id} could not be decoded.`);
     }
 }
@@ -13,7 +13,7 @@ export class BlockEncodeException extends Exceptions.Base.Exception {
 }
 
 export class TransactionDecodeException extends Exceptions.Base.Exception {
-    constructor(id: string) {
+    constructor(id?: string) {
         super(`Transaction with id ${id} could not be decoded.`);
     }
 }
@@ -25,7 +25,7 @@ export class TransactionEncodeException extends Exceptions.Base.Exception {
 }
 
 export class RoundDecodeException extends Exceptions.Base.Exception {
-    constructor(id: string) {
+    constructor(id?: string) {
         super(`Round with id ${id} could not be decoded.`);
     }
 }
