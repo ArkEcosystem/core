@@ -162,7 +162,7 @@ export class Memory {
         if (this.bySender[sender] === undefined) {
             // First transaction from this sender, create a new Tree.
             this.bySender[sender] = new SortedArray((a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
-                // if no nonce (v1 transactions), default to BigNumber.ZERO to still be able to use the tree
+                // if no nonce (v1 transactions), default to BigNumber.ZERO to still be able to use the sorted array
                 const nonceA = a.data.nonce || Utils.BigNumber.ZERO;
                 const nonceB = b.data.nonce || Utils.BigNumber.ZERO;
                 if (nonceA.isGreaterThan(nonceB)) {
