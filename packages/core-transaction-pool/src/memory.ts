@@ -133,6 +133,10 @@ export class Memory {
     public getLowestFeeLastNonce(): Interfaces.ITransaction | undefined {
         // Algorithm : get the lowest fees transactions : if one of them happen to be the last nonce
         // of the sender, then return it (try that for the 100 lowest fee transactions)
+        // if not, just fetch 100 "last nonce txs" and return the lowest fee one (it might not be the
+        // lowest "last nonce tx" among all the pool - we don't want to go through all the pool for
+        // performance reasons - but it's important to return a transaction so that new transactions
+        // can be accepted into the pool when it is full if they have a high enough fee)
         const maxTxsToFetch = 100;
         const all = this.byFee.getAll();
         const lowestFeeTxs = all.slice(Math.max(all.length - maxTxsToFetch, 0)).reverse();
@@ -143,7 +147,21 @@ export class Memory {
                 return transaction;
             }
         }
-        return undefined;
+
+        // if we didn't find a "last nonce tx" among the lowest fee transactions, fetch
+        // the first 100 "last nonce tx" by sender and return the lowest fee one
+        let lowestFeeTx: Interfaces.ITransaction;
+        for (const bySender of Object.values(this.bySender).slice(0, maxTxsToFetch)) {
+            const txsBySender = bySender.getAll();
+            const lastNonceTxBySender = txsBySender[txsBySender.length - 1];
+            lowestFeeTx = lowestFeeTx
+                ? lastNonceTxBySender.data.fee.isLessThan(lowestFeeTx.data.nonce)
+                    ? lastNonceTxBySender
+                    : lowestFeeTx
+                : lastNonceTxBySender;
+        }
+
+        return lowestFeeTx;
     }
 
     public remember(transaction: Interfaces.ITransaction, databaseReady?: boolean): void {
