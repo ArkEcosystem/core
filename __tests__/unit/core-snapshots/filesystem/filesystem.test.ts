@@ -1,13 +1,13 @@
 import "jest-extended";
 import { dirSync, setGracefulCleanup } from "tmp";
 
-import { Container } from "@packages/core-kernel";
+import { Container } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-snapshots/src/ioc";
-import { Filesystem } from "@packages/core-snapshots/src/filesystem";
+import { Filesystem } from "@packages/core-snapshots/src/filesystem/filesystem";
 import { LocalFilesystem } from "@packages/core-kernel/src/services/filesystem/drivers/local";
 
-import { metaData } from "./__fixtures__/assets";
+import { metaData } from "../__fixtures__/assets";
 
 let sandbox: Sandbox;
 
@@ -32,21 +32,12 @@ describe("Filesystem", () => {
 
     describe("getSnapshotFolderPath", () => {
         it("should return if network and snapshot are set", async () => {
-            filesystem.setNetwork("testnet");
             filesystem.setSnapshot("1-200");
 
             expect(filesystem.getSnapshotPath()).toBeString();
         });
 
-        it("should throw error if no network is set", async () => {
-            filesystem.setSnapshot("1-200");
-
-            expect(() => {filesystem.getSnapshotPath()}).toThrowError();
-        });
-
         it("should throw error if no snapshot is set", async () => {
-            filesystem.setNetwork("testnet");
-
             expect(() => {filesystem.getSnapshotPath()}).toThrowError();
         });
     });

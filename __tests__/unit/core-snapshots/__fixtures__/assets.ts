@@ -5,18 +5,18 @@ import { BigNumber } from "@arkecosystem/utils";
 export const metaData: Meta.MetaData = {
     blocks: {
         count: 261,
-        startHeight: 1,
-        endHeight: 261,
+        start: 1,
+        end: 261,
     },
     transactions: {
         count: 153,
-        startHeight: 1,
-        endHeight: 261,
+        start: 1,
+        end: 153,
     },
     rounds: {
         count: 306,
-        startHeight: 1,
-        endHeight: 261,
+        start: 1,
+        end: 306,
     },
     network: "testnet",
     packageVersion: "3.0.0-next.0",
@@ -25,6 +25,38 @@ export const metaData: Meta.MetaData = {
     codec: "default"
 };
 
+export const blocksBigNumber: Models.Block[]  = [
+    {
+        id: "17184958558311101492",
+        version: 0,
+        timestamp: 0,
+        previousBlock: "0",
+        height: 1,
+        numberOfTransactions: 153,
+        totalAmount: BigNumber.make(12500000000000000),
+        totalFee: BigNumber.make(0),
+        reward: BigNumber.make(0),
+        payloadLength: 35960,
+        payloadHash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+        generatorPublicKey: "03b47f6b6719c76bad46a302d9cff7be9b1c2b2a20602a0d880f139b5b8901f068",
+        blockSignature: "304402202fe5de5697fa25d3d3c0cb24617ac02ddfb1c915ee9194a89f8392f948c6076402200d07c5244642fe36afa53fb2d048735f1adfa623e8fa4760487e5f72e17d253b"
+    },
+    {
+        id: "12294213091819080736",
+        version:0,
+        timestamp:96928320,
+        previousBlock: "17184958558311101492",
+        height:2,
+        numberOfTransactions:0,
+        totalAmount: BigNumber.make(0),
+        totalFee: BigNumber.make(0),
+        reward: BigNumber.make(0),
+        payloadLength: 0,
+        payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        generatorPublicKey: "022f2978d57f95c021b9d4bf082b482738ce392bcf6bc213710e7a21504cfeb5a0",
+        blockSignature: "3045022100a08a6322e6dca4b1be83ce0bbd14c4335be1f72fcbb806af24e88c9db5b9f05e0220289eb4db6a2fb46f4c9b577828dd4e63e4b76f7707d947135b879a94e9c988fa"
+    }
+];
 
 export const blocks: Models.Block[]  = [
     {
