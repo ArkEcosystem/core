@@ -10,6 +10,7 @@ export class DumpWorkerAction extends AbstractWorkerAction {
 
         await streamWriter.open();
 
+        /* istanbul ignore next */
         let interval = setInterval(() => {
             parentPort?.postMessage({
                 action: "count",
@@ -22,5 +23,6 @@ export class DumpWorkerAction extends AbstractWorkerAction {
         clearInterval(interval);
     }
 
+    /* istanbul ignore next */
     public sync(data: any) {}
 }

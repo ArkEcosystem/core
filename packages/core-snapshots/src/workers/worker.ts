@@ -30,11 +30,13 @@ export const init = async () => {
     app = new Application(new Container.Container());
 
     if (_workerData.connection) {
+        /* istanbul ignore next */
         app.bind(Identifiers.SnapshotDatabaseConnection).toConstantValue(
             await connect({ connection: _workerData.connection }),
         );
     }
 
+    /* istanbul ignore next */
     app
         .bind<Repository>(Identifiers.SnapshotRepositoryFactory)
         .toFactory<Repository>((context: Container.interfaces.Context) => (table: string) => {
@@ -47,12 +49,14 @@ export const init = async () => {
             }
             });
 
+    /* istanbul ignore next */
     app
         .bind<StreamReader>(Identifiers.StreamReaderFactory)
         .toFactory<StreamReader>((context: Container.interfaces.Context) => (path: string, useCompression: boolean, decode: Function) =>
             new StreamReader(path, useCompression, decode)
         );
 
+    /* istanbul ignore next */
     app
         .bind<StreamWriter>(Identifiers.StreamWriterFactory)
         .toFactory<StreamWriter>((context: Container.interfaces.Context) => (dbStream: NodeJS.ReadableStream, path: string, useCompression: boolean, encode: Function) =>
@@ -96,6 +100,7 @@ export const init = async () => {
 };
 
 export const dispose = async (): Promise<void> => {
+    /* istanbul ignore next */
     if (_workerData.connection) {
         let connection = app.get<Connection>(Identifiers.SnapshotDatabaseConnection);
 
@@ -103,6 +108,7 @@ export const dispose = async (): Promise<void> => {
     }
 }
 
+/* istanbul ignore next */
 const connect = async (options: any): Promise<Connection> => {
     return createConnection({
         ...options.connection,
@@ -111,6 +117,7 @@ const connect = async (options: any): Promise<Connection> => {
     });
 };
 
+/* istanbul ignore next */
 parentPort?.on("message", async (data) => {
     if (data.action === "start") {
         await init();
@@ -126,6 +133,7 @@ parentPort?.on("message", async (data) => {
     }
 });
 
+/* istanbul ignore next */
 const handleException = (err: any) => {
     parentPort!.postMessage({
         action: "exception",
@@ -135,16 +143,17 @@ const handleException = (err: any) => {
     process.exit();
 }
 
+/* istanbul ignore next */
 process.on('unhandledRejection', (err) => {
     handleException(err);
 });
 
-
+/* istanbul ignore next */
 process.on('uncaughtException', (err) => {
     handleException(err);
 });
 
-
+/* istanbul ignore next */
 process.on('multipleResolves', (err) => {
     handleException(err);
 });

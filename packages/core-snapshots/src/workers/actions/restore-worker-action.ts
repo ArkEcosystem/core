@@ -17,8 +17,6 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
         let streamReader = this.getStreamReader();
         let verify = this.getVerifyFunction();
 
-        const chunkSize = 1000;
-
         this.readProcessor = new ReadProcessor(
             isBlock,
             streamReader,
@@ -29,12 +27,13 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
                 }
 
                 if (this.options!.verify) {
+                    /* istanbul ignore next */
                     verify(entity, previousEntity);
                 }
 
                 this.entities.push(entity);
 
-                if (this.entities.length === chunkSize) {
+                if (this.entities.length === this.options!.updateStep) {
                     await this.saveValues();
                 }
             },

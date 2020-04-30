@@ -54,6 +54,7 @@ export class Verifier {
 
         try {
             if (!Transactions.TransactionFactory.fromBytes(transaction.serialized).isVerified) {
+                /* istanbul ignore next */
                 throw new Error();
             }
         } catch (e) {

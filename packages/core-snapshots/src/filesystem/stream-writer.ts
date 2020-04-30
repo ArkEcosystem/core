@@ -26,6 +26,7 @@ export class StreamWriter {
                 resolve();
             }
 
+            /* istanbul ignore next */
             let onError = (err) => {
                 removeListeners();
                 reject(err);
@@ -72,6 +73,7 @@ export class StreamWriter {
                 });
             }
 
+            /* istanbul ignore next */
             let onError = (err) => {
                 removeListeners();
                 reject(err);

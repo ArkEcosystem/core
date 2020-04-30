@@ -109,6 +109,7 @@ export class StreamReader {
                 resolve();
             }
 
+            /* istanbul ignore next */
             let onError = () => {
                 removeListeners();
                 reject(new Error("Error on stream"));
@@ -141,6 +142,7 @@ export class StreamReader {
             if (this.offset + remaining <= this.length) {
                 copyLength = remaining;
             } else {
+                /* istanbul ignore next */
                 copyLength = this.length - this.offset;
             }
 

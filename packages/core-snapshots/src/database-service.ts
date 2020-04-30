@@ -263,7 +263,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                 verify: this.verifyData,
                 filePath: `${this.filesystem.getSnapshotPath()}${table}`,
                 genesisBlockId: Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!.data.id,
-                updateStep: this.configuration.getOptional("dispatchUpdateStep", 1000)
+                updateStep: this.configuration.getOptional("updateStep", 1000)
             },
             connection: this.configuration.get("connection")
         }
