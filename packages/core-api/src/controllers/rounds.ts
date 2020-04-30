@@ -7,8 +7,8 @@ import { RoundResource } from "../resources";
 import { Controller } from "./controller";
 
 export class RoundsController extends Controller {
-    @Container.inject(Container.Identifiers.RoundRepository)
-    protected readonly roundRepository!: Repositories.RoundRepository;
+    @Container.inject(Container.Identifiers.DatabaseRoundRepository)
+    private readonly roundRepository!: Repositories.RoundRepository;
 
     public async delegates(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const delegates = await this.roundRepository.findById(request.params.id);

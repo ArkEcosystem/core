@@ -3,7 +3,7 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class CreateWalletsTable20180305100000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`
-            CREATE TABLE IF NOT EXISTS wallets (
+            CREATE TABLE wallets (
                 "address" VARCHAR(36) PRIMARY KEY NOT NULL,
                 "public_key" VARCHAR(66) UNIQUE NOT NULL,
                 "second_public_key" VARCHAR(66) UNIQUE,
@@ -15,7 +15,7 @@ export class CreateWalletsTable20180305100000 implements MigrationInterface {
                 "missed_blocks" BIGINT NOT NULL
             );
 
-            CREATE UNIQUE INDEX IF NOT EXISTS "wallets_votes_unique" ON wallets ("public_key", "vote");
+            CREATE UNIQUE INDEX "wallets_votes_unique" ON wallets ("public_key", "vote");
         `);
     }
 

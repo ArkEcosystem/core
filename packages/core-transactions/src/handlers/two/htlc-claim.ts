@@ -24,10 +24,10 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(): Promise<void> {
-        const transactions = await this.transactionRepository.getClaimedHtlcLockBalances();
-        for (const transaction of transactions) {
-            const claimWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.recipientId);
-            claimWallet.balance = claimWallet.balance.plus(transaction.amount);
+        const balances = await this.transactionRepository.getClaimedHtlcLockBalances();
+        for (const { recipientId, claimedBalance } of balances) {
+            const claimWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(recipientId);
+            claimWallet.balance = claimWallet.balance.plus(claimedBalance);
         }
     }
 

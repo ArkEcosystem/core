@@ -1,4 +1,4 @@
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
@@ -14,6 +14,9 @@ import {
 
 @Container.injectable()
 export class SenderState implements Contracts.TransactionPool.SenderState {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly configuration!: Providers.PluginConfiguration;
@@ -44,8 +47,8 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
             throw new TransactionFromFutureError(transaction, secondsInFuture);
         }
 
-        if (this.expirationService.isExpired(transaction)) {
-            const expirationHeight: number = this.expirationService.getExpirationHeight(transaction);
+        if (await this.expirationService.isExpired(transaction)) {
+            const expirationHeight: number = await this.expirationService.getExpirationHeight(transaction);
             throw new TransactionHasExpiredError(transaction, expirationHeight);
         }
 
@@ -53,14 +56,23 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
             transaction.data,
         );
 
-        if (await handler.verify(transaction)) {
+        if (
+            await this.app
+                .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                .call("verifyTransaction", { handler, transaction })
+        ) {
             if (this.corrupt) {
                 throw new RetryTransactionError(transaction);
             }
 
             try {
-                await handler.throwIfCannotEnterPool(transaction);
-                await handler.apply(transaction);
+                await this.app
+                    .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                    .call("throwIfCannotEnterPool", { handler, transaction });
+
+                await this.app
+                    .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                    .call("applyTransaction", { handler, transaction });
             } catch (error) {
                 throw new TransactionFailedToApplyError(transaction, error);
             }
@@ -75,7 +87,9 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
                 transaction.data,
             );
 
-            await handler.revert(transaction);
+            await this.app
+                .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                .call("revertTransaction", { handler, transaction });
         } catch (error) {
             this.corrupt = true;
             throw error;

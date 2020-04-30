@@ -1,7 +1,6 @@
-import { Repositories } from "@arkecosystem/core-database";
-import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
-import { Boom, notFound } from "@hapi/boom";
+import { notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { LockResource, TransactionResource, WalletResource } from "../resources";
@@ -9,24 +8,18 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class WalletsController extends Controller {
-    @Container.inject(Container.Identifiers.Application)
-    protected readonly app!: Application;
-
-    @Container.inject(Container.Identifiers.BlockRepository)
-    protected readonly blockRepository!: Repositories.BlockRepository;
-
-    @Container.inject(Container.Identifiers.TransactionRepository)
-    protected readonly transactionRepository!: Repositories.TransactionRepository;
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
-    protected readonly walletRepository!: Contracts.State.WalletRepository;
+    private readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         return this.toPagination(
             this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
                 ...request.query,
-                ...this.paginate(request),
+                ...this.getListingPage(request),
             }),
             WalletResource,
         );
@@ -34,145 +27,138 @@ export class WalletsController extends Controller {
 
     public async top(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         return this.toPagination(
-            this.walletRepository.top(Contracts.State.SearchScope.Wallets, this.paginate(request)),
+            this.walletRepository.top(Contracts.State.SearchScope.Wallets, this.getListingPage(request)),
             WalletResource,
         );
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        return this.respondWithResource(this.findWallet(request.params.id), WalletResource);
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
+        }
+
+        return this.respondWithResource(wallet, WalletResource);
     }
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-
-        if (wallet instanceof Boom) {
-            return wallet;
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
         }
 
-        // Overwrite parameters for special wallet treatment inside transaction repository
-        const parameters = {
-            ...request.query,
-            ...request.params,
-            ...this.paginate(request),
-            walletPublicKey: wallet.publicKey,
-            walletAddress: wallet.address,
-        };
+        const criteria = [
+            { ...request.query, recipientId: wallet.address },
+            { ...request.query, asset: { payment: [{ recipientId: wallet.address }] } },
+        ];
 
-        delete parameters.publicKey;
-        delete parameters.recipientId;
-        delete parameters.id;
+        if (wallet.publicKey) {
+            criteria.push({ ...request.query, senderPublicKey: wallet.publicKey });
+        }
 
-        const rows = await this.transactionRepository.search(parameters);
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
+            criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
+        );
 
-        return this.toPagination(rows, TransactionResource, (request.query.transform as unknown) as boolean);
+        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async transactionsSent(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-
-        if (wallet instanceof Boom) {
-            return wallet;
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
+        }
+        if (!wallet.publicKey) {
+            return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        // NOTE: We unset this value because it otherwise will produce a faulty SQL query
-        delete request.params.id;
-
-        const rows = await this.transactionRepository.searchByQuery(
-            {
-                ...request.query,
-                ...request.params,
-                senderPublicKey: wallet.publicKey,
-            },
-            this.paginate(request),
+        const criteria = { ...request.query, senderPublicKey: wallet.publicKey };
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
+            criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
-        return this.toPagination(rows, TransactionResource, (request.query.transform as unknown) as boolean);
+        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async transactionsReceived(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-
-        if (wallet instanceof Boom) {
-            return wallet;
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
         }
 
-        // NOTE: We unset this value because it otherwise will produce a faulty SQL query
-        delete request.params.id;
-
-        const rows = await this.transactionRepository.searchByQuery(
-            {
-                ...request.query,
-                ...request.params,
-                recipientId: wallet.address,
-            },
-            this.paginate(request),
+        const criteria = { ...request.query, recipientId: wallet.address };
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
+            criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
-        return this.toPagination(rows, TransactionResource, (request.query.transform as unknown) as boolean);
+        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async votes(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-
-        if (wallet instanceof Boom) {
-            return wallet;
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
+        }
+        if (!wallet.publicKey) {
+            return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        // NOTE: We unset this value because it otherwise will produce a faulty SQL query
-        delete request.params.id;
+        const criteria = {
+            ...request.query,
+            typeGroup: Enums.TransactionTypeGroup.Core,
+            type: Enums.TransactionType.Vote,
+            senderPublicKey: wallet.publicKey,
+        };
 
-        const rows = await this.transactionRepository.searchByQuery(
-            {
-                ...request.query,
-                ...request.params,
-                senderPublicKey: wallet.publicKey,
-                type: Enums.TransactionType.Vote,
-                typeGroup: Enums.TransactionTypeGroup.Core,
-            },
-            this.paginate(request),
+        const transactionListResult = await this.transactionHistoryService.listByCriteria(
+            criteria,
+            this.getListingOrder(request),
+            this.getListingPage(request),
         );
 
-        return this.toPagination(rows, TransactionResource, (request.query.transform as unknown) as boolean);
+        return this.toPagination(transactionListResult, TransactionResource);
     }
 
     public async locks(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallet: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-
-        if (wallet instanceof Boom) {
-            return wallet;
+        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+        if (!wallet) {
+            return notFound("Wallet not found");
         }
-
-        // Sorry, cold wallets
         if (!wallet.publicKey) {
-            return this.toPagination({ rows: [], count: 0 }, LockResource);
+            return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, LockResource);
         }
 
-        const rows = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
+        const lockListResult = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             ...request.params,
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListingPage(request),
             senderPublicKey: wallet.publicKey,
         });
 
-        return this.toPagination(rows, LockResource);
+        return this.toPagination(lockListResult, LockResource);
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const wallets = this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
             ...request.payload,
             ...request.query,
-            ...this.paginate(request),
+            ...this.getListingPage(request),
         });
 
         return this.toPagination(wallets, WalletResource);
     }
 
-    private findWallet(id: string): Contracts.State.Wallet | Boom<null> {
+    private findWallet(id: string): Contracts.State.Wallet | undefined {
         try {
             return this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, id);
         } catch (error) {
-            return notFound("Wallet not found");
+            return undefined;
         }
     }
 }

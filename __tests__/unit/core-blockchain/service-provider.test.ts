@@ -1,5 +1,6 @@
-import { ServiceProvider } from "../../../packages/core-blockchain/src/service-provider";
-import { Container, Application, Providers } from "@arkecosystem/core-kernel";
+import { ServiceProvider } from "@packages/core-blockchain/src/service-provider";
+import { Application, Container, Providers } from "@packages/core-kernel";
+import { Services } from "@packages/core-kernel/dist";
 
 describe("ServiceProvider", () => {
     let app: Application;
@@ -10,28 +11,31 @@ describe("ServiceProvider", () => {
 
         app.bind(Container.Identifiers.StateStore).toConstantValue({ reset: jest.fn() });
         app.bind(Container.Identifiers.DatabaseService).toConstantValue({});
-        app.bind(Container.Identifiers.BlockRepository).toConstantValue({});
+        app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue({});
         app.bind(Container.Identifiers.TransactionPoolService).toConstantValue({});
         app.bind(Container.Identifiers.LogService).toConstantValue({});
         app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
-        app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
+        app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
         serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
     });
 
     describe("register", () => {
-        it("should bind blockchain and state machine", async () => {
+        it("should bind blockchain, state machine and block processr", async () => {
             const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
             serviceProvider.setConfig(pluginConfiguration);
 
             expect(app.isBound(Container.Identifiers.StateMachine)).toBeFalse();
             expect(app.isBound(Container.Identifiers.BlockchainService)).toBeFalse();
+            expect(app.isBound(Container.Identifiers.BlockProcessor)).toBeFalse();
 
             await serviceProvider.register();
 
             expect(app.isBound(Container.Identifiers.StateMachine)).toBeTrue();
             expect(app.isBound(Container.Identifiers.BlockchainService)).toBeTrue();
+            expect(app.isBound(Container.Identifiers.BlockProcessor)).toBeTrue();
         });
     });
 

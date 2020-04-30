@@ -1,6 +1,7 @@
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
+import { BuildDelegateRankingAction } from "./actions";
 import { BlockState } from "./block-state";
 import { DposPreviousRoundState, DposState } from "./dpos";
 import { StateBuilder } from "./state-builder";
@@ -62,6 +63,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind(Container.Identifiers.TransactionValidatorFactory)
             .toAutoFactory(Container.Identifiers.TransactionValidator);
+
+        this.registerActions();
     }
 
     public async boot(): Promise<void> {
@@ -70,5 +73,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async bootWhen(serviceProvider?: string): Promise<boolean> {
         return serviceProvider === "@arkecosystem/core-database";
+    }
+
+    private registerActions(): void {
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("buildDelegateRanking", new BuildDelegateRankingAction());
     }
 }

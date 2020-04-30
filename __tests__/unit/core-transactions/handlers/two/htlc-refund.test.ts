@@ -442,7 +442,7 @@ describe("Htlc refund", () => {
                 );
                 expect(foundLockWallet).toBeDefined();
                 expect(foundLockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id!]).toEqual({
-                    amount: BigInt(htlcLockTransaction.data.amount),
+                    amount: htlcLockTransaction.data.amount,
                     recipientId: htlcLockTransaction.data.recipientId,
                     ...htlcLockTransaction.data.asset!.lock,
                 });

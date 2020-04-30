@@ -1,5 +1,5 @@
 import { DatabaseService, Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Utils, Services } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 import async from "async";
 
@@ -29,7 +29,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;
 
-    @Container.inject(Container.Identifiers.BlockRepository)
+    @Container.inject(Container.Identifiers.DatabaseBlockRepository)
     private readonly blockRepository!: Repositories.BlockRepository;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
@@ -60,7 +60,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             );
         }
 
-        this.blockProcessor = this.app.resolve<BlockProcessor>(BlockProcessor);
+        this.blockProcessor = this.app.get<BlockProcessor>(Container.Identifiers.BlockProcessor);
 
         this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }) => {
             try {
@@ -182,11 +182,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     /**
      * Push a block to the process queue.
      */
-    public handleIncomingBlock(block: Interfaces.IBlockData, fromForger = false): void {
+    public async handleIncomingBlock(block: Interfaces.IBlockData, fromForger = false): Promise<void> {
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
+
         this.pushPingBlock(block, fromForger);
 
-        const currentSlot: number = Crypto.Slots.getSlotNumber();
-        const receivedSlot: number = Crypto.Slots.getSlotNumber(block.timestamp);
+        const currentSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup);
+        const receivedSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, block.timestamp);
 
         if (receivedSlot > currentSlot) {
             this.app.log.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
@@ -280,8 +282,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
                 Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlockData);
 
+                const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(
+                    this.app,
+                    lastBlock.data.height,
+                );
+
                 const tempNewLastBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(
                     tempNewLastBlockData,
+                    blockTimeLookup,
                     {
                         deserializeTransactionsUnchecked: true,
                     },
@@ -358,15 +366,19 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Process the given block.
      */
     public async processBlocks(blocks: Interfaces.IBlockData[]): Promise<Interfaces.IBlock[] | undefined> {
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blocks[0].height);
+
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult | undefined;
 
         if (
             blocks[0] &&
-            !Utils.isBlockChained(this.getLastBlock().data, blocks[0]) &&
+            !Utils.isBlockChained(this.getLastBlock().data, blocks[0], blockTimeLookup) &&
             !CryptoUtils.isException(blocks[0].id)
         ) {
-            this.app.log.warning(Utils.getBlockNotChainedErrorMessage(this.getLastBlock().data, blocks[0]));
+            this.app.log.warning(
+                Utils.getBlockNotChainedErrorMessage(this.getLastBlock().data, blocks[0], blockTimeLookup),
+            );
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
             this.resetLastDownloadedBlock();
@@ -376,10 +388,12 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         let forkBlock: Interfaces.IBlock | undefined = undefined;
         let lastProcessedBlock: Interfaces.IBlock | undefined = undefined;
         for (const block of blocks) {
-            const blockInstance = Blocks.BlockFactory.fromData(block);
+            const blockInstance = Blocks.BlockFactory.fromData(block, blockTimeLookup);
             Utils.assert.defined<Interfaces.IBlock>(blockInstance);
 
-            lastProcessResult = await this.blockProcessor.process(blockInstance);
+            lastProcessResult = await this.app
+                .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+                .call("processBlock", { blockProcessor: this.blockProcessor, block: blockInstance });
             lastProcessedBlock = blockInstance;
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
@@ -435,10 +449,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
             lastProcessedBlock
         ) {
-            // broadcast last processed block
-            const blocktime: number = Managers.configManager.getMilestone(lastProcessedBlock.data.height).blocktime;
-
-            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= lastProcessedBlock.data.timestamp) {
+            if (
+                this.state.started &&
+                Crypto.Slots.getSlotInfo(blockTimeLookup).startTime <= lastProcessedBlock.data.timestamp
+            ) {
                 this.app
                     .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                     .broadcastBlock(lastProcessedBlock);

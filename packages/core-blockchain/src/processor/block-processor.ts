@@ -1,7 +1,7 @@
-import { DatabaseService, Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Repositories } from "@arkecosystem/core-database";
+import { Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import {
     AcceptBlockHandler,
@@ -32,7 +32,7 @@ export class BlockProcessor {
     @Container.inject(Container.Identifiers.BlockchainService)
     private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
+    @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
     private readonly transactionRepository!: Repositories.TransactionRepository;
 
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
@@ -52,8 +52,14 @@ export class BlockProcessor {
             return this.app.resolve<NonceOutOfOrderHandler>(NonceOutOfOrderHandler).execute();
         }
 
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.data.height);
+
         const isValidGenerator: boolean = await this.validateGenerator(block);
-        const isChained: boolean = AppUtils.isBlockChained(this.blockchain.getLastBlock().data, block.data);
+        const isChained: boolean = AppUtils.isBlockChained(
+            this.blockchain.getLastBlock().data,
+            block.data,
+            blockTimeLookup,
+        );
         if (!isChained) {
             return this.app.resolve<UnchainedHandler>(UnchainedHandler).initialize(isValidGenerator).execute(block);
         }
@@ -187,12 +193,20 @@ export class BlockProcessor {
     }
 
     private async validateGenerator(block: Interfaces.IBlock): Promise<boolean> {
-        const database: DatabaseService = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.data.height);
 
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
-        const delegates: Contracts.State.Wallet[] = await database.getActiveDelegates(roundInfo);
-        const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
-        const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
+        const delegates: Contracts.State.Wallet[] = (await this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
+
+        const forgingInfo: Contracts.Shared.ForgingInfo = AppUtils.forgingInfoCalculator.calculateForgingInfo(
+            block.data.timestamp,
+            block.data.height,
+            blockTimeLookup,
+        );
+
+        const forgingDelegate: Contracts.State.Wallet = delegates[forgingInfo.currentForger];
 
         const walletRepository = this.app.getTagged<Contracts.State.WalletRepository>(
             Container.Identifiers.WalletRepository,

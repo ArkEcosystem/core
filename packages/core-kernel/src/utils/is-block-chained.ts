@@ -12,12 +12,13 @@ type BlockChainedDetails = {
 const getBlockChainedDetails = (
     previousBlock: Interfaces.IBlockData,
     nextBlock: Interfaces.IBlockData,
+    getTimeStampForBlock: (blockheight: number) => number,
 ): BlockChainedDetails => {
     const followsPrevious: boolean = nextBlock.previousBlock === previousBlock.id;
     const isPlusOne: boolean = nextBlock.height === previousBlock.height + 1;
 
-    const previousSlot: number = Crypto.Slots.getSlotNumber(previousBlock.timestamp);
-    const nextSlot: number = Crypto.Slots.getSlotNumber(nextBlock.timestamp);
+    const previousSlot: number = Crypto.Slots.getSlotNumber(getTimeStampForBlock, previousBlock.timestamp);
+    const nextSlot: number = Crypto.Slots.getSlotNumber(getTimeStampForBlock, nextBlock.timestamp);
     const isAfterPreviousSlot: boolean = previousSlot < nextSlot;
 
     const isChained: boolean = followsPrevious && isPlusOne && isAfterPreviousSlot;
@@ -25,16 +26,21 @@ const getBlockChainedDetails = (
     return { followsPrevious, isPlusOne, previousSlot, nextSlot, isAfterPreviousSlot, isChained };
 };
 
-export const isBlockChained = (previousBlock: Interfaces.IBlockData, nextBlock: Interfaces.IBlockData): boolean => {
-    const details: BlockChainedDetails = getBlockChainedDetails(previousBlock, nextBlock);
+export const isBlockChained = (
+    previousBlock: Interfaces.IBlockData,
+    nextBlock: Interfaces.IBlockData,
+    getTimeStampForBlock: (blockheight: number) => number,
+): boolean => {
+    const details: BlockChainedDetails = getBlockChainedDetails(previousBlock, nextBlock, getTimeStampForBlock);
     return details.isChained;
 };
 
 export const getBlockNotChainedErrorMessage = (
     previousBlock: Interfaces.IBlockData,
     nextBlock: Interfaces.IBlockData,
+    getTimeStampForBlock: (blockheight: number) => number,
 ): string => {
-    const details: BlockChainedDetails = getBlockChainedDetails(previousBlock, nextBlock);
+    const details: BlockChainedDetails = getBlockChainedDetails(previousBlock, nextBlock, getTimeStampForBlock);
 
     if (details.isChained) {
         throw new Error("Block had no chain error");

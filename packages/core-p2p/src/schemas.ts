@@ -256,7 +256,7 @@ export const replySchemas = {
         },
     },
     "p2p.peer.postBlock": {
-        type: "object",
+        type: "boolean",
     },
     "p2p.peer.postTransactions": {
         type: "array",

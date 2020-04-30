@@ -1,10 +1,10 @@
 import "jest-extended";
 
 import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
-import { ServiceProvider } from "@packages/core-webhooks/src";
+import { defaults } from "@packages/core-api/src/defaults";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { NullEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/null";
-import { defaults } from "@packages/core-api/src/defaults";
+import { ServiceProvider } from "@packages/core-webhooks/src";
 import { defaults as webhooksDefaults } from "@packages/core-webhooks/src/defaults";
 import { dirSync, setGracefulCleanup } from "tmp";
 
@@ -25,9 +25,9 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
 
-    app.bind(Container.Identifiers.BlockRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue({});
 
-    app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
 
     app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
 
@@ -35,11 +35,17 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.PeerStorage).toConstantValue({});
 
-    app.bind(Container.Identifiers.RoundRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue({});
 
     app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
 
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
+
+    app.bind(Container.Identifiers.BlockHistoryService).toConstantValue({});
+
+    app.bind(Container.Identifiers.TransactionHistoryService).toConstantValue({});
+
+    app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue({});
 
     app.bind(Container.Identifiers.EventDispatcherService).to(NullEventDispatcher);
 
@@ -57,8 +63,8 @@ describe("ServiceProvider", () => {
     beforeEach(async () => {
         coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-        let instance: Providers.PluginConfiguration = pluginConfiguration.from("core-api", defaults);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-api", defaults);
 
         coreApiServiceProvider.setConfig(instance);
 
@@ -70,8 +76,8 @@ describe("ServiceProvider", () => {
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-        let instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
 
         serviceProvider.setConfig(instance);
 
@@ -83,8 +89,8 @@ describe("ServiceProvider", () => {
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-        let instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
 
         serviceProvider.setConfig(instance);
 
@@ -98,8 +104,8 @@ describe("ServiceProvider", () => {
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-        let instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
 
         serviceProvider.setConfig(instance);
 
@@ -115,11 +121,11 @@ describe("ServiceProvider", () => {
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
 
-        let pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
 
         // @ts-ignore
         webhooksDefaults.enabled = true;
-        let instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
+        const instance = pluginConfiguration.from("core-webhooks", webhooksDefaults);
 
         serviceProvider.setConfig(instance);
 

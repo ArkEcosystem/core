@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Container } from "@packages/core-kernel";
+import { Application, Container, Services } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-state/src";
 import { StateBuilder } from "@packages/core-state/src/state-builder";
 
@@ -8,6 +8,7 @@ let app: Application;
 
 beforeEach(() => {
     app = new Application(new Container.Container());
+    app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 });
 
 afterAll(() => jest.clearAllMocks());

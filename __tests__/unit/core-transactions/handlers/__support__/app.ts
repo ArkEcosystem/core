@@ -10,10 +10,17 @@ import {
     publicKeysIndexer,
     usernamesIndexer,
 } from "@packages/core-state/src/wallets/indexers/indexers";
+import { Mocks } from "@packages/core-test-framework";
 import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 import { Collator } from "@packages/core-transaction-pool/src";
+import {
+    ApplyTransactionAction,
+    RevertTransactionAction,
+    ThrowIfCannotEnterPoolAction,
+    VerifyTransactionAction,
+} from "@packages/core-transaction-pool/src/actions";
 import { DynamicFeeMatcher } from "@packages/core-transaction-pool/src/dynamic-fee-matcher";
 import { ExpirationService } from "@packages/core-transaction-pool/src/expiration-service";
 import { Mempool } from "@packages/core-transaction-pool/src/mempool";
@@ -25,7 +32,6 @@ import { TransactionHandlerProvider } from "@packages/core-transactions/src/hand
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Identities, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
-import { Mocks } from "@packages/core-test-framework";
 
 const logger = {
     notice: jest.fn(),
@@ -110,9 +116,9 @@ export const initApp = (): Application => {
 
     app.bind(Identifiers.EventDispatcherService).to(NullEventDispatcher).inSingletonScope();
 
-    app.bind(Identifiers.BlockRepository).toConstantValue(Mocks.BlockRepository.instance);
+    app.bind(Identifiers.DatabaseBlockRepository).toConstantValue(Mocks.BlockRepository.instance);
 
-    app.bind(Identifiers.TransactionRepository).toConstantValue(Mocks.TransactionRepository.instance);
+    app.bind(Identifiers.DatabaseTransactionRepository).toConstantValue(Mocks.TransactionRepository.instance);
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
@@ -133,6 +139,28 @@ export const initApp = (): Application => {
 
     app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
     app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
+
+    app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "verifyTransaction",
+        new VerifyTransactionAction(),
+    );
+
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "throwIfCannotEnterPool",
+        new ThrowIfCannotEnterPoolAction(),
+    );
+
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "applyTransaction",
+        new ApplyTransactionAction(),
+    );
+
+    app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService).bind(
+        "revertTransaction",
+        new RevertTransactionAction(),
+    );
 
     return app;
 };

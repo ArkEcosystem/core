@@ -1,9 +1,10 @@
 import "jest-extended";
 
-import { Container, Providers, Services } from "@packages/core-kernel/src";
+import { Container, Providers, Services } from "@packages/core-kernel";
 import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
 import { PluginConfiguration } from "@packages/core-kernel/src/providers";
 import { dposPreviousRoundStateProvider } from "@packages/core-state/src";
+import { BuildDelegateRankingAction } from "@packages/core-state/src/actions";
 import { BlockState } from "@packages/core-state/src/block-state";
 import { defaults } from "@packages/core-state/src/defaults";
 import { DposState } from "@packages/core-state/src/dpos/dpos";
@@ -145,6 +146,11 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
         .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
         .set("storage.maxLastTransactionIds", defaults.storage.maxLastTransactionIds);
 
+    sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+        .bind("buildDelegateRanking", new BuildDelegateRankingAction());
+
     sandbox.app.bind(Container.Identifiers.StateStore).to(StateStore).inSingletonScope();
 
     const stateStore: StateStore = sandbox.app.get(Container.Identifiers.StateStore);
@@ -248,8 +254,8 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
         }
     }
 
-    sandbox.app.container.bind(Container.Identifiers.BlockRepository).to(MockBlockRepository);
-    sandbox.app.container.bind(Container.Identifiers.TransactionRepository).to(MockTransactionRepository);
+    sandbox.app.container.bind(Container.Identifiers.DatabaseBlockRepository).to(MockBlockRepository);
+    sandbox.app.container.bind(Container.Identifiers.DatabaseTransactionRepository).to(MockTransactionRepository);
     sandbox.app.container.bind(Container.Identifiers.EventDispatcherService).to(MockEventDispatcher);
 
     sandbox.app.bind(Container.Identifiers.BlockState).to(BlockState);

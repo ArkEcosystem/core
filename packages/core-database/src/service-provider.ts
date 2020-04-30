@@ -1,10 +1,17 @@
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Connection, createConnection, getCustomRepository } from "typeorm";
 
+import { GetActiveDelegatesAction } from "./actions";
+import { BlockFilter } from "./block-filter";
+import { BlockHistoryService } from "./block-history-service";
+import { BlockModelConverter } from "./block-model-converter";
 import { DatabaseService } from "./database-service";
 import { DatabaseEvent } from "./events";
-import { SnakeNamingStrategy } from "./models/naming-strategy";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
+import { TransactionFilter } from "./transaction-filter";
+import { TransactionHistoryService } from "./transaction-history-service";
+import { TransactionModelConverter } from "./transaction-model-converter";
+import { SnakeNamingStrategy } from "./utils/snake-naming-strategy";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -14,18 +21,25 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.log.debug("Connection established.");
 
-        this.app.bind(Container.Identifiers.BlockRepository).toConstantValue(getCustomRepository(BlockRepository));
+        this.app
+            .bind(Container.Identifiers.DatabaseRoundRepository)
+            .toConstantValue(getCustomRepository(RoundRepository));
 
-        const transactionRepository: TransactionRepository = getCustomRepository(TransactionRepository);
-        transactionRepository.getWalletRepository = () => {
-            // Inversify isn't responsible for the instance creation so we can't inject.
-            return this.app.getTagged(Container.Identifiers.WalletRepository, "state", "blockchain");
-        };
-        this.app.bind(Container.Identifiers.TransactionRepository).toConstantValue(transactionRepository);
+        const blockRepository = getCustomRepository(BlockRepository);
+        this.app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(blockRepository);
+        this.app.bind(Container.Identifiers.DatabaseBlockModelConverter).to(BlockModelConverter);
+        this.app.bind(Container.Identifiers.DatabaseBlockFilter).to(BlockFilter);
+        this.app.bind(Container.Identifiers.BlockHistoryService).to(BlockHistoryService);
 
-        this.app.bind(Container.Identifiers.RoundRepository).toConstantValue(getCustomRepository(RoundRepository));
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        this.app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue(transactionRepository);
+        this.app.bind(Container.Identifiers.DatabaseTransactionModelConverter).to(TransactionModelConverter);
+        this.app.bind(Container.Identifiers.DatabaseTransactionFilter).to(TransactionFilter);
+        this.app.bind(Container.Identifiers.TransactionHistoryService).to(TransactionHistoryService);
 
         this.app.bind(Container.Identifiers.DatabaseService).to(DatabaseService).inSingletonScope();
+
+        this.registerActions();
     }
 
     public async boot(): Promise<void> {
@@ -38,6 +52,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    private registerActions(): void {
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("getActiveDelegates", new GetActiveDelegatesAction(this.app));
     }
 
     private async connect(): Promise<Connection> {
