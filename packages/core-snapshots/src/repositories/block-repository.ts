@@ -23,10 +23,8 @@ export class BlockRepository extends Repositories.AbstractEntityRepository<Model
     public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<void> {
         const block = await this.findByHeight(roundInfo.roundHeight);
 
-        console.log("Block height to delete: " +  block?.height);
-
         if (!block) {
-            throw new Error("Missing block by height.");
+            throw new Error("Cannot find block on height " + roundInfo.roundHeight);
         }
 
         return this.manager.transaction(async (manager) => {
@@ -75,48 +73,9 @@ export class BlockRepository extends Repositories.AbstractEntityRepository<Model
         return topBlocks[0];
     }
 
-
     public async findByHeight(height: number): Promise<Models.Block | undefined> {
         return this.findOne({
             height: height
-        });
-    }
-
-    public async test(): Promise<void> {
-        return this.manager.transaction(async (manager) => {
-            // let deleteTransactions =  manager
-            //     .createQueryBuilder()
-            //     .delete()
-            //     .from(Models.Transaction)
-            //     .where({timestamp: MoreThan(0)});
-            //
-            // console.log(deleteTransactions.getSql());
-            //
-            // let deleteBlocks = manager
-            //     .createQueryBuilder()
-            //     .delete()
-            //     .from(Models.Block)
-            //     .where({height: MoreThan(10)});
-            //
-            // console.log(deleteBlocks.getSql());
-            //
-            // let deleteBlocks2 = manager
-            //     .createQueryBuilder()
-            //     .delete()
-            //     .from(Models.Block)
-            //     .where({totalAmount: MoreThan(10)});
-            //
-            // console.log(deleteBlocks2.getSql());
-
-            let deleteRounds =  manager
-                .createQueryBuilder()
-                .delete()
-                .from(Models.Round)
-                .where("round > :round", { round: 0 });
-
-            console.log(deleteRounds.getSql());
-
-            await deleteRounds.execute();
         });
     }
 }

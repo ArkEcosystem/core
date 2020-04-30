@@ -43,15 +43,15 @@ export class StreamReader {
 
             readStream.once("open", onOpen)
             readStream.once("error", onError)
+
+            this.readStream.on("end", () => {
+                this.isEnd = true;
+            })
         })
     }
 
 
     public async readNext(): Promise<any> {
-        if(this.isEnd) {
-            return null;
-        }
-
         let lengthChunk: ByteBuffer;
         try {
             lengthChunk = await this.read(4);
@@ -66,11 +66,6 @@ export class StreamReader {
 
         let length = lengthChunk.readUint32();
 
-        // if (length === 0) {
-        //     this.isEnd = true;
-        //     return null;
-        // }
-
         let dataChunk = await this.read(length);
 
         this.count++;
@@ -78,6 +73,10 @@ export class StreamReader {
     }
 
     private async readNextChunk(): Promise<void> {
+        if (this.isEnd) {
+            throw new StreamExceptions.EndOfFile(this.path)
+        }
+
         if (!this.readStream) {
             throw new StreamExceptions.StreamNotOpen(this.path);
         }
@@ -119,6 +118,7 @@ export class StreamReader {
                 removeListeners();
                 reject(new StreamExceptions.EndOfFile(this.path));
             }
+
 
             this.readStream!.once("readable", onReadable)
 

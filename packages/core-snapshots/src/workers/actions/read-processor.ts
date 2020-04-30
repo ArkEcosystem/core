@@ -169,6 +169,11 @@ export class ReadProcessor {
     }
 
     private emitSynchronized() {
+        // parentPort?.postMessage({
+        //     action: "log",
+        //     data: "wait"
+        // })
+
         parentPort!.postMessage({
             action: "synchronized",
             data: {

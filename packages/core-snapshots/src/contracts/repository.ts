@@ -3,3 +3,6 @@ export interface Repository {
     countInRange(start: number, end: number): Promise<number>;
     save(data: any): Promise<any>;
 }
+
+export type RepositoryFactory = (table: string) => Repository;
+

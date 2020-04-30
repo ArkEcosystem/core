@@ -2,7 +2,6 @@ import { Container } from "@arkecosystem/core-kernel";
 
 import { AbstractWorkerAction } from "./abstract-worker-action";
 import { ReadProcessor } from "./read-processor";
-import { StreamReader } from "../../filesystem";
 
 @Container.injectable()
 export class RestoreWorkerAction extends AbstractWorkerAction {
@@ -15,7 +14,7 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
 
     public async start() {
         let isBlock = this.table === "blocks";
-        let streamReader = new StreamReader(this.filePath!, !this.skipCompression, this.getCodec()[`${this.table}Decode`])
+        let streamReader = this.getStreamReader();
 
         const chunkSize = 1000;
 

@@ -6,12 +6,13 @@ import { Models } from "@arkecosystem/core-database";
 import { Transactions } from "@arkecosystem/crypto";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 
-import { WorkerAction, Worker } from "../contracts";
+import { WorkerAction, Worker, Repository } from "../contracts";
 import { Identifiers } from "../ioc";
 import { Application } from "./application";
 import * as Codecs from "../codecs";
 import * as Actions from "./actions";
 import * as Repositories from "../repositories";
+import { StreamReader, StreamWriter } from "../codecs";
 
 
 let app: Application;
@@ -34,11 +35,29 @@ export const init = async () => {
         );
     }
 
-    app.bind(Identifiers.SnapshotBlockRepository).toConstantValue(getCustomRepository(Repositories.BlockRepository));
-    app.bind(Identifiers.SnapshotTransactionRepository).toConstantValue(
-        getCustomRepository(Repositories.TransactionRepository),
-    );
-    app.bind(Identifiers.SnapshotRoundRepository).toConstantValue(getCustomRepository(Repositories.RoundRepository));
+    app
+        .bind<Repository>(Identifiers.SnapshotRepositoryFactory)
+        .toFactory<Repository>((context: Container.interfaces.Context) => (table: string) => {
+            if(table === "blocks") {
+                return getCustomRepository(Repositories.BlockRepository)
+            } else if (table === "transactions") {
+                return getCustomRepository(Repositories.TransactionRepository)
+            } else {
+                return getCustomRepository(Repositories.RoundRepository)
+            }
+            });
+
+    app
+        .bind<StreamReader>(Identifiers.StreamReaderFactory)
+        .toFactory<StreamReader>((context: Container.interfaces.Context) => (path: string, useCompression: boolean, decode: Function) =>
+            new StreamReader(path, useCompression, decode)
+        );
+
+    app
+        .bind<StreamWriter>(Identifiers.StreamWriterFactory)
+        .toFactory<StreamWriter>((context: Container.interfaces.Context) => (dbStream: NodeJS.ReadableStream, path: string, useCompression: boolean, encode: Function) =>
+            new StreamWriter(dbStream, path, useCompression, encode)
+        );
 
     app.bind(Identifiers.SnapshotCodec)
         .to(Codecs.Codec)
@@ -77,7 +96,7 @@ export const init = async () => {
 };
 
 export const dispose = async (): Promise<void> => {
-    if (workerData.connection) {
+    if (_workerData.connection) {
         let connection = app.get<Connection>(Identifiers.SnapshotDatabaseConnection);
 
         await connection.close();

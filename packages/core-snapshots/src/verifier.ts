@@ -1,6 +1,5 @@
 import { Models } from "@arkecosystem/core-database";
 import { Blocks, Interfaces, Crypto, Transactions } from "@arkecosystem/crypto";
-import { Managers } from "@arkecosystem/crypto";
 import * as Exceptions from "./exceptions/verifier";
 
 export class Verifier {
@@ -54,20 +53,11 @@ export class Verifier {
         }
 
         try {
-            if (transaction.id === "4dfb0a6424946d14469dd6bc9abb622b5a1887ace5e802f66b440d096e67f03e") {
-                console.log(Managers.configManager.getHeight());
-                console.log(Managers.configManager.getHeight());
-                console.log(Managers.configManager.getHeight());
-            }
             if (!Transactions.TransactionFactory.fromBytes(transaction.serialized).isVerified) {
-
-                console.log("NOT VERIFIED: ", transaction.id);
-                // throw new Error();
+                throw new Error();
             }
         } catch (e) {
-            console.log("erR", e)
-            console.log("NOT VERIFIED: ", transaction.id);
-            // throw new Exceptions.TransactionVerifyException(transaction.id);
+            throw new Exceptions.TransactionVerifyException(transaction.id);
         }
 
 

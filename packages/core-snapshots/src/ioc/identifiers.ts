@@ -6,6 +6,7 @@ export const Identifiers = {
     SnapshotAction: Symbol.for("Snapshot<Action>"),
     SnapshotDatabaseConnection: Symbol.for("Snapshot<DatabaseConnection>"),
     SnapshotDatabaseService: Symbol.for("Service<SnapshotDatabase>"),
+    SnapshotRepositoryFactory: Symbol.for("Factory<SnapshotRepository>"),
     SnapshotBlockRepository: Symbol.for("Snapshot<BlockRepository>"),
     SnapshotRoundRepository: Symbol.for("Snapshot<RoundRepository>"),
     SnapshotTransactionRepository: Symbol.for("Snapshot<TransactionRepository>"),

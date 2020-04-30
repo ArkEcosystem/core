@@ -17,7 +17,6 @@ export class TestWorkerAction implements WorkerAction {
             this.resume();
         }
 
-        // console.log("SYNC")
 
         if (data.execute === "throwError") {
             throw new Error("Sync Error");
@@ -25,15 +24,14 @@ export class TestWorkerAction implements WorkerAction {
     }
 
     public async start() {
-        // console.log("START")
-
         if (this.options.table === "throwError") {
             throw new Error("Start Error");
         } else if (this.options.table === "wait") {
-            parentPort!.postMessage({
+            parentPort?.postMessage({
                 action: "started",
             });
 
+            await new Promise((resolve) => { this.resume = () => { resolve() } })
             await new Promise((resolve) => { this.resume = () => { resolve() } })
         }
     }

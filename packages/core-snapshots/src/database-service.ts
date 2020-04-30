@@ -128,9 +128,9 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         let transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions", meta));
         let roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds", meta));
 
-        let stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
-        let stopTransactionsProgressDispatcher =await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
-        let stopRoundsProgressDispatcher =await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+        // let stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+        // let stopTransactionsProgressDispatcher =await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
+        // let stopRoundsProgressDispatcher =await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
 
         try {
             await blocksWorker.start();
@@ -158,14 +158,16 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
                 result = (await Promise.all(promises))[0];
 
+                // console.log("Result: ", result)
+
                 if (!result) {
                     break;
                 }
             }
         } catch (err) {
-            stopBlocksProgressDispatcher();
-            stopTransactionsProgressDispatcher();
-            stopRoundsProgressDispatcher();
+            // stopBlocksProgressDispatcher();
+            // stopTransactionsProgressDispatcher();
+            // stopRoundsProgressDispatcher();
 
             throw err;
         }
@@ -273,6 +275,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         return result;
     }
 
+    // @ts-ignore
     private async prepareProgressDispatcher(worker: WorkerWrapper, table: string, count: number): Promise<Function> {
         let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
 
