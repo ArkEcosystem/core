@@ -39,11 +39,11 @@ export class Command extends Commands.Command {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
-            .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
-            .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean())
+            // .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
+            // .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean())
             .setFlag("height", "The height after the roll back.", Joi.number())
             .setFlag("number", "The number of blocks to roll back.", Joi.number())
-            .setFlag("export", "Export the rolled back transactions.", Joi.boolean().default(true));
+            // .setFlag("export", "Export the rolled back transactions.", Joi.boolean().default(true));
     }
 
     /**
@@ -61,9 +61,9 @@ export class Command extends Commands.Command {
         });
 
         if (flags.height) {
-            await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).rollbackByHeight(flags.height, flags.export);
+            await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).rollbackByHeight(flags.height);
         } else if (flags.number) {
-            await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).rollbackByNumber(flags.number, flags.export);
+            await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).rollbackByNumber(flags.number);
         } else {
             this.logger.error("Please specify either a height or number of blocks to roll back.");
         }

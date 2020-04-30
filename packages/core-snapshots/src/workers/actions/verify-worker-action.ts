@@ -1,6 +1,5 @@
 import { AbstractWorkerAction } from "./abstract-worker-action";
 import { Container } from "@arkecosystem/core-kernel";
-import { Verifier } from "../../verifier";
 import { ReadProcessor } from "./read-processor";
 
 @Container.injectable()
@@ -29,18 +28,5 @@ export class VerifyWorkerAction extends AbstractWorkerAction {
         );
 
         await this.readProcessor.start();
-    }
-
-    private getVerifyFunction(): Function {
-        switch (this.table) {
-            case "blocks":
-                return Verifier.verifyBlock;
-            case "transactions":
-                return Verifier.verifyTransaction;
-            case "rounds":
-                return Verifier.verifyRound;
-            default:
-                throw new Error();
-        }
     }
 }

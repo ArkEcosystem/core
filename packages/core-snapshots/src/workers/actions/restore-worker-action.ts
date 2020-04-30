@@ -15,16 +15,21 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
     public async start() {
         let isBlock = this.table === "blocks";
         let streamReader = this.getStreamReader();
+        let verify = this.getVerifyFunction();
 
         const chunkSize = 1000;
 
         this.readProcessor = new ReadProcessor(
             isBlock,
             streamReader,
-            async (entity: any) => {
+            async (entity: any, previousEntity: any) => {
 
                 if (isBlock) {
                     this.applyGenesisBlockFix(entity);
+                }
+
+                if (this.options!.verify) {
+                    verify(entity, previousEntity);
                 }
 
                 this.entities.push(entity);
@@ -32,9 +37,6 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
                 if (this.entities.length === chunkSize) {
                     await this.saveValues();
                 }
-
-                // TODO: Add verify
-                // verify(entity, previousEntity);
             },
             async () => {
                 await this.saveValues();

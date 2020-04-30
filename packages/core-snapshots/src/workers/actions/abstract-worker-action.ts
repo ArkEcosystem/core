@@ -4,6 +4,7 @@ import { Managers } from "@arkecosystem/crypto";
 import { Codec, WorkerAction, Repository, Worker, RepositoryFactory, Stream } from "../../contracts";
 import { Identifiers } from "../../ioc";
 import { StreamReader, StreamWriter } from "../../filesystem";
+import { Verifier } from "../../verifier";
 
 @Container.injectable()
 export abstract class AbstractWorkerAction implements WorkerAction {
@@ -34,7 +35,7 @@ export abstract class AbstractWorkerAction implements WorkerAction {
 
     public abstract async start();
 
-    public sync(data: any): void {}
+    public abstract sync(data: any);
 
     protected getRepository(): Repository {
         let repositoryFactory = this.app.get<RepositoryFactory>(Identifiers.SnapshotRepositoryFactory);
@@ -62,5 +63,15 @@ export abstract class AbstractWorkerAction implements WorkerAction {
 
     protected getCodec(): Codec {
         return this.app.getTagged<Codec>(Identifiers.SnapshotCodec, "codec", this.codec);
+    }
+
+    protected getVerifyFunction(): Function {
+        if (this.table === "blocks") {
+            return Verifier.verifyBlock;
+        } else if (this.table === "transactions") {
+            return Verifier.verifyTransaction;
+        } else {
+            return Verifier.verifyRound;
+        }
     }
 }

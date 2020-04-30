@@ -12,6 +12,7 @@ export interface ActionOptions {
     end: number,
     codec: string;
     skipCompression: boolean;
+    verify: boolean;
 
     filePath: string;
 

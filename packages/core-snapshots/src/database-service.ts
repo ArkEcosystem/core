@@ -8,16 +8,9 @@ import { Meta, Options, Database, Worker } from "./contracts";
 import { ProgressDispatcher } from "./progress-dispatcher";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
 import { WorkerWrapper } from "./workers/worker-wrapper";
-// @ts-ignore
-import fs from "fs-extra";
-import zlib from "zlib";
-// @ts-ignore
-import { TransformEncoder } from "./filesystem/transform-encoder";
-// @ts-ignore
-import { JSONCodec } from "./codecs";
 
 @Container.injectable()
-export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseService {
+export class SnapshotDatabaseService implements Database.DatabaseService {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -43,10 +36,12 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
     private codec: string = "default";
     private skipCompression: boolean = false;
+    private verifyData: boolean = false;
 
-    public init(codec?: string, skipCompression?: boolean): void {
+    public init(codec?: string, skipCompression?: boolean, verify: boolean = false): void {
         this.codec = codec || "default";
         this.skipCompression = skipCompression || false;
+        this.verifyData = verify || false;
     }
 
     public async truncate(): Promise<void> {
@@ -86,9 +81,9 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         let transactionsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "transactions", meta));
         let roundsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "rounds", meta));
 
-        // let stopBlocksDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
-        // let stopTransactionsDispatcher = await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
-        // let stopRoundDispatcher = await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+        let stopBlocksDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+        let stopTransactionsDispatcher = await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
+        let stopRoundDispatcher = await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
 
         try {
             await Promise.all([
@@ -99,9 +94,9 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
 
             await this.filesystem.writeMetaData(meta);
         } catch (err) {
-            // stopBlocksDispatcher();
-            // stopTransactionsDispatcher();
-            // stopRoundDispatcher();
+            stopBlocksDispatcher();
+            stopTransactionsDispatcher();
+            stopRoundDispatcher();
 
             throw err;
         } finally {
@@ -123,14 +118,24 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         await this.runSynchronizedAction("verify", meta);
     }
 
+    public async getLastBlock(): Promise<Interfaces.IBlock> {
+        let block: Interfaces.IBlockData | undefined = await this.blockRepository.findLast();
+
+        Utils.assert.defined<Interfaces.IBlockData>(block);
+
+        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
+
+        return lastBlock;
+    }
+
     private async runSynchronizedAction(action: string, meta: Meta.MetaData): Promise<void> {
         let blocksWorker = new WorkerWrapper(this.prepareWorkerData(action, "blocks", meta));
         let transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions", meta));
         let roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds", meta));
 
-        // let stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
-        // let stopTransactionsProgressDispatcher =await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
-        // let stopRoundsProgressDispatcher =await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+        let stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+        let stopTransactionsProgressDispatcher =await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
+        let stopRoundsProgressDispatcher =await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
 
         try {
             await blocksWorker.start();
@@ -165,9 +170,9 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
                 }
             }
         } catch (err) {
-            // stopBlocksProgressDispatcher();
-            // stopTransactionsProgressDispatcher();
-            // stopRoundsProgressDispatcher();
+            stopBlocksProgressDispatcher();
+            stopTransactionsProgressDispatcher();
+            stopRoundsProgressDispatcher();
 
             throw err;
         }
@@ -245,16 +250,6 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
         };
     }
 
-    public async getLastBlock(): Promise<Interfaces.IBlock> {
-        let block: Interfaces.IBlockData | undefined = await this.blockRepository.findLast();
-
-        Utils.assert.defined<Interfaces.IBlockData>(block);
-
-        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
-
-        return lastBlock;
-    }
-
     private prepareWorkerData(action: string, table: string, meta: Meta.MetaData): any {
         let result: Worker.WorkerData = {
             actionOptions: {
@@ -265,6 +260,7 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
                 end: meta[table].end,
                 codec: this.codec,
                 skipCompression: this.skipCompression,
+                verify: this.verifyData,
                 filePath: `${this.filesystem.getSnapshotPath()}${table}`,
                 genesisBlockId: Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!.data.id,
                 updateStep: this.configuration.getOptional("dispatchUpdateStep", 1000)
@@ -297,110 +293,6 @@ export class SnapshotDatabaseService implements Contracts.Snapshot.DatabaseServi
             worker.removeListener("count", onCount)
             worker.removeListener("exit", onExit)
         }
-    }
-
-    // // @ts-ignore
-    // private waitToEnd(writableStream: NodeJS.WritableStream): Promise<void> {
-    //     return new Promise<void>((resolve) => {
-    //         writableStream.once("close", () => {
-    //             resolve();
-    //         })
-    //     })
-    // }
-
-    public async test(options: any): Promise<void> {
-        // try {
-        //     let worker = new WorkerWrapper(    {actionOptions: {
-        //             action: "test",
-        //             table: "wait",
-        //             codec: "default",
-        //             skipCompression: false,
-        //             filePath: "",
-        //             genesisBlockId: "123",
-        //             updateStep: 1000,
-        //             network: "testnet"
-        //         }});
-        //
-        //     await worker.start();
-        //
-        //     await worker.sync({
-        //         execute: "throwError"
-        //     });
-        // } catch (e) {
-        //
-        // }
-
-
-        // try {
-        //     // let streamReader = new StreamReader("/Users/sebastijankuzner/Library/Application Support/ark-core/devnet/snapshots/devnet/1-4810017/blocks", new Codec().blocksDecode);
-        //     let streamReader = new StreamReader("/Users/sebastijankuzner/Library/Application Support/ark-core/testnet/snapshots/testnet/1-2/transactions", new Codec().transactionsDecode);
-        //
-        //     await streamReader.open();
-        //
-        //     // for(let i = 0; i< 342; i++) {
-        //     for(let i = 0; i< 2; i++) {
-        //         console.log(await streamReader.readNext());
-        //         // await streamReader.readNext();
-        //     }
-        //
-        //     console.log(await streamReader.readNext());
-        //     console.log(await streamReader.readNext());
-        // } catch (err) {
-        //     console.log(err)
-        // }
-
-        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainRegistrationTransaction);
-        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainResignationTransaction);
-        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainUpdateTransaction);
-        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessRegistrationTransaction);
-        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessResignationTransaction);
-        // Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessUpdateTransaction);
-        //
-        // let transaction = await this.transactionRepository.findById("72eb7e9f5163f33a96afe4e752c9d64e4e19b7f3223cf1d198201f9ee2cea5d4")
-        //
-        // Managers.configManager.setHeight(4810016);
-        //
-        // console.log(transaction);
-        //
-        // let result = Transactions.TransactionFactory.fromBytes(transaction.serialized, false);
-        //
-        // console.log(result);
-
-        // let firstRound = Utils.roundCalculator.calculateRound(1);
-        // let lastRound = Utils.roundCalculator.calculateRound(52);
-        //
-        // console.log(firstRound, lastRound)
-        //
-        // console.log(await this.blockRepository.countInRange(firstRound.roundHeight, lastRound.roundHeight));
-        // console.log(await this.roundRepository.countInRange(firstRound.round, lastRound.round));
-        //
-        // let firstBlock = await this.blockRepository.findByHeight(firstRound.roundHeight);
-        // let lastBlock = await this.blockRepository.findByHeight(lastRound.roundHeight);
-        //
-        // console.log(await this.transactionRepository.countInRange(firstBlock!.timestamp, lastBlock!.timestamp));
-
-        // @ts-ignore
-        let dbStream = await this.blockRepository.getReadStream(1, 100);
-
-        // @ts-ignore
-        let gzipStream = zlib.createGzip();
-
-        // @ts-ignore
-        let encoder = new TransformEncoder(new JSONCodec().blocksEncode);
-
-        // @ts-ignore
-        let writeStream = fs.createWriteStream("/Users/sebastijankuzner/Desktop/ARK/Database/Test/asd2");
-
-        // @ts-ignore
-        // let stream = dbStream.pipe(encoder).pipe(gzipStream).pipe(process.stdout);
-        // @ts-ignore
-        gzipStream.pipe(writeStream);
-
-        gzipStream.write(Buffer.from("Test test test"))
-        gzipStream.write(Buffer.from("Test test test"))
-        gzipStream.write(Buffer.from("Test test test"))
-        gzipStream.write(Buffer.from("Test test test"))
-        gzipStream.write(Buffer.from("Test test test"))
     }
 }
 

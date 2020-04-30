@@ -21,4 +21,6 @@ export class DumpWorkerAction extends AbstractWorkerAction {
 
         clearInterval(interval);
     }
+
+    public sync(data: any) {}
 }

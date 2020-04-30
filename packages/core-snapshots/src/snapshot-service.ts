@@ -1,9 +1,8 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Identifiers } from "./ioc";
-import { SnapshotDatabaseService } from "./database-service";
 import { Interfaces } from "@arkecosystem/crypto";
 import { Filesystem } from "./filesystem/filesystem";
-import { Meta } from "./contracts";
+import { Meta, Database } from "./contracts";
 
 @Container.injectable()
 export class SnapshotService implements Contracts.Snapshot.SnapshotService {
@@ -14,7 +13,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
     private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Identifiers.SnapshotDatabaseService)
-    private readonly database!: SnapshotDatabaseService;
+    private readonly database!: Database.DatabaseService;
 
     public async dump(options: any): Promise<void> {
         try {
@@ -57,7 +56,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
             this.logger.info(`Running RESTORE for network: ${options.network}`);
 
-            this.database.init(meta!.codec, meta!.skipCompression);
+            this.database.init(meta!.codec, meta!.skipCompression, options.verify);
 
             await this.database.restore(meta!, { truncate: !!options.truncate });
 
@@ -100,7 +99,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
         }
     }
 
-    public async rollbackByHeight(height: number, backupTransactions: boolean): Promise<void> {
+    public async rollbackByHeight(height: number): Promise<void> {
         try {
             this.logger.info("Running ROLLBACK");
 
@@ -133,12 +132,12 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
         }
     }
 
-    public async rollbackByNumber(number: number, backupTransactions: boolean): Promise<void> {
+    public async rollbackByNumber(number: number): Promise<void> {
         this.logger.info("Running ROLLBACK by Number method inside SnapshotService");
 
         const lastBlock = await this.database.getLastBlock();
 
-        return this.rollbackByHeight(lastBlock.data.height - number, backupTransactions);
+        return this.rollbackByHeight(lastBlock.data.height - number);
     }
 
     public async truncate(): Promise<void> {
@@ -150,11 +149,5 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             this.logger.error("TRUNCATE failed")
             this.logger.error(err.toString())
         }
-    }
-
-    public async test(options: any): Promise<void> {
-        this.filesystem.setSnapshot(options.blocks);
-        this.logger.info("Running TEST method inside SnapshotService");
-        await this.database.test(options);
     }
 }
