@@ -18,15 +18,17 @@ export class StreamReader {
 
     public open(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            this.readStream = fs.createReadStream(this.path);
+            let readStream = fs.createReadStream(this.path);
 
             if (this.useCompression) {
-                this.readStream.pipe(zlib.createGunzip())
+                this.readStream = readStream.pipe(zlib.createGunzip())
+            } else {
+                this.readStream = readStream;
             }
 
             let removeListeners = () => {
-                this.readStream!.removeListener("open", onOpen);
-                this.readStream!.removeListener("error", onError);
+                readStream!.removeListener("open", onOpen);
+                readStream!.removeListener("error", onError);
             }
 
             let onOpen = () => {
@@ -39,12 +41,8 @@ export class StreamReader {
                 reject(err);
             }
 
-            this.readStream.once("open", onOpen)
-            this.readStream.once("error", onError)
-
-            this.readStream.once("end", () => {
-                this.isEnd = true;
-            })
+            readStream.once("open", onOpen)
+            readStream.once("error", onError)
         })
     }
 
@@ -54,14 +52,24 @@ export class StreamReader {
             return null;
         }
 
-        let lengthChunk = await this.read(4);
+        let lengthChunk: ByteBuffer;
+        try {
+            lengthChunk = await this.read(4);
+        } catch (err) {
+            if (err instanceof StreamExceptions.EndOfFile) {
+                this.isEnd = true;
+                return null;
+            }
+
+            throw err;
+        }
 
         let length = lengthChunk.readUint32();
 
-        if (length === 0) {
-            this.isEnd = true;
-            return null;
-        }
+        // if (length === 0) {
+        //     this.isEnd = true;
+        //     return null;
+        // }
 
         let dataChunk = await this.read(length);
 
@@ -78,8 +86,9 @@ export class StreamReader {
 
         let chunk: Buffer | null = this.readStream.read() as Buffer;
 
+
         if (chunk === null) {
-            throw new Error("Cannot read stream");
+            throw new StreamExceptions.EndOfFile(this.path)
         }
 
         this.buffer = new ByteBuffer(chunk!.length, true);
@@ -93,7 +102,7 @@ export class StreamReader {
             let removeListeners = () => {
                 this.readStream!.removeListener("readable", onReadable)
                 this.readStream!.removeListener("error", onError)
-                this.readStream!.removeListener("end", onError)
+                this.readStream!.removeListener("end", onEnd)
             }
 
             let onReadable = () => {
@@ -103,14 +112,19 @@ export class StreamReader {
 
             let onError = () => {
                 removeListeners();
-                reject(new Error("Error on stream read or EOF"));
+                reject(new Error("Error on stream"));
+            }
+
+            let onEnd = () => {
+                removeListeners();
+                reject(new StreamExceptions.EndOfFile(this.path));
             }
 
             this.readStream!.once("readable", onReadable)
 
             this.readStream!.once("error", onError)
 
-            this.readStream!.once("end", onError)
+            this.readStream!.once("end", onEnd)
         })
     }
 

@@ -67,10 +67,7 @@ export class StreamWriter {
 
             let onEnd = () => {
                 removeListeners();
-                this.writeStream!.write(Buffer.alloc(4), () => {
-                    this.writeStream!.end()
-                    this.writeStream = undefined;
-
+                this.writeStream!.end(() => {
                     resolve();
                 });
             }
