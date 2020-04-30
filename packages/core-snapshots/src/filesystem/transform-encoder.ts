@@ -2,11 +2,11 @@ import { Transform, TransformCallback } from "stream"
 import ByteBuffer from "bytebuffer";
 
 export class TransformEncoder extends Transform {
-    constructor(private encode: Function) {
+    public constructor(private encode: Function) {
         super({objectMode: true});
     }
 
-    _transform(chunk: any, encoding: string, callback: TransformCallback): void {
+    public _transform(chunk: any, encoding: string, callback: TransformCallback): void {
         let encoded: Buffer = this.encode(chunk);
 
         let buffer: ByteBuffer = new ByteBuffer(4 + encoded.length, true);

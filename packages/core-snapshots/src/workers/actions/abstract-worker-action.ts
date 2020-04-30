@@ -8,9 +8,6 @@ import { Verifier } from "../../verifier";
 
 @Container.injectable()
 export abstract class AbstractWorkerAction implements WorkerAction {
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
-
     protected table?: string;
     protected codec?: string;
     protected skipCompression?: boolean;
@@ -19,6 +16,9 @@ export abstract class AbstractWorkerAction implements WorkerAction {
     protected updateStep?: number;
 
     protected options?: Worker.ActionOptions;
+
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
 
     public init(options: Worker.ActionOptions) {
         this.table = options.table;
@@ -32,10 +32,6 @@ export abstract class AbstractWorkerAction implements WorkerAction {
 
         Managers.configManager.setFromPreset(options.network);
     }
-
-    public abstract async start();
-
-    public abstract sync(data: any);
 
     protected getRepository(): Repository {
         let repositoryFactory = this.app.get<RepositoryFactory>(Identifiers.SnapshotRepositoryFactory);
@@ -74,4 +70,8 @@ export abstract class AbstractWorkerAction implements WorkerAction {
             return Verifier.verifyRound;
         }
     }
+
+    public abstract async start();
+
+    public abstract sync(data: any);
 }

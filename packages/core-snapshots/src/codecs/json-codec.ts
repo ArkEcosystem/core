@@ -5,6 +5,44 @@ import { Codec as CodecException } from "../exceptions";
 
 @Container.injectable()
 export class JSONCodec implements Codec {
+    private static prepareData(data: any) {
+        if ( Buffer.isBuffer(data)) {
+            return data.toJSON();
+        } else if (typeof data === "bigint") {
+            return data.toString();
+        } else {
+            return data
+        }
+    }
+
+    private static removePrefix(item: Object, prefix: string): any {
+        let itemToReturn = {};
+
+        for(let key of Object.keys(item)) {
+            itemToReturn[key.replace(prefix, "")] = JSONCodec.prepareData(item[key]);
+        }
+
+        return itemToReturn;
+    };
+
+
+
+    private static stringify(item: any): string {
+        return JSON.stringify(item, (_, v) => typeof v === 'bigint' ? `${v}n` : v);
+    };
+
+    private static parse(text: string) {
+        return JSON.parse(text, (_, value) => {
+            if (typeof value === 'string') {
+                const m = value.match(/(-?\d+)n/);
+                if (m && m[0] === value) {
+                    value = BigInt(m[1]);
+                }
+            }
+            return value;
+        });
+    }
+
     public blocksEncode(block): Buffer {
         try {
             let blockStringified = JSONCodec.stringify(camelizeKeys(JSONCodec.removePrefix(block, "Block_")))
@@ -69,42 +107,4 @@ export class JSONCodec implements Codec {
             throw new CodecException.RoundDecodeException()
         }
     };
-
-    private static prepareData(data: any) {
-        if ( Buffer.isBuffer(data)) {
-            return data.toJSON();
-        } else if (typeof data === "bigint") {
-            return data.toString();
-        } else {
-            return data
-        }
-    }
-
-    private static removePrefix(item: Object, prefix: string): any {
-        let itemToReturn = {};
-
-        for(let key of Object.keys(item)) {
-            itemToReturn[key.replace(prefix, "")] = JSONCodec.prepareData(item[key]);
-        }
-
-        return itemToReturn;
-    };
-
-
-
-    private static stringify(item: any): string {
-        return JSON.stringify(item, (_, v) => typeof v === 'bigint' ? `${v}n` : v);
-    };
-
-    private static parse(text: string) {
-        return JSON.parse(text, (_, value) => {
-            if (typeof value === 'string') {
-                const m = value.match(/(-?\d+)n/);
-                if (m && m[0] === value) {
-                    value = BigInt(m[1]);
-                }
-            }
-            return value;
-        });
-    }
 }

@@ -19,6 +19,15 @@ let app: Application;
 let action: WorkerAction;
 let _workerData: Worker.WorkerData = workerData;
 
+/* istanbul ignore next */
+const connect = async (options: any): Promise<Connection> => {
+    return createConnection({
+        ...options.connection,
+        namingStrategy: new Utils.SnakeNamingStrategy(),
+        entities: [Models.Block, Models.Transaction, Models.Round],
+    });
+};
+
 export const init = async () => {
     Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainRegistrationTransaction);
     Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainResignationTransaction);
@@ -107,15 +116,6 @@ export const dispose = async (): Promise<void> => {
         await connection.close();
     }
 }
-
-/* istanbul ignore next */
-const connect = async (options: any): Promise<Connection> => {
-    return createConnection({
-        ...options.connection,
-        namingStrategy: new Utils.SnakeNamingStrategy(),
-        entities: [Models.Block, Models.Transaction, Models.Round],
-    });
-};
 
 /* istanbul ignore next */
 parentPort?.on("message", async (data) => {

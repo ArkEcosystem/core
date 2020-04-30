@@ -5,14 +5,6 @@ import { Models } from "@arkecosystem/core-database";
 import { StreamReader } from "../../filesystem";
 
 export class ReadProcessor {
-    constructor(
-        private isBlock: boolean,
-        private streamReader: StreamReader,
-        private onItem: Function,
-        private onWait?: Function,
-        private onResume?: Function,
-    ) {}
-
     private nextField = "";
     private nextValue = undefined;
     private nextCount = undefined;
@@ -22,6 +14,14 @@ export class ReadProcessor {
     private transactionsCount = 0;
     private height = 0;
     private isRunning = false;
+
+    public constructor(
+        private isBlock: boolean,
+        private streamReader: StreamReader,
+        private onItem: Function,
+        private onWait?: Function,
+        private onResume?: Function,
+    ) {}
 
     public sync(data: any): void {
         // console.log("Sync", data);

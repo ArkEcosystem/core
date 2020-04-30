@@ -26,11 +26,6 @@ export class StreamReader {
                 this.readStream = readStream;
             }
 
-            let removeListeners = () => {
-                readStream!.removeListener("open", onOpen);
-                readStream!.removeListener("error", onError);
-            }
-
             let onOpen = () => {
                 removeListeners();
                 resolve();
@@ -39,6 +34,11 @@ export class StreamReader {
             let onError = (err) => {
                 removeListeners();
                 reject(err);
+            }
+
+            let removeListeners = () => {
+                readStream!.removeListener("open", onOpen);
+                readStream!.removeListener("error", onError);
             }
 
             readStream.once("open", onOpen)
@@ -98,12 +98,6 @@ export class StreamReader {
 
     private waitUntilReadable(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            let removeListeners = () => {
-                this.readStream!.removeListener("readable", onReadable)
-                this.readStream!.removeListener("error", onError)
-                this.readStream!.removeListener("end", onEnd)
-            }
-
             let onReadable = () => {
                 removeListeners();
                 resolve();
@@ -120,6 +114,11 @@ export class StreamReader {
                 reject(new StreamExceptions.EndOfFile(this.path));
             }
 
+            let removeListeners = () => {
+                this.readStream!.removeListener("readable", onReadable)
+                this.readStream!.removeListener("error", onError)
+                this.readStream!.removeListener("end", onEnd)
+            }
 
             this.readStream!.once("readable", onReadable)
 

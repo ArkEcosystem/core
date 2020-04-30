@@ -8,6 +8,16 @@ import { Container } from "@arkecosystem/core-kernel";
 
 @Container.injectable()
 export class Codec implements ICodec {
+    private static removePrefix(item: Object, prefix: string): Object {
+        let itemToReturn = {};
+
+        for(let key of Object.keys(item)) {
+            itemToReturn[key.replace(prefix, "")] = item[key];
+        }
+
+        return itemToReturn;
+    };
+
     public blocksEncode(block: any) {
         try {
             let blockCamelized = camelizeKeys(Codec.removePrefix(block, "Block_"));
@@ -107,15 +117,5 @@ export class Codec implements ICodec {
         } catch (e) {
             throw new CodecException.RoundDecodeException(roundRound as unknown as string)
         }
-    };
-
-    private static removePrefix(item: Object, prefix: string): Object {
-        let itemToReturn = {};
-
-        for(let key of Object.keys(item)) {
-            itemToReturn[key.replace(prefix, "")] = item[key];
-        }
-
-        return itemToReturn;
     };
 }

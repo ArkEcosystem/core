@@ -16,11 +16,6 @@ export class StreamWriter {
         return new Promise<void>((resolve, reject) => {
             this.writeStream = fs.createWriteStream(this.path);
 
-            let removeListeners = () => {
-                this.writeStream!.removeListener("open", onOpen);
-                this.writeStream!.removeListener("error", onError);
-            }
-
             let onOpen = () => {
                 removeListeners();
                 resolve();
@@ -30,6 +25,11 @@ export class StreamWriter {
             let onError = (err) => {
                 removeListeners();
                 reject(err);
+            }
+
+            let removeListeners = () => {
+                this.writeStream!.removeListener("open", onOpen);
+                this.writeStream!.removeListener("error", onError);
             }
 
             this.writeStream.once("open", onOpen)

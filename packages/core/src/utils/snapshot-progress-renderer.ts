@@ -3,7 +3,7 @@ import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { SnapshotApplicationEvents } from "@arkecosystem/core-snapshots";
 
 export class ProgressRenderer {
-    isAnyStarted: boolean = false;
+    private isAnyStarted: boolean = false;
 
     private spinner: Ora;
 

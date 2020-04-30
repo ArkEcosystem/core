@@ -12,9 +12,6 @@ import { ProgressRenderer } from "../utils/snapshot-progress-renderer";
  */
 @Container.injectable()
 export class Command extends Commands.Command {
-    @Container.inject(Container.Identifiers.Logger)
-    private readonly logger!: Services.Logger;
-
     /**
      * The console command signature.
      *
@@ -30,6 +27,9 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public description: string = "Import data from specified snapshot.";
+
+    @Container.inject(Container.Identifiers.Logger)
+    private readonly logger!: Services.Logger;
 
     /**
      * Configure the console command.
