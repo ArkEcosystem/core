@@ -323,23 +323,27 @@ export class Memory {
 
         const sortedByFeeAndNonce = [];
         const lastAddedBySender = {};
+        const txsToIgnore = {};
         for (const transaction of sortedByFee) {
             if (transaction.data.version < 2) {
                 sortedByFeeAndNonce.push(transaction);
                 continue;
             }
 
-            const sender: string = transaction.data.senderPublicKey;
-            if (!lastAddedBySender[sender]) {
-                const lowerNonceTxsForSender = this.bySender[sender].getStrictlyBelow(transaction);
-                sortedByFeeAndNonce.push(...lowerNonceTxsForSender, transaction);
-            } else {
-                const lowerNonceTxsForSender = this.bySender[sender].getStrictlyBetween(
-                    lastAddedBySender[sender],
-                    transaction,
-                );
-                sortedByFeeAndNonce.push(...lowerNonceTxsForSender, transaction);
+            if (txsToIgnore[transaction.id]) {
+                continue;
             }
+
+            const sender: string = transaction.data.senderPublicKey;
+            const lowerNonceTxsForSender = lastAddedBySender[sender]
+                ? this.bySender[sender].getStrictlyBetween(lastAddedBySender[sender], transaction)
+                : this.bySender[sender].getStrictlyBelow(transaction);
+
+            for (const lowerNonceTx of lowerNonceTxsForSender) {
+                txsToIgnore[lowerNonceTx.id] = lowerNonceTx;
+                sortedByFeeAndNonce.push(lowerNonceTx);
+            }
+            sortedByFeeAndNonce.push(transaction);
 
             lastAddedBySender[sender] = transaction;
 
