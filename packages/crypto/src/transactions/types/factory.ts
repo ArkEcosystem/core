@@ -1,18 +1,24 @@
+import { CryptoManager } from "../..";
 import { UnkownTransactionError } from "../../errors";
 import { ITransaction, ITransactionData } from "../../interfaces";
+import { Verifier } from "../verifier";
 import { InternalTransactionType } from "./internal-transaction-type";
 import { Transaction } from "./transaction";
 
 type TransactionConstructor = typeof Transaction;
 
-export class TransactionTypeFactory {
-    private static transactionTypes: Map<InternalTransactionType, Map<number, TransactionConstructor>>;
+export class TransactionTypeFactory<T, U extends ITransactionData, E> {
+    private transactionTypes: Map<InternalTransactionType, Map<number, TransactionConstructor>>;
 
-    public static initialize(transactionTypes: Map<InternalTransactionType, Map<number, TransactionConstructor>>) {
+    public constructor(
+        private cryptoManager: CryptoManager<T>,
+        public verifier: Verifier<T, U, E>,
+        transactionTypes: Map<InternalTransactionType, Map<number, TransactionConstructor>>,
+    ) {
         this.transactionTypes = transactionTypes;
     }
 
-    public static create<U extends ITransactionData, E>(data: U): ITransaction<U, E> {
+    public create(data: U): ITransaction<U, E> {
         const instance: ITransaction<U, E> = new (this.get(
             data.type,
             data.typeGroup,
@@ -21,10 +27,15 @@ export class TransactionTypeFactory {
         instance.data = data;
         instance.data.version = data.version || 1;
 
+        // @ts-ignore TODO: this is iffy - think of a better way to handle this
+        instance.cryptoManager = this.cryptoManager;
+        // @ts-ignore
+        instance.verifier = this.verifier;
+
         return instance;
     }
 
-    public static get(type: number, typeGroup?: number, version?: number): TransactionConstructor | undefined {
+    public get(type: number, typeGroup?: number, version?: number): TransactionConstructor | undefined {
         const internalType: InternalTransactionType = InternalTransactionType.from(type, typeGroup);
 
         if (!this.transactionTypes.has(internalType)) {

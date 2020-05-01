@@ -1,3 +1,4 @@
+import { CryptoManager } from "..";
 import {
     TransactionAlreadyRegisteredError,
     TransactionKeyAlreadyRegisteredError,
@@ -5,18 +6,25 @@ import {
     UnkownTransactionError,
 } from "../errors";
 import { ITransactionData, Validator } from "../interfaces";
-import { One, Transaction, Two } from "./types";
+import { One, Transaction, TransactionTypeFactory, Two } from "./types";
 import { InternalTransactionType } from "./types/internal-transaction-type";
+import { Verifier } from "./verifier";
 
 export type TransactionConstructor<T, U, E> = typeof Transaction;
 
 export class TransactionRegistry<T, U extends ITransactionData, E> {
+    public readonly TransactionTypeFactory: TransactionTypeFactory<T, U, E>;
+
     private readonly transactionTypes: Map<
         InternalTransactionType,
         Map<number, TransactionConstructor<T, U, E>>
     > = new Map();
 
-    public constructor(private validator: Validator<U, E>) {
+    public constructor(
+        cryptoManager: CryptoManager<T>,
+        verifier: Verifier<T, U, E>,
+        private validator: Validator<U, E>,
+    ) {
         this.registerTransactionType(One.TransferTransaction);
         this.registerTransactionType(Two.TransferTransaction);
 
@@ -41,6 +49,8 @@ export class TransactionRegistry<T, U extends ITransactionData, E> {
         this.registerTransactionType(Two.HtlcLockTransaction);
         this.registerTransactionType(Two.HtlcClaimTransaction);
         this.registerTransactionType(Two.HtlcRefundTransaction);
+
+        this.TransactionTypeFactory = new TransactionTypeFactory(cryptoManager, verifier, this.transactionTypes);
     }
 
     public registerTransactionType(constructor: TransactionConstructor<T, U, E>): void {

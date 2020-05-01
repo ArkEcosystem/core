@@ -26,6 +26,7 @@ export class TransactionFactory<T, U extends ITransactionData, E> {
         private serializer: Serializer<T, U, E>,
         private verifier: Verifier<T, U, E>,
         private utils: Utils<T, U, E>,
+        private transactionTypeFactory: TransactionTypeFactory<T, U, E>,
     ) {}
 
     public fromHex(hex: string): ITransaction<U, E> {
@@ -75,7 +76,7 @@ export class TransactionFactory<T, U extends ITransactionData, E> {
             throw new TransactionSchemaError(error);
         }
 
-        const transaction: ITransaction<U, E> = TransactionTypeFactory.create(value);
+        const transaction: ITransaction<U, E> = this.transactionTypeFactory.create(value);
 
         const { version } = transaction.data;
         if (version === 1) {

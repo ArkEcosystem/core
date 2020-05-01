@@ -12,7 +12,10 @@ import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class Deserializer<T, U extends ITransactionData, E> {
-    public constructor(private cryptoManager: CryptoManager<T>) {}
+    public constructor(
+        private cryptoManager: CryptoManager<T>,
+        private transactionTypeFactory: TransactionTypeFactory<T, U, E>,
+    ) {}
 
     public applyV1Compatibility(transaction: U): void {
         transaction.secondSignature = transaction.secondSignature || transaction.signSignature;
@@ -36,8 +39,7 @@ export class Deserializer<T, U extends ITransactionData, E> {
 
         const buffer: ByteBuffer = this.getByteBuffer(serialized);
         this.deserializeCommon(data, buffer);
-
-        const instance: ITransaction<U, E> = TransactionTypeFactory.create(data);
+        const instance: ITransaction<U, E> = this.transactionTypeFactory.create(data);
         this.deserializeVendorField(instance, buffer);
 
         // Deserialize type specific parts

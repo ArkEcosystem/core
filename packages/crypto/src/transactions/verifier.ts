@@ -9,6 +9,7 @@ export class Verifier<T, U extends ITransactionData, E> {
         private cryptoManager: CryptoManager<T>,
         private utils: Utils<T, U, E>,
         private validator: Validator<U, E>,
+        private transactionTypeFactory: TransactionTypeFactory<T, U, E>,
     ) {}
 
     public verify(data: U): boolean {
@@ -98,7 +99,7 @@ export class Verifier<T, U extends ITransactionData, E> {
     }
 
     public verifySchema(data: U, strict = true): ISchemaValidationResult<U, E> {
-        const transactionType = TransactionTypeFactory.get(data.type, data.typeGroup, data.version);
+        const transactionType = this.transactionTypeFactory.get(data.type, data.typeGroup, data.version);
 
         if (!transactionType) {
             throw new Error();

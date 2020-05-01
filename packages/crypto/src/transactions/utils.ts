@@ -5,10 +5,14 @@ import { Serializer } from "./serializer";
 import { TransactionTypeFactory } from "./types/factory";
 
 export class Utils<T, U extends ITransactionData, E> {
-    public constructor(private cryptoManager: CryptoManager<T>, private serializer: Serializer<T, U, E>) {}
+    public constructor(
+        private cryptoManager: CryptoManager<T>,
+        private serializer: Serializer<T, U, E>,
+        private transactionTypeFactory: TransactionTypeFactory<T, U, E>,
+    ) {}
 
     public toBytes(data: U): Buffer {
-        return this.serializer.serialize(TransactionTypeFactory.create(data));
+        return this.serializer.serialize(this.transactionTypeFactory.create(data));
     }
 
     public toHash(transaction: U, options?: ISerializeOptions): Buffer {

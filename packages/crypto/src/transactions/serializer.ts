@@ -9,7 +9,10 @@ import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class Serializer<T, U extends ITransactionData, E> {
-    public constructor(private cryptoManager: CryptoManager<T>) {}
+    public constructor(
+        private cryptoManager: CryptoManager<T>,
+        private transactionTypeFactory: TransactionTypeFactory<T, U, E>,
+    ) {}
 
     public getBytes(transaction: U, options: ISerializeOptions = {}): Buffer {
         const version: number = transaction.version || 1;
@@ -22,7 +25,7 @@ export class Serializer<T, U extends ITransactionData, E> {
                 return this.getBytesV1(transaction, options);
             }
 
-            return this.serialize(TransactionTypeFactory.create(transaction), options);
+            return this.serialize(this.transactionTypeFactory.create(transaction), options);
         } else {
             throw new TransactionVersionError(version);
         }
