@@ -71,5 +71,7 @@ export class Command extends Commands.Command {
         } else {
             this.logger.error("Please specify either a height or number of blocks to roll back.");
         }
+
+        await app.terminate();
     }
 }

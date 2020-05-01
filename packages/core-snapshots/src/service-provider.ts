@@ -15,9 +15,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Identifiers.SnapshotDatabaseConnection).toConstantValue(await this.connect());
 
-        console.log(this.app.get<Connection>(Identifiers.SnapshotDatabaseConnection).isConnected);
-
         this.registerServices();
+    }
+
+    public async dispose(): Promise<void> {
+        await this.app.get<Connection>(Identifiers.SnapshotDatabaseConnection).close();
     }
 
     public async required(): Promise<boolean> {

@@ -66,5 +66,7 @@ export class Command extends Commands.Command {
         await app
             .get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService)
             .dump(flags);
+
+        await app.terminate();
     }
 }
