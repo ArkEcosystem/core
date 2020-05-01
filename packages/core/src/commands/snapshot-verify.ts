@@ -1,7 +1,8 @@
-import { Commands, Container, Contracts, Services, Utils, Components } from "@arkecosystem/core-cli";
+import { Commands, Components, Container, Contracts, Services, Utils } from "@arkecosystem/core-cli";
+import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
-import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
+
 import { ProgressRenderer } from "../utils/snapshot-progress-renderer";
 
 /**
@@ -42,8 +43,8 @@ export class Command extends Commands.Command {
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
             // .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
             // .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean())
-            .setFlag("blocks", "Blocks to verify, correlates to folder name.", Joi.string().required())
-            // .setFlag("verifySignatures", "Verify signatures of specified snapshot.", Joi.boolean());
+            .setFlag("blocks", "Blocks to verify, correlates to folder name.", Joi.string().required());
+        // .setFlag("verifySignatures", "Verify signatures of specified snapshot.", Joi.boolean());
     }
 
     /**
@@ -61,13 +62,15 @@ export class Command extends Commands.Command {
             return;
         }
 
-        let app = await Utils.buildApplication({
+        const app = await Utils.buildApplication({
             flags,
         });
 
-        let spinner = this.app.get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory).spinner();
+        const spinner = this.app.get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory).spinner();
         new ProgressRenderer(spinner, app);
 
-        await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).verify(flags);
+        await app
+            .get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService)
+            .verify(flags);
     }
 }

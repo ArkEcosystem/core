@@ -1,6 +1,6 @@
-import { Ora } from "ora";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { SnapshotApplicationEvents } from "@arkecosystem/core-snapshots";
+import { Ora } from "ora";
 
 export class ProgressRenderer {
     private isAnyStarted: boolean = false;
@@ -25,14 +25,26 @@ export class ProgressRenderer {
 
         const emitter = kernelApp.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
-        emitter.listen(SnapshotApplicationEvents.SnapshotStart, { handle: (data) => { this.handleStart(data.data) } });
+        emitter.listen(SnapshotApplicationEvents.SnapshotStart, {
+            handle: (data) => {
+                this.handleStart(data.data);
+            },
+        });
 
-        emitter.listen(SnapshotApplicationEvents.SnapshotProgress, { handle: (data) => { this.handleUpdate(data.data) } });
+        emitter.listen(SnapshotApplicationEvents.SnapshotProgress, {
+            handle: (data) => {
+                this.handleUpdate(data.data);
+            },
+        });
 
-        emitter.listen(SnapshotApplicationEvents.SnapshotComplete, { handle: (data) => { this.handleComplete(data.data) } });
+        emitter.listen(SnapshotApplicationEvents.SnapshotComplete, {
+            handle: (data) => {
+                this.handleComplete(data.data);
+            },
+        });
     }
 
-    private handleStart(data: {table: string, count: number}): void {
+    private handleStart(data: { table: string; count: number }): void {
         if (data.table && data.count) {
             this[`${data.table}Count`] = data.count;
 
@@ -47,7 +59,7 @@ export class ProgressRenderer {
         }
     }
 
-    private handleUpdate(data: {table:string, value: number}): void {
+    private handleUpdate(data: { table: string; value: number }): void {
         if (data.table && data.value) {
             this[`${data.table}Progress`] = this.calculatePercentage(this[`${data.table}Count`], data.value);
 
@@ -55,7 +67,7 @@ export class ProgressRenderer {
         }
     }
 
-    private handleComplete(data: {table: string}): void {
+    private handleComplete(data: { table: string }): void {
         if (data.table) {
             // clearInterval(this.interval!);
 
@@ -65,7 +77,7 @@ export class ProgressRenderer {
     }
 
     private calculatePercentage(count: number, value: number): string {
-        let percentage: string = ((value / count) * 100).toFixed(2);
+        const percentage: string = ((value / count) * 100).toFixed(2);
 
         // Append spaces to match ---.--
         return `${" ".repeat(6 - percentage.length)}${percentage}`;

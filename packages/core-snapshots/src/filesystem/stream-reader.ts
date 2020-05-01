@@ -2,7 +2,9 @@ import ByteBuffer from "bytebuffer";
 import fs from "fs-extra";
 import zlib from "zlib";
 
+import { Stream as StreamContracts } from "../contracts";
 import { Stream as StreamExceptions } from "../exceptions";
+import { removeListeners } from "./utils";
 
 export class StreamReader {
     public count: number = 0;
@@ -18,38 +20,37 @@ export class StreamReader {
 
     public open(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            let readStream = fs.createReadStream(this.path);
+            const readStream = fs.createReadStream(this.path);
 
             if (this.useCompression) {
-                this.readStream = readStream.pipe(zlib.createGunzip())
+                this.readStream = readStream.pipe(zlib.createGunzip());
             } else {
                 this.readStream = readStream;
             }
 
-            let onOpen = () => {
-                removeListeners();
+            const eventListenerPairs = [] as StreamContracts.EventListenerPair[];
+
+            const onOpen = () => {
+                removeListeners(readStream, eventListenerPairs);
                 resolve();
-            }
+            };
 
-            let onError = (err) => {
-                removeListeners();
+            const onError = (err) => {
+                removeListeners(readStream, eventListenerPairs);
                 reject(err);
-            }
+            };
 
-            let removeListeners = () => {
-                readStream!.removeListener("open", onOpen);
-                readStream!.removeListener("error", onError);
-            }
+            eventListenerPairs.push({ event: "open", listener: onOpen });
+            eventListenerPairs.push({ event: "error", listener: onError });
 
-            readStream.once("open", onOpen)
-            readStream.once("error", onError)
+            readStream.once("open", onOpen);
+            readStream.once("error", onError);
 
             this.readStream.on("end", () => {
                 this.isEnd = true;
-            })
-        })
+            });
+        });
     }
-
 
     public async readNext(): Promise<any> {
         let lengthChunk: ByteBuffer;
@@ -64,9 +65,9 @@ export class StreamReader {
             throw err;
         }
 
-        let length = lengthChunk.readUint32();
+        const length = lengthChunk.readUint32();
 
-        let dataChunk = await this.read(length);
+        const dataChunk = await this.read(length);
 
         this.count++;
         return this.decode(dataChunk.buffer);
@@ -74,7 +75,7 @@ export class StreamReader {
 
     private async readNextChunk(): Promise<void> {
         if (this.isEnd) {
-            throw new StreamExceptions.EndOfFile(this.path)
+            throw new StreamExceptions.EndOfFile(this.path);
         }
 
         if (!this.readStream) {
@@ -83,53 +84,52 @@ export class StreamReader {
 
         await this.waitUntilReadable();
 
-        let chunk: Buffer | null = this.readStream.read() as Buffer;
-
+        const chunk: Buffer | null = this.readStream.read() as Buffer;
 
         if (chunk === null) {
-            throw new StreamExceptions.EndOfFile(this.path)
+            throw new StreamExceptions.EndOfFile(this.path);
         }
 
-        this.buffer = new ByteBuffer(chunk!.length, true);
-        this.buffer.append(chunk)
+        this.buffer = new ByteBuffer(chunk.length, true);
+        this.buffer.append(chunk);
         this.length = this.buffer.capacity();
         this.offset = 0;
     }
 
     private waitUntilReadable(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            let onReadable = () => {
-                removeListeners();
+            const eventListenerPairs = [] as StreamContracts.EventListenerPair[];
+
+            const onReadable = () => {
+                removeListeners(this.readStream!, eventListenerPairs);
                 resolve();
-            }
+            };
 
             /* istanbul ignore next */
-            let onError = () => {
-                removeListeners();
+            const onError = () => {
+                removeListeners(this.readStream!, eventListenerPairs);
                 reject(new Error("Error on stream"));
-            }
+            };
 
-            let onEnd = () => {
-                removeListeners();
+            const onEnd = () => {
+                removeListeners(this.readStream!, eventListenerPairs);
                 reject(new StreamExceptions.EndOfFile(this.path));
-            }
+            };
 
-            let removeListeners = () => {
-                this.readStream!.removeListener("readable", onReadable)
-                this.readStream!.removeListener("error", onError)
-                this.readStream!.removeListener("end", onEnd)
-            }
+            eventListenerPairs.push({ event: "readable", listener: onReadable });
+            eventListenerPairs.push({ event: "error", listener: onError });
+            eventListenerPairs.push({ event: "end", listener: onEnd });
 
-            this.readStream!.once("readable", onReadable)
+            this.readStream!.once("readable", onReadable);
 
-            this.readStream!.once("error", onError)
+            this.readStream!.once("error", onError);
 
-            this.readStream!.once("end", onEnd)
-        })
+            this.readStream!.once("end", onEnd);
+        });
     }
 
     private async read(size: number): Promise<ByteBuffer> {
-        let bufferToReturn = new ByteBuffer(size, true)
+        const bufferToReturn = new ByteBuffer(size, true);
 
         let remaining = size;
         while (remaining > 0) {
@@ -145,7 +145,7 @@ export class StreamReader {
                 copyLength = this.length - this.offset;
             }
 
-            bufferToReturn.append(this.buffer.copy(this.offset, this.offset + copyLength))
+            bufferToReturn.append(this.buffer.copy(this.offset, this.offset + copyLength));
             this.offset += copyLength;
             remaining -= copyLength;
         }

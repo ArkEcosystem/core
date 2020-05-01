@@ -1,12 +1,13 @@
-import { Container, Providers } from "@arkecosystem/core-kernel";
-import { Identifiers } from "./ioc";
-import { getCustomRepository, createConnection, Connection } from "typeorm";
-import { SnapshotService } from "./snapshot-service";
-import { SnapshotDatabaseService } from "./database-service";
-import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
-import { Filesystem } from "./filesystem/filesystem";
-import { ProgressDispatcher } from "./progress-dispatcher";
 import { Models, Utils } from "@arkecosystem/core-database";
+import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Connection, createConnection, getCustomRepository } from "typeorm";
+
+import { SnapshotDatabaseService } from "./database-service";
+import { Filesystem } from "./filesystem/filesystem";
+import { Identifiers } from "./ioc";
+import { ProgressDispatcher } from "./progress-dispatcher";
+import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
+import { SnapshotService } from "./snapshot-service";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -32,15 +33,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Identifiers.ProgressDispatcher).to(ProgressDispatcher).inTransientScope();
 
-        this.app
-            .bind(Identifiers.SnapshotBlockRepository)
-            .toConstantValue(getCustomRepository(BlockRepository));
+        this.app.bind(Identifiers.SnapshotBlockRepository).toConstantValue(getCustomRepository(BlockRepository));
         this.app
             .bind(Identifiers.SnapshotTransactionRepository)
             .toConstantValue(getCustomRepository(TransactionRepository));
-        this.app
-            .bind(Identifiers.SnapshotRoundRepository)
-            .toConstantValue(getCustomRepository(RoundRepository));
+        this.app.bind(Identifiers.SnapshotRoundRepository).toConstantValue(getCustomRepository(RoundRepository));
     }
 
     private async connect(): Promise<Connection> {

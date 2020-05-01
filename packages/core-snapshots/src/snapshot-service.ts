@@ -1,8 +1,9 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Identifiers } from "./ioc";
 import { Interfaces } from "@arkecosystem/crypto";
+
+import { Database, Meta } from "./contracts";
 import { Filesystem } from "./filesystem/filesystem";
-import { Meta, Database } from "./contracts";
+import { Identifiers } from "./ioc";
 
 @Container.injectable()
 export class SnapshotService implements Contracts.Snapshot.SnapshotService {
@@ -30,7 +31,6 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             this.logger.error(`DUMP failed`);
             this.logger.error(err.toString());
         }
-
     }
 
     public async restore(options: any): Promise<void> {
@@ -41,7 +41,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             // this.filesystem.setNetwork(options.network);
             this.filesystem.setSnapshot(options.blocks);
 
-            if (! await this.filesystem.snapshotExists()) {
+            if (!(await this.filesystem.snapshotExists())) {
                 this.logger.error(`Snapshot ${options.blocks} of network ${options.network} does not exist.`);
                 return;
             }
@@ -50,7 +50,9 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             try {
                 meta = await this.filesystem.readMetaData();
             } catch (e) {
-                this.logger.error(`Metadata for snapshot ${options.blocks} of network ${options.network} is not valid.`);
+                this.logger.error(
+                    `Metadata for snapshot ${options.blocks} of network ${options.network} is not valid.`,
+                );
                 return;
             }
 
@@ -60,7 +62,11 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
             await this.database.restore(meta!, { truncate: !!options.truncate });
 
-            this.logger.info(`Successfully restore  ${meta!.blocks.count} blocks, ${meta!.transactions.count} transactions, ${meta!.rounds.count} rounds`);
+            this.logger.info(
+                `Successfully restore  ${meta!.blocks.count} blocks, ${meta!.transactions.count} transactions, ${
+                    meta!.rounds.count
+                } rounds`,
+            );
         } catch (err) {
             this.logger.error(`RESTORE failed.`);
             this.logger.error(err.toString());
@@ -77,7 +83,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             // this.filesystem.setNetwork(options.network);
             this.filesystem.setSnapshot(options.blocks);
 
-            if (!await this.filesystem.snapshotExists()) {
+            if (!(await this.filesystem.snapshotExists())) {
                 this.logger.error(`Snapshot ${options.blocks} of network ${options.network} does not exist.`);
                 return;
             }
@@ -86,13 +92,15 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             try {
                 meta = await this.filesystem.readMetaData();
             } catch (e) {
-                this.logger.error(`Metadata for snapshot ${options.blocks} of network ${options.network} is not valid.`);
+                this.logger.error(
+                    `Metadata for snapshot ${options.blocks} of network ${options.network} is not valid.`,
+                );
             }
 
             this.database.init(meta!.codec, meta!.skipCompression);
 
             await this.database.verify(meta!);
-            this.logger.info((`VERIFICATION is successful.`));
+            this.logger.info(`VERIFICATION is successful.`);
         } catch (err) {
             this.logger.error(`VERIFICATION failed.`);
             this.logger.error(err.toString());
@@ -115,20 +123,22 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             const currentHeight = lastBlock.data.height;
 
             if (height >= currentHeight) {
-                this.logger.error(`Rollback height ${height.toLocaleString()} is greater than the current height ${currentHeight.toLocaleString()}.`);
+                this.logger.error(
+                    `Rollback height ${height.toLocaleString()} is greater than the current height ${currentHeight.toLocaleString()}.`,
+                );
                 return;
             }
 
             const roundInfo = Utils.roundCalculator.calculateRound(height);
 
-            let newLastBlock = await this.database.rollback(roundInfo);
+            const newLastBlock = await this.database.rollback(roundInfo);
 
             this.logger.info(
                 `Rolling back chain to last finished round ${roundInfo.round.toLocaleString()} with last block height ${newLastBlock.data.height.toString()}`,
             );
         } catch (err) {
-            this.logger.error("ROLLBACK failed")
-            this.logger.error(err.toString())
+            this.logger.error("ROLLBACK failed");
+            this.logger.error(err.toString());
         }
     }
 
@@ -146,8 +156,8 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
 
             await this.database.truncate();
         } catch (err) {
-            this.logger.error("TRUNCATE failed")
-            this.logger.error(err.toString())
+            this.logger.error("TRUNCATE failed");
+            this.logger.error(err.toString());
         }
     }
 }

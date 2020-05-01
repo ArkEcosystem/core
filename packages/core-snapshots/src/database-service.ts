@@ -1,10 +1,10 @@
-import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Models } from "@arkecosystem/core-database";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers, Types } from "@arkecosystem/crypto";
 
-import { Identifiers } from "./ioc";
+import { Database, Meta, Options, Worker } from "./contracts";
 import { Filesystem } from "./filesystem/filesystem";
-import { Meta, Options, Database, Worker } from "./contracts";
+import { Identifiers } from "./ioc";
 import { ProgressDispatcher } from "./progress-dispatcher";
 import { BlockRepository, RoundRepository, TransactionRepository } from "./repositories";
 import { WorkerWrapper } from "./workers/worker-wrapper";
@@ -32,7 +32,6 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
     @Container.inject(Identifiers.SnapshotTransactionRepository)
     private readonly transactionRepository!: TransactionRepository;
-
 
     private codec: string = "default";
     private skipCompression: boolean = false;
@@ -69,28 +68,30 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
     public async dump(options: Options.DumpOptions): Promise<void> {
         this.logger.info("Start counting blocks, rounds and transactions");
 
-        let dumpRage = await this.getDumpRange(options.start, options.end);
-        let meta = this.prepareMetaData(options, dumpRage);
+        const dumpRage = await this.getDumpRange(options.start, options.end);
+        const meta = this.prepareMetaData(options, dumpRage);
 
-        this.logger.info(`Start running dump for ${dumpRage.blocksCount} blocks, ${dumpRage.roundsCount} rounds and ${dumpRage.transactionsCount} transactions`);
+        this.logger.info(
+            `Start running dump for ${dumpRage.blocksCount} blocks, ${dumpRage.roundsCount} rounds and ${dumpRage.transactionsCount} transactions`,
+        );
 
         this.filesystem.setSnapshot(meta.folder);
         await this.filesystem.prepareDir();
 
-        let blocksWorker = new WorkerWrapper(this.prepareWorkerData("dump", "blocks", meta));
-        let transactionsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "transactions", meta));
-        let roundsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "rounds", meta));
+        const blocksWorker = new WorkerWrapper(this.prepareWorkerData("dump", "blocks", meta));
+        const transactionsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "transactions", meta));
+        const roundsWorker = new WorkerWrapper(this.prepareWorkerData("dump", "rounds", meta));
 
-        let stopBlocksDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
-        let stopTransactionsDispatcher = await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
-        let stopRoundDispatcher = await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+        const stopBlocksDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
+        const stopTransactionsDispatcher = await this.prepareProgressDispatcher(
+            transactionsWorker,
+            "transactions",
+            meta.transactions.count,
+        );
+        const stopRoundDispatcher = await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
 
         try {
-            await Promise.all([
-                blocksWorker.start(),
-                transactionsWorker.start(),
-                roundsWorker.start()
-            ]);
+            await Promise.all([blocksWorker.start(), transactionsWorker.start(), roundsWorker.start()]);
 
             await this.filesystem.writeMetaData(meta);
         } catch (err) {
@@ -119,47 +120,68 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
     }
 
     public async getLastBlock(): Promise<Interfaces.IBlock> {
-        let block: Interfaces.IBlockData | undefined = await this.blockRepository.findLast();
+        const block: Interfaces.IBlockData | undefined = await this.blockRepository.findLast();
 
         Utils.assert.defined<Interfaces.IBlockData>(block);
 
         /* istanbul ignore next */
-        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block, () => {return block!.timestamp})!;
+        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block, () => {
+            return block.timestamp;
+        })!;
 
         return lastBlock;
     }
 
     private async runSynchronizedAction(action: string, meta: Meta.MetaData): Promise<void> {
-        let blocksWorker = new WorkerWrapper(this.prepareWorkerData(action, "blocks", meta));
-        let transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions", meta));
-        let roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds", meta));
+        const blocksWorker = new WorkerWrapper(this.prepareWorkerData(action, "blocks", meta));
+        const transactionsWorker = new WorkerWrapper(this.prepareWorkerData(action, "transactions", meta));
+        const roundsWorker = new WorkerWrapper(this.prepareWorkerData(action, "rounds", meta));
 
-        let stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(blocksWorker, "blocks", meta.blocks.count);
-        let stopTransactionsProgressDispatcher =await this.prepareProgressDispatcher(transactionsWorker, "transactions", meta.transactions.count);
-        let stopRoundsProgressDispatcher =await this.prepareProgressDispatcher(roundsWorker, "rounds", meta.rounds.count);
+        const stopBlocksProgressDispatcher = await this.prepareProgressDispatcher(
+            blocksWorker,
+            "blocks",
+            meta.blocks.count,
+        );
+        const stopTransactionsProgressDispatcher = await this.prepareProgressDispatcher(
+            transactionsWorker,
+            "transactions",
+            meta.transactions.count,
+        );
+        const stopRoundsProgressDispatcher = await this.prepareProgressDispatcher(
+            roundsWorker,
+            "rounds",
+            meta.rounds.count,
+        );
 
         try {
             await blocksWorker.start();
             await transactionsWorker.start();
             await roundsWorker.start();
 
-            let milestoneHeights = Managers.configManager.getMilestones().map(x => x.height);
+            const milestoneHeights = Managers.configManager.getMilestones().map((x) => x.height);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
 
             let result: any = undefined;
-            for (let height of milestoneHeights) {
-                let promises = [] as any;
+            for (const height of milestoneHeights) {
+                const promises = [] as any;
 
                 // console.log("Run blocks with: ",{ nextValue: height, nextField: "height"})
-                promises.push(blocksWorker.sync({ nextValue: height, nextField: "height"}))
+                promises.push(blocksWorker.sync({ nextValue: height, nextField: "height" }));
 
                 if (result && result.height > 0) {
                     // console.log("Run transactions with: ", { nextCount: result.numberOfTransactions, height: result.height - 1  })
                     // console.log("Run rounds with: ", { nextCount: Utils.roundCalculator.calculateRound(result.height).round, height: result.height - 1  })
 
-                    promises.push(transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1  }))
-                    promises.push(roundsWorker.sync({ nextValue: Utils.roundCalculator.calculateRound(result.height).round, nextField: "round"  }))
+                    promises.push(
+                        transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1 }),
+                    );
+                    promises.push(
+                        roundsWorker.sync({
+                            nextValue: Utils.roundCalculator.calculateRound(result.height).round,
+                            nextField: "round",
+                        }),
+                    );
                 }
 
                 result = (await Promise.all(promises))[0];
@@ -176,8 +198,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             stopRoundsProgressDispatcher();
 
             throw err;
-        }
-        finally {
+        } finally {
             await blocksWorker?.terminate();
             await transactionsWorker?.terminate();
             await roundsWorker?.terminate();
@@ -191,35 +212,35 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             throw new Error("Database is empty");
         }
 
-        let firstHeight = start || 1;
-        let lastHeight = end || lastBlock?.height || 1;
+        const firstHeight = start || 1;
+        const lastHeight = end || lastBlock?.height || 1;
 
-        let firstRound = Utils.roundCalculator.calculateRound(firstHeight);
-        let lastRound = Utils.roundCalculator.calculateRound(lastHeight);
+        const firstRound = Utils.roundCalculator.calculateRound(firstHeight);
+        const lastRound = Utils.roundCalculator.calculateRound(lastHeight);
 
         if (firstRound.roundHeight >= lastRound.roundHeight) {
-            throw new Error("Start round is greater or equal to end round")
+            throw new Error("Start round is greater or equal to end round");
         }
 
-        let firstBlock = await this.blockRepository.findByHeight(firstRound.roundHeight);
+        const firstBlock = await this.blockRepository.findByHeight(firstRound.roundHeight);
         lastBlock = await this.blockRepository.findByHeight(lastRound.roundHeight);
 
         Utils.assert.defined<Models.Block>(firstBlock);
         Utils.assert.defined<Models.Block>(lastBlock);
 
-        let result: Database.DumpRange = {
-            firstBlockHeight: firstBlock!.height,
-            lastBlockHeight: lastBlock!.height,
-            blocksCount: await this.blockRepository.countInRange(firstBlock!.height, lastBlock!.height),
+        const result: Database.DumpRange = {
+            firstBlockHeight: firstBlock.height,
+            lastBlockHeight: lastBlock.height,
+            blocksCount: await this.blockRepository.countInRange(firstBlock.height, lastBlock.height),
 
             firstRoundRound: firstRound.round,
             lastRoundRound: lastRound.round,
             roundsCount: await this.roundRepository.countInRange(firstRound.round, lastRound.round),
 
-            firstTransactionTimestamp: firstBlock!.timestamp,
-            lastTransactionTimestamp: lastBlock!.timestamp,
-            transactionsCount: await this.transactionRepository.countInRange(firstBlock!.timestamp, lastBlock!.timestamp),
-        }
+            firstTransactionTimestamp: firstBlock.timestamp,
+            lastTransactionTimestamp: lastBlock.timestamp,
+            transactionsCount: await this.transactionRepository.countInRange(firstBlock.timestamp, lastBlock.timestamp),
+        };
 
         return result;
     }
@@ -229,17 +250,17 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             blocks: {
                 count: dumpRange.blocksCount,
                 start: dumpRange.firstBlockHeight,
-                end: dumpRange.lastBlockHeight
+                end: dumpRange.lastBlockHeight,
             },
             transactions: {
                 count: dumpRange.transactionsCount,
                 start: dumpRange.firstTransactionTimestamp,
-                end: dumpRange.lastTransactionTimestamp
+                end: dumpRange.lastTransactionTimestamp,
             },
             rounds: {
                 count: dumpRange.roundsCount,
                 start: dumpRange.firstRoundRound,
-                end: dumpRange.lastRoundRound
+                end: dumpRange.lastRoundRound,
             },
             folder: `${dumpRange.firstBlockHeight}-${dumpRange.lastBlockHeight}`,
 
@@ -247,12 +268,12 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             network: options.network,
 
             packageVersion: this.app.get<string>(Identifiers.SnapshotVersion),
-            codec: this.codec
+            codec: this.codec,
         };
     }
 
     private prepareWorkerData(action: string, table: string, meta: Meta.MetaData): any {
-        let result: Worker.WorkerData = {
+        const result: Worker.WorkerData = {
             actionOptions: {
                 network: this.app.network() as Types.NetworkName,
                 action: action,
@@ -264,37 +285,35 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                 verify: this.verifyData,
                 filePath: `${this.filesystem.getSnapshotPath()}${table}`,
                 genesisBlockId: Managers.configManager.get("genesisBlock").id,
-                updateStep: this.configuration.getOptional("updateStep", 1000)
+                updateStep: this.configuration.getOptional("updateStep", 1000),
             },
-            connection: this.configuration.get("connection")
-        }
+            connection: this.configuration.get("connection"),
+        };
 
         return result;
     }
 
     // @ts-ignore
     private async prepareProgressDispatcher(worker: WorkerWrapper, table: string, count: number): Promise<Function> {
-        let progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
+        const progressDispatcher = this.app.get<ProgressDispatcher>(Identifiers.ProgressDispatcher);
 
         await progressDispatcher.start(table, count);
 
-        let onCount = async (count: number) => {
+        const onCount = async (count: number) => {
             await progressDispatcher.update(count);
-        }
+        };
 
-        let onExit = async () => {
+        const onExit = async () => {
             await progressDispatcher.end();
-        }
+        };
 
         worker.on("count", onCount);
 
-        worker.on("exit", onExit)
+        worker.on("exit", onExit);
 
         return () => {
-            worker.removeListener("count", onCount)
-            worker.removeListener("exit", onExit)
-        }
+            worker.removeListener("count", onCount);
+            worker.removeListener("exit", onExit);
+        };
     }
 }
-
-

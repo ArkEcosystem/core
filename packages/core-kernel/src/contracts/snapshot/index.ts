@@ -1,1 +1,1 @@
-export * from "./snapshot-service"
+export * from "./snapshot-service";

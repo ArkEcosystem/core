@@ -8,8 +8,8 @@ export interface WorkerData {
 export interface ActionOptions {
     action: string;
     table: string;
-    start: number,
-    end: number,
+    start: number;
+    end: number;
     codec: string;
     skipCompression: boolean;
     verify: boolean;
@@ -23,6 +23,6 @@ export interface ActionOptions {
 }
 
 export interface WorkerMessage {
-    action: string,
-    data: any
+    action: string;
+    data: any;
 }

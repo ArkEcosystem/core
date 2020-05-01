@@ -1,7 +1,7 @@
+import { Models } from "@arkecosystem/core-database";
+import { Managers } from "@arkecosystem/crypto";
 import { parentPort } from "worker_threads";
 
-import { Managers } from "@arkecosystem/crypto";
-import { Models } from "@arkecosystem/core-database";
 import { StreamReader } from "../../filesystem";
 
 export class ReadProcessor {
@@ -41,8 +41,7 @@ export class ReadProcessor {
         }
         this.isRunning = true;
 
-        this.emitCount()
-
+        this.emitCount();
 
         // parentPort?.postMessage({
         //     action: "log",
@@ -56,15 +55,15 @@ export class ReadProcessor {
     }
 
     public async start() {
+        await this.streamReader.open();
+
         parentPort?.postMessage({
             action: "started",
         });
 
-        await this.streamReader.open();
-
         await this.waitForSynchronization(false);
 
-        let interval = setInterval(() => {
+        const interval = setInterval(() => {
             if (this.isRunning) {
                 /* istanbul ignore next */
                 this.emitCount();
@@ -74,8 +73,7 @@ export class ReadProcessor {
         let previousEntity: any = undefined;
         let entity: any = undefined;
 
-
-        while(entity = await this.streamReader.readNext()) {
+        while ((entity = await this.streamReader.readNext())) {
             this.count++;
 
             // parentPort?.postMessage({
@@ -101,7 +99,7 @@ export class ReadProcessor {
             previousEntity = entity;
         }
 
-        clearInterval(interval!);
+        clearInterval(interval);
 
         // Need to save last entities
         if (this.onWait) {
@@ -120,12 +118,8 @@ export class ReadProcessor {
 
     private waitOrContinue(count, previousEntity: any, entity: any): Promise<void> {
         return new Promise<void>(async (resolve) => {
-            while (true) {
-                if (entity[this.nextField] > this.nextValue!) {
-                    await this.waitForSynchronization();
-                } else {
-                    break;
-                }
+            while (entity[this.nextField] > this.nextValue!) {
+                await this.waitForSynchronization();
             }
             resolve();
         });
@@ -133,13 +127,9 @@ export class ReadProcessor {
 
     private waitOrContinueCount(): Promise<void> {
         return new Promise<void>(async (resolve) => {
-            while (true) {
-                if (this.count === this.nextCount) {
-                    /* istanbul ignore next */
-                    await this.waitForSynchronization();
-                } else {
-                    break;
-                }
+            while (this.count === this.nextCount) {
+                /* istanbul ignore next */
+                await this.waitForSynchronization();
             }
             resolve();
         });
@@ -147,7 +137,6 @@ export class ReadProcessor {
 
     private waitForSynchronization(emit: boolean = true): Promise<void> {
         return new Promise<void>(async (resolve) => {
-
             // parentPort?.postMessage({
             //     action: "log",
             //     data: "Wait: "
@@ -180,8 +169,8 @@ export class ReadProcessor {
             data: {
                 numberOfTransactions: this.transactionsCount,
                 height: this.height,
-                count: this.count
-            }
+                count: this.count,
+            },
         });
     }
 }

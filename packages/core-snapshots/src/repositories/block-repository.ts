@@ -1,23 +1,20 @@
+import { Models, Repositories } from "@arkecosystem/core-database";
+import { Contracts } from "@packages/core-kernel";
 import { EntityRepository } from "typeorm";
 
-import { Repositories, Models } from "@arkecosystem/core-database";
-import { Contracts } from "@packages/core-kernel";
 import { Repository } from "../contracts";
 
 @EntityRepository(Models.Block)
-export class BlockRepository extends Repositories.AbstractEntityRepository<Models.Block> implements Repository{
-
+export class BlockRepository extends Repositories.AbstractEntityRepository<Models.Block> implements Repository {
     public async getReadStream(start: number, end: number): Promise<NodeJS.ReadableStream> {
         return this.createQueryBuilder()
             .where("height >= :start AND height < :end", { start, end })
-            .orderBy("height" ,"ASC")
+            .orderBy("height", "ASC")
             .stream();
     }
 
     public async countInRange(start: number, end: number): Promise<number> {
-        return this.createQueryBuilder()
-            .where("height >= :start AND height < :end", { start, end })
-            .getCount()
+        return this.createQueryBuilder().where("height >= :start AND height < :end", { start, end }).getCount();
     }
 
     public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<void> {
@@ -52,22 +49,22 @@ export class BlockRepository extends Repositories.AbstractEntityRepository<Model
     }
 
     public async findLast(): Promise<Models.Block | undefined> {
-        let topBlocks = await this.find({
+        const topBlocks = await this.find({
             take: 1,
             order: {
-                height: "DESC"
-            }
+                height: "DESC",
+            },
         });
 
         return topBlocks[0];
     }
 
     public async findFirst(): Promise<Models.Block | undefined> {
-        let topBlocks = await this.find({
+        const topBlocks = await this.find({
             take: 1,
             order: {
-                height: "ASC"
-            }
+                height: "ASC",
+            },
         });
 
         return topBlocks[0];
@@ -75,7 +72,7 @@ export class BlockRepository extends Repositories.AbstractEntityRepository<Model
 
     public async findByHeight(height: number): Promise<Models.Block | undefined> {
         return this.findOne({
-            height: height
+            height: height,
         });
     }
 }

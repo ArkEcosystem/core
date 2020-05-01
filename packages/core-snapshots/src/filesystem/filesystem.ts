@@ -1,4 +1,5 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+
 import { Meta } from "../contracts";
 
 @Container.injectable()
@@ -15,7 +16,7 @@ export class Filesystem {
     public getSnapshotPath(): string {
         Utils.assert.defined<string>(this.snapshot);
 
-        return `${process.env.CORE_PATH_DATA}/snapshots/${this.snapshot}/`
+        return `${process.env.CORE_PATH_DATA}/snapshots/${this.snapshot}/`;
     }
 
     public async snapshotExists(): Promise<boolean> {
@@ -31,9 +32,9 @@ export class Filesystem {
     }
 
     public async readMetaData(): Promise<Meta.MetaData> {
-        let buffer = await this.filesystem.get(`${this.getSnapshotPath()}meta.json`);
+        const buffer = await this.filesystem.get(`${this.getSnapshotPath()}meta.json`);
 
-        let meta = JSON.parse(buffer.toString());
+        const meta = JSON.parse(buffer.toString());
 
         this.validateMetaData(meta);
 

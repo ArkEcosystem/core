@@ -1,5 +1,5 @@
-import { Worker } from "worker_threads";
 import { EventEmitter } from "events";
+import { Worker } from "worker_threads";
 
 export class WorkerWrapper extends EventEmitter {
     private worker: Worker;
@@ -7,18 +7,18 @@ export class WorkerWrapper extends EventEmitter {
 
     public constructor(data: any) {
         super();
-        this.worker = new Worker(__dirname +  "/worker.js", {workerData: data});
+        this.worker = new Worker(__dirname + "/worker.js", { workerData: data });
 
-        this.worker.on("message", data => {
+        this.worker.on("message", (data) => {
             // console.log("Message", data);
 
             this.handleMessage(data);
-        })
+        });
 
-        this.worker.on("error", err => {
+        this.worker.on("error", (err) => {
             // this.emit("error", err)
-            this.emit("*", { name: "error", data: err })
-        })
+            this.emit("*", { name: "error", data: err });
+        });
 
         // this.worker.on("error", err => {
         //     this.emit("error", err)
@@ -27,27 +27,27 @@ export class WorkerWrapper extends EventEmitter {
 
         this.worker.on("exit", (statusCode) => {
             this.isDone = true;
-            this.emit("exit", statusCode)
-            this.emit("*", { name: "exit", data: statusCode })
-        })
+            this.emit("exit", statusCode);
+            this.emit("*", { name: "exit", data: statusCode });
+        });
     }
 
     public start(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.once("*", (data) => {
-                if(data.name === "started") {
+                if (data.name === "started") {
                     resolve();
                 } else if (data.name === "exit") {
                     resolve();
                 } else if (data.name === "exception" || data.name === "error") {
-                    reject(data.data)
+                    reject(data.data);
                 } else {
                     reject();
                 }
-            })
+            });
 
             this.worker.postMessage({ action: "start" });
-        })
+        });
     }
 
     public sync(data: any): Promise<any> {
@@ -65,7 +65,7 @@ export class WorkerWrapper extends EventEmitter {
                 } else if (data.name === "exit") {
                     resolve();
                 } else if (data.name === "exception" || data.name === "error") {
-                    reject(data.data)
+                    reject(data.data);
                 } else {
                     reject();
                 }
@@ -73,13 +73,13 @@ export class WorkerWrapper extends EventEmitter {
 
             this.worker.postMessage({
                 action: "sync",
-                data: data
-            })
-        })
+                data: data,
+            });
+        });
     }
 
     public async terminate() {
-        await this.worker.terminate()
+        await this.worker.terminate();
     }
 
     private handleMessage(data) {
@@ -90,7 +90,7 @@ export class WorkerWrapper extends EventEmitter {
         // Actions: count, started, synced, exit, error
         this.emit(data.action, data.data);
         if (data.action !== "count" && data.action !== "log") {
-            this.emit("*", { name: data.action, data: data.data })
+            this.emit("*", { name: data.action, data: data.data });
         }
     }
 }

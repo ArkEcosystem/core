@@ -1,23 +1,21 @@
-import { workerData, parentPort } from "worker_threads";
-import { getCustomRepository, Connection, createConnection } from "typeorm";
-
-import { Container } from "@arkecosystem/core-kernel";
 import { Models, Utils } from "@arkecosystem/core-database";
-import { Transactions } from "@arkecosystem/crypto";
+import { Container } from "@arkecosystem/core-kernel";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Transactions } from "@arkecosystem/crypto";
+import { Connection, createConnection, getCustomRepository } from "typeorm";
+import { parentPort, workerData } from "worker_threads";
 
-import { WorkerAction, Worker, Repository } from "../contracts";
-import { Identifiers } from "../ioc";
-import { Application } from "./application";
 import * as Codecs from "../codecs";
-import * as Actions from "./actions";
-import * as Repositories from "../repositories";
 import { StreamReader, StreamWriter } from "../codecs";
-
+import { Repository, Worker, WorkerAction } from "../contracts";
+import { Identifiers } from "../ioc";
+import * as Repositories from "../repositories";
+import * as Actions from "./actions";
+import { Application } from "./application";
 
 let app: Application;
 let action: WorkerAction;
-let _workerData: Worker.WorkerData = workerData;
+const _workerData: Worker.WorkerData = workerData;
 
 /* istanbul ignore next */
 const connect = async (options: any): Promise<Connection> => {
@@ -46,31 +44,33 @@ export const init = async () => {
     }
 
     /* istanbul ignore next */
-    app
-        .bind<Repository>(Identifiers.SnapshotRepositoryFactory)
-        .toFactory<Repository>((context: Container.interfaces.Context) => (table: string) => {
-            if(table === "blocks") {
-                return getCustomRepository(Repositories.BlockRepository)
+    app.bind<Repository>(Identifiers.SnapshotRepositoryFactory).toFactory<Repository>(
+        (context: Container.interfaces.Context) => (table: string) => {
+            if (table === "blocks") {
+                return getCustomRepository(Repositories.BlockRepository);
             } else if (table === "transactions") {
-                return getCustomRepository(Repositories.TransactionRepository)
+                return getCustomRepository(Repositories.TransactionRepository);
             } else {
-                return getCustomRepository(Repositories.RoundRepository)
+                return getCustomRepository(Repositories.RoundRepository);
             }
-            });
+        },
+    );
 
     /* istanbul ignore next */
-    app
-        .bind<StreamReader>(Identifiers.StreamReaderFactory)
-        .toFactory<StreamReader>((context: Container.interfaces.Context) => (path: string, useCompression: boolean, decode: Function) =>
-            new StreamReader(path, useCompression, decode)
-        );
+    app.bind<StreamReader>(Identifiers.StreamReaderFactory).toFactory<StreamReader>(
+        (context: Container.interfaces.Context) => (path: string, useCompression: boolean, decode: Function) =>
+            new StreamReader(path, useCompression, decode),
+    );
 
     /* istanbul ignore next */
-    app
-        .bind<StreamWriter>(Identifiers.StreamWriterFactory)
-        .toFactory<StreamWriter>((context: Container.interfaces.Context) => (dbStream: NodeJS.ReadableStream, path: string, useCompression: boolean, encode: Function) =>
-            new StreamWriter(dbStream, path, useCompression, encode)
-        );
+    app.bind<StreamWriter>(Identifiers.StreamWriterFactory).toFactory<StreamWriter>(
+        (context: Container.interfaces.Context) => (
+            dbStream: NodeJS.ReadableStream,
+            path: string,
+            useCompression: boolean,
+            encode: Function,
+        ) => new StreamWriter(dbStream, path, useCompression, encode),
+    );
 
     app.bind(Identifiers.SnapshotCodec)
         .to(Codecs.Codec)
@@ -111,11 +111,11 @@ export const init = async () => {
 export const dispose = async (): Promise<void> => {
     /* istanbul ignore next */
     if (_workerData.connection) {
-        let connection = app.get<Connection>(Identifiers.SnapshotDatabaseConnection);
+        const connection = app.get<Connection>(Identifiers.SnapshotDatabaseConnection);
 
         await connection.close();
     }
-}
+};
 
 /* istanbul ignore next */
 parentPort?.on("message", async (data) => {
@@ -141,21 +141,19 @@ const handleException = (err: any) => {
     });
 
     process.exit();
-}
+};
 
 /* istanbul ignore next */
-process.on('unhandledRejection', (err) => {
+process.on("unhandledRejection", (err) => {
     handleException(err);
 });
 
 /* istanbul ignore next */
-process.on('uncaughtException', (err) => {
+process.on("uncaughtException", (err) => {
     handleException(err);
 });
 
 /* istanbul ignore next */
-process.on('multipleResolves', (err) => {
+process.on("multipleResolves", (err) => {
     handleException(err);
 });
-
-

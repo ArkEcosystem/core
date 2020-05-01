@@ -1,5 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
-import { Blocks, Interfaces, Crypto, Transactions } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Transactions } from "@arkecosystem/crypto";
+
 import * as Exceptions from "./exceptions/verifier";
 
 export class Verifier {
@@ -13,13 +14,13 @@ export class Verifier {
     }
 
     public static verifyRound(round: Models.Round): void {
-        if(round.publicKey.length !== 66) {
+        if (round.publicKey.length !== 66) {
             throw new Exceptions.RoundVerifyException(round.round.toString());
         }
     }
 
     private static isBlockChained(block: Models.Block, previousBlock: Models.Block | undefined): void {
-        if(!previousBlock) {
+        if (!previousBlock) {
             return;
         }
 
@@ -35,7 +36,9 @@ export class Verifier {
 
         try {
             /* istanbul ignore next */
-            let block = Blocks.BlockFactory.fromData(blockEntity as Interfaces.IBlockData, () => { return blockEntity.timestamp })!;
+            const block = Blocks.BlockFactory.fromData(blockEntity as Interfaces.IBlockData, () => {
+                return blockEntity.timestamp;
+            })!;
 
             const bytes = Blocks.Serializer.serialize(block.data, false);
             const hash = Crypto.HashAlgorithms.sha256(bytes);
@@ -50,7 +53,7 @@ export class Verifier {
 
     private static verifyTransactionSignature(transaction: Models.Transaction): void {
         if (transaction.timestamp === 0) {
-            return
+            return;
         }
 
         try {
@@ -61,7 +64,5 @@ export class Verifier {
         } catch (e) {
             throw new Exceptions.TransactionVerifyException(transaction.id);
         }
-
-
     }
 }

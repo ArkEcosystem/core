@@ -13,15 +13,14 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
     }
 
     public async start() {
-        let isBlock = this.table === "blocks";
-        let streamReader = this.getStreamReader();
-        let verify = this.getVerifyFunction();
+        const isBlock = this.table === "blocks";
+        const streamReader = this.getStreamReader();
+        const verify = this.getVerifyFunction();
 
         this.readProcessor = new ReadProcessor(
             isBlock,
             streamReader,
             async (entity: any, previousEntity: any) => {
-
                 if (isBlock) {
                     this.applyGenesisBlockFix(entity);
                 }
@@ -39,7 +38,7 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
             },
             async () => {
                 await this.saveValues();
-            }
+            },
         );
 
         await this.readProcessor.start();

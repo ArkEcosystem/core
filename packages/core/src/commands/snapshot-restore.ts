@@ -1,8 +1,8 @@
-
-import { Commands, Container, Contracts, Utils, Components, Services } from "@arkecosystem/core-cli";
+import { Commands, Components, Container, Contracts, Services, Utils } from "@arkecosystem/core-cli";
+import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
-import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
+
 import { ProgressRenderer } from "../utils/snapshot-progress-renderer";
 
 /**
@@ -64,15 +64,15 @@ export class Command extends Commands.Command {
             return;
         }
 
-        let app = await Utils.buildApplication({
+        const app = await Utils.buildApplication({
             flags,
         });
 
-        let spinner = this.app.get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory).spinner();
+        const spinner = this.app.get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory).spinner();
         new ProgressRenderer(spinner, app);
 
-        await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).restore(flags);
+        await app
+            .get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService)
+            .restore(flags);
     }
 }
-
-

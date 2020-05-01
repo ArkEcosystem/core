@@ -1,18 +1,18 @@
-import { Transform, TransformCallback } from "stream"
 import ByteBuffer from "bytebuffer";
+import { Transform, TransformCallback } from "stream";
 
 export class TransformEncoder extends Transform {
     public constructor(private encode: Function) {
-        super({objectMode: true});
+        super({ objectMode: true });
     }
 
     public _transform(chunk: any, encoding: string, callback: TransformCallback): void {
-        let encoded: Buffer = this.encode(chunk);
+        const encoded: Buffer = this.encode(chunk);
 
-        let buffer: ByteBuffer = new ByteBuffer(4 + encoded.length, true);
+        const buffer: ByteBuffer = new ByteBuffer(4 + encoded.length, true);
 
-        buffer.writeUInt32(encoded.length)
-        buffer.append(encoded)
+        buffer.writeUInt32(encoded.length);
+        buffer.append(encoded);
 
         this.push(buffer.buffer);
 

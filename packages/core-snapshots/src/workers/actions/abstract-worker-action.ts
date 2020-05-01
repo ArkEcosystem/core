@@ -1,9 +1,10 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
-import { Codec, WorkerAction, Repository, Worker, RepositoryFactory, Stream } from "../../contracts";
-import { Identifiers } from "../../ioc";
+
+import { Codec, Repository, RepositoryFactory, Stream, Worker, WorkerAction } from "../../contracts";
 import { StreamReader, StreamWriter } from "../../filesystem";
+import { Identifiers } from "../../ioc";
 import { Verifier } from "../../verifier";
 
 @Container.injectable()
@@ -34,21 +35,26 @@ export abstract class AbstractWorkerAction implements WorkerAction {
     }
 
     protected getRepository(): Repository {
-        let repositoryFactory = this.app.get<RepositoryFactory>(Identifiers.SnapshotRepositoryFactory);
+        const repositoryFactory = this.app.get<RepositoryFactory>(Identifiers.SnapshotRepositoryFactory);
 
         return repositoryFactory(this.table!);
     }
 
     protected getStreamReader(): StreamReader {
-        let streamReaderFactory = this.app.get<Stream.StreamReaderFactory>(Identifiers.StreamReaderFactory);
+        const streamReaderFactory = this.app.get<Stream.StreamReaderFactory>(Identifiers.StreamReaderFactory);
 
-        return streamReaderFactory(this.filePath!, !this.skipCompression!, this.getCodec()[`${this.table}Decode`])
+        return streamReaderFactory(this.filePath!, !this.skipCompression!, this.getCodec()[`${this.table}Decode`]);
     }
 
     protected getStreamWriter(dbStream: NodeJS.ReadableStream): StreamWriter {
-        let streamWriterFactory = this.app.get<Stream.StreamWriterFactory>(Identifiers.StreamWriterFactory);
+        const streamWriterFactory = this.app.get<Stream.StreamWriterFactory>(Identifiers.StreamWriterFactory);
 
-        return streamWriterFactory(dbStream, this.filePath!, !this.skipCompression!, this.getCodec()[`${this.table}Encode`])
+        return streamWriterFactory(
+            dbStream,
+            this.filePath!,
+            !this.skipCompression!,
+            this.getCodec()[`${this.table}Encode`],
+        );
     }
 
     protected applyGenesisBlockFix(block: Models.Block): void {

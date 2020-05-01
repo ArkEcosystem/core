@@ -5,4 +5,3 @@ export interface Repository {
 }
 
 export type RepositoryFactory = (table: string) => Repository;
-

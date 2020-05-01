@@ -1,7 +1,7 @@
 import { Commands, Container, Contracts, Services, Utils } from "@arkecosystem/core-cli";
+import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
-import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
 
 /**
  * @export
@@ -42,8 +42,8 @@ export class Command extends Commands.Command {
             // .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
             // .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean())
             .setFlag("height", "The height after the roll back.", Joi.number())
-            .setFlag("number", "The number of blocks to roll back.", Joi.number())
-            // .setFlag("export", "Export the rolled back transactions.", Joi.boolean().default(true));
+            .setFlag("number", "The number of blocks to roll back.", Joi.number());
+        // .setFlag("export", "Export the rolled back transactions.", Joi.boolean().default(true));
     }
 
     /**
@@ -56,14 +56,18 @@ export class Command extends Commands.Command {
         const flags: Contracts.AnyObject = { ...this.getFlags() };
         flags.processType = "snapshot";
 
-        let app = await Utils.buildApplication({
+        const app = await Utils.buildApplication({
             flags,
         });
 
         if (flags.height) {
-            await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).rollbackByHeight(flags.height);
+            await app
+                .get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService)
+                .rollbackByHeight(flags.height);
         } else if (flags.number) {
-            await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).rollbackByNumber(flags.number);
+            await app
+                .get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService)
+                .rollbackByNumber(flags.number);
         } else {
             this.logger.error("Please specify either a height or number of blocks to roll back.");
         }

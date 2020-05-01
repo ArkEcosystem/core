@@ -1,6 +1,6 @@
 import { Contracts } from "@packages/core-kernel";
-import { Interfaces } from "@packages/crypto";
 import { Meta, Options } from "@packages/core-snapshots/src/contracts/index";
+import { Interfaces } from "@packages/crypto";
 
 export interface DumpRange {
     firstBlockHeight: number;

@@ -17,7 +17,6 @@ export class TestWorkerAction implements WorkerAction {
             this.resume();
         }
 
-
         if (data.execute === "throwError") {
             throw new Error("Sync Error");
         }
@@ -31,8 +30,16 @@ export class TestWorkerAction implements WorkerAction {
                 action: "started",
             });
 
-            await new Promise((resolve) => { this.resume = () => { resolve() } })
-            await new Promise((resolve) => { this.resume = () => { resolve() } })
+            await new Promise((resolve) => {
+                this.resume = () => {
+                    resolve();
+                };
+            });
+            await new Promise((resolve) => {
+                this.resume = () => {
+                    resolve();
+                };
+            });
         }
     }
 }
