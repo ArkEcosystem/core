@@ -61,7 +61,6 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
             "blockchain",
         );
 
-        await databaseService.buildWallets();
         await databaseService.saveRound(
             secrets.map((secret, i) => {
                 const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase(secret));
