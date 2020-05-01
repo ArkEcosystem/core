@@ -1,5 +1,7 @@
 // TODO: move this out and organise properly
 
+import { BigNumberLibrary } from "../types";
+
 export interface Secp256k1 {
     sign: any;
     verify: any;
@@ -62,5 +64,5 @@ export interface Libraries {
     bip39: {
         mnemonicToSeedSync;
     };
-    BigNumber;
+    BigNumber: BigNumberLibrary;
 }

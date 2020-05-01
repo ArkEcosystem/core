@@ -3,8 +3,3 @@ export interface IKeyPair {
     privateKey: string;
     compressed: boolean;
 }
-
-export interface IMultiSignatureAsset {
-    min: number;
-    publicKeys: string[];
-}
