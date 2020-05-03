@@ -211,7 +211,7 @@ export class DatabaseService {
         }
 
         // When called during applyRound we already know the delegates, so we don't have to query the database.
-        if (!delegates || delegates.length === 0) {
+        if (!delegates) {
             delegates = (await this.roundRepository.find({ round })).map(({ publicKey, balance }) => {
                 // ! find wallet by public key and clone it
                 const wallet = this.walletRepository.createWallet(Identities.Address.fromPublicKey(publicKey));
@@ -711,7 +711,7 @@ export class DatabaseService {
 
     private detectMissedRound(delegates: Contracts.State.Wallet[]): void {
         if (!delegates || !this.blocksInCurrentRound) {
-            // !this.blocksInCurrentRound is impossible
+            // ! this.blocksInCurrentRound is impossible
             // ! otherwise this.blocksInCurrentRound!.length = 0 in applyRound will throw
             return;
         }

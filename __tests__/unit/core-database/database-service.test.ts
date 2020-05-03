@@ -208,6 +208,7 @@ describe("DatabaseService.initialize", () => {
             await databaseService.initialize();
 
             expect(connection.query).toBeCalledWith("TRUNCATE TABLE blocks, rounds, transactions RESTART IDENTITY;");
+            expect(stateStore.getGenesisBlock).toBeCalled();
             expect(blockRepository.saveBlocks).toBeCalledWith([genesisBlock]);
         } finally {
             delete process.env.CORE_RESET_DATABASE;
@@ -323,9 +324,31 @@ describe("DatabaseService.applyBlock", () => {
         const block = { data: { height: 54, timestamp: 35 }, transactions: [transaction] };
         await databaseService.applyBlock(block as any);
 
+        expect(stateStore.getLastBlock).toBeCalledTimes(2);
         expect(blockState.applyBlock).toBeCalledWith(block);
         expect(databaseService.blocksInCurrentRound).toEqual([block]);
         expect(emitter.dispatch).toBeCalledWith("forger.missing", { delegate: delegateWallet });
+        expect(handler.emitEvents).toBeCalledWith(transaction, emitter);
+        expect(emitter.dispatch).toBeCalledWith("block.applied", block.data);
+    });
+
+    it("should apply block, not apply round, and not detect missed blocks when last block height is 1", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const lastBlock = { data: { height: 1 } };
+        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
+
+        const handler = { emitEvents: jest.fn() };
+        handlerRegistry.getActivatedHandlerForData.mockResolvedValueOnce(handler);
+
+        // still previous last block!
+        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
+
+        const transaction = {};
+        const block = { data: { height: 2, timestamp: 35 }, transactions: [transaction] };
+        await databaseService.applyBlock(block as any);
+
+        expect(stateStore.getLastBlock).toBeCalledTimes(2);
         expect(handler.emitEvents).toBeCalledWith(transaction, emitter);
         expect(emitter.dispatch).toBeCalledWith("block.applied", block.data);
     });
@@ -338,6 +361,7 @@ describe("DatabaseService.applyRound", () => {
         const forgingDelegate = { getAttribute: jest.fn() };
         const forgingDelegateRound = 1;
         forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+        databaseService.forgingDelegates = [forgingDelegate] as any;
 
         const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
         const dposStateRoundDelegates = [delegateWallet];
@@ -353,9 +377,9 @@ describe("DatabaseService.applyRound", () => {
         delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
 
         databaseService.blocksInCurrentRound = [];
-        databaseService.forgingDelegates = [forgingDelegate] as any;
 
-        await databaseService.applyRound(51);
+        const height = 51;
+        await databaseService.applyRound(height);
 
         expect(dposState.buildDelegateRanking).toBeCalled();
         expect(dposState.setDelegatesRound).toBeCalledWith({
@@ -366,6 +390,43 @@ describe("DatabaseService.applyRound", () => {
         });
         expect(roundRepository.save).toBeCalledWith(dposStateRoundDelegates);
         expect(emitter.dispatch).toBeCalledWith("round.applied");
+    });
+
+    it("should delete round and rethrow error when error was thrown", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        dposState.buildDelegateRanking.mockImplementation(() => {
+            throw new Error("Fail");
+        });
+
+        const height = 51;
+        const check = () => databaseService.applyRound(height);
+
+        await expect(check()).rejects.toThrowError("Fail");
+        expect(roundRepository.delete).toBeCalledWith({ round: 2 });
+    });
+
+    it("should do nothing when next height is same round", async () => {
+        const databaseService = container.resolve(DatabaseService);
+        const height = 50;
+        await databaseService.applyRound(height);
+        expect(logger.info).not.toBeCalled();
+    });
+
+    it("should warn when, and do nothing when round was already applied", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const forgingDelegate = { getAttribute: jest.fn() };
+        const forgingDelegateRound = 2;
+        forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+        databaseService.forgingDelegates = [forgingDelegate] as any;
+
+        const height = 51;
+        await databaseService.applyRound(height);
+
+        expect(logger.warning).toBeCalledWith(
+            "Round 2 has already been applied. This should happen only if you are a forger.",
+        );
     });
 });
 
@@ -406,6 +467,21 @@ describe("DatabaseService.getActiveDelegates", () => {
         });
         expect(newDelegateWallet.clone).toBeCalled();
     });
+
+    it("should return cached forgingDelegates when round is the same", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const forgingDelegate = { getAttribute: jest.fn() };
+        const forgingDelegateRound = 2;
+        forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+        databaseService.forgingDelegates = [forgingDelegate] as any;
+
+        const roundInfo = { round: 2 };
+        const result = await databaseService.getActiveDelegates(roundInfo as any);
+
+        expect(forgingDelegate.getAttribute).toBeCalledWith("delegate.round");
+        expect(result).toBe(databaseService.forgingDelegates);
+    });
 });
 
 describe("DatabaseService.getBlock", () => {
@@ -422,6 +498,18 @@ describe("DatabaseService.getBlock", () => {
         expect(blockRepository.findOne).toBeCalledWith(block.data.id);
         expect(transactionRepository.find).toBeCalledWith({ blockId: block.data.id });
         expect(result).toEqual(block);
+    });
+
+    it("should return undefined when block was not found", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        blockRepository.findOne.mockResolvedValueOnce(undefined);
+
+        const blockId = "non_existing_id";
+        const result = await databaseService.getBlock(blockId);
+
+        expect(blockRepository.findOne).toBeCalledWith(blockId);
+        expect(result).toBeUndefined();
     });
 });
 
@@ -442,6 +530,23 @@ describe("DatabaseService.getBlocks", () => {
         expect(blockRepository.findByHeightRangeWithTransactions).toBeCalledWith(100, 102);
         expect(result).toEqual([block100, block101, block102]);
     });
+
+    it("should return blocks without transactions when block headers are requested", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const block100 = { height: 100 };
+        const block101 = { height: 101 };
+        const block102 = { height: 102 };
+
+        stateStore.getLastBlocksByHeight.mockReturnValueOnce([block101, block102]);
+        blockRepository.findByHeightRange.mockResolvedValueOnce([block100, block101, block102]);
+
+        const result = await databaseService.getBlocks(100, 3, true);
+
+        expect(stateStore.getLastBlocksByHeight).toBeCalledWith(100, 102, true);
+        expect(blockRepository.findByHeightRange).toBeCalledWith(100, 102);
+        expect(result).toEqual([block100, block101, block102]);
+    });
 });
 
 describe("DatabaseService.getBlocksForDownload", () => {
@@ -457,6 +562,21 @@ describe("DatabaseService.getBlocksForDownload", () => {
         const result = await databaseService.getBlocksForDownload(100, 3);
 
         expect(blockRepository.findByHeightRangeWithTransactions).toBeCalledWith(100, 102);
+        expect(result).toEqual([block100, block101, block102]);
+    });
+
+    it("should return blocks without transactions when block headers are requested", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const block100 = { height: 100 };
+        const block101 = { height: 101 };
+        const block102 = { height: 102 };
+
+        blockRepository.findByHeightRange.mockResolvedValueOnce([block100, block101, block102]);
+
+        const result = await databaseService.getBlocksForDownload(100, 3, true);
+
+        expect(blockRepository.findByHeightRange).toBeCalledWith(100, 102);
         expect(result).toEqual([block100, block101, block102]);
     });
 });
