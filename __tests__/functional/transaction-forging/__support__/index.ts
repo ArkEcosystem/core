@@ -57,15 +57,15 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
 
         await app.boot();
 
+        Managers.configManager.getMilestone().aip11 = true;
+        Managers.configManager.getMilestone().htlcEnabled = true;
+
         const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
         const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
             Container.Identifiers.WalletRepository,
             "state",
             "blockchain",
         );
-
-        Managers.configManager.getMilestone().aip11 = true;
-        Managers.configManager.getMilestone().htlcEnabled = true;
 
         await databaseService.saveRound(
             secrets.map((secret, i) => {
