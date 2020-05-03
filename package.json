@@ -100,7 +100,7 @@
         "typedoc": "^0.17.3",
         "typescript": "^3.8.3",
         "typesync": "^0.6.1",
-        "uuid": "^7.0.2"
+        "uuid": "^8.0.0"
     },
     "workspaces": [
         "packages/*",
