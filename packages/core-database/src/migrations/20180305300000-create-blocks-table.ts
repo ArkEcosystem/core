@@ -3,7 +3,7 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class CreateBlocksTable20180305300000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`
-            CREATE TABLE IF NOT EXISTS blocks (
+            CREATE TABLE blocks (
                 "id" VARCHAR(64) PRIMARY KEY,
                 "version" SMALLINT NOT NULL,
                 "timestamp" INTEGER UNIQUE NOT NULL,

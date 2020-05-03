@@ -60,15 +60,15 @@ export const initApp = (): Application => {
 
     app.bind(Container.Identifiers.BlockchainService).toConstantValue(Mocks.Blockchain.instance);
 
-    app.bind(Container.Identifiers.BlockRepository).toConstantValue(Mocks.BlockRepository.instance);
+    app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(Mocks.BlockRepository.instance);
 
-    app.bind(Container.Identifiers.TransactionRepository).toConstantValue(Mocks.TransactionRepository.instance);
+    app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue(Mocks.TransactionRepository.instance);
 
     app.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(Mocks.NetworkMonitor.instance);
 
     app.bind(Container.Identifiers.PeerStorage).toConstantValue(Mocks.PeerStorage.instance);
 
-    app.bind(Container.Identifiers.RoundRepository).toConstantValue(Mocks.RoundRepository.instance);
+    app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue(Mocks.RoundRepository.instance);
 
     app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(Mocks.TransactionPoolQuery.instance);
 

@@ -890,7 +890,7 @@ describe("Delegate Wallets", () => {
             return Object.assign(wallet, { attributes: { delegate } });
         });
 
-        const search = (params = {}): Contracts.State.RowsPaginated<Wallet> => {
+        const search = (params = {}): Contracts.Search.ListResult<Wallet> => {
             return walletRepo.search(Contracts.State.SearchScope.Delegates, params);
         };
 

@@ -67,14 +67,20 @@ export class NetworkState implements Contracts.P2P.NetworkState {
         }
     }
 
-    public static analyze(
+    public static async analyze(
         monitor: Contracts.P2P.NetworkMonitor,
         storage: Contracts.P2P.PeerStorage,
-    ): Contracts.P2P.NetworkState {
+    ): Promise<Contracts.P2P.NetworkState> {
         // @ts-ignore - app exists but isn't on the interface for now
         const lastBlock: Interfaces.IBlock = monitor.app
             .get<any>(Container.Identifiers.BlockchainService)
             .getLastBlock();
+
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(
+            // @ts-ignore - app exists but isn't on the interface for now
+            monitor.app,
+            lastBlock.data.height,
+        );
 
         const peers: Contracts.P2P.Peer[] = storage.getPeers();
         // @ts-ignore - app exists but isn't on the interface for now
@@ -94,7 +100,7 @@ export class NetworkState implements Contracts.P2P.NetworkState {
             return new NetworkState(NetworkStateStatus.BelowMinimumPeers, lastBlock);
         }
 
-        return this.analyzeNetwork(lastBlock, peers);
+        return await this.analyzeNetwork(lastBlock, peers, blockTimeLookup);
     }
 
     public static parse(data: any): Contracts.P2P.NetworkState {
@@ -110,9 +116,13 @@ export class NetworkState implements Contracts.P2P.NetworkState {
         return networkState;
     }
 
-    private static analyzeNetwork(lastBlock, peers: Contracts.P2P.Peer[]): Contracts.P2P.NetworkState {
+    private static analyzeNetwork(
+        lastBlock,
+        peers: Contracts.P2P.Peer[],
+        getTimeStampForBlock: (height: number) => number,
+    ): Contracts.P2P.NetworkState {
         const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
-        const currentSlot = Crypto.Slots.getSlotNumber();
+        const currentSlot = Crypto.Slots.getSlotNumber(getTimeStampForBlock);
 
         for (const peer of peers) {
             networkState.update(peer, currentSlot);

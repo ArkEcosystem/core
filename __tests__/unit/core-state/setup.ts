@@ -4,6 +4,7 @@ import { Container, Providers, Services } from "@packages/core-kernel";
 import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
 import { PluginConfiguration } from "@packages/core-kernel/src/providers";
 import { dposPreviousRoundStateProvider } from "@packages/core-state/src";
+import { BuildDelegateRankingAction } from "@packages/core-state/src/actions";
 import { BlockState } from "@packages/core-state/src/block-state";
 import { defaults } from "@packages/core-state/src/defaults";
 import { DposState } from "@packages/core-state/src/dpos/dpos";
@@ -15,7 +16,6 @@ import { registerFactories, registerIndexers } from "@packages/core-state/src/wa
 import { Sandbox } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Managers, Utils } from "@packages/crypto/src";
-import { BuildDelegateRankingAction } from "@packages/core-state/src/actions";
 
 export interface Spies {
     applySpy: jest.SpyInstance;
@@ -254,8 +254,8 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
         }
     }
 
-    sandbox.app.container.bind(Container.Identifiers.BlockRepository).to(MockBlockRepository);
-    sandbox.app.container.bind(Container.Identifiers.TransactionRepository).to(MockTransactionRepository);
+    sandbox.app.container.bind(Container.Identifiers.DatabaseBlockRepository).to(MockBlockRepository);
+    sandbox.app.container.bind(Container.Identifiers.DatabaseTransactionRepository).to(MockTransactionRepository);
     sandbox.app.container.bind(Container.Identifiers.EventDispatcherService).to(MockEventDispatcher);
 
     sandbox.app.bind(Container.Identifiers.BlockState).to(BlockState);

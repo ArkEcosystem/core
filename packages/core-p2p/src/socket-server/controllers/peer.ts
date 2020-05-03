@@ -53,18 +53,22 @@ export class PeerController extends Controller {
         const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
         const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
 
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, lastBlock.data.height);
+
+        const slotInfo = Crypto.Slots.getSlotInfo(blockTimeLookup);
+
         return {
             state: {
                 height: lastBlock ? lastBlock.data.height : 0,
-                forgingAllowed: Crypto.Slots.isForgingAllowed(),
-                currentSlot: Crypto.Slots.getSlotNumber(),
+                forgingAllowed: slotInfo.forgingStatus,
+                currentSlot: slotInfo.slotNumber,
                 header: lastBlock ? lastBlock.getHeader() : {},
             },
             config: getPeerConfig(this.app),
         };
     }
 
-    public postBlock(request: Hapi.Request, h: Hapi.ResponseToolkit): boolean {
+    public async postBlock(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<boolean> {
         const configuration = this.app.getTagged<Providers.PluginConfiguration>(
             Container.Identifiers.PluginConfiguration,
             "plugin",
@@ -106,7 +110,9 @@ export class PeerController extends Controller {
 
             const lastDownloadedBlock: Interfaces.IBlockData = blockchain.getLastDownloadedBlock();
 
-            if (!Utils.isBlockChained(lastDownloadedBlock, block)) {
+            const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
+
+            if (!Utils.isBlockChained(lastDownloadedBlock, block, blockTimeLookup)) {
                 throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
             }
         }
@@ -126,6 +132,7 @@ export class PeerController extends Controller {
             )} from ${request.info.remoteAddress} (${request.headers.host})`,
         );
 
+        // TODO: check we don't need to await here (handleIncomingBlock is now an async operation)
         blockchain.handleIncomingBlock(block, fromForger);
         return true;
     }

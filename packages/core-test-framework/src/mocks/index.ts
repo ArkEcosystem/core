@@ -19,7 +19,7 @@ export {
     RoundRepository,
     ServiceProviderRepository,
     StateStore,
-    TransactionRepository,
     TransactionPoolProcessor,
+    TransactionRepository,
     WalletRepository,
 };

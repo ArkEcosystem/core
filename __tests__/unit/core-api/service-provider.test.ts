@@ -24,9 +24,9 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
 
-    app.bind(Container.Identifiers.BlockRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue({});
 
-    app.bind(Container.Identifiers.TransactionRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue({});
 
     app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
 
@@ -34,13 +34,19 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.PeerStorage).toConstantValue({});
 
-    app.bind(Container.Identifiers.RoundRepository).toConstantValue({});
+    app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue({});
 
     app.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue({});
 
     app.bind(Container.Identifiers.TransactionPoolProcessorFactory).toConstantValue({});
 
     app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
+
+    app.bind(Container.Identifiers.BlockHistoryService).toConstantValue({});
+
+    app.bind(Container.Identifiers.TransactionHistoryService).toConstantValue({});
+
+    app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue({});
 
     defaults.server.https.enabled = "enabled";
     defaults.server.https.tls.key = path.resolve(__dirname, "./__fixtures__/key.pem");

@@ -1,14 +1,14 @@
 import "jest-extended";
 
+import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { Container, Services } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { Managers } from "@packages/crypto/src";
-import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 
 export const mockLastBlock = {
-    data: { height: 3, timestamp: 111150 },
+    data: { height: 3, timestamp: 16 },
 };
 
 export const setup = async (activeDelegates) => {

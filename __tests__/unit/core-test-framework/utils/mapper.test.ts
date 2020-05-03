@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { mapTransactionToModel } from "@packages/core-test-framework/src/utils/mapper";
-import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { Models } from "@arkecosystem/core-database";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { mapTransactionToModel } from "@packages/core-test-framework/src/utils/mapper";
 
 let transaction: Interfaces.ITransaction;
 let transactionModel: Models.Transaction;
@@ -56,8 +56,8 @@ beforeEach(() => {
         type: 2,
         typeGroup: 1,
         vendorField: undefined,
-        amount: BigInt(Utils.BigNumber.make(5)),
-        fee: BigInt(Utils.BigNumber.make(5)),
+        amount: Utils.BigNumber.make(5),
+        fee: Utils.BigNumber.make(5),
         serialized: Buffer.from(""),
         asset: {},
     };

@@ -131,8 +131,8 @@ beforeEach(() => {
     app.bind<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes)
         .to(Services.Attributes.AttributeSet)
         .inSingletonScope();
-    app.bind(Identifiers.BlockRepository).toConstantValue({});
-    app.bind(Identifiers.TransactionRepository).toConstantValue({});
+    app.bind(Identifiers.DatabaseBlockRepository).toConstantValue({});
+    app.bind(Identifiers.DatabaseTransactionRepository).toConstantValue({});
     app.bind(Identifiers.WalletRepository).toConstantValue({});
     app.bind(Identifiers.TransactionPoolQuery).toConstantValue({});
 

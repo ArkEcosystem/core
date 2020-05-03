@@ -9,24 +9,25 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class NodeController extends Controller {
-    @Container.inject(Container.Identifiers.Application)
-    protected readonly app!: Contracts.Kernel.Application;
-
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
-    protected readonly transactionPoolConfiguration!: Providers.PluginConfiguration;
+    private readonly transactionPoolConfiguration!: Providers.PluginConfiguration;
+
+    @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
+    @Container.tagged("state", "null")
+    private readonly nullHandlerRegistry!: Handlers.Registry;
 
     @Container.inject(Container.Identifiers.ConfigRepository)
-    protected readonly configRepository!: Services.Config.ConfigRepository;
+    private readonly configRepository!: Services.Config.ConfigRepository;
 
     @Container.inject(Container.Identifiers.BlockchainService)
-    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
+    private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
-    protected readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
+    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
-    protected readonly transactionRepository!: Repositories.TransactionRepository;
+    @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
+    private readonly transactionRepository!: Repositories.TransactionRepository;
 
     public async status(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const lastBlock = this.blockchain.getLastBlock();
@@ -101,9 +102,7 @@ export class NodeController extends Controller {
             }
 
             const internalType = Transactions.InternalTransactionType.from(result.type, result.typeGroup);
-            const handler = this.app
-                .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
-                .getRegisteredHandlerByType(internalType);
+            const handler = this.nullHandlerRegistry.getRegisteredHandlerByType(internalType);
 
             groupedByTypeGroup[result.typeGroup][handler.getConstructor().key] = {
                 avg: result.avg,

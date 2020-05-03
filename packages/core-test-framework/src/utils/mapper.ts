@@ -1,5 +1,5 @@
-import { Models } from "@packages/core-database";
-import { Interfaces, Utils } from "@packages/crypto";
+import { Models } from "@arkecosystem/core-database";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 export const mapTransactionToModel = (
     transaction: Interfaces.ITransaction,
@@ -17,8 +17,8 @@ export const mapTransactionToModel = (
         type: transaction.data.type,
         typeGroup: transaction.data.typeGroup || 1,
         vendorField: transaction.data.vendorField,
-        amount: BigInt(transaction.data.amount),
-        fee: BigInt(transaction.data.fee),
+        amount: Utils.BigNumber.make(transaction.data.amount),
+        fee: Utils.BigNumber.make(transaction.data.fee),
         serialized: transaction.serialized,
         asset: transaction.data.asset as Record<string, any>,
     };

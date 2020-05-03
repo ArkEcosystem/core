@@ -1,0 +1,62 @@
+[
+    {
+        "height": 1,
+        "reward": 0,
+        "activeDelegates": 51,
+        "blocktime": 8,
+        "block": {
+            "version": 0,
+            "maxTransactions": 50,
+            "maxPayload": 2097152,
+            "acceptExpiredTransactionTimestamps": true
+        },
+        "epoch": "2017-03-21T13:00:00.000Z",
+        "fees": {
+            "staticFees": {
+                "transfer": 10000000,
+                "secondSignature": 500000000,
+                "delegateRegistration": 2500000000,
+                "vote": 100000000,
+                "multiSignature": 500000000,
+                "ipfs": 500000000,
+                "multiPayment": 10000000,
+                "delegateResignation": 2500000000,
+                "htlcLock": 10000000,
+                "htlcClaim": 0,
+                "htlcRefund": 0
+            }
+        },
+        "ignoreInvalidSecondSignatureField": true,
+        "ignoreExpiredTransactions": true,
+        "vendorFieldLength": 64,
+        "multiPaymentLimit": 128
+    },
+    {
+        "height": 10800,
+        "blocktime": 9
+    },
+    {
+        "height": 21600,
+        "activeDelegates": 41
+    },
+    {
+        "height": 910000,
+        "blocktime": 11
+    },
+    {
+        "height": 910004,
+        "blocktime": 11
+    },
+    {
+        "height": 920000,
+        "blocktime": 9
+    },
+    {
+        "height": 950000,
+        "blocktime": 12
+    },
+    {
+        "height": 960000,
+        "activeDelegates": 51
+    }
+]

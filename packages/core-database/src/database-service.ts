@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import { Connection } from "typeorm";
@@ -24,13 +24,13 @@ export class DatabaseService {
     @Container.inject(Container.Identifiers.DatabaseConnection)
     private readonly connection!: Connection;
 
-    @Container.inject(Container.Identifiers.BlockRepository)
+    @Container.inject(Container.Identifiers.DatabaseBlockRepository)
     private readonly blockRepository!: BlockRepository;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
+    @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
     private readonly transactionRepository!: TransactionRepository;
 
-    @Container.inject(Container.Identifiers.RoundRepository)
+    @Container.inject(Container.Identifiers.DatabaseRoundRepository)
     private readonly roundRepository!: RoundRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)
@@ -63,9 +63,16 @@ export class DatabaseService {
         try {
             this.emitter.dispatch(Enums.StateEvent.Starting);
 
+            const genesisBlock = Managers.configManager.get("genesisBlock");
+
+            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(
+                this.app,
+                genesisBlock.height,
+            );
+
             this.app
                 .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
-                .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!);
+                .setGenesisBlock(Blocks.BlockFactory.fromJson(genesisBlock, blockTimeLookup)!);
 
             if (process.env.CORE_RESET_DATABASE) {
                 await this.reset();
@@ -108,7 +115,7 @@ export class DatabaseService {
             this.blocksInCurrentRound.push(block);
         }
 
-        this.detectMissedBlocks(block);
+        await this.detectMissedBlocks(block);
 
         await this.applyRound(block.data.height);
 
@@ -116,7 +123,7 @@ export class DatabaseService {
             await this.emitTransactionEvents(transaction);
         }
 
-        this.detectMissedBlocks(block);
+        await this.detectMissedBlocks(block);
 
         this.emitter.dispatch(Enums.BlockEvent.Applied, block.data);
     }
@@ -245,7 +252,9 @@ export class DatabaseService {
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        return Blocks.BlockFactory.fromData(block);
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
+
+        return Blocks.BlockFactory.fromData(block, blockTimeLookup);
     }
 
     public async getBlocks(offset: number, limit: number, headersOnly?: boolean): Promise<Interfaces.IBlockData[]> {
@@ -360,15 +369,19 @@ export class DatabaseService {
             roundInfo = AppUtils.roundCalculator.calculateRound(lastBlock.data.height);
         }
 
-        return (await this.getBlocks(roundInfo.roundHeight, roundInfo.maxDelegates)).map(
-            (block: Interfaces.IBlockData) => {
-                if (block.height === 1) {
-                    return this.app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
-                }
+        const blocks = await this.getBlocks(roundInfo.roundHeight, roundInfo.maxDelegates);
 
-                return Blocks.BlockFactory.fromData(block, { deserializeTransactionsUnchecked: true });
-            },
-        );
+        const builtBlocks: Promise<Interfaces.IBlock>[] = await blocks.map(async (block: Interfaces.IBlockData) => {
+            if (block.height === 1) {
+                return this.app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
+            }
+
+            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
+
+            return Blocks.BlockFactory.fromData(block, blockTimeLookup, { deserializeTransactionsUnchecked: true });
+        });
+
+        return Promise.all(builtBlocks);
     }
 
     public async getLastBlock(): Promise<Interfaces.IBlock> {
@@ -378,6 +391,8 @@ export class DatabaseService {
             // @ts-ignore Technically, this cannot happen
             return undefined;
         }
+
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
 
         const transactions: Array<{
             id: string;
@@ -389,7 +404,7 @@ export class DatabaseService {
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
+        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block, blockTimeLookup)!;
 
         if (block.height === 1 && process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = true;
@@ -405,7 +420,7 @@ export class DatabaseService {
             .getCommonBlocks(ids);
 
         if (commonBlocks.length < ids.length) {
-            commonBlocks = ((await this.blockRepository.findCommon(ids)) as unknown) as Interfaces.IBlockData[];
+            commonBlocks = ((await this.blockRepository.findByIds(ids)) as unknown) as Interfaces.IBlockData[];
         }
 
         return commonBlocks;
@@ -574,15 +589,20 @@ export class DatabaseService {
     //     }
     // }
 
-    private detectMissedBlocks(block: Interfaces.IBlock) {
+    private async detectMissedBlocks(block: Interfaces.IBlock) {
         const lastBlock: Interfaces.IBlock = this.app.get<any>(Container.Identifiers.StateStore).getLastBlock();
 
         if (lastBlock.data.height === 1) {
             return;
         }
 
-        const lastSlot: number = Crypto.Slots.getSlotNumber(lastBlock.data.timestamp);
-        const currentSlot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(
+            this.app,
+            lastBlock.data.height,
+        );
+
+        const lastSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, lastBlock.data.timestamp);
+        const currentSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, block.data.timestamp);
 
         const missedSlots: number = Math.min(currentSlot - lastSlot - 1, this.forgingDelegates!.length);
         for (let i = 0; i < missedSlots; i++) {

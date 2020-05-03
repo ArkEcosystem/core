@@ -26,7 +26,7 @@
         "@hapi/joi": "^17.1.0",
         "fs-extra": "^8.1.0",
         "lowdb": "^1.0.0",
-        "uuid": "^7.0.0"
+        "uuid": "^8.0.0"
     },
     "devDependencies": {
         "@types/fs-extra": "^8.0.1",

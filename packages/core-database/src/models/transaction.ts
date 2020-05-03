@@ -1,7 +1,8 @@
-import { BigNumber } from "@arkecosystem/utils";
+import { Contracts } from "@arkecosystem/core-kernel";
+import { Utils } from "@arkecosystem/crypto";
 import { Column, Entity, Index } from "typeorm";
 
-import { transformBigInt, transformVendorField } from "./utils";
+import { transformBigInt, transformVendorField } from "../utils/transform";
 
 @Entity({
     name: "transactions",
@@ -11,7 +12,7 @@ import { transformBigInt, transformVendorField } from "./utils";
 @Index(["senderPublicKey"])
 @Index(["recipientId"])
 @Index(["timestamp"])
-export class Transaction {
+export class Transaction implements Contracts.Database.TransactionModel {
     @Column({
         primary: true,
         type: "varchar",
@@ -49,7 +50,7 @@ export class Transaction {
         transformer: transformBigInt,
         default: undefined,
     })
-    public nonce!: BigNumber;
+    public nonce!: Utils.BigNumber;
 
     @Column({
         type: "varchar",
@@ -88,14 +89,14 @@ export class Transaction {
         transformer: transformBigInt,
         nullable: false,
     })
-    public amount!: BigInt;
+    public amount!: Utils.BigNumber;
 
     @Column({
         type: "bigint",
         transformer: transformBigInt,
         nullable: false,
     })
-    public fee!: BigInt;
+    public fee!: Utils.BigNumber;
 
     @Column({
         type: "bytea",
