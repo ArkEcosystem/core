@@ -4,13 +4,8 @@ import { Blocks, Identities, Utils } from "@arkecosystem/crypto";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import block1760000 from "./__fixtures__/block1760000";
 
-const getTimeStampForBlock = (height: number) => {
-    switch (height) {
-        case 1:
-            return 0;
-        default:
-            throw new Error(`Test scenarios should not hit this line`);
-    }
+const getTimeStampForBlock = () => {
+    throw new Error("Unreachable");
 };
 
 const app = {
@@ -35,6 +30,7 @@ const blockRepository = {
     count: jest.fn(),
     getStatistics: jest.fn(),
     saveBlocks: jest.fn(),
+    deleteBlocks: jest.fn(),
 };
 
 const transactionRepository = {
@@ -143,6 +139,7 @@ beforeEach(() => {
     blockRepository.count.mockReset();
     blockRepository.getStatistics.mockReset();
     blockRepository.saveBlocks.mockReset();
+    blockRepository.deleteBlocks.mockReset();
 
     transactionRepository.find.mockReset();
     transactionRepository.findOne.mockReset();
@@ -221,6 +218,66 @@ describe("DatabaseService.initialize", () => {
             throw new Error("Fail");
         });
         await databaseService.initialize();
+        expect(app.terminate).toBeCalled();
+    });
+
+    it("should terminate if unable to deserialize last 5 blocks", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const block101data = { id: "block101", height: 101 };
+        const block102data = { id: "block102", height: 102 };
+        const block103data = { id: "block103", height: 103 };
+        const block104data = { id: "block104", height: 104 };
+        const block105data = { id: "block105", height: 105 };
+        const block106data = { id: "block106", height: 105 };
+
+        blockRepository.findLatest.mockResolvedValueOnce(block106data);
+
+        blockRepository.findLatest.mockResolvedValueOnce(block106data); // this.getLastBlock
+        transactionRepository.findByBlockIds.mockResolvedValueOnce([]); // this.getLastBlock
+
+        blockRepository.findLatest.mockResolvedValueOnce(block106data); // blockRepository.deleteBlocks
+        blockRepository.findLatest.mockResolvedValueOnce(block105data); // this.getLastBlock
+        transactionRepository.findByBlockIds.mockResolvedValueOnce([]); // this.getLastBlock
+
+        blockRepository.findLatest.mockResolvedValueOnce(block105data); // blockRepository.deleteBlocks
+        blockRepository.findLatest.mockResolvedValueOnce(block104data); // this.getLastBlock
+        transactionRepository.findByBlockIds.mockResolvedValueOnce([]); // this.getLastBlock
+
+        blockRepository.findLatest.mockResolvedValueOnce(block104data); // blockRepository.deleteBlocks
+        blockRepository.findLatest.mockResolvedValueOnce(block103data); // this.getLastBlock
+        transactionRepository.findByBlockIds.mockResolvedValueOnce([]); // this.getLastBlock
+
+        blockRepository.findLatest.mockResolvedValueOnce(block103data); // blockRepository.deleteBlocks
+        blockRepository.findLatest.mockResolvedValueOnce(block102data); // this.getLastBlock
+        transactionRepository.findByBlockIds.mockResolvedValueOnce([]); // this.getLastBlock
+
+        blockRepository.findLatest.mockResolvedValueOnce(block102data); // blockRepository.deleteBlocks
+        blockRepository.findLatest.mockResolvedValueOnce(block101data); // this.getLastBlock
+        transactionRepository.findByBlockIds.mockResolvedValueOnce([]); // this.getLastBlock
+
+        await databaseService.initialize();
+
+        expect(stateStore.setGenesisBlock).toBeCalled();
+        expect(blockRepository.findLatest).toBeCalledTimes(12);
+
+        expect(transactionRepository.findByBlockIds).toBeCalledWith([block106data.id]);
+
+        expect(blockRepository.deleteBlocks).toBeCalledWith([block106data]);
+        expect(transactionRepository.findByBlockIds).toBeCalledWith([block105data.id]);
+
+        expect(blockRepository.deleteBlocks).toBeCalledWith([block105data]);
+        expect(transactionRepository.findByBlockIds).toBeCalledWith([block104data.id]);
+
+        expect(blockRepository.deleteBlocks).toBeCalledWith([block104data]);
+        expect(transactionRepository.findByBlockIds).toBeCalledWith([block103data.id]);
+
+        expect(blockRepository.deleteBlocks).toBeCalledWith([block103data]);
+        expect(transactionRepository.findByBlockIds).toBeCalledWith([block102data.id]);
+
+        expect(blockRepository.deleteBlocks).toBeCalledWith([block102data]);
+        expect(transactionRepository.findByBlockIds).toBeCalledWith([block101data.id]);
+
         expect(app.terminate).toBeCalled();
     });
 });
@@ -363,6 +420,8 @@ describe("DatabaseService.applyRound", () => {
         forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
         databaseService.forgingDelegates = [forgingDelegate] as any;
 
+        databaseService.blocksInCurrentRound = [{ data: { generatorPublicKey: "delegate public key" } }] as any;
+
         const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
         const dposStateRoundDelegates = [delegateWallet];
         dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
@@ -376,7 +435,79 @@ describe("DatabaseService.applyRound", () => {
         const delegateUsername = "test_delegate";
         delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
 
+        const height = 51;
+        await databaseService.applyRound(height);
+
+        expect(dposState.buildDelegateRanking).toBeCalled();
+        expect(dposState.setDelegatesRound).toBeCalledWith({
+            round: 2,
+            nextRound: 2,
+            roundHeight: 52,
+            maxDelegates: 51,
+        });
+        expect(roundRepository.save).toBeCalledWith(dposStateRoundDelegates);
+        expect(emitter.dispatch).toBeCalledWith("round.applied");
+    });
+
+    it("should build delegates, save round, dispatch events when height is 1", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const forgingDelegate = { getAttribute: jest.fn() };
+        const forgingDelegateRound = 1;
+        forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+        databaseService.forgingDelegates = [forgingDelegate] as any;
+
         databaseService.blocksInCurrentRound = [];
+
+        const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
+        const dposStateRoundDelegates = [delegateWallet];
+        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
+        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
+
+        const delegateWalletRound = 1;
+        delegateWallet.getAttribute.mockReturnValueOnce(delegateWalletRound);
+
+        walletRepository.findByPublicKey.mockReturnValueOnce(delegateWallet);
+
+        const delegateUsername = "test_delegate";
+        delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
+
+        const height = 1;
+        await databaseService.applyRound(height);
+
+        expect(dposState.buildDelegateRanking).toBeCalled();
+        expect(dposState.setDelegatesRound).toBeCalledWith({
+            round: 1,
+            nextRound: 1,
+            roundHeight: 1,
+            maxDelegates: 51,
+        });
+        expect(roundRepository.save).toBeCalledWith(dposStateRoundDelegates);
+        expect(emitter.dispatch).toBeCalledWith("round.applied");
+    });
+
+    it("should build delegates, save round, dispatch events, and skip missing round checks when first round has genesis block only", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const forgingDelegate = { getAttribute: jest.fn() };
+        const forgingDelegateRound = 1;
+        forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+        databaseService.forgingDelegates = [forgingDelegate] as any;
+
+        databaseService.blocksInCurrentRound = [{ data: { height: 1 } }] as any;
+
+        const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
+        const dposStateRoundDelegates = [delegateWallet];
+        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
+        dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
+
+        const delegateWalletRound = 2;
+        delegateWallet.getAttribute.mockReturnValueOnce(delegateWalletRound);
+
+        walletRepository.findByPublicKey.mockReturnValueOnce(delegateWallet);
+
+        const delegateUsername = "test_delegate";
+        delegateWallet.getAttribute.mockReturnValueOnce(delegateUsername);
 
         const height = 51;
         await databaseService.applyRound(height);
@@ -605,9 +736,83 @@ describe("DatabaseService.getBlocksByHeight", () => {
     });
 });
 
-describe("DatabaseService.getBlocksForRound", () => {});
+describe("DatabaseService.getBlocksForRound", () => {
+    it("should return empty array if there are no blocks", async () => {
+        const databaseService = container.resolve(DatabaseService);
 
-describe("DatabaseService.getLastBlock", () => {});
+        stateStore.getLastBlock.mockReturnValueOnce(undefined);
+        blockRepository.findLatest.mockResolvedValueOnce(undefined);
+
+        const roundInfo = { roundHeight: 52, maxDelegates: 51 };
+        const result = await databaseService.getBlocksForRound(roundInfo as any);
+
+        expect(stateStore.getLastBlock).toBeCalled();
+        expect(blockRepository.findLatest).toBeCalled();
+        expect(result).toEqual([]);
+    });
+
+    it("should return array with genesis block only when last block is genesis block", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const lastBlock = { data: { height: 1 } };
+        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
+
+        const roundInfo = { roundHeight: 1, maxDelegates: 51 };
+        const result = await databaseService.getBlocksForRound(roundInfo as any);
+
+        expect(stateStore.getLastBlock).toBeCalled();
+        expect(result).toEqual([lastBlock]);
+    });
+
+    it("should return current round blocks", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const block1 = { data: { height: 1 } };
+        const block2 = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        stateStore.getLastBlock.mockReturnValueOnce(block2);
+        stateStore.getLastBlocksByHeight.mockReturnValueOnce([
+            block1.data,
+            { ...block2.data, transactions: block2.transactions.map((t) => t.data) },
+        ]);
+        stateStore.getGenesisBlock.mockReturnValueOnce(block1);
+
+        const roundInfo = { roundHeight: 1, maxDelegates: 2 };
+        const result = await databaseService.getBlocksForRound(roundInfo as any);
+        Object.assign(result[1], { getBlockTimeStampLookup: block2["getBlockTimeStampLookup"] });
+
+        expect(stateStore.getLastBlock).toBeCalled();
+        expect(stateStore.getLastBlocksByHeight).toBeCalledWith(1, 2, undefined);
+        expect(result).toEqual([block1, block2]);
+    });
+});
+
+describe("DatabaseService.getLastBlock", () => {
+    it("should return undefined if there are no blocks", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        blockRepository.findLatest.mockResolvedValueOnce(undefined);
+
+        const result = await databaseService.getLastBlock();
+
+        expect(blockRepository.findLatest).toBeCalled();
+        expect(result).toBeUndefined();
+    });
+
+    it("should return last block from repository", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        blockRepository.findLatest.mockResolvedValueOnce({ ...lastBlock.data });
+        transactionRepository.findByBlockIds.mockResolvedValueOnce(lastBlock.transactions);
+
+        const result = await databaseService.getLastBlock();
+        Object.assign(result, { getBlockTimeStampLookup: lastBlock["getBlockTimeStampLookup"] });
+
+        expect(blockRepository.findLatest).toBeCalled();
+        expect(transactionRepository.findByBlockIds).toBeCalledWith([lastBlock.data.id]);
+        expect(result).toEqual(lastBlock);
+    });
+});
 
 describe("DatabaseService.getCommonBlocks", () => {
     it("should return blocks by ids", async () => {
@@ -706,6 +911,18 @@ describe("DatabaseService.getTopBlocks", () => {
         expect(transactionRepository.findByBlockIds).toBeCalledWith([block.data.id]);
         expect(result).toEqual([block.data]);
     });
+
+    it("should return empty array when there are no blocks", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        blockRepository.findTop.mockResolvedValueOnce([]);
+
+        const topCount = 1;
+        const result = await databaseService.getTopBlocks(topCount);
+
+        expect(blockRepository.findTop).toBeCalledWith(topCount);
+        expect(result).toEqual([]);
+    });
 });
 
 describe("DatabaseService.getTransaction", () => {
@@ -729,7 +946,7 @@ describe("DatabaseService.loadBlocksFromCurrentRound", () => {
 
         const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
-        stateStore.getLastBlocksByHeight.mockReturnValueOnce([lastBlock]);
+        stateStore.getLastBlocksByHeight.mockReturnValueOnce([lastBlock.data]);
         blockRepository.findByHeightRangeWithTransactions.mockReturnValueOnce([lastBlock.data]);
 
         await databaseService.loadBlocksFromCurrentRound();
@@ -765,7 +982,7 @@ describe("DatabaseService.revertRound", () => {
 
         const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
-        stateStore.getLastBlocksByHeight.mockReturnValueOnce([lastBlock]);
+        stateStore.getLastBlocksByHeight.mockReturnValueOnce([lastBlock.data]);
         blockRepository.findByHeightRangeWithTransactions.mockReturnValueOnce([lastBlock.data]);
 
         const prevRoundState = { getAllDelegates: jest.fn(), getRoundDelegates: jest.fn() };
@@ -834,6 +1051,63 @@ describe("DatabaseService.deleteRound", () => {
 });
 
 describe("DatabaseService.verifyBlockchain", () => {
+    it("should return false when there are no blocks", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const lastBlock = undefined;
+        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
+
+        const numberOfBlocks = 0;
+        const numberOfTransactions = 0;
+        const totalFee = "0";
+        const totalAmount = "0";
+
+        const blockStats = { numberOfTransactions, totalFee, totalAmount, count: numberOfBlocks };
+        blockRepository.getStatistics.mockResolvedValueOnce(blockStats);
+
+        const transactionStats = { totalFee, totalAmount, count: numberOfTransactions };
+        transactionRepository.getStatistics.mockResolvedValueOnce(transactionStats);
+
+        const result = await databaseService.verifyBlockchain();
+
+        expect(stateStore.getLastBlock).toBeCalledWith();
+        expect(blockRepository.getStatistics).toBeCalledWith();
+        expect(transactionRepository.getStatistics).toBeCalledWith();
+        expect(result).toBe(false);
+    });
+
+    it("should return false when there are discrepancies", async () => {
+        const databaseService = container.resolve(DatabaseService);
+
+        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
+
+        const numberOfBlocks = 1760000;
+        const numberOfTransactions = 999999;
+        const totalFee = "100000";
+        const totalAmount = "10000000";
+
+        blockRepository.count.mockResolvedValueOnce(numberOfBlocks + 1);
+
+        const blockStats = { numberOfTransactions, totalFee, totalAmount, count: numberOfBlocks };
+        blockRepository.getStatistics.mockResolvedValueOnce(blockStats);
+
+        const transactionStats = {
+            totalFee: totalAmount,
+            totalAmount: totalFee,
+            count: numberOfTransactions + 1,
+        };
+        transactionRepository.getStatistics.mockResolvedValueOnce(transactionStats);
+
+        const result = await databaseService.verifyBlockchain();
+
+        expect(stateStore.getLastBlock).toBeCalledWith();
+        expect(blockRepository.count).toBeCalledWith();
+        expect(blockRepository.getStatistics).toBeCalledWith();
+        expect(transactionRepository.getStatistics).toBeCalledWith();
+        expect(result).toBe(false);
+    });
+
     it("should check last block statistics", async () => {
         const databaseService = container.resolve(DatabaseService);
 
@@ -841,11 +1115,11 @@ describe("DatabaseService.verifyBlockchain", () => {
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
 
         const numberOfBlocks = 1760000;
-        blockRepository.count.mockResolvedValueOnce(numberOfBlocks);
-
         const numberOfTransactions = 999999;
         const totalFee = "100000";
         const totalAmount = "10000000";
+
+        blockRepository.count.mockResolvedValueOnce(numberOfBlocks);
 
         const blockStats = { numberOfTransactions, totalFee, totalAmount, count: numberOfBlocks };
         blockRepository.getStatistics.mockResolvedValueOnce(blockStats);

@@ -616,8 +616,10 @@ export class DatabaseService {
     }
 
     private async initializeLastBlock(): Promise<void> {
+        // ? attempt to remove potentially corrupt blocks from database
+
         let lastBlock: Interfaces.IBlock | undefined;
-        let tries = 5;
+        let tries = 5; // ! actually 6, but only 5 will be removed
 
         // Ensure the config manager is initialized, before attempting to call `fromData`
         // which otherwise uses potentially wrong milestones.
@@ -641,7 +643,7 @@ export class DatabaseService {
                     tries--;
                 } else {
                     this.app.terminate("Unable to deserialize last block from database.", error);
-                    return undefined;
+                    throw new Error("Terminated (unreachable)");
                 }
 
                 return getLastBlock();
@@ -717,10 +719,12 @@ export class DatabaseService {
         }
 
         if (this.blocksInCurrentRound.length === 1 && this.blocksInCurrentRound[0].data.height === 1) {
+            // ? why skip missed round checks when first round has genesis block only?
             return;
         }
 
         for (const delegate of delegates) {
+            // ! use .some() instead of .fitler()
             const producedBlocks: Interfaces.IBlock[] = this.blocksInCurrentRound.filter(
                 (blockGenerator) => blockGenerator.data.generatorPublicKey === delegate.publicKey,
             );
