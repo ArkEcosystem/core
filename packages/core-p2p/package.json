@@ -34,7 +34,7 @@
         "@hapi/joi": "^17.1.1",
         "@hapi/boom": "^9.0.0",
         "ajv": "^6.10.2",
-        "better-sqlite3": "^5.4.3",
+        "better-sqlite3": "^7.0.0",
         "dayjs": "^1.8.17",
         "delay": "^4.3.0",
         "fs-extra": "^8.1.0",
