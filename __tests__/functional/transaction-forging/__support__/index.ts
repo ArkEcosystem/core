@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Utils } from "@arkecosystem/crypto";
+import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 
 jest.setTimeout(1200000);
@@ -52,6 +52,9 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
             },
         });
 
+        Managers.configManager.getMilestone().aip11 = false;
+        Managers.configManager.getMilestone().htlcEnabled = false;
+
         await app.boot();
 
         const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
@@ -60,6 +63,9 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
             "state",
             "blockchain",
         );
+
+        Managers.configManager.getMilestone().aip11 = true;
+        Managers.configManager.getMilestone().htlcEnabled = true;
 
         await databaseService.saveRound(
             secrets.map((secret, i) => {
