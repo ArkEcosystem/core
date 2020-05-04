@@ -1,6 +1,7 @@
 import { Console } from "@arkecosystem/core-test-framework";
 import { Command } from "@packages/core/src/commands/snapshot-rollback";
 import { Application, Container } from "@arkecosystem/core-kernel";
+import { ServiceProvider } from "@packages/core-snapshots"
 import { join, resolve } from "path";
 
 let cli;
@@ -8,6 +9,7 @@ beforeEach(() => (cli = new Console()));
 
 describe("SnapshotRollbackCommand", () => {
     it("should run rollback by height", async () => {
+        ServiceProvider.prototype.register = jest.fn();
         Application.prototype.configPath = jest.fn().mockImplementation((path: string = "") => join(resolve("packages/core/bin/config/testnet/"), path));
 
         let mockSnapshotService = {
@@ -27,6 +29,7 @@ describe("SnapshotRollbackCommand", () => {
     });
 
     it("should run rollback by number", async () => {
+        ServiceProvider.prototype.register = jest.fn();
         Application.prototype.configPath = jest.fn().mockImplementation((path: string = "") => join(resolve("packages/core/bin/config/testnet/"), path));
 
         let mockSnapshotService = {

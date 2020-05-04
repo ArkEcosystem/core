@@ -1,6 +1,7 @@
 import { Console } from "@arkecosystem/core-test-framework";
 import { Command } from "@packages/core/src/commands/snapshot-dump";
 import { Application, Container } from "@packages/core-kernel";
+import { ServiceProvider } from "@packages/core-snapshots"
 import { join, resolve } from "path";
 
 let cli;
@@ -8,6 +9,7 @@ beforeEach(() => (cli = new Console()));
 
 describe("DumpCommand", () => {
     it("should run dump", async () => {
+        ServiceProvider.prototype.register = jest.fn();
         Application.prototype.configPath = jest.fn().mockImplementation((path: string = "") => join(resolve("packages/core/bin/config/testnet/"), path));
 
         let mockSnapshotService = {
@@ -22,8 +24,7 @@ describe("DumpCommand", () => {
             return this.container.get(serviceIdentifier);
         }
 
-        console.log(await cli.execute(Command))
-        // await expect(cli.execute(Command)).toResolve();
+        await expect(cli.execute(Command)).toResolve();
         expect(mockSnapshotService.dump).toHaveBeenCalled();
     });
 });

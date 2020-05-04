@@ -29,7 +29,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             this.logger.info(`Snapshot is saved on location: ${this.filesystem.getSnapshotPath()}`);
         } catch (err) {
             this.logger.error(`DUMP failed`);
-            this.logger.error(err.toString());
+            this.logger.error(err.stack);
         }
     }
 
@@ -69,7 +69,6 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             );
         } catch (err) {
             this.logger.error(`RESTORE failed.`);
-            this.logger.error(err.toString());
         }
     }
 
@@ -103,7 +102,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             this.logger.info(`VERIFICATION is successful.`);
         } catch (err) {
             this.logger.error(`VERIFICATION failed.`);
-            this.logger.error(err.toString());
+            this.logger.error(err.stack);
         }
     }
 
@@ -138,7 +137,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             );
         } catch (err) {
             this.logger.error("ROLLBACK failed");
-            this.logger.error(err.toString());
+            this.logger.error(err.stack);
         }
     }
 
@@ -157,7 +156,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             await this.database.truncate();
         } catch (err) {
             this.logger.error("TRUNCATE failed");
-            this.logger.error(err.toString());
+            this.logger.error(err.stack);
         }
     }
 }

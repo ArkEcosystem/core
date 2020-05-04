@@ -52,9 +52,6 @@ export class ProgressRenderer {
                 this.isAnyStarted = true;
 
                 this.render();
-                // this.interval = setInterval(() => {
-                //     this.render()
-                // }, 100);
             }
         }
     }
@@ -69,8 +66,6 @@ export class ProgressRenderer {
 
     private handleComplete(data: { table: string }): void {
         if (data.table) {
-            // clearInterval(this.interval!);
-
             this[`${data.table}Progress`] = "100.00";
             this.render();
         }
