@@ -68,11 +68,10 @@ export class TransactionFactory<T, U extends ITransactionData, E> {
     public fromData(data: U, strict = true): ITransaction<U, E> {
         const { value, error } = this.verifier.verifySchema(data, strict);
 
-        if (value === undefined || value.id === undefined) {
-            throw new TransactionSchemaIdError(error);
-        }
-
-        if (error && !this.cryptoManager.LibraryManager.Utils.isException(value.id)) {
+        if (
+            (error && value !== undefined && !this.cryptoManager.LibraryManager.Utils.isException(value.id)) ||
+            value === undefined
+        ) {
             throw new TransactionSchemaError(error);
         }
 

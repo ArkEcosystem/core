@@ -20,12 +20,11 @@ const expectTransaction = (bigNumberConstructor, { data }): void => {
     // TODO: check that the extra fields don't matter here
     // These seem to be added:
     // "secondSignature": undefined
-    // "typeGroup": 1"typeGroup": 1
+    // "typeGroup": 1
     expect(data).toEqual(expect.objectContaining(transactionFixture(bigNumberConstructor)));
 };
 
 let TransactionFactoryDevNet;
-let TransactionFactoryTestNet;
 let Serializer;
 let TransactionUtils;
 let cryptoManagerDevNet: CryptoManager<any>;
@@ -37,7 +36,6 @@ let transaction: Interfaces.ITransaction<ITransactionData, any>;
 
 beforeEach(() => {
     cryptoManagerDevNet = CryptoManager.createFromPreset("devnet");
-    const cryptoManagerTestNet = CryptoManager.createFromPreset("testnet");
 
     const transactionsManager = new TransactionsManager(cryptoManagerDevNet, {
         extendTransaction: () => {},
@@ -46,15 +44,6 @@ beforeEach(() => {
             value: data,
         }),
     });
-
-    const transactionsManagerTestNet = new TransactionsManager(cryptoManagerTestNet, {
-        extendTransaction: () => {},
-        // @ts-ignore
-        validate: (_, data) => ({
-            value: data,
-        }),
-    });
-    TransactionFactoryTestNet = transactionsManagerTestNet.TransactionFactory;
 
     TransactionFactoryDevNet = transactionsManager.TransactionFactory;
     Serializer = transactionsManager.Serializer;
@@ -131,6 +120,15 @@ describe("TransactionFactory", () => {
     });
 
     describe(".fromData", () => {
+        let validatedTransactionFactory;
+        beforeEach(() => {
+            const transactionsManager = new TransactionsManager(cryptoManagerDevNet, {
+                extendTransaction: () => {},
+                // @ts-ignore
+                validate: (error, data) => ({ error, value: data }),
+            });
+            validatedTransactionFactory = transactionsManager.TransactionFactory;
+        });
         it("should pass to create a transaction from an object", () => {
             expectTransaction(
                 cryptoManagerDevNet.LibraryManager.Libraries.BigNumber,
@@ -140,7 +138,7 @@ describe("TransactionFactory", () => {
 
         it("should fail to create a transaction from an object that contains malformed data", () => {
             expect(() =>
-                TransactionFactoryDevNet.fromData({
+                validatedTransactionFactory.fromData({
                     ...transaction.data,
                     ...{ fee: cryptoManagerDevNet.LibraryManager.Libraries.BigNumber.make(0) },
                 }),
@@ -154,20 +152,30 @@ describe("TransactionFactory", () => {
                 .map((type) => createRandomTx(cryptoManagerDevNet, BuilderFactory, type))
                 .forEach((transaction) => {
                     const originalId = transaction.data.id;
-                    const newTransaction = TransactionFactoryTestNet.fromData(transaction.data);
+                    const newTransaction = TransactionFactoryDevNet.fromData(transaction.data);
                     expect(newTransaction.data.id).toEqual(originalId);
                 });
         });
 
         it("should throw when getting garbage", () => {
-            expect(() => TransactionFactoryDevNet.fromData({} as ITransactionData)).toThrow(UnkownTransactionError);
-            expect(() => TransactionFactoryDevNet.fromData({ type: 0 } as ITransactionData)).toThrow(
+            expect(() => validatedTransactionFactory.fromData({} as ITransactionData)).toThrow(UnkownTransactionError);
+            expect(() => validatedTransactionFactory.fromData({ type: 0 } as ITransactionData)).toThrow(
                 TransactionSchemaError,
             );
         });
     });
 
     describe(".fromJson", () => {
+        let validatedTransactionFactory;
+        beforeEach(() => {
+            const transactionsManager = new TransactionsManager(cryptoManagerDevNet, {
+                extendTransaction: () => {},
+                // @ts-ignore
+                validate: (error, data) => ({ error, value: data }),
+            });
+            validatedTransactionFactory = transactionsManager.TransactionFactory;
+        });
+
         it("should pass to create a transaction from JSON", () => {
             expectTransaction(
                 cryptoManagerDevNet.LibraryManager.Libraries.BigNumber,
@@ -177,7 +185,7 @@ describe("TransactionFactory", () => {
 
         it("should fail to create a transaction from JSON that contains malformed data", () => {
             expect(() =>
-                TransactionFactoryDevNet.fromJson({
+                validatedTransactionFactory.fromJson({
                     ...transactionJson,
                     ...{ senderPublicKey: "something" },
                 }),
