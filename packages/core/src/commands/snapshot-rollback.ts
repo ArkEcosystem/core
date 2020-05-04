@@ -41,7 +41,6 @@ export class Command extends Commands.Command {
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
             .setFlag("height", "The height after the roll back.", Joi.number())
             .setFlag("number", "The number of blocks to roll back.", Joi.number());
-        // .setFlag("export", "Export the rolled back transactions.", Joi.boolean().default(true));
     }
 
     /**

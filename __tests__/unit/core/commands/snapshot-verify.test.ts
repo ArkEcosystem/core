@@ -5,26 +5,37 @@ import { ServiceProvider } from "@packages/core-snapshots"
 import { join, resolve } from "path";
 
 let cli;
-beforeEach(() => (cli = new Console()));
+let mockSnapshotService
+beforeEach(() => {
+    cli = new Console()
+
+    ServiceProvider.prototype.register = jest.fn();
+    Application.prototype.configPath = jest.fn().mockImplementation((path: string = "") => join(resolve("packages/core/bin/config/testnet/"), path));
+
+    mockSnapshotService = {
+        verify: jest.fn()
+    }
+    // @ts-ignore
+    Application.prototype.get = function (serviceIdentifier) {
+        if (serviceIdentifier === Container.Identifiers.SnapshotService) {
+            return mockSnapshotService
+        }
+
+        return this.container.get(serviceIdentifier);
+    }
+});
+
+afterEach(() => {
+    jest.clearAllMocks();
+})
 
 describe("SnapshotVerifyCommand", () => {
     it("should run verify", async () => {
-        ServiceProvider.prototype.register = jest.fn();
-        Application.prototype.configPath = jest.fn().mockImplementation((path: string = "") => join(resolve("packages/core/bin/config/testnet/"), path));
-
-        let mockSnapshotService = {
-            verify: jest.fn()
-        }
-        // @ts-ignore
-        Application.prototype.get = function (serviceIdentifier) {
-            if (serviceIdentifier === Container.Identifiers.SnapshotService) {
-                return mockSnapshotService
-            }
-
-            return this.container.get(serviceIdentifier);
-        }
-
         await expect(cli.withFlags({blocks: "1-99"}).execute(Command)).toResolve();
         expect(mockSnapshotService.verify).toHaveBeenCalled();
+    });
+
+    it("should throw error blocks flag is missing", async () => {
+        await expect(cli.withFlags().execute(Command)).toReject();
     });
 });

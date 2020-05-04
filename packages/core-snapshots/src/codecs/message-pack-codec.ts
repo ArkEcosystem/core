@@ -76,6 +76,7 @@ export class MessagePackCodec implements Codec {
                 amount: transaction.data.amount,
                 fee: transaction.data.fee,
                 serialized: serialized,
+                /* istanbul ignore next */
                 typeGroup: transaction.data.typeGroup || 1,
                 nonce: Utils.BigNumber.make(transaction.data.nonce || 0),
                 // @ts-ignore
