@@ -1,7 +1,15 @@
 import { Application, Container, Providers } from "@arkecosystem/core-kernel";
+import { createConnection, getCustomRepository } from "typeorm";
 
 import { defaults } from "../../../packages/core-database/src/defaults";
 import { ServiceProvider } from "../../../packages/core-database/src/service-provider";
+
+jest.mock("typeorm", () => {
+    return Object.assign(jest.requireActual("typeorm"), {
+        createConnection: jest.fn(),
+        getCustomRepository: jest.fn(),
+    });
+});
 
 let app: Application;
 
@@ -14,14 +22,20 @@ const triggers = {
     bind: jest.fn(),
 };
 
+const events = {
+    dispatch: jest.fn(),
+};
+
 beforeEach(() => {
     app = new Application(new Container.Container());
     app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     app.bind(Container.Identifiers.TriggerService).toConstantValue(triggers);
+    app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(events);
 
     logger.debug.mockReset();
     logger.info.mockReset();
     triggers.bind.mockReset();
+    events.dispatch.mockReset();
 });
 
 describe("ServiceProvider.register", () => {
@@ -30,18 +44,12 @@ describe("ServiceProvider.register", () => {
         const pluginConfiguration = app.resolve(Providers.PluginConfiguration).from("core-database", defaults);
         serviceProvider.setConfig(pluginConfiguration);
 
-        serviceProvider.connect = jest.fn();
-        serviceProvider.getRoundRepository = jest.fn();
-        serviceProvider.getBlockRepository = jest.fn();
-        serviceProvider.getTransactionRepository = jest.fn();
-
         await serviceProvider.register();
 
-        expect(serviceProvider.connect).toBeCalled();
-        expect(serviceProvider.getRoundRepository).toBeCalled();
-        expect(serviceProvider.getBlockRepository).toBeCalled();
-        expect(serviceProvider.getTransactionRepository).toBeCalled();
+        expect(createConnection).toBeCalled();
+        expect(getCustomRepository).toBeCalledTimes(3);
 
+        expect(events.dispatch).toBeCalled();
         expect(triggers.bind).toBeCalled();
 
         expect(app.isBound(Container.Identifiers.DatabaseConnection)).toBe(true);
