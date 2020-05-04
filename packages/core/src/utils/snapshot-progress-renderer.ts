@@ -7,16 +7,17 @@ export class ProgressRenderer {
 
     private spinner: Ora;
 
-    private blocksProgress: string = "---.--";
-    private transactionsProgress: string = "---.--";
-    private roundsProgress: string = "---.--";
+    private count = {
+        blocks: 0,
+        transactions: 0,
+        rounds: 0,
+    }
 
-    // @ts-ignore
-    private blocksCount: number = 0;
-    // @ts-ignore
-    private transactionsCount: number = 0;
-    // @ts-ignore
-    private roundsCount: number = 0;
+    private progress = {
+        blocks: "---.--",
+        transactions: "---.--",
+        rounds: "---.--",
+    }
 
     public constructor(spinner: Ora, app: Contracts.Kernel.Application) {
         this.spinner = spinner;
@@ -44,7 +45,7 @@ export class ProgressRenderer {
 
     private handleStart(data: { table: string; count: number }): void {
         if (data.table && data.count) {
-            this[`${data.table}Count`] = data.count;
+            this.count[data.table] = data.count;
 
             if (!this.isAnyStarted) {
                 this.isAnyStarted = true;
@@ -56,7 +57,7 @@ export class ProgressRenderer {
 
     private handleUpdate(data: { table: string; value: number }): void {
         if (data.table && data.value) {
-            this[`${data.table}Progress`] = this.calculatePercentage(this[`${data.table}Count`], data.value);
+            this.progress[data.table] = this.calculatePercentage(this.count[data.table], data.value);
 
             this.render();
         }
@@ -64,7 +65,7 @@ export class ProgressRenderer {
 
     private handleComplete(data: { table: string }): void {
         if (data.table) {
-            this[`${data.table}Progress`] = "100.00";
+            this.progress[data.table] = "100.00";
             this.render();
         }
     }
@@ -77,7 +78,7 @@ export class ProgressRenderer {
     }
 
     private render(): void {
-        this.spinner.text = `Blocks: ${this.blocksProgress} % Transactions: ${this.transactionsProgress} % Rounds: ${this.roundsProgress} % \n`;
+        this.spinner.text = `Blocks: ${this.progress.blocks} % Transactions: ${this.progress.transactions} % Rounds: ${this.progress.rounds} % \n`;
         this.spinner.render();
     }
 }
