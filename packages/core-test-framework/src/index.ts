@@ -6,10 +6,8 @@ export * from "./app";
 export * from "./cli";
 // Entity Factories for commonly used entities like blocks and wallets
 // Generators for commonly used entities like blocks and wallets
-import * as Generators from "./app/generators";
-import * as Factories from "./factories";
+export * as Generators from "./app/generators";
+export * as Factories from "./factories";
 // Utilities for common tasks like sending HTTP requests or altering wallets
 export * from "./utils"; // todo: export as Utils
-import * as Mocks from "./mocks"; // todo: export as Utils
-
-export { Factories, Generators, Mocks };
+export * as Mocks from "./mocks"; // todo: export as Utils
