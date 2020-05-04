@@ -175,4 +175,25 @@ describe("Tree", () => {
             expect(tree.find(treeId, toRemove)).toBeUndefined();
         }
     });
+
+    describe("getValuesLastToFirst", () => {
+        it("should get the values last to first", () => {
+            const tree = new Tree(compareFunction);
+
+            const bignums: Utils.BigNumber[] = [];
+            for (let i = 0; i < 1000; i++) {
+                const randomBignum = Utils.BigNumber.make(Math.floor(Math.random() * 1000000));
+                if (bignums.find(b => b.isEqualTo(randomBignum))) {
+                    continue;
+                }
+
+                const treeId = randomBignum.toString();
+                tree.insert(treeId, randomBignum);
+                bignums.push(randomBignum);
+            }
+
+            // checking that getAll() returns the bignums sorted just like the classic array sort() function
+            expect(tree.getValuesLastToFirst(1000)).toEqual([...bignums].sort(compareFunction).reverse());
+        });
+    });
 });

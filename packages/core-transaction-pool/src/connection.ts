@@ -98,7 +98,7 @@ export class Connection implements TransactionPool.IConnection {
     public async getSenderSize(senderPublicKey: string): Promise<number> {
         await this.purgeExpired();
 
-        return this.memory.getBySender(senderPublicKey).size;
+        return this.memory.getBySender(senderPublicKey).length;
     }
 
     public async addTransactions(transactions: Interfaces.ITransaction[]): Promise<ITransactionsProcessed> {
@@ -187,7 +187,7 @@ export class Connection implements TransactionPool.IConnection {
             return false;
         }
 
-        return this.memory.getBySender(senderPublicKey).size >= this.options.maxTransactionsPerSender;
+        return this.memory.getBySender(senderPublicKey).length >= this.options.maxTransactionsPerSender;
     }
 
     public flush(): void {
@@ -574,20 +574,8 @@ export class Connection implements TransactionPool.IConnection {
 
         // Revert all transactions that have bigger or equal nonces than the ones in
         // lowestNonceBySender in order from bigger nonce to smaller nonce.
-
         for (const senderPublicKey of Object.keys(lowestNonceBySender)) {
-            const allTxFromSender = Array.from(this.memory.getBySender(senderPublicKey));
-            allTxFromSender.sort((a, b) => {
-                if (a.data.nonce.isGreaterThan(b.data.nonce)) {
-                    return -1;
-                }
-
-                if (a.data.nonce.isLessThan(b.data.nonce)) {
-                    return 1;
-                }
-
-                return 0;
-            });
+            const allTxFromSender = this.memory.getBySender(senderPublicKey).reverse(); // sorted by bigger to smaller nonce
 
             for (const transaction of allTxFromSender) {
                 await purge(transaction);
