@@ -1,11 +1,9 @@
 import "jest-extended";
 
 import pluralize from "pluralize";
-import { pascalize } from "xcase";
-
 import { Readable } from "stream";
 import { dirSync, setGracefulCleanup } from "tmp";
-import {decamelize} from "xcase";
+import { pascalize, decamelize } from "xcase";
 
 import { Container } from "@packages/core-kernel";
 import { Sandbox } from "@packages/core-test-framework/src";
@@ -18,33 +16,21 @@ import * as Exceptions from "@packages/core-snapshots/src/exceptions";
 
 import { Assets } from "../__fixtures__";
 
-
 class DbStream extends Readable {
     private count = 0;
-    private prefix: string = "";
+    readonly prefix: string = "";
 
     constructor(private table: string) {
-        super({objectMode: true});
+        super({ objectMode: true });
 
-        switch (table) {
-            case "blocks":
-                this.prefix = "Block_"
-                break;
-            case "transactions":
-                this.prefix = "Transaction_"
-                break
-            case "rounds":
-                this.prefix = "Round_"
-                break;
-        }
+        this.prefix = table.charAt(0).toUpperCase() + table.slice(1, -1) + '_';
     }
 
     _read() {
         if (this.count !== Assets[this.table].length) {
             this.push(this.appendPrefix(Assets[this.table][this.count]));
             this.count++;
-        }
-        else {
+        } else {
             this.push(null)
         }
     }
@@ -69,17 +55,15 @@ const getSingularCapitalizedTableName = (table: string) => {
 const getEncode = (table, codec) => {
     if (codec === "json") {
         return new JSONCodec()[`encode${getSingularCapitalizedTableName(table)}`];
-    } else {
-        return new MessagePackCodec()[`encode${getSingularCapitalizedTableName(table)}`];
     }
+    return new MessagePackCodec()[`encode${getSingularCapitalizedTableName(table)}`];
 }
 
 const getDecode = (table, codec) => {
     if (codec === "json") {
         return new JSONCodec()[`decode${getSingularCapitalizedTableName(table)}`];
-    } else {
-        return new MessagePackCodec()[`decode${getSingularCapitalizedTableName(table)}`];
     }
+    return new MessagePackCodec()[`decode${getSingularCapitalizedTableName(table)}`];
 }
 
 let sandbox: Sandbox;

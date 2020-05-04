@@ -1,7 +1,7 @@
 import { Exceptions } from "@arkecosystem/core-kernel";
 
 export class BlockVerifyException extends Exceptions.Base.Exception {
-    public constructor(id: string, message: string) {
+    public constructor(id: string, message: string = "") {
         super(`Block with id ${id} could not be verified. ${message}`);
     }
 }
@@ -13,7 +13,7 @@ export class BlockNotChainedException extends Exceptions.Base.Exception {
 }
 
 export class TransactionVerifyException extends Exceptions.Base.Exception {
-    public constructor(id: string, message: string) {
+    public constructor(id: string, message: string = "") {
         super(`Transaction with id ${id} could not be verified. ${message}`);
     }
 }

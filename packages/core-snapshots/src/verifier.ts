@@ -49,7 +49,7 @@ export class Verifier {
         }
 
         if (!isVerified) {
-            throw new Exceptions.BlockVerifyException(blockEntity.id, "");
+            throw new Exceptions.BlockVerifyException(blockEntity.id);
         }
     }
 
@@ -66,7 +66,7 @@ export class Verifier {
         }
 
         if (!isVerified) {
-            throw new Exceptions.TransactionVerifyException(transaction.id, "");
+            throw new Exceptions.TransactionVerifyException(transaction.id);
         }
     }
 }

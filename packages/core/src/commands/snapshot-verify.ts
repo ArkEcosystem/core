@@ -1,4 +1,4 @@
-import { Commands, Components, Container, Contracts, Services, Utils } from "@arkecosystem/core-cli";
+import { Commands, Components, Container, Contracts, Utils } from "@arkecosystem/core-cli";
 import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
@@ -28,9 +28,6 @@ export class Command extends Commands.Command {
      */
     public description: string = "Check validity of specified snapshot.";
 
-    @Container.inject(Container.Identifiers.Logger)
-    private readonly logger!: Services.Logger;
-
     /**
      * Configure the console command.
      *
@@ -53,11 +50,6 @@ export class Command extends Commands.Command {
     public async execute(): Promise<void> {
         const flags: Contracts.AnyObject = { ...this.getFlags() };
         flags.processType = "snapshot";
-
-        if (!this.getFlag("blocks")) {
-            this.logger.error("Blocks flag is missing");
-            return;
-        }
 
         const app = await Utils.buildApplication({
             flags,

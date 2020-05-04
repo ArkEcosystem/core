@@ -98,22 +98,16 @@ export class MessagePackCodec implements Codec {
     }
 
     public decodeRound(buffer: Buffer): Models.Round {
-        let roundRound = undefined;
-
         try {
             const [publicKey, balance, round] = decode(buffer);
 
-            roundRound = round;
-
-            const roundEntity: Models.Round = {
+            return {
                 publicKey,
                 balance,
                 round,
             };
-
-            return roundEntity;
         } catch (err) {
-            throw new CodecException.RoundDecodeException((roundRound as unknown) as string, err.message);
+            throw new CodecException.RoundDecodeException(undefined, err.message);
         }
     }
 }

@@ -12,9 +12,8 @@ export class JSONCodec implements Codec {
             return data.toJSON();
         } else if (typeof data === "bigint") {
             return data.toString();
-        } else {
-            return data;
         }
+        return data;
     }
 
     private static removePrefix(item: Record<string, any>, prefix: string): any {
