@@ -4,7 +4,7 @@ import { ColumnMetadata } from "typeorm/metadata/ColumnMetadata";
 
 import { QueryHelper } from "../utils/query-helper";
 
-export abstract class AbstractEntityRepository<TEntity extends ObjectLiteral> extends Repository<TEntity> {
+export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends Repository<TEntity> {
     private readonly queryHelper = new QueryHelper<TEntity>();
 
     public async findById(id: string): Promise<TEntity> {
