@@ -1,7 +1,11 @@
 import "jest-extended";
-
+import { Crypto, Transactions } from "@arkecosystem/crypto";
 import { Verifier } from "@arkecosystem/core-snapshots/src/verifier";
 import { Assets } from "./__fixtures__";
+
+afterEach(() => {
+    jest.clearAllMocks();
+})
 
 describe("Verifier", () => {
     describe("verifyBlock", () => {
@@ -34,6 +38,16 @@ describe("Verifier", () => {
 
             expect(() => { Verifier.verifyBlock(block, undefined)}).toThrow();
         });
+
+        it("should throw if verifyECDSA throws error", async () => {
+            Crypto.Hash.verifyECDSA = jest.fn().mockImplementation(() => {
+                throw new Error();
+            })
+
+            let block = {...Assets.blocksBigNumber[0]};
+
+            expect(() => { Verifier.verifyBlock(block, undefined)}).toThrow();
+        });
     });
 
     describe("verifyTransaction", () => {
@@ -41,11 +55,23 @@ describe("Verifier", () => {
             Verifier.verifyTransaction(Assets.transactions[0])
         });
 
-        it("should throw", async () => {
+        it("should throw if transaction is not valid", async () => {
+            Transactions.TransactionFactory.fromBytes = jest.fn().mockReturnValue(false);
             let transaction = {...Assets.transactions[0]};
 
             transaction.timestamp = 100;
-            transaction.serialized = Buffer.from("123123");
+
+            expect(() => {Verifier.verifyTransaction(transaction)}).toThrow();
+        });
+
+        it("should throw if fromBytes throws error", async () => {
+            Transactions.TransactionFactory.fromBytes = jest.fn().mockImplementation(() => {
+                throw new Error();
+            });
+
+            let transaction = {...Assets.transactions[0]};
+
+            transaction.timestamp = 100;
 
             expect(() => {Verifier.verifyTransaction(transaction)}).toThrow();
         });

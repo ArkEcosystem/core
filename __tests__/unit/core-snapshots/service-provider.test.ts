@@ -7,7 +7,9 @@ import { Sandbox } from "@packages/core-test-framework";
 let sandbox: Sandbox;
 
 let spyOnGetCustomRepository = jest.spyOn(typeorm, "getCustomRepository").mockReturnValue(undefined);
-let spyOnCreateConnection = jest.spyOn(typeorm, "createConnection").mockResolvedValue({} as any);
+let spyOnCreateConnection = jest.spyOn(typeorm, "createConnection").mockResolvedValue({
+    close: jest.fn()
+} as any);
 
 ServiceProvider.prototype.config = jest.fn().mockReturnValue({ all() {return {}} });
 
@@ -32,7 +34,14 @@ describe("ServiceProvider", () => {
         expect(spyOnCreateConnection).toHaveBeenCalled();
     });
 
-    // TODO: Check if required
+    it("should dispose", async () => {
+        await expect(serviceProvider.register()).toResolve();
+        expect(spyOnGetCustomRepository).toHaveBeenCalled();
+        expect(spyOnCreateConnection).toHaveBeenCalled();
+
+        await expect(serviceProvider.dispose()).toResolve();
+    });
+
     it("should not be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeTrue();
     });
