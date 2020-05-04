@@ -58,7 +58,7 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
 
     protected rawToEntity(
         rawEntity: Record<string, any>,
-        customPropertyHandler?: (entity: { [P in keyof TEntity]?: TEntity[P] }, key: string, value: any) => void,
+        customPropertyHandler: (entity: { [P in keyof TEntity]?: TEntity[P] }, key: string, value: any) => void,
     ): TEntity {
         const entity: TEntity = this.create();
         for (const [key, value] of Object.entries(rawEntity)) {
@@ -81,11 +81,9 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
                     propertyValue = value;
                 }
 
-                entity[(columnMetadata.propertyName as unknown) as keyof TEntity] = propertyValue;
-            } else if (customPropertyHandler) {
-                customPropertyHandler(entity, key, value);
+                entity[columnMetadata.propertyName as keyof TEntity] = propertyValue;
             } else {
-                throw new Error(`Unknown column ${columnName}}`);
+                customPropertyHandler(entity, key, value);
             }
         }
 
