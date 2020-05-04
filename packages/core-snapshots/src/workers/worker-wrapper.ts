@@ -10,20 +10,12 @@ export class WorkerWrapper extends EventEmitter {
         this.worker = new Worker(__dirname + "/worker.js", { workerData: data });
 
         this.worker.on("message", (data) => {
-            // console.log("Message", data);
-
             this.handleMessage(data);
         });
 
         this.worker.on("error", (err) => {
-            // this.emit("error", err)
             this.emit("*", { name: "error", data: err });
         });
-
-        // this.worker.on("error", err => {
-        //     this.emit("error", err)
-        //     this.emit("*", { name: "error", data: err })
-        // })
 
         this.worker.on("exit", (statusCode) => {
             this.isDone = true;
@@ -83,10 +75,6 @@ export class WorkerWrapper extends EventEmitter {
     }
 
     private handleMessage(data) {
-        // if (data.action === "log") {
-        //     console.log("LOG: ", data.data)
-        // }
-
         // Actions: count, started, synced, exit, error
         this.emit(data.action, data.data);
         if (data.action !== "count" && data.action !== "log") {

@@ -4,11 +4,11 @@ import { Blocks, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { decode, encode } from "msgpack-lite";
 import { camelizeKeys } from "xcase";
 
-import { Codec as ICodec } from "../contracts";
+import { Codec } from "../contracts";
 import { Codec as CodecException } from "../exceptions";
 
 @Container.injectable()
-export class Codec implements ICodec {
+export class MessagePackCodec implements Codec {
     private static removePrefix(item: Record<string, any>, prefix: string): Record<string, any> {
         const itemToReturn = {};
 
@@ -19,30 +19,25 @@ export class Codec implements ICodec {
         return itemToReturn;
     }
 
-    public blocksEncode(block: any) {
+    public blocksEncode(block: any): Buffer {
         try {
-            const blockCamelized = camelizeKeys(Codec.removePrefix(block, "Block_"));
+            const blockCamelized = camelizeKeys(MessagePackCodec.removePrefix(block, "Block_"));
 
             return Blocks.Serializer.serialize(blockCamelized, true);
-        } catch (e) {
-            throw new CodecException.BlockEncodeException(block.Block_id);
+        } catch (err) {
+            throw new CodecException.BlockEncodeException(block.Block_id, err.message);
         }
     }
 
-    public blocksDecode(buffer: Buffer) {
-        let blockId = undefined;
+    public blocksDecode(buffer: Buffer): Models.Block {
         try {
-            const block: any = Blocks.Deserializer.deserialize(buffer.toString("hex"), false).data;
-
-            blockId = block.id;
-
-            return block;
-        } catch (e) {
-            throw new CodecException.BlockDecodeException((blockId as unknown) as string);
+            return Blocks.Deserializer.deserialize(buffer.toString("hex"), false).data as Models.Block;
+        } catch (err) {
+            throw new CodecException.BlockDecodeException(undefined, err.message);
         }
     }
 
-    public transactionsEncode(transaction) {
+    public transactionsEncode(transaction): Buffer {
         try {
             return encode([
                 transaction.Transaction_id,
@@ -51,12 +46,12 @@ export class Codec implements ICodec {
                 transaction.Transaction_timestamp,
                 transaction.Transaction_serialized,
             ]);
-        } catch (e) {
-            throw new CodecException.TransactionEncodeException(transaction.Transaction_id);
+        } catch (err) {
+            throw new CodecException.TransactionEncodeException(transaction.Transaction_id, err.message);
         }
     }
 
-    public transactionsDecode(buffer: Buffer) {
+    public transactionsDecode(buffer: Buffer): Models.Transaction {
         let transactionId = undefined;
         try {
             const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
@@ -67,7 +62,7 @@ export class Codec implements ICodec {
                 id,
             );
 
-            const transactionEntity: Models.Transaction = {
+            return {
                 id: id,
                 version: transaction.data.version!,
                 blockId: blockId,
@@ -86,24 +81,22 @@ export class Codec implements ICodec {
                 // @ts-ignore
                 asset: transaction.data.asset,
             };
-
-            return transactionEntity;
-        } catch (e) {
-            throw new CodecException.TransactionDecodeException((transactionId as unknown) as string);
+        } catch (err) {
+            throw new CodecException.TransactionDecodeException((transactionId as unknown) as string, err.message);
         }
     }
 
-    public roundsEncode(round) {
+    public roundsEncode(round): Buffer {
         try {
-            const roundCamelized = camelizeKeys(Codec.removePrefix(round, "Round_"));
+            const roundCamelized = camelizeKeys(MessagePackCodec.removePrefix(round, "Round_"));
 
             return encode([roundCamelized.publicKey, roundCamelized.balance, roundCamelized.round]);
-        } catch (e) {
-            throw new CodecException.RoundEncodeException(round.Round_round);
+        } catch (err) {
+            throw new CodecException.RoundEncodeException(round.Round_round, err.message);
         }
     }
 
-    public roundsDecode(buffer: Buffer) {
+    public roundsDecode(buffer: Buffer): Models.Round {
         let roundRound = undefined;
 
         try {
@@ -118,8 +111,8 @@ export class Codec implements ICodec {
             };
 
             return roundEntity;
-        } catch (e) {
-            throw new CodecException.RoundDecodeException((roundRound as unknown) as string);
+        } catch (err) {
+            throw new CodecException.RoundDecodeException((roundRound as unknown) as string, err.message);
         }
     }
 }

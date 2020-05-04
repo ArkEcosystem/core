@@ -42,10 +42,8 @@ export class Command extends Commands.Command {
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
             .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
-            // .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean())
             .setFlag("blocks", "Blocks to import, correlates to folder name.", Joi.string())
             .setFlag("truncate", "Empty all tables before running import.", Joi.boolean())
-            // .setFlag("skipRestartRound", "Skip revert to current round.", Joi.boolean())
             .setFlag("verify", "Verify signatures of specified snapshot.", Joi.boolean());
     }
 

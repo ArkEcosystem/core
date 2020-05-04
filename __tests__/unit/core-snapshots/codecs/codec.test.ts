@@ -1,7 +1,7 @@
 import "jest-extended";
 import {decamelize} from "xcase";
 
-import { Codec } from "@packages/core-snapshots/src/codecs";
+import { MessagePackCodec } from "@packages/core-snapshots/src/codecs";
 import { Assets } from "../__fixtures__";
 
 const appendPrefix = (prefix: string, entity: any) => {
@@ -19,7 +19,7 @@ const appendPrefix = (prefix: string, entity: any) => {
 let codec;
 
 beforeEach(() => {
-    codec = new Codec();
+    codec = new MessagePackCodec();
 })
 
 describe("Codec", () => {

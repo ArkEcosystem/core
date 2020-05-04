@@ -3,6 +3,7 @@ import { camelizeKeys } from "xcase";
 
 import { Codec } from "../contracts";
 import { Codec as CodecException } from "../exceptions";
+import { Models } from "@packages/core-database";
 
 @Container.injectable()
 export class JSONCodec implements Codec {
@@ -27,15 +28,15 @@ export class JSONCodec implements Codec {
     }
 
     private static stringify(item: any): string {
-        return JSON.stringify(item, (_, v) => (typeof v === "bigint" ? `${v}n` : v));
+        return JSON.stringify(item, (_, value) => (typeof value === "bigint" ? `${value}n` : value));
     }
 
     private static parse(text: string) {
         return JSON.parse(text, (_, value) => {
             if (typeof value === "string") {
-                const m = value.match(/(-?\d+)n/);
-                if (m && m[0] === value) {
-                    value = BigInt(m[1]);
+                const match = value.match(/(-?\d+)n/);
+                if (match && match[0] === value) {
+                    value = BigInt(match[1]);
                 }
             }
             return value;
@@ -47,20 +48,20 @@ export class JSONCodec implements Codec {
             const blockStringified = JSONCodec.stringify(camelizeKeys(JSONCodec.removePrefix(block, "Block_")));
 
             return Buffer.from(blockStringified);
-        } catch (e) {
-            throw new CodecException.BlockEncodeException(block.Block_id);
+        } catch (err) {
+            throw new CodecException.BlockEncodeException(block.Block_id, err.message);
         }
     }
 
-    public blocksDecode(buffer: Buffer): any {
+    public blocksDecode(buffer: Buffer): Models.Block {
         try {
             return JSON.parse(buffer.toString());
-        } catch (e) {
-            throw new CodecException.BlockDecodeException();
+        } catch (err) {
+            throw new CodecException.BlockDecodeException(undefined, err.message);
         }
     }
 
-    public transactionsEncode(transaction) {
+    public transactionsEncode(transaction): Buffer {
         try {
             let tmp = JSONCodec.removePrefix(transaction, "Transaction_");
             tmp = camelizeKeys(tmp);
@@ -68,12 +69,12 @@ export class JSONCodec implements Codec {
             tmp = JSONCodec.stringify(tmp);
 
             return Buffer.from(tmp);
-        } catch (e) {
-            throw new CodecException.TransactionEncodeException(transaction.Transaction_id);
+        } catch (err) {
+            throw new CodecException.TransactionEncodeException(transaction.Transaction_id, err.message);
         }
     }
 
-    public transactionsDecode(buffer: Buffer) {
+    public transactionsDecode(buffer: Buffer): Models.Transaction {
         try {
             const tmp = JSONCodec.parse(buffer.toString());
 
@@ -86,24 +87,24 @@ export class JSONCodec implements Codec {
             tmp.serialized = Buffer.from(serialized);
 
             return tmp;
-        } catch (e) {
-            throw new CodecException.TransactionDecodeException();
+        } catch (err) {
+            throw new CodecException.TransactionDecodeException(undefined, err.message);
         }
     }
 
-    public roundsEncode(round) {
+    public roundsEncode(round): Buffer {
         try {
             return Buffer.from(JSONCodec.stringify(camelizeKeys(JSONCodec.removePrefix(round, "Round_"))));
-        } catch (e) {
-            throw new CodecException.RoundEncodeException(round.Round_round);
+        } catch (err) {
+            throw new CodecException.RoundEncodeException(round.Round_round, err.message);
         }
     }
 
-    public roundsDecode(buffer: Buffer) {
+    public roundsDecode(buffer: Buffer): Models.Round {
         try {
             return JSON.parse(buffer.toString());
-        } catch (e) {
-            throw new CodecException.RoundDecodeException();
+        } catch (err) {
+            throw new CodecException.RoundDecodeException(undefined, err.message);
         }
     }
 }

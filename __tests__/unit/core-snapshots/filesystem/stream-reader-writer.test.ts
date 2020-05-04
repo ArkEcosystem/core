@@ -10,7 +10,7 @@ import { Sandbox } from "@packages/core-test-framework/src";
 import { StreamReader, StreamWriter } from "@packages/core-snapshots/src/filesystem";
 import { Identifiers } from "@packages/core-snapshots/src/ioc";
 import * as Contracts from "@packages/core-snapshots/src/contracts";
-import { JSONCodec, Codec } from "@packages/core-snapshots/src/codecs";
+import { JSONCodec, MessagePackCodec } from "@packages/core-snapshots/src/codecs";
 import * as Exceptions from "@packages/core-snapshots/src/exceptions";
 
 import { Assets } from "../__fixtures__";
@@ -106,7 +106,7 @@ const getEncode = (table, codec) => {
     if (codec === "json") {
         return new JSONCodec()[`${table}Encode`];
     } else {
-        return new Codec()[`${table}Encode`];
+        return new MessagePackCodec()[`${table}Encode`];
     }
 }
 
@@ -114,7 +114,7 @@ const getDecode = (table, codec) => {
     if (codec === "json") {
         return new JSONCodec()[`${table}Decode`];
     } else {
-        return new Codec()[`${table}Decode`];
+        return new MessagePackCodec()[`${table}Decode`];
     }
 }
 

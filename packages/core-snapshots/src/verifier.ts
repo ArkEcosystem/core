@@ -44,10 +44,12 @@ export class Verifier {
             const hash = Crypto.HashAlgorithms.sha256(bytes);
 
             isVerified = Crypto.Hash.verifyECDSA(hash, blockEntity.blockSignature, blockEntity.generatorPublicKey);
-        } catch {}
+        } catch (err) {
+            throw new Exceptions.BlockVerifyException(blockEntity.id, err.message);
+        }
 
         if (!isVerified) {
-            throw new Exceptions.BlockVerifyException(blockEntity.id);
+            throw new Exceptions.BlockVerifyException(blockEntity.id, "");
         }
     }
 
@@ -56,13 +58,15 @@ export class Verifier {
             return;
         }
 
+        let isVerified = false;
         try {
-            if (!Transactions.TransactionFactory.fromBytes(transaction.serialized).isVerified) {
-                /* istanbul ignore next */
-                throw new Error();
-            }
-        } catch (e) {
-            throw new Exceptions.TransactionVerifyException(transaction.id);
+            isVerified = Transactions.TransactionFactory.fromBytes(transaction.serialized).isVerified;
+        } catch (err) {
+            throw new Exceptions.TransactionVerifyException(transaction.id, err.message);
+        }
+
+        if (!isVerified) {
+            throw new Exceptions.TransactionVerifyException(transaction.id, "");
         }
     }
 }

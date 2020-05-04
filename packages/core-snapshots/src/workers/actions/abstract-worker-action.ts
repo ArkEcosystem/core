@@ -70,11 +70,10 @@ export abstract class AbstractWorkerAction implements WorkerAction {
     protected getVerifyFunction(): Function {
         if (this.table === "blocks") {
             return Verifier.verifyBlock;
-        } else if (this.table === "transactions") {
+        } if (this.table === "transactions") {
             return Verifier.verifyTransaction;
-        } else {
-            return Verifier.verifyRound;
         }
+        return Verifier.verifyRound;
     }
 
     public abstract async start();

@@ -48,11 +48,10 @@ export const init = async () => {
         (context: Container.interfaces.Context) => (table: string) => {
             if (table === "blocks") {
                 return getCustomRepository(Repositories.BlockRepository);
-            } else if (table === "transactions") {
+            } if (table === "transactions") {
                 return getCustomRepository(Repositories.TransactionRepository);
-            } else {
-                return getCustomRepository(Repositories.RoundRepository);
             }
+            return getCustomRepository(Repositories.RoundRepository);
         },
     );
 
@@ -73,7 +72,7 @@ export const init = async () => {
     );
 
     app.bind(Identifiers.SnapshotCodec)
-        .to(Codecs.Codec)
+        .to(Codecs.MessagePackCodec)
         .inSingletonScope()
         .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("codec", "default"));
 

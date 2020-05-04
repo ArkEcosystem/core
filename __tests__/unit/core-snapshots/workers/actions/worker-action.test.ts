@@ -92,7 +92,7 @@ beforeEach(() => {
         );
 
     sandbox.app.bind(Identifiers.SnapshotCodec)
-        .to(Codecs.Codec)
+        .to(Codecs.MessagePackCodec)
         .inSingletonScope()
         .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("codec", "default"));
 

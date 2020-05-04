@@ -197,8 +197,6 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             stopTransactionsProgressDispatcher();
             stopRoundsProgressDispatcher();
 
-            this.logger.error(err.stack)
-
             throw err;
         } finally {
             await blocksWorker?.terminate();

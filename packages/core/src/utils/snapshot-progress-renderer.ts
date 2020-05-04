@@ -18,12 +18,10 @@ export class ProgressRenderer {
     // @ts-ignore
     private roundsCount: number = 0;
 
-    // private interval?: NodeJS.Timeout;
-
-    public constructor(spinner: Ora, kernelApp: Contracts.Kernel.Application) {
+    public constructor(spinner: Ora, app: Contracts.Kernel.Application) {
         this.spinner = spinner;
 
-        const emitter = kernelApp.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
+        const emitter = app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
         emitter.listen(SnapshotApplicationEvents.SnapshotStart, {
             handle: (data) => {

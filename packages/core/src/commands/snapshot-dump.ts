@@ -40,7 +40,6 @@ export class Command extends Commands.Command {
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
             .setFlag("codec", "The name of the codec.", Joi.string())
             .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
-            // .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean())
             .setFlag("blocks", "Blocks to append to, correlates to folder name.", Joi.boolean())
             .setFlag("start", "The start network height to export.", Joi.number())
             .setFlag("end", "The end network height to export.", Joi.number());
