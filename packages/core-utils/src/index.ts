@@ -10,6 +10,7 @@ import { calculateLockExpirationStatus } from "./lock-expiration-calculator";
 import { NSect } from "./nsect";
 import { OrderedCappedMap } from "./ordered-capped-map";
 import { calculateRound, isNewRound } from "./round-calculator";
+import { SortedArray } from "./sorted-array";
 import { calculate } from "./supply-calculator";
 import * as Plugins from "./transform-plugins";
 import { Tree } from "./tree";
@@ -31,4 +32,5 @@ export {
     OrderedCappedMap,
     Plugins,
     Tree,
+    SortedArray,
 };

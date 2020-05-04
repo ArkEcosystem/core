@@ -1087,16 +1087,19 @@ describe("Connection", () => {
                     expect(prevSender).toEqual(curSender);
                 }
 
-                if (prevSender !== curSender) {
-                    let j;
-                    for (j = i - 2; j >= 0 && sortedTransactions[j].data.senderPublicKey === prevSender; j--) {
-                        // Find the leftmost transaction in a sequence of transactions from the same
-                        // sender, ending at prevTransaction. That leftmost transaction's fee must
-                        // be greater or equal to the fee of curTransaction.
-                    }
-                    j++;
-                    expect(sortedTransactions[j].data.fee.isGreaterThanEqual(curTransaction.data.fee)).toBeTrue();
-                }
+                // This is not true anymore with current implementation, which is simpler and more performant
+                // than the previous one, but it does not do this fee optimization (which is a very specific
+                // case and is not worth it currently)
+                // if (prevSender !== curSender) {
+                //    let j;
+                //    for (j = i - 2; j >= 0 && sortedTransactions[j].data.senderPublicKey === prevSender; j--) {
+                //        // Find the leftmost transaction in a sequence of transactions from the same
+                //        // sender, ending at prevTransaction. That leftmost transaction's fee must
+                //        // be greater or equal to the fee of curTransaction.
+                //    }
+                //    j++;
+                //    expect(sortedTransactions[j].data.fee.isGreaterThanEqual(curTransaction.data.fee)).toBeTrue();
+                // }
 
                 if (lastNonceBySender[curSender] !== undefined) {
                     expect(lastNonceBySender[curSender].isLessThan(curTransaction.data.nonce)).toBeTrue();
