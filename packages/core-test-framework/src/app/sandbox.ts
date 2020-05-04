@@ -1,5 +1,4 @@
 import { Application, Container, Providers, Services, Types } from "@arkecosystem/core-kernel";
-import { Managers } from "@arkecosystem/crypto";
 import { removeSync } from "fs-extra";
 import { setGracefulCleanup } from "tmp";
 
@@ -120,12 +119,13 @@ export class Sandbox {
         const milestones = require(this.paths.crypto.milestones);
         const network = require(this.paths.crypto.network);
 
-        Managers.configManager.setConfig({
-            exceptions,
-            genesisBlock,
-            milestones,
-            network,
-        });
+        // TODO: set config properly
+        // Managers.configManager.setConfig({
+        //     exceptions,
+        //     genesisBlock,
+        //     milestones,
+        //     network,
+        // });
 
         this.app.get<Services.Config.ConfigRepository>(Container.Identifiers.ConfigRepository).merge({
             crypto: {

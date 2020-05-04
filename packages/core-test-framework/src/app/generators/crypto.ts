@@ -1,5 +1,5 @@
 import { Types } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { ensureDirSync, existsSync, writeJSONSync } from "fs-extra";
 import { resolve } from "path";
@@ -8,7 +8,7 @@ import { dirSync } from "tmp";
 import { CryptoConfigPaths, Wallet } from "../contracts";
 import { Generator } from "./generator";
 
-export class CryptoGenerator extends Generator {
+export class CryptoGenerator<T> extends Generator<T> {
     /**
      * @private
      * @type {string}
@@ -32,9 +32,8 @@ export class CryptoGenerator extends Generator {
         const genesisBlock =
             this.options.crypto.genesisBlock ??
             this.generateGenesisBlock(
-                this.createWallet(this.options.crypto.flags.pubKeyHash),
-                this.generateCoreDelegates(this.options.crypto.flags.delegates, this.options.crypto.flags.pubKeyHash),
-                this.options.crypto.flags.pubKeyHash,
+                this.createWallet(),
+                this.generateCoreDelegates(this.options.crypto.flags.delegates),
                 this.options.crypto.flags.premine,
                 this.options.crypto.flags.distribute,
             );
@@ -142,39 +141,32 @@ export class CryptoGenerator extends Generator {
         ];
     }
 
-    private generateGenesisBlock(
-        genesisWallet,
-        delegates,
-        pubKeyHash: number,
-        totalPremine: string,
-        distribute: boolean,
-    ) {
-        const premineWallet: Wallet = this.createWallet(pubKeyHash);
+    private generateGenesisBlock(genesisWallet, delegates, totalPremine: string, distribute: boolean) {
+        const premineWallet: Wallet = this.createWallet();
 
         let transactions = [];
 
         if (distribute) {
             transactions = transactions.concat(
-                ...this.createTransferTransactions(premineWallet, delegates, totalPremine, pubKeyHash),
+                ...this.createTransferTransactions(premineWallet, delegates, totalPremine),
             );
         } else {
             transactions = transactions.concat(
-                this.createTransferTransaction(premineWallet, genesisWallet, totalPremine, pubKeyHash),
+                this.createTransferTransaction(premineWallet, genesisWallet, totalPremine),
             );
         }
 
         transactions = transactions.concat(
-            ...this.buildDelegateTransactions(delegates, pubKeyHash),
-            ...this.buildVoteTransactions(delegates, pubKeyHash),
+            ...this.buildDelegateTransactions(delegates),
+            ...this.buildVoteTransactions(delegates),
         );
 
         return this.createGenesisBlock(premineWallet.keys, transactions, 0);
     }
 
-    private createTransferTransaction(sender: Wallet, recipient: Wallet, amount: string, pubKeyHash: number): any {
+    private createTransferTransaction(sender: Wallet, recipient: Wallet, amount: string): any {
         return this.formatGenesisTransaction(
-            Transactions.BuilderFactory.transfer()
-                .network(pubKeyHash)
+            this.transactionManager.BuilderFactory.transfer()
                 .recipientId(recipient.address)
                 .amount(amount)
                 .sign(sender.passphrase).data,
@@ -182,24 +174,20 @@ export class CryptoGenerator extends Generator {
         );
     }
 
-    private createTransferTransactions(
-        sender: Wallet,
-        recipients: Wallet[],
-        totalPremine: string,
-        pubKeyHash: number,
-    ): any {
-        const amount: string = Utils.BigNumber.make(totalPremine).dividedBy(recipients.length).toString();
+    private createTransferTransactions(sender: Wallet, recipients: Wallet[], totalPremine: string): any {
+        const amount: string = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(totalPremine)
+            .dividedBy(recipients.length)
+            .toString();
 
         return recipients.map((recipientWallet: Wallet) =>
-            this.createTransferTransaction(sender, recipientWallet, amount, pubKeyHash),
+            this.createTransferTransaction(sender, recipientWallet, amount),
         );
     }
 
-    private buildDelegateTransactions(senders: Wallet[], pubKeyHash: number) {
+    private buildDelegateTransactions(senders: Wallet[]) {
         return senders.map((sender: Wallet) =>
             this.formatGenesisTransaction(
-                Transactions.BuilderFactory.delegateRegistration()
-                    .network(pubKeyHash)
+                this.transactionManager.BuilderFactory.delegateRegistration()
                     .usernameAsset(sender.username!)
                     .fee(`${25 * 1e8}`)
                     .sign(sender.passphrase).data,
@@ -208,11 +196,10 @@ export class CryptoGenerator extends Generator {
         );
     }
 
-    private buildVoteTransactions(senders: Wallet[], pubKeyHash: number) {
+    private buildVoteTransactions(senders: Wallet[]) {
         return senders.map((sender: Wallet) =>
             this.formatGenesisTransaction(
-                Transactions.BuilderFactory.vote()
-                    .network(pubKeyHash)
+                this.transactionManager.BuilderFactory.vote()
                     .votesAsset([`+${sender.keys.publicKey}`])
                     .fee(`${1 * 1e8}`)
                     .sign(sender.passphrase).data,
@@ -227,8 +214,8 @@ export class CryptoGenerator extends Generator {
             timestamp: 0,
         });
 
-        transaction.signature = Transactions.Signer.sign(transaction, wallet.keys);
-        transaction.id = Transactions.Utils.getId(transaction);
+        transaction.signature = this.transactionManager.Signer.sign(transaction, wallet.keys);
+        transaction.id = this.transactionManager.Utils.getId(transaction);
 
         return transaction;
     }
@@ -243,21 +230,25 @@ export class CryptoGenerator extends Generator {
         });
 
         let payloadLength = 0;
-        let totalFee: Utils.BigNumber = Utils.BigNumber.ZERO;
-        let totalAmount: Utils.BigNumber = Utils.BigNumber.ZERO;
+        let totalFee = this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
+        let totalAmount = this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
         const allBytes: Buffer[] = [];
 
         for (const transaction of transactions) {
-            const bytes: Buffer = Transactions.Serializer.getBytes(transaction);
+            const bytes: Buffer = this.transactionManager.Serializer.getBytes(transaction);
 
             allBytes.push(bytes);
 
             payloadLength += bytes.length;
             totalFee = totalFee.plus(transaction.fee);
-            totalAmount = totalAmount.plus(Utils.BigNumber.make(transaction.amount));
+            totalAmount = totalAmount.plus(
+                this.cryptoManager.LibraryManager.Libraries.BigNumber.make(transaction.amount),
+            );
         }
 
-        const payloadHash: Buffer = Crypto.HashAlgorithms.sha256(Buffer.concat(allBytes));
+        const payloadHash: Buffer = this.cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(
+            Buffer.concat(allBytes),
+        );
 
         const block: any = {
             version: 0,
@@ -292,15 +283,17 @@ export class CryptoGenerator extends Generator {
             blockBuffer[i] = hash[7 - i];
         }
 
-        return Utils.BigNumber.make(`0x${blockBuffer.toString("hex")}`).toString();
+        return this.cryptoManager.LibraryManager.Libraries.BigNumber.make(
+            `0x${blockBuffer.toString("hex")}`,
+        ).toString();
     }
 
     private signBlock(block, keys: Interfaces.IKeyPair): string {
-        return Crypto.Hash.signECDSA(this.getHash(block), keys);
+        return this.cryptoManager.LibraryManager.Crypto.Hash.signECDSA(this.getHash(block), keys);
     }
 
     private getHash(block): Buffer {
-        return Crypto.HashAlgorithms.sha256(this.getBytes(block));
+        return this.cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(this.getBytes(block));
     }
 
     private getBytes(genesisBlock): Buffer {

@@ -30,6 +30,8 @@ export abstract class TransactionBuilder<
             typeGroup: TransactionTypeGroup.Test,
             nonce: cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
             version: cryptoManager.MilestoneManager.getMilestone().aip11 ? 0x02 : 0x01,
+            // TODO: check this works as expected
+            network: cryptoManager.NetworkConfigManager.get("network").pubKeyHash,
         } as U;
     }
 
@@ -57,8 +59,9 @@ export abstract class TransactionBuilder<
         return this.instance();
     }
 
+    // TODO: should this still be set - or should these builders only ever be accessed by instance based cryptoManagers with the network already set...
     public network(network: number): TBuilder {
-        this.data.network = network;
+        // this.data.network = network;
 
         return this.instance();
     }
@@ -152,7 +155,8 @@ export abstract class TransactionBuilder<
             type: this.data.type,
             fee: this.data.fee,
             senderPublicKey: this.data.senderPublicKey,
-            network: this.data.network,
+            // TODO: check this is correct
+            network: this.cryptoManager.NetworkConfigManager.get("network").pubKeyHash,
         } as U;
 
         if (this.data.version === 1) {

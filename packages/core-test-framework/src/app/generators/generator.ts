@@ -1,14 +1,22 @@
-import { Identities, Interfaces } from "@arkecosystem/crypto";
+import { CryptoManager, Interfaces, TransactionsManager } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 
 import passphrases from "../../internal/passphrases.json";
 import { SandboxOptions, Wallet } from "../contracts";
 
+const defaultSchemaValidator = {
+    extendTransaction: () => {},
+    validate: (_, data) => ({
+        error: undefined,
+        value: data,
+    }),
+};
+
 /**
  * @export
  * @class Generator
  */
-export abstract class Generator {
+export abstract class Generator<T> {
     /**
      * @private
      * @type {ConfigPaths}
@@ -36,14 +44,23 @@ export abstract class Generator {
         },
     };
 
+    protected cryptoManager: CryptoManager<T>;
+    protected transactionManager: TransactionsManager<T, Interfaces.ITransactionData, any>;
+
     /**
      * @param {SandboxOptions} options
      * @memberof Generator
      */
-    public constructor(options?: SandboxOptions) {
+    public constructor(options?: SandboxOptions, schemaValidator = defaultSchemaValidator) {
         if (options) {
             this.options = { ...this.options, ...options };
         }
+
+        const config = { ...CryptoManager.findNetworkByName("devnet"), ...this.options.crypto };
+
+        this.cryptoManager = CryptoManager.createFromConfig(config as Interfaces.NetworkConfig<T>);
+
+        this.transactionManager = new TransactionsManager(this.cryptoManager, schemaValidator);
     }
 
     /**
@@ -53,11 +70,11 @@ export abstract class Generator {
      * @returns {Wallet[]}
      * @memberof Generator
      */
-    protected generateCoreDelegates(activeDelegates: number, pubKeyHash: number): Wallet[] {
+    protected generateCoreDelegates(activeDelegates: number): Wallet[] {
         const wallets: Wallet[] = [];
 
         for (let i = 0; i < activeDelegates; i++) {
-            const delegateWallet: Wallet = this.createWallet(pubKeyHash, passphrases[i]);
+            const delegateWallet: Wallet = this.createWallet(passphrases[i]);
             delegateWallet.username = `genesis_${i + 1}`;
 
             wallets.push(delegateWallet);
@@ -73,15 +90,15 @@ export abstract class Generator {
      * @returns {Wallet}
      * @memberof Generator
      */
-    protected createWallet(pubKeyHash: number, passphrase?: string): Wallet {
+    protected createWallet(passphrase?: string): Wallet {
         if (!passphrase) {
             passphrase = generateMnemonic();
         }
 
-        const keys: Interfaces.IKeyPair = Identities.Keys.fromPassphrase(passphrase);
+        const keys: Interfaces.IKeyPair = this.cryptoManager.Identities.Keys.fromPassphrase(passphrase);
 
         return {
-            address: Identities.Address.fromPublicKey(keys.publicKey, pubKeyHash),
+            address: this.cryptoManager.Identities.Address.fromPublicKey(keys.publicKey),
             passphrase,
             keys,
             username: undefined,
