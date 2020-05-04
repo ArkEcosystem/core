@@ -1,7 +1,6 @@
 export * from "./service-provider";
 
-import * as Errors from "./errors";
-import * as Handlers from "./handlers";
+export * as Errors from "./errors";
+export * as Handlers from "./handlers";
 
 export * from "./transaction-reader";
-export { Errors, Handlers };
