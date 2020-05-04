@@ -1,3 +1,6 @@
+import pluralize from "pluralize";
+import { pascalize } from "xcase";
+
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
@@ -40,27 +43,27 @@ export abstract class AbstractWorkerAction implements WorkerAction {
         return repositoryFactory(this.table!);
     }
 
+    protected getSingularCapitalizedTableName() {
+        return pascalize(pluralize.singular(this.table));
+    }
+
     protected getStreamReader(): StreamReader {
         const streamReaderFactory = this.app.get<Stream.StreamReaderFactory>(Identifiers.StreamReaderFactory);
 
-        return streamReaderFactory(this.filePath!, !this.skipCompression!, this.getCodec()[`${this.table}Decode`]);
+        // passing a codec method as last parameter. Example: Codec.decodeBlock
+        return streamReaderFactory(this.filePath!, !this.skipCompression!, this.getCodec()[`decode${this.getSingularCapitalizedTableName()}`]);
     }
 
     protected getStreamWriter(dbStream: NodeJS.ReadableStream): StreamWriter {
         const streamWriterFactory = this.app.get<Stream.StreamWriterFactory>(Identifiers.StreamWriterFactory);
 
+        // passing a codec method as last parameter. Example: Codec.decodeBlock
         return streamWriterFactory(
             dbStream,
             this.filePath!,
             !this.skipCompression!,
-            this.getCodec()[`${this.table}Encode`],
+            this.getCodec()[`encode${this.getSingularCapitalizedTableName()}`],
         );
-    }
-
-    protected applyGenesisBlockFix(block: Models.Block): void {
-        if (block.height === 1) {
-            block.id = this.genesisBlockId!;
-        }
     }
 
     protected getCodec(): Codec {
@@ -68,12 +71,14 @@ export abstract class AbstractWorkerAction implements WorkerAction {
     }
 
     protected getVerifyFunction(): Function {
-        if (this.table === "blocks") {
-            return Verifier.verifyBlock;
-        } if (this.table === "transactions") {
-            return Verifier.verifyTransaction;
+        // passing a codec method as last parameter. Example: Verifier.verifyBlock
+        return Verifier[`verify${this.getSingularCapitalizedTableName()}`];
+    }
+
+    protected applyGenesisBlockFix(block: Models.Block): void {
+        if (block.height === 1) {
+            block.id = this.genesisBlockId!;
         }
-        return Verifier.verifyRound;
     }
 
     public abstract async start();

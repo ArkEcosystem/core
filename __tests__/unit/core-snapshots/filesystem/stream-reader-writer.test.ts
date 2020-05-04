@@ -1,5 +1,8 @@
 import "jest-extended";
 
+import pluralize from "pluralize";
+import { pascalize } from "xcase";
+
 import { Readable } from "stream";
 import { dirSync, setGracefulCleanup } from "tmp";
 import {decamelize} from "xcase";
@@ -59,6 +62,26 @@ class DbStream extends Readable {
     }
 }
 
+const getSingularCapitalizedTableName = (table: string) => {
+    return pascalize(pluralize.singular(table));
+}
+
+const getEncode = (table, codec) => {
+    if (codec === "json") {
+        return new JSONCodec()[`encode${getSingularCapitalizedTableName(table)}`];
+    } else {
+        return new MessagePackCodec()[`encode${getSingularCapitalizedTableName(table)}`];
+    }
+}
+
+const getDecode = (table, codec) => {
+    if (codec === "json") {
+        return new JSONCodec()[`decode${getSingularCapitalizedTableName(table)}`];
+    } else {
+        return new MessagePackCodec()[`decode${getSingularCapitalizedTableName(table)}`];
+    }
+}
+
 let sandbox: Sandbox;
 let streamWriterFactory: Contracts.Stream.StreamWriterFactory;
 let streamReaderFactory: Contracts.Stream.StreamReaderFactory;
@@ -101,22 +124,6 @@ const cases = [
     ["rounds", "json", false],
     ["rounds", "json", true],
 ]
-
-const getEncode = (table, codec) => {
-    if (codec === "json") {
-        return new JSONCodec()[`${table}Encode`];
-    } else {
-        return new MessagePackCodec()[`${table}Encode`];
-    }
-}
-
-const getDecode = (table, codec) => {
-    if (codec === "json") {
-        return new JSONCodec()[`${table}Decode`];
-    } else {
-        return new MessagePackCodec()[`${table}Decode`];
-    }
-}
 
 describe("StreamReader and StreamWriter", () => {
     describe.each(cases)("Table: [%s], Codec: [%s], UseCompression : [%s]", (table, codec, useCompression) => {

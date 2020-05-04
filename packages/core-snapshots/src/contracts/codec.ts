@@ -1,12 +1,12 @@
 import { Models } from "@packages/core-database";
 
 export interface Codec {
-    blocksEncode(block: any): Buffer;
-    blocksDecode(buffer: Buffer): Models.Block;
+    encodeBlock(block: any): Buffer;
+    decodeBlock(buffer: Buffer): Models.Block;
 
-    transactionsEncode(transaction: any): Buffer;
-    transactionsDecode(buffer: Buffer): Models.Transaction;
+    encodeTransaction(transaction: any): Buffer;
+    decodeTransaction(buffer: Buffer): Models.Transaction;
 
-    roundsEncode(round: any): Buffer;
-    roundsDecode(buffer: Buffer): Models.Round;
+    encodeRound(round: any): Buffer;
+    decodeRound(buffer: Buffer): Models.Round;
 }

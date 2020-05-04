@@ -43,7 +43,7 @@ export class JSONCodec implements Codec {
         });
     }
 
-    public blocksEncode(block): Buffer {
+    public encodeBlock(block): Buffer {
         try {
             const blockStringified = JSONCodec.stringify(camelizeKeys(JSONCodec.removePrefix(block, "Block_")));
 
@@ -53,7 +53,7 @@ export class JSONCodec implements Codec {
         }
     }
 
-    public blocksDecode(buffer: Buffer): Models.Block {
+    public decodeBlock(buffer: Buffer): Models.Block {
         try {
             return JSON.parse(buffer.toString());
         } catch (err) {
@@ -61,7 +61,7 @@ export class JSONCodec implements Codec {
         }
     }
 
-    public transactionsEncode(transaction): Buffer {
+    public encodeTransaction(transaction): Buffer {
         try {
             let tmp = JSONCodec.removePrefix(transaction, "Transaction_");
             tmp = camelizeKeys(tmp);
@@ -74,7 +74,7 @@ export class JSONCodec implements Codec {
         }
     }
 
-    public transactionsDecode(buffer: Buffer): Models.Transaction {
+    public decodeTransaction(buffer: Buffer): Models.Transaction {
         try {
             const tmp = JSONCodec.parse(buffer.toString());
 
@@ -92,7 +92,7 @@ export class JSONCodec implements Codec {
         }
     }
 
-    public roundsEncode(round): Buffer {
+    public encodeRound(round): Buffer {
         try {
             return Buffer.from(JSONCodec.stringify(camelizeKeys(JSONCodec.removePrefix(round, "Round_"))));
         } catch (err) {
@@ -100,7 +100,7 @@ export class JSONCodec implements Codec {
         }
     }
 
-    public roundsDecode(buffer: Buffer): Models.Round {
+    public decodeRound(buffer: Buffer): Models.Round {
         try {
             return JSON.parse(buffer.toString());
         } catch (err) {

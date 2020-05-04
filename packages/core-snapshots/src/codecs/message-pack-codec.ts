@@ -19,7 +19,7 @@ export class MessagePackCodec implements Codec {
         return itemToReturn;
     }
 
-    public blocksEncode(block: any): Buffer {
+    public encodeBlock(block: any): Buffer {
         try {
             const blockCamelized = camelizeKeys(MessagePackCodec.removePrefix(block, "Block_"));
 
@@ -29,7 +29,7 @@ export class MessagePackCodec implements Codec {
         }
     }
 
-    public blocksDecode(buffer: Buffer): Models.Block {
+    public decodeBlock(buffer: Buffer): Models.Block {
         try {
             return Blocks.Deserializer.deserialize(buffer.toString("hex"), false).data as Models.Block;
         } catch (err) {
@@ -37,7 +37,7 @@ export class MessagePackCodec implements Codec {
         }
     }
 
-    public transactionsEncode(transaction): Buffer {
+    public encodeTransaction(transaction): Buffer {
         try {
             return encode([
                 transaction.Transaction_id,
@@ -51,7 +51,7 @@ export class MessagePackCodec implements Codec {
         }
     }
 
-    public transactionsDecode(buffer: Buffer): Models.Transaction {
+    public decodeTransaction(buffer: Buffer): Models.Transaction {
         let transactionId = undefined;
         try {
             const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
@@ -87,7 +87,7 @@ export class MessagePackCodec implements Codec {
         }
     }
 
-    public roundsEncode(round): Buffer {
+    public encodeRound(round): Buffer {
         try {
             const roundCamelized = camelizeKeys(MessagePackCodec.removePrefix(round, "Round_"));
 
@@ -97,7 +97,7 @@ export class MessagePackCodec implements Codec {
         }
     }
 
-    public roundsDecode(buffer: Buffer): Models.Round {
+    public decodeRound(buffer: Buffer): Models.Round {
         let roundRound = undefined;
 
         try {

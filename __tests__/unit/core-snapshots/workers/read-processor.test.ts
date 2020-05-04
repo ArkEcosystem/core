@@ -56,7 +56,7 @@ describe("ReadProcessor", () => {
     it("should read all blocks", async () => {
         let path = join(__dirname, "../__fixtures__/1-52/blocks")
 
-        let streamReader = new StreamReader(path, false, new JSONCodec().blocksDecode)
+        let streamReader = new StreamReader(path, false, new JSONCodec().decodeBlock)
 
         await streamReader.open();
 
