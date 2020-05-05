@@ -1,6 +1,7 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Initialize } from "../../../../../packages/core-blockchain/src/state-machine/actions/initialize";
 import { Managers } from "@arkecosystem/crypto";
+
+import { Initialize } from "../../../../../packages/core-blockchain/src/state-machine/actions/initialize";
 
 describe("Initialize", () => {
     const container = new Container.Container();
@@ -56,7 +57,6 @@ describe("Initialize", () => {
 
                 expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
                 expect(databaseService.deleteRound).toHaveBeenCalledTimes(1);
-                expect(databaseService.buildWallets).toHaveBeenCalledTimes(1);
                 expect(databaseService.restoreCurrentRound).toHaveBeenCalledTimes(1);
                 expect(transactionPool.readdTransactions).toHaveBeenCalledTimes(1);
                 expect(peerNetworkMonitor.boot).toHaveBeenCalledTimes(1);
@@ -182,7 +182,6 @@ describe("Initialize", () => {
 
                 expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
                 expect(databaseService.deleteRound).toHaveBeenCalledTimes(1);
-                expect(databaseService.buildWallets).toHaveBeenCalledTimes(1);
                 expect(databaseService.restoreCurrentRound).toHaveBeenCalledTimes(0);
                 expect(transactionPool.readdTransactions).toHaveBeenCalledTimes(0);
                 expect(peerNetworkMonitor.boot).toHaveBeenCalledTimes(1);

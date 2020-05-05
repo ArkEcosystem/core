@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Utils } from "@arkecosystem/crypto";
+import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 
 jest.setTimeout(1200000);
@@ -52,7 +52,13 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
             },
         });
 
+        Managers.configManager.getMilestone().aip11 = false;
+        Managers.configManager.getMilestone().htlcEnabled = false;
+
         await app.boot();
+
+        Managers.configManager.getMilestone().aip11 = true;
+        Managers.configManager.getMilestone().htlcEnabled = true;
 
         const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
         const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
@@ -61,7 +67,6 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
             "blockchain",
         );
 
-        await databaseService.buildWallets();
         await databaseService.saveRound(
             secrets.map((secret, i) => {
                 const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase(secret));

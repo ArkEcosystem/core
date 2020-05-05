@@ -3,10 +3,10 @@ import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { EntityRepository, In } from "typeorm";
 
 import { Block, Round, Transaction } from "../models";
-import { AbstractEntityRepository } from "./repository";
+import { AbstractRepository } from "./abstract-repository";
 
 @EntityRepository(Block)
-export class BlockRepository extends AbstractEntityRepository<Block> {
+export class BlockRepository extends AbstractRepository<Block> {
     public async findLatest(): Promise<Interfaces.IBlockData | undefined> {
         return (this.findOne({
             order: { height: "DESC" },
