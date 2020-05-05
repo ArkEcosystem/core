@@ -5,7 +5,7 @@ import { EntityRepository } from "typeorm";
 import { Repository } from "../contracts";
 
 @EntityRepository(Models.Block)
-export class BlockRepository extends Repositories.AbstractEntityRepository<Models.Block> implements Repository {
+export class BlockRepository extends Repositories.AbstractRepository<Models.Block> implements Repository {
     public async getReadStream(start: number, end: number): Promise<NodeJS.ReadableStream> {
         return this.createQueryBuilder()
             .where("height >= :start AND height < :end", { start, end })
