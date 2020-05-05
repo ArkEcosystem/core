@@ -1,6 +1,9 @@
-import { Commands, Container } from "@arkecosystem/core-cli";
+import { Commands, Components, Container, Contracts, Utils } from "@arkecosystem/core-cli";
+import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
+
+import { ProgressRenderer } from "../utils/snapshot-progress-renderer";
 
 /**
  * @export
@@ -36,12 +39,9 @@ export class Command extends Commands.Command {
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
             .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
-            .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean())
-
-            .setFlag("blocks", "Blocks to import, correlates to folder name.", Joi.string())
+            .setFlag("blocks", "Blocks to import, correlates to folder name.", Joi.string().required())
             .setFlag("truncate", "Empty all tables before running import.", Joi.boolean())
-            .setFlag("skipRestartRound", "Skip revert to current round.", Joi.boolean())
-            .setFlag("verifySignatures", "Verify signatures of specified snapshot.", Joi.boolean());
+            .setFlag("verify", "Verify signatures of specified snapshot.", Joi.boolean());
     }
 
     /**
@@ -51,6 +51,20 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        this.components.fatal("This command has not been implemented.");
+        const flags: Contracts.AnyObject = { ...this.getFlags() };
+        flags.processType = "snapshot";
+
+        const app = await Utils.buildApplication({
+            flags,
+        });
+
+        const spinner = this.app.get<Components.ComponentFactory>(Container.Identifiers.ComponentFactory).spinner();
+        new ProgressRenderer(spinner, app);
+
+        await app
+            .get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService)
+            .restore(flags);
+
+        await app.terminate();
     }
 }
