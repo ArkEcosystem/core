@@ -21,18 +21,16 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.log.debug("Connection established.");
 
-        this.app
-            .bind(Container.Identifiers.DatabaseRoundRepository)
-            .toConstantValue(getCustomRepository(RoundRepository));
+        this.app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue(this.getRoundRepository());
 
-        const blockRepository = getCustomRepository(BlockRepository);
-        this.app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(blockRepository);
+        this.app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(this.getBlockRepository());
         this.app.bind(Container.Identifiers.DatabaseBlockModelConverter).to(BlockModelConverter);
         this.app.bind(Container.Identifiers.DatabaseBlockFilter).to(BlockFilter);
         this.app.bind(Container.Identifiers.BlockHistoryService).to(BlockHistoryService);
 
-        const transactionRepository = getCustomRepository(TransactionRepository);
-        this.app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue(transactionRepository);
+        this.app
+            .bind(Container.Identifiers.DatabaseTransactionRepository)
+            .toConstantValue(this.getTransactionRepository());
         this.app.bind(Container.Identifiers.DatabaseTransactionModelConverter).to(TransactionModelConverter);
         this.app.bind(Container.Identifiers.DatabaseTransactionFilter).to(TransactionFilter);
         this.app.bind(Container.Identifiers.TransactionHistoryService).to(TransactionHistoryService);
@@ -54,13 +52,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         return true;
     }
 
-    private registerActions(): void {
-        this.app
-            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-            .bind("getActiveDelegates", new GetActiveDelegatesAction(this.app));
-    }
-
-    private async connect(): Promise<Connection> {
+    public async connect(): Promise<Connection> {
         const options: Record<string, any> = this.config().all();
         this.app
             .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
@@ -74,5 +66,23 @@ export class ServiceProvider extends Providers.ServiceProvider {
             // TODO: expose entities to allow extending the models by plugins
             entities: [__dirname + "/models/*.js"],
         });
+    }
+
+    public getRoundRepository(): RoundRepository {
+        return getCustomRepository(RoundRepository);
+    }
+
+    public getBlockRepository(): BlockRepository {
+        return getCustomRepository(BlockRepository);
+    }
+
+    public getTransactionRepository(): TransactionRepository {
+        return getCustomRepository(TransactionRepository);
+    }
+
+    private registerActions(): void {
+        this.app
+            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+            .bind("getActiveDelegates", new GetActiveDelegatesAction(this.app));
     }
 }

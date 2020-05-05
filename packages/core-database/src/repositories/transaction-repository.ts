@@ -4,10 +4,10 @@ import dayjs from "dayjs";
 import { Brackets, EntityRepository, In } from "typeorm";
 
 import { Transaction } from "../models";
-import { AbstractEntityRepository } from "./repository";
+import { AbstractRepository } from "./abstract-repository";
 
 @EntityRepository(Transaction)
-export class TransactionRepository extends AbstractEntityRepository<Transaction> {
+export class TransactionRepository extends AbstractRepository<Transaction> {
     public async findByBlockIds(
         blockIds: string[],
     ): Promise<

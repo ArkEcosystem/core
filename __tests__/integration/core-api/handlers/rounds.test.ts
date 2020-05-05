@@ -13,7 +13,6 @@ beforeAll(async () => {
     api = new ApiHelpers(app);
 
     const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
-    await databaseService.buildWallets();
     await databaseService.saveRound(Factories.factory("Round").make());
     await (databaseService as any).initializeActiveDelegates(1);
 
