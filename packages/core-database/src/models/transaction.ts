@@ -4,6 +4,7 @@ import { Column, Entity, Index } from "typeorm";
 
 import { transformBigInt, transformVendorField } from "../utils/transform";
 
+// TODO: Fix model to have undefined type on nullable fields
 @Entity({
     name: "transactions",
 })

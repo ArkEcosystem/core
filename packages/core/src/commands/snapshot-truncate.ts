@@ -1,4 +1,5 @@
-import { Commands, Container } from "@arkecosystem/core-cli";
+import { Commands, Container, Contracts, Utils } from "@arkecosystem/core-cli";
+import { Container as KernelContainer, Contracts as KernelContracts } from "@arkecosystem/core-kernel";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 
@@ -35,8 +36,7 @@ export class Command extends Commands.Command {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
-            .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
-            .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean());
+            .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean());
     }
 
     /**
@@ -46,6 +46,15 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        this.components.fatal("This command has not been implemented.");
+        const flags: Contracts.AnyObject = { ...this.getFlags() };
+        flags.processType = "snapshot";
+
+        const app = await Utils.buildApplication({
+            flags,
+        });
+
+        await app.get<KernelContracts.Snapshot.SnapshotService>(KernelContainer.Identifiers.SnapshotService).truncate();
+
+        await app.terminate();
     }
 }

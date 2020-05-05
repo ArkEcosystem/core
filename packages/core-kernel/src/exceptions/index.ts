@@ -1,3 +1,4 @@
+export * as Base from "./base";
 export * as Cache from "./cache";
 export * as Config from "./config";
 export * as Container from "./container";
