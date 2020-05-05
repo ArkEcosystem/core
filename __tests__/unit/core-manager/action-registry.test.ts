@@ -10,7 +10,7 @@ let sandbox: Sandbox;
 class DummyAction implements Actions.Action {
     public name = "dummy";
 
-    public async execute(data: any): Promise<any> {
+    public async execute(data: object): Promise<object> {
         return data
     }
 }

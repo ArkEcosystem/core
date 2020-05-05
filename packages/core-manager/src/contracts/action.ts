@@ -1,6 +1,6 @@
+export type ExecuteFunction = (data: object) => Promise<object>;
+
 export interface Action {
     name: string,
-    execute: Function
+    execute: ExecuteFunction
 }
-
-export type ActionList = Record<string, Action>;
