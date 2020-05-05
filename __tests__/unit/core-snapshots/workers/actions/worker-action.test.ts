@@ -72,11 +72,13 @@ beforeEach(() => {
         .toFactory<Repository>((context: Container.interfaces.Context) => (table: string) => {
             if(table === "blocks") {
                 return blockRepository
-            } else if (table === "transactions") {
-                return transactionRepository
-            } else {
-                return roundRepository
             }
+
+            if (table === "transactions") {
+                return transactionRepository
+            }
+
+            return roundRepository
         });
 
     sandbox.app

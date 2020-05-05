@@ -25,7 +25,9 @@ export class TestWorkerAction implements WorkerAction {
     public async start() {
         if (this.options.table === "throwError") {
             throw new Error("Start Error");
-        } else if (this.options.table === "wait") {
+        }
+
+        if (this.options.table === "wait") {
             parentPort?.postMessage({
                 action: "started",
             });

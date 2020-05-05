@@ -10,9 +10,12 @@ export class JSONCodec implements Codec {
     private static prepareData(data: any) {
         if (Buffer.isBuffer(data)) {
             return data.toJSON();
-        } else if (typeof data === "bigint") {
+        }
+
+        if (typeof data === "bigint") {
             return data.toString();
         }
+
         return data;
     }
 
