@@ -1,9 +1,12 @@
 import { Providers} from "@arkecosystem/core-kernel";
 import { Identifiers } from "./ioc";
 import { Server } from "./server";
+import { ActionRegistry } from "./action-registry";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
+        this.app.bind(Identifiers.ActionRegistry).to(ActionRegistry).inSingletonScope();
+
         if (this.config().get("server.http.enabled")) {
             await this.buildServer("http", Identifiers.HTTP);
         }
@@ -11,8 +14,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         if (this.config().get("server.https.enabled")) {
             await this.buildServer("https", Identifiers.HTTPS);
         }
-        // TODO: Remove
-        console.log("Registered")
     }
 
     /**
@@ -27,8 +28,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         if (this.config().get("server.https.enabled")) {
             await this.app.get<Server>(Identifiers.HTTPS).boot();
         }
-        // TODO: Remove
-        console.log("Booted")
     }
 
     public async dispose(): Promise<void> {
@@ -39,8 +38,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         if (this.config().get("server.https.enabled")) {
             await this.app.get<Server>(Identifiers.HTTPS).dispose();
         }
-        // TODO: Remove
-        console.log("Disposed")
     }
 
     public async required(): Promise<boolean> {

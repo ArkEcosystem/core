@@ -71,8 +71,6 @@ describe("ServiceProvider", () => {
 
         setPluginConfiguration(app, serviceProvider, usedDefaults);
 
-        console.log(usedDefaults);
-
         await expect(serviceProvider.register()).toResolve();
 
         await expect(serviceProvider.boot()).toResolve();
