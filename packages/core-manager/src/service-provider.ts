@@ -1,11 +1,11 @@
 import { Providers} from "@arkecosystem/core-kernel";
 import { Identifiers } from "./ioc";
 import { Server } from "./server";
-import { ActionRegistry } from "./action-registry";
+import { ActionReader } from "./action-reader";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind(Identifiers.ActionRegistry).to(ActionRegistry).inSingletonScope();
+        this.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
 
         if (this.config().get("server.http.enabled")) {
             await this.buildServer("http", Identifiers.HTTP);
@@ -49,7 +49,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         const server: Server = this.app.get<Server>(id);
 
-        await server.initialize(`Public API (${type.toUpperCase()})`, {
+        await server.initialize(`Public JSON-RPC API (${type.toUpperCase()})`, {
             ...this.config().get(`server.${type}`),
             ...{
                 routes: {
@@ -57,12 +57,5 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 },
             },
         });
-
-        // await server.register(preparePlugins(this.config().get("plugins")));
-        //
-        // await server.register({
-        //     plugin: Handlers,
-        //     routes: { prefix: "/api" },
-        // });
     }
 }

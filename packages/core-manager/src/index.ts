@@ -1,4 +1,2 @@
-export * from "./action-registry";
+export * from "./action-reader";
 export * from "./service-provider";
-
-export * as Exceptions from "./exceptions"

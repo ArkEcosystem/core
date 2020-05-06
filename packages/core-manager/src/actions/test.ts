@@ -5,7 +5,7 @@ import { Actions } from "../contracts"
 export class Action implements Actions.Action {
     public name = "test";
 
-    public async execute(data: any): Promise<any> {
+    public async method(params: object): Promise<any> {
         return {
             test: "test"
         }
