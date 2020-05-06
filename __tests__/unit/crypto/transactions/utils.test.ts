@@ -1,30 +1,28 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
-import { Generators } from "@packages/core-test-framework/src";
+import * as Generators from "@packages/core-test-framework/src/app/generators";
 import { TransactionFactory as TestTransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 
+import { CryptoManager, Interfaces, Transactions } from "../../../../packages/crypto/src";
 import {
     InvalidTransactionBytesError,
     TransactionTypeError,
     TransactionVersionError,
 } from "../../../../packages/crypto/src/errors";
-import { Keys } from "../../../../packages/crypto/src/identities";
 import { ITransaction, ITransactionData } from "../../../../packages/crypto/src/interfaces";
-import { configManager } from "../../../../packages/crypto/src/managers";
-import {
-    BuilderFactory,
-    Transaction,
-    TransactionFactory,
-    Utils as TransactionUtils,
-} from "../../../../packages/crypto/src/transactions";
-import { transaction as transactionDataFixture } from "../fixtures/transaction";
+import { Transaction } from "../../../../packages/crypto/src/transactions";
+import { buildTransaction as transactionDataFixture } from "../fixtures/transaction";
 
 let transactionData: ITransactionData;
 let transactionDataJSON;
 
+let Keys;
+let Utils;
+let BuilderFactory;
+let TransactionFactory;
+
 const createRandomTx = (type) => {
-    let transaction: ITransaction;
+    let transaction: ITransaction<Interfaces.ITransactionData, any>;
 
     switch (type) {
         case 0: {
@@ -67,7 +65,6 @@ const createRandomTx = (type) => {
         }
 
         case 4: {
-            configManager.getMilestone().aip11 = true;
             const passphrases = [Math.random().toString(36), Math.random().toString(36), Math.random().toString(36)];
 
             const participants = passphrases.map((passphrase) => {
@@ -93,7 +90,6 @@ const createRandomTx = (type) => {
 
             transaction = multiSigRegistration.sign(passphrases[0]).build();
 
-            configManager.getMilestone().aip11 = false;
             break;
         }
         default: {
@@ -104,15 +100,42 @@ const createRandomTx = (type) => {
     return transaction;
 };
 
+let crypto: CryptoManager<any>;
+let cryptoFromConfigRaw: CryptoManager<any>;
+let transactionsManagerConfigRaw: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
+
 describe("Transaction", () => {
     beforeEach(() => {
-        configManager.setFromPreset("devnet");
+        crypto = CryptoManager.createFromPreset("devnet");
 
-        transactionData = { ...transactionDataFixture };
+        const transactionsManager = new Transactions.TransactionsManager(crypto, {
+            extendTransaction: () => {},
+            // @ts-ignore
+            validate: (_, data) => ({
+                value: data,
+            }),
+        });
+
+        Keys = crypto.Identities.Keys;
+        Utils = transactionsManager.Utils;
+        BuilderFactory = transactionsManager.BuilderFactory;
+        TransactionFactory = transactionsManager.TransactionFactory;
+
+        transactionData = { ...transactionDataFixture(crypto.LibraryManager.Libraries.BigNumber) };
         transactionDataJSON = {
             ...transactionData,
             ...{ amount: transactionData.amount.toFixed(), fee: transactionData.fee.toFixed() },
         };
+
+        cryptoFromConfigRaw = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
+
+        transactionsManagerConfigRaw = new Transactions.TransactionsManager(cryptoFromConfigRaw, {
+            extendTransaction: () => {},
+            // @ts-ignore
+            validate: (_, data) => ({
+                value: data,
+            }),
+        });
     });
 
     describe("toBytes / fromBytes", () => {
@@ -120,7 +143,7 @@ describe("Transaction", () => {
             [0, 1, 2, 3]
                 .map((type) => createRandomTx(type))
                 .forEach((transaction) => {
-                    const newTransaction = TransactionFactory.fromBytes(TransactionUtils.toBytes(transaction.data));
+                    const newTransaction = TransactionFactory.fromBytes(Utils.toBytes(transaction.data));
 
                     // TODO: Remove both from data when not needed
                     delete transaction.data.signSignature;
@@ -139,9 +162,13 @@ describe("Transaction", () => {
                     }
 
                     // @ts-ignore
-                    transaction.data.amount = Utils.BigNumber.make(transaction.data.amount).toFixed();
+                    transaction.data.amount = crypto.LibraryManager.Libraries.BigNumber.make(
+                        transaction.data.amount,
+                    ).toFixed();
                     // @ts-ignore
-                    transaction.data.fee = Utils.BigNumber.make(transaction.data.fee).toFixed();
+                    transaction.data.fee = crypto.LibraryManager.Libraries.BigNumber.make(
+                        transaction.data.fee,
+                    ).toFixed();
 
                     expect(newTransaction.toJson()).toMatchObject(transaction.data);
                     expect(newTransaction.verified).toBeTrue();
@@ -149,7 +176,7 @@ describe("Transaction", () => {
         });
 
         it("should create a transaction", () => {
-            const hex = TransactionUtils.toBytes(transactionData).toString("hex");
+            const hex = Utils.toBytes(transactionData).toString("hex");
             const transaction = TransactionFactory.fromHex(hex);
             expect(transaction).toBeInstanceOf(Transaction);
             expect(transaction.toJson()).toEqual(transactionDataJSON);
@@ -163,10 +190,7 @@ describe("Transaction", () => {
         });
 
         it("should throw when getting an unsupported version", () => {
-            // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(Generators.generateCryptoConfigRaw());
-
-            const transaction = BuilderFactory.transfer()
+            const transaction = transactionsManagerConfigRaw.BuilderFactory.transfer()
                 .recipientId("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff")
                 .amount("1000")
                 .vendorField(Math.random().toString(36))
@@ -177,9 +201,7 @@ describe("Transaction", () => {
 
             let hex = transaction.serialized.toString("hex");
             hex = hex.slice(0, 2) + "04" + hex.slice(4);
-            expect(() => TransactionFactory.fromHex(hex)).toThrow(TransactionVersionError);
-
-            configManager.setFromPreset("devnet");
+            expect(() => transactionsManagerConfigRaw.TransactionFactory.fromHex(hex)).toThrow(TransactionVersionError);
         });
     });
 
@@ -187,9 +209,6 @@ describe("Transaction", () => {
         let transaction: ITransactionData;
 
         beforeEach(() => {
-            // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(Generators.generateCryptoConfigRaw());
-
             transaction = TestTransactionFactory.initialize()
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
@@ -199,14 +218,14 @@ describe("Transaction", () => {
         });
 
         it("should return Buffer and Buffer most be 32 bytes length", () => {
-            const result = TransactionUtils.toHash(transaction);
+            const result = transactionsManagerConfigRaw.Utils.toHash(transaction);
             expect(result).toBeObject();
             expect(result).toHaveLength(32);
             expect(result.toString("hex")).toBe("27f68f1e62b9e6e3bc13b7113488f1e27263a4e47e7d9c7acd9c9af67d7fa11c");
         });
 
         it("should throw for unsupported versions", () => {
-            expect(() => TransactionUtils.toHash(Object.assign({}, transaction, { version: 110 }))).toThrow(
+            expect(() => Utils.toHash(Object.assign({}, transaction, { version: 110 }))).toThrow(
                 TransactionVersionError,
             );
         });
@@ -216,9 +235,6 @@ describe("Transaction", () => {
         let transaction: ITransactionData;
 
         beforeEach(() => {
-            // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(Generators.generateCryptoConfigRaw());
-
             transaction = TestTransactionFactory.initialize()
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
@@ -228,13 +244,13 @@ describe("Transaction", () => {
         });
 
         it("should return string id and be equal to 27f68f1e62b9e6e3bc13b7113488f1e27263a4e47e7d9c7acd9c9af67d7fa11c", () => {
-            const id = TransactionUtils.getId(transaction); // old id
+            const id = transactionsManagerConfigRaw.Utils.getId(transaction); // old id
             expect(id).toBeString();
             expect(id).toBe("27f68f1e62b9e6e3bc13b7113488f1e27263a4e47e7d9c7acd9c9af67d7fa11c");
         });
 
         it("should throw for unsupported version", () => {
-            expect(() => TransactionUtils.getId(Object.assign({}, transaction, { version: 110 }))).toThrow(
+            expect(() => Utils.getId(Object.assign({}, transaction, { version: 110 }))).toThrow(
                 TransactionVersionError,
             );
         });
