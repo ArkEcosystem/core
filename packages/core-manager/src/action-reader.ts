@@ -19,6 +19,7 @@ export class ActionReader {
             .filter((item: string) => lstatSync(item).isFile())
             .filter((item: string) => item.endsWith(".js"));
 
+        /* istanbul ignore next */
         for (const file of actionFiles) {
             const actionInstance: Actions.Action = this.app.resolve(require(file).Action);
 
