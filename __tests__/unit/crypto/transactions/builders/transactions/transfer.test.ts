@@ -1,29 +1,33 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
-import { Factories, Generators } from "@packages/core-test-framework/src";
+import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto/src";
+import * as Generators from "@packages/core-test-framework/src/app/generators";
 import { TransactionType } from "@packages/crypto/src/enums";
-import { Keys, WIF } from "@packages/crypto/src/identities";
-import { configManager } from "@packages/crypto/src/managers";
-import { devnet } from "@packages/crypto/src/networks";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { TransferBuilder } from "@packages/crypto/src/transactions/builders/transactions/transfer";
 import { Two } from "@packages/crypto/src/transactions/types";
 
-let builder: TransferBuilder;
+import { constructIdentity } from "../../__support__/identitity";
+
+let crypto: CryptoManager<any>;
+let builder: TransferBuilder<any, Interfaces.ITransactionData, any>;
+let transactionsManager: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
 let identity;
 
-beforeAll(() => {
-    // todo: completely wrap this into a function to hide the generation and setting of the config?
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
+beforeEach(() => {
+    crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
 
-    identity = Factories.factory("Identity")
-        .withOptions({ passphrase: "this is a top secret passphrase", network: config.network })
-        .make();
+    transactionsManager = new Transactions.TransactionsManager(crypto, {
+        extendTransaction: () => {},
+        // @ts-ignore
+        validate: (_, data) => ({
+            value: data,
+        }),
+    });
+
+    builder = transactionsManager.BuilderFactory.transfer();
+
+    identity = constructIdentity("this is a top secret passphrase", crypto);
 });
-
-beforeEach(() => (builder = BuilderFactory.transfer()));
 
 describe("Transfer Transaction", () => {
     describe("verify", () => {
@@ -55,15 +59,15 @@ describe("Transfer Transaction", () => {
         it("should sign a transaction and match signed with a passphrase", () => {
             const passphrase = "sample passphrase";
             const network = 23;
-            const keys = Keys.fromPassphrase(passphrase);
-            const wif = WIF.fromKeys(keys, devnet.network);
+            const keys = crypto.Identities.Keys.fromPassphrase(passphrase);
+            const wif = crypto.Identities.Wif.fromKeys(keys);
 
             const wifTransaction = builder.recipientId(identity.address).amount("10").fee("10").network(network);
 
-            const passphraseTransaction = BuilderFactory.transfer();
+            const passphraseTransaction = transactionsManager.BuilderFactory.transfer();
             passphraseTransaction.data = { ...wifTransaction.data };
 
-            wifTransaction.signWithWif(wif, 170);
+            wifTransaction.signWithWif(wif);
             passphraseTransaction.sign(passphrase);
 
             expect(wifTransaction.data.signature).toBe(passphraseTransaction.data.signature);
@@ -74,21 +78,15 @@ describe("Transfer Transaction", () => {
         it("should sign a transaction and match signed with a passphrase", () => {
             const passphrase = "first passphrase";
             const secondPassphrase = "second passphrase";
-            const network = 23;
-            const keys = Keys.fromPassphrase(secondPassphrase);
-            const wif = WIF.fromKeys(keys, devnet.network);
+            const keys = crypto.Identities.Keys.fromPassphrase(secondPassphrase);
+            const wif = crypto.Identities.Wif.fromKeys(keys);
 
-            const wifTransaction = builder
-                .recipientId(identity.address)
-                .amount("10")
-                .fee("10")
-                .network(network)
-                .sign(passphrase);
+            const wifTransaction = builder.recipientId(identity.address).amount("10").fee("10").sign(passphrase);
 
-            const passphraseTransaction = BuilderFactory.transfer();
+            const passphraseTransaction = transactionsManager.BuilderFactory.transfer();
             passphraseTransaction.data = { ...wifTransaction.data };
 
-            wifTransaction.secondSignWithWif(wif, 170);
+            wifTransaction.secondSignWithWif(wif);
             passphraseTransaction.secondSign(secondPassphrase);
 
             expect(wifTransaction.data.secondSignature).toBe(passphraseTransaction.data.secondSignature);
@@ -97,8 +95,8 @@ describe("Transfer Transaction", () => {
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.Transfer);
-        expect(builder).toHaveProperty("data.fee", Two.TransferTransaction.staticFee());
-        expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
+        expect(builder).toHaveProperty("data.fee", Two.TransferTransaction.staticFee(crypto));
+        expect(builder).toHaveProperty("data.amount", crypto.LibraryManager.Libraries.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", undefined);
         expect(builder).toHaveProperty("data.senderPublicKey", undefined);
         expect(builder).toHaveProperty("data.expiration", 0);

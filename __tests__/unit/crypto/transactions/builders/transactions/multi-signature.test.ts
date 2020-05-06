@@ -1,22 +1,27 @@
 import "jest-extended";
 
-import { Generators } from "@packages/core-test-framework/src";
+import { CryptoManager, Errors, Interfaces, Transactions } from "@arkecosystem/crypto/src";
+import * as Generators from "@packages/core-test-framework/src/app/generators";
 import { TransactionType } from "@packages/crypto/src/enums";
-import { TransactionVersionError } from "@packages/crypto/src/errors";
-import { configManager } from "@packages/crypto/src/managers";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { MultiSignatureBuilder } from "@packages/crypto/src/transactions/builders/transactions/multi-signature";
 import { Two } from "@packages/crypto/src/transactions/types";
-import * as Utils from "@packages/crypto/src/utils";
 
-let builder: MultiSignatureBuilder;
+let crypto: CryptoManager<any>;
+let builder: MultiSignatureBuilder<any, Interfaces.ITransactionData, any>;
+let transactionsManager: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
 
 beforeEach(() => {
-    // todo: completely wrap this into a function to hide the generation and setting of the config?
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
+    crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
 
-    builder = BuilderFactory.multiSignature();
+    transactionsManager = new Transactions.TransactionsManager(crypto, {
+        extendTransaction: () => {},
+        // @ts-ignore
+        validate: (_, data) => ({
+            value: data,
+        }),
+    });
+
+    builder = transactionsManager.BuilderFactory.multiSignature();
 });
 
 describe("Multi Signature Transaction", () => {
@@ -42,7 +47,7 @@ describe("Multi Signature Transaction", () => {
         });
 
         it("should be invalid when aip11 is not active", () => {
-            configManager.getMilestone().aip11 = false;
+            crypto.MilestoneManager.getMilestone().aip11 = false;
             const actual = builder
                 .multiSignatureAsset({
                     publicKeys: [
@@ -54,16 +59,16 @@ describe("Multi Signature Transaction", () => {
                 })
                 .senderPublicKey("039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22");
 
-            expect(() => actual.multiSign("secret 1", 0)).toThrowError(TransactionVersionError);
-            configManager.getMilestone().aip11 = true;
+            expect(() => actual.multiSign("secret 1", 0)).toThrowError(Errors.TransactionVersionError);
+            crypto.MilestoneManager.getMilestone().aip11 = true;
         });
     });
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.MultiSignature);
         expect(builder).toHaveProperty("data.version", 0x02);
-        expect(builder).toHaveProperty("data.fee", Utils.BigNumber.make(0));
-        expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
+        expect(builder).toHaveProperty("data.fee", crypto.LibraryManager.Libraries.BigNumber.make(0));
+        expect(builder).toHaveProperty("data.amount", crypto.LibraryManager.Libraries.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", undefined);
         expect(builder).toHaveProperty("data.senderPublicKey", undefined);
         expect(builder).toHaveProperty("data.asset");
@@ -71,11 +76,16 @@ describe("Multi Signature Transaction", () => {
     });
 
     describe("multiSignatureAsset", () => {
-        const multiSignatureFee = Two.MultiSignatureRegistrationTransaction.staticFee();
-        const multiSignature = {
-            publicKeys: ["key a", "key b", "key c"],
-            min: 1,
-        };
+        let multiSignatureFee;
+        let multiSignature;
+
+        beforeAll(() => {
+            multiSignatureFee = Two.MultiSignatureRegistrationTransaction.staticFee(crypto);
+            multiSignature = {
+                publicKeys: ["key a", "key b", "key c"],
+                min: 1,
+            };
+        });
 
         it("establishes the multi-signature on the asset", () => {
             builder.multiSignatureAsset(multiSignature);
@@ -84,7 +94,9 @@ describe("Multi Signature Transaction", () => {
 
         it("calculates and establish the fee", () => {
             builder.multiSignatureAsset(multiSignature);
-            expect(builder.data.fee).toEqual(Utils.BigNumber.make(4).times(multiSignatureFee));
+            expect(builder.data.fee).toEqual(
+                crypto.LibraryManager.Libraries.BigNumber.make(4).times(multiSignatureFee),
+            );
         });
     });
 

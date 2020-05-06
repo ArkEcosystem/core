@@ -1,28 +1,31 @@
 import "jest-extended";
 
-import { Generators } from "@packages/core-test-framework/src";
+import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto/src";
+import * as Generators from "@packages/core-test-framework/src/app/generators";
 import { TransactionType } from "@packages/crypto/src/enums";
-import { configManager } from "@packages/crypto/src/managers";
-import { Utils } from "@packages/crypto/src/transactions";
-import { BuilderFactory } from "@packages/crypto/src/transactions/builders";
 import { DelegateRegistrationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-registration";
 import { Two } from "@packages/crypto/src/transactions/types";
-import { BigNumber } from "@packages/crypto/src/utils";
 
-let builder: DelegateRegistrationBuilder;
+let crypto: CryptoManager<any>;
+let builder: DelegateRegistrationBuilder<any, Interfaces.ITransactionData, any>;
+let transactionsManager: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
 
 beforeEach(() => {
-    // todo: completely wrap this into a function to hide the generation and setting of the config?
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
+    crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
+
+    transactionsManager = new Transactions.TransactionsManager(crypto, {
+        extendTransaction: () => {},
+        // @ts-ignore
+        validate: (_, data) => ({
+            value: data,
+        }),
+    });
+
+    builder = transactionsManager.BuilderFactory.delegateRegistration();
 });
 
 describe("Delegate Registration Transaction", () => {
     describe("verify", () => {
-        beforeEach(() => {
-            builder = BuilderFactory.delegateRegistration();
-        });
-
         it("should be valid with a signature", () => {
             const actual = builder.usernameAsset("homer").sign("dummy passphrase");
 
@@ -39,14 +42,10 @@ describe("Delegate Registration Transaction", () => {
     });
 
     describe("properties", () => {
-        beforeEach(() => {
-            builder = BuilderFactory.delegateRegistration();
-        });
-
         it("should have its specific properties", () => {
             expect(builder).toHaveProperty("data.type", TransactionType.DelegateRegistration);
-            expect(builder).toHaveProperty("data.amount", BigNumber.ZERO);
-            expect(builder).toHaveProperty("data.fee", Two.DelegateRegistrationTransaction.staticFee());
+            expect(builder).toHaveProperty("data.amount", crypto.LibraryManager.Libraries.BigNumber.ZERO);
+            expect(builder).toHaveProperty("data.fee", Two.DelegateRegistrationTransaction.staticFee(crypto));
             expect(builder).toHaveProperty("data.recipientId", undefined);
             expect(builder).toHaveProperty("data.senderPublicKey", undefined);
             expect(builder).toHaveProperty("data.asset", { delegate: {} });
@@ -58,9 +57,6 @@ describe("Delegate Registration Transaction", () => {
     });
 
     describe("usernameAsset", () => {
-        beforeEach(() => {
-            builder = BuilderFactory.delegateRegistration();
-        });
         it("establishes the username of the asset", () => {
             builder.usernameAsset("homer");
             expect(builder.data.asset.delegate.username).toBe("homer");
@@ -71,7 +67,7 @@ describe("Delegate Registration Transaction", () => {
     // note: this will only work with v1 transactions as v2 transactions don't have a timestamp
     describe("getStruct", () => {
         beforeEach(() => {
-            builder = BuilderFactory.delegateRegistration().usernameAsset("homer");
+            builder.usernameAsset("homer");
         });
 
         it("should fail if the transaction is not signed", () => {
@@ -80,13 +76,13 @@ describe("Delegate Registration Transaction", () => {
 
         describe("when is signed", () => {
             beforeEach(() => {
-                configManager.getMilestone().aip11 = false;
+                crypto.MilestoneManager.getMilestone().aip11 = false;
 
                 builder.version(1).sign("any pass");
             });
 
             it("returns the id", () => {
-                expect(builder.getStruct().id).toBe(Utils.getId(builder.data));
+                expect(builder.getStruct().id).toBe(transactionsManager.Utils.getId(builder.data));
             });
 
             it("returns the signature", () => {

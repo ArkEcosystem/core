@@ -1,21 +1,27 @@
 import "jest-extended";
 
-import { Generators } from "@packages/core-test-framework/src";
+import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto/src";
+import * as Generators from "@packages/core-test-framework/src/app/generators";
 import { TransactionType } from "@packages/crypto/src/enums";
-import { configManager } from "@packages/crypto/src/managers";
-import { BuilderFactory } from "@packages/crypto/src/transactions/builders";
 import { DelegateResignationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-resignation";
 import { Two } from "@packages/crypto/src/transactions/types";
-import { BigNumber } from "@packages/crypto/src/utils";
 
-let builder: DelegateResignationBuilder;
+let crypto: CryptoManager<any>;
+let builder: DelegateResignationBuilder<any, Interfaces.ITransactionData, any>;
+let transactionsManager: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
 
 beforeEach(() => {
-    // todo: completely wrap this into a function to hide the generation and setting of the config?
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
+    crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
 
-    builder = BuilderFactory.delegateResignation();
+    transactionsManager = new Transactions.TransactionsManager(crypto, {
+        extendTransaction: () => {},
+        // @ts-ignore
+        validate: (_, data) => ({
+            value: data,
+        }),
+    });
+
+    builder = transactionsManager.BuilderFactory.delegateResignation();
 });
 
 describe("Delegate Resignation Transaction", () => {
@@ -38,8 +44,8 @@ describe("Delegate Resignation Transaction", () => {
     describe("properties", () => {
         it("should have its specific properties", () => {
             expect(builder).toHaveProperty("data.type", TransactionType.DelegateResignation);
-            expect(builder).toHaveProperty("data.amount", BigNumber.ZERO);
-            expect(builder).toHaveProperty("data.fee", Two.DelegateResignationTransaction.staticFee());
+            expect(builder).toHaveProperty("data.amount", crypto.LibraryManager.Libraries.BigNumber.ZERO);
+            expect(builder).toHaveProperty("data.fee", Two.DelegateResignationTransaction.staticFee(crypto));
             expect(builder).toHaveProperty("data.senderPublicKey", undefined);
         });
 

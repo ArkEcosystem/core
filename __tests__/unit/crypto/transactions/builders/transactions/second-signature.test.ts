@@ -1,28 +1,33 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
-import { Factories, Generators } from "@packages/core-test-framework/src";
+import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto/src";
+import * as Generators from "@packages/core-test-framework/src/app/generators";
 import { TransactionType } from "@packages/crypto/src/enums";
-import { Keys } from "@packages/crypto/src/identities";
-import { configManager } from "@packages/crypto/src/managers";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { SecondSignatureBuilder } from "@packages/crypto/src/transactions/builders/transactions/second-signature";
 import { Two } from "@packages/crypto/src/transactions/types";
 
-let builder: SecondSignatureBuilder;
+import { constructIdentity } from "../../__support__/identitity";
+
+let crypto: CryptoManager<any>;
+let builder: SecondSignatureBuilder<any, Interfaces.ITransactionData, any>;
+let transactionsManager: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
 let identity;
 
-beforeAll(() => {
-    // todo: completely wrap this into a function to hide the generation and setting of the config?
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
+beforeEach(() => {
+    crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
 
-    identity = Factories.factory("Identity")
-        .withOptions({ passphrase: "this is a top secret passphrase", network: config.network })
-        .make();
+    transactionsManager = new Transactions.TransactionsManager(crypto, {
+        extendTransaction: () => {},
+        // @ts-ignore
+        validate: (_, data) => ({
+            value: data,
+        }),
+    });
+
+    builder = transactionsManager.BuilderFactory.secondSignature();
+
+    identity = constructIdentity("this is a top secret passphrase", crypto);
 });
-
-beforeEach(() => (builder = BuilderFactory.secondSignature()));
 
 describe("Second Signature Transaction", () => {
     describe("verify", () => {
@@ -36,8 +41,8 @@ describe("Second Signature Transaction", () => {
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.SecondSignature);
-        expect(builder).toHaveProperty("data.fee", Two.SecondSignatureRegistrationTransaction.staticFee());
-        expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
+        expect(builder).toHaveProperty("data.fee", Two.SecondSignatureRegistrationTransaction.staticFee(crypto));
+        expect(builder).toHaveProperty("data.amount", crypto.LibraryManager.Libraries.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", undefined);
         expect(builder).toHaveProperty("data.senderPublicKey", undefined);
         expect(builder).toHaveProperty("data.asset");
@@ -46,7 +51,7 @@ describe("Second Signature Transaction", () => {
 
     describe("signatureAsset", () => {
         it("establishes the signature on the asset", () => {
-            jest.spyOn(Keys, "fromPassphrase").mockReturnValueOnce(identity.keys);
+            jest.spyOn(crypto.Identities.Keys, "fromPassphrase").mockReturnValueOnce(identity.keys);
 
             builder.signatureAsset(identity.bip39);
 
