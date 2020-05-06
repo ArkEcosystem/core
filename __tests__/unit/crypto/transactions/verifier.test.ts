@@ -1,31 +1,49 @@
 import "jest-extended";
 
-import { Identities } from "@arkecosystem/crypto";
-import { Hash } from "@arkecosystem/crypto/src/crypto";
 import { TransactionVersionError } from "@arkecosystem/crypto/src/errors";
-import { Keys } from "@arkecosystem/crypto/src/identities";
-import { BuilderFactory, Utils as TransactionUtils, Verifier } from "@arkecosystem/crypto/src/transactions";
-import { Generators } from "@packages/core-test-framework/src";
+import * as Generators from "@packages/core-test-framework/src/app/generators";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
+import { CryptoManager, Interfaces, Transactions } from "@packages/crypto/src";
 
-import { configManager } from "../../../../packages/crypto/src/managers";
 import { createRandomTx } from "./__support__";
 
+let Identities;
+let BuilderFactory;
+let Verifier;
+let crypto: CryptoManager<any>;
+let transactionsManager: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
+
 beforeEach(() => {
-    // todo: completely wrap this into a function to hide the generation and setting of the config?
-    configManager.setConfig(Generators.generateCryptoConfigRaw());
+    crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
+
+    transactionsManager = new Transactions.TransactionsManager(crypto, {
+        extendTransaction: () => {},
+        // @ts-ignore
+        validate: (_, data) => ({
+            value: data,
+        }),
+    });
+
+    Identities = crypto.Identities;
+    BuilderFactory = transactionsManager.BuilderFactory;
+    Verifier = transactionsManager.Verifier;
 });
 
 describe("Verifier", () => {
     describe("verify", () => {
-        const transaction = TransactionFactory.initialize()
-            .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
-            .withVersion(2)
-            .withFee(2000)
-            .withPassphrase("secret")
-            .createOne();
+        let transaction;
+        let otherPublicKey;
 
-        const otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
+        beforeAll(() => {
+            transaction = TransactionFactory.initialize()
+                .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+                .withVersion(2)
+                .withFee(2000)
+                .withPassphrase("secret")
+                .createOne();
+
+            otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
+        });
 
         it("should return true on a valid signature", () => {
             expect(Verifier.verifyHash(transaction)).toBeTrue();
@@ -45,7 +63,7 @@ describe("Verifier", () => {
         });
 
         it("should verify ECDSA signature for a version 2 transaction", () => {
-            const keys = Keys.fromPassphrase("secret");
+            const keys = Identities.Keys.fromPassphrase("secret");
             const { data }: any = BuilderFactory.transfer()
                 .senderPublicKey(keys.publicKey)
                 .recipientId(Identities.Address.fromPublicKey(keys.publicKey))
@@ -53,8 +71,8 @@ describe("Verifier", () => {
                 .fee("10")
                 .amount("100");
 
-            const hash = TransactionUtils.toHash(data);
-            data.signature = Hash.signECDSA(hash, keys);
+            const hash = transactionsManager.Utils.toHash(data);
+            data.signature = crypto.LibraryManager.Crypto.Hash.signECDSA(hash, keys);
 
             expect(Verifier.verify(data)).toBeTrue();
         });
@@ -62,42 +80,47 @@ describe("Verifier", () => {
         // Test each type on it's own
         describe.each([0, 1, 2, 3])("type %s", (type) => {
             it("should be ok", () => {
-                const tx = createRandomTx(type);
+                const tx = createRandomTx(crypto, BuilderFactory, type);
                 expect(tx.verify()).toBeTrue();
             });
         });
 
         describe("type 4", () => {
             it("should return false if AIP11 is not activated", () => {
-                const tx = createRandomTx(4);
-                configManager.getMilestone().aip11 = false;
+                const tx = createRandomTx(crypto, BuilderFactory, 4);
+                crypto.MilestoneManager.getMilestone().aip11 = false;
                 expect(tx.verify()).toBeFalse();
             });
 
             it("should return true if AIP11 is activated", () => {
-                const tx = createRandomTx(4);
-                configManager.getMilestone().aip11 = true;
+                const tx = createRandomTx(crypto, BuilderFactory, 4);
+                crypto.MilestoneManager.getMilestone().aip11 = true;
                 expect(tx.verify()).toBeTrue();
-                configManager.getMilestone().aip11 = false;
+                crypto.MilestoneManager.getMilestone().aip11 = false;
             });
         });
     });
 
     describe("verifySecondSignature", () => {
-        const keys2 = Keys.fromPassphrase("secret two");
+        let keys2;
+        let transaction;
+        let otherPublicKey;
 
-        const transaction = TransactionFactory.initialize()
-            .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
-            .withVersion(2)
-            .withFee(2000)
-            .withPassphrase("secret")
-            .withSecondPassphrase("secret two")
-            .createOne();
+        beforeAll(() => {
+            keys2 = Identities.Keys.fromPassphrase("secret two");
 
-        const otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
+            transaction = TransactionFactory.initialize()
+                .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+                .withVersion(2)
+                .withFee(2000)
+                .withPassphrase("secret")
+                .withSecondPassphrase("secret two")
+                .createOne();
+
+            otherPublicKey = "0203bc6522161803a4cd9d8c7b7e3eb5b29f92106263a3979e3e02d27a70e830b4";
+        });
 
         it("should return true on a valid signature", () => {
-            configManager.getMilestone().aip11 = true;
             expect(Verifier.verifySecondSignature(transaction, keys2.publicKey)).toBeTrue();
         });
 
@@ -115,13 +138,11 @@ describe("Verifier", () => {
 
         it("should fail this.getHash for transaction version > 1", () => {
             const transactionV2 = Object.assign({}, transaction, { version: 2 });
-            configManager.getMilestone().aip11 = false;
+            crypto.MilestoneManager.getMilestone().aip11 = false;
 
             expect(() => Verifier.verifySecondSignature(transactionV2, keys2.publicKey)).toThrow(
                 TransactionVersionError,
             );
-
-            configManager.getMilestone().aip11 = true;
         });
     });
 });
