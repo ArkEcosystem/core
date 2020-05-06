@@ -32,7 +32,7 @@ services:
         command:
             - /bin/sh
             - -c
-            - /core/packages/core/bin/run core:run --network=testnet --version=3.0.0
+            - /core/packages/core/bin/run core:run --network=testnet
         environment: &coreEnvironment
             CORE_DB_HOST: postgres0
             CORE_DB_DATABASE: ark_testnet
