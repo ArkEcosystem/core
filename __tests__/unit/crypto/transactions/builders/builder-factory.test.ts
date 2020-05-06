@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { BuilderFactory } from "../../../../../packages/crypto/src/transactions";
+import { CryptoManager, Transactions } from "../../../../../packages/crypto/src";
 import { DelegateRegistrationBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/delegate-registration";
 import { DelegateResignationBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/delegate-resignation";
 import { IPFSBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/ipfs";
@@ -9,6 +9,20 @@ import { MultiSignatureBuilder } from "../../../../../packages/crypto/src/transa
 import { SecondSignatureBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/second-signature";
 import { TransferBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/transfer";
 import { VoteBuilder } from "../../../../../packages/crypto/src/transactions/builders/transactions/vote";
+
+let BuilderFactory;
+
+beforeEach(() => {
+    const crypto = CryptoManager.createFromPreset("devnet");
+    const transactionsManagerRawConfig = new Transactions.TransactionsManager(crypto, {
+        extendTransaction: () => {},
+        // @ts-ignore
+        validate: (_, data) => ({
+            value: data,
+        }),
+    });
+    BuilderFactory = transactionsManagerRawConfig.BuilderFactory;
+});
 
 describe("Builder Factory", () => {
     it("should create DelegateRegistrationBuilder", () => {
