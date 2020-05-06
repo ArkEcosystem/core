@@ -3,18 +3,20 @@ import ByteBuffer from "bytebuffer";
 import { HtlcLockExpirationType } from "../enums";
 import { BigNumber } from "../types";
 
-export interface Validator<U extends ITransactionData, E> {
+export type SchemaError = any;
+
+export interface Validator<U extends ITransactionData, E = SchemaError> {
     extendTransaction: (schema: any, remove?: boolean) => void;
     validate: (schemaKeyRef: string | boolean | object, data: any) => ISchemaValidationResult<U, E>;
 }
 
-export interface ISchemaValidationResult<U, E> {
+export interface ISchemaValidationResult<U, E = SchemaError> {
     value: U | undefined;
     error: any;
     errors?: E[] | undefined;
 }
 
-export interface ITransaction<U extends ITransactionData, E> {
+export interface ITransaction<U extends ITransactionData, E = SchemaError> {
     readonly id: string | undefined;
     readonly typeGroup: number | undefined;
     readonly type: number;

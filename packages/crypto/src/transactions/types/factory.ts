@@ -1,7 +1,7 @@
 import { CryptoManager } from "../..";
 import { UnkownTransactionError } from "../../errors";
 import { ITransaction, ITransactionData } from "../../interfaces";
-import { Verifier } from "../verifier";
+import { TransactionsManager } from "../transactions-manager";
 import { InternalTransactionType } from "./internal-transaction-type";
 import { Transaction } from "./transaction";
 
@@ -12,7 +12,7 @@ export class TransactionTypeFactory<T, U extends ITransactionData, E> {
 
     public constructor(
         private cryptoManager: CryptoManager<T>,
-        public verifier: Verifier<T, U, E>,
+        private transactionsManager: TransactionsManager<T, U, E>,
         transactionTypes: Map<InternalTransactionType, Map<number, TransactionConstructor>>,
     ) {
         this.transactionTypes = transactionTypes;
@@ -27,10 +27,12 @@ export class TransactionTypeFactory<T, U extends ITransactionData, E> {
         instance.data = data;
         instance.data.version = data.version || 1;
 
-        // @ts-ignore TODO: this is iffy - think of a better way to handle this
+        // @ts-ignore
         instance.cryptoManager = this.cryptoManager;
         // @ts-ignore
         instance.verifier = this.verifier;
+        // @ts-ignore
+        instance.transactionsManager = this.transactionsManager;
 
         return instance;
     }

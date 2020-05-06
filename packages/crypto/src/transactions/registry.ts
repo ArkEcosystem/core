@@ -6,9 +6,9 @@ import {
     UnkownTransactionError,
 } from "../errors";
 import { ITransactionData, Validator } from "../interfaces";
+import { TransactionsManager } from "./transactions-manager";
 import { One, Transaction, TransactionTypeFactory, Two } from "./types";
 import { InternalTransactionType } from "./types/internal-transaction-type";
-import { Verifier } from "./verifier";
 
 export type TransactionConstructor<T, U, E> = typeof Transaction;
 
@@ -22,12 +22,11 @@ export class TransactionRegistry<T, U extends ITransactionData, E> {
 
     public constructor(
         cryptoManager: CryptoManager<T>,
-        verifier: Verifier<T, U, E>,
+        transactionManager: TransactionsManager<T, U, E>,
         private validator: Validator<U, E>,
     ) {
         this.registerTransactionType(One.TransferTransaction);
         this.registerTransactionType(Two.TransferTransaction);
-
         this.registerTransactionType(One.SecondSignatureRegistrationTransaction);
         this.registerTransactionType(Two.SecondSignatureRegistrationTransaction);
 
@@ -50,7 +49,12 @@ export class TransactionRegistry<T, U extends ITransactionData, E> {
         this.registerTransactionType(Two.HtlcClaimTransaction);
         this.registerTransactionType(Two.HtlcRefundTransaction);
 
-        this.TransactionTypeFactory = new TransactionTypeFactory(cryptoManager, verifier, this.transactionTypes);
+        // TODO: move this to resovle circular dependency
+        this.TransactionTypeFactory = new TransactionTypeFactory(
+            cryptoManager,
+            transactionManager,
+            this.transactionTypes,
+        );
     }
 
     public registerTransactionType(constructor: TransactionConstructor<T, U, E>): void {

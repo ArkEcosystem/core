@@ -2,7 +2,8 @@ import {
     Builders as MagistrateBuilders,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Enums, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto/src";
 import bs58 from "bs58";
 import Chance from "chance";
 import { createHash } from "crypto";
@@ -20,7 +21,8 @@ const sign = ({ entity, options }: FactoryFunctionOptions) => entity.sign(option
 const secondSign = ({ entity, options }: FactoryFunctionOptions) => entity.secondSign(options.passphrase || secrets[1]);
 
 const multiSign = ({ entity, options }: FactoryFunctionOptions) => {
-    Managers.configManager.getMilestone().aip11 = true; // todo: remove this after reworking the crypto package
+    // TODO: remove and double-check this is no longer needed
+    // Managers.configManager.getMilestone().aip11 = true; // todo: remove this after reworking the crypto package
 
     const passphrases: string[] = options.passphrases || [secrets[0], secrets[1], secrets[2]];
 
@@ -59,12 +61,16 @@ const applyModifiers = (entity, options) => {
     return entity;
 };
 
-export const registerTransferFactory = (factory: FactoryBuilder): void => {
+export const registerTransferFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("Transfer", ({ options }) =>
         applyModifiers(
-            Transactions.BuilderFactory.transfer()
-                .amount(Utils.BigNumber.make(options.amount || 1).toFixed())
-                .recipientId(options.recipientId || Identities.Address.fromPassphrase(secrets[0])),
+            factory.transactionManager.BuilderFactory.transfer()
+                .amount(factory.cryptoManager.LibraryManager.Libraries.BigNumber.make(options.amount || 1).toFixed())
+                .recipientId(
+                    options.recipientId || factory.cryptoManager.Identities.Address.fromPassphrase(secrets[0]),
+                ),
             options,
         ),
     );
@@ -78,10 +84,14 @@ export const registerTransferFactory = (factory: FactoryBuilder): void => {
     factory.get("Transfer").state("multiSign", multiSign);
 };
 
-export const registerSecondSignatureFactory = (factory: FactoryBuilder): void => {
+export const registerSecondSignatureFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("SecondSignature", ({ options }) =>
         applyModifiers(
-            Transactions.BuilderFactory.secondSignature().signatureAsset(options.passphrase || secrets[1]),
+            factory.transactionManager.BuilderFactory.secondSignature().signatureAsset(
+                options.passphrase || secrets[1],
+            ),
             options,
         ),
     );
@@ -90,9 +100,11 @@ export const registerSecondSignatureFactory = (factory: FactoryBuilder): void =>
     factory.get("SecondSignature").state("secondSign", secondSign);
 };
 
-export const registerDelegateRegistrationFactory = (factory: FactoryBuilder): void => {
+export const registerDelegateRegistrationFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("DelegateRegistration", ({ options }) =>
-        Transactions.BuilderFactory.delegateRegistration().usernameAsset(
+        factory.transactionManager.BuilderFactory.delegateRegistration().usernameAsset(
             options.username || Math.random().toString(36).substring(8),
         ),
     );
@@ -101,19 +113,24 @@ export const registerDelegateRegistrationFactory = (factory: FactoryBuilder): vo
     factory.get("DelegateRegistration").state("secondSign", secondSign);
 };
 
-export const registerDelegateResignationFactory = (factory: FactoryBuilder): void => {
-    Managers.configManager.getMilestone().aip11 = true; // todo: remove this after reworking the crypto package
+export const registerDelegateResignationFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
+    // TODO: check that we can remove this
+    factory.cryptoManager.MilestoneManager.getMilestone().aip11 = true; // todo: remove this after reworking the crypto package
 
-    factory.set("DelegateResignation", () => Transactions.BuilderFactory.delegateResignation());
+    factory.set("DelegateResignation", () => factory.transactionManager.BuilderFactory.delegateResignation());
     factory.get("DelegateResignation").state("sign", sign);
     factory.get("DelegateResignation").state("secondSign", secondSign);
 };
 
-export const registerVoteFactory = (factory: FactoryBuilder): void => {
+export const registerVoteFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("Vote", ({ options }) =>
         applyModifiers(
-            Transactions.BuilderFactory.vote().votesAsset([
-                `+${options.publicKey || Identities.PublicKey.fromPassphrase(secrets[1])}`,
+            factory.transactionManager.BuilderFactory.vote().votesAsset([
+                `+${options.publicKey || factory.cryptoManager.Identities.PublicKey.fromPassphrase(secrets[1])}`,
             ]),
             options,
         ),
@@ -124,11 +141,13 @@ export const registerVoteFactory = (factory: FactoryBuilder): void => {
     factory.get("Vote").state("multiSign", multiSign);
 };
 
-export const registerUnvoteFactory = (factory: FactoryBuilder): void => {
+export const registerUnvoteFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("Unvote", ({ options }) =>
         applyModifiers(
-            Transactions.BuilderFactory.vote().votesAsset([
-                `-${options.publicKey || Identities.PublicKey.fromPassphrase(secrets[1])}`,
+            factory.transactionManager.BuilderFactory.vote().votesAsset([
+                `-${options.publicKey || factory.cryptoManager.Identities.PublicKey.fromPassphrase(secrets[1])}`,
             ]),
             options,
         ),
@@ -139,14 +158,16 @@ export const registerUnvoteFactory = (factory: FactoryBuilder): void => {
     factory.get("Unvote").state("multiSign", multiSign);
 };
 
-export const registerMultiSignatureFactory = (factory: FactoryBuilder): void => {
+export const registerMultiSignatureFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("MultiSignature", ({ options }) => {
-        const builder = applyModifiers(Transactions.BuilderFactory.multiSignature(), options);
+        const builder = applyModifiers(factory.transactionManager.BuilderFactory.multiSignature(), options);
 
         const publicKeys: string[] = options.publicKeys || [
-            Identities.PublicKey.fromPassphrase(secrets[0]),
-            Identities.PublicKey.fromPassphrase(secrets[1]),
-            Identities.PublicKey.fromPassphrase(secrets[2]),
+            factory.cryptoManager.Identities.PublicKey.fromPassphrase(secrets[0]),
+            factory.cryptoManager.Identities.PublicKey.fromPassphrase(secrets[1]),
+            factory.cryptoManager.Identities.PublicKey.fromPassphrase(secrets[2]),
         ];
 
         builder
@@ -163,10 +184,14 @@ export const registerMultiSignatureFactory = (factory: FactoryBuilder): void => 
     factory.get("MultiSignature").state("multiSign", multiSign);
 };
 
-export const registerIpfsFactory = (factory: FactoryBuilder): void => {
+export const registerIpfsFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("Ipfs", ({ options }) =>
         applyModifiers(
-            Transactions.BuilderFactory.ipfs().ipfsAsset(options.id || bs58.encode(Buffer.from(randomHash(), "hex"))),
+            factory.transactionManager.BuilderFactory.ipfs().ipfsAsset(
+                options.id || bs58.encode(Buffer.from(randomHash(), "hex")),
+            ),
             options,
         ),
     );
@@ -176,10 +201,12 @@ export const registerIpfsFactory = (factory: FactoryBuilder): void => {
     factory.get("Ipfs").state("multiSign", multiSign);
 };
 
-export const registerHtlcLockFactory = (factory: FactoryBuilder): void => {
+export const registerHtlcLockFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("HtlcLock", ({ options }) =>
         applyModifiers(
-            Transactions.BuilderFactory.htlcLock().htlcLockAsset({
+            factory.transactionManager.BuilderFactory.htlcLock().htlcLockAsset({
                 secretHash: options.secretHash || randomHash(),
                 expiration: options.expiration || {
                     type: Enums.HtlcLockExpirationType.EpochTimestamp,
@@ -195,10 +222,12 @@ export const registerHtlcLockFactory = (factory: FactoryBuilder): void => {
     factory.get("HtlcLock").state("multiSign", multiSign);
 };
 
-export const registerHtlcClaimFactory = (factory: FactoryBuilder): void => {
+export const registerHtlcClaimFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("HtlcClaim", ({ options }) =>
         applyModifiers(
-            Transactions.BuilderFactory.htlcClaim().htlcClaimAsset({
+            factory.transactionManager.BuilderFactory.htlcClaim().htlcClaimAsset({
                 lockTransactionId: options.lockTransactionId || randomHash(),
                 unlockSecret: options.unlockSecret || Math.random().toString(36).substring(8),
             }),
@@ -211,10 +240,12 @@ export const registerHtlcClaimFactory = (factory: FactoryBuilder): void => {
     factory.get("HtlcClaim").state("multiSign", multiSign);
 };
 
-export const registerHtlcRefundFactory = (factory: FactoryBuilder): void => {
+export const registerHtlcRefundFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("HtlcRefund", ({ options }) =>
         applyModifiers(
-            Transactions.BuilderFactory.htlcRefund().htlcRefundAsset({
+            factory.transactionManager.BuilderFactory.htlcRefund().htlcRefundAsset({
                 lockTransactionId: options.lockTransactionId || randomHash(),
             }),
             options,
@@ -226,12 +257,14 @@ export const registerHtlcRefundFactory = (factory: FactoryBuilder): void => {
     factory.get("HtlcRefund").state("multiSign", multiSign);
 };
 
-export const registerMultiPaymentFactory = (factory: FactoryBuilder): void => {
+export const registerMultiPaymentFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("MultiPayment", ({ options }) =>
         applyModifiers(
-            Transactions.BuilderFactory.multiPayment().addPayment(
-                options.recipientId || Identities.Address.fromPassphrase(secrets[0]),
-                Utils.BigNumber.make(options.amount || 1).toFixed(),
+            factory.transactionManager.BuilderFactory.multiPayment().addPayment(
+                options.recipientId || factory.cryptoManager.Identities.Address.fromPassphrase(secrets[0]),
+                factory.cryptoManager.LibraryManager.Libraries.BigNumber.make(options.amount || 1).toFixed(),
             ),
             options,
         ),
@@ -242,16 +275,21 @@ export const registerMultiPaymentFactory = (factory: FactoryBuilder): void => {
     factory.get("MultiPayment").state("multiSign", multiSign);
 };
 
-export const registerBusinessRegistrationFactory = (factory: FactoryBuilder): void => {
+export const registerBusinessRegistrationFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(
+        factory.transactionManager.TransactionRegistry.registerTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
     } catch {}
 
     factory.set("BusinessRegistration", ({ options }) =>
         applyModifiers(
-            new MagistrateBuilders.BusinessRegistrationBuilder().businessRegistrationAsset({
+            new MagistrateBuilders.BusinessRegistrationBuilder(
+                factory.cryptoManager,
+                factory.transactionManager,
+            ).businessRegistrationAsset({
                 name: options.name || chance.first(),
                 website: options.website || chance.domain(),
             }),
@@ -264,13 +302,20 @@ export const registerBusinessRegistrationFactory = (factory: FactoryBuilder): vo
     factory.get("BusinessRegistration").state("multiSign", multiSign);
 };
 
-export const registerBusinessResignationFactory = (factory: FactoryBuilder): void => {
+export const registerBusinessResignationFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessResignationTransaction);
+        factory.transactionManager.TransactionRegistry.registerTransactionType(
+            MagistrateTransactions.BusinessResignationTransaction,
+        );
     } catch {}
 
     factory.set("BusinessResignation", ({ options }) =>
-        applyModifiers(new MagistrateBuilders.BusinessResignationBuilder(), options),
+        applyModifiers(
+            new MagistrateBuilders.BusinessResignationBuilder(factory.cryptoManager, factory.transactionManager),
+            options,
+        ),
     );
 
     factory.get("BusinessResignation").state("sign", sign);
@@ -278,14 +323,21 @@ export const registerBusinessResignationFactory = (factory: FactoryBuilder): voi
     factory.get("BusinessResignation").state("multiSign", multiSign);
 };
 
-export const registerBusinessUpdateFactory = (factory: FactoryBuilder): void => {
+export const registerBusinessUpdateFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessUpdateTransaction);
+        factory.transactionManager.TransactionRegistry.registerTransactionType(
+            MagistrateTransactions.BusinessUpdateTransaction,
+        );
     } catch {}
 
     factory.set("BusinessUpdate", ({ options }) =>
         applyModifiers(
-            new MagistrateBuilders.BusinessUpdateBuilder().businessUpdateAsset({
+            new MagistrateBuilders.BusinessUpdateBuilder(
+                factory.cryptoManager,
+                factory.transactionManager,
+            ).businessUpdateAsset({
                 name: options.name || chance.first(),
                 website: options.website || chance.domain(),
                 vat: options.vat,
@@ -300,16 +352,21 @@ export const registerBusinessUpdateFactory = (factory: FactoryBuilder): void => 
     factory.get("BusinessUpdate").state("multiSign", multiSign);
 };
 
-export const registerBridgechainRegistrationFactory = (factory: FactoryBuilder): void => {
+export const registerBridgechainRegistrationFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(
+        factory.transactionManager.TransactionRegistry.registerTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
 
     factory.set("BridgechainRegistration", ({ options }) =>
         applyModifiers(
-            new MagistrateBuilders.BridgechainRegistrationBuilder().bridgechainRegistrationAsset({
+            new MagistrateBuilders.BridgechainRegistrationBuilder(
+                factory.cryptoManager,
+                factory.transactionManager,
+            ).bridgechainRegistrationAsset({
                 name: options.name || chance.first(),
                 seedNodes: options.seedNodes || [chance.ip(), chance.ip(), chance.ip()],
                 genesisHash: options.genesisHash || randomHash(),
@@ -325,18 +382,21 @@ export const registerBridgechainRegistrationFactory = (factory: FactoryBuilder):
     factory.get("BridgechainRegistration").state("multiSign", multiSign);
 };
 
-export const registerBridgechainResignationFactory = (factory: FactoryBuilder): void => {
+export const registerBridgechainResignationFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(
+        factory.transactionManager.TransactionRegistry.registerTransactionType(
             MagistrateTransactions.BridgechainResignationTransaction,
         );
     } catch {}
 
     factory.set("BridgechainResignation", ({ options }) =>
         applyModifiers(
-            new MagistrateBuilders.BridgechainResignationBuilder().bridgechainResignationAsset(
-                options.genesisHash || randomHash(),
-            ),
+            new MagistrateBuilders.BridgechainResignationBuilder(
+                factory.cryptoManager,
+                factory.transactionManager,
+            ).bridgechainResignationAsset(options.genesisHash || randomHash()),
             options,
         ),
     );
@@ -346,14 +406,21 @@ export const registerBridgechainResignationFactory = (factory: FactoryBuilder): 
     factory.get("BridgechainResignation").state("multiSign", multiSign);
 };
 
-export const registerBridgechainUpdateFactory = (factory: FactoryBuilder): void => {
+export const registerBridgechainUpdateFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainUpdateTransaction);
+        factory.transactionManager.TransactionRegistry.registerTransactionType(
+            MagistrateTransactions.BridgechainUpdateTransaction,
+        );
     } catch {}
 
     factory.set("BridgechainUpdate", ({ options }) =>
         applyModifiers(
-            new MagistrateBuilders.BridgechainUpdateBuilder().bridgechainUpdateAsset({
+            new MagistrateBuilders.BridgechainUpdateBuilder(
+                factory.cryptoManager,
+                factory.transactionManager,
+            ).bridgechainUpdateAsset({
                 bridgechainId: options.bridgechainId || randomHash(),
                 seedNodes: options.seedNodes || [chance.ip(), chance.ip(), chance.ip()],
                 ports: options.ports || { "@arkecosystem/core-api": chance.port() },
@@ -367,7 +434,9 @@ export const registerBridgechainUpdateFactory = (factory: FactoryBuilder): void 
     factory.get("BridgechainUpdate").state("multiSign", multiSign);
 };
 
-export const registerTransactionFactory = (factory: FactoryBuilder): void => {
+export const registerTransactionFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     registerTransferFactory(factory);
 
     registerSecondSignatureFactory(factory);

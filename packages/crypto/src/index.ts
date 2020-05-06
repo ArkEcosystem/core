@@ -3,7 +3,8 @@ import { CryptoManager } from "./crypto-manager";
 import * as Enums from "./enums";
 import * as Errors from "./errors";
 import * as Interfaces from "./interfaces";
-import { TransactionsManager } from "./transactions/index";
+import * as Transactions from "./transactions";
+// import { TransactionsManager } from "./transactions/index";
 import * as Types from "./types";
 
-export { CryptoManager, TransactionsManager, Types, Interfaces, Enums, Errors, Constants };
+export { CryptoManager, Types, Interfaces, Enums, Errors, Constants, Transactions };

@@ -30,6 +30,7 @@ export class TransactionsManager<T, U extends ITransactionData, E> {
         this.Utils = new Utils(cryptoManager, this.Serializer, this.TransactionTypeFactory);
         this.Verifier = new Verifier(cryptoManager, this.Utils, validator, this.TransactionTypeFactory);
         // TODO:
+        // @ts-ignore
         this.TransactionTypeFactory.verifier = this.Verifier;
         this.Signer = new Signer(cryptoManager, this.Utils);
         this.TransactionFactory = new TransactionFactory(
@@ -40,12 +41,7 @@ export class TransactionsManager<T, U extends ITransactionData, E> {
             this.Utils,
             this.TransactionTypeFactory,
         );
-        this.BuilderFactory = new BuilderFactory(
-            cryptoManager,
-            this.TransactionFactory,
-            this.Signer,
-            this.Verifier,
-            this.Utils,
-        );
+        // TODO: sort this out - these should be broken apart into other steps
+        this.BuilderFactory = new BuilderFactory(cryptoManager, this);
     }
 }

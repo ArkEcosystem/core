@@ -1,5 +1,5 @@
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
@@ -8,15 +8,17 @@ import { businessSchema } from "./utils/business-schema";
 
 const { schemas } = Transactions;
 
-export class BusinessRegistrationTransaction extends Transactions.Transaction {
+export class BusinessRegistrationTransaction<
+    T,
+    U extends Interfaces.ITransactionData,
+    E
+> extends Transactions.Transaction<T, U, E> {
     public static typeGroup: number = MagistrateTransactionGroup;
     public static type: number = MagistrateTransactionType.BusinessRegistration;
     public static key: string = "businessRegistration";
     public static version: number = 2;
 
-    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
-        MagistrateTransactionStaticFees.BusinessRegistration,
-    );
+    protected static defaultStaticFee = MagistrateTransactionStaticFees.BusinessRegistration;
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {

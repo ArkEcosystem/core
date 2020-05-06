@@ -1,20 +1,27 @@
-import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { MagistrateTransactionGroup, MagistrateTransactionType } from "../enums";
 import { BridgechainResignationTransaction } from "../transactions";
 
-export class BridgechainResignationBuilder extends Transactions.TransactionBuilder<BridgechainResignationBuilder> {
-    public constructor() {
-        super();
+export class BridgechainResignationBuilder<
+    T,
+    U extends Interfaces.ITransactionData,
+    E
+> extends Transactions.TransactionBuilder<T, U, E, BridgechainResignationBuilder<T, U, E>> {
+    public constructor(
+        cryptoManager: CryptoManager<T>,
+        transactionsManager: Transactions.TransactionsManager<T, U, E>,
+    ) {
+        super(cryptoManager, transactionsManager);
         this.data.version = 2;
         this.data.typeGroup = MagistrateTransactionGroup;
         this.data.type = MagistrateTransactionType.BridgechainResignation;
-        this.data.fee = BridgechainResignationTransaction.staticFee();
-        this.data.amount = Utils.BigNumber.ZERO;
+        this.data.fee = BridgechainResignationTransaction.staticFee(cryptoManager);
+        this.data.amount = cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
         this.data.asset = { bridgechainResignation: {} };
     }
 
-    public bridgechainResignationAsset(bridgechainId: string): BridgechainResignationBuilder {
+    public bridgechainResignationAsset(bridgechainId: string): BridgechainResignationBuilder<T, U, E> {
         if (this.data.asset && this.data.asset.bridgechainResignation) {
             this.data.asset.bridgechainResignation.bridgechainId = bridgechainId;
         }
@@ -22,14 +29,14 @@ export class BridgechainResignationBuilder extends Transactions.TransactionBuild
         return this;
     }
 
-    public getStruct(): Interfaces.ITransactionData {
-        const struct: Interfaces.ITransactionData = super.getStruct();
+    public getStruct(): U {
+        const struct: U = super.getStruct();
         struct.amount = this.data.amount;
         struct.asset = this.data.asset;
         return struct;
     }
 
-    protected instance(): BridgechainResignationBuilder {
+    protected instance(): BridgechainResignationBuilder<T, U, E> {
         return this;
     }
 }

@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import * as Generators from "@packages/core-test-framework/src/app/generators";
-import { CryptoManager, Enums, Errors, TransactionsManager } from "@packages/crypto/src";
+import { CryptoManager, Enums, Errors, Transactions } from "@packages/crypto/src";
 import ByteBuffer from "bytebuffer";
 
 import {
@@ -31,7 +31,7 @@ let transactionsManagerRawConfig;
 beforeAll(() => {
     cryptoManagerDevNet = CryptoManager.createFromPreset("devnet");
 
-    const transactionsManager = new TransactionsManager(cryptoManagerDevNet, {
+    const transactionsManager = new Transactions.TransactionsManager(cryptoManagerDevNet, {
         extendTransaction: () => {},
         // @ts-ignore
         validate: (_, data) => ({
@@ -54,7 +54,7 @@ beforeAll(() => {
 
     cryptoManagerRawConfig = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
 
-    transactionsManagerRawConfig = new TransactionsManager(cryptoManagerRawConfig, {
+    transactionsManagerRawConfig = new Transactions.TransactionsManager(cryptoManagerRawConfig, {
         extendTransaction: () => {},
         // @ts-ignore
         validate: (_, data) => ({

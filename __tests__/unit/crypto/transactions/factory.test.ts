@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { CryptoManager, Interfaces, TransactionsManager } from "@packages/crypto/src";
+import { CryptoManager, Interfaces, Transactions } from "@packages/crypto/src";
 import {
     InvalidTransactionBytesError,
     TransactionSchemaError,
@@ -37,7 +37,7 @@ let transaction: Interfaces.ITransaction<ITransactionData, any>;
 beforeEach(() => {
     cryptoManagerDevNet = CryptoManager.createFromPreset("devnet");
 
-    const transactionsManager = new TransactionsManager(cryptoManagerDevNet, {
+    const transactionsManager = new Transactions.TransactionsManager(cryptoManagerDevNet, {
         extendTransaction: () => {},
         // @ts-ignore
         validate: (_, data) => ({
@@ -122,7 +122,7 @@ describe("TransactionFactory", () => {
     describe(".fromData", () => {
         let validatedTransactionFactory;
         beforeEach(() => {
-            const transactionsManager = new TransactionsManager(cryptoManagerDevNet, {
+            const transactionsManager = new Transactions.TransactionsManager(cryptoManagerDevNet, {
                 extendTransaction: () => {},
                 // @ts-ignore
                 validate: (error, data) => ({ error, value: data }),
@@ -168,7 +168,7 @@ describe("TransactionFactory", () => {
     describe(".fromJson", () => {
         let validatedTransactionFactory;
         beforeEach(() => {
-            const transactionsManager = new TransactionsManager(cryptoManagerDevNet, {
+            const transactionsManager = new Transactions.TransactionsManager(cryptoManagerDevNet, {
                 extendTransaction: () => {},
                 // @ts-ignore
                 validate: (error, data) => ({ error, value: data }),

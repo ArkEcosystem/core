@@ -2,10 +2,7 @@ import { CryptoManager } from "../../../crypto-manager";
 import { TransactionTypeGroup } from "../../../enums";
 import { MissingTransactionSignatureError, VendorFieldLengthExceededError } from "../../../errors";
 import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
-import { TransactionFactory } from "../../factory";
-import { Signer } from "../../signer";
-import { Utils } from "../../utils";
-import { Verifier } from "../../verifier";
+import { TransactionsManager } from "../../transactions-manager";
 
 export abstract class TransactionBuilder<
     T,
@@ -19,10 +16,7 @@ export abstract class TransactionBuilder<
 
     public constructor(
         protected cryptoManager: CryptoManager<T>,
-        private transactionFactory: TransactionFactory<T, U, E>,
-        private signer: Signer<T, U, E>,
-        private verifier: Verifier<T, U, E>,
-        private utils: Utils<T, U, E>,
+        protected transactionsManager: TransactionsManager<T, U, E>,
     ) {
         this.data = {
             id: undefined,
@@ -36,7 +30,7 @@ export abstract class TransactionBuilder<
     }
 
     public build(data: Partial<U> = {}): ITransaction<U, E> {
-        return this.transactionFactory.fromData({ ...this.data, ...data }, false);
+        return this.transactionsManager.TransactionFactory.fromData({ ...this.data, ...data }, false);
     }
 
     public version(version: number): TBuilder {
@@ -139,7 +133,7 @@ export abstract class TransactionBuilder<
     }
 
     public verify(): boolean {
-        return this.verifier.verifyHash(this.data);
+        return this.transactionsManager.Verifier.verifyHash(this.data);
     }
 
     public getStruct(): U {
@@ -148,14 +142,14 @@ export abstract class TransactionBuilder<
         }
 
         const struct: U = {
-            id: this.utils.getId(this.data).toString(),
+            id: this.transactionsManager.Utils.getId(this.data).toString(),
             signature: this.data.signature,
             secondSignature: this.data.secondSignature,
             version: this.data.version,
             type: this.data.type,
             fee: this.data.fee,
             senderPublicKey: this.data.senderPublicKey,
-            // TODO: check this is correct
+            // TODO: check where this is needed
             network: this.cryptoManager.NetworkConfigManager.get("network").pubKeyHash,
         } as U;
 
@@ -180,13 +174,13 @@ export abstract class TransactionBuilder<
             this.data.recipientId = this.cryptoManager.Identities.Address.fromPublicKey(keys.publicKey);
         }
 
-        this.data.signature = this.signer.sign(this.getSigningObject(), keys);
+        this.data.signature = this.transactionsManager.Signer.sign(this.getSigningObject(), keys);
 
         return this.instance();
     }
 
     private secondSignWithKeyPair(keys: IKeyPair): TBuilder {
-        this.data.secondSignature = this.signer.secondSign(this.getSigningObject(), keys);
+        this.data.secondSignature = this.transactionsManager.Signer.secondSign(this.getSigningObject(), keys);
         return this.instance();
     }
 
@@ -196,7 +190,7 @@ export abstract class TransactionBuilder<
         }
 
         this.version(2);
-        this.signer.multiSign(this.getSigningObject(), keys, index);
+        this.transactionsManager.Signer.multiSign(this.getSigningObject(), keys, index);
 
         return this.instance();
     }

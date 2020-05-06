@@ -12,6 +12,7 @@ import {
     ITransaction,
     ITransactionData,
     ITransactionJson,
+    SchemaError,
 } from "../interfaces";
 import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
@@ -19,7 +20,7 @@ import { TransactionTypeFactory } from "./types";
 import { Utils } from "./utils";
 import { Verifier } from "./verifier";
 
-export class TransactionFactory<T, U extends ITransactionData, E> {
+export class TransactionFactory<T, U extends ITransactionData, E = SchemaError> {
     public constructor(
         private cryptoManager: CryptoManager<T>,
         private deserializer: Deserializer<T, U, E>,

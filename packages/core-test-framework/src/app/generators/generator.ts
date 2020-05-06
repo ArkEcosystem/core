@@ -1,16 +1,9 @@
-import { CryptoManager, Interfaces, TransactionsManager } from "@arkecosystem/crypto";
+import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 
 import passphrases from "../../internal/passphrases.json";
+import { defaultSchemaValidator } from "../../utils/schema-validator";
 import { SandboxOptions, Wallet } from "../contracts";
-
-const defaultSchemaValidator = {
-    extendTransaction: () => {},
-    validate: (_, data) => ({
-        error: undefined,
-        value: data,
-    }),
-};
 
 /**
  * @export
@@ -45,7 +38,7 @@ export abstract class Generator<T> {
     };
 
     protected cryptoManager: CryptoManager<T>;
-    protected transactionManager: TransactionsManager<T, Interfaces.ITransactionData, any>;
+    protected transactionManager: Transactions.TransactionsManager<T, Interfaces.ITransactionData, any>;
 
     /**
      * @param {SandboxOptions} options
@@ -60,7 +53,7 @@ export abstract class Generator<T> {
 
         this.cryptoManager = CryptoManager.createFromConfig(config as Interfaces.NetworkConfig<T>);
 
-        this.transactionManager = new TransactionsManager(this.cryptoManager, schemaValidator);
+        this.transactionManager = new Transactions.TransactionsManager(this.cryptoManager, schemaValidator);
     }
 
     /**

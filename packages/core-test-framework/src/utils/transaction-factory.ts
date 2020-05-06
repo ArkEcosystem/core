@@ -3,10 +3,12 @@ import {
     Builders as MagistrateBuilders,
     Interfaces as MagistrateInterfaces,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Types } from "@arkecosystem/crypto";
+import { CryptoManager, Transactions } from "@arkecosystem/crypto";
 
 import secrets from "../internal/passphrases.json";
 import { getWalletNonce } from "./generic";
+import { defaultSchemaValidator } from "./schema-validator";
 
 const defaultPassphrase: string = secrets[0];
 
@@ -16,12 +18,12 @@ interface IPassphrasePair {
 }
 
 // todo: replace this by the use of real factories
-export class TransactionFactory {
+export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
+    public cryptoManager: CryptoManager<T>;
+    public transactionsManager: Transactions.TransactionsManager<T, U>;
     private builder: any;
-    private network: Types.NetworkName = "testnet";
-    private networkConfig: Interfaces.NetworkConfig | undefined;
-    private nonce: Utils.BigNumber | undefined;
-    private fee: Utils.BigNumber | undefined;
+    private nonce: Types.BigNumber | undefined;
+    private fee: Types.BigNumber | undefined;
     private timestamp: number | undefined;
     private passphrase: string = defaultPassphrase;
     private secondPassphrase: string | undefined;
@@ -33,20 +35,30 @@ export class TransactionFactory {
 
     private app: Contracts.Kernel.Application;
 
-    private constructor(app?: Contracts.Kernel.Application) {
+    private constructor(
+        app?: Contracts.Kernel.Application,
+        config?: Interfaces.NetworkConfig<T>,
+        schemaValidator = defaultSchemaValidator,
+    ) {
         // @ts-ignore - this is only needed because of the "getNonce"
         // method so we don't care if it is undefined in certain scenarios
         this.app = app;
+        this.cryptoManager = config
+            ? CryptoManager.createFromConfig(config)
+            : CryptoManager.createFromPreset("testnet");
+        this.transactionsManager = new Transactions.TransactionsManager(this.cryptoManager, schemaValidator);
     }
 
-    public static initialize(app?: Contracts.Kernel.Application): TransactionFactory {
+    public static initialize<T, U extends Interfaces.ITransactionData>(
+        app?: Contracts.Kernel.Application,
+    ): TransactionFactory<T, U> {
         return new TransactionFactory(app);
     }
 
-    public transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory {
-        const builder = Transactions.BuilderFactory.transfer()
-            .amount(Utils.BigNumber.make(amount).toFixed())
-            .recipientId(recipientId || Identities.Address.fromPassphrase(defaultPassphrase));
+    public transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory<T, U> {
+        const builder = this.transactionsManager.BuilderFactory.transfer()
+            .amount(this.cryptoManager.LibraryManager.Libraries.BigNumber.make(amount).toFixed())
+            .recipientId(recipientId || this.cryptoManager.Identities.Address.fromPassphrase(defaultPassphrase));
 
         if (vendorField) {
             builder.vendorField(vendorField);
@@ -57,16 +69,16 @@ export class TransactionFactory {
         return this;
     }
 
-    public secondSignature(secondPassphrase?: string): TransactionFactory {
-        this.builder = Transactions.BuilderFactory.secondSignature().signatureAsset(
+    public secondSignature(secondPassphrase?: string): TransactionFactory<T, U> {
+        this.builder = this.transactionsManager.BuilderFactory.secondSignature().signatureAsset(
             secondPassphrase || defaultPassphrase,
         );
 
         return this;
     }
 
-    public delegateRegistration(username?: string): TransactionFactory {
-        const builder = Transactions.BuilderFactory.delegateRegistration();
+    public delegateRegistration(username?: string): TransactionFactory<T, U> {
+        const builder = this.transactionsManager.BuilderFactory.delegateRegistration();
 
         if (username) {
             builder.usernameAsset(username);
@@ -77,41 +89,41 @@ export class TransactionFactory {
         return this;
     }
 
-    public delegateResignation(): TransactionFactory {
-        this.builder = Transactions.BuilderFactory.delegateResignation();
+    public delegateResignation(): TransactionFactory<T, U> {
+        this.builder = this.transactionsManager.BuilderFactory.delegateResignation();
 
         return this;
     }
 
-    public vote(publicKey?: string): TransactionFactory {
-        this.builder = Transactions.BuilderFactory.vote().votesAsset([
-            `+${publicKey || Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
+    public vote(publicKey?: string): TransactionFactory<T, U> {
+        this.builder = this.transactionsManager.BuilderFactory.vote().votesAsset([
+            `+${publicKey || this.cryptoManager.Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
         ]);
 
         return this;
     }
 
-    public unvote(publicKey?: string): TransactionFactory {
-        this.builder = Transactions.BuilderFactory.vote().votesAsset([
-            `-${publicKey || Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
+    public unvote(publicKey?: string): TransactionFactory<T, U> {
+        this.builder = this.transactionsManager.BuilderFactory.vote().votesAsset([
+            `-${publicKey || this.cryptoManager.Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
         ]);
 
         return this;
     }
 
-    public multiSignature(participants?: string[], min?: number): TransactionFactory {
+    public multiSignature(participants?: string[], min?: number): TransactionFactory<T, U> {
         let passphrases: string[] | undefined;
         if (!participants) {
             passphrases = [secrets[0], secrets[1], secrets[2]];
         }
 
         participants = participants || [
-            Identities.PublicKey.fromPassphrase(secrets[0]),
-            Identities.PublicKey.fromPassphrase(secrets[1]),
-            Identities.PublicKey.fromPassphrase(secrets[2]),
+            this.cryptoManager.Identities.PublicKey.fromPassphrase(secrets[0]),
+            this.cryptoManager.Identities.PublicKey.fromPassphrase(secrets[1]),
+            this.cryptoManager.Identities.PublicKey.fromPassphrase(secrets[2]),
         ];
 
-        this.builder = Transactions.BuilderFactory.multiSignature().multiSignatureAsset({
+        this.builder = this.transactionsManager.BuilderFactory.multiSignature().multiSignatureAsset({
             publicKeys: participants,
             min: min || participants.length,
         });
@@ -125,8 +137,8 @@ export class TransactionFactory {
         return this;
     }
 
-    public ipfs(ipfsId: string): TransactionFactory {
-        this.builder = Transactions.BuilderFactory.ipfs().ipfsAsset(ipfsId);
+    public ipfs(ipfsId: string): TransactionFactory<T, U> {
+        this.builder = this.transactionsManager.BuilderFactory.ipfs().ipfsAsset(ipfsId);
 
         return this;
     }
@@ -135,31 +147,31 @@ export class TransactionFactory {
         lockAsset: Interfaces.IHtlcLockAsset,
         recipientId?: string,
         amount: number = 2 * 1e8,
-    ): TransactionFactory {
-        const builder = Transactions.BuilderFactory.htlcLock()
+    ): TransactionFactory<T, U> {
+        const builder = this.transactionsManager.BuilderFactory.htlcLock()
             .htlcLockAsset(lockAsset)
-            .amount(Utils.BigNumber.make(amount).toFixed())
-            .recipientId(recipientId || Identities.Address.fromPassphrase(defaultPassphrase));
+            .amount(this.cryptoManager.LibraryManager.Libraries.BigNumber.make(amount).toFixed())
+            .recipientId(recipientId || this.cryptoManager.Identities.Address.fromPassphrase(defaultPassphrase));
 
         this.builder = builder;
 
         return this;
     }
 
-    public htlcClaim(claimAsset: Interfaces.IHtlcClaimAsset): TransactionFactory {
-        this.builder = Transactions.BuilderFactory.htlcClaim().htlcClaimAsset(claimAsset);
+    public htlcClaim(claimAsset: Interfaces.IHtlcClaimAsset): TransactionFactory<T, U> {
+        this.builder = this.transactionsManager.BuilderFactory.htlcClaim().htlcClaimAsset(claimAsset);
 
         return this;
     }
 
-    public htlcRefund(refundAsset: Interfaces.IHtlcRefundAsset): TransactionFactory {
-        this.builder = Transactions.BuilderFactory.htlcRefund().htlcRefundAsset(refundAsset);
+    public htlcRefund(refundAsset: Interfaces.IHtlcRefundAsset): TransactionFactory<T, U> {
+        this.builder = this.transactionsManager.BuilderFactory.htlcRefund().htlcRefundAsset(refundAsset);
 
         return this;
     }
 
-    public multiPayment(payments: Array<{ recipientId: string; amount: string }>): TransactionFactory {
-        const builder = Transactions.BuilderFactory.multiPayment();
+    public multiPayment(payments: Array<{ recipientId: string; amount: string }>): TransactionFactory<T, U> {
+        const builder = this.transactionsManager.BuilderFactory.multiPayment();
 
         for (const payment of payments) {
             builder.addPayment(payment.recipientId, payment.amount);
@@ -172,8 +184,11 @@ export class TransactionFactory {
 
     public businessRegistration(
         businessRegistrationAsset: MagistrateInterfaces.IBusinessRegistrationAsset,
-    ): TransactionFactory {
-        const businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder();
+    ): TransactionFactory<T, U> {
+        const businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder(
+            this.cryptoManager,
+            this.transactionsManager,
+        );
         businessRegistrationBuilder.businessRegistrationAsset(businessRegistrationAsset);
 
         this.builder = businessRegistrationBuilder;
@@ -181,14 +196,17 @@ export class TransactionFactory {
         return this;
     }
 
-    public businessResignation(): TransactionFactory {
-        this.builder = new MagistrateBuilders.BusinessResignationBuilder();
+    public businessResignation(): TransactionFactory<T, U> {
+        this.builder = new MagistrateBuilders.BusinessResignationBuilder(this.cryptoManager, this.transactionsManager);
 
         return this;
     }
 
-    public businessUpdate(businessUpdateAsset: MagistrateInterfaces.IBusinessUpdateAsset): TransactionFactory {
-        const businessUpdateBuilder = new MagistrateBuilders.BusinessUpdateBuilder();
+    public businessUpdate(businessUpdateAsset: MagistrateInterfaces.IBusinessUpdateAsset): TransactionFactory<T, U> {
+        const businessUpdateBuilder = new MagistrateBuilders.BusinessUpdateBuilder(
+            this.cryptoManager,
+            this.transactionsManager,
+        );
         businessUpdateBuilder.businessUpdateAsset(businessUpdateAsset);
 
         this.builder = businessUpdateBuilder;
@@ -198,8 +216,11 @@ export class TransactionFactory {
 
     public bridgechainRegistration(
         bridgechainRegistrationAsset: MagistrateInterfaces.IBridgechainRegistrationAsset,
-    ): TransactionFactory {
-        const bridgechainRegistrationBuilder = new MagistrateBuilders.BridgechainRegistrationBuilder();
+    ): TransactionFactory<T, U> {
+        const bridgechainRegistrationBuilder = new MagistrateBuilders.BridgechainRegistrationBuilder(
+            this.cryptoManager,
+            this.transactionsManager,
+        );
         bridgechainRegistrationBuilder.bridgechainRegistrationAsset(bridgechainRegistrationAsset);
 
         this.builder = bridgechainRegistrationBuilder;
@@ -207,8 +228,11 @@ export class TransactionFactory {
         return this;
     }
 
-    public bridgechainResignation(registeredBridgechainId: string): TransactionFactory {
-        const bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder();
+    public bridgechainResignation(registeredBridgechainId: string): TransactionFactory<T, U> {
+        const bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder(
+            this.cryptoManager,
+            this.transactionsManager,
+        );
         bridgechainResignationBuilder.bridgechainResignationAsset(registeredBridgechainId);
 
         this.builder = bridgechainResignationBuilder;
@@ -216,8 +240,13 @@ export class TransactionFactory {
         return this;
     }
 
-    public bridgechainUpdate(bridgechainUpdateAsset: MagistrateInterfaces.IBridgechainUpdateAsset): TransactionFactory {
-        const bridgechainUpdateBuilder = new MagistrateBuilders.BridgechainUpdateBuilder();
+    public bridgechainUpdate(
+        bridgechainUpdateAsset: MagistrateInterfaces.IBridgechainUpdateAsset,
+    ): TransactionFactory<T, U> {
+        const bridgechainUpdateBuilder = new MagistrateBuilders.BridgechainUpdateBuilder(
+            this.cryptoManager,
+            this.transactionsManager,
+        );
         bridgechainUpdateBuilder.bridgechainUpdateAsset(bridgechainUpdateAsset);
 
         this.builder = bridgechainUpdateBuilder;
@@ -225,86 +254,88 @@ export class TransactionFactory {
         return this;
     }
 
-    public withFee(fee: number): TransactionFactory {
-        this.fee = Utils.BigNumber.make(fee);
+    public withFee(fee: number): TransactionFactory<T, U> {
+        this.fee = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(fee);
 
         return this;
     }
 
-    public withTimestamp(timestamp: number): TransactionFactory {
+    public withTimestamp(timestamp: number): TransactionFactory<T, U> {
         this.timestamp = timestamp;
 
         return this;
     }
 
-    public withNetwork(network: Types.NetworkName): TransactionFactory {
-        this.network = network;
+    // TODO: check this is no longer needed
+    // public withNetwork(network: Types.NetworkName): TransactionFactory<T, U> {
+    //     this.network = network;
+
+    //     return this;
+    // }
+
+    // TODO: check this is no longer needed
+    // public withNetworkConfig(networkConfig: Interfaces.NetworkConfig): TransactionFactory<T, U> {
+    //     this.networkConfig = networkConfig;
+
+    //     return this;
+    // }
+
+    public withHeight(height: number): TransactionFactory<T, U> {
+        this.cryptoManager.HeightTracker.setHeight(height);
 
         return this;
     }
 
-    public withNetworkConfig(networkConfig: Interfaces.NetworkConfig): TransactionFactory {
-        this.networkConfig = networkConfig;
-
-        return this;
-    }
-
-    public withHeight(height: number): TransactionFactory {
-        Managers.configManager.setHeight(height);
-
-        return this;
-    }
-
-    public withSenderPublicKey(sender: string): TransactionFactory {
+    public withSenderPublicKey(sender: string): TransactionFactory<T, U> {
         this.senderPublicKey = sender;
 
         return this;
     }
 
-    public withNonce(nonce: Utils.BigNumber): TransactionFactory {
+    public withNonce(nonce: Types.BigNumber): TransactionFactory<T, U> {
         this.nonce = nonce;
 
         return this;
     }
 
-    public withExpiration(expiration: number): TransactionFactory {
+    public withExpiration(expiration: number): TransactionFactory<T, U> {
         this.expiration = expiration;
 
         return this;
     }
 
-    public withVersion(version: number): TransactionFactory {
+    public withVersion(version: number): TransactionFactory<T, U> {
         this.version = version;
 
         return this;
     }
 
-    public withPassphrase(passphrase: string): TransactionFactory {
+    public withPassphrase(passphrase: string): TransactionFactory<T, U> {
         this.passphrase = passphrase;
 
         return this;
     }
 
-    public withSecondPassphrase(secondPassphrase: string): TransactionFactory {
+    public withSecondPassphrase(secondPassphrase: string): TransactionFactory<T, U> {
         this.secondPassphrase = secondPassphrase;
 
         return this;
     }
 
-    public withPassphraseList(passphrases: string[]): TransactionFactory {
+    public withPassphraseList(passphrases: string[]): TransactionFactory<T, U> {
         this.passphraseList = passphrases;
 
         return this;
     }
 
-    public withPassphrasePair(passphrases: IPassphrasePair): TransactionFactory {
+    public withPassphrasePair(passphrases: IPassphrasePair): TransactionFactory<T, U> {
         this.passphrase = passphrases.passphrase;
         this.secondPassphrase = passphrases.secondPassphrase;
 
         return this;
     }
 
-    public withPassphrasePairs(passphrases: IPassphrasePair[]): TransactionFactory {
+    public withPassphrasePairs(passphrases: IPassphrasePair[]): TransactionFactory<T, U> {
         this.passphrasePairs = passphrases;
 
         return this;
@@ -318,18 +349,20 @@ export class TransactionFactory {
         return this.create(1)[0];
     }
 
-    public build(quantity = 1): Interfaces.ITransaction[] {
-        return this.make<Interfaces.ITransaction>(quantity, "build");
+    public build(quantity = 1): Interfaces.ITransaction<Interfaces.ITransactionData, any>[] {
+        return this.make<Interfaces.ITransaction<Interfaces.ITransactionData, any>>(quantity, "build");
     }
 
-    public getNonce(): Utils.BigNumber {
+    public getNonce(): Types.BigNumber {
         if (this.nonce) {
             return this.nonce;
         }
 
         AppUtils.assert.defined<string>(this.senderPublicKey);
 
-        return getWalletNonce(this.app, this.senderPublicKey);
+        return this.cryptoManager.LibraryManager.Libraries.BigNumber.make(
+            getWalletNonce(this.app, this.senderPublicKey),
+        );
     }
 
     /* istanbul ignore next */
@@ -347,18 +380,19 @@ export class TransactionFactory {
     }
 
     private sign<T>(quantity: number, method: string): T[] {
-        if (this.networkConfig !== undefined) {
-            Managers.configManager.setConfig(this.networkConfig);
-        } else {
-            Managers.configManager.setFromPreset(this.network);
-        }
+        // TODO: check this is no longer needed
+        // if (this.networkConfig !== undefined) {
+        //     this.cryptoManager.NetworkConfigManager.setConfig(this.networkConfig);
+        // } else {
+        //     this.cryptoManager.NetworkConfigManager.setFromPreset(this.network);
+        // }
 
         // // ensure we use aip11
-        // Managers.configManager.getMilestone().aip11 = true;
+        // this.cryptoManager.MilestoneManager.getMilestone().aip11 = true;
         // this.builder.data.version = 2;
 
         if (!this.senderPublicKey) {
-            this.senderPublicKey = Identities.PublicKey.fromPassphrase(this.passphrase);
+            this.senderPublicKey = this.cryptoManager.Identities.PublicKey.fromPassphrase(this.passphrase);
         }
 
         const transactions: T[] = [];
@@ -379,7 +413,7 @@ export class TransactionFactory {
                 // @FIXME: when we use any of the "withPassphrase*" methods the builder will
                 // always remember the previous username instead generating a new one on each iteration
                 if (!this.builder.data.asset.delegate.username) {
-                    this.builder = Transactions.BuilderFactory.delegateRegistration().usernameAsset(
+                    this.builder = this.transactionsManager.BuilderFactory.delegateRegistration().usernameAsset(
                         this.getRandomUsername(),
                     );
                 }
@@ -419,18 +453,20 @@ export class TransactionFactory {
                 }
             }
 
-            const isDevelop: boolean = !["mainnet", "devnet"].includes(Managers.configManager.get("network.name"));
+            const isDevelop: boolean = !["mainnet", "devnet"].includes(
+                this.cryptoManager.NetworkConfigManager.get("network.name"),
+            );
 
             if (sign) {
-                const aip11: boolean = Managers.configManager.getMilestone().aip11;
-                const htlcEnabled: boolean = Managers.configManager.getMilestone().htlcEnabled;
+                const aip11: boolean = this.cryptoManager.MilestoneManager.getMilestone().aip11;
+                const htlcEnabled: boolean = this.cryptoManager.MilestoneManager.getMilestone().htlcEnabled;
 
                 if (this.builder.data.version === 1 && aip11) {
-                    Managers.configManager.getMilestone().aip11 = false;
-                    Managers.configManager.getMilestone().htlcEnabled = false;
+                    this.cryptoManager.MilestoneManager.getMilestone().aip11 = false;
+                    this.cryptoManager.MilestoneManager.getMilestone().htlcEnabled = false;
                 } else if (isDevelop) {
-                    Managers.configManager.getMilestone().aip11 = true;
-                    Managers.configManager.getMilestone().htlcEnabled = htlcEnabled;
+                    this.cryptoManager.MilestoneManager.getMilestone().aip11 = true;
+                    this.cryptoManager.MilestoneManager.getMilestone().htlcEnabled = htlcEnabled;
                 }
 
                 this.builder.sign(this.passphrase);
@@ -443,8 +479,8 @@ export class TransactionFactory {
             const transaction = this.builder[method]();
 
             if (isDevelop) {
-                Managers.configManager.getMilestone().aip11 = true;
-                Managers.configManager.getMilestone().htlcEnabled = true;
+                this.cryptoManager.MilestoneManager.getMilestone().aip11 = true;
+                this.cryptoManager.MilestoneManager.getMilestone().htlcEnabled = true;
             }
 
             transactions.push(transaction);

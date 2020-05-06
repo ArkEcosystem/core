@@ -1,6 +1,7 @@
-import { CryptoManager } from "@arkecosystem/crypto";
+import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
 
+import { defaultSchemaValidator } from "../utils/schema-validator";
 import { Factory } from "./factory";
 import { FactoryFunction } from "./types";
 
@@ -8,7 +9,9 @@ import { FactoryFunction } from "./types";
  * @export
  * @class FactoryBuilder
  */
-export class FactoryBuilder {
+export class FactoryBuilder<T, U extends Interfaces.ITransactionData, E> {
+    public transactionManager: Transactions.TransactionsManager<T, U, E>;
+
     /**
      * @private
      * @type {Record<string, Factory>}
@@ -16,7 +19,9 @@ export class FactoryBuilder {
      */
     private readonly factories: Map<string, Factory> = new Map<string, Factory>();
 
-    public constructor(public cryptoManager: CryptoManager<any>) {}
+    public constructor(public cryptoManager: CryptoManager<T>, validator = defaultSchemaValidator) {
+        this.transactionManager = new Transactions.TransactionsManager(cryptoManager, validator);
+    }
 
     /**
      * @param {string} factory
