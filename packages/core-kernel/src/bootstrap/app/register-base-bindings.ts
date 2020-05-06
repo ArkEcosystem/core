@@ -28,7 +28,7 @@ export class RegisterBaseBindings implements Bootstrapper {
      */
     public async bootstrap(): Promise<void> {
         const flags: Record<string, string> | undefined = this.app.config("app.flags");
-        const version: string = require(resolve(__dirname, "../../../package.json")).version;
+        const { version } = require(resolve(__dirname, "../../../package.json"));
 
         assert.defined<Record<string, string>>(flags);
 
