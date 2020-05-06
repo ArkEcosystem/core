@@ -134,9 +134,6 @@ export class DatabaseService {
             await this.emitTransactionEvents(transaction);
         }
 
-        // ? what is the reason for calling it second time, there has to be one
-        await this.detectMissedBlocks(block);
-
         this.emitter.dispatch(Enums.BlockEvent.Applied, block.data);
     }
 
@@ -596,7 +593,6 @@ export class DatabaseService {
             lastBlock.data.height,
         );
 
-        // ? why it's using timestamp and not height?
         const lastSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, lastBlock.data.timestamp);
         const currentSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, block.data.timestamp);
 
