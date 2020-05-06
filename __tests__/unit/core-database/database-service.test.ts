@@ -381,7 +381,7 @@ describe("DatabaseService.applyBlock", () => {
         const block = { data: { height: 54, timestamp: 35 }, transactions: [transaction] };
         await databaseService.applyBlock(block as any);
 
-        expect(stateStore.getLastBlock).toBeCalledTimes(2);
+        expect(stateStore.getLastBlock).toBeCalledTimes(1);
         expect(blockState.applyBlock).toBeCalledWith(block);
         expect(databaseService.blocksInCurrentRound).toEqual([block]);
         expect(emitter.dispatch).toBeCalledWith("forger.missing", { delegate: delegateWallet });
@@ -405,7 +405,7 @@ describe("DatabaseService.applyBlock", () => {
         const block = { data: { height: 2, timestamp: 35 }, transactions: [transaction] };
         await databaseService.applyBlock(block as any);
 
-        expect(stateStore.getLastBlock).toBeCalledTimes(2);
+        expect(stateStore.getLastBlock).toBeCalledTimes(1);
         expect(handler.emitEvents).toBeCalledWith(transaction, emitter);
         expect(emitter.dispatch).toBeCalledWith("block.applied", block.data);
     });
