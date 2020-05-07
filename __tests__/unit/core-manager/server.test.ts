@@ -7,6 +7,8 @@ import { Identifiers } from "@packages/core-manager/src/ioc";
 import { Actions } from "@packages/core-manager/src/contracts";
 import { Server } from "@packages/core-manager/src/server";
 import { ActionReader } from "@packages/core-manager/src/action-reader";
+import { PluginFactory } from "@packages/core-manager/src/plugins/plugin-factory";
+import { defaults } from "@packages/core-manager/src/defaults";
 import { Assets } from "./__fixtures__";
 
 let sandbox: Sandbox;
@@ -18,6 +20,8 @@ let logger = {
     notice: jest.fn(),
     error: jest.fn(),
 }
+
+let pluginsConfiguration = defaults.plugins
 
 beforeEach(() => {
     let dummyAction = new Assets.DummyAction();
@@ -34,6 +38,10 @@ beforeEach(() => {
     sandbox.app.bind(Identifiers.HTTP).to(Server).inSingletonScope();
     sandbox.app.bind(Identifiers.ActionReader).toConstantValue(actionReader);
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+    sandbox.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
+    sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
+        get: jest.fn().mockReturnValue(pluginsConfiguration)
+    });
 
     sandbox.app.terminate = jest.fn();
 
@@ -45,17 +53,15 @@ afterEach(() => {
 })
 
 describe("Server", () => {
-    beforeEach(async () => {
-        await server.initialize("serverName", {})
-        await server.boot()
-    })
-
     afterEach(async () => {
         await server.dispose();
     })
 
     describe("inject", () => {
         it("should be ok", async () => {
+            await server.initialize("serverName", {})
+            await server.boot()
+
             const injectOptions = {
                 method: "POST",
                 url: "/",
@@ -77,6 +83,9 @@ describe("Server", () => {
         });
 
         it("should return RCP error if called with invalid action params", async () => {
+            await server.initialize("serverName", {})
+            await server.boot()
+
             const injectOptions = {
                 method: "POST",
                 url: "/",
@@ -99,6 +108,9 @@ describe("Server", () => {
         });
 
         it("should return RCP error if error inside Action method", async () => {
+            await server.initialize("serverName", {})
+            await server.boot()
+
             const injectOptions = {
                 method: "POST",
                 url: "/",
@@ -126,6 +138,9 @@ describe("Server", () => {
         });
 
         it("should return RCP error if RPC schema is invalid", async () => {
+            await server.initialize("serverName", {})
+            await server.boot()
+
             const injectOptions = {
                 method: "POST",
                 url: "/",
@@ -148,6 +163,9 @@ describe("Server", () => {
         });
 
         it("should return RCP error if error in Validator", async () => {
+            await server.initialize("serverName", {})
+            await server.boot()
+
             const injectOptions = {
                 method: "POST",
                 url: "/",
@@ -171,6 +189,39 @@ describe("Server", () => {
 
             expect(parsedResponse.statusCode).toBe(200)
             expect(parsedResponse.body.error.code).toBe(-32600)
+        });
+
+        it("should return RCP error if whitelisted", async () => {
+            pluginsConfiguration.whitelist = []
+
+            await server.initialize("serverName", {})
+            await server.boot()
+
+            const injectOptions = {
+                method: "POST",
+                url: "/",
+                payload: {
+                    jsonrpc: "2.0",
+                    id: "1",
+                    method: "dummy",
+                    params: { id: 123 },
+                },
+                headers: {
+                    "content-type": "application/vnd.api+json",
+                },
+            };
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({
+                body: {
+                    jsonrpc: '2.0',
+                    error: { code: -32001, message: 'Unauthorized' },
+                    id: null
+                },
+                statusCode: 200
+            })
         });
     })
 });

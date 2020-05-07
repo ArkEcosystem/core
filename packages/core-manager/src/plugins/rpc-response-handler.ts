@@ -26,13 +26,14 @@ export const rpcResponseHandler = {
 }
 
 const getRpcResponseCode = (httpResponseCode: number) => {
-    // TODO: Check if can be calculated
+    return -32001
 
-    if (httpResponseCode === 401) {
-        return -32001
-    } if (httpResponseCode === 403) {
-        return -32001
-    }
-
-    throw new Error("Unsupported status code")
+    // TODO: Implement after auth plugin
+    // if (httpResponseCode === 401) {
+    //     return -32001
+    // } if (httpResponseCode === 403) {
+    //     return -32001
+    // }
+    //
+    // throw new Error("Unsupported status code")
 }
