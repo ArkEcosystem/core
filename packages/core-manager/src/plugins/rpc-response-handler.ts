@@ -1,5 +1,18 @@
 import { Server as HapiServer } from "@hapi/hapi";
 
+const getRpcResponseCode = (httpResponseCode: number) => {
+    return -32001
+
+    // TODO: Implement after auth plugin
+    // if (httpResponseCode === 401) {
+    //     return -32001
+    // } if (httpResponseCode === 403) {
+    //     return -32001
+    // }
+    //
+    // throw new Error("Unsupported status code")
+}
+
 export const rpcResponseHandler = {
     name: "rcpResponseHandler",
     version: "0.1.0",
@@ -23,17 +36,4 @@ export const rpcResponseHandler = {
             }
         })
     }
-}
-
-const getRpcResponseCode = (httpResponseCode: number) => {
-    return -32001
-
-    // TODO: Implement after auth plugin
-    // if (httpResponseCode === 401) {
-    //     return -32001
-    // } if (httpResponseCode === 403) {
-    //     return -32001
-    // }
-    //
-    // throw new Error("Unsupported status code")
 }
