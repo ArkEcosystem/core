@@ -21,7 +21,7 @@ export class Block implements IBlock {
             transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[];
             id?: string;
         },
-        private cryptoManager: CryptoManager<IBlock>,
+        private cryptoManager: CryptoManager<IBlockData>,
         private validator: Validator,
         private serializer: Serializer,
     ) {

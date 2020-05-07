@@ -12,7 +12,7 @@ export class BlockFactory {
     private validator: Validator;
 
     public constructor(
-        private cryptoManager: CryptoManager<IBlock>,
+        private cryptoManager: CryptoManager<IBlockData>,
         transactionManager: Transactions.TransactionsManager<IBlock, Interfaces.ITransactionData>,
         options?: Record<string, any>,
     ) {

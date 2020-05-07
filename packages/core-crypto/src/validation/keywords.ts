@@ -2,7 +2,7 @@ import { CryptoManager, Enums, Interfaces, Types } from "@arkecosystem/crypto";
 import { Ajv } from "ajv";
 import ajvKeywords from "ajv-keywords";
 
-import { IBlock } from "../interfaces";
+import { IBlockData } from "../interfaces";
 
 const maxBytes = (ajv: Ajv) => {
     ajv.addKeyword("maxBytes", {
@@ -24,7 +24,7 @@ const maxBytes = (ajv: Ajv) => {
     });
 };
 
-const transactionType = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
+const transactionType = (ajv: Ajv, cryptoManager: CryptoManager<IBlockData>) => {
     ajv.addKeyword("transactionType", {
         // @ts-ignore
         compile(schema) {
@@ -52,7 +52,7 @@ const transactionType = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
     });
 };
 
-const network = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
+const network = (ajv: Ajv, cryptoManager: CryptoManager<IBlockData>) => {
     ajv.addKeyword("network", {
         compile(schema) {
             return (data) => {
@@ -66,7 +66,7 @@ const network = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
     });
 };
 
-const bignumber = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
+const bignumber = (ajv: Ajv, cryptoManager: CryptoManager<IBlockData>) => {
     const instanceOf = ajvKeywords.get("instanceof").definition;
     instanceOf.CONSTRUCTORS.BigNumber = Types.BigNumber;
 
@@ -128,7 +128,7 @@ const bignumber = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
     });
 };
 
-const blockId = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
+const blockId = (ajv: Ajv, cryptoManager: CryptoManager<IBlockData>) => {
     ajv.addKeyword("blockId", {
         compile(schema) {
             return (data, dataPath, parentObject: any) => {

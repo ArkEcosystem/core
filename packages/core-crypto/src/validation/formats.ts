@@ -1,9 +1,9 @@
 import { CryptoManager } from "@arkecosystem/crypto";
 import { Ajv } from "ajv";
 
-import { IBlock } from "../interfaces";
+import { IBlockData } from "../interfaces";
 
-const vendorField = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
+const vendorField = (ajv: Ajv, cryptoManager: CryptoManager<IBlockData>) => {
     ajv.addFormat("vendorField", (data) => {
         try {
             return Buffer.from(data, "utf8").length <= cryptoManager.LibraryManager.Utils.maxVendorFieldLength();
@@ -13,7 +13,7 @@ const vendorField = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
     });
 };
 
-const validPeer = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
+const validPeer = (ajv: Ajv, cryptoManager: CryptoManager<IBlockData>) => {
     ajv.addFormat("peer", (ip: string) => {
         try {
             return cryptoManager.LibraryManager.Utils.isValidPeer({ ip }, false);

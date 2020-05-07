@@ -2,11 +2,11 @@ import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
 import { IBlock, IBlockData } from "../interfaces";
-import { SerializerUtils } from "./serialisation-utils";
+import { SerializerUtils } from "./serialization-utils";
 
 export class Serializer extends SerializerUtils {
     public constructor(
-        cryptoManager: CryptoManager<IBlock>,
+        cryptoManager: CryptoManager<IBlockData>,
         private transactionManager: Transactions.TransactionsManager<IBlock, Interfaces.ITransactionData>,
     ) {
         super(cryptoManager);

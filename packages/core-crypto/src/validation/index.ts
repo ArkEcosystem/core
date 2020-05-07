@@ -3,7 +3,7 @@ import { BlockSchemaError } from "@arkecosystem/crypto/dist/errors";
 import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
 
-import { IBlock, IBlockData } from "../interfaces";
+import { IBlockData } from "../interfaces";
 import { formats } from "./formats";
 import { keywords } from "./keywords";
 import { schemas } from "./schemas";
@@ -15,11 +15,11 @@ export class Validator {
         Transactions.schemas.TransactionSchema
     >();
 
-    private constructor(private cryptoManager: CryptoManager<IBlock>, options: Record<string, any>) {
+    private constructor(private cryptoManager: CryptoManager<IBlockData>, options: Record<string, any>) {
         this.ajv = this.instantiateAjv(options);
     }
 
-    public static make(cryptoManager: CryptoManager<IBlock>, options: Record<string, any> = {}): Validator {
+    public static make(cryptoManager: CryptoManager<IBlockData>, options: Record<string, any> = {}): Validator {
         return new Validator(cryptoManager, options);
     }
 
