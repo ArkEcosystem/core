@@ -2,8 +2,7 @@ import {
     Builders as MagistrateBuilders,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Enums } from "@arkecosystem/crypto";
-import { Interfaces } from "@arkecosystem/crypto/src";
+import { Enums, Interfaces } from "@arkecosystem/crypto";
 import bs58 from "bs58";
 import Chance from "chance";
 import { createHash } from "crypto";

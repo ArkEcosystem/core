@@ -1,20 +1,23 @@
 import { DelegateFactory } from "@arkecosystem/core-forger";
-import { Crypto, Managers } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import secrets from "../../internal/passphrases.json";
 import { Signer } from "../../internal/signer";
 import { FactoryBuilder } from "../factory-builder";
 
-export const registerBlockFactory = (factory: FactoryBuilder): void => {
+export const registerBlockFactory = <T, U extends Interfaces.ITransactionData, E>(
+    factory: FactoryBuilder<T, U, E>,
+): void => {
     factory.set("Block", ({ options }) => {
         let previousBlock;
         if (options.getPreviousBlock) {
             previousBlock = options.getPreviousBlock();
         } else {
-            previousBlock = options.config?.genesisBlock || Managers.configManager.get("genesisBlock");
+            previousBlock =
+                options.config?.genesisBlock || factory.cryptoManager.NetworkConfigManager.get("genesisBlock");
         }
 
-        const { blocktime, reward } = Managers.configManager.getMilestone(previousBlock.height);
+        const { blocktime, reward } = factory.cryptoManager.MilestoneManager.getMilestone(previousBlock.height);
 
         const transactions = options.transactions || [];
 
@@ -39,7 +42,10 @@ export const registerBlockFactory = (factory: FactoryBuilder): void => {
 
         return DelegateFactory.fromBIP39(options.passphrase || secrets[0]).forge(transactions, {
             previousBlock,
-            timestamp: Crypto.Slots.getSlotNumber(Crypto.Slots.getTime()) * options.blocktime || blocktime,
+            timestamp:
+                factory.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(
+                    factory.cryptoManager.LibraryManager.Crypto.Slots.getTime(),
+                ) * options.blocktime || blocktime,
             reward: options.reward || reward,
         })!;
     });
