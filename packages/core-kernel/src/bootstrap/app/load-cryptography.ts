@@ -1,5 +1,5 @@
-import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
-import { CryptoManager, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces as BlockInterfaces, Validation } from "@arkecosystem/core-crypto";
+import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
@@ -35,6 +35,9 @@ export class LoadCryptography implements Bootstrapper {
     private readonly configRepository!: ConfigRepository;
 
     private cryptoManager: CryptoManager<BlockInterfaces.IBlockData> | undefined;
+    private transactionManager:
+        | Transactions.TransactionsManager<BlockInterfaces.IBlockData, Interfaces.ITransactionData>
+        | undefined;
 
     /**
      * @returns {Promise<void>}
@@ -52,9 +55,20 @@ export class LoadCryptography implements Bootstrapper {
 
         assert.defined<Interfaces.NetworkConfig<BlockInterfaces.IBlockData>>(this.cryptoManager);
 
+        this.transactionManager = new Transactions.TransactionsManager(
+            this.cryptoManager,
+            Validation.Validator.make(this.cryptoManager), // TODO: this should be configurable
+        );
+
         this.app
-            .bind<Interfaces.NetworkConfig<BlockInterfaces.IBlockData>>(Identifiers.CryptoManager)
+            .bind<CryptoManager<BlockInterfaces.IBlockData>>(Identifiers.CryptoManager)
             .toConstantValue(this.cryptoManager);
+
+        this.app
+            .bind<Transactions.TransactionsManager<BlockInterfaces.IBlockData, Interfaces.ITransactionData>>(
+                Identifiers.TransactionManager,
+            )
+            .toConstantValue(this.transactionManager);
     }
 
     /**

@@ -14,6 +14,7 @@ export const Identifiers = {
     PluginConfiguration: Symbol.for("PluginConfiguration"),
     // Crypto
     CryptoManager: Symbol.for("Crypto<CryptoManager>"),
+    TransactionManager: Symbol.for("Crypto<TransactionManager>"),
     // Managers
     CacheManager: Symbol.for("Manager<Cache>"),
     ConfigManager: Symbol.for("Manager<Config>"),
