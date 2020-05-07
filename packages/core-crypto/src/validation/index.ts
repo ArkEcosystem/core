@@ -1,8 +1,9 @@
 import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { BlockSchemaError } from "@arkecosystem/crypto/dist/errors";
 import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
 
-import { IBlock } from "../interfaces";
+import { IBlock, IBlockData } from "../interfaces";
 import { formats } from "./formats";
 import { keywords } from "./keywords";
 import { schemas } from "./schemas";
@@ -65,6 +66,51 @@ export class Validator {
 
     public extendTransaction(schema: Transactions.schemas.TransactionSchema, remove?: boolean) {
         this.extendTransactionSchema(this.ajv, schema, remove);
+    }
+
+    public applySchema(data: IBlockData): IBlockData | undefined {
+        let result = this.validate("block", data);
+
+        if (!result.error) {
+            return result.value;
+        }
+
+        result = this.validateException("block", data);
+
+        if (!result.errors) {
+            return result.value;
+        }
+
+        for (const err of result.errors) {
+            let fatal = false;
+
+            const match = err.dataPath.match(/\.transactions\[([0-9]+)\]/);
+            if (match === null) {
+                if (!this.cryptoManager.LibraryManager.Utils.isException(data.id)) {
+                    fatal = true;
+                }
+            } else {
+                const txIndex = match[1];
+
+                if (data.transactions) {
+                    const tx = data.transactions[txIndex];
+
+                    if (tx.id === undefined || !this.cryptoManager.LibraryManager.Utils.isException(tx.id)) {
+                        fatal = true;
+                    }
+                }
+            }
+
+            if (fatal) {
+                throw new BlockSchemaError(
+                    data.height,
+                    `Invalid data${err.dataPath ? " at " + err.dataPath : ""}: ` +
+                        `${err.message}: ${JSON.stringify(err.data)}`,
+                );
+            }
+        }
+
+        return result.value;
     }
 
     private validateSchema<T = any>(

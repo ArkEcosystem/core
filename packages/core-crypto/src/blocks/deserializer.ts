@@ -1,19 +1,24 @@
+import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
-import { IBlockData, ITransaction } from "../interfaces";
-// import { configManager } from "../managers";
-import { TransactionFactory } from "../transactions";
-import { BigNumber } from "../utils";
-import { Block } from "./block";
+import { IBlock, IBlockData } from "../interfaces";
+import { SerializerUtils } from "./serialization-utils";
 
-export class Deserializer {
-    public static deserialize(
+export class Deserializer extends SerializerUtils {
+    public constructor(
+        cryptoManager: CryptoManager<IBlock>,
+        private transactionManager: Transactions.TransactionsManager<IBlock, Interfaces.ITransactionData>,
+    ) {
+        super(cryptoManager);
+    }
+
+    public deserialize(
         serializedHex: string,
         headerOnly: boolean = false,
         options: { deserializeTransactionsUnchecked?: boolean } = {},
-    ): { data: IBlockData; transactions: ITransaction[] } {
+    ): { data: IBlockData; transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[] } {
         const block = {} as IBlockData;
-        let transactions: ITransaction[] = [];
+        let transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[] = [];
 
         const buffer = Buffer.from(serializedHex, "hex");
         const buf: ByteBuffer = new ByteBuffer(buffer.length, true);
@@ -27,32 +32,32 @@ export class Deserializer {
             transactions = this.deserializeTransactions(block, buf, options.deserializeTransactionsUnchecked);
         }
 
-        block.idHex = Block.getIdHex(block);
-        block.id = Block.getId(block);
+        block.idHex = this.getIdHex(block);
+        block.id = this.getId(block);
 
-        const { outlookTable } = configManager.get("exceptions");
+        const { outlookTable } = this.cryptoManager.NetworkConfigManager.get("exceptions");
 
         if (outlookTable && outlookTable[block.id]) {
-            const constants = configManager.getMilestone(block.height);
+            const constants = this.cryptoManager.MilestoneManager.getMilestone(block.height);
 
             if (constants.block.idFullSha256) {
                 block.id = outlookTable[block.id];
                 block.idHex = block.id;
             } else {
                 block.id = outlookTable[block.id];
-                block.idHex = Block.toBytesHex(block.id);
+                block.idHex = SerializerUtils.toBytesHex(block.id, this.cryptoManager);
             }
         }
 
         return { data: block, transactions };
     }
 
-    private static deserializeHeader(block: IBlockData, buf: ByteBuffer): void {
+    private deserializeHeader(block: IBlockData, buf: ByteBuffer): void {
         block.version = buf.readUint32();
         block.timestamp = buf.readUint32();
         block.height = buf.readUint32();
 
-        const constants = configManager.getMilestone(block.height - 1 || 1);
+        const constants = this.cryptoManager.MilestoneManager.getMilestone(block.height - 1 || 1);
 
         if (constants.block.idFullSha256) {
             const previousBlockFullSha256 = buf.readBytes(32).toString("hex");
@@ -60,13 +65,15 @@ export class Deserializer {
             block.previousBlock = previousBlockFullSha256;
         } else {
             block.previousBlockHex = buf.readBytes(8).toString("hex");
-            block.previousBlock = BigNumber.make(`0x${block.previousBlockHex}`).toString();
+            block.previousBlock = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(
+                `0x${block.previousBlockHex}`,
+            ).toString();
         }
 
         block.numberOfTransactions = buf.readUint32();
-        block.totalAmount = BigNumber.make(buf.readUint64().toString());
-        block.totalFee = BigNumber.make(buf.readUint64().toString());
-        block.reward = BigNumber.make(buf.readUint64().toString());
+        block.totalAmount = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(buf.readUint64().toString());
+        block.totalFee = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(buf.readUint64().toString());
+        block.reward = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(buf.readUint64().toString());
         block.payloadLength = buf.readUint32();
         block.payloadHash = buf.readBytes(32).toString("hex");
         block.generatorPublicKey = buf.readBytes(33).toString("hex");
@@ -84,24 +91,24 @@ export class Deserializer {
         block.blockSignature = buf.readBytes(signatureLength()).toString("hex");
     }
 
-    private static deserializeTransactions(
+    private deserializeTransactions(
         block: IBlockData,
         buf: ByteBuffer,
         deserializeTransactionsUnchecked: boolean = false,
-    ): ITransaction[] {
+    ): Interfaces.ITransaction<Interfaces.ITransactionData>[] {
         const transactionLengths: number[] = [];
 
         for (let i = 0; i < block.numberOfTransactions; i++) {
             transactionLengths.push(buf.readUint32());
         }
 
-        const transactions: ITransaction[] = [];
+        const transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[] = [];
         block.transactions = [];
         for (const length of transactionLengths) {
             const transactionBytes = buf.readBytes(length).toBuffer();
             const transaction = deserializeTransactionsUnchecked
-                ? TransactionFactory.fromBytesUnsafe(transactionBytes)
-                : TransactionFactory.fromBytes(transactionBytes);
+                ? this.transactionManager.TransactionFactory.fromBytesUnsafe(transactionBytes)
+                : this.transactionManager.TransactionFactory.fromBytes(transactionBytes);
             transactions.push(transaction);
             block.transactions.push(transaction.data);
         }

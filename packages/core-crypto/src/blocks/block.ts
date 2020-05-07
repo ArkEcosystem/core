@@ -1,19 +1,30 @@
-import { Hash, HashAlgorithms, Slots } from "../crypto";
-import { BlockSchemaError } from "../errors";
-import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITransactionData } from "../interfaces";
-// import { configManager } from "../managers/config";
-import { BigNumber, isException } from "../utils";
-import { validator } from "../validation";
+import { CryptoManager, Interfaces, Types } from "@arkecosystem/crypto";
+
+import { IBlock, IBlockData, IBlockJson, IBlockVerification } from "../interfaces";
+import { Validator } from "../validation";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
     // @ts-ignore - todo: this is public but not initialised on creation, either make it private or declare it as undefined
     public serialized: string;
     public data: IBlockData;
-    public transactions: ITransaction[];
+    public transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[];
     public verification: IBlockVerification;
 
-    public constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
+    public constructor(
+        {
+            data,
+            transactions,
+            id,
+        }: {
+            data: IBlockData;
+            transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[];
+            id?: string;
+        },
+        private cryptoManager: CryptoManager<IBlock>,
+        private validator: Validator,
+        private serializer: Serializer,
+    ) {
         this.data = data;
 
         // TODO genesis block calculated id is wrong for some reason
@@ -40,7 +51,7 @@ export class Block implements IBlock {
         this.verification = this.verify();
 
         // Order of transactions messed up in mainnet V1
-        const { wrongTransactionOrder } = configManager.get("exceptions");
+        const { wrongTransactionOrder } = this.cryptoManager.NetworkConfigManager.get("exceptions");
         if (this.data.id && wrongTransactionOrder && wrongTransactionOrder[this.data.id]) {
             const fixedOrderIds = wrongTransactionOrder[this.data.id];
 
@@ -50,81 +61,8 @@ export class Block implements IBlock {
         }
     }
 
-    public static applySchema(data: IBlockData): IBlockData | undefined {
-        let result = validator.validate("block", data);
-
-        if (!result.error) {
-            return result.value;
-        }
-
-        result = validator.validateException("block", data);
-
-        if (!result.errors) {
-            return result.value;
-        }
-
-        for (const err of result.errors) {
-            let fatal = false;
-
-            const match = err.dataPath.match(/\.transactions\[([0-9]+)\]/);
-            if (match === null) {
-                if (!isException(data.id)) {
-                    fatal = true;
-                }
-            } else {
-                const txIndex = match[1];
-
-                if (data.transactions) {
-                    const tx = data.transactions[txIndex];
-
-                    if (tx.id === undefined || !isException(tx.id)) {
-                        fatal = true;
-                    }
-                }
-            }
-
-            if (fatal) {
-                throw new BlockSchemaError(
-                    data.height,
-                    `Invalid data${err.dataPath ? " at " + err.dataPath : ""}: ` +
-                        `${err.message}: ${JSON.stringify(err.data)}`,
-                );
-            }
-        }
-
-        return result.value;
-    }
-
-    public static getIdHex(data: IBlockData): string {
-        const constants = configManager.getMilestone(data.height);
-        const payloadHash: Buffer = Serializer.serialize(data);
-
-        const hash: Buffer = HashAlgorithms.sha256(payloadHash);
-
-        if (constants.block.idFullSha256) {
-            return hash.toString("hex");
-        }
-
-        const temp: Buffer = Buffer.alloc(8);
-
-        for (let i = 0; i < 8; i++) {
-            temp[i] = hash[7 - i];
-        }
-
-        return temp.toString("hex");
-    }
-
-    public static toBytesHex(data): string {
-        const temp: string = data ? BigNumber.make(data).toString(16) : "";
-
-        return "0".repeat(16 - temp.length) + temp;
-    }
-
-    public static getId(data: IBlockData): string {
-        const constants = configManager.getMilestone(data.height);
-        const idHex: string = Block.getIdHex(data);
-
-        return constants.block.idFullSha256 ? idHex : BigNumber.make(`0x${idHex}`).toString();
+    public applySchema(data: IBlockData): IBlockData | undefined {
+        return this.validator.applySchema(data);
     }
 
     public getHeader(): IBlockData {
@@ -135,14 +73,18 @@ export class Block implements IBlock {
     }
 
     public verifySignature(): boolean {
-        const bytes: Buffer = Serializer.serialize(this.data, false);
-        const hash: Buffer = HashAlgorithms.sha256(bytes);
+        const bytes: Buffer = this.serializer.serialize(this.data, false);
+        const hash: Buffer = this.cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(bytes);
 
         if (!this.data.blockSignature) {
             throw new Error();
         }
 
-        return Hash.verifyECDSA(hash, this.data.blockSignature, this.data.generatorPublicKey);
+        return this.cryptoManager.LibraryManager.Crypto.Hash.verifyECDSA(
+            hash,
+            this.data.blockSignature,
+            this.data.generatorPublicKey,
+        );
     }
 
     public toJson(): IBlockJson {
@@ -164,7 +106,7 @@ export class Block implements IBlock {
         };
 
         try {
-            const constants = configManager.getMilestone(block.height);
+            const constants = this.cryptoManager.MilestoneManager.getMilestone(block.height);
 
             if (block.height !== 1) {
                 if (!block.previousBlock) {
@@ -186,16 +128,21 @@ export class Block implements IBlock {
                 result.errors.push("Invalid block version");
             }
 
-            if (Slots.getSlotNumber(block.timestamp) > Slots.getSlotNumber()) {
+            if (
+                this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(block.timestamp) >
+                this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber()
+            ) {
                 result.errors.push("Invalid block timestamp");
             }
 
-            const size: number = Serializer.size(this);
+            const size: number = this.serializer.size(this);
             if (size > constants.block.maxPayload) {
                 result.errors.push(`Payload is too large: ${size} > ${constants.block.maxPayload}`);
             }
 
-            const invalidTransactions: ITransaction[] = this.transactions.filter((tx) => !tx.verified);
+            const invalidTransactions: Interfaces.ITransaction<
+                Interfaces.ITransactionData
+            >[] = this.transactions.filter((tx) => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
 
@@ -217,10 +164,10 @@ export class Block implements IBlock {
             }
 
             // Checking if transactions of the block adds up to block values.
-            const appliedTransactions: Record<string, ITransactionData> = {};
+            const appliedTransactions: Record<string, Interfaces.ITransactionData> = {};
 
-            let totalAmount: BigNumber = BigNumber.ZERO;
-            let totalFee: BigNumber = BigNumber.ZERO;
+            let totalAmount: Types.BigNumber = this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
+            let totalFee: Types.BigNumber = this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
 
             const payloadBuffers: Buffer[] = [];
             for (const transaction of this.transactions) {
@@ -240,7 +187,8 @@ export class Block implements IBlock {
                     transaction.data.expiration <= this.data.height
                 ) {
                     const isException =
-                        configManager.get("network.name") === "devnet" && constants.ignoreExpiredTransactions;
+                        this.cryptoManager.NetworkConfigManager.get("network.name") === "devnet" &&
+                        constants.ignoreExpiredTransactions;
                     if (!isException) {
                         result.errors.push(`Encountered expired transaction: ${transaction.data.id}`);
                     }
@@ -271,7 +219,10 @@ export class Block implements IBlock {
                 result.errors.push("Invalid total fee");
             }
 
-            if (HashAlgorithms.sha256(payloadBuffers).toString("hex") !== block.payloadHash) {
+            if (
+                this.cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(payloadBuffers).toString("hex") !==
+                block.payloadHash
+            ) {
                 result.errors.push("Invalid payload hash");
             }
         } catch (error) {
@@ -285,6 +236,6 @@ export class Block implements IBlock {
 
     private applyGenesisBlockFix(id: string): void {
         this.data.id = id;
-        this.data.idHex = Block.toBytesHex(id);
+        this.data.idHex = Serializer.toBytesHex(id, this.cryptoManager);
     }
 }
