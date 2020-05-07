@@ -1,6 +1,4 @@
-import { ITransactionData } from "../interfaces";
-import { BigNumber } from "../utils";
-import { ITransaction, ITransactionJson } from "./transactions";
+import { Interfaces, Types } from "@arkecosystem/crypto/src";
 
 export interface IBlockVerification {
     verified: boolean;
@@ -11,7 +9,7 @@ export interface IBlockVerification {
 export interface IBlock {
     serialized: string;
     data: IBlockData;
-    transactions: ITransaction[];
+    transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[];
     verification: IBlockVerification;
 
     getHeader(): IBlockData;
@@ -32,16 +30,16 @@ export interface IBlockData {
     previousBlockHex?: string;
     previousBlock: string;
     numberOfTransactions: number;
-    totalAmount: BigNumber;
-    totalFee: BigNumber;
-    reward: BigNumber;
+    totalAmount: Types.BigNumber;
+    totalFee: Types.BigNumber;
+    reward: Types.BigNumber;
     payloadLength: number;
     payloadHash: string;
     generatorPublicKey: string;
 
     blockSignature?: string;
     serialized?: string;
-    transactions?: ITransactionData[];
+    transactions?: Interfaces.ITransactionData[];
 }
 
 export interface IBlockJson {
@@ -63,5 +61,5 @@ export interface IBlockJson {
 
     blockSignature?: string;
     serialized?: string;
-    transactions?: ITransactionJson[];
+    transactions?: Interfaces.ITransactionJson[];
 }

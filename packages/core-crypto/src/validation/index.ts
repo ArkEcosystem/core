@@ -1,33 +1,39 @@
+import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
 import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
 
-import { ISchemaValidationResult } from "../interfaces";
-import { signedSchema, strictSchema, TransactionSchema } from "../transactions/types/schemas";
+import { IBlock } from "../interfaces";
 import { formats } from "./formats";
 import { keywords } from "./keywords";
 import { schemas } from "./schemas";
 
 export class Validator {
     private ajv: Ajv.Ajv;
-    private readonly transactionSchemas: Map<string, TransactionSchema> = new Map<string, TransactionSchema>();
+    private readonly transactionSchemas: Map<string, Transactions.schemas.TransactionSchema> = new Map<
+        string,
+        Transactions.schemas.TransactionSchema
+    >();
 
-    private constructor(options: Record<string, any>) {
+    private constructor(private cryptoManager: CryptoManager<IBlock>, options: Record<string, any>) {
         this.ajv = this.instantiateAjv(options);
     }
 
-    public static make(options: Record<string, any> = {}): Validator {
-        return new Validator(options);
+    public static make(cryptoManager: CryptoManager<IBlock>, options: Record<string, any> = {}): Validator {
+        return new Validator(cryptoManager, options);
     }
 
     public getInstance(): Ajv.Ajv {
         return this.ajv;
     }
 
-    public validate<T = any>(schemaKeyRef: string | boolean | object, data: T): ISchemaValidationResult<T> {
+    public validate<T = any>(schemaKeyRef: string | boolean | object, data: T): Interfaces.ISchemaValidationResult<T> {
         return this.validateSchema(this.ajv, schemaKeyRef, data);
     }
 
-    public validateException<T = any>(schemaKeyRef: string | boolean | object, data: T): ISchemaValidationResult<T> {
+    public validateException<T = any>(
+        schemaKeyRef: string | boolean | object,
+        data: T,
+    ): Interfaces.ISchemaValidationResult<T> {
         const ajv = this.instantiateAjv({ allErrors: true, verbose: true });
 
         for (const schema of this.transactionSchemas.values()) {
@@ -57,7 +63,7 @@ export class Validator {
         this.ajv.removeSchema(schemaKeyRef);
     }
 
-    public extendTransaction(schema: TransactionSchema, remove?: boolean) {
+    public extendTransaction(schema: Transactions.schemas.TransactionSchema, remove?: boolean) {
         this.extendTransactionSchema(this.ajv, schema, remove);
     }
 
@@ -65,7 +71,7 @@ export class Validator {
         ajv: Ajv.Ajv,
         schemaKeyRef: string | boolean | object,
         data: T,
-    ): ISchemaValidationResult<T> {
+    ): Interfaces.ISchemaValidationResult<T> {
         try {
             ajv.validate(schemaKeyRef, data);
 
@@ -90,17 +96,17 @@ export class Validator {
         ajvKeywords(ajv);
 
         for (const addKeyword of keywords) {
-            addKeyword(ajv);
+            addKeyword(ajv, this.cryptoManager);
         }
 
         for (const addFormat of formats) {
-            addFormat(ajv);
+            addFormat(ajv, this.cryptoManager);
         }
 
         return ajv;
     }
 
-    private extendTransactionSchema(ajv: Ajv.Ajv, schema: TransactionSchema, remove?: boolean) {
+    private extendTransactionSchema(ajv: Ajv.Ajv, schema: Transactions.schemas.TransactionSchema, remove?: boolean) {
         if (ajv.getSchema(schema.$id)) {
             remove = true;
         }
@@ -116,8 +122,8 @@ export class Validator {
         this.transactionSchemas.set(schema.$id, schema);
 
         ajv.addSchema(schema);
-        ajv.addSchema(signedSchema(schema));
-        ajv.addSchema(strictSchema(schema));
+        ajv.addSchema(Transactions.schemas.signedSchema(schema));
+        ajv.addSchema(Transactions.schemas.strictSchema(schema));
 
         this.updateTransactionArray(ajv);
     }
@@ -135,4 +141,4 @@ export class Validator {
     }
 }
 
-export const validator = Validator.make();
+// export const validator = Validator.make();

@@ -1,10 +1,8 @@
+import { CryptoManager, Enums, Interfaces, Types } from "@arkecosystem/crypto";
 import { Ajv } from "ajv";
 import ajvKeywords from "ajv-keywords";
 
-import { TransactionType } from "../enums";
-import { ITransactionData } from "../interfaces";
-import { configManager } from "../managers";
-import { BigNumber, isGenesisTransaction } from "../utils";
+import { IBlock } from "../interfaces";
 
 const maxBytes = (ajv: Ajv) => {
     ajv.addKeyword("maxBytes", {
@@ -26,19 +24,19 @@ const maxBytes = (ajv: Ajv) => {
     });
 };
 
-const transactionType = (ajv: Ajv) => {
+const transactionType = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
     ajv.addKeyword("transactionType", {
         // @ts-ignore
         compile(schema) {
-            return (data, dataPath, parentObject: ITransactionData) => {
+            return (data, dataPath, parentObject: Interfaces.ITransactionData) => {
                 // Impose dynamic multipayment limit based on milestone
                 if (
-                    data === TransactionType.MultiPayment &&
+                    data === Enums.TransactionType.MultiPayment &&
                     parentObject &&
                     (!parentObject.typeGroup || parentObject.typeGroup === 1)
                 ) {
                     if (parentObject.asset && parentObject.asset.payments) {
-                        const limit: number = configManager.getMilestone().multiPaymentLimit || 256;
+                        const limit: number = cryptoManager.MilestoneManager.getMilestone().multiPaymentLimit || 256;
                         return parentObject.asset.payments.length <= limit;
                     }
                 }
@@ -54,11 +52,11 @@ const transactionType = (ajv: Ajv) => {
     });
 };
 
-const network = (ajv: Ajv) => {
+const network = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
     ajv.addKeyword("network", {
         compile(schema) {
             return (data) => {
-                return schema && data === configManager.get("network.pubKeyHash");
+                return schema && data === cryptoManager.NetworkConfigManager.get("network.pubKeyHash");
             };
         },
         errors: false,
@@ -68,9 +66,9 @@ const network = (ajv: Ajv) => {
     });
 };
 
-const bignumber = (ajv: Ajv) => {
+const bignumber = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
     const instanceOf = ajvKeywords.get("instanceof").definition;
-    instanceOf.CONSTRUCTORS.BigNumber = BigNumber;
+    instanceOf.CONSTRUCTORS.BigNumber = Types.BigNumber;
 
     ajv.addKeyword("bignumber", {
         compile(schema) {
@@ -82,9 +80,9 @@ const bignumber = (ajv: Ajv) => {
                     return false;
                 }
 
-                let bignum: BigNumber;
+                let bignum: Types.BigNumber;
                 try {
-                    bignum = BigNumber.make(data);
+                    bignum = cryptoManager.LibraryManager.Libraries.BigNumber.make(data);
                 } catch {
                     return false;
                 }
@@ -99,7 +97,7 @@ const bignumber = (ajv: Ajv) => {
                         if (schema.block) {
                             bypassGenesis = parentObject.height === 1;
                         } else {
-                            bypassGenesis = isGenesisTransaction(parentObject.id);
+                            bypassGenesis = cryptoManager.LibraryManager.Utils.isGenesisTransaction(parentObject.id);
                         }
                     }
                 }
@@ -130,7 +128,7 @@ const bignumber = (ajv: Ajv) => {
     });
 };
 
-const blockId = (ajv: Ajv) => {
+const blockId = (ajv: Ajv, cryptoManager: CryptoManager<IBlock>) => {
     ajv.addKeyword("blockId", {
         compile(schema) {
             return (data, dataPath, parentObject: any) => {
@@ -149,7 +147,7 @@ const blockId = (ajv: Ajv) => {
 
                 if (parentObject && parentObject.height) {
                     const height = schema.isPreviousBlock ? parentObject.height - 1 : parentObject.height;
-                    const constants = configManager.getMilestone(height);
+                    const constants = cryptoManager.MilestoneManager.getMilestone(height);
                     return constants.block.idFullSha256 ? isFullSha256 : isPartial;
                 }
 
