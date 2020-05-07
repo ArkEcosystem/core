@@ -1,13 +1,10 @@
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse } from "@hapi/hapi";
-import * as rpc from "@hapist/json-rpc";
-
 import { readFileSync } from "fs";
 
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
-import { Validation } from "@arkecosystem/crypto";
 
 import { Identifiers } from "./ioc";
-import { ActionReader } from "./action-reader";
+import { Plugins } from "./contracts";
 
 @Container.injectable()
 export class Server {
@@ -17,53 +14,19 @@ export class Server {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    @Container.inject(Identifiers.ActionReader)
-    private readonly actionReader!: ActionReader;
+    @Container.inject(Identifiers.PluginFactory)
+    private readonly pluginFactory!: Plugins.PluginFactory;
 
-    private server: HapiServer;
+    private server!: HapiServer;
 
     private name!: string;
 
-    public async initialize(name: string, optionsServer: Types.JsonObject): Promise<void> {
+    public async initialize(name: string, serverOptions: Types.JsonObject): Promise<void> {
         this.name = name;
-        this.server = new HapiServer(this.getServerOptions(optionsServer));
-        this.server.app.app = this.app;
+        this.server = new HapiServer(this.getServerOptions(serverOptions));
+        // this.server.app.app = this.app;
 
-        await this.server.register({
-            plugin: rpc,
-            options: {
-                methods: this.actionReader.discoverActions(),
-                processor: {
-                    schema: {
-                        properties: {
-                            id: {
-                                type: ["number", "string"],
-                            },
-                            jsonrpc: {
-                                pattern: "2.0",
-                                type: "string",
-                            },
-                            method: {
-                                type: "string",
-                            },
-                            params: {
-                                type: "object",
-                            },
-                        },
-                        required: ["jsonrpc", "method", "id"],
-                        type: "object",
-                    },
-                    validate(data: object, schema: object) {
-                        try {
-                            const { error } = Validation.validator.validate(schema, data);
-                            return { value: data, error: error ? error : null };
-                        } catch (error) {
-                            return { value: null, error: error.stack };
-                        }
-                    },
-                },
-            },
-        });
+        await this.server.register(this.pluginFactory.preparePlugins());
     }
 
     public async inject(options: string | ServerInjectOptions): Promise<ServerInjectResponse> {

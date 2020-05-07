@@ -2,10 +2,13 @@ import { Providers} from "@arkecosystem/core-kernel";
 import { Identifiers } from "./ioc";
 import { Server } from "./server";
 import { ActionReader } from "./action-reader";
+import { PluginFactory } from "./plugins";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
+
+        this.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
 
         if (this.config().get("server.http.enabled")) {
             await this.buildServer("http", Identifiers.HTTP);

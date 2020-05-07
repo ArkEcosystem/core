@@ -15,5 +15,8 @@ export const defaults = {
                 cert: process.env.CORE_MONITOR_SSL_CERT,
             },
         },
+    },
+    plugins: {
+        whitelist: ["*"]
     }
 };
