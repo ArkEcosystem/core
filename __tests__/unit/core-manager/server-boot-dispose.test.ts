@@ -8,9 +8,12 @@ import { Sandbox } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import { Server } from "@packages/core-manager/src/server";
 import { ActionReader } from "@packages/core-manager/src/action-reader";
+import { PluginFactory } from "@packages/core-manager/src/plugins/plugin-factory";
+import { defaults } from "@packages/core-manager/src/defaults";
 
 let sandbox: Sandbox;
 let server: Server;
+let pluginsConfiguration = defaults.plugins
 
 let logger = {
     info: jest.fn(),
@@ -42,9 +45,15 @@ beforeEach(() => {
 
     sandbox.app.bind(Identifiers.HTTP).to(Server).inSingletonScope();
     sandbox.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
+    sandbox.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+    sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
+        get: jest.fn().mockReturnValue(pluginsConfiguration)
+    });
+
 
     sandbox.app.terminate = jest.fn();
+
 
     server = sandbox.app.get<Server>(Identifiers.HTTP);
 });
