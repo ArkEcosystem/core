@@ -8,7 +8,7 @@ import { BigNumber } from "../../types";
 import { Verifier } from "../verifier";
 import { TransactionSchema } from "./schemas";
 
-export abstract class Transaction<T, U extends ITransactionData, E> implements ITransaction<U, E> {
+export abstract class Transaction<T, U extends ITransactionData, E = any> implements ITransaction<U, E> {
     public static type: number | undefined = undefined;
     public static typeGroup: number | undefined = undefined;
     public static version: number = 1;
