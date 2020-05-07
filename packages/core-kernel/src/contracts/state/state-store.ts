@@ -1,11 +1,12 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface StateStore {
     blockchain: any;
-    lastDownloadedBlock: Interfaces.IBlockData | undefined;
+    lastDownloadedBlock: BlockInterfaces.IBlockData | undefined;
     blockPing: any;
     started: boolean;
-    forkedBlock: Interfaces.IBlock | undefined;
+    forkedBlock: BlockInterfaces.IBlock | undefined;
     wakeUpTimeout: any;
     noBlockCounter: number;
     p2pUpdateCounter: number;
@@ -32,30 +33,30 @@ export interface StateStore {
     /**
      * Get the genesis block.
      */
-    getGenesisBlock(): Interfaces.IBlock;
+    getGenesisBlock(): BlockInterfaces.IBlock;
 
     /**
      * Sets the genesis block.
      * @returns {void}
      */
-    setGenesisBlock(block: Interfaces.IBlock): void;
+    setGenesisBlock(block: BlockInterfaces.IBlock): void;
 
     /**
      * Get the last block.
      */
-    getLastBlock(): Interfaces.IBlock;
+    getLastBlock(): BlockInterfaces.IBlock;
 
     /**
      * Sets the last block.
      * @returns {void}
      */
-    setLastBlock(block: Interfaces.IBlock): void;
+    setLastBlock(block: BlockInterfaces.IBlock): void;
 
     /**
      * Get the last blocks.
      * @returns {Array}
      */
-    getLastBlocks(): Interfaces.IBlock[];
+    getLastBlocks(): BlockInterfaces.IBlock[];
 
     /**
      * Get the last block ids.
@@ -68,13 +69,13 @@ export interface StateStore {
      * @param {Number} start
      * @param {Number} end
      */
-    getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[];
+    getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): BlockInterfaces.IBlockData[];
 
     /**
      * Get common blocks for the given IDs.
      * @returns {Array}
      */
-    getCommonBlocks(ids: string[]): Interfaces.IBlockData[];
+    getCommonBlocks(ids: string[]): BlockInterfaces.IBlockData[];
 
     /**
      * Cache the ids of the given transactions.
@@ -96,10 +97,10 @@ export interface StateStore {
     /**
      * Ping a block.
      */
-    pingBlock(incomingBlock: Interfaces.IBlockData): boolean;
+    pingBlock(incomingBlock: BlockInterfaces.IBlockData): boolean;
 
     /**
      * Push ping block
      */
-    pushPingBlock(block: Interfaces.IBlockData, fromForger?: boolean): void;
+    pushPingBlock(block: BlockInterfaces.IBlockData, fromForger?: boolean): void;
 }

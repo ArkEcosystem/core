@@ -1,3 +1,4 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { Peer, PeerConfig } from "./peer";
@@ -5,7 +6,7 @@ import { Peer, PeerConfig } from "./peer";
 export interface PeerCommunicator {
     initialize();
 
-    postBlock(peer: Peer, block: Interfaces.IBlock);
+    postBlock(peer: Peer, block: BlockInterfaces.IBlock);
 
     postTransactions(peer: Peer, transactions: Interfaces.ITransactionJson[]): Promise<any>;
 
@@ -26,5 +27,5 @@ export interface PeerCommunicator {
             blockLimit,
             headersOnly,
         }: { fromBlockHeight: number; blockLimit?: number; headersOnly?: boolean },
-    ): Promise<Interfaces.IBlockData[]>;
+    ): Promise<BlockInterfaces.IBlockData[]>;
 }

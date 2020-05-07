@@ -1,3 +1,4 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 
 /**
@@ -41,7 +42,7 @@ export const calculateTransactionExpiration = (
 };
 
 export const calculateLockExpirationStatus = (
-    lastBlock: Interfaces.IBlock,
+    lastBlock: BlockInterfaces.IBlock,
     expiration: Interfaces.IHtlcExpiration,
 ): boolean =>
     (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp && expiration.value <= lastBlock.data.timestamp) ||

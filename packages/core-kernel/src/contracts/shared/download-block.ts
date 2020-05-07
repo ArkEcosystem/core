@@ -1,4 +1,4 @@
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/core-crypto";
 
 export interface DownloadBlock extends Omit<Interfaces.IBlockData, "transactions"> {
     transactions: string[];

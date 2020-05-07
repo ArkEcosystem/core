@@ -1,4 +1,4 @@
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/core-crypto";
 
 import { RoundInfo } from "../shared/rounds";
 import { Wallet } from "./wallets";

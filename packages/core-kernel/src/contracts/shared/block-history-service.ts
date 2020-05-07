@@ -1,4 +1,4 @@
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/core-crypto";
 
 import { OrBlockCriteria } from "./criteria";
 import { ListingOrder, ListingPage, ListingResult } from "./listing";

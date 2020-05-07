@@ -4,12 +4,16 @@ export interface SenderMempool {
     isEmpty(): boolean;
     getSize(): number;
 
-    getFromEarliest(): Iterable<Interfaces.ITransaction>;
-    getFromLatest(): Iterable<Interfaces.ITransaction>;
+    getFromEarliest(): Iterable<Interfaces.ITransaction<Interfaces.ITransactionData>>;
+    getFromLatest(): Iterable<Interfaces.ITransaction<Interfaces.ITransactionData>>;
 
-    addTransaction(transaction: Interfaces.ITransaction): Promise<void>;
-    removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
-    acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
+    addTransaction(transaction: Interfaces.ITransaction<Interfaces.ITransactionData>): Promise<void>;
+    removeTransaction(
+        transaction: Interfaces.ITransaction<Interfaces.ITransactionData>,
+    ): Promise<Interfaces.ITransaction<Interfaces.ITransactionData>[]>;
+    acceptForgedTransaction(
+        transaction: Interfaces.ITransaction<Interfaces.ITransactionData>,
+    ): Promise<Interfaces.ITransaction<Interfaces.ITransactionData>[]>;
 }
 
 export type SenderMempoolFactory = () => SenderMempool;

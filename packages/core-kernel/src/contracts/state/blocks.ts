@@ -1,4 +1,4 @@
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/core-crypto";
 
 export interface BlockState {
     applyBlock(block: Interfaces.IBlock): Promise<void>;

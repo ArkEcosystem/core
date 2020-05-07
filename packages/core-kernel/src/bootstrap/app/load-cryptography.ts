@@ -1,4 +1,5 @@
-import { Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
+import { CryptoManager, Interfaces } from "@arkecosystem/crypto";
 
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
@@ -33,12 +34,14 @@ export class LoadCryptography implements Bootstrapper {
     @inject(Identifiers.ConfigRepository)
     private readonly configRepository!: ConfigRepository;
 
+    private cryptoManager: CryptoManager<BlockInterfaces.IBlockData> | undefined;
+
     /**
      * @returns {Promise<void>}
      * @memberof LoadCryptography
      */
     public async bootstrap(): Promise<void> {
-        this.configRepository.hasAll([
+        this.cryptoManager = this.configRepository.hasAll([
             "crypto.genesisBlock",
             "crypto.exceptions",
             "crypto.milestones",
@@ -47,29 +50,33 @@ export class LoadCryptography implements Bootstrapper {
             ? this.fromConfigRepository()
             : this.fromPreset();
 
-        const networkConfig: Interfaces.NetworkConfig | undefined = Managers.configManager.all();
+        assert.defined<Interfaces.NetworkConfig<BlockInterfaces.IBlockData>>(this.cryptoManager);
 
-        assert.defined<Interfaces.NetworkConfig>(networkConfig);
-
-        this.app.bind<Interfaces.NetworkConfig>(Identifiers.Crypto).toConstantValue(networkConfig);
+        this.app
+            .bind<Interfaces.NetworkConfig<BlockInterfaces.IBlockData>>(Identifiers.CryptoManager)
+            .toConstantValue(this.cryptoManager);
     }
 
     /**
      * @private
      * @memberof LoadCryptography
      */
-    private fromPreset(): void {
-        Managers.configManager.setFromPreset(this.app.network() as any);
+    private fromPreset(): CryptoManager<BlockInterfaces.IBlockData> {
+        return CryptoManager.createFromPreset(this.app.network() as any);
     }
 
     /**
      * @private
      * @memberof LoadCryptography
      */
-    private fromConfigRepository(): void {
-        Managers.configManager.set("genesisBlock", this.configRepository.get("crypto.genesisBlock"));
-        Managers.configManager.set("exceptions", this.configRepository.get("crypto.exceptions"));
-        Managers.configManager.set("milestones", this.configRepository.get("crypto.milestones"));
-        Managers.configManager.set("network", this.configRepository.get("crypto.network"));
+    private fromConfigRepository(): CryptoManager<BlockInterfaces.IBlockData> {
+        const networkConfig: Interfaces.NetworkConfig<BlockInterfaces.IBlockData> = {
+            genesisBlock: this.configRepository.get("crypto.genesisBlock"),
+            exceptions: this.configRepository.get("crypto.exceptions"),
+            milestones: this.configRepository.get("crypto.milestones"),
+            network: this.configRepository.get("crypto.network"),
+        };
+
+        return CryptoManager.createFromConfig(networkConfig);
     }
 }

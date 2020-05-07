@@ -1,4 +1,5 @@
-import { Managers } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/core-crypto";
+import { CryptoManager } from "@arkecosystem/crypto";
 
 import { EventDispatcher } from "../../contracts/kernel/events";
 import { BlockEvent } from "../../enums";
@@ -27,6 +28,9 @@ export class BlockJob implements Job {
      */
     @inject(Identifiers.EventDispatcherService)
     private readonly events!: EventDispatcher;
+
+    @inject(Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager<Interfaces.IBlockData>;
 
     /**
      * @param {Function} callback
@@ -106,6 +110,6 @@ export class BlockJob implements Job {
      * @memberof BlockJob
      */
     public everyRound(): this {
-        return this.cron(Managers.configManager.getMilestone().activeDelegates);
+        return this.cron(this.cryptoManager.MilestoneManager.getMilestone().activeDelegates);
     }
 }

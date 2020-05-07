@@ -1,5 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface Collator {
-    getBlockCandidateTransactions(): Promise<Interfaces.ITransaction[]>;
+    getBlockCandidateTransactions(): Promise<Interfaces.ITransaction<Interfaces.ITransactionData>[]>;
 }

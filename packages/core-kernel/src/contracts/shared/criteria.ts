@@ -1,4 +1,4 @@
-import { Utils } from "@arkecosystem/crypto";
+import { Types } from "@arkecosystem/crypto";
 
 export type EqualCriteria<T> = T;
 export type NumericCriteria<T> = T | { from: T } | { to: T } | { from: T; to: T };
@@ -20,9 +20,9 @@ export type BlockCriteria = {
     previousBlock?: OrEqualCriteria<string>;
     height?: OrNumericCriteria<number>;
     numberOfTransactions?: OrNumericCriteria<number>;
-    totalAmount?: OrNumericCriteria<Utils.BigNumber>;
-    totalFee?: OrNumericCriteria<Utils.BigNumber>;
-    reward?: OrNumericCriteria<Utils.BigNumber>;
+    totalAmount?: OrNumericCriteria<Types.BigNumber>;
+    totalFee?: OrNumericCriteria<Types.BigNumber>;
+    reward?: OrNumericCriteria<Types.BigNumber>;
     payloadLength?: OrNumericCriteria<number>;
     payloadHash?: OrEqualCriteria<string>;
     generatorPublicKey?: OrEqualCriteria<string>;
@@ -37,14 +37,14 @@ export type TransactionCriteria = {
     blockId?: OrEqualCriteria<string>;
     sequence?: OrNumericCriteria<number>;
     timestamp?: OrNumericCriteria<number>;
-    nonce?: OrNumericCriteria<Utils.BigNumber>;
+    nonce?: OrNumericCriteria<Types.BigNumber>;
     senderPublicKey?: OrEqualCriteria<string>;
     recipientId?: OrEqualCriteria<string>;
     type?: OrEqualCriteria<number>;
     typeGroup?: OrEqualCriteria<number>;
     vendorField?: OrLikeCriteria<string>;
-    amount?: OrNumericCriteria<Utils.BigNumber>;
-    fee?: OrNumericCriteria<Utils.BigNumber>;
+    amount?: OrNumericCriteria<Types.BigNumber>;
+    fee?: OrNumericCriteria<Types.BigNumber>;
     asset?: OrContainsCriteria<Record<string, any>>;
 };
 

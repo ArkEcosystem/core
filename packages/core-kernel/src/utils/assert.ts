@@ -1,4 +1,5 @@
-import { Blocks, Transactions } from "@arkecosystem/crypto";
+import { Blocks, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { AssertionException } from "../exceptions/runtime";
 
@@ -21,7 +22,9 @@ interface Assert {
     bigint: (value: unknown) => asserts value is bigint;
     block(value: unknown): asserts value is Blocks.Block;
     defined<T>(value: unknown): asserts value is NonNullable<T>;
-    transaction(value: unknown): asserts value is Transactions.Transaction;
+    transaction(
+        value: unknown,
+    ): asserts value is Transactions.Transaction<BlockInterfaces.IBlockData, Interfaces.ITransactionData>;
 }
 
 /**
@@ -58,7 +61,9 @@ export const assert: Assert = {
     symbol: (value: unknown): asserts value is symbol => {
         return assertType(typeof value === "symbol", "symbol");
     },
-    transaction: (value: unknown): asserts value is Transactions.Transaction => {
+    transaction: (
+        value: unknown,
+    ): asserts value is Transactions.Transaction<BlockInterfaces.IBlockData, Interfaces.ITransactionData> => {
         return assertType(value instanceof Transactions.Transaction, "Crypto.Transactions.Transaction");
     },
     undefined: (value: unknown): asserts value is undefined => {

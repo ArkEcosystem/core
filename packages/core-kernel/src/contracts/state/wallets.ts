@@ -1,4 +1,5 @@
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
+import { Interfaces, Types } from "@arkecosystem/crypto";
 
 import { ListingResult } from "../shared/listing";
 
@@ -47,16 +48,16 @@ export interface Wallet {
     publicKey: string | undefined;
 
     /**
-     * @type {Utils.BigNumber}
+     * @type {Types.BigNumber}
      * @memberof Wallet
      */
-    balance: Utils.BigNumber;
+    balance: Types.BigNumber;
 
     /**
      * @type {Utils.BigNumber}
      * @memberof Wallet
      */
-    nonce: Utils.BigNumber;
+    nonce: Types.BigNumber;
 
     /**
      * @memberof Wallet
@@ -130,12 +131,12 @@ export type WalletFactory = (address: string) => Wallet;
 
 export interface WalletDelegateAttributes {
     username: string;
-    voteBalance: Utils.BigNumber;
-    forgedFees: Utils.BigNumber;
-    forgedRewards: Utils.BigNumber;
+    voteBalance: Types.BigNumber;
+    forgedFees: Types.BigNumber;
+    forgedRewards: Types.BigNumber;
     producedBlocks: number;
     rank?: number;
-    lastBlock?: Interfaces.IBlockData;
+    lastBlock?: BlockInterfaces.IBlockData;
     round?: number;
     resigned?: boolean;
 }
@@ -176,7 +177,7 @@ export interface WalletRepository {
 
     findByIndexes(indexes: string[], key: string): Wallet;
 
-    getNonce(publicKey: string): Utils.BigNumber;
+    getNonce(publicKey: string): Types.BigNumber;
 
     index(wallets: Wallet | ReadonlyArray<Wallet>): void;
 
@@ -220,7 +221,7 @@ export interface SearchContext<T = any> {
 export interface UnwrappedHtlcLock {
     lockId: string;
     senderPublicKey: string;
-    amount: Utils.BigNumber;
+    amount: Types.BigNumber;
     recipientId: string;
     secretHash: string;
     timestamp: number;
