@@ -1,15 +1,13 @@
-import { Server as HapiServer, Plugin, Request } from "@hapi/hapi";
-import { Boom } from "@hapi/boom";
+import { Server as HapiServer } from "@hapi/hapi";
 
-
-export const rpcResponseHandler: Plugin<any> = {
+export const rpcResponseHandler = {
     name: "rcpResponseHandler",
     version: "0.1.0",
     register: (server: HapiServer) => {
         server.ext({
             type: "onPreResponse",
-            method(request: Request, h) {
-                let response = request.response as Boom;
+            method(request, h) {
+                let response = request.response;
                 if (!response.isBoom) {
                     return h.continue;
                 }

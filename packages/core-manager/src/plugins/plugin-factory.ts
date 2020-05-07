@@ -1,6 +1,5 @@
 import * as rpc from "@hapist/json-rpc";
 import * as whitelist from "@hapist/whitelist";
-import { Plugin, ServerRegisterPluginObject } from "@hapi/hapi";
 
 import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Validation } from "@arkecosystem/crypto";
@@ -19,7 +18,7 @@ export class PluginFactory implements Plugins.PluginFactory {
     @Container.inject(Identifiers.ActionReader)
     private readonly actionReader!: ActionReader;
 
-    public preparePlugins(): Array<ServerRegisterPluginObject<any>> {
+    public preparePlugins(): Array<Plugins.RegisterPluginObject> {
         let pluginConfig = this.configuration.get("plugins")
 
         return [
@@ -27,7 +26,7 @@ export class PluginFactory implements Plugins.PluginFactory {
               plugin: rpcResponseHandler
             },
             {
-                plugin: whitelist as unknown as Plugin<any>,
+                plugin: whitelist,
                 options: {
                     // @ts-ignore
                     whitelist: pluginConfig.whitelist
@@ -36,7 +35,7 @@ export class PluginFactory implements Plugins.PluginFactory {
                 },
             },
             {
-                plugin: rpc as unknown as Plugin<any>,
+                plugin: rpc,
                 options: {
                     methods: this.actionReader.discoverActions(),
                     processor: {

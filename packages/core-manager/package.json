@@ -27,14 +27,8 @@
         "@hapist/json-rpc": "^0.2.0",
         "@hapist/whitelist": "^0.1.0"
     },
-    "devDependencies": {
-        "@types/hapi__hapi": "^19.0.0"
-    },
     "engines": {
         "node": ">=10.x"
-    },
-    "publishConfig": {
-        "access": "public"
     },
     "arkecosystem": {
         "core": {

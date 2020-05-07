@@ -1,5 +1,8 @@
-import { ServerRegisterPluginObject } from "@hapi/hapi";
+export interface RegisterPluginObject {
+    plugin: any,
+    options?: any
+}
 
 export interface PluginFactory {
-    preparePlugins(): Array<ServerRegisterPluginObject<any>>
+    preparePlugins(): Array<RegisterPluginObject>
 }
