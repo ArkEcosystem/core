@@ -46,6 +46,7 @@ beforeEach(() => {
     sandbox.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
     sandbox.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
     sandbox.app.bind(Identifiers.BasicCredentialsValidator).toConstantValue({});
+    sandbox.app.bind(Identifiers.TokenValidator).toConstantValue({});
 
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({

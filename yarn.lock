@@ -1530,6 +1530,11 @@
   resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.0.3.tgz#e49e637d5de8faa4f0d313c2590b455d7c00afd7"
   integrity sha512-jKtjLLDiH95b002sJVc5c74PE6KKYftuyVdVmsuYId5stTaWcRFqE+5ukZI4gDUKjGn8wv2C3zPn3/nyjEI7gg==
 
+"@hapi/hoek@^9.0.4":
+  version "9.0.4"
+  resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.0.4.tgz#e80ad4e8e8d2adc6c77d985f698447e8628b6010"
+  integrity sha512-EwaJS7RjoXUZ2cXXKZZxZqieGtc7RbvQhUy8FwDoMQtxWVi14tFjeFCYPZAM1mBCpOpiBpyaZbb9NeHc7eGKgw==
+
 "@hapi/iron@5.x.x":
   version "5.1.4"
   resolved "https://registry.yarnpkg.com/@hapi/iron/-/iron-5.1.4.tgz#7406f36847f798f52b92d1d97f855e27973832b7"
@@ -1562,7 +1567,7 @@
     "@hapi/hoek" "8.x.x"
     "@hapi/topo" "3.x.x"
 
-"@hapi/joi@16.x.x":
+"@hapi/joi@16.x.x", "@hapi/joi@^16.1.8":
   version "16.1.8"
   resolved "https://registry.yarnpkg.com/@hapi/joi/-/joi-16.1.8.tgz#84c1f126269489871ad4e2decc786e0adef06839"
   integrity sha512-wAsVvTPe+FwSrsAurNt5vkg3zo+TblvC5Bb1zMVK6SJzZqw9UrJnexxR+76cpePmtUZKHAPxcQ2Bf7oVHyahhg==
@@ -7368,6 +7373,15 @@ handlebars@^4.7.3:
     source-map "^0.6.1"
   optionalDependencies:
     uglify-js "^3.1.4"
+
+hapi-auth-bearer-token@^6.1.6:
+  version "6.1.6"
+  resolved "https://registry.yarnpkg.com/hapi-auth-bearer-token/-/hapi-auth-bearer-token-6.1.6.tgz#8059dc04d07db42613939ee94d3ef6c21c131f3d"
+  integrity sha512-usVNz2kvc41YSQa67unOFXygfN8Z4fV79ZOyZpWzu3gZ0o+qpNeQE6Jrlb0Dx3dTZZRwBQ5313IP5gbgFmdU8A==
+  dependencies:
+    "@hapi/boom" "^7.4.2"
+    "@hapi/hoek" "^9.0.4"
+    "@hapi/joi" "^16.1.8"
 
 har-schema@^2.0.0:
   version "2.0.0"
