@@ -3,13 +3,13 @@ import { Identifiers } from "./ioc";
 import { Server } from "./server";
 import { ActionReader } from "./action-reader";
 import { PluginFactory } from "./plugins";
-import { Argon2id } from "./authentication";
+import { Argon2id } from "./validators";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
         this.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
-        this.app.bind(Identifiers.BasicAuthentication).to(Argon2id).inSingletonScope();
+        this.app.bind(Identifiers.BasicCredentialsValidator).to(Argon2id).inSingletonScope();
 
         if (this.config().get("server.http.enabled")) {
             await this.buildServer("http", Identifiers.HTTP);

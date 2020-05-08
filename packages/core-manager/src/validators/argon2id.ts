@@ -3,7 +3,7 @@ import { Authentication } from "../contracts";
 import argon2 from "argon2";
 
 @Container.injectable()
-export class Argon2id implements Authentication.BasicAuthentication {
+export class Argon2id implements Authentication.BasicCredentialsValidator {
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-manager")
     private readonly configuration!: Providers.PluginConfiguration;

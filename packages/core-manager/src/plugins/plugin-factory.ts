@@ -23,8 +23,8 @@ export class PluginFactory implements Plugins.PluginFactory {
     @Container.inject(Identifiers.ActionReader)
     private readonly actionReader!: ActionReader;
 
-    @Container.inject(Identifiers.BasicAuthentication)
-    private readonly basicAuthentication!: Authentication.BasicAuthentication;
+    @Container.inject(Identifiers.BasicCredentialsValidator)
+    private readonly basicCredentialsValidator!: Authentication.BasicCredentialsValidator;
 
     public preparePlugins(): Array<Plugins.RegisterPluginObject> {
         let pluginConfig = this.configuration.get("plugins")
@@ -95,7 +95,7 @@ export class PluginFactory implements Plugins.PluginFactory {
 
                     server.auth.strategy('simple', 'basic', { validate: async (...params) => {
                             // @ts-ignore
-                            return this.validateBasic(...params)
+                            return this.validateBasicCredentials(...params)
                         } });
                     server.auth.default('simple');
                 }
@@ -103,11 +103,11 @@ export class PluginFactory implements Plugins.PluginFactory {
         }
     }
 
-    private async validateBasic(request, username, password, h) {
+    private async validateBasicCredentials(request, username, password, h) {
         let isValid = false;
 
         try {
-            isValid = await this.basicAuthentication.validate(username, password);
+            isValid = await this.basicCredentialsValidator.validate(username, password);
         } catch (e) {
             this.logger.error(e.stack)
         }

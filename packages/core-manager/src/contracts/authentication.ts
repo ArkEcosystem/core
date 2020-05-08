@@ -1,7 +1,7 @@
-export interface BasicAuthentication {
+export interface BasicCredentialsValidator {
     validate(username: string, password: string): Promise<boolean>
 }
 
-export interface TokenAuthentication {
+export interface TokenValidator {
     validate(token: string): Promise<boolean>
 }

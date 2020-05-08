@@ -17,7 +17,6 @@ export class Server {
     @Container.inject(Identifiers.PluginFactory)
     private readonly pluginFactory!: Plugins.PluginFactory;
 
-
     private server!: HapiServer;
 
     private name!: string;
