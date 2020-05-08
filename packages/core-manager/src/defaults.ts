@@ -17,6 +17,16 @@ export const defaults = {
         },
     },
     plugins: {
-        whitelist: ["*"]
+        whitelist: ["*"],
+        authenticate: {
+            enabled: true,
+            secret: "",
+            users: [
+                {
+                    username: "test",
+                    hashedPassword: "$argon2id$v=19$m=4096,t=3,p=1$WywUiCtFdYY06AmER+qGgQ$OWvCrQ6r6maFV4bPC+h25LfOM5WCxC4JOQuGsFSpASM"
+                }
+            ]
+        }
     }
 };
