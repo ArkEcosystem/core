@@ -1,7 +1,8 @@
 import * as rpc from "@hapist/json-rpc";
 import * as whitelist from "@hapist/whitelist";
 import { Server as HapiServer } from "@hapi/hapi";
-import * as hapiBasic from "@hapi/basic";
+import * as basicAuthenticationPlugin from "@hapi/basic";
+import * as tokenAuthenticationPlugin from "hapi-auth-bearer-token";
 
 import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Validation } from "@arkecosystem/crypto";
@@ -22,6 +23,9 @@ export class PluginFactory implements Plugins.PluginFactory {
 
     @Container.inject(Identifiers.BasicCredentialsValidator)
     private readonly basicCredentialsValidator!: Authentication.BasicCredentialsValidator;
+
+    @Container.inject(Identifiers.TokenValidator)
+    private readonly tokenValidator!: Authentication.TokenValidator;
 
     public preparePlugins(): Array<Plugins.RegisterPluginObject> {
         let pluginConfig = this.configuration.get("plugins")
@@ -79,6 +83,11 @@ export class PluginFactory implements Plugins.PluginFactory {
             plugins.push(this.prepareBasicAuthentication())
         }
 
+        // @ts-ignore
+        if (pluginConfig.tokenAuthentication.enabled) {
+            plugins.push(this.prepareTokenAuthentication())
+        }
+
         return plugins;
     }
 
@@ -88,7 +97,7 @@ export class PluginFactory implements Plugins.PluginFactory {
                 name: "basicAuthentication",
                 version: "0.1.0",
                 register: async (server: HapiServer) => {
-                    await server.register(hapiBasic);
+                    await server.register(basicAuthenticationPlugin);
 
                     server.auth.strategy('simple', 'basic', { validate: async (...params) => {
                             // @ts-ignore
@@ -104,5 +113,43 @@ export class PluginFactory implements Plugins.PluginFactory {
         let isValid = await this.basicCredentialsValidator.validate(username, password);
 
         return { isValid: isValid, credentials: { name: username } };
+    }
+
+    private prepareTokenAuthentication(): Plugins.RegisterPluginObject {
+        return {
+            plugin: {
+                name: "tokenAuthentication",
+                version: "0.1.0",
+                register: async (server: HapiServer) => {
+                    await server.register(tokenAuthenticationPlugin);
+
+                    // server.auth.strategy('simple', 'bearer-access-token', {
+                    //     validate: async (request, token, h) => {
+                    //         const isValid = token === '1234';
+                    //
+                    //         const credentials = { token };
+                    //         const artifacts = { test: 'info' };
+                    //
+                    //         return { isValid, credentials, artifacts };
+                    //     }
+                    // });
+
+                    server.auth.strategy('simple', 'bearer-access-token', {
+                        validate: async (...params) => {
+                            // @ts-ignore
+                            return this.validateToken(...params);
+                        }
+                    });
+
+                    server.auth.default('simple');
+                }
+            }
+        }
+    }
+
+    private async validateToken(request, token, h) {
+        let isValid = await this.tokenValidator.validate(token);
+
+        return { isValid: isValid, credentials: { token } };
     }
 }
