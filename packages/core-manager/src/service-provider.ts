@@ -1,9 +1,9 @@
 import { Providers} from "@arkecosystem/core-kernel";
 import { Identifiers } from "./ioc";
-import { Server } from "./server";
+import { Server } from "./server/server";
 import { ActionReader } from "./action-reader";
-import { PluginFactory } from "./plugins";
-import { Argon2id } from "./validators";
+import { PluginFactory } from "./server/plugins";
+import { Argon2id } from "./server/validators";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {

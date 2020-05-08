@@ -3,8 +3,8 @@ import { readFileSync } from "fs";
 
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 
-import { Identifiers } from "./ioc";
-import { Plugins } from "./contracts";
+import { Identifiers } from "../ioc";
+import { Plugins } from "../contracts";
 
 @Container.injectable()
 export class Server {

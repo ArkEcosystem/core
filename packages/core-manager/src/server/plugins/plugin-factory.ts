@@ -6,9 +6,9 @@ import * as hapiBasic from "@hapi/basic";
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Validation } from "@arkecosystem/crypto";
 
-import { Identifiers } from "../ioc";
-import { Authentication, Plugins } from "../contracts";
-import { ActionReader } from "../action-reader";
+import { Identifiers } from "../../ioc";
+import { Authentication, Plugins } from "../../contracts";
+import { ActionReader } from "../../action-reader";
 import { rpcResponseHandler } from "./rpc-response-handler";
 
 @Container.injectable()

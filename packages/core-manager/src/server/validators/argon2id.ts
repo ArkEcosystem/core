@@ -1,5 +1,5 @@
 import { Container, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Authentication } from "../contracts";
+import { Authentication } from "../../contracts";
 import argon2 from "argon2";
 
 @Container.injectable()
