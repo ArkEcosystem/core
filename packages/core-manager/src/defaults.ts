@@ -23,7 +23,7 @@ export const defaults = {
             secret: "secret",
             users: [
                 {
-                    username: "test",
+                    username: "username",
                     password: "$argon2id$v=19$m=4096,t=3,p=1$NiGA5Cy5vFWTxhBaZMG/3Q$TwEFlzTuIB0fDy+qozEas+GzEiBcLRkm5F+/ClVRCDY"
                 }
             ]

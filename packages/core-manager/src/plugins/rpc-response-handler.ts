@@ -1,16 +1,13 @@
 import { Server as HapiServer } from "@hapi/hapi";
 
 const getRpcResponseCode = (httpResponseCode: number) => {
-    return -32001
+    if (httpResponseCode === 401) {
+        return -32001;  // Unauthorized
+    } if (httpResponseCode === 403) {
+        return -32001; // Forbidden
+    }
 
-    // TODO: Implement after auth plugin
-    // if (httpResponseCode === 401) {
-    //     return -32001
-    // } if (httpResponseCode === 403) {
-    //     return -32001
-    // }
-    //
-    // throw new Error("Unsupported status code")
+    return -32603; // Internal server error
 }
 
 export const rpcResponseHandler = {
