@@ -1,15 +1,18 @@
 import "jest-extended";
 
+// import * as Boom from "@hapi/boom"
+
 import { Validation } from "@packages/crypto";
 import { Container } from "@packages/core-kernel";
 import { Sandbox } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import { Actions } from "@packages/core-manager/src/contracts";
-import { Server } from "@packages/core-manager/src/server";
+import { Server } from "@packages/core-manager/src/server/server";
 import { ActionReader } from "@packages/core-manager/src/action-reader";
-import { PluginFactory } from "@packages/core-manager/src/plugins/plugin-factory";
+import { PluginFactory } from "@packages/core-manager/src/server/plugins/plugin-factory";
+import { Argon2id } from "@packages/core-manager/src/server/validators";
 import { defaults } from "@packages/core-manager/src/defaults";
-import { Assets } from "./__fixtures__";
+import { Assets } from "../__fixtures__";
 
 let sandbox: Sandbox;
 let server: Server;
@@ -21,9 +24,11 @@ let logger = {
     error: jest.fn(),
 }
 
-let pluginsConfiguration = defaults.plugins
+let pluginsConfiguration;
 
 beforeEach(() => {
+    pluginsConfiguration = {...defaults.plugins};
+
     let dummyAction = new Assets.DummyAction();
     spyOnMethod = jest.spyOn(dummyAction, "method")
 
@@ -33,12 +38,16 @@ beforeEach(() => {
         }
     }
 
+    pluginsConfiguration.basicAuthentication.enabled = false
+
     sandbox = new Sandbox();
 
     sandbox.app.bind(Identifiers.HTTP).to(Server).inSingletonScope();
     sandbox.app.bind(Identifiers.ActionReader).toConstantValue(actionReader);
-    sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     sandbox.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
+    sandbox.app.bind(Identifiers.BasicCredentialsValidator).to(Argon2id).inSingletonScope();
+
+    sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
         get: jest.fn().mockReturnValue(pluginsConfiguration)
     });
@@ -48,16 +57,14 @@ beforeEach(() => {
     server = sandbox.app.get<Server>(Identifiers.HTTP);
 });
 
-afterEach(() => {
-    jest.clearAllMocks()
+afterEach(async () => {
+    await server.dispose();
+    jest.clearAllMocks();
+    jest.restoreAllMocks();
 })
 
 describe("Server", () => {
-    afterEach(async () => {
-        await server.dispose();
-    })
-
-    describe("inject", () => {
+    describe("RPC test with dummy class", () => {
         it("should be ok", async () => {
             await server.initialize("serverName", {})
             await server.boot()
@@ -180,7 +187,7 @@ describe("Server", () => {
                 },
             };
 
-            Validation.validator.validate = jest.fn().mockImplementation(() => {
+            jest.spyOn(Validation.validator, "validate").mockImplementation(() => {
                 throw new Error();
             })
 
@@ -190,7 +197,9 @@ describe("Server", () => {
             expect(parsedResponse.statusCode).toBe(200)
             expect(parsedResponse.body.error.code).toBe(-32600)
         });
+    })
 
+    describe("Whitelist", () => {
         it("should return RCP error if whitelisted", async () => {
             pluginsConfiguration.whitelist = []
 
@@ -224,4 +233,105 @@ describe("Server", () => {
             })
         });
     })
+
+    describe("Basic Authentication", () => {
+        let injectOptions;
+
+        beforeEach(() => {
+            pluginsConfiguration.basicAuthentication.enabled = true;
+            pluginsConfiguration.basicAuthentication.users = [
+                {
+                    username: "username",
+                    password: "$argon2id$v=19$m=4096,t=3,p=1$NiGA5Cy5vFWTxhBaZMG/3Q$TwEFlzTuIB0fDy+qozEas+GzEiBcLRkm5F+/ClVRCDY"
+                }
+            ];
+
+            injectOptions = {
+                method: "POST",
+                url: "/",
+                payload: {
+                    jsonrpc: "2.0",
+                    id: "1",
+                    method: "dummy",
+                    params: { id: 123 },
+                },
+                headers: {
+                    "content-type": "application/vnd.api+json",
+                },
+            };
+        })
+
+        it("should return RCP error if no username and password in header", async () => {
+            await server.initialize("serverName", {})
+            await server.boot()
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({
+                body: {
+                    jsonrpc: '2.0',
+                    error: { code: -32001, message: 'Missing authentication' },
+                    id: null
+                },
+                statusCode: 200
+            })
+        });
+
+        it("should return RCP error if password is invalid", async () => {
+            await server.initialize("serverName", {})
+            await server.boot()
+
+            // Data in header: { username: "username", password: "invalid" }
+            injectOptions.headers.Authorization = "Basic dXNlcm5hbWU6aW52YWxpZA==";
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({
+                body: {
+                    jsonrpc: '2.0',
+                    error: { code: -32001, message: 'Bad username or password' },
+                    id: null
+                },
+                statusCode: 200
+            })
+        });
+
+        it("should return RCP error user not found", async () => {
+            pluginsConfiguration.basicAuthentication.users = [];
+
+            await server.initialize("serverName", {})
+            await server.boot()
+
+            // Data in header: { username: "username", password: "password" }
+            injectOptions.headers.Authorization = "Basic dXNlcm5hbWU6cGFzc3dvcmQ=";
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({
+                body: {
+                    jsonrpc: '2.0',
+                    error: { code: -32001, message: 'Bad username or password' },
+                    id: null
+                },
+                statusCode: 200
+            })
+        });
+
+        it("should be ok with valid username and password", async () => {
+            await server.initialize("serverName", {})
+            await server.boot()
+
+            // Data in header: { username: "username", password: "password" }
+            injectOptions.headers.Authorization = "Basic dXNlcm5hbWU6cGFzc3dvcmQ=";
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({ body: { id: '1', jsonrpc: '2.0', result: {} }, statusCode: 200 })
+        });
+    })
 });
+

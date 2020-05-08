@@ -3,7 +3,7 @@ import * as whitelist from "@hapist/whitelist";
 import { Server as HapiServer } from "@hapi/hapi";
 import * as hapiBasic from "@hapi/basic";
 
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Validation } from "@arkecosystem/crypto";
 
 import { Identifiers } from "../../ioc";
@@ -16,9 +16,6 @@ export class PluginFactory implements Plugins.PluginFactory {
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-manager")
     private readonly configuration!: Providers.PluginConfiguration;
-
-    @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Identifiers.ActionReader)
     private readonly actionReader!: ActionReader;
@@ -104,13 +101,7 @@ export class PluginFactory implements Plugins.PluginFactory {
     }
 
     private async validateBasicCredentials(request, username, password, h) {
-        let isValid = false;
-
-        try {
-            isValid = await this.basicCredentialsValidator.validate(username, password);
-        } catch (e) {
-            this.logger.error(e.stack)
-        }
+        let isValid = await this.basicCredentialsValidator.validate(username, password);
 
         return { isValid: isValid, credentials: { name: username } };
     }

@@ -4,7 +4,7 @@ const getRpcResponseCode = (httpResponseCode: number) => {
     if (httpResponseCode === 401) {
         return -32001;  // Unauthorized
     } if (httpResponseCode === 403) {
-        return -32001; // Forbidden
+        return -32003; // Forbidden
     }
 
     return -32603; // Internal server error
