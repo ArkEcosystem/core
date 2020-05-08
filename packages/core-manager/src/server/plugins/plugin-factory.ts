@@ -123,17 +123,6 @@ export class PluginFactory implements Plugins.PluginFactory {
                 register: async (server: HapiServer) => {
                     await server.register(tokenAuthenticationPlugin);
 
-                    // server.auth.strategy('simple', 'bearer-access-token', {
-                    //     validate: async (request, token, h) => {
-                    //         const isValid = token === '1234';
-                    //
-                    //         const credentials = { token };
-                    //         const artifacts = { test: 'info' };
-                    //
-                    //         return { isValid, credentials, artifacts };
-                    //     }
-                    // });
-
                     server.auth.strategy('simple', 'bearer-access-token', {
                         validate: async (...params) => {
                             // @ts-ignore

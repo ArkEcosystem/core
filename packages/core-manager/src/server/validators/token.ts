@@ -8,13 +8,9 @@ export class SimpleTokenValidator implements Authentication.TokenValidator {
     private readonly configuration!: Providers.PluginConfiguration;
 
     public async validate(token: string): Promise<boolean> {
-        try {
-            // ts-ignore
-            const pluginsConfiguration = this.configuration.get("plugins") as any;
+        // ts-ignore
+        const pluginsConfiguration = this.configuration.get("plugins") as any;
 
-            return token === pluginsConfiguration.tokenAuthentication.token;
-        } catch {}
-
-        return false;
+        return token === pluginsConfiguration.tokenAuthentication.token;
     }
 }

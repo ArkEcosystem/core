@@ -1,7 +1,5 @@
 import "jest-extended";
 
-// import * as Boom from "@hapi/boom"
-
 import { Validation } from "@packages/crypto";
 import { Container } from "@packages/core-kernel";
 import { Sandbox } from "@packages/core-test-framework";
@@ -10,7 +8,7 @@ import { Actions } from "@packages/core-manager/src/contracts";
 import { Server } from "@packages/core-manager/src/server/server";
 import { ActionReader } from "@packages/core-manager/src/action-reader";
 import { PluginFactory } from "@packages/core-manager/src/server/plugins/plugin-factory";
-import { Argon2id } from "@packages/core-manager/src/server/validators";
+import { Argon2id, SimpleTokenValidator } from "@packages/core-manager/src/server/validators";
 import { defaults } from "@packages/core-manager/src/defaults";
 import { Assets } from "../__fixtures__";
 
@@ -27,8 +25,6 @@ let logger = {
 let pluginsConfiguration;
 
 beforeEach(() => {
-    pluginsConfiguration = {...defaults.plugins};
-
     let dummyAction = new Assets.DummyAction();
     spyOnMethod = jest.spyOn(dummyAction, "method")
 
@@ -38,7 +34,10 @@ beforeEach(() => {
         }
     }
 
+    pluginsConfiguration = {...defaults.plugins};
+
     pluginsConfiguration.basicAuthentication.enabled = false
+    pluginsConfiguration.tokenAuthentication.enabled = false
 
     sandbox = new Sandbox();
 
@@ -46,6 +45,7 @@ beforeEach(() => {
     sandbox.app.bind(Identifiers.ActionReader).toConstantValue(actionReader);
     sandbox.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
     sandbox.app.bind(Identifiers.BasicCredentialsValidator).to(Argon2id).inSingletonScope();
+    sandbox.app.bind(Identifiers.TokenValidator).to(SimpleTokenValidator).inSingletonScope();
 
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
@@ -333,5 +333,99 @@ describe("Server", () => {
             expect(parsedResponse).toEqual({ body: { id: '1', jsonrpc: '2.0', result: {} }, statusCode: 200 })
         });
     })
+
+    describe("Token Authentication", () => {
+        let injectOptions;
+
+        beforeEach(() => {
+            pluginsConfiguration.tokenAuthentication.enabled = true;
+            pluginsConfiguration.tokenAuthentication.token = "secret_token"
+
+            injectOptions = {
+                method: "POST",
+                url: "/",
+                payload: {
+                    jsonrpc: "2.0",
+                    id: "1",
+                    method: "dummy",
+                    params: { id: 123 },
+                },
+                headers: {
+                    "content-type": "application/vnd.api+json",
+                },
+            };
+        })
+
+        it("should be ok with valid token", async () => {
+            await server.initialize("serverName", {})
+            await server.boot()
+
+            injectOptions.headers.Authorization = "Bearer secret_token";
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({ body: { id: '1', jsonrpc: '2.0', result: {} }, statusCode: 200 })
+        });
+
+        it("should return RCP error if token is not valid", async () => {
+            await server.initialize("serverName", {})
+            await server.boot()
+
+            injectOptions.headers.Authorization = "Bearer invalid_token";
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({
+                body: {
+                    jsonrpc: '2.0',
+                    error: { code: -32001, message: 'These credentials do not match our records' },
+                    id: null
+                },
+                statusCode: 200
+            })
+        });
+
+        it("should return RCP error if token configuration is missing", async () => {
+            delete pluginsConfiguration.tokenAuthentication.token
+
+            await server.initialize("serverName", {})
+            await server.boot()
+
+            injectOptions.headers.Authorization = "Bearer invalid_token";
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({
+                body: {
+                    jsonrpc: '2.0',
+                    error: { code: -32001, message: 'These credentials do not match our records' },
+                    id: null
+                },
+                statusCode: 200
+            })
+        });
+
+        it("should return RCP error if no Authentication in headers", async () => {
+            delete pluginsConfiguration.tokenAuthentication.token
+
+            await server.initialize("serverName", {})
+            await server.boot()
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({
+                body: {
+                    jsonrpc: '2.0',
+                    error: { code: -32001, message: 'These credentials do not match our records' },
+                    id: null
+                },
+                statusCode: 200
+            })
+        });
+    });
 });
 
