@@ -160,7 +160,7 @@ describe("RPC Response Handler", () => {
         expect(parsedResponse).toEqual({
             body: {
                 jsonrpc: '2.0',
-                error: { code: -32001, message: 'Unauthorized' },
+                error: { code: -32001, message: 'These credentials do not match our records' },
                 id: null
             },
             statusCode: 200
@@ -202,7 +202,7 @@ describe("RPC Response Handler", () => {
         expect(parsedResponse).toEqual({
             body: {
                 jsonrpc: '2.0',
-                error: { code: -32603, message: 'Not Implemented' },
+                error: { code: -32603, message: 'Internal server error' },
                 id: null
             },
             statusCode: 200

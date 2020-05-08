@@ -226,7 +226,7 @@ describe("Server", () => {
             expect(parsedResponse).toEqual({
                 body: {
                     jsonrpc: '2.0',
-                    error: { code: -32001, message: 'Unauthorized' },
+                    error: { code: -32001, message: 'These credentials do not match our records' },
                     id: null
                 },
                 statusCode: 200
@@ -271,7 +271,7 @@ describe("Server", () => {
             expect(parsedResponse).toEqual({
                 body: {
                     jsonrpc: '2.0',
-                    error: { code: -32001, message: 'Missing authentication' },
+                    error: { code: -32001, message: 'These credentials do not match our records' },
                     id: null
                 },
                 statusCode: 200
@@ -291,7 +291,7 @@ describe("Server", () => {
             expect(parsedResponse).toEqual({
                 body: {
                     jsonrpc: '2.0',
-                    error: { code: -32001, message: 'Bad username or password' },
+                    error: { code: -32001, message: 'These credentials do not match our records' },
                     id: null
                 },
                 statusCode: 200
@@ -313,7 +313,7 @@ describe("Server", () => {
             expect(parsedResponse).toEqual({
                 body: {
                     jsonrpc: '2.0',
-                    error: { code: -32001, message: 'Bad username or password' },
+                    error: { code: -32001, message: 'These credentials do not match our records' },
                     id: null
                 },
                 statusCode: 200
