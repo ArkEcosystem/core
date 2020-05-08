@@ -5,7 +5,7 @@ import { readFileSync } from "fs";
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 
 import { Identifiers } from "./ioc";
-import { Plugins } from "./contracts";
+import { Plugins, Authentication } from "./contracts";
 
 @Container.injectable()
 export class Server {
@@ -17,6 +17,9 @@ export class Server {
 
     @Container.inject(Identifiers.PluginFactory)
     private readonly pluginFactory!: Plugins.PluginFactory;
+
+    @Container.inject(Identifiers.BasicAuthentication)
+    private readonly basicAuthentication!: Authentication.BasicAuthentication;
 
     private server!: HapiServer;
 
@@ -72,14 +75,25 @@ export class Server {
     private async registerBasicAuthentication(): Promise<void> {
         await this.server.register(hapiBasic);
 
-        this.server.auth.strategy('simple', 'basic', { validate: this.validate });
+        this.server.auth.strategy('simple', 'basic', { validate: async (...params) => {
+                // @ts-ignore
+                return this.validate(...params)
+            } });
         this.server.auth.default('simple');
     }
 
     private async validate(request, username, password, h) {
 
-        console.log(request, username, password)
+        // console.log(request, username, password)
 
-        return { isValid: true, credentials: { name: username } };
+        let isValid = false;
+
+        try {
+            isValid = await this.basicAuthentication.validate(username, password);
+        } catch (e) {
+            this.logger.error(e.stack)
+        }
+
+        return { isValid: isValid, credentials: { name: username } };
     }
 }

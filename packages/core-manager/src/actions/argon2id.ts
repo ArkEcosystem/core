@@ -36,7 +36,11 @@ export class Action implements Actions.Action {
             password: params.password,
             hashedPassword: hashedPassword.toString(),
             isVerified: await argon2.verify(hashedPassword, params.password, options),
-            isNotVerified: await argon2.verify(hashedPassword, params.password + "a", options),
+            isNotVerified: await argon2.verify(hashedPassword, params.password, {
+                secret: Buffer.from("secret"),
+                type: argon2.argon2d
+            }),
+            isNotVerified2: await argon2.verify(hashedPassword, params.password + "a", options),
         }
     }
 }

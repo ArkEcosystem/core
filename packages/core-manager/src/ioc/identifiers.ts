@@ -3,4 +3,6 @@ export const Identifiers = {
     HTTPS: Symbol.for("API<HTTPS>"),
     ActionReader: Symbol.for("Discover<Action>"),
     PluginFactory: Symbol.for("Factory<Plugin>"),
+    BasicAuthentication: Symbol.for("Authentication<Basic>"),
+    TokenAuthentication: Symbol.for("Authentication<Token>"),
 };

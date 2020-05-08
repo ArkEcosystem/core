@@ -18,13 +18,13 @@ export const defaults = {
     },
     plugins: {
         whitelist: ["*"],
-        authenticate: {
+        basicAuthentication: {
             enabled: true,
-            secret: "",
+            secret: "secret",
             users: [
                 {
                     username: "test",
-                    hashedPassword: "$argon2id$v=19$m=4096,t=3,p=1$WywUiCtFdYY06AmER+qGgQ$OWvCrQ6r6maFV4bPC+h25LfOM5WCxC4JOQuGsFSpASM"
+                    password: "$argon2id$v=19$m=4096,t=3,p=1$NiGA5Cy5vFWTxhBaZMG/3Q$TwEFlzTuIB0fDy+qozEas+GzEiBcLRkm5F+/ClVRCDY"
                 }
             ]
         }
