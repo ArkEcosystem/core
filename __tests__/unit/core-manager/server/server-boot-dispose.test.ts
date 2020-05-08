@@ -1,14 +1,11 @@
 import "jest-extended";
 
-// @ts-ignore
-import { Server as HapiServer } from "@hapi/hapi";
-
 import { Container } from "@packages/core-kernel";
 import { Sandbox } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-manager/src/ioc";
-import { Server } from "@packages/core-manager/src/server";
+import { Server } from "@packages/core-manager/src/server/server";
 import { ActionReader } from "@packages/core-manager/src/action-reader";
-import { PluginFactory } from "@packages/core-manager/src/plugins/plugin-factory";
+import { PluginFactory } from "@packages/core-manager/src/server/plugins/plugin-factory";
 import { defaults } from "@packages/core-manager/src/defaults";
 
 let sandbox: Sandbox;
@@ -41,11 +38,15 @@ jest.mock("@hapi/hapi", () => {
 })
 
 beforeEach(() => {
+    pluginsConfiguration.basicAuthentication.enabled = false
+
     sandbox = new Sandbox();
 
     sandbox.app.bind(Identifiers.HTTP).to(Server).inSingletonScope();
     sandbox.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
     sandbox.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
+    sandbox.app.bind(Identifiers.BasicCredentialsValidator).toConstantValue({});
+
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
         get: jest.fn().mockReturnValue(pluginsConfiguration)

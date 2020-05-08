@@ -1,16 +1,22 @@
 import { Server as HapiServer } from "@hapi/hapi";
 
-const getRpcResponseCode = (httpResponseCode: number) => {
-    return -32001
+const getRpcError = (httpResponseCode: number) => {
+    if (httpResponseCode === 401) {
+        return {
+            code: -32001,
+            message: "These credentials do not match our records"
+        }
+    } if (httpResponseCode === 403) {
+        return {
+            code: -32003,
+            message: "Forbidden" // TODO: Maybe another message
+        }
+    }
 
-    // TODO: Implement after auth plugin
-    // if (httpResponseCode === 401) {
-    //     return -32001
-    // } if (httpResponseCode === 403) {
-    //     return -32001
-    // }
-    //
-    // throw new Error("Unsupported status code")
+    return {
+        code: -32603,
+        message: "Internal server error"
+    }
 }
 
 export const rpcResponseHandler = {
@@ -27,10 +33,7 @@ export const rpcResponseHandler = {
 
                 return h.response({
                     jsonrpc: "2.0",
-                    error: {
-                        code: getRpcResponseCode(response.output.statusCode),
-                        message: response.output.payload.message,
-                    },
+                    error: getRpcError(response.output.statusCode),
                     id: null
                 });
             }

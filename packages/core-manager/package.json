@@ -21,7 +21,9 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
+        "argon2": "^0.26.2",
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
+        "@hapi/basic": "^6.0.0",
         "@hapi/boom": "^9.0.0",
         "@hapi/hapi": "^19.0.0",
         "@hapist/json-rpc": "^0.2.0",
