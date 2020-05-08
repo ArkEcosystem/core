@@ -1,11 +1,13 @@
 import * as rpc from "@hapist/json-rpc";
 import * as whitelist from "@hapist/whitelist";
+import { Server as HapiServer } from "@hapi/hapi";
+import * as hapiBasic from "@hapi/basic";
 
-import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Validation } from "@arkecosystem/crypto";
 
 import { Identifiers } from "../ioc";
-import { Plugins } from "../contracts";
+import { Authentication, Plugins } from "../contracts";
 import { ActionReader } from "../action-reader";
 import { rpcResponseHandler } from "./rpc-response-handler";
 
@@ -15,13 +17,19 @@ export class PluginFactory implements Plugins.PluginFactory {
     @Container.tagged("plugin", "@arkecosystem/core-manager")
     private readonly configuration!: Providers.PluginConfiguration;
 
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     @Container.inject(Identifiers.ActionReader)
     private readonly actionReader!: ActionReader;
+
+    @Container.inject(Identifiers.BasicAuthentication)
+    private readonly basicAuthentication!: Authentication.BasicAuthentication;
 
     public preparePlugins(): Array<Plugins.RegisterPluginObject> {
         let pluginConfig = this.configuration.get("plugins")
 
-        return [
+        let plugins = [
             {
               plugin: rpcResponseHandler
             },
@@ -30,8 +38,6 @@ export class PluginFactory implements Plugins.PluginFactory {
                 options: {
                     // @ts-ignore
                     whitelist: pluginConfig.whitelist
-                    // whitelist: ["*"],
-                    // whitelist: [],
                 },
             },
             {
@@ -70,5 +76,42 @@ export class PluginFactory implements Plugins.PluginFactory {
                 },
             }
         ]
+
+        // @ts-ignore
+        if (pluginConfig.basicAuthentication.enabled) {
+            plugins.push(this.prepareBasicAuthentication())
+        }
+
+        return plugins;
+    }
+
+    private prepareBasicAuthentication (): Plugins.RegisterPluginObject {
+        return {
+            plugin: {
+                name: "basicAuthentication",
+                version: "0.1.0",
+                register: async (server: HapiServer) => {
+                    await server.register(hapiBasic);
+
+                    server.auth.strategy('simple', 'basic', { validate: async (...params) => {
+                            // @ts-ignore
+                            return this.validateBasic(...params)
+                        } });
+                    server.auth.default('simple');
+                }
+            }
+        }
+    }
+
+    private async validateBasic(request, username, password, h) {
+        let isValid = false;
+
+        try {
+            isValid = await this.basicAuthentication.validate(username, password);
+        } catch (e) {
+            this.logger.error(e.stack)
+        }
+
+        return { isValid: isValid, credentials: { name: username } };
     }
 }
