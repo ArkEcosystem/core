@@ -1,11 +1,11 @@
 import { Network } from "../interfaces";
+import { Libraries } from "../interfaces/libraries";
 import { MilestoneManager } from "../managers";
 import { Base58 } from "./base58";
 import { Bip38 } from "./bip38";
 import { Hash } from "./hash";
 import { HashAlgorithms } from "./hash-algorithms";
 import { HDWallet } from "./hdwallet";
-import { Libraries } from "./interfaces";
 import { Slots } from "./slots";
 
 export class CryptoToolsManager<T> {

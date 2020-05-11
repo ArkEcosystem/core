@@ -1,6 +1,6 @@
 import { IKeyPair } from "../interfaces";
 import { Network } from "../interfaces";
-import { BIP32Interface, Libraries } from "./interfaces";
+import { BIP32Interface, Libraries } from "../interfaces/libraries";
 
 export class HDWallet {
     public readonly slip44 = 111;

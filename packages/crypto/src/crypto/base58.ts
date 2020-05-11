@@ -1,7 +1,7 @@
-import moize from "fast-memoize"; // TODO: consider interchangeable dependencies
+import moize from "fast-memoize";
 
+import { Libraries } from "../interfaces/libraries";
 import { HashAlgorithms } from "./hash-algorithms";
-import { Libraries } from "./interfaces";
 
 export class Base58 {
     public encode = moize(this.encoder.bind(this));

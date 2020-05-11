@@ -1,6 +1,6 @@
 import { CryptoToolsManager } from "../crypto/index";
-import { Libraries } from "../crypto/interfaces";
 import { Network } from "../interfaces";
+import { Libraries } from "../interfaces/libraries";
 import { NetworkUtils } from "../utils";
 import { MilestoneManager, NetworkConfigManager } from ".";
 

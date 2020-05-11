@@ -1,5 +1,5 @@
+import { Libraries } from "../interfaces/libraries";
 import { MilestoneManager } from "../managers/milestone-manager";
-import { Libraries } from "./interfaces";
 
 export class Slots<T> {
     public constructor(private libraries: Libraries, private milestoneManager: MilestoneManager<T>) {}

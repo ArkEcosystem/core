@@ -1,18 +1,5 @@
-// TODO: move this out and organise properly
-
 import { BigNumberLibrary } from "../types";
 
-export interface Secp256k1 {
-    sign: any;
-    verify: any;
-    signatureExport: any;
-    signatureImport: any;
-    schnorrVerify: any;
-    schnorrSign: any;
-}
-
-// TODO:
-// Interface taken from Bip32 library, do we need all these?
 export interface BIP32Interface {
     chainCode: Buffer;
     // network: Network; (different Network, as specified in bip32 library)
@@ -35,15 +22,7 @@ export interface BIP32Interface {
     verify(hash: Buffer, signature: Buffer): boolean;
 }
 
-export interface Bip32 {
-    fromSeed: any;
-    fromPrivateKey: any;
-}
-
-export interface Bip39 {
-    mnemonicToSeedSync: any;
-}
-
+// TODO: write interfaces for each of these
 export interface Libraries {
     scryptSync;
     dayjs;

@@ -1,5 +1,5 @@
 import { IKeyPair } from "../interfaces";
-import { Libraries } from "./interfaces";
+import { Libraries } from "../interfaces/libraries";
 
 export class Hash {
     private secp256k1: any;

@@ -13,9 +13,9 @@ import {
 } from "../errors";
 import { Keys } from "../identities/keys";
 import { IDecryptResult } from "../interfaces";
+import { Libraries } from "../interfaces/libraries";
 import { Base58 } from "./base58";
 import { HashAlgorithms } from "./hash-algorithms";
-import { Libraries } from "./interfaces";
 
 export class Bip38 {
     public NULL = Buffer.alloc(0);

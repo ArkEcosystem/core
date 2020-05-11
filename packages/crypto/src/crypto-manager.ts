@@ -1,6 +1,5 @@
-import { Libraries } from "./crypto/interfaces";
 import { IdentitiesManager } from "./identities";
-import { NetworkConfig } from "./interfaces";
+import { Libraries, NetworkConfig } from "./interfaces";
 import { HeightTracker, MilestoneManager, NetworkConfigManager } from "./managers";
 import { libraryDefaults } from "./managers/defaults";
 import { LibraryManager } from "./managers/library-manager";

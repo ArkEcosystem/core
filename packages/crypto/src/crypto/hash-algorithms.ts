@@ -1,4 +1,4 @@
-import { Libraries } from "./interfaces";
+import { Libraries } from "../interfaces/libraries";
 
 export class HashAlgorithms {
     public constructor(private libraries: Libraries) {}
