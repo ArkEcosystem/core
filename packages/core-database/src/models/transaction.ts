@@ -1,4 +1,4 @@
-import { Utils } from "@arkecosystem/crypto";
+import { Types } from "@arkecosystem/crypto";
 import { Column, Entity, Index } from "typeorm";
 
 import { transformBigInt, transformVendorField } from "./utils";
@@ -49,7 +49,7 @@ export class Transaction {
         transformer: transformBigInt,
         default: undefined,
     })
-    public nonce!: Utils.BigNumber;
+    public nonce!: Types.BigNumber;
 
     @Column({
         type: "varchar",
@@ -88,14 +88,14 @@ export class Transaction {
         transformer: transformBigInt,
         nullable: false,
     })
-    public amount!: Utils.BigNumber;
+    public amount!: Types.BigNumber;
 
     @Column({
         type: "bigint",
         transformer: transformBigInt,
         nullable: false,
     })
-    public fee!: Utils.BigNumber;
+    public fee!: Types.BigNumber;
 
     @Column({
         type: "bytea",

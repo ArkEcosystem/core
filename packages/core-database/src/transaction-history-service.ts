@@ -1,11 +1,15 @@
+import { TransactionsManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import { Transaction } from "./models/transaction";
 import { TransactionRepository } from "./repositories/transaction-repository";
 
 @Container.injectable()
 export class TransactionHistoryService implements Contracts.Shared.TransactionHistoryService {
+    @Container.inject(Container.Identifiers.TransactionManager)
+    private readonly transactionsManager!: TransactionsManager;
+
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
     private readonly transactionRepository!: TransactionRepository;
 
@@ -39,7 +43,7 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
     }
 
     private convertModel(model: Transaction): Interfaces.ITransactionData {
-        const data = Transactions.TransactionFactory.fromBytesUnsafe(model.serialized, model.id).data;
+        const data = this.transactionsManager.TransactionFactory.fromBytesUnsafe(model.serialized, model.id).data;
         data.nonce = model.nonce; // set_row_nonce trigger
         data.blockId = model.blockId; // block constructor
         return data;

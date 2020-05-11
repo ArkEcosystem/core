@@ -1,4 +1,4 @@
-import { Utils } from "@arkecosystem/crypto";
+import { Types } from "@arkecosystem/crypto";
 import { Column, Entity, Index } from "typeorm";
 
 import { transformBigInt } from "./utils";
@@ -53,21 +53,21 @@ export class Block {
         nullable: false,
         transformer: transformBigInt,
     })
-    public totalAmount!: Utils.BigNumber;
+    public totalAmount!: Types.BigNumber;
 
     @Column({
         type: "bigint",
         nullable: false,
         transformer: transformBigInt,
     })
-    public totalFee!: Utils.BigNumber;
+    public totalFee!: Types.BigNumber;
 
     @Column({
         type: "bigint",
         nullable: false,
         transformer: transformBigInt,
     })
-    public reward!: Utils.BigNumber;
+    public reward!: Types.BigNumber;
 
     @Column({
         type: "integer",

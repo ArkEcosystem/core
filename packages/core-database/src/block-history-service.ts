@@ -1,5 +1,5 @@
+import { Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 
 import { Block } from "./models/block";
 import { BlockRepository } from "./repositories";

@@ -1,4 +1,4 @@
-import { Utils } from "@arkecosystem/crypto";
+import { Types } from "@arkecosystem/crypto";
 import { Column, Entity } from "typeorm";
 
 import { transformBigInt } from "./utils";
@@ -21,12 +21,12 @@ export class Round {
         transformer: transformBigInt,
         nullable: false,
     })
-    public round!: Utils.BigNumber;
+    public round!: Types.BigNumber;
 
     @Column({
         type: "bigint",
         transformer: transformBigInt,
         nullable: false,
     })
-    public balance!: Utils.BigNumber;
+    public balance!: Types.BigNumber;
 }

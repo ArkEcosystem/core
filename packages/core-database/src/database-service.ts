@@ -1,5 +1,6 @@
+import { Blocks, CryptoManager, Interfaces, TransactionsManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import { Connection } from "typeorm";
 
@@ -54,10 +55,19 @@ export class DatabaseService {
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
+    @Container.inject(Container.Identifiers.TransactionManager)
+    private readonly transactionsManager!: TransactionsManager;
+
+    @Container.inject(Container.Identifiers.BlockFactory)
+    private readonly blockFactory!: Blocks.BlockFactory;
+
     public async initialize(): Promise<void> {
         if (process.env.CORE_ENV === "test") {
-            Managers.configManager.getMilestone().aip11 = false;
-            Managers.configManager.getMilestone().htlcEnabled = false;
+            this.cryptoManager.MilestoneManager.getMilestone().aip11 = false;
+            this.cryptoManager.MilestoneManager.getMilestone().htlcEnabled = false;
         }
 
         try {
@@ -65,7 +75,9 @@ export class DatabaseService {
 
             this.app
                 .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
-                .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!);
+                .setGenesisBlock(
+                    this.blockFactory.fromJson(this.cryptoManager.NetworkConfigManager.get("genesisBlock"))!,
+                );
 
             if (process.env.CORE_RESET_DATABASE) {
                 await this.reset();
@@ -125,8 +137,11 @@ export class DatabaseService {
     public async applyRound(height: number): Promise<void> {
         const nextHeight: number = height === 1 ? 1 : height + 1;
 
-        if (AppUtils.roundCalculator.isNewRound(nextHeight)) {
-            const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(nextHeight);
+        if (AppUtils.roundCalculator.isNewRound(nextHeight, this.cryptoManager.MilestoneManager.getMilestones())) {
+            const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(
+                nextHeight,
+                this.cryptoManager.MilestoneManager.getMilestones(),
+            );
             const { round } = roundInfo;
 
             if (
@@ -175,7 +190,10 @@ export class DatabaseService {
     ): Promise<Contracts.State.Wallet[]> {
         if (!roundInfo) {
             const lastBlock = await this.getLastBlock();
-            roundInfo = AppUtils.roundCalculator.calculateRound(lastBlock.data.height);
+            roundInfo = AppUtils.roundCalculator.calculateRound(
+                lastBlock.data.height,
+                this.cryptoManager.MilestoneManager.getMilestones(),
+            );
         }
 
         const { round } = roundInfo;
@@ -191,11 +209,13 @@ export class DatabaseService {
         // When called during applyRound we already know the delegates, so we don't have to query the database.
         if (!delegates || delegates.length === 0) {
             delegates = (await this.roundRepository.find({ round })).map(({ publicKey, balance }) => {
-                const wallet = this.walletRepository.createWallet(Identities.Address.fromPublicKey(publicKey));
+                const wallet = this.walletRepository.createWallet(
+                    this.cryptoManager.Identities.Address.fromPublicKey(publicKey),
+                );
                 wallet.publicKey = publicKey;
                 wallet.setAttribute("delegate", {
                     delegate: {
-                        voteBalance: Utils.BigNumber.make(balance),
+                        voteBalance: this.cryptoManager.LibraryManager.Libraries.BigNumber.make(balance),
                         username: this.walletRepository
                             .findByPublicKey(publicKey)
                             .getAttribute("delegate.username", ""),
@@ -210,7 +230,7 @@ export class DatabaseService {
         }
 
         const seedSource: string = round.toString();
-        let currentSeed: Buffer = Crypto.HashAlgorithms.sha256(seedSource);
+        let currentSeed: Buffer = this.cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(seedSource);
 
         delegates = delegates.map((delegate) => delegate.clone());
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
@@ -220,7 +240,7 @@ export class DatabaseService {
                 delegates[newIndex] = delegates[i];
                 delegates[i] = b;
             }
-            currentSeed = Crypto.HashAlgorithms.sha256(currentSeed);
+            currentSeed = this.cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(currentSeed);
         }
 
         return delegates;
@@ -242,10 +262,10 @@ export class DatabaseService {
         }> = await this.transactionRepository.find({ blockId: block.id });
 
         block.transactions = transactions.map(
-            ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
+            ({ serialized, id }) => this.transactionsManager.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        return Blocks.BlockFactory.fromData(block);
+        return this.blockFactory.fromData(block);
     }
 
     public async getBlocks(offset: number, limit: number, headersOnly?: boolean): Promise<Interfaces.IBlockData[]> {
@@ -357,7 +377,10 @@ export class DatabaseService {
         }
 
         if (!roundInfo) {
-            roundInfo = AppUtils.roundCalculator.calculateRound(lastBlock.data.height);
+            roundInfo = AppUtils.roundCalculator.calculateRound(
+                lastBlock.data.height,
+                this.cryptoManager.MilestoneManager.getMilestones(),
+            );
         }
 
         return (await this.getBlocks(roundInfo.roundHeight, roundInfo.maxDelegates)).map(
@@ -366,7 +389,7 @@ export class DatabaseService {
                     return this.app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
                 }
 
-                return Blocks.BlockFactory.fromData(block, { deserializeTransactionsUnchecked: true });
+                return this.blockFactory.fromData(block, { deserializeTransactionsUnchecked: true });
             },
         );
     }
@@ -386,14 +409,14 @@ export class DatabaseService {
         }> = await this.transactionRepository.findByBlockIds([block.id!]);
 
         block.transactions = transactions.map(
-            ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
+            ({ serialized, id }) => this.transactionsManager.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
+        const lastBlock: Interfaces.IBlock = this.blockFactory.fromData(block)!;
 
         if (block.height === 1 && process.env.CORE_ENV === "test") {
-            Managers.configManager.getMilestone().aip11 = true;
-            Managers.configManager.getMilestone().htlcEnabled = true;
+            this.cryptoManager.MilestoneManager.getMilestone().aip11 = true;
+            this.cryptoManager.MilestoneManager.getMilestone().htlcEnabled = true;
         }
 
         return lastBlock;
@@ -457,7 +480,10 @@ export class DatabaseService {
     }
 
     public async revertRound(height: number): Promise<void> {
-        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(
+            height,
+            this.cryptoManager.MilestoneManager.getMilestones(),
+        );
         const { round, nextRound, maxDelegates } = roundInfo;
 
         if (nextRound === round + 1 && height >= maxDelegates) {
@@ -581,8 +607,8 @@ export class DatabaseService {
             return;
         }
 
-        const lastSlot: number = Crypto.Slots.getSlotNumber(lastBlock.data.timestamp);
-        const currentSlot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
+        const lastSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(lastBlock.data.timestamp);
+        const currentSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(block.data.timestamp);
 
         const missedSlots: number = Math.min(currentSlot - lastSlot - 1, this.forgingDelegates!.length);
         for (let i = 0; i < missedSlots; i++) {
@@ -611,7 +637,7 @@ export class DatabaseService {
             lastHeight = latest.height;
         }
 
-        Managers.configManager.setHeight(lastHeight);
+        this.cryptoManager.HeightTracker.setHeight(lastHeight);
 
         const getLastBlock = async (): Promise<Interfaces.IBlock | undefined> => {
             try {
@@ -640,8 +666,8 @@ export class DatabaseService {
         }
 
         if (process.env.CORE_ENV === "test") {
-            Managers.configManager.getMilestone().aip11 = true;
-            Managers.configManager.getMilestone().htlcEnabled = true;
+            this.cryptoManager.MilestoneManager.getMilestone().aip11 = true;
+            this.cryptoManager.MilestoneManager.getMilestone().htlcEnabled = true;
         }
 
         this.configureState(lastBlock);
@@ -655,7 +681,7 @@ export class DatabaseService {
         }> = await this.getTransactionsForBlocks(blocks);
 
         const transactions = dbTransactions.map((tx) => {
-            const { data } = Transactions.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id);
+            const { data } = this.transactionsManager.TransactionFactory.fromBytesUnsafe(tx.serialized, tx.id);
             data.blockId = tx.blockId;
             return data;
         });
@@ -697,7 +723,7 @@ export class DatabaseService {
     private configureState(lastBlock: Interfaces.IBlock): void {
         this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).setLastBlock(lastBlock);
 
-        const { blocktime, block } = Managers.configManager.getMilestone();
+        const { blocktime, block } = this.cryptoManager.MilestoneManager.getMilestone();
 
         const blocksPerDay: number = Math.ceil(86400 / blocktime);
         this.app.get<any>(Container.Identifiers.StateBlockStore).resize(blocksPerDay);
@@ -735,7 +761,10 @@ export class DatabaseService {
     private async initializeActiveDelegates(height: number): Promise<void> {
         this.forgingDelegates = undefined;
 
-        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(
+            height,
+            this.cryptoManager.MilestoneManager.getMilestones(),
+        );
 
         await this.setForgingDelegatesOfRound(roundInfo, await this.calcPreviousActiveDelegates(roundInfo));
     }
@@ -764,7 +793,7 @@ export class DatabaseService {
         return prevRoundState.getRoundDelegates().slice();
     }
 
-    private async emitTransactionEvents(transaction: Interfaces.ITransaction): Promise<void> {
+    private async emitTransactionEvents(transaction: TransactionInterfaces.ITransaction): Promise<void> {
         this.emitter.dispatch(Enums.TransactionEvent.Applied, transaction.data);
         const handler = await this.app
             .getTagged<any>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")

@@ -1,5 +1,6 @@
+import { CryptoManager, Interfaces as BlockInterfaces, TransactionsManager } from "@arkecosystem/core-crypto";
 import { Utils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { EntityRepository, In } from "typeorm";
 
 import { Block, Round, Transaction } from "../models";
@@ -7,10 +8,14 @@ import { AbstractEntityRepository } from "./repository";
 
 @EntityRepository(Block)
 export class BlockRepository extends AbstractEntityRepository<Block> {
-    public async findLatest(): Promise<Interfaces.IBlockData | undefined> {
+    public constructor(private cryptoManager: CryptoManager, private transactionsManager: TransactionsManager) {
+        super();
+    }
+
+    public async findLatest(): Promise<BlockInterfaces.IBlockData | undefined> {
         return (this.findOne({
             order: { height: "DESC" },
-        }) as unknown) as Interfaces.IBlockData; // TODO: refactor
+        }) as unknown) as BlockInterfaces.IBlockData; // TODO: refactor
     }
 
     public async findRecent(limit: number): Promise<{ id: string }[]> {
@@ -60,7 +65,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
             .getMany();
     }
 
-    public async findByHeightRangeWithTransactions(start: number, end: number): Promise<Interfaces.IBlockData[]> {
+    public async findByHeightRangeWithTransactions(start: number, end: number): Promise<BlockInterfaces.IBlockData[]> {
         const [query, parameters] = this.manager.connection.driver.escapeQueryWithParameters(
             `
                 SELECT *,
@@ -87,7 +92,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                 (entity: Block & { transactions: Interfaces.ITransactionData[] }, _, value: Buffer[] | undefined) => {
                     if (value && value.length) {
                         entity.transactions = value.map(
-                            (buffer) => Transactions.TransactionFactory.fromBytesUnsafe(buffer).data,
+                            (buffer) => this.transactionsManager.TransactionFactory.fromBytesUnsafe(buffer).data,
                         );
                     }
                 },
@@ -170,7 +175,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
         //     .getRawMany();
     }
 
-    public async saveBlocks(blocks: Interfaces.IBlock[]): Promise<void> {
+    public async saveBlocks(blocks: BlockInterfaces.IBlock[]): Promise<void> {
         return this.manager.transaction(async (manager) => {
             const blockEntities: Block[] = [];
             const transactionEntities: Transaction[] = [];
@@ -190,7 +195,7 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                     );
 
                     // Order of transactions messed up in mainnet V1
-                    const { wrongTransactionOrder } = Managers.configManager.get("exceptions");
+                    const { wrongTransactionOrder } = this.cryptoManager.NetworkConfigManager.get("exceptions");
                     if (wrongTransactionOrder && wrongTransactionOrder[block.data.id!]) {
                         const fixedOrderIds = wrongTransactionOrder[block.data.id!].reverse();
 
@@ -210,12 +215,15 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
         });
     }
 
-    public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
+    public async deleteBlocks(blocks: BlockInterfaces.IBlockData[]): Promise<void> {
         return this.manager.transaction(async (manager) => {
             // Delete all rounds after the current round if there are still
             // any left.
             const lastBlockHeight: number = blocks[blocks.length - 1].height;
-            const { round } = Utils.roundCalculator.calculateRound(lastBlockHeight);
+            const { round } = Utils.roundCalculator.calculateRound(
+                lastBlockHeight,
+                this.cryptoManager.MilestoneManager.getMilestones(),
+            );
             const blockIds = { blockIds: blocks.map((b) => b.id) };
 
             await manager

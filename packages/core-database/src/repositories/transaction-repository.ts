@@ -1,5 +1,5 @@
+import { Blocks, CryptoManager } from "@arkecosystem/core-crypto";
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Crypto } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { EntityRepository, In } from "typeorm";
 
@@ -9,6 +9,10 @@ import { AbstractEntityRepository } from "./repository";
 @EntityRepository(Transaction)
 export class TransactionRepository extends AbstractEntityRepository<Transaction> {
     public getWalletRepository!: () => Contracts.State.WalletRepository;
+
+    public constructor(private cryptoManager: CryptoManager) {
+        super();
+    }
 
     public async findByBlockIds(
         blockIds: string[],
@@ -73,7 +77,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     > {
         minFee = minFee || 0;
 
-        const age = Crypto.Slots.getTime(dayjs().subtract(days, "day").valueOf());
+        const age = this.cryptoManager.LibraryManager.Crypto.Slots.getTime(dayjs().subtract(days, "day").valueOf());
 
         return this.createQueryBuilder()
             .select(['type_group AS "typeGroup"', "type"])
