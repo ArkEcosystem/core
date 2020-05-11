@@ -100,6 +100,9 @@ export const Identifiers = {
     TransactionPoolSenderMempoolFactory: Symbol.for("TransactionPool<SenderMempoolFactory>"),
     TransactionPoolSenderState: Symbol.for("TransactionPool<SenderState>"),
     TransactionPoolExpirationService: Symbol.for("TransactionPool<ExpirationService>"),
+    TransactionPoolFactoryPool: Symbol.for("TransactionPool<FactoryPool>"),
+    TransactionPoolFactoryWorker: Symbol.for("TransactionPool<FactoryWorker>"),
+    TransactionPoolFactoryWorkerFactory: Symbol.for("TransactionPool<FactoryWorkerFactory>"),
 
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),

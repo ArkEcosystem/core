@@ -9,6 +9,8 @@ import {
 import { Collator } from "./collator";
 import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
 import { ExpirationService } from "./expiration-service";
+import { FactoryPool } from "./factory-pool";
+import { FactoryWorker } from "./factory-worker";
 import { Mempool } from "./mempool";
 import { Processor } from "./processor";
 import { Query } from "./query";
@@ -74,6 +76,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
         this.app.bind(Container.Identifiers.TransactionPoolService).to(Service).inSingletonScope();
         this.app.bind(Container.Identifiers.TransactionPoolStorage).to(Storage).inSingletonScope();
+
+        this.app.bind(Container.Identifiers.TransactionPoolFactoryPool).to(FactoryPool).inSingletonScope();
+        this.app.bind(Container.Identifiers.TransactionPoolFactoryWorker).to(FactoryWorker);
+        this.app
+            .bind(Container.Identifiers.TransactionPoolFactoryWorkerFactory)
+            .toAutoFactory(Container.Identifiers.TransactionPoolFactoryWorker);
     }
 
     private registerActions(): void {
