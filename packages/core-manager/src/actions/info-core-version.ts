@@ -4,10 +4,10 @@ import latestVersion from "latest-version"
 
 @Container.injectable()
 export class Action implements Actions.Action {
+    public name = "info.coreVersion";
+
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Application;
-
-    public name = "info.coreVersion";
 
     public async execute(params: object): Promise<any> {
         return {
