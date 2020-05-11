@@ -1,4 +1,4 @@
-import { Interfaces as BlockInterfaces, Validation } from "@arkecosystem/core-crypto";
+import { Blocks, Interfaces as BlockInterfaces, Validation } from "@arkecosystem/core-crypto";
 import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { Application } from "../../contracts/kernel";
@@ -35,9 +35,8 @@ export class LoadCryptography implements Bootstrapper {
     private readonly configRepository!: ConfigRepository;
 
     private cryptoManager: CryptoManager<BlockInterfaces.IBlockData> | undefined;
-    private transactionManager:
-        | Transactions.TransactionsManager<BlockInterfaces.IBlockData, Interfaces.ITransactionData>
-        | undefined;
+    private transactionManager: Transactions.TransactionsManager<BlockInterfaces.IBlockData> | undefined;
+    private blockFactory: Blocks.BlockFactory | undefined;
 
     /**
      * @returns {Promise<void>}
@@ -53,12 +52,18 @@ export class LoadCryptography implements Bootstrapper {
             ? this.fromConfigRepository()
             : this.fromPreset();
 
-        assert.defined<Interfaces.NetworkConfig<BlockInterfaces.IBlockData>>(this.cryptoManager);
+        assert.defined(this.cryptoManager);
 
         this.transactionManager = new Transactions.TransactionsManager(
             this.cryptoManager,
             Validation.Validator.make(this.cryptoManager), // TODO: this should be configurable
         );
+
+        assert.defined(this.transactionManager);
+
+        this.blockFactory = new Blocks.BlockFactory(this.cryptoManager, this.transactionManager);
+
+        assert.defined(this.blockFactory);
 
         this.app
             .bind<CryptoManager<BlockInterfaces.IBlockData>>(Identifiers.CryptoManager)
@@ -69,6 +74,8 @@ export class LoadCryptography implements Bootstrapper {
                 Identifiers.TransactionManager,
             )
             .toConstantValue(this.transactionManager);
+
+        this.app.bind<Blocks.BlockFactory>(Identifiers.BlockFactory).toConstantValue(this.blockFactory);
     }
 
     /**

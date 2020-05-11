@@ -34,8 +34,8 @@ export const calculateApproval = (
  * from where the data is coming that needs to be processed.
  */
 export const calculateForgedTotal = (
-    wallet: Wallet,
     cryptoManager: CryptoManager<BlockInterfaces.IBlockData>,
+    wallet: Wallet,
 ): string => {
     const delegate: WalletDelegateAttributes = wallet.getAttribute("delegate");
     const forgedFees: Types.BigNumber = cryptoManager.LibraryManager.Libraries.BigNumber.make(delegate.forgedFees);

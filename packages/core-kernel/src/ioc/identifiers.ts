@@ -15,6 +15,7 @@ export const Identifiers = {
     // Crypto
     CryptoManager: Symbol.for("Crypto<CryptoManager>"),
     TransactionManager: Symbol.for("Crypto<TransactionManager>"),
+    BlockFactory: Symbol.for("Crypto<BlockFactory>"),
     // Managers
     CacheManager: Symbol.for("Manager<Cache>"),
     ConfigManager: Symbol.for("Manager<Config>"),
