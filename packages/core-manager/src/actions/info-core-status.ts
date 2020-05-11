@@ -10,22 +10,31 @@ import { HttpClient } from "../utils"
 export class Action implements Actions.Action {
     public name = "info.coreStatus";
 
+    public schema = {
+        type: "object",
+        properties: {
+            token: {
+                type: "string"
+            }
+        }
+    }
+
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Application;
 
-    public async execute(params: object): Promise<any> {
+    public async execute(params: any): Promise<any> {
         return {
-            processStatus: this.getProcessStatus(),
+            processStatus: this.getProcessStatus(params.token) || "undefined",
             syncing: await this.getSyncingStatus()
         }
     }
 
-    private getProcessStatus(): Contracts.ProcessState | undefined {
+    private getProcessStatus(token: string = "ark"): Contracts.ProcessState | undefined {
         const cli = this.app.get<Cli>(Identifiers.CLI);
 
         const processManager = cli.get<Services.ProcessManager>(CliContainer.Identifiers.ProcessManager);
 
-        return processManager.status("ark-core");
+        return processManager.status(`${token}-core`);
     }
 
     private async getSyncingStatus(): Promise<boolean> {

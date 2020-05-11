@@ -7,8 +7,6 @@ export class HttpClient {
     public async get(path: string): Promise<any> {
         let url = `${this.protocol}://${this.host}:${this.port}${path}`
 
-        console.log(url)
-
         return  (await axios.get(url)).data;
     }
 }
