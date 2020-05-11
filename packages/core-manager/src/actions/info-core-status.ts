@@ -43,9 +43,9 @@ export class Action implements Actions.Action {
         const httpClient = new HttpClient(connection.protocol, connection.host, connection.port);
 
         try {
-            let result = await httpClient.get("/api/node/syncing");
+            let response = await httpClient.get("/api/node/syncing");
 
-            return result.data.syncing;
+            return response.data.syncing;
         } catch (err) {
             return undefined;
         }

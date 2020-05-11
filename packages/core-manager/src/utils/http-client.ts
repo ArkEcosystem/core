@@ -1,4 +1,4 @@
-import axios from "axios"
+import got from "got"
 
 export class HttpClient {
     public constructor(private protocol: string, private host: string, private port: string | number) {
@@ -7,6 +7,6 @@ export class HttpClient {
     public async get(path: string): Promise<any> {
         let url = `${this.protocol}://${this.host}:${this.port}${path}`
 
-        return  (await axios.get(url)).data;
+        return got(url).json();
     }
 }
