@@ -1,8 +1,9 @@
+import { Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { CryptoManager, Types } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
 
-export const snoozeForBlock = async <T = any>(
+export const snoozeForBlock = async <T = Interfaces.IBlockData>(
     cryptoManager: CryptoManager<T>,
     sleep: number = 0,
     height: number = 1,
@@ -14,7 +15,7 @@ export const snoozeForBlock = async <T = any>(
     return AppUtils.sleep(blockTime + remainingTimeInSlot + sleepTime);
 };
 
-export const injectMilestone = <T = any>(
+export const injectMilestone = <T = Interfaces.IBlockData>(
     cryptoManager: CryptoManager<T>,
     index: number,
     milestone: Record<string, any>,
@@ -49,7 +50,7 @@ export const resetBlockchain = async (app: Contracts.Kernel.Application) => {
     // app.get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService).flush();
 };
 
-export const getWalletNonce = (app: Contracts.Kernel.Application, publicKey: string): number => {
+export const getWalletNonce = (app: Contracts.Kernel.Application, publicKey: string): Types.BigNumber | number => {
     try {
         return app
             .getTagged<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository, "state", "blockchain")

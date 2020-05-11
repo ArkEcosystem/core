@@ -1,13 +1,10 @@
 import { DelegateFactory } from "@arkecosystem/core-forger";
-import { Interfaces } from "@arkecosystem/crypto";
 
 import secrets from "../../internal/passphrases.json";
 import { Signer } from "../../internal/signer";
 import { FactoryBuilder } from "../factory-builder";
 
-export const registerBlockFactory = <T, U extends Interfaces.ITransactionData, E>(
-    factory: FactoryBuilder<T, U, E>,
-): void => {
+export const registerBlockFactory = (factory: FactoryBuilder): void => {
     factory.set("Block", ({ options }) => {
         let previousBlock;
         if (options.getPreviousBlock) {
@@ -22,7 +19,7 @@ export const registerBlockFactory = <T, U extends Interfaces.ITransactionData, E
         const transactions = options.transactions || [];
 
         if (options.transactionsCount) {
-            const signer = new Signer(options.config, options.nonce);
+            const signer = new Signer(factory.cryptoManager, factory.transactionManager, options.nonce);
 
             const genesisWallets = previousBlock.transactions
                 .map((transaction) => transaction.recipientId)

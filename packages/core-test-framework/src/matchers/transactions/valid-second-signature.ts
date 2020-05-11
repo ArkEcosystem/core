@@ -1,4 +1,6 @@
-import { Transactions } from "@arkecosystem/crypto";
+import { TransactionsManager } from "@arkecosystem/core-crypto";
+
+import { createDefaultTransactionManager } from "../../utils/transaction-manager";
 
 export {};
 
@@ -12,10 +14,14 @@ declare global {
 }
 
 expect.extend({
-    toHaveValidSecondSignature: (actual, expected) => {
+    toHaveValidSecondSignature: (
+        actual,
+        expected,
+        transactionManager: TransactionsManager = createDefaultTransactionManager(),
+    ) => {
         let verified: boolean = false;
         try {
-            verified = Transactions.Verifier.verifySecondSignature(actual, expected.publicKey);
+            verified = transactionManager.Verifier.verifySecondSignature(actual, expected.publicKey);
         } catch {}
 
         return {

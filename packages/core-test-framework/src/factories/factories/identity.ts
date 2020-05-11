@@ -3,9 +3,7 @@ import { generateMnemonic } from "bip39";
 
 import { FactoryBuilder } from "../factory-builder";
 
-export const registerIdentityFactory = <T, U extends Interfaces.ITransactionData, E>(
-    factory: FactoryBuilder<T, U, E>,
-): void => {
+export const registerIdentityFactory = (factory: FactoryBuilder): void => {
     factory.set("Identity", ({ options }) => {
         const passphrase: string = options.passphrase || generateMnemonic();
         const identities = factory.cryptoManager.Identities;

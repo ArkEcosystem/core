@@ -1,5 +1,7 @@
 import { Transactions } from "@arkecosystem/crypto";
 
+import { createDefaultTransactionManager } from "../../utils/transaction-manager";
+
 export {};
 
 declare global {
@@ -12,11 +14,14 @@ declare global {
 }
 
 expect.extend({
-    toBeValidTransaction: (actual) => {
+    toBeValidTransaction: (
+        actual,
+        transactionManager: Transactions.TransactionsManager<any> = createDefaultTransactionManager(),
+    ) => {
         let verified = false;
 
         try {
-            verified = Transactions.Verifier.verifyHash(actual);
+            verified = transactionManager.Verifier.verifyHash(actual);
         } catch {}
 
         return {

@@ -1,16 +1,17 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
-import { Utils } from "@arkecosystem/crypto";
+import { Types } from "@arkecosystem/crypto";
 
-let mockNonce: Utils.BigNumber = Utils.BigNumber.make(1);
+let mockNonce: number | Types.BigNumber = 1;
 
-export const setNonce = (nonce: Utils.BigNumber) => {
+export const setNonce = (nonce: Types.BigNumber) => {
     mockNonce = nonce;
 };
 
-class WalletRepositoryMock implements Partial<WalletRepository> {
-    public getNonce(publicKey: string): Utils.BigNumber {
-        return mockNonce;
+export class WalletRepositoryMock implements Partial<WalletRepository> {
+    public constructor(private cryptoManager: CryptoManager) {}
+
+    public getNonce(publicKey: string): Types.BigNumber {
+        return this.cryptoManager.LibraryManager.Libraries.BigNumber.make(mockNonce);
     }
 }
-
-export const instance = new WalletRepositoryMock();

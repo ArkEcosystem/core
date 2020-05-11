@@ -1,8 +1,9 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import { Transaction } from "@arkecosystem/crypto/src/transactions";
 
-let mockTransactions: Partial<Transaction>[] = [];
+let mockTransactions: Partial<Transaction<BlockInterfaces.IBlockData>>[] = [];
 
 export const setTransactions = (transactions: Partial<Interfaces.ITransaction>[]) => {
     mockTransactions = transactions;

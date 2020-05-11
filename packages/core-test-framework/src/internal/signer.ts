@@ -1,16 +1,19 @@
-import { Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { CryptoManager, TransactionsManager } from "@arkecosystem/core-crypto";
+import { Types } from "@arkecosystem/crypto";
 
 export class Signer {
-    private nonce: Utils.BigNumber;
+    private nonce: Types.BigNumber;
 
-    public constructor(config, nonce: string) {
-        Managers.configManager.setConfig(config);
-
-        this.nonce = Utils.BigNumber.make(nonce || 0);
+    public constructor(
+        private cryptoManager: CryptoManager,
+        private transactionsManager: TransactionsManager,
+        nonce: string,
+    ) {
+        this.nonce = cryptoManager.LibraryManager.Libraries.BigNumber.make(nonce || 0);
     }
 
     public makeTransfer(opts: Record<string, any>): any {
-        const transaction = Transactions.BuilderFactory.transfer()
+        const transaction = this.transactionsManager.BuilderFactory.transfer()
             .fee(this.toSatoshi(opts.transferFee))
             .nonce(this.nonce.toString())
             .recipientId(opts.recipient)
@@ -31,7 +34,7 @@ export class Signer {
     }
 
     public makeDelegate(opts: Record<string, any>): any {
-        const transaction = Transactions.BuilderFactory.delegateRegistration()
+        const transaction = this.transactionsManager.BuilderFactory.delegateRegistration()
             .fee(this.toSatoshi(opts.delegateFee))
             .nonce(this.nonce.toString())
             .usernameAsset(opts.username)
@@ -46,7 +49,7 @@ export class Signer {
     }
 
     public makeSecondSignature(opts: Record<string, any>): any {
-        const transaction = Transactions.BuilderFactory.secondSignature()
+        const transaction = this.transactionsManager.BuilderFactory.secondSignature()
             .fee(this.toSatoshi(opts.signatureFee))
             .nonce(this.nonce.toString())
             .signatureAsset(opts.secondPassphrase)
@@ -58,7 +61,7 @@ export class Signer {
     }
 
     public makeVote(opts: Record<string, any>): any {
-        const transaction = Transactions.BuilderFactory.vote()
+        const transaction = this.transactionsManager.BuilderFactory.vote()
             .fee(this.toSatoshi(opts.voteFee))
             .nonce(this.nonce.toString())
             .votesAsset([`+${opts.delegate}`])
@@ -73,12 +76,12 @@ export class Signer {
     }
 
     public makeMultiSignatureRegistration(opts: Record<string, any>): any {
-        const transaction = Transactions.BuilderFactory.multiSignature()
+        const transaction = this.transactionsManager.BuilderFactory.multiSignature()
             .multiSignatureAsset({
                 min: opts.min,
                 publicKeys: opts.participants.split(","),
             })
-            .senderPublicKey(Identities.PublicKey.fromPassphrase(opts.passphrase))
+            .senderPublicKey(this.cryptoManager.Identities.PublicKey.fromPassphrase(opts.passphrase))
             .nonce(this.nonce.toString());
 
         for (const [index, passphrase] of opts.passphrases.split(",").entries()) {
@@ -96,7 +99,7 @@ export class Signer {
     }
 
     public makeIpfs(opts: Record<string, any>): any {
-        const transaction = Transactions.BuilderFactory.ipfs()
+        const transaction = this.transactionsManager.BuilderFactory.ipfs()
             .fee(this.toSatoshi(opts.ipfsFee))
             .ipfsAsset(opts.ipfs)
             .nonce(this.nonce.toString())
@@ -111,7 +114,7 @@ export class Signer {
     }
 
     public makeMultipayment(opts: Record<string, any>): any {
-        const transaction = Transactions.BuilderFactory.multiPayment()
+        const transaction = this.transactionsManager.BuilderFactory.multiPayment()
             .fee(this.toSatoshi(opts.multipaymentFee))
             .nonce(this.nonce.toString());
 
@@ -130,7 +133,7 @@ export class Signer {
     }
 
     public makeHtlcLock(opts: Record<string, any>): any {
-        const transaction = Transactions.BuilderFactory.htlcLock()
+        const transaction = this.transactionsManager.BuilderFactory.htlcLock()
             .fee(this.toSatoshi(opts.htlcLockFee))
             .htlcLockAsset(opts.lock)
             .nonce(this.nonce.toString())
@@ -147,7 +150,7 @@ export class Signer {
     }
 
     public makeHtlcClaim(opts: Record<string, any>): any {
-        const transaction = Transactions.BuilderFactory.htlcClaim()
+        const transaction = this.transactionsManager.BuilderFactory.htlcClaim()
             .fee(this.toSatoshi(opts.htlcClaimFee))
             .htlcClaimAsset(opts.claim)
             .nonce(this.nonce.toString())
@@ -162,7 +165,7 @@ export class Signer {
     }
 
     public makeHtlcRefund(opts: Record<string, any>): any {
-        const transaction = Transactions.BuilderFactory.htlcRefund()
+        const transaction = this.transactionsManager.BuilderFactory.htlcRefund()
             .fee(this.toSatoshi(opts.htlcRefundFee))
             .htlcRefundAsset(opts.refund)
             .nonce(this.nonce.toString())
@@ -181,6 +184,6 @@ export class Signer {
     }
 
     private toSatoshi(value): string {
-        return Utils.BigNumber.make(value * 1e8).toFixed();
+        return this.cryptoManager.LibraryManager.Libraries.BigNumber.make(value * 1e8).toFixed();
     }
 }

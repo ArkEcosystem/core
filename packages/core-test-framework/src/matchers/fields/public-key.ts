@@ -1,4 +1,4 @@
-import { Identities } from "@arkecosystem/crypto";
+import { CryptoManager } from "@arkecosystem/core-crypto";
 
 export {};
 
@@ -12,11 +12,11 @@ declare global {
 }
 
 expect.extend({
-    toBePublicKey: (received) => {
+    toBePublicKey: (received, cryptoManager = CryptoManager.createFromPreset("testnet")) => {
         let pass: boolean;
 
         try {
-            pass = Identities.Address.fromPublicKey(received).length === 34;
+            pass = cryptoManager.Identities.Address.fromPublicKey(received).length === 34;
         } catch (e) {
             pass = false;
         }

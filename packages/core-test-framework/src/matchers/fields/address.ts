@@ -1,4 +1,4 @@
-import { Identities } from "@arkecosystem/crypto";
+import { CryptoManager } from "@arkecosystem/core-crypto";
 
 export {};
 
@@ -12,10 +12,10 @@ declare global {
 }
 
 expect.extend({
-    toBeAddress: (received, argument) => {
+    toBeAddress: (received, argument, cryptoManager = CryptoManager.createFromPreset("testnet")) => {
         return {
             message: /* istanbul ignore next */ () => "Expected value to be a valid address",
-            pass: Identities.Address.validate(received, argument),
+            pass: cryptoManager.Identities.Address.validate(received, argument),
         };
     },
 });

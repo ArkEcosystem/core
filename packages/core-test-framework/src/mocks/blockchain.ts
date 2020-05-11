@@ -1,10 +1,10 @@
 import { Blockchain } from "@arkecosystem/core-blockchain";
-import { IBlock } from "@arkecosystem/crypto/src/interfaces";
+import { Interfaces } from "@arkecosystem/core-crypto";
 
-let mockBlock: Partial<IBlock> | undefined;
+let mockBlock: Partial<Interfaces.IBlock> | undefined;
 let mockIsSynced: boolean = true;
 
-export const setBlock = (block: Partial<IBlock> | undefined) => {
+export const setBlock = (block: Partial<Interfaces.IBlock> | undefined) => {
     mockBlock = block;
 };
 
@@ -13,8 +13,8 @@ export const setIsSynced = (isSynced: boolean) => {
 };
 
 class BlockchainMock implements Partial<Blockchain> {
-    public getLastBlock(): IBlock {
-        return mockBlock as IBlock;
+    public getLastBlock(): Interfaces.IBlock {
+        return mockBlock as Interfaces.IBlock;
     }
 
     public getLastHeight(): number {

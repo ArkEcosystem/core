@@ -33,9 +33,7 @@ export class CoreGenerator extends Generator {
 
         this.writePeers();
 
-        this.writeDelegates(
-            this.generateCoreDelegates(this.options.crypto.flags.delegates, this.options.crypto.flags.pubKeyHash),
-        );
+        this.writeDelegates(this.generateCoreDelegates(this.options.crypto.flags.delegates));
 
         this.writeEnvironment();
 

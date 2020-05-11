@@ -1,3 +1,4 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 
@@ -9,7 +10,7 @@ import { SandboxOptions, Wallet } from "../contracts";
  * @export
  * @class Generator
  */
-export abstract class Generator<T> {
+export abstract class Generator<T = BlockInterfaces.IBlockData> {
     /**
      * @private
      * @type {ConfigPaths}
@@ -38,7 +39,7 @@ export abstract class Generator<T> {
     };
 
     protected cryptoManager: CryptoManager<T>;
-    protected transactionManager: Transactions.TransactionsManager<T, Interfaces.ITransactionData, any>;
+    protected transactionManager: Transactions.TransactionsManager<T>;
 
     /**
      * @param {SandboxOptions} options
