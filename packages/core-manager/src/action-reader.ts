@@ -29,6 +29,7 @@ export class ActionReader {
         return methods;
     }
 
+    /* istanbul ignore next */
     private prepareMethod(action: Actions.Action): Actions.Method {
         return {
             name: action.name,

@@ -5,7 +5,7 @@ import { Actions } from "../contracts"
 
 @Container.injectable()
 export class Action implements Actions.Action {
-    public name = "argon2id";
+    public name = "support.argon2id";
 
     public schema = {
         type: "object",

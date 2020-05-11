@@ -41,7 +41,7 @@ let mockPluginFactory: Plugins.PluginFactory = {
                 plugin: rpc,
                 options: {
                     methods: [
-                         new Assets.DummyAction()
+                         Assets.dummyMethod
                     ],
                     processor: {
                         schema: {
@@ -88,12 +88,9 @@ let logger = {
 }
 
 beforeEach(() => {
-
-    let dummyAction = new Assets.DummyAction();
-
     let actionReader: Partial<ActionReader> = {
-        discoverActions(): Actions.Action[] {
-            return [dummyAction];
+        discoverActions(): Actions.Method[] {
+            return [Assets.dummyMethod];
         }
     }
 
