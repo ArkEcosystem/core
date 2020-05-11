@@ -1,8 +1,12 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
+import { Types } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class DposState implements Contracts.State.DposState {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     @Container.inject(Container.Identifiers.LogService)
     private logger!: Contracts.Kernel.Logger;
 
@@ -41,9 +45,12 @@ export class DposState implements Contracts.State.DposState {
                     voter.getAttribute("vote"),
                 );
 
-                const voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance");
+                const voteBalance: Types.BigNumber = delegate.getAttribute("delegate.voteBalance");
 
-                const lockedBalance = voter.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+                const lockedBalance = voter.getAttribute(
+                    "htlc.lockedBalance",
+                    this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+                );
                 delegate.setAttribute("delegate.voteBalance", voteBalance.plus(voter.balance).plus(lockedBalance));
             }
         }
@@ -61,8 +68,8 @@ export class DposState implements Contracts.State.DposState {
         }
 
         this.activeDelegates.sort((a, b) => {
-            const voteBalanceA: Utils.BigNumber = a.getAttribute("delegate.voteBalance");
-            const voteBalanceB: Utils.BigNumber = b.getAttribute("delegate.voteBalance");
+            const voteBalanceA: Types.BigNumber = a.getAttribute("delegate.voteBalance");
+            const voteBalanceB: Types.BigNumber = b.getAttribute("delegate.voteBalance");
 
             const diff = voteBalanceB.comparedTo(voteBalanceA);
 

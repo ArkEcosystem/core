@@ -1,13 +1,17 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Repositories } from "@arkecosystem/core-database";
 import { Application, Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Managers, Utils } from "@arkecosystem/crypto";
+import { Types } from "@arkecosystem/crypto";
 
 // todo: review the implementation
 @Container.injectable()
 export class StateBuilder {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Application;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
 
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)
     private blockRepository!: Repositories.BlockRepository;
@@ -89,7 +93,7 @@ export class StateBuilder {
 
         for (const transaction of transactions) {
             const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-            wallet.nonce = Utils.BigNumber.make(transaction.nonce);
+            wallet.nonce = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(transaction.nonce);
             wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
         }
     }
@@ -98,9 +102,9 @@ export class StateBuilder {
         const logNegativeBalance = (wallet, type, balance) =>
             this.logger.warning(`Wallet ${wallet.address} has a negative ${type} of '${balance}'`);
 
-        const genesisPublicKeys: Record<string, true> = Managers.configManager
-            .get("genesisBlock.transactions")
-            .reduce((acc, curr) => Object.assign(acc, { [curr.senderPublicKey]: true }), {});
+        const genesisPublicKeys: Record<string, true> = this.cryptoManager.NetworkConfigManager.get(
+            "genesisBlock.transactions",
+        ).reduce((acc, curr) => Object.assign(acc, { [curr.senderPublicKey]: true }), {});
 
         for (const wallet of this.walletRepository.allByAddress()) {
             if (
@@ -139,7 +143,7 @@ export class StateBuilder {
             }
 
             if (wallet.hasAttribute("delegate.voteBalance")) {
-                const voteBalance: Utils.BigNumber = wallet.getAttribute("delegate.voteBalance");
+                const voteBalance: Types.BigNumber = wallet.getAttribute("delegate.voteBalance");
 
                 if (voteBalance.isLessThan(0)) {
                     logNegativeBalance(wallet, "vote balance", voteBalance);

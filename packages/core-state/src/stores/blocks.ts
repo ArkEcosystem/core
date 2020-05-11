@@ -1,5 +1,5 @@
+import { Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 
 // todo: review its implementation and finally integrate it as planned in v2

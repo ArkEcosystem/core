@@ -1,5 +1,5 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 
 import { BuildDelegateRankingAction } from "./actions";
 import { BlockState } from "./block-state";
@@ -14,7 +14,7 @@ import { registerFactories, registerIndexers } from "./wallets/indexers";
 
 export const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
     return async (
-        blocks: Interfaces.IBlock[],
+        blocks: BlockInterfaces.IBlock[],
         roundInfo: Contracts.Shared.RoundInfo,
     ): Promise<Contracts.State.DposPreviousRoundState> => {
         const previousRound = context.container.resolve(DposPreviousRoundState);

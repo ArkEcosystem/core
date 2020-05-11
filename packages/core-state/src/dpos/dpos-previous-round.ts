@@ -1,5 +1,5 @@
+import { Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class DposPreviousRoundState implements Contracts.State.DposPreviousRoundState {

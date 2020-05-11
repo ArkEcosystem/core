@@ -1,5 +1,6 @@
+import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
 
@@ -19,6 +20,9 @@ export class StateStore implements Contracts.State.StateStore {
     public p2pUpdateCounter = 0;
     public numberOfBlocksToRollback: number | undefined = undefined;
     public networkStart = false;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
 
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
@@ -106,9 +110,9 @@ export class StateStore implements Contracts.State.StateStore {
 
         this.lastBlocks = this.lastBlocks.set(block.data.height, block);
 
-        Managers.configManager.setHeight(block.data.height);
+        this.cryptoManager.HeightTracker.setHeight(block.data.height);
 
-        if (Managers.configManager.isNewMilestone()) {
+        if (this.cryptoManager.MilestoneManager.isNewMilestone()) {
             this.app
                 .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
                 .dispatch(Enums.CryptoEvent.MilestoneChanged);
@@ -194,10 +198,10 @@ export class StateStore implements Contracts.State.StateStore {
      * Cache the ids of the given transactions.
      */
     public cacheTransactions(
-        transactions: Interfaces.ITransactionData[],
-    ): { added: Interfaces.ITransactionData[]; notAdded: Interfaces.ITransactionData[] } {
-        const notAdded: Interfaces.ITransactionData[] = [];
-        const added: Interfaces.ITransactionData[] = transactions.filter((tx) => {
+        transactions: TransactionInterfaces.ITransactionData[],
+    ): { added: TransactionInterfaces.ITransactionData[]; notAdded: TransactionInterfaces.ITransactionData[] } {
+        const notAdded: TransactionInterfaces.ITransactionData[] = [];
+        const added: TransactionInterfaces.ITransactionData[] = transactions.filter((tx) => {
             Utils.assert.defined<string>(tx.id);
 
             if (this.cachedTransactionIds.has(tx.id)) {

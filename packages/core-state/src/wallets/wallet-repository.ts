@@ -1,5 +1,6 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Types } from "@arkecosystem/crypto";
 
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
 import { searchEntries } from "./utils/search-entries";
@@ -9,6 +10,9 @@ import { WalletIndex } from "./wallet-index";
 @Container.injectable()
 export class WalletRepository implements Contracts.State.WalletRepository {
     protected readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
 
     @Container.multiInject(Container.Identifiers.WalletRepositoryIndexerIndex)
     private readonly indexerIndexes!: Contracts.State.WalletIndexerIndex[];
@@ -69,7 +73,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     public findByPublicKey(publicKey: string): Contracts.State.Wallet {
         const index = this.getIndex(Contracts.State.WalletIndexes.PublicKeys);
         if (publicKey && !index.has(publicKey)) {
-            const wallet = this.findByAddress(Identities.Address.fromPublicKey(publicKey));
+            const wallet = this.findByAddress(this.cryptoManager.Identities.Address.fromPublicKey(publicKey));
             wallet.publicKey = publicKey;
             index.set(publicKey, wallet);
         }
@@ -118,12 +122,12 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return this.getIndex(indexName).has(key);
     }
 
-    public getNonce(publicKey: string): Utils.BigNumber {
+    public getNonce(publicKey: string): Types.BigNumber {
         if (this.hasByPublicKey(publicKey)) {
             return this.findByPublicKey(publicKey).nonce;
         }
 
-        return Utils.BigNumber.ZERO;
+        return this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
     }
 
     public forgetByAddress(address: string): void {
@@ -316,7 +320,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             entries = entries.map((delegate) => {
                 for (const [prop, method] of Object.entries(manipulators)) {
                     if (params.hasOwnProperty(prop)) {
-                        delegate.setAttribute(`delegate.${prop}`, method(delegate));
+                        delegate.setAttribute(`delegate.${prop}`, method(this.cryptoManager, delegate));
                     }
                 }
 

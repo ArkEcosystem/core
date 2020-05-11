@@ -1,6 +1,7 @@
+import { CryptoManager, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Types } from "@arkecosystem/crypto";
 
 // todo: review the implementation and make use of ioc
 @Container.injectable()
@@ -19,7 +20,10 @@ export class BlockState {
     @Container.inject(Container.Identifiers.LogService)
     private logger!: Contracts.Kernel.Logger;
 
-    public async applyBlock(block: Interfaces.IBlock): Promise<void> {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
+    public async applyBlock(block: BlockInterfaces.IBlock): Promise<void> {
         if (block.data.height === 1) {
             this.initGenesisForgerWallet(block.data.generatorPublicKey);
         }
@@ -50,7 +54,7 @@ export class BlockState {
         }
     }
 
-    public async revertBlock(block: Interfaces.IBlock): Promise<void> {
+    public async revertBlock(block: BlockInterfaces.IBlock): Promise<void> {
         const forgerWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
         /**
          * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
@@ -162,23 +166,23 @@ export class BlockState {
         this.revertVoteBalances(sender, recipient, data, lockWallet, lockTransaction);
     }
 
-    public increaseWalletDelegateVoteBalance(wallet: Contracts.State.Wallet, amount: AppUtils.BigNumber) {
+    public increaseWalletDelegateVoteBalance(wallet: Contracts.State.Wallet, amount: Types.BigNumber) {
         // ? packages/core-transactions/src/handlers/one/vote.ts:L120 blindly sets "vote" attribute
         // ? is it guaranteed that delegate wallet exists, so delegateWallet.getAttribute("delegate.voteBalance") is safe?
         if (wallet.hasVoted()) {
             const delegatePulicKey = wallet.getAttribute<string>("vote");
             const delegateWallet = this.walletRepository.findByPublicKey(delegatePulicKey);
-            const oldDelegateVoteBalance = delegateWallet.getAttribute<AppUtils.BigNumber>("delegate.voteBalance");
+            const oldDelegateVoteBalance = delegateWallet.getAttribute<Types.BigNumber>("delegate.voteBalance");
             const newDelegateVoteBalance = oldDelegateVoteBalance.plus(amount);
             delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
         }
     }
 
-    public decreaseWalletDelegateVoteBalance(wallet: Contracts.State.Wallet, amount: AppUtils.BigNumber) {
+    public decreaseWalletDelegateVoteBalance(wallet: Contracts.State.Wallet, amount: Types.BigNumber) {
         if (wallet.hasVoted()) {
             const delegatePulicKey = wallet.getAttribute<string>("vote");
             const delegateWallet = this.walletRepository.findByPublicKey(delegatePulicKey);
-            const oldDelegateVoteBalance = delegateWallet.getAttribute<AppUtils.BigNumber>("delegate.voteBalance");
+            const oldDelegateVoteBalance = delegateWallet.getAttribute<Types.BigNumber>("delegate.voteBalance");
             const newDelegateVoteBalance = oldDelegateVoteBalance.minus(amount);
             delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
         }
@@ -205,7 +209,7 @@ export class BlockState {
         return this.updateVoteBalances(sender, recipient, transaction, lockWallet, lockTransaction, true);
     }
 
-    private applyBlockToForger(forgerWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
+    private applyBlockToForger(forgerWallet: Contracts.State.Wallet, blockData: BlockInterfaces.IBlockData) {
         const delegateAttribute = forgerWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
         delegateAttribute.producedBlocks++;
         delegateAttribute.forgedFees = delegateAttribute.forgedFees.plus(blockData.totalFee);
@@ -217,7 +221,7 @@ export class BlockState {
         forgerWallet.balance = forgerWallet.balance.plus(balanceIncrease);
     }
 
-    private revertBlockFromForger(forgerWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
+    private revertBlockFromForger(forgerWallet: Contracts.State.Wallet, blockData: BlockInterfaces.IBlockData) {
         const delegateAttribute = forgerWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
         delegateAttribute.producedBlocks--;
         delegateAttribute.forgedFees = delegateAttribute.forgedFees.minus(blockData.totalFee);
@@ -256,7 +260,10 @@ export class BlockState {
 
             const vote: string = transaction.asset.votes[0];
             const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(vote.substr(1));
-            let voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
+            let voteBalance: Types.BigNumber = delegate.getAttribute(
+                "delegate.voteBalance",
+                this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+            );
 
             if (vote.startsWith("+")) {
                 voteBalance = revert
@@ -276,7 +283,7 @@ export class BlockState {
                     sender.getAttribute("vote"),
                 );
 
-                let amount: AppUtils.BigNumber = transaction.amount;
+                let amount: Types.BigNumber = transaction.amount;
                 if (
                     transaction.type === Enums.TransactionType.MultiPayment &&
                     transaction.typeGroup === Enums.TransactionTypeGroup.Core
@@ -285,17 +292,17 @@ export class BlockState {
 
                     amount = transaction.asset.payments.reduce(
                         (prev, curr) => prev.plus(curr.amount),
-                        Utils.BigNumber.ZERO,
+                        this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
                     );
                 }
 
-                const total: Utils.BigNumber = amount.plus(transaction.fee);
+                const total: Types.BigNumber = amount.plus(transaction.fee);
 
-                const voteBalance: Utils.BigNumber = delegate.getAttribute(
+                const voteBalance: Types.BigNumber = delegate.getAttribute(
                     "delegate.voteBalance",
-                    Utils.BigNumber.ZERO,
+                    this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
                 );
-                let newVoteBalance: Utils.BigNumber;
+                let newVoteBalance: Types.BigNumber;
 
                 if (
                     transaction.type === Enums.TransactionType.HtlcLock &&
@@ -327,9 +334,9 @@ export class BlockState {
                 const lockWalletDelegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
                     lockWallet.getAttribute("vote"),
                 );
-                const lockWalletDelegateVoteBalance: Utils.BigNumber = lockWalletDelegate.getAttribute(
+                const lockWalletDelegateVoteBalance: Types.BigNumber = lockWalletDelegate.getAttribute(
                     "delegate.voteBalance",
-                    Utils.BigNumber.ZERO,
+                    this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
                 );
                 lockWalletDelegate.setAttribute(
                     "delegate.voteBalance",
@@ -351,9 +358,9 @@ export class BlockState {
                     if (recipientWallet.hasVoted()) {
                         const vote = recipientWallet.getAttribute("vote");
                         const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(vote);
-                        const voteBalance: Utils.BigNumber = delegate.getAttribute(
+                        const voteBalance: Types.BigNumber = delegate.getAttribute(
                             "delegate.voteBalance",
-                            Utils.BigNumber.ZERO,
+                            this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
                         );
                         delegate.setAttribute(
                             "delegate.voteBalance",
@@ -373,9 +380,9 @@ export class BlockState {
                 const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
                     recipient.getAttribute("vote"),
                 );
-                const voteBalance: Utils.BigNumber = delegate.getAttribute(
+                const voteBalance: Types.BigNumber = delegate.getAttribute(
                     "delegate.voteBalance",
-                    Utils.BigNumber.ZERO,
+                    this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
                 );
 
                 delegate.setAttribute(
@@ -391,7 +398,7 @@ export class BlockState {
             return;
         }
 
-        const forgerAddress = Identities.Address.fromPublicKey(forgerPublicKey);
+        const forgerAddress = this.cryptoManager.Identities.Address.fromPublicKey(forgerPublicKey);
         const forgerWallet = this.walletRepository.createWallet(forgerAddress);
         forgerWallet.publicKey = forgerPublicKey;
         this.walletRepository.index(forgerWallet);
