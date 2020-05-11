@@ -37,7 +37,7 @@ export class Action implements Actions.Action {
         return processManager.status(`${token}-core`);
     }
 
-    private async getSyncingStatus(): Promise<boolean> {
+    private async getSyncingStatus(): Promise<boolean | undefined> {
         let connection  = this.getConnectionData();
 
         const httpClient = new HttpClient(connection.protocol, connection.host, connection.port);
@@ -46,8 +46,8 @@ export class Action implements Actions.Action {
             let result = await httpClient.get("/api/node/syncing");
 
             return result.data.syncing;
-        } catch {
-            return false;
+        } catch (err) {
+            return undefined;
         }
     }
 

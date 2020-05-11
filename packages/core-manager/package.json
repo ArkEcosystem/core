@@ -32,6 +32,9 @@
         "hapi-auth-bearer-token": "^6.1.6",
         "latest-version": "^5.1.0"
     },
+    "devDependencies": {
+        "jest-mock-axios": "^4.0.0"
+    },
     "engines": {
         "node": ">=10.x"
     },
