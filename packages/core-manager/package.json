@@ -1,11 +1,10 @@
 {
-    "name": "@arkecosystem/core-magistrate-api",
+    "name": "@arkecosystem/core-manager",
     "version": "3.0.0-next.0",
-    "description": "Magistrate API for ARK Core",
+    "description": "Manager for ARK Core",
     "license": "MIT",
     "contributors": [
-        "Brian Faust <brian@ark.io>",
-        "Joshua Noack <joshua@ark.io>"
+        "Sebastijan Kuzner <sebastijan@ark.io>"
     ],
     "files": [
         "dist"
@@ -22,15 +21,15 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-api": "^3.0.0-next.0",
+        "argon2": "^0.26.2",
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
+        "@hapi/basic": "^6.0.0",
         "@hapi/boom": "^9.0.0",
         "@hapi/hapi": "^19.0.0",
-        "@hapi/joi": "^17.1.0"
-    },
-    "devDependencies": {
-        "@types/hapi__boom": "^7.4.1",
-        "@types/hapi__joi": "^17.0.0"
+        "@hapist/json-rpc": "^0.2.0",
+        "@hapist/whitelist": "^0.1.0",
+        "hapi-auth-bearer-token": "^6.1.6",
+        "latest-version": "^5.1.0"
     },
     "engines": {
         "node": ">=10.x"
@@ -40,7 +39,7 @@
     },
     "arkecosystem": {
         "core": {
-            "alias": "magistrate-api"
+            "alias": "manager"
         }
     }
 }
