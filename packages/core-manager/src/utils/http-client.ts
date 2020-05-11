@@ -7,6 +7,6 @@ export class HttpClient {
     public async get(path: string): Promise<any> {
         let url = `${this.protocol}://${this.host}:${this.port}${path}`
 
-        return got(url).json();
+        return got.get(url).json();
     }
 }
