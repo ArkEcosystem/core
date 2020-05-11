@@ -1,6 +1,7 @@
+import { Blocks, CryptoManager, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
 import { MissingCommonBlockError } from "../../errors";
@@ -11,6 +12,12 @@ import { mapAddr } from "../utils/map-addr";
 import { Controller } from "./controller";
 
 export class PeerController extends Controller {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
+    @Container.inject(Container.Identifiers.BlockFactory)
+    private readonly blockFactory!: Blocks.BlockFactory;
+
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly peerStorage!: Contracts.P2P.PeerStorage;
 
@@ -33,10 +40,12 @@ export class PeerController extends Controller {
         request: Hapi.Request,
         h: Hapi.ResponseToolkit,
     ): Promise<{
-        common: Interfaces.IBlockData;
+        common: BlockInterfaces.IBlockData;
         lastBlockHeight: number;
     }> {
-        const commonBlocks: Interfaces.IBlockData[] = await this.database.getCommonBlocks((request.payload as any).ids);
+        const commonBlocks: BlockInterfaces.IBlockData[] = await this.database.getCommonBlocks(
+            (request.payload as any).ids,
+        );
 
         if (!commonBlocks.length) {
             throw new MissingCommonBlockError();
@@ -51,16 +60,16 @@ export class PeerController extends Controller {
 
     public async getStatus(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<Contracts.P2P.PeerPingResponse> {
         const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
-        const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
+        const lastBlock: BlockInterfaces.IBlock = blockchain.getLastBlock();
 
         return {
             state: {
                 height: lastBlock ? lastBlock.data.height : 0,
-                forgingAllowed: Crypto.Slots.isForgingAllowed(),
-                currentSlot: Crypto.Slots.getSlotNumber(),
+                forgingAllowed: this.cryptoManager.LibraryManager.Crypto.Slots.isForgingAllowed(),
+                currentSlot: this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(),
                 header: lastBlock ? lastBlock.getHeader() : {},
             },
-            config: getPeerConfig(this.app),
+            config: getPeerConfig(this.app, this.cryptoManager),
         };
     }
 
@@ -74,20 +83,21 @@ export class PeerController extends Controller {
         const blockBuffer = Buffer.from(request.payload.block.data);
         const blockHex: string = blockBuffer.toString("hex");
 
-        const deserializedHeader = Blocks.Deserializer.deserialize(blockHex, true);
+        const deserializedHeader = this.blockFactory.deserializer.deserialize(blockHex, true);
 
         if (
-            deserializedHeader.data.numberOfTransactions > Managers.configManager.getMilestone().block.maxTransactions
+            deserializedHeader.data.numberOfTransactions >
+            this.cryptoManager.MilestoneManager.getMilestone().block.maxTransactions
         ) {
             throw new TooManyTransactionsError(deserializedHeader.data);
         }
 
         const deserialized: {
-            data: Interfaces.IBlockData;
+            data: BlockInterfaces.IBlockData;
             transactions: Interfaces.ITransaction[];
-        } = Blocks.Deserializer.deserialize(blockHex);
+        } = this.blockFactory.deserializer.deserialize(blockHex);
 
-        const block: Interfaces.IBlockData = {
+        const block: BlockInterfaces.IBlockData = {
             ...deserialized.data,
             transactions: deserialized.transactions.map((tx) => tx.data),
         };
@@ -104,16 +114,16 @@ export class PeerController extends Controller {
                 return true;
             }
 
-            const lastDownloadedBlock: Interfaces.IBlockData = blockchain.getLastDownloadedBlock();
+            const lastDownloadedBlock: BlockInterfaces.IBlockData = blockchain.getLastDownloadedBlock();
 
-            if (!Utils.isBlockChained(lastDownloadedBlock, block)) {
+            if (!Utils.isBlockChained(lastDownloadedBlock, block, this.cryptoManager)) {
                 throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
             }
         }
 
         if (
             block.transactions &&
-            block.transactions.length > Managers.configManager.getMilestone().block.maxTransactions
+            block.transactions.length > this.cryptoManager.MilestoneManager.getMilestone().block.maxTransactions
         ) {
             throw new TooManyTransactionsError(block);
         }
@@ -142,7 +152,7 @@ export class PeerController extends Controller {
     public async getBlocks(
         request: Hapi.Request,
         h: Hapi.ResponseToolkit,
-    ): Promise<Interfaces.IBlockData[] | Contracts.Shared.DownloadBlock[]> {
+    ): Promise<BlockInterfaces.IBlockData[] | Contracts.Shared.DownloadBlock[]> {
         const reqBlockHeight: number = +(request.payload as any).lastBlockHeight + 1;
         const reqBlockLimit: number = +(request.payload as any).blockLimit || 400;
         const reqHeadersOnly: boolean = !!(request.payload as any).headersOnly;

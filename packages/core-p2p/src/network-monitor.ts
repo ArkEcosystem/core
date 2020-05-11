@@ -1,5 +1,5 @@
+import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Providers, Services, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 import prettyMs from "pretty-ms";
 
 import { NetworkState } from "./network-state";
@@ -30,6 +30,9 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
 
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-p2p")
@@ -259,7 +262,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public async getNetworkState(): Promise<Contracts.P2P.NetworkState> {
         await this.cleansePeers({ fast: true, forcePing: true });
 
-        return NetworkState.analyze(this, this.storage);
+        return NetworkState.analyze(this, this.storage, this.cryptoManager);
     }
 
     public async refreshPeersAfterFork(): Promise<void> {

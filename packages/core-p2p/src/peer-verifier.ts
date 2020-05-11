@@ -1,6 +1,7 @@
+import { Blocks, CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Interfaces } from "@arkecosystem/crypto";
+// import { Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import pluralize from "pluralize";
 import { inspect } from "util";
@@ -30,6 +31,12 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
 
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
+    @Container.inject(Container.Identifiers.BlockFactory)
+    private readonly blockFactory!: Blocks.BlockFactory;
 
     @Container.inject(Container.Identifiers.DposState)
     private readonly dposState!: Contracts.State.DposState;
@@ -156,7 +163,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
                 return true;
             }
 
-            const claimedBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockHeader);
+            const claimedBlock: Interfaces.IBlock | undefined = this.blockFactory.fromData(blockHeader);
             if (claimedBlock && claimedBlock.verifySignature()) {
                 return true;
             }
@@ -359,7 +366,10 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     private async verifyPeerBlocks(startHeight: number, claimedHeight: number, deadline: number): Promise<boolean> {
-        const roundInfo = Utils.roundCalculator.calculateRound(startHeight);
+        const roundInfo = Utils.roundCalculator.calculateRound(
+            startHeight,
+            this.cryptoManager.MilestoneManager.getMilestones(),
+        );
         const { maxDelegates, roundHeight } = roundInfo;
         const lastBlockHeightInRound = roundHeight + maxDelegates;
 
@@ -503,7 +513,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
             return true;
         }
 
-        const block: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockData);
+        const block: Interfaces.IBlock | undefined = this.blockFactory.fromData(blockData);
 
         Utils.assert.defined<number>(block);
 

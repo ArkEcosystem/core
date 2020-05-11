@@ -1,3 +1,4 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import { PeerConnector } from "./peer-connector";
@@ -33,6 +34,9 @@ export class DisconnectInvalidPeers implements Contracts.Kernel.EventListener {
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
 
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     /**
      * @returns {Promise<void>}
      * @memberof DisconnectInvalidPeers
@@ -41,7 +45,7 @@ export class DisconnectInvalidPeers implements Contracts.Kernel.EventListener {
         const peers: Contracts.P2P.Peer[] = this.storage.getPeers();
 
         for (const peer of peers) {
-            if (!isValidVersion(this.app, peer)) {
+            if (!isValidVersion(this.app, peer, this.cryptoManager)) {
                 this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
             }
         }

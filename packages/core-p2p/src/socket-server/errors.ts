@@ -1,4 +1,4 @@
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/core-crypto";
 
 export class ServerError extends Error {
     public constructor(message: string) {

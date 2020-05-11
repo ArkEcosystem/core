@@ -1,9 +1,13 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
-import { Managers } from "@arkecosystem/crypto";
 import semver from "semver";
 
 // todo: review the implementation
-export const isValidVersion = (app: Contracts.Kernel.Application, peer: Contracts.P2P.Peer): boolean => {
+export const isValidVersion = (
+    app: Contracts.Kernel.Application,
+    peer: Contracts.P2P.Peer,
+    cryptoManager: CryptoManager,
+): boolean => {
     if (!peer.version) {
         return false;
     }
@@ -13,7 +17,7 @@ export const isValidVersion = (app: Contracts.Kernel.Application, peer: Contract
     }
 
     let minimumVersions: string[];
-    const milestones: Record<string, any> = Managers.configManager.getMilestone();
+    const milestones: Record<string, any> = cryptoManager.MilestoneManager.getMilestone();
 
     const { p2p } = milestones;
 
@@ -28,7 +32,7 @@ export const isValidVersion = (app: Contracts.Kernel.Application, peer: Contract
         minimumVersions = configuration.getOptional<string[]>("minimumVersions", []);
     }
 
-    const includePrerelease: boolean = Managers.configManager.get("network.name") !== "mainnet";
+    const includePrerelease: boolean = cryptoManager.NetworkConfigManager.get("network.name") !== "mainnet";
     return minimumVersions.some((minimumVersion: string) =>
         // @ts-ignore - check why the peer.version errors even though we exit early
         semver.satisfies(peer.version, minimumVersion, { includePrerelease }),

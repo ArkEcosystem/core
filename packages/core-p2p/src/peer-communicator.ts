@@ -1,5 +1,6 @@
+import { Blocks, CryptoManager, Interfaces, TransactionsManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
+import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import delay from "delay";
 
@@ -30,6 +31,15 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     @Container.inject(Container.Identifiers.PeerConnector)
     private readonly connector!: Contracts.P2P.PeerConnector;
 
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
+    @Container.inject(Container.Identifiers.TransactionManager)
+    private readonly transactionsManager!: TransactionsManager;
+
+    @Container.inject(Container.Identifiers.BlockFactory)
+    private readonly blockFactory!: Blocks.BlockFactory;
+
     private outgoingRateLimiter!: RateLimiter;
 
     public initialize() {
@@ -48,7 +58,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             peer,
             "p2p.peer.postBlock",
             {
-                block: Blocks.Serializer.serializeWithTransactions({
+                block: this.blockFactory.serializer.serializeWithTransactions({
                     ...block.data,
                     transactions: block.transactions.map((tx) => tx.data),
                 }),
@@ -57,7 +67,10 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         );
     }
 
-    public async postTransactions(peer: Contracts.P2P.Peer, transactions: Interfaces.ITransactionJson[]): Promise<any> {
+    public async postTransactions(
+        peer: Contracts.P2P.Peer,
+        transactions: TransactionInterfaces.ITransactionJson[],
+    ): Promise<any> {
         const postTransactionsTimeout = 10000;
         return this.emit(peer, "p2p.peer.postTransactions", { transactions }, postTransactionsTimeout);
     }
@@ -120,7 +133,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                         );
 
                         if (statusCode === 200) {
-                            const ourNethash = Managers.configManager.get("network.nethash");
+                            const ourNethash = this.cryptoManager.NetworkConfigManager.get("network.nethash");
                             const hisNethash = data.data.nethash;
                             if (ourNethash === hisNethash) {
                                 valid = true;
@@ -148,13 +161,13 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     }
 
     public validatePeerConfig(peer: Contracts.P2P.Peer, config: Contracts.P2P.PeerConfig): boolean {
-        if (config.network.nethash !== Managers.configManager.get("network.nethash")) {
+        if (config.network.nethash !== this.cryptoManager.NetworkConfigManager.get("network.nethash")) {
             return false;
         }
 
         peer.version = config.version;
 
-        if (!isValidVersion(this.app, peer)) {
+        if (!isValidVersion(this.app, peer, this.cryptoManager)) {
             return false;
         }
 
@@ -225,7 +238,9 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             }
 
             block.transactions = block.transactions.map((transaction) => {
-                const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
+                const { data } = this.transactionsManager.TransactionFactory.fromBytesUnsafe(
+                    Buffer.from(transaction, "hex"),
+                );
                 data.blockId = block.id;
                 return data;
             });
@@ -247,7 +262,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             return false;
         }
 
-        const { error } = Validation.validator.validate(schema, reply);
+        const { error } = this.blockFactory.validator.validate(schema, reply);
         if (error) {
             if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                 this.logger.debug(`Got unexpected reply from ${peer.url}/${endpoint}: ${error}`);

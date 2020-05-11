@@ -1,6 +1,7 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
 import { Controller } from "./controller";
@@ -17,6 +18,9 @@ export class InternalController extends Controller {
 
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
 
     public async acceptNewPeer(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<void> {
         return this.peerProcessor.validateAndAcceptPeer({ ip: (request.payload as any).ip } as Contracts.P2P.Peer);
@@ -50,11 +54,14 @@ export class InternalController extends Controller {
         const lastBlock = blockchain.getLastBlock();
 
         const height = lastBlock.data.height + 1;
-        const roundInfo = Utils.roundCalculator.calculateRound(height);
+        const roundInfo = Utils.roundCalculator.calculateRound(
+            height,
+            this.cryptoManager.MilestoneManager.getMilestones(),
+        );
         const { maxDelegates, round } = roundInfo;
 
-        const blockTime = Managers.configManager.getMilestone(height).blocktime;
-        const reward = Managers.configManager.getMilestone(height).reward;
+        const blockTime = this.cryptoManager.MilestoneManager.getMilestone(height).blocktime;
+        const reward = this.cryptoManager.MilestoneManager.getMilestone(height).reward;
         const delegates: Contracts.P2P.DelegateWallet[] = (await this.database.getActiveDelegates(roundInfo)).map(
             (wallet) => ({
                 ...wallet,
@@ -62,8 +69,8 @@ export class InternalController extends Controller {
             }),
         );
 
-        const timestamp = Crypto.Slots.getTime();
-        const blockTimestamp = Crypto.Slots.getSlotNumber(timestamp) * blockTime;
+        const timestamp = this.cryptoManager.LibraryManager.Crypto.Slots.getTime();
+        const blockTimestamp = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(timestamp) * blockTime;
         const currentForger = parseInt((timestamp / blockTime) as any) % maxDelegates;
         const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxDelegates;
 

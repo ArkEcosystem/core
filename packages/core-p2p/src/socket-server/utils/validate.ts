@@ -1,9 +1,9 @@
-import { Validation } from "@arkecosystem/crypto";
+import { Validation } from "@arkecosystem/core-crypto";
 
 import { SocketErrors } from "../../enums";
 
-export const validate = (schema, data) => {
-    const { error: validationError } = Validation.validator.validate(schema, data);
+export const validate = (schema, data, validator: Validation.Validator) => {
+    const { error: validationError } = validator.validate(schema, data);
 
     if (validationError) {
         const error = new Error(`Data validation error : ${validationError}`);

@@ -1,5 +1,5 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Providers } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
 
 import { PeerFactory } from "./contracts";
 import { DisconnectInvalidPeers } from "./listeners";
@@ -33,6 +33,9 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
 
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     public initialize() {
         this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, this.app.resolve(DisconnectInvalidPeers));
     }
@@ -52,7 +55,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
             return false;
         }
 
-        if (!Utils.isValidPeer(peer) || this.storage.hasPendingPeer(peer.ip)) {
+        if (!this.cryptoManager.LibraryManager.Utils.isValidPeer(peer) || this.storage.hasPendingPeer(peer.ip)) {
             return false;
         }
 
