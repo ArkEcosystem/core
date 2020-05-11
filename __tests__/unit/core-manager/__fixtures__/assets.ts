@@ -13,7 +13,18 @@ export class DummyAction implements Actions.Action {
         required: ["id"],
     }
 
-    public async method() {
+    public async execute() {
         return {}
+    }
+}
+
+let dummyAction = new DummyAction();
+
+export const dummyMethod: Actions.Method = {
+    name: dummyAction.name,
+    schema: dummyAction.schema,
+
+    async method (params) {
+        return dummyAction.execute();
     }
 }

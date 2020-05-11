@@ -1,7 +1,13 @@
-export type Method = (params: any) => Promise<any>;
+export type ExecuteFunction = (params: any) => Promise<any>;
 
 export interface Action {
     name: string,
-    method: Method,
+    execute: ExecuteFunction,
+    schema?: any
+}
+
+export interface Method {
+    name: string,
+    method: Function,
     schema?: any
 }

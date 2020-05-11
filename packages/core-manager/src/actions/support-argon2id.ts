@@ -5,7 +5,7 @@ import { Actions } from "../contracts"
 
 @Container.injectable()
 export class Action implements Actions.Action {
-    public name = "argon2id";
+    public name = "support.argon2id";
 
     public schema = {
         type: "object",
@@ -20,7 +20,7 @@ export class Action implements Actions.Action {
         required: ["hash", "password"],
     }
 
-    public async method(params: { hash: string, password: string }): Promise<any> {
+    public async execute(params: { hash: string, password: string }): Promise<any> {
 
         // @ts-ignore
         let options = {

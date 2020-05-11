@@ -25,12 +25,13 @@ let logger = {
 let pluginsConfiguration;
 
 beforeEach(() => {
-    let dummyAction = new Assets.DummyAction();
-    spyOnMethod = jest.spyOn(dummyAction, "method")
+    let dummyMethod = {...Assets.dummyMethod}
+    // @ts-ignore
+    spyOnMethod = jest.spyOn(dummyMethod, "method")
 
     let actionReader: Partial<ActionReader> = {
-        discoverActions(): Actions.Action[] {
-            return [dummyAction];
+        discoverActions(): Actions.Method[] {
+            return [dummyMethod];
         }
     }
 

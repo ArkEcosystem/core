@@ -19,7 +19,7 @@ export const defaults = {
     plugins: {
         whitelist: ["*"],
         tokenAuthentication: {
-            enabled: true,
+            enabled: false,
             token: "secret_token"
         },
         basicAuthentication: {

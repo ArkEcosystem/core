@@ -9,8 +9,8 @@ export class ActionReader {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Application;
 
-    public discoverActions(): Actions.Action[] {
-        let actions: Actions.Action[] = [];
+    public discoverActions(): Actions.Method[] {
+        let methods: Actions.Method[] = [];
 
         let path = resolve(__dirname, "./actions")
 
@@ -23,9 +23,20 @@ export class ActionReader {
         for (const file of actionFiles) {
             const actionInstance: Actions.Action = this.app.resolve(require(file).Action);
 
-            actions.push(actionInstance)
+            methods.push(this.prepareMethod(actionInstance))
         }
 
-        return actions;
+        return methods;
+    }
+
+    /* istanbul ignore next */
+    private prepareMethod(action: Actions.Action): Actions.Method {
+        return {
+            name: action.name,
+            method: async (params) => {
+                return action.execute(params)
+            },
+            schema: action.schema
+        }
     }
 }
