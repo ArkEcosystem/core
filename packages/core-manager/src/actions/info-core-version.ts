@@ -1,5 +1,6 @@
 import { Application, Container } from "@arkecosystem/core-kernel";
 import { Actions } from "../contracts"
+import latestVersion from "latest-version"
 
 @Container.injectable()
 export class Action implements Actions.Action {
@@ -10,7 +11,12 @@ export class Action implements Actions.Action {
 
     public async execute(params: object): Promise<any> {
         return {
-            version: this.app.version()
+            currentVersion: this.app.version(),
+            latestVersion: await this.getLatestVersion()
         }
+    }
+
+    private async getLatestVersion(): Promise<string> {
+        return latestVersion("@arkecosystem/core");
     }
 }
