@@ -1,10 +1,15 @@
 import { CryptoManager } from "../../../crypto-manager";
-import { ITransactionData } from "../../../interfaces";
+import { ITransactionData, SchemaError } from "../../../interfaces";
 import { TransactionsManager } from "../../transactions-manager";
 import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
-export class VoteBuilder<T, U extends ITransactionData, E> extends TransactionBuilder<T, U, E, VoteBuilder<T, U, E>> {
+export class VoteBuilder<T, U extends ITransactionData = ITransactionData, E = SchemaError> extends TransactionBuilder<
+    T,
+    VoteBuilder<T, U, E>,
+    U,
+    E
+> {
     public constructor(cryptoManager: CryptoManager<T>, transactionsManager: TransactionsManager<T, U, E>) {
         super(cryptoManager, transactionsManager);
         this.data.type = Two.VoteTransaction.type;

@@ -5,7 +5,7 @@ import { BigNumber } from "../types";
 
 export type SchemaError = any;
 
-export interface Validator<U extends ITransactionData, E = SchemaError> {
+export interface Validator<U extends ITransactionData = ITransactionData, E = SchemaError> {
     extendTransaction: (schema: any, remove?: boolean) => void;
     validate: (schemaKeyRef: string | boolean | object, data: any) => ISchemaValidationResult<U, E>;
 }
@@ -16,7 +16,7 @@ export interface ISchemaValidationResult<U, E = SchemaError> {
     errors?: E[] | undefined;
 }
 
-export interface ITransaction<U extends ITransactionData, E = SchemaError> {
+export interface ITransaction<U extends ITransactionData = ITransactionData, E = SchemaError> {
     readonly id: string | undefined;
     readonly typeGroup: number | undefined;
     readonly type: number;

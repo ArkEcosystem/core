@@ -3,12 +3,19 @@ import ByteBuffer from "bytebuffer";
 import { CryptoManager } from "../..";
 import { TransactionTypeGroup } from "../../enums";
 import { NotImplemented } from "../../errors";
-import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
+import {
+    ISchemaValidationResult,
+    ITransaction,
+    ITransactionData,
+    ITransactionJson,
+    SchemaError,
+} from "../../interfaces";
 import { BigNumber } from "../../types";
 import { Verifier } from "../verifier";
 import { TransactionSchema } from "./schemas";
 
-export abstract class Transaction<T, U extends ITransactionData, E = any> implements ITransaction<U, E> {
+export abstract class Transaction<T, U extends ITransactionData = ITransactionData, E = SchemaError>
+    implements ITransaction<U, E> {
     public static type: number | undefined = undefined;
     public static typeGroup: number | undefined = undefined;
     public static version: number = 1;

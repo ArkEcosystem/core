@@ -2,12 +2,16 @@ import ByteBuffer from "bytebuffer";
 
 import { CryptoManager } from "../../../crypto-manager";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
-import { ISerializeOptions, ITransactionData } from "../../../interfaces";
+import { ISerializeOptions, ITransactionData, SchemaError } from "../../../interfaces";
 import { Verifier } from "../../verifier";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
-export abstract class HtlcClaimTransaction<T, U extends ITransactionData, E> extends Transaction<T, U, E> {
+export abstract class HtlcClaimTransaction<
+    T,
+    U extends ITransactionData = ITransactionData,
+    E = SchemaError
+> extends Transaction<T, U, E> {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.HtlcClaim;
     public static key = "htlcClaim";

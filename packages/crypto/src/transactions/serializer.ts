@@ -3,12 +3,12 @@ import ByteBuffer from "bytebuffer";
 import { CryptoManager } from "..";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { TransactionVersionError } from "../errors";
-import { ISerializeOptions } from "../interfaces";
+import { ISerializeOptions, SchemaError } from "../interfaces";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
-export class Serializer<T, U extends ITransactionData, E> {
+export class Serializer<T, U extends ITransactionData = ITransactionData, E = SchemaError> {
     public constructor(
         private cryptoManager: CryptoManager<T>,
         private transactionTypeFactory: TransactionTypeFactory<T, U, E>,

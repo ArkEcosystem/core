@@ -1,8 +1,8 @@
 import { CryptoManager } from "..";
-import { IKeyPair, ISerializeOptions, ITransactionData } from "../interfaces";
+import { IKeyPair, ISerializeOptions, ITransactionData, SchemaError } from "../interfaces";
 import { Utils } from "./utils";
 
-export class Signer<T, U extends ITransactionData, E> {
+export class Signer<T, U extends ITransactionData = ITransactionData, E = SchemaError> {
     public constructor(private cryptoManager: CryptoManager<T>, private utils: Utils<T, U, E>) {}
 
     public sign(transaction: U, keys: IKeyPair, options?: ISerializeOptions): string {

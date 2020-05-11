@@ -1,15 +1,14 @@
 import { CryptoManager } from "../../../crypto-manager";
-import { IHtlcClaimAsset, ITransactionData } from "../../../interfaces";
+import { IHtlcClaimAsset, ITransactionData, SchemaError } from "../../../interfaces";
 import { TransactionsManager } from "../../transactions-manager";
 import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
-export class HtlcClaimBuilder<T, U extends ITransactionData, E> extends TransactionBuilder<
+export class HtlcClaimBuilder<
     T,
-    U,
-    E,
-    HtlcClaimBuilder<T, U, E>
-> {
+    U extends ITransactionData = ITransactionData,
+    E = SchemaError
+> extends TransactionBuilder<T, HtlcClaimBuilder<T, U, E>, U, E> {
     public constructor(cryptoManager: CryptoManager<T>, transactionsManager: TransactionsManager<T, U, E>) {
         super(cryptoManager, transactionsManager);
         this.data.type = Two.HtlcClaimTransaction.type;

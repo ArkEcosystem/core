@@ -1,14 +1,14 @@
 import { CryptoManager } from "../../../crypto-manager";
 import { TransactionTypeGroup } from "../../../enums";
 import { MissingTransactionSignatureError, VendorFieldLengthExceededError } from "../../../errors";
-import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
+import { IKeyPair, ITransaction, ITransactionData, SchemaError } from "../../../interfaces";
 import { TransactionsManager } from "../../transactions-manager";
 
 export abstract class TransactionBuilder<
     T,
-    U extends ITransactionData,
-    E,
-    TBuilder extends TransactionBuilder<T, U, E, TBuilder>
+    TBuilder extends TransactionBuilder<T, TBuilder, U, E>,
+    U extends ITransactionData = ITransactionData,
+    E = SchemaError
 > {
     public data: U;
 

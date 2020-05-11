@@ -6,14 +6,14 @@ import { Block } from "./block";
 import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
-export class BlockFactory {
+export class BlockFactory<T extends IBlockData = IBlockData> {
     private serializer: Serializer;
     private deserializer: Deserializer;
     private validator: Validator;
 
     public constructor(
-        private cryptoManager: CryptoManager<IBlockData>,
-        transactionManager: Transactions.TransactionsManager<IBlock, Interfaces.ITransactionData>,
+        private cryptoManager: CryptoManager<T>,
+        transactionManager: Transactions.TransactionsManager<T>,
         options?: Record<string, any>,
     ) {
         this.validator = Validator.make(cryptoManager, options);
@@ -87,7 +87,7 @@ export class BlockFactory {
     private fromSerialized(serialized: string): IBlock {
         const deserialized: {
             data: IBlockData;
-            transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[];
+            transactions: Interfaces.ITransaction[];
         } = this.deserializer.deserialize(serialized);
 
         const validated: IBlockData | undefined = this.validator.applySchema(deserialized.data);

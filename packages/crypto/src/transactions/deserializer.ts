@@ -7,11 +7,11 @@ import {
     InvalidTransactionBytesError,
     TransactionVersionError,
 } from "../errors";
-import { IDeserializeOptions, ITransaction, ITransactionData } from "../interfaces";
+import { IDeserializeOptions, ITransaction, ITransactionData, SchemaError } from "../interfaces";
 import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
-export class Deserializer<T, U extends ITransactionData, E> {
+export class Deserializer<T, U extends ITransactionData = ITransactionData, E = SchemaError> {
     public constructor(
         private cryptoManager: CryptoManager<T>,
         private transactionTypeFactory: TransactionTypeFactory<T, U, E>,

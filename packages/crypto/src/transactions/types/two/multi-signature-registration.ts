@@ -2,14 +2,18 @@ import ByteBuffer from "bytebuffer";
 
 import { CryptoManager } from "../../../crypto-manager";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
-import { IMultiSignatureAsset, ISerializeOptions } from "../../../interfaces";
+import { IMultiSignatureAsset, ISerializeOptions, SchemaError } from "../../../interfaces";
 import { ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../types";
 import { Verifier } from "../../verifier";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
-export class MultiSignatureRegistrationTransaction<T, U extends ITransactionData, E> extends Transaction<T, U, E> {
+export class MultiSignatureRegistrationTransaction<
+    T,
+    U extends ITransactionData = ITransactionData,
+    E = SchemaError
+> extends Transaction<T, U, E> {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.MultiSignature;
     public static key = "multiSignature";

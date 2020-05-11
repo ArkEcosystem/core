@@ -1,15 +1,15 @@
 import ByteBuffer from "bytebuffer";
 
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
-import { ISerializeOptions, ITransactionData } from "../../../interfaces";
+import { ISerializeOptions, ITransactionData, SchemaError } from "../../../interfaces";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
-export abstract class SecondSignatureRegistrationTransaction<T, U extends ITransactionData, E> extends Transaction<
+export abstract class SecondSignatureRegistrationTransaction<
     T,
-    U,
-    E
-> {
+    U extends ITransactionData = ITransactionData,
+    E = SchemaError
+> extends Transaction<T, U, E> {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.SecondSignature;
     public static key = "secondSignature";

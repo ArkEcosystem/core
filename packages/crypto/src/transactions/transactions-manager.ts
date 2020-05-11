@@ -1,5 +1,5 @@
 import { CryptoManager } from "..";
-import { ITransactionData, Validator } from "../interfaces";
+import { ITransactionData, SchemaError, Validator } from "../interfaces";
 import { BuilderFactory } from "./builders";
 import { Deserializer } from "./deserializer";
 import { TransactionFactory } from "./factory";
@@ -10,7 +10,7 @@ import { TransactionTypeFactory } from "./types";
 import { Utils } from "./utils";
 import { Verifier } from "./verifier";
 
-export class TransactionsManager<T, U extends ITransactionData, E = any> {
+export class TransactionsManager<T, U extends ITransactionData = ITransactionData, E = SchemaError> {
     public Deserializer: Deserializer<T, U, E>;
     public TransactionFactory: TransactionFactory<T, U, E>;
     public Serializer: Serializer<T, U, E>;

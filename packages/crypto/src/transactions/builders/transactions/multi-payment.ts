@@ -1,16 +1,15 @@
 import { CryptoManager } from "../../../crypto-manager";
 import { MaximumPaymentCountExceededError, MinimumPaymentCountSubceededError } from "../../../errors";
-import { ITransactionData } from "../../../interfaces";
+import { ITransactionData, SchemaError } from "../../../interfaces";
 import { TransactionsManager } from "../../transactions-manager";
 import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
-export class MultiPaymentBuilder<T, U extends ITransactionData, E> extends TransactionBuilder<
+export class MultiPaymentBuilder<
     T,
-    U,
-    E,
-    MultiPaymentBuilder<T, U, E>
-> {
+    U extends ITransactionData = ITransactionData,
+    E = SchemaError
+> extends TransactionBuilder<T, MultiPaymentBuilder<T, U, E>, U, E> {
     public constructor(cryptoManager: CryptoManager<T>, transactionsManager: TransactionsManager<T, U, E>) {
         super(cryptoManager, transactionsManager);
         this.data.type = Two.MultiPaymentTransaction.type;

@@ -1,15 +1,14 @@
 import { CryptoManager } from "../../../crypto-manager";
-import { IMultiSignatureAsset, ITransactionData } from "../../../interfaces";
+import { IMultiSignatureAsset, ITransactionData, SchemaError } from "../../../interfaces";
 import { TransactionsManager } from "../../transactions-manager";
 import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
-export class MultiSignatureBuilder<T, U extends ITransactionData, E> extends TransactionBuilder<
+export class MultiSignatureBuilder<
     T,
-    U,
-    E,
-    MultiSignatureBuilder<T, U, E>
-> {
+    U extends ITransactionData = ITransactionData,
+    E = SchemaError
+> extends TransactionBuilder<T, MultiSignatureBuilder<T, U, E>, U, E> {
     public constructor(cryptoManager: CryptoManager<T>, transactionsManager: TransactionsManager<T, U, E>) {
         super(cryptoManager, transactionsManager);
         this.data.type = Two.MultiSignatureRegistrationTransaction.type;

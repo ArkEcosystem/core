@@ -5,12 +5,16 @@ import {
     TransactionVersionAlreadyRegisteredError,
     UnkownTransactionError,
 } from "../errors";
-import { ITransactionData, Validator } from "../interfaces";
+import { ITransactionData, SchemaError, Validator } from "../interfaces";
 import { TransactionsManager } from "./transactions-manager";
 import { One, Transaction, TransactionTypeFactory, Two } from "./types";
 import { InternalTransactionType } from "./types/internal-transaction-type";
 
-export type TransactionConstructor<T, U, E> = typeof Transaction;
+export type TransactionConstructor<
+    T,
+    U extends ITransactionData = ITransactionData,
+    E = SchemaError
+> = typeof Transaction;
 
 export class TransactionRegistry<T, U extends ITransactionData, E> {
     public readonly TransactionTypeFactory: TransactionTypeFactory<T, U, E>;

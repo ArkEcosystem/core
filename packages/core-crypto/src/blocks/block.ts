@@ -8,7 +8,7 @@ export class Block implements IBlock {
     // @ts-ignore - todo: this is public but not initialised on creation, either make it private or declare it as undefined
     public serialized: string;
     public data: IBlockData;
-    public transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[];
+    public transactions: Interfaces.ITransaction[];
     public verification: IBlockVerification;
 
     public constructor(
@@ -18,7 +18,7 @@ export class Block implements IBlock {
             id,
         }: {
             data: IBlockData;
-            transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[];
+            transactions: Interfaces.ITransaction[];
             id?: string;
         },
         private cryptoManager: CryptoManager<IBlockData>,

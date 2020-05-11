@@ -186,5 +186,3 @@ export class Validator {
         ajv.addSchema(schemas.block);
     }
 }
-
-// export const validator = Validator.make();

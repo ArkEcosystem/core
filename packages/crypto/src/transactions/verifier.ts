@@ -1,10 +1,10 @@
 import { CryptoManager } from "..";
 import { DuplicateParticipantInMultiSignatureError, InvalidMultiSignatureAssetError } from "../errors";
-import { IMultiSignatureAsset, ISchemaValidationResult, ITransactionData, Validator } from "../interfaces";
+import { IMultiSignatureAsset, ISchemaValidationResult, ITransactionData, SchemaError, Validator } from "../interfaces";
 import { TransactionTypeFactory } from "./types/factory";
 import { Utils } from "./utils";
 
-export class Verifier<T, U extends ITransactionData, E> {
+export class Verifier<T, U extends ITransactionData = ITransactionData, E = SchemaError> {
     public constructor(
         private cryptoManager: CryptoManager<T>,
         private utils: Utils<T, U, E>,

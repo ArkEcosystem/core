@@ -4,10 +4,10 @@ import ByteBuffer from "bytebuffer";
 import { IBlock, IBlockData } from "../interfaces";
 import { SerializerUtils } from "./serialization-utils";
 
-export class Serializer extends SerializerUtils {
+export class Serializer<T extends IBlockData = IBlockData> extends SerializerUtils {
     public constructor(
-        cryptoManager: CryptoManager<IBlockData>,
-        private transactionManager: Transactions.TransactionsManager<IBlock, Interfaces.ITransactionData>,
+        cryptoManager: CryptoManager<T>,
+        private transactionManager: Transactions.TransactionsManager<T>,
     ) {
         super(cryptoManager);
     }
@@ -22,7 +22,7 @@ export class Serializer extends SerializerUtils {
         return size;
     }
 
-    public serializeWithTransactions(block: IBlockData): Buffer {
+    public serializeWithTransactions(block: T): Buffer {
         const transactions: Interfaces.ITransactionData[] = block.transactions || [];
         block.numberOfTransactions = block.numberOfTransactions || transactions.length;
 

@@ -2,13 +2,17 @@ import ByteBuffer from "bytebuffer";
 
 import { CryptoManager } from "../../../crypto-manager";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
-import { ISerializeOptions } from "../../../interfaces";
+import { ISerializeOptions, SchemaError } from "../../../interfaces";
 import { ITransactionData } from "../../../interfaces";
 import { Verifier } from "../../verifier";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
-export abstract class HtlcRefundTransaction<T, U extends ITransactionData, E> extends Transaction<T, U, E> {
+export abstract class HtlcRefundTransaction<
+    T,
+    U extends ITransactionData = ITransactionData,
+    E = SchemaError
+> extends Transaction<T, U, E> {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.HtlcRefund;
     public static key = "htlcRefund";

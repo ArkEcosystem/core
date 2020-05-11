@@ -4,7 +4,6 @@ import * as Enums from "./enums";
 import * as Errors from "./errors";
 import * as Interfaces from "./interfaces";
 import * as Transactions from "./transactions";
-// import { TransactionsManager } from "./transactions/index";
 import * as Types from "./types";
 
 export { CryptoManager, Types, Interfaces, Enums, Errors, Constants, Transactions };

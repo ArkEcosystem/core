@@ -1,13 +1,13 @@
 import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
-import { IBlock, IBlockData } from "../interfaces";
+import { IBlockData } from "../interfaces";
 import { SerializerUtils } from "./serialization-utils";
 
-export class Deserializer extends SerializerUtils {
+export class Deserializer<T extends IBlockData = IBlockData> extends SerializerUtils {
     public constructor(
-        cryptoManager: CryptoManager<IBlockData>,
-        private transactionManager: Transactions.TransactionsManager<IBlock, Interfaces.ITransactionData>,
+        cryptoManager: CryptoManager<T>,
+        private transactionManager: Transactions.TransactionsManager<T>,
     ) {
         super(cryptoManager);
     }
@@ -16,9 +16,9 @@ export class Deserializer extends SerializerUtils {
         serializedHex: string,
         headerOnly: boolean = false,
         options: { deserializeTransactionsUnchecked?: boolean } = {},
-    ): { data: IBlockData; transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[] } {
-        const block = {} as IBlockData;
-        let transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[] = [];
+    ): { data: T; transactions: Interfaces.ITransaction[] } {
+        const block = {} as T;
+        let transactions: Interfaces.ITransaction[] = [];
 
         const buffer = Buffer.from(serializedHex, "hex");
         const buf: ByteBuffer = new ByteBuffer(buffer.length, true);
@@ -52,7 +52,7 @@ export class Deserializer extends SerializerUtils {
         return { data: block, transactions };
     }
 
-    private deserializeHeader(block: IBlockData, buf: ByteBuffer): void {
+    private deserializeHeader(block: T, buf: ByteBuffer): void {
         block.version = buf.readUint32();
         block.timestamp = buf.readUint32();
         block.height = buf.readUint32();
@@ -92,17 +92,17 @@ export class Deserializer extends SerializerUtils {
     }
 
     private deserializeTransactions(
-        block: IBlockData,
+        block: T,
         buf: ByteBuffer,
         deserializeTransactionsUnchecked: boolean = false,
-    ): Interfaces.ITransaction<Interfaces.ITransactionData>[] {
+    ): Interfaces.ITransaction[] {
         const transactionLengths: number[] = [];
 
         for (let i = 0; i < block.numberOfTransactions; i++) {
             transactionLengths.push(buf.readUint32());
         }
 
-        const transactions: Interfaces.ITransaction<Interfaces.ITransactionData>[] = [];
+        const transactions: Interfaces.ITransaction[] = [];
         block.transactions = [];
         for (const length of transactionLengths) {
             const transactionBytes = buf.readBytes(length).toBuffer();

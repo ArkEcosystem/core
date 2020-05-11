@@ -1,13 +1,13 @@
 import { CryptoManager } from "../..";
 import { UnkownTransactionError } from "../../errors";
-import { ITransaction, ITransactionData } from "../../interfaces";
+import { ITransaction, ITransactionData, SchemaError } from "../../interfaces";
 import { TransactionsManager } from "../transactions-manager";
 import { InternalTransactionType } from "./internal-transaction-type";
 import { Transaction } from "./transaction";
 
 type TransactionConstructor = typeof Transaction;
 
-export class TransactionTypeFactory<T, U extends ITransactionData, E> {
+export class TransactionTypeFactory<T, U extends ITransactionData = ITransactionData, E = SchemaError> {
     private transactionTypes: Map<InternalTransactionType, Map<number, TransactionConstructor>>;
 
     public constructor(

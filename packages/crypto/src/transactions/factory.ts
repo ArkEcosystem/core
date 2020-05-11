@@ -20,7 +20,7 @@ import { TransactionTypeFactory } from "./types";
 import { Utils } from "./utils";
 import { Verifier } from "./verifier";
 
-export class TransactionFactory<T, U extends ITransactionData, E = SchemaError> {
+export class TransactionFactory<T, U extends ITransactionData = ITransactionData, E = SchemaError> {
     public constructor(
         private cryptoManager: CryptoManager<T>,
         private deserializer: Deserializer<T, U, E>,

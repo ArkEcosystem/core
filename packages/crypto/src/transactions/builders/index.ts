@@ -1,5 +1,5 @@
 import { CryptoManager } from "../../crypto-manager";
-import { ITransactionData } from "../../interfaces";
+import { ITransactionData, SchemaError } from "../../interfaces";
 import { TransactionsManager } from "../transactions-manager";
 import { DelegateRegistrationBuilder } from "./transactions/delegate-registration";
 import { DelegateResignationBuilder } from "./transactions/delegate-resignation";
@@ -14,7 +14,7 @@ import { TransferBuilder } from "./transactions/transfer";
 import { VoteBuilder } from "./transactions/vote";
 export * from "./transactions/transaction";
 
-export class BuilderFactory<T, U extends ITransactionData, E> {
+export class BuilderFactory<T, U extends ITransactionData = ITransactionData, E = SchemaError> {
     public constructor(
         private cryptoManager: CryptoManager<T>,
         private transactionsManager: TransactionsManager<T, U, E>,

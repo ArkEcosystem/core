@@ -1,10 +1,10 @@
 import { CryptoManager } from "..";
 import { AddressNetworkError } from "../errors";
-import { ISerializeOptions, ITransactionData } from "../interfaces";
+import { ISerializeOptions, ITransactionData, SchemaError } from "../interfaces";
 import { Serializer } from "./serializer";
 import { TransactionTypeFactory } from "./types/factory";
 
-export class Utils<T, U extends ITransactionData, E> {
+export class Utils<T, U extends ITransactionData = ITransactionData, E = SchemaError> {
     public constructor(
         private cryptoManager: CryptoManager<T>,
         private serializer: Serializer<T, U, E>,
