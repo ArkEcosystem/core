@@ -124,9 +124,6 @@ export class FactoryWorker implements Contracts.TransactionPool.FactoryWorker {
     }
 
     private sendAction(action: Contracts.TransactionPool.FactoryAction): void {
-        console.log(Date.now(), "parent sent");
-        console.log(JSON.stringify(action, null, 2));
-
         this.subprocess.send(action);
     }
 }
