@@ -17,12 +17,10 @@ beforeEach(() => {
 
 describe("FactoryPool.initialize", () => {
     it("should create workers", () => {
-        const factoryPool = container.resolve(FactoryPool);
-
         const workerCount = 5;
         pluginConfiguration.getRequired.mockReturnValueOnce(workerCount);
 
-        factoryPool.initialize();
+        container.resolve(FactoryPool);
 
         expect(pluginConfiguration.getRequired).toBeCalledWith("factoryPool.workerCount");
         expect(createFactoryWorker).toBeCalledTimes(workerCount);
@@ -50,8 +48,6 @@ describe("FactoryPool.isTypeGroupSupported", () => {
 
 describe("FactoryPool.getTransactionFromData", () => {
     it("should delegate call into worker with smallest queue", () => {
-        const factoryPool = container.resolve(FactoryPool);
-
         const workerCount = 3;
         pluginConfiguration.getRequired.mockReturnValueOnce(workerCount);
 
@@ -61,7 +57,7 @@ describe("FactoryPool.getTransactionFromData", () => {
         createFactoryWorker.mockReturnValueOnce(worker1).mockReturnValueOnce(worker2).mockReturnValueOnce(worker3);
 
         const transactionData = {};
-        factoryPool.initialize();
+        const factoryPool = container.resolve(FactoryPool);
         factoryPool.getTransactionFromData(transactionData as any);
 
         expect(pluginConfiguration.getRequired).toBeCalledWith("factoryPool.workerCount");
