@@ -39,13 +39,13 @@ export class Action implements Actions.Action {
         const data = response.data as Contracts.P2P.Peer[];
 
         const peer = data.find(
-            (x) => x.ports?.["@arkecosystem/core-api"] !== undefined && x.ports?.["@arkecosystem/core-api"] > 1,
+            (x) => x.ports?.["@arkecosystem/core-api"] !== undefined && x.ports["@arkecosystem/core-api"] > 1,
         ) as Contracts.P2P.Peer;
 
         return {
             ip: peer.ip,
-            port: peer.port,
-            protocol: peer.port > 8000 ? "http" : "https",
+            port: peer.ports["@arkecosystem/core-api"],
+            protocol: peer.ports["@arkecosystem/core-api"] > 8000 ? "https" : "http",
         };
     }
 
