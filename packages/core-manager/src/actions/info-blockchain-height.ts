@@ -1,4 +1,4 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container } from "@arkecosystem/core-kernel";
 
 import { Actions } from "../contracts";
 import { ConnectionData } from "../contracts/http-client";
@@ -31,30 +31,26 @@ export class Action implements Actions.Action {
         return response.data.block.height;
     }
 
-    private async getRandomPeer(): Promise<ConnectionData> {
+    private async getRandomPeer(): Promise<{ ip: string; height: number }> {
         const httpClient = new HttpClient(getConnectionData());
 
         const response = await httpClient.get("/api/peers");
 
-        const data = response.data as Contracts.P2P.Peer[];
+        const data = response.data;
 
-        const peer = data.find(
-            (x) => x.ports?.["@arkecosystem/core-api"] !== undefined && x.ports["@arkecosystem/core-api"] > 1,
-        ) as Contracts.P2P.Peer;
+        if (data.length) {
+            return data[Math.floor(Math.random() * data.length)];
+        }
 
-        return {
-            ip: peer.ip,
-            port: peer.ports["@arkecosystem/core-api"],
-            protocol: peer.ports["@arkecosystem/core-api"] > 8000 ? "https" : "http",
-        };
+        throw new Error("No peers found.");
     }
 
     private async prepareRandomNodeHeight(): Promise<{ randomNodeHeight: number; randomNodeIp: string }> {
-        const connection = await this.getRandomPeer();
+        const peer = await this.getRandomPeer();
 
         return {
-            randomNodeHeight: await this.getNodeHeight(connection),
-            randomNodeIp: connection.ip,
+            randomNodeHeight: peer.height,
+            randomNodeIp: peer.ip,
         };
     }
 }

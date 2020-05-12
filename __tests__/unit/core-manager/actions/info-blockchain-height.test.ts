@@ -7,16 +7,15 @@ import { Sandbox } from "@packages/core-test-framework";
 let sandbox: Sandbox;
 let action: Action;
 
-let mockPeer;
+let mockPeers;
 
 beforeEach(() => {
-    mockPeer = {
-        ip: "0.0.0.0",
-        port: 4003,
-        ports: {
-            "@arkecosystem/core-api": 4003,
+    mockPeers = [
+        {
+            ip: "0.0.0.0",
+            height: 10,
         },
-    };
+    ];
 
     HttpClient.prototype.get = jest.fn().mockImplementation(async (path: string) => {
         if (path === "/api/blockchain") {
@@ -31,7 +30,7 @@ beforeEach(() => {
 
         // /api/peers
         return {
-            data: [mockPeer],
+            data: mockPeers,
         };
     });
 
@@ -50,31 +49,13 @@ describe("Info:BlockchainHeight", () => {
     });
 
     it("should return height and random node height", async () => {
-        mockPeer.ports["@arkecosystem/core-api"] = 8443;
-
         const result = await action.execute({});
 
         expect(result).toEqual({ height: 10, randomNodeHeight: 10, randomNodeIp: "0.0.0.0" });
     });
 
-    it("should return height and random node height if port number is greater than 8000", async () => {
-        const result = await action.execute({});
-
-        expect(result).toEqual({ height: 10, randomNodeHeight: 10, randomNodeIp: "0.0.0.0" });
-    });
-
-    it("should return only height if no random node with exposed api (no ports defined)", async () => {
-        delete mockPeer.ports;
-
-        const result = await action.execute({});
-
-        expect(result).toEqual({ height: 10 });
-        expect(result.randomNodeHeight).toBeUndefined();
-        expect(result.randomNodeIp).toBeUndefined();
-    });
-
-    it("should return only height if no random node with exposed api (port number is negative)", async () => {
-        mockPeer.ports["@arkecosystem/core-api"] = -1;
+    it("should return only height if no peers found", async () => {
+        mockPeers = [];
 
         const result = await action.execute({});
 
