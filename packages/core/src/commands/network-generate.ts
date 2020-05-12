@@ -1,5 +1,7 @@
 import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
-import { Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { CryptoManager, TransactionsManager } from "@arkecosystem/core-crypto";
+import { Container as KernelContainer } from "@arkecosystem/core-kernel";
+import { Interfaces, Types } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { generateMnemonic } from "bip39";
 import ByteBuffer from "bytebuffer";
@@ -45,6 +47,12 @@ export class Command extends Commands.Command {
      */
     public requiresNetwork: boolean = false;
 
+    @Container.inject(KernelContainer.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
+    @Container.inject(KernelContainer.Identifiers.TransactionManager)
+    private readonly transactionsManager!: TransactionsManager;
+
     /**
      * Configure the console command.
      *
@@ -57,9 +65,7 @@ export class Command extends Commands.Command {
             .setFlag(
                 "premine",
                 "The number of pre-mined tokens.",
-                Joi.alternatives()
-                    .try(Joi.string(), Joi.number())
-                    .default("12500000000000000"),
+                Joi.alternatives().try(Joi.string(), Joi.number()).default("12500000000000000"),
             )
             .setFlag("delegates", "The number of delegates to generate.", Joi.number().default(51))
             .setFlag("blocktime", "The network blocktime.", Joi.number().default(8))
@@ -69,9 +75,7 @@ export class Command extends Commands.Command {
             .setFlag(
                 "rewardAmount",
                 "The number of the block reward per forged block.",
-                Joi.alternatives()
-                    .try(Joi.string(), Joi.number())
-                    .default("200000000"),
+                Joi.alternatives().try(Joi.string(), Joi.number()).default("200000000"),
             )
             .setFlag("pubKeyHash", "The public key hash.", Joi.number())
             .setFlag("wif", "The WIF (Wallet Import Format) that should be used.", Joi.number())
@@ -96,7 +100,7 @@ export class Command extends Commands.Command {
 
         const flags: Contracts.AnyObject = this.getFlags();
 
-        if (!Object.keys(flagsDefinition).find(flagName => !flags[flagName])) {
+        if (!Object.keys(flagsDefinition).find((flagName) => !flags[flagName])) {
             return this.generateNetwork(flags);
         }
 
@@ -104,7 +108,7 @@ export class Command extends Commands.Command {
         const response = await prompts(
             Object.keys(flagsDefinition)
                 .map(
-                    flagName =>
+                    (flagName) =>
                         ({
                             type: stringFlags.includes(flagName) ? "text" : "number",
                             name: flagName,
@@ -123,7 +127,7 @@ export class Command extends Commands.Command {
         // the distribute flag is a boolean in the pre-existing tests
         // and it is defined as a number in this.generateCryptoGenesisBlock()
         // If false or 0 are passed intentionally, this would fail (despite all flags being provided).
-        if (Object.keys(flagsDefinition).find(flagName => response[flagName] === undefined)) {
+        if (Object.keys(flagsDefinition).find((flagName) => response[flagName] === undefined)) {
             this.components.fatal("Please provide all flags and try again!");
         }
 
@@ -227,7 +231,7 @@ export class Command extends Commands.Command {
 
                     writeJSONSync(
                         resolve(coreConfigDest, "delegates.json"),
-                        { secrets: delegates.map(d => d.passphrase) },
+                        { secrets: delegates.map((d) => d.passphrase) },
                         { spaces: 4 },
                     );
 
@@ -368,10 +372,10 @@ export class Command extends Commands.Command {
     private createWallet(pubKeyHash: number): Wallet {
         const passphrase = generateMnemonic();
 
-        const keys: Interfaces.IKeyPair = Identities.Keys.fromPassphrase(passphrase);
+        const keys: Interfaces.IKeyPair = this.cryptoManager.Identities.Keys.fromPassphrase(passphrase);
 
         return {
-            address: Identities.Address.fromPublicKey(keys.publicKey, pubKeyHash),
+            address: this.cryptoManager.Identities.Address.fromPublicKey(keys.publicKey),
             passphrase,
             keys,
             username: undefined,
@@ -380,7 +384,7 @@ export class Command extends Commands.Command {
 
     private createTransferTransaction(sender: Wallet, recipient: Wallet, amount: string, pubKeyHash: number): any {
         return this.formatGenesisTransaction(
-            Transactions.BuilderFactory.transfer()
+            this.transactionsManager.BuilderFactory.transfer()
                 .network(pubKeyHash)
                 .recipientId(recipient.address)
                 .amount(amount)
@@ -395,7 +399,7 @@ export class Command extends Commands.Command {
         totalPremine: string,
         pubKeyHash: number,
     ): any {
-        const amount: string = Utils.BigNumber.make(totalPremine)
+        const amount: string = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(totalPremine)
             .dividedBy(recipients.length)
             .toString();
 
@@ -407,7 +411,7 @@ export class Command extends Commands.Command {
     private buildDelegateTransactions(senders: Wallet[], pubKeyHash: number) {
         return senders.map((sender: Wallet) =>
             this.formatGenesisTransaction(
-                Transactions.BuilderFactory.delegateRegistration()
+                this.transactionsManager.BuilderFactory.delegateRegistration()
                     .network(pubKeyHash)
                     .usernameAsset(sender.username!)
                     .fee(`${25 * 1e8}`)
@@ -420,7 +424,7 @@ export class Command extends Commands.Command {
     private buildVoteTransactions(senders: Wallet[], pubKeyHash: number) {
         return senders.map((sender: Wallet) =>
             this.formatGenesisTransaction(
-                Transactions.BuilderFactory.vote()
+                this.transactionsManager.BuilderFactory.vote()
                     .network(pubKeyHash)
                     .votesAsset([`+${sender.keys.publicKey}`])
                     .fee(`${1 * 1e8}`)
@@ -435,8 +439,8 @@ export class Command extends Commands.Command {
             fee: "0",
             timestamp: 0,
         });
-        transaction.signature = Transactions.Signer.sign(transaction, wallet.keys);
-        transaction.id = Transactions.Utils.getId(transaction);
+        transaction.signature = this.transactionsManager.Signer.sign(transaction, wallet.keys);
+        transaction.id = this.transactionsManager.Utils.getId(transaction);
 
         return transaction;
     }
@@ -451,21 +455,25 @@ export class Command extends Commands.Command {
         });
 
         let payloadLength = 0;
-        let totalFee: Utils.BigNumber = Utils.BigNumber.ZERO;
-        let totalAmount: Utils.BigNumber = Utils.BigNumber.ZERO;
+        let totalFee: Types.BigNumber = this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
+        let totalAmount: Types.BigNumber = this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
         const allBytes: Buffer[] = [];
 
         for (const transaction of transactions) {
-            const bytes: Buffer = Transactions.Serializer.getBytes(transaction);
+            const bytes: Buffer = this.transactionsManager.Serializer.getBytes(transaction);
 
             allBytes.push(bytes);
 
             payloadLength += bytes.length;
             totalFee = totalFee.plus(transaction.fee);
-            totalAmount = totalAmount.plus(Utils.BigNumber.make(transaction.amount));
+            totalAmount = totalAmount.plus(
+                this.cryptoManager.LibraryManager.Libraries.BigNumber.make(transaction.amount),
+            );
         }
 
-        const payloadHash: Buffer = Crypto.HashAlgorithms.sha256(Buffer.concat(allBytes));
+        const payloadHash: Buffer = this.cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(
+            Buffer.concat(allBytes),
+        );
 
         const block: any = {
             version: 0,
@@ -500,15 +508,17 @@ export class Command extends Commands.Command {
             blockBuffer[i] = hash[7 - i];
         }
 
-        return Utils.BigNumber.make(`0x${blockBuffer.toString("hex")}`).toString();
+        return this.cryptoManager.LibraryManager.Libraries.BigNumber.make(
+            `0x${blockBuffer.toString("hex")}`,
+        ).toString();
     }
 
     private signBlock(block, keys: Interfaces.IKeyPair): string {
-        return Crypto.Hash.signECDSA(this.getHash(block), keys);
+        return this.cryptoManager.LibraryManager.Crypto.Hash.signECDSA(this.getHash(block), keys);
     }
 
     private getHash(block): Buffer {
-        return Crypto.HashAlgorithms.sha256(this.getBytes(block));
+        return this.cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(this.getBytes(block));
     }
 
     private getBytes(genesisBlock): Buffer {

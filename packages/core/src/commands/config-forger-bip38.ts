@@ -1,5 +1,5 @@
 import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
-import { Crypto, Identities, Managers } from "@arkecosystem/crypto";
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { validateMnemonic } from "bip39";
@@ -37,6 +37,8 @@ export class Command extends Commands.Command {
      */
     public isHidden: boolean = true;
 
+    public cryptoManager!: CryptoManager;
+
     /**
      * Configure the console command.
      *
@@ -67,14 +69,14 @@ export class Command extends Commands.Command {
                 type: "password",
                 name: "bip39",
                 message: "Please enter your delegate plain text passphrase. Referred to as BIP39.",
-                validate: /* istanbul ignore next */ value =>
+                validate: /* istanbul ignore next */ (value) =>
                     !validateMnemonic(value) ? "Failed to verify the given passphrase as BIP39 compliant." : true,
             },
             {
                 type: "password",
                 name: "password",
                 message: "Please enter your custom password that encrypts the BIP39. Referred to as BIP38.",
-                validate: /* istanbul ignore next */ value =>
+                validate: /* istanbul ignore next */ (value) =>
                     typeof value !== "string" ? "The BIP38 password has to be a string." : true,
             },
             {
@@ -118,7 +120,8 @@ export class Command extends Commands.Command {
             {
                 title: "Prepare crypto.",
                 task: () => {
-                    Managers.configManager.setFromPreset(flags.network);
+                    // TODO: handle this properly
+                    this.cryptoManager = CryptoManager.createFromPreset(flags.network);
                 },
             },
             {
@@ -134,7 +137,7 @@ export class Command extends Commands.Command {
                     const delegatesConfig = this.app.getCorePath("config", "delegates.json");
 
                     const delegates = require(delegatesConfig);
-                    delegates.bip38 = Crypto.bip38.encrypt(
+                    delegates.bip38 = this.cryptoManager.LibraryManager.Crypto.Bip38.encrypt(
                         decodedWIF.privateKey,
                         decodedWIF.compressed,
                         flags.password,

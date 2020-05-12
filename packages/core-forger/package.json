@@ -25,6 +25,7 @@
         "@arkecosystem/core-database": "^3.0.0-next.0",
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
         "@arkecosystem/core-p2p": "^3.0.0-next.0",
+        "@arkecosystem/core-crypto": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
         "node-forge": "^0.9.1",
         "otplib": "^12.0.0",

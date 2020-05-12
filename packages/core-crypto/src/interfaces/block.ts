@@ -1,4 +1,4 @@
-import { Interfaces, Types } from "@arkecosystem/crypto/src";
+import { Interfaces, Types } from "@arkecosystem/crypto";
 
 export interface IBlockVerification {
     verified: boolean;

@@ -30,7 +30,6 @@
     "dependencies": {
         "@arkecosystem/utils": "^1.1.7",
         "@arkecosystem/crypto": "^3.0.0-next.0",
-        "@arkecosystem/core-crypto": "^3.0.0-next.0",
         "ajv": "^6.10.2",
         "ajv-keywords": "^3.4.1",
         "bcrypto": "^4.2.9",

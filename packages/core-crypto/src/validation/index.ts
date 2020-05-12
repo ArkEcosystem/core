@@ -1,8 +1,8 @@
 import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
-import { BlockSchemaError } from "@arkecosystem/crypto/dist/errors";
 import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
 
+import { BlockSchemaError } from "../errors";
 import { IBlockData } from "../interfaces";
 import { formats } from "./formats";
 import { keywords } from "./keywords";

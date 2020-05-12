@@ -24,6 +24,7 @@
         "@arkecosystem/core-cli": "^3.0.0-next.0",
         "@arkecosystem/core-forger": "^3.0.0-next.0",
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
+        "@arkecosystem/core-crypto": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
         "bip39": "^3.0.2",
         "bs58": "^4.0.1",
