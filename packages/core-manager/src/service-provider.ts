@@ -1,4 +1,5 @@
-import { Providers} from "@arkecosystem/core-kernel";
+import { Container, Providers, Types } from "@arkecosystem/core-kernel";
+import { ApplicationFactory } from "@arkecosystem/core-cli";
 import { Identifiers } from "./ioc";
 import { Server } from "./server/server";
 import { ActionReader } from "./action-reader";
@@ -11,6 +12,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
         this.app.bind(Identifiers.BasicCredentialsValidator).to(Argon2id).inSingletonScope();
         this.app.bind(Identifiers.TokenValidator).to(SimpleTokenValidator).inSingletonScope();
+
+        const pkg: Types.PackageJson = require("../package.json");
+        this.app.bind(Identifiers.CLI).toConstantValue(ApplicationFactory.make(new Container.Container(), pkg));
 
         if (this.config().get("server.http.enabled")) {
             await this.buildServer("http", Identifiers.HTTP);
