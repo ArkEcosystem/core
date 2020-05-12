@@ -1,10 +1,13 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
 
 import { Resource } from "../interfaces";
 
 @Container.injectable()
 export class WalletResource implements Resource {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     /**
      * Return the raw representation of the resource.
      *
@@ -28,7 +31,7 @@ export class WalletResource implements Resource {
             address: resource.address,
             publicKey: resource.publicKey,
             nonce: resource.nonce.toFixed(),
-            balance: Utils.BigNumber.make(resource.balance).toFixed(),
+            balance: this.cryptoManager.LibraryManager.Libraries.BigNumber.make(resource.balance).toFixed(),
             attributes: resource.getAttributes(),
 
             // TODO: remove with v3

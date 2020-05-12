@@ -1,5 +1,5 @@
+import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import { Resource } from "../interfaces";
 
@@ -21,6 +21,9 @@ export class BlockResource implements Resource {
      */
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchainService!: Contracts.Blockchain.Blockchain;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
 
     /**
      * Return the raw representation of the resource.
@@ -52,7 +55,7 @@ export class BlockResource implements Resource {
             forged: {
                 reward: resource.reward.toFixed(),
                 fee: resource.totalFee.toFixed(),
-                amount: Utils.BigNumber.make(resource.totalAmount).toFixed(),
+                amount: this.cryptoManager.LibraryManager.Libraries.BigNumber.make(resource.totalAmount).toFixed(),
                 total: resource.reward.plus(resource.totalFee).toFixed(),
             },
             payload: {
@@ -69,7 +72,7 @@ export class BlockResource implements Resource {
             signature: resource.blockSignature,
             confirmations: lastBlock ? lastBlock.data.height - resource.height : 0,
             transactions: resource.numberOfTransactions,
-            timestamp: AppUtils.formatTimestamp(resource.timestamp),
+            timestamp: AppUtils.formatTimestamp(resource.timestamp, this.cryptoManager),
         };
     }
 }

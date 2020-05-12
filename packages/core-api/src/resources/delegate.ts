@@ -1,10 +1,13 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
 
 import { Resource } from "../interfaces";
 
 @Container.injectable()
 export class DelegateResource implements Resource {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     /**
      * Return the raw representation of the resource.
      *
@@ -30,19 +33,19 @@ export class DelegateResource implements Resource {
             username: attributes.username,
             address: resource.address,
             publicKey: resource.publicKey,
-            votes: Utils.BigNumber.make(attributes.voteBalance).toFixed(),
+            votes: this.cryptoManager.LibraryManager.Libraries.BigNumber.make(attributes.voteBalance).toFixed(),
             rank: attributes.rank,
             isResigned: !!attributes.resigned,
             blocks: {
                 produced: attributes.producedBlocks,
             },
             production: {
-                approval: AppUtils.delegateCalculator.calculateApproval(resource),
+                approval: AppUtils.delegateCalculator.calculateApproval(this.cryptoManager, resource),
             },
             forged: {
                 fees: attributes.forgedFees.toFixed(),
                 rewards: attributes.forgedRewards.toFixed(),
-                total: AppUtils.delegateCalculator.calculateForgedTotal(resource),
+                total: AppUtils.delegateCalculator.calculateForgedTotal(this.cryptoManager, resource),
             },
         };
 
@@ -53,7 +56,7 @@ export class DelegateResource implements Resource {
             data.blocks.last = {
                 id: lastBlock.id,
                 height: lastBlock.height,
-                timestamp: AppUtils.formatTimestamp(lastBlock.timestamp),
+                timestamp: AppUtils.formatTimestamp(lastBlock.timestamp, this.cryptoManager),
             };
         }
 

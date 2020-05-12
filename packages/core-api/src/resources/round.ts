@@ -1,10 +1,13 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
 
 import { Resource } from "../interfaces";
 
 @Container.injectable()
 export class RoundResource implements Resource {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     /**
      * Return the raw representation of the resource.
      *
@@ -26,7 +29,7 @@ export class RoundResource implements Resource {
     public transform(resource): object {
         return {
             publicKey: resource.publicKey,
-            votes: Utils.BigNumber.make(resource.balance).toFixed(),
+            votes: this.cryptoManager.LibraryManager.Libraries.BigNumber.make(resource.balance).toFixed(),
         };
     }
 }

@@ -1,4 +1,4 @@
-import { Validation } from "@arkecosystem/crypto";
+import { Blocks } from "@arkecosystem/core-crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -8,7 +8,7 @@ const name = "hapi-ajv";
 export const hapiAjv = {
     name,
     version: "1.0.0",
-    register: async (server: Hapi.Server, options: any): Promise<void> => {
+    register: async (server: Hapi.Server, options: any, blockFactory: Blocks.BlockFactory): Promise<void> => {
         const createErrorResponse = (request, h, errors) => {
             return Boom.badData(errors.map((error) => error.message).join(","));
         };
@@ -19,7 +19,7 @@ export const hapiAjv = {
                 const config = request.route.settings.plugins[name] || {};
 
                 if (config.payloadSchema) {
-                    const { error, errors } = Validation.validator.validate(config.payloadSchema, request.payload);
+                    const { error, errors } = blockFactory.validator.validate(config.payloadSchema, request.payload);
 
                     if (error) {
                         return createErrorResponse(request, h, errors);
@@ -27,7 +27,7 @@ export const hapiAjv = {
                 }
 
                 if (config.querySchema) {
-                    const { error, errors } = Validation.validator.validate(config.querySchema, request.query);
+                    const { error, errors } = blockFactory.validator.validate(config.querySchema, request.query);
 
                     if (error) {
                         return createErrorResponse(request, h, errors);

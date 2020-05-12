@@ -1,8 +1,12 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { Controller } from "./controller";
 
 export class BlockchainController extends Controller {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
 
@@ -15,7 +19,7 @@ export class BlockchainController extends Controller {
                     height: data.height,
                     id: data.id,
                 },
-                supply: Utils.supplyCalculator.calculate(data.height),
+                supply: Utils.supplyCalculator.calculate(data.height, this.cryptoManager),
             },
         };
     }

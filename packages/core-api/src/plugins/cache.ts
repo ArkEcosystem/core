@@ -1,9 +1,9 @@
-import { Crypto } from "@arkecosystem/crypto";
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import Hapi from "@hapi/hapi";
 import NodeCache from "node-cache";
 
-const generateCacheKey = (request: Hapi.Request): string =>
-    Crypto.HashAlgorithms.sha256(
+const generateCacheKey = (request: Hapi.Request, cryptoManager: CryptoManager): string =>
+    cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(
         JSON.stringify({
             pathname: request.url.pathname,
             params: request.params || {},
@@ -19,6 +19,7 @@ export = {
     async register(
         server: Hapi.Server,
         options: { enabled: boolean; stdTTL: number; checkperiod: number },
+        cryptoManager: CryptoManager,
     ): Promise<void> {
         if (options.enabled === false) {
             return;
@@ -32,7 +33,7 @@ export = {
         server.ext({
             type: "onPreHandler",
             async method(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-                const cacheKey: string = generateCacheKey(request);
+                const cacheKey: string = generateCacheKey(request, cryptoManager);
 
                 if (cache.has(cacheKey)) {
                     const value: { isBoom: boolean; data: Record<string, any> } | undefined = cache.get(cacheKey);
@@ -55,7 +56,7 @@ export = {
         server.ext({
             type: "onPreResponse",
             async method(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-                const cacheKey: string = generateCacheKey(request);
+                const cacheKey: string = generateCacheKey(request, cryptoManager);
 
                 if (!cache.has(cacheKey)) {
                     cache.set(cacheKey, {

@@ -1,10 +1,10 @@
-import { Managers } from "@arkecosystem/crypto";
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { DelegatesController } from "../controllers/delegates";
 
-export const register = (server: Hapi.Server): void => {
+export const register = (server: Hapi.Server, cryptoManager: CryptoManager): void => {
     const controller = server.app.app.resolve(DelegatesController);
     server.bind(controller);
 
@@ -117,7 +117,7 @@ export const register = (server: Hapi.Server): void => {
                     usernames: Joi.array()
                         .unique()
                         .min(1)
-                        .max(Managers.configManager.getMilestone().activeDelegates)
+                        .max(cryptoManager.MilestoneManager.getMilestone().activeDelegates)
                         .items(server.app.schemas.username),
                     approval: server.app.schemas.percentage,
                     forgedFees: server.app.schemas.integerBetween,

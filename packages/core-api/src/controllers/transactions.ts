@@ -1,3 +1,4 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
@@ -9,6 +10,9 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class TransactionsController extends Controller {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
     @Container.tagged("state", "null")
     private readonly nullHandlerRegistry!: Handlers.Registry;
@@ -161,7 +165,7 @@ export class TransactionsController extends Controller {
                 typeGroups[typeGroup] = {};
             }
 
-            typeGroups[typeGroup][key] = constructor.staticFee({ height: currentHeight }).toFixed();
+            typeGroups[typeGroup][key] = constructor.staticFee(this.cryptoManager, { height: currentHeight }).toFixed();
         }
 
         return { data: typeGroups };

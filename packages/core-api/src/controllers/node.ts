@@ -1,7 +1,8 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Crypto, Managers, Transactions } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
 import { PortsResource } from "../resources";
@@ -9,6 +10,9 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class NodeController extends Controller {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly transactionPoolConfiguration!: Providers.PluginConfiguration;
@@ -38,7 +42,7 @@ export class NodeController extends Controller {
                 synced: this.blockchain.isSynced(),
                 now: lastBlock ? lastBlock.data.height : 0,
                 blocksCount: networkHeight && lastBlock ? networkHeight - lastBlock.data.height : 0,
-                timestamp: Crypto.Slots.getTime(),
+                timestamp: this.cryptoManager.LibraryManager.Crypto.Slots.getTime(),
             },
         };
     }
@@ -62,7 +66,7 @@ export class NodeController extends Controller {
             enabled?: boolean;
         }>("dynamicFees");
 
-        const network = Managers.configManager.get("network");
+        const network = this.cryptoManager.NetworkConfigManager.get("network");
 
         return {
             data: {
@@ -77,7 +81,7 @@ export class NodeController extends Controller {
                 explorer: network.client.explorer,
                 version: network.pubKeyHash,
                 ports: super.toResource(this.configRepository, PortsResource),
-                constants: Managers.configManager.getMilestone(this.blockchain.getLastHeight()),
+                constants: this.cryptoManager.MilestoneManager.getMilestone(this.blockchain.getLastHeight()),
                 transactionPool: {
                     dynamicFees: dynamicFees.enabled ? dynamicFees : { enabled: false },
                 },
@@ -87,7 +91,7 @@ export class NodeController extends Controller {
 
     public async configurationCrypto() {
         return {
-            data: Managers.configManager.all(),
+            data: this.cryptoManager.NetworkConfigManager.all(),
         };
     }
 

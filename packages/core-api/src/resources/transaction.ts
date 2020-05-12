@@ -1,3 +1,4 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
@@ -13,6 +14,9 @@ export class TransactionResource implements Resource {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     protected readonly walletRepository!: Contracts.State.WalletRepository;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
 
     /**
      * Return the raw representation of the resource.
@@ -55,8 +59,10 @@ export class TransactionResource implements Resource {
             asset: resource.asset,
             confirmations: 0, // ! resource.block ? lastBlock.data.height - resource.block.height + 1 : 0
             timestamp:
-                typeof resource.timestamp !== "undefined" ? AppUtils.formatTimestamp(resource.timestamp) : undefined,
-            nonce: resource.nonce!.toFixed(),
+                typeof resource.timestamp !== "undefined"
+                    ? AppUtils.formatTimestamp(resource.timestamp, this.cryptoManager)
+                    : undefined,
+            nonce: typeof resource.nonce !== "undefined" ? resource.nonce.toFixed() : undefined,
         };
     }
 }
