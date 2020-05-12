@@ -1,11 +1,12 @@
-import got from "got"
+import got from "got";
+
+import { ConnectionData } from "../contracts/http-client";
 
 export class HttpClient {
-    public constructor(private protocol: string, private host: string, private port: string | number) {
-    }
+    public constructor(private connectionData: ConnectionData) {}
 
     public async get(path: string): Promise<any> {
-        let url = `${this.protocol}://${this.host}:${this.port}${path}`
+        const url = `${this.connectionData.protocol}://${this.connectionData.ip}:${this.connectionData.port}${path}`;
 
         return got.get(url).json();
     }

@@ -1,10 +1,9 @@
-
-import { Application, Container } from "@arkecosystem/core-kernel";
 import { Application as Cli, Container as CliContainer, Contracts, Services } from "@arkecosystem/core-cli";
-import { Actions } from "../contracts"
-import { Identifiers } from "../ioc"
-import { HttpClient, getConnectionData } from "../utils"
+import { Application, Container } from "@arkecosystem/core-kernel";
 
+import { Actions } from "../contracts";
+import { Identifiers } from "../ioc";
+import { getConnectionData, HttpClient } from "../utils";
 
 @Container.injectable()
 export class Action implements Actions.Action {
@@ -14,10 +13,10 @@ export class Action implements Actions.Action {
         type: "object",
         properties: {
             token: {
-                type: "string"
-            }
-        }
-    }
+                type: "string",
+            },
+        },
+    };
 
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Application;
@@ -25,8 +24,8 @@ export class Action implements Actions.Action {
     public async execute(params: any): Promise<any> {
         return {
             processStatus: this.getProcessStatus(params.token) || "undefined",
-            syncing: await this.getSyncingStatus()
-        }
+            syncing: await this.getSyncingStatus(),
+        };
     }
 
     private getProcessStatus(token: string = "ark"): Contracts.ProcessState | undefined {
@@ -38,11 +37,10 @@ export class Action implements Actions.Action {
     }
 
     private async getSyncingStatus(): Promise<boolean | undefined> {
-        const connection  = getConnectionData();
-        const httpClient = new HttpClient(connection.protocol, connection.host, connection.port);
+        const httpClient = new HttpClient(getConnectionData());
 
         try {
-            let response = await httpClient.get("/api/node/syncing");
+            const response = await httpClient.get("/api/node/syncing");
 
             return response.data.syncing;
         } catch (err) {
