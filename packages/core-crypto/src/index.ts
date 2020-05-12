@@ -7,17 +7,10 @@ import * as Crypto from "@arkecosystem/crypto";
 
 import { IBlockData } from "./interfaces";
 
-interface TransactionsManager extends Crypto.Transactions.TransactionsManager<IBlockData> {}
+class TransactionsManager extends Crypto.Transactions.TransactionsManager<IBlockData> {}
 
-interface CryptoManager extends Crypto.CryptoManager<IBlockData> {}
+class CryptoManager extends Crypto.CryptoManager<IBlockData> {}
 
-// import * as Constants from "./constants";
-// import { CryptoManager } from "./crypto-manager";
-// import * as Enums from "./enums";
-// import * as Errors from "./errors";
-// import * as Interfaces from "./interfaces";
-// import * as Transactions from "./transactions";
-// // import { TransactionsManager } from "./transactions/index";
-// import * as Types from "./types";
+// TODO: re-export all crypto package from here?
 
 export { CryptoManager, TransactionsManager };

@@ -7,9 +7,9 @@ import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class BlockFactory<T extends IBlockData = IBlockData> {
-    private serializer: Serializer;
-    private deserializer: Deserializer;
-    private validator: Validator;
+    public serializer: Serializer;
+    public deserializer: Deserializer;
+    public validator: Validator;
 
     public constructor(
         private cryptoManager: CryptoManager<T>,
