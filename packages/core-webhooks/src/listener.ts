@@ -1,6 +1,7 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
-import * as conditions from "./conditions";
+import { Conditions } from "./conditions";
 import { Database } from "./database";
 import { Identifiers } from "./identifiers";
 import { Webhook } from "./interfaces";
@@ -18,6 +19,12 @@ export class Listener {
      */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
+    private conditions: Conditions;
+
     /**
      * @private
      * @type {Contracts.Kernel.Logger}
@@ -25,6 +32,10 @@ export class Listener {
      */
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
+
+    public constructor() {
+        this.conditions = new Conditions(this.cryptoManager);
+    }
 
     /**
      * @param {string} event
@@ -88,7 +99,7 @@ export class Listener {
 
                 for (const condition of webhook.conditions) {
                     try {
-                        const satisfies = conditions[condition.condition];
+                        const satisfies = this.conditions[condition.condition];
 
                         if (satisfies(payload[condition.key], condition.value)) {
                             return true;
