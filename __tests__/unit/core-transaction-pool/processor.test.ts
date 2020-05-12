@@ -43,6 +43,27 @@ beforeEach(() => {
 });
 
 describe("Processor.process", () => {
+    it("should parse transactions through factory pool", async () => {
+        factoryPool.isTypeGroupSupported.mockReturnValue(true);
+        factoryPool.getTransactionFromData.mockResolvedValueOnce(transaction1).mockResolvedValueOnce(transaction2);
+        dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true).mockReturnValueOnce(false);
+
+        const processor = container.resolve(Processor);
+        await processor.process([transaction1.data, transaction2.data]);
+
+        expect(dynamicFeeMatcher.canEnterPool).toBeCalledTimes(2);
+        expect(pool.addTransaction).toBeCalledTimes(1);
+        expect(dynamicFeeMatcher.canBroadcast).toBeCalledTimes(1);
+        expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
+
+        expect(processor.accept).toEqual([transaction1.id]);
+        expect(processor.broadcast).toEqual([]);
+        expect(processor.invalid).toEqual([transaction2.id]);
+        expect(processor.excess).toEqual([]);
+        expect(processor.errors[transaction2.id]).toBeTruthy();
+        expect(processor.errors[transaction2.id].type).toBe("ERR_LOW_FEE");
+    });
+
     it("should add eligible transactions to pool", async () => {
         factoryPool.isTypeGroupSupported.mockReturnValue(false);
         dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true).mockReturnValueOnce(false);
