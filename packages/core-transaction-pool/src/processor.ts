@@ -1,5 +1,6 @@
+import { TransactionsManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import { TransactionFeeToLowError } from "./errors";
 
@@ -10,6 +11,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
     public invalid: string[] = [];
     public excess: string[] = [];
     public errors?: { [id: string]: Contracts.TransactionPool.ProcessorError };
+
+    @Container.inject(Container.Identifiers.TransactionManager)
+    private readonly transactionsManager!: TransactionsManager;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
@@ -26,7 +30,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     public async process(data: Interfaces.ITransactionData[]): Promise<void> {
         const broadcastableTransactions: Interfaces.ITransaction[] = [];
-        const transactions = data.map((d) => Transactions.TransactionFactory.fromData(d));
+        const transactions = data.map((d) => this.transactionsManager.TransactionFactory.fromData(d));
 
         try {
             for (const transaction of transactions) {

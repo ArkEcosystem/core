@@ -1,9 +1,13 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Types } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMatcher {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly configuration!: Providers.PluginConfiguration;
@@ -22,20 +26,20 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
         const dynamicFeesConfiguration: Record<string, any> = this.configuration.getRequired<Record<string, any>>(
             "dynamicFees",
         );
-        const feeStr = Utils.formatSatoshi(transaction.data.fee);
+        const feeStr = this.cryptoManager.LibraryManager.Utils.formatSatoshi(transaction.data.fee);
 
         if (dynamicFeesConfiguration.enabled) {
             const addonBytes: number = dynamicFeesConfiguration.addonBytes[transaction.key];
             const height: number = this.stateStore.getLastHeight();
             const handler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
 
-            const minFeePool: Utils.BigNumber = handler.dynamicFee({
+            const minFeePool: Types.BigNumber = handler.dynamicFee({
                 transaction,
                 addonBytes,
                 satoshiPerByte: dynamicFeesConfiguration.minFeePool,
                 height,
             });
-            const minFeeStr = Utils.formatSatoshi(minFeePool);
+            const minFeeStr = this.cryptoManager.LibraryManager.Utils.formatSatoshi(minFeePool);
 
             if (transaction.data.fee.isGreaterThanEqual(minFeePool)) {
                 this.logger.debug(`${transaction} eligible to enter pool (fee ${feeStr} >= ${minFeeStr})`);
@@ -45,7 +49,7 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
                 return false;
             }
         } else {
-            const staticFeeStr = Utils.formatSatoshi(transaction.staticFee);
+            const staticFeeStr = this.cryptoManager.LibraryManager.Utils.formatSatoshi(transaction.staticFee);
 
             if (transaction.data.fee.isEqualTo(transaction.staticFee)) {
                 this.logger.debug(`${transaction} eligible to enter pool (fee ${feeStr} = ${staticFeeStr})`);
@@ -61,20 +65,20 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
         const dynamicFeesConfiguration: Record<string, any> = this.configuration.getRequired<Record<string, any>>(
             "dynamicFees",
         );
-        const feeStr = Utils.formatSatoshi(transaction.data.fee);
+        const feeStr = this.cryptoManager.LibraryManager.Utils.formatSatoshi(transaction.data.fee);
 
         if (dynamicFeesConfiguration.enabled) {
             const addonBytes: number = dynamicFeesConfiguration.addonBytes[transaction.key];
             const height: number = this.stateStore.getLastHeight();
             const handler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
 
-            const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee({
+            const minFeeBroadcast: Types.BigNumber = handler.dynamicFee({
                 transaction,
                 addonBytes,
                 satoshiPerByte: dynamicFeesConfiguration.minFeeBroadcast,
                 height,
             });
-            const minFeeStr = Utils.formatSatoshi(minFeeBroadcast);
+            const minFeeStr = this.cryptoManager.LibraryManager.Utils.formatSatoshi(minFeeBroadcast);
 
             if (transaction.data.fee.isGreaterThanEqual(minFeeBroadcast)) {
                 this.logger.debug(`${transaction} eligible for broadcast (fee ${feeStr} >= ${minFeeStr})`);
@@ -84,7 +88,7 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
                 return false;
             }
         } else {
-            const staticFeeStr = Utils.formatSatoshi(transaction.staticFee);
+            const staticFeeStr = this.cryptoManager.LibraryManager.Utils.formatSatoshi(transaction.staticFee);
 
             if (transaction.data.fee.isEqualTo(transaction.staticFee)) {
                 this.logger.debug(`${transaction} eligible for broadcast (fee ${feeStr} = ${staticFeeStr})`);

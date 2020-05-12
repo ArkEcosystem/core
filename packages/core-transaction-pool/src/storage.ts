@@ -1,10 +1,14 @@
+import { TransactionsManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
 
 @Container.injectable()
 export class Storage implements Contracts.TransactionPool.Storage {
+    @Container.inject(Container.Identifiers.TransactionManager)
+    private readonly transactionsManager!: TransactionsManager;
+
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly configuration!: Providers.PluginConfiguration;
@@ -35,7 +39,7 @@ export class Storage implements Contracts.TransactionPool.Storage {
             .prepare("SELECT LOWER(HEX(serialized)) FROM pool")
             .pluck(true)
             .all()
-            .map((hex) => Transactions.TransactionFactory.fromHex(hex));
+            .map((hex) => this.transactionsManager.TransactionFactory.fromHex(hex));
     }
 
     public addTransaction(transaction: Interfaces.ITransaction): void {

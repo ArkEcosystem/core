@@ -1,8 +1,12 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class ExpirationService {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly configuration!: Providers.PluginConfiguration;
@@ -32,8 +36,9 @@ export class ExpirationService {
             return transaction.data.expiration;
         } else {
             const currentHeight: number = this.stateStore.getLastHeight();
-            const blockTime: number = Managers.configManager.getMilestone(currentHeight).blocktime;
-            const createdSecondsAgo: number = Crypto.Slots.getTime() - transaction.data.timestamp;
+            const blockTime: number = this.cryptoManager.MilestoneManager.getMilestone(currentHeight).blocktime;
+            const createdSecondsAgo: number =
+                this.cryptoManager.LibraryManager.Crypto.Slots.getTime() - transaction.data.timestamp;
             const createdBlocksAgo: number = Math.floor(createdSecondsAgo / blockTime); // ! varying block times
             const maxTransactionAge: number = this.configuration.getRequired<number>("maxTransactionAge");
 

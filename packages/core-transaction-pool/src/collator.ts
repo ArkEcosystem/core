@@ -1,8 +1,12 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class Collator implements Contracts.TransactionPool.Collator {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly configuration!: Providers.PluginConfiguration;
@@ -26,7 +30,7 @@ export class Collator implements Contracts.TransactionPool.Collator {
         let bytesLeft: number | undefined = this.configuration.get<number>("maxTransactionBytes");
 
         const height: number = this.blockchain.getLastBlock().data.height;
-        const milestone = Managers.configManager.getMilestone(height);
+        const milestone = this.cryptoManager.MilestoneManager.getMilestone(height);
         const transactions: Interfaces.ITransaction[] = [];
         const validator: Contracts.State.TransactionValidator = this.createTransactionValidator();
 

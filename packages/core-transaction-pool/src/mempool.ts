@@ -1,8 +1,12 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Identities, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class Mempool implements Contracts.TransactionPool.Mempool {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -38,7 +42,11 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         if (!senderMempool) {
             senderMempool = this.createSenderMempool();
             this.senderMempools.set(transaction.data.senderPublicKey, senderMempool);
-            this.logger.debug(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state created`);
+            this.logger.debug(
+                `${this.cryptoManager.Identities.Address.fromPublicKey(
+                    transaction.data.senderPublicKey,
+                )} state created`,
+            );
         }
 
         try {
@@ -46,7 +54,11 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         } finally {
             if (senderMempool.isEmpty()) {
                 this.senderMempools.delete(transaction.data.senderPublicKey);
-                this.logger.debug(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`);
+                this.logger.debug(
+                    `${this.cryptoManager.Identities.Address.fromPublicKey(
+                        transaction.data.senderPublicKey,
+                    )} forgotten`,
+                );
             }
         }
     }
@@ -64,7 +76,11 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         } finally {
             if (senderMempool.isEmpty()) {
                 this.senderMempools.delete(transaction.data.senderPublicKey);
-                this.logger.debug(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`);
+                this.logger.debug(
+                    `${this.cryptoManager.Identities.Address.fromPublicKey(
+                        transaction.data.senderPublicKey,
+                    )} forgotten`,
+                );
             }
         }
     }
@@ -82,7 +98,11 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         } finally {
             if (senderMempool.isEmpty()) {
                 this.senderMempools.delete(transaction.data.senderPublicKey);
-                this.logger.debug(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`);
+                this.logger.debug(
+                    `${this.cryptoManager.Identities.Address.fromPublicKey(
+                        transaction.data.senderPublicKey,
+                    )} forgotten`,
+                );
             }
         }
     }

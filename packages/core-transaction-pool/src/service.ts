@@ -1,3 +1,4 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
@@ -5,6 +6,9 @@ import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./error
 
 @Container.injectable()
 export class Service implements Contracts.TransactionPool.Service {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -147,7 +151,7 @@ export class Service implements Contracts.TransactionPool.Service {
 
             const lowest = this.poolQuery.getFromLowestPriority().first();
             if (transaction.data.fee.isLessThanEqual(lowest.data.fee)) {
-                throw new TransactionPoolFullError(transaction, lowest.data.fee);
+                throw new TransactionPoolFullError(transaction, lowest.data.fee, this.cryptoManager);
             }
             await this.removeTransaction(lowest);
         }

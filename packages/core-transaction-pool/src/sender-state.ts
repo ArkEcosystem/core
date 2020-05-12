@@ -1,6 +1,7 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import {
     RetryTransactionError,
@@ -16,6 +17,9 @@ import {
 export class SenderState implements Contracts.TransactionPool.SenderState {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
 
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
@@ -36,12 +40,12 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
             throw new TransactionExceedsMaximumByteSizeError(transaction, maxTransactionBytes);
         }
 
-        const currentNetwork: number = Managers.configManager.get<number>("network.pubKeyHash");
+        const currentNetwork: number = this.cryptoManager.NetworkConfigManager.get<number>("network.pubKeyHash");
         if (transaction.data.network && transaction.data.network !== currentNetwork) {
             throw new TransactionFromWrongNetworkError(transaction, currentNetwork);
         }
 
-        const now: number = Crypto.Slots.getTime();
+        const now: number = this.cryptoManager.LibraryManager.Crypto.Slots.getTime();
         if (transaction.timestamp > now + 3600) {
             const secondsInFuture: number = transaction.timestamp - now;
             throw new TransactionFromFutureError(transaction, secondsInFuture);
