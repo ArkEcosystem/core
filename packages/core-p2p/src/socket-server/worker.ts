@@ -192,6 +192,19 @@ export class Worker extends SCWorker {
                     } else {
                         return true;
                     }
+                } else if (object.event === "p2p.peer.postBlock") {
+                    if (
+                        !(
+                            typeof object.data.data === "object" &&
+                            typeof object.data.data.block === "object" &&
+                            object.data.data.block.base64 === true &&
+                            typeof object.data.data.block.data === "string" &&
+                            Object.keys(object.data.data).length === 1 && // {block}
+                            Object.keys(object.data.data.block).length === 2
+                        ) // {base64, data}
+                    ) {
+                        return true;
+                    }
                 } else if (schema && !ajv.validate(schema, object.data.data)) {
                     return true;
                 }
