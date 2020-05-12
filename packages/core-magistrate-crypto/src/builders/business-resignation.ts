@@ -7,7 +7,7 @@ export class BusinessResignationBuilder<
     T,
     U extends Interfaces.ITransactionData,
     E
-> extends Transactions.TransactionBuilder<T, U, E, BusinessResignationBuilder<T, U, E>> {
+> extends Transactions.TransactionBuilder<T, BusinessResignationBuilder<T, U, E>, U, E> {
     public constructor(
         cryptoManager: CryptoManager<T>,
         transactionsManager: Transactions.TransactionsManager<T, U, E>,

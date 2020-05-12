@@ -6,9 +6,9 @@ import { BusinessUpdateTransaction } from "../transactions";
 
 export class BusinessUpdateBuilder<T, U extends Interfaces.ITransactionData, E> extends Transactions.TransactionBuilder<
     T,
+    BusinessUpdateBuilder<T, U, E>,
     U,
-    E,
-    BusinessUpdateBuilder<T, U, E>
+    E
 > {
     public constructor(
         cryptoManager: CryptoManager<T>,

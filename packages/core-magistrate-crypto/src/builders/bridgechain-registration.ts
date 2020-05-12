@@ -8,7 +8,7 @@ export class BridgechainRegistrationBuilder<
     T,
     U extends Interfaces.ITransactionData,
     E
-> extends Transactions.TransactionBuilder<T, U, E, BridgechainRegistrationBuilder<T, U, E>> {
+> extends Transactions.TransactionBuilder<T, BridgechainRegistrationBuilder<T, U, E>, U, E> {
     public constructor(
         cryptoManager: CryptoManager<T>,
         transactionsManager: Transactions.TransactionsManager<T, U, E>,

@@ -8,7 +8,7 @@ export class BusinessRegistrationBuilder<
     T,
     U extends Interfaces.ITransactionData,
     E
-> extends Transactions.TransactionBuilder<T, U, E, BusinessRegistrationBuilder<T, U, E>> {
+> extends Transactions.TransactionBuilder<T, BusinessRegistrationBuilder<T, U, E>, U, E> {
     public constructor(
         cryptoManager: CryptoManager<T>,
         transactionsManager: Transactions.TransactionsManager<T, U, E>,
