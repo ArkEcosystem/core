@@ -1,4 +1,5 @@
 import { Container, Providers } from "@arkecosystem/core-kernel";
+
 import { Authentication } from "../../contracts";
 
 @Container.injectable()
@@ -8,9 +9,9 @@ export class SimpleTokenValidator implements Authentication.TokenValidator {
     private readonly configuration!: Providers.PluginConfiguration;
 
     public async validate(token: string): Promise<boolean> {
-        // ts-ignore
-        const pluginsConfiguration = this.configuration.get("plugins") as any;
+        const pluginsConfiguration = this.configuration.get("plugins");
 
-        return token === pluginsConfiguration.tokenAuthentication.token;
+        // @ts-ignore
+        return token === pluginsConfiguration?.tokenAuthentication?.token;
     }
 }

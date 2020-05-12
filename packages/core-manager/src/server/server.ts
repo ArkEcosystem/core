@@ -1,10 +1,9 @@
+import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
-import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
-
-import { Identifiers } from "../ioc";
 import { Plugins } from "../contracts";
+import { Identifiers } from "../ioc";
 
 @Container.injectable()
 export class Server {
@@ -24,7 +23,6 @@ export class Server {
     public async initialize(name: string, serverOptions: Types.JsonObject): Promise<void> {
         this.name = name;
         this.server = new HapiServer(this.getServerOptions(serverOptions));
-        // this.server.app.app = this.app;
 
         await this.server.register(this.pluginFactory.preparePlugins());
     }

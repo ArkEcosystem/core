@@ -1,1 +1,1 @@
-export * from "./identifiers"
+export * from "./identifiers";
