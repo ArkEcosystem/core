@@ -1,7 +1,8 @@
-import Nes from "@hapi/nes";
+import { Blocks, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { Blocks, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
+import Nes from "@hapi/nes";
 
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 import { RelayHost } from "./interfaces";
@@ -35,6 +36,9 @@ export class Client {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
+    @Container.inject(Container.Identifiers.BlockFactory)
+    private readonly blockFactory!: Blocks.BlockFactory;
+
     /**
      * @param {RelayHost[]} hosts
      * @memberof Client
@@ -42,9 +46,9 @@ export class Client {
     public register(hosts: RelayHost[]) {
         this.hosts = hosts.map((host: RelayHost) => {
             const connection = new Nes.Client(`ws://${host.hostname}:${host.port}`);
-            connection.connect().catch(e => {}); // connect promise can fail when p2p is not ready, it's fine it will retry 
+            connection.connect().catch((e) => {}); // connect promise can fail when p2p is not ready, it's fine it will retry
 
-            connection.onError = e => {
+            connection.onError = (e) => {
                 this.logger.error(e.message);
             };
 
@@ -74,7 +78,7 @@ export class Client {
      * @returns {Promise<void>}
      * @memberof Client
      */
-    public async broadcastBlock(block: Interfaces.IBlock): Promise<void> {
+    public async broadcastBlock(block: BlockInterfaces.IBlock): Promise<void> {
         this.logger.debug(
             `Broadcasting block ${block.data.height.toLocaleString()} (${block.data.id}) with ${
                 block.data.numberOfTransactions
@@ -83,7 +87,7 @@ export class Client {
 
         try {
             await this.emit("p2p.peer.postBlock", {
-                block: Blocks.Serializer.serializeWithTransactions({
+                block: this.blockFactory.serializer.serializeWithTransactions({
                     ...block.data,
                     transactions: block.transactions.map((tx) => tx.data),
                 }),
@@ -149,7 +153,11 @@ export class Client {
      */
     public async emitEvent(
         event: string,
-        body: { error: string } | { activeDelegates: string[] } | Interfaces.IBlockData | Interfaces.ITransactionData,
+        body:
+            | { error: string }
+            | { activeDelegates: string[] }
+            | BlockInterfaces.IBlockData
+            | Interfaces.ITransactionData,
     ): Promise<void> {
         // NOTE: Events need to be emitted to the localhost. If you need to trigger
         // actions on a remote host based on events you should be using webhooks
@@ -215,9 +223,9 @@ export class Client {
                 path: event,
                 headers: {},
                 method: "POST",
-                payload
+                payload,
             };
-            
+
             const response = await this.host.socket.request(options);
 
             return response.payload;

@@ -1,6 +1,7 @@
-import { Container, Contracts, Enums, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
+import { Blocks, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
+import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { Blocks, Crypto, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { Client } from "./client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
@@ -24,6 +25,15 @@ export class ForgerService {
      */
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager<BlockInterfaces.IBlockData>;
+
+    @Container.inject(Container.Identifiers.TransactionManager)
+    private readonly transactionsManager!: Transactions.TransactionsManager<
+        BlockInterfaces.IBlockData,
+        Interfaces.ITransactionData
+    >;
 
     /**
      * @private
@@ -88,7 +98,7 @@ export class ForgerService {
         try {
             await this.loadRound();
 
-            timeout = Crypto.Slots.getTimeInMsUntilNextSlot();
+            timeout = this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot();
         } catch (error) {
             this.logger.warning("Waiting for a responsive host");
         } finally {
@@ -144,7 +154,7 @@ export class ForgerService {
                     await this.client.syncWithNetwork();
                 }
 
-                return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
+                return this.checkLater(this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot());
             }
 
             const networkState: Contracts.P2P.NetworkState = await this.client.getNetworkState();
@@ -165,7 +175,7 @@ export class ForgerService {
                     .call("forgeNewBlock", { forgerService: this, delegate, round: this.round, networkState });
             }
 
-            return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
+            return this.checkLater(this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot());
         } catch (error) {
             if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
                 if (error.message.includes("blockchain isn't ready") || error.message.includes("App is not ready.")) {
@@ -204,29 +214,29 @@ export class ForgerService {
     ): Promise<void> {
         AppUtils.assert.defined<number>(networkState.nodeHeight);
 
-        Managers.configManager.setHeight(networkState.nodeHeight);
+        this.cryptoManager.HeightTracker.setHeight(networkState.nodeHeight);
 
         const transactions: Interfaces.ITransactionData[] = await this.getTransactionsForForging();
 
-        const block: Interfaces.IBlock | undefined = delegate.forge(transactions, {
+        const block: BlockInterfaces.IBlock | undefined = delegate.forge(transactions, {
             previousBlock: {
                 id: networkState.lastBlockId,
-                idHex: Managers.configManager.getMilestone().block.idFullSha256
+                idHex: this.cryptoManager.MilestoneManager.getMilestone().block.idFullSha256
                     ? networkState.lastBlockId
-                    : Blocks.Block.toBytesHex(networkState.lastBlockId),
+                    : Blocks.Serializer.toBytesHex(networkState.lastBlockId, this.cryptoManager),
                 height: networkState.nodeHeight,
             },
             timestamp: round.timestamp,
             reward: round.reward,
         });
 
-        AppUtils.assert.defined<Interfaces.IBlock>(block);
+        AppUtils.assert.defined<BlockInterfaces.IBlock>(block);
         AppUtils.assert.defined<string>(delegate.publicKey);
 
         const minimumMs = 2000;
-        const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
-        const currentSlot: number = Crypto.Slots.getSlotNumber();
-        const roundSlot: number = Crypto.Slots.getSlotNumber(round.timestamp);
+        const timeLeftInMs: number = this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot();
+        const currentSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber();
+        const roundSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(round.timestamp);
         const prettyName = `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`;
 
         if (timeLeftInMs >= minimumMs && currentSlot === roundSlot) {
@@ -263,7 +273,7 @@ export class ForgerService {
             return [];
         }
         const transactions = response.transactions.map(
-            (hex) => Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(hex, "hex")).data,
+            (hex) => this.transactionsManager.TransactionFactory.fromBytesUnsafe(Buffer.from(hex, "hex")).data,
         );
         this.logger.debug(
             `Received ${AppUtils.pluralize("transaction", transactions.length, true)} ` +

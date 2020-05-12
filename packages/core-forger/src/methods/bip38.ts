@@ -1,5 +1,6 @@
+import { Interfaces } from "@arkecosystem/core-crypto";
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Crypto, Identities, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
 import forge from "node-forge";
 import wif from "wif";
 
@@ -11,7 +12,7 @@ export class BIP38 extends Method implements Delegate {
      * @type {Interfaces.IKeyPair}
      * @memberof BIP38
      */
-    public keys: Interfaces.IKeyPair | undefined;
+    public keys: TransactionInterfaces.IKeyPair | undefined;
 
     /**
      * @type {string}
@@ -65,7 +66,7 @@ export class BIP38 extends Method implements Delegate {
 
         this.keys = this.decryptPassphrase(bip38, password);
         this.publicKey = this.keys.publicKey;
-        this.address = Identities.Address.fromPublicKey(this.keys.publicKey);
+        this.address = this.cryptoManager.Identities.Address.fromPublicKey(this.keys.publicKey);
         this.otpSecret = forge.random.getBytesSync(128);
 
         this.encryptKeysWithOtp();
@@ -77,10 +78,13 @@ export class BIP38 extends Method implements Delegate {
      * @returns {Interfaces.IBlock}
      * @memberof BIP38
      */
-    public forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): Interfaces.IBlock {
+    public forge(
+        transactions: TransactionInterfaces.ITransactionData[],
+        options: Record<string, any>,
+    ): Interfaces.IBlock {
         this.decryptKeysWithOtp();
 
-        AppUtils.assert.defined<Interfaces.IKeyPair>(this.keys);
+        AppUtils.assert.defined<TransactionInterfaces.IKeyPair>(this.keys);
 
         const block: Interfaces.IBlock = this.createBlock(this.keys, transactions, options);
 
@@ -94,9 +98,9 @@ export class BIP38 extends Method implements Delegate {
      * @memberof BIP38
      */
     private encryptKeysWithOtp(): void {
-        AppUtils.assert.defined<Interfaces.IKeyPair>(this.keys);
+        AppUtils.assert.defined<TransactionInterfaces.IKeyPair>(this.keys);
 
-        const wifKey: string = Identities.WIF.fromKeys(this.keys);
+        const wifKey: string = this.cryptoManager.Identities.Wif.fromKeys(this.keys);
 
         this.keys = undefined;
         this.otp = forge.random.getBytesSync(16);
@@ -113,7 +117,7 @@ export class BIP38 extends Method implements Delegate {
 
         const wifKey: string = this.decryptDataWithOtp(this.encryptedKeys, this.otp);
 
-        this.keys = Identities.Keys.fromWIF(wifKey);
+        this.keys = this.cryptoManager.Identities.Keys.fromWIF(wifKey);
         this.otp = undefined;
         this.encryptedKeys = undefined;
     }
@@ -125,15 +129,18 @@ export class BIP38 extends Method implements Delegate {
      * @returns {Interfaces.IKeyPair}
      * @memberof BIP38
      */
-    private decryptPassphrase(passphrase: string, password: string): Interfaces.IKeyPair {
-        const decryptedWif: Interfaces.IDecryptResult = Crypto.bip38.decrypt(passphrase, password);
+    private decryptPassphrase(passphrase: string, password: string): TransactionInterfaces.IKeyPair {
+        const decryptedWif: TransactionInterfaces.IDecryptResult = this.cryptoManager.LibraryManager.Crypto.Bip38.decrypt(
+            passphrase,
+            password,
+        );
         const wifKey: string = wif.encode(
-            Managers.configManager.get("network.wif"),
+            this.cryptoManager.NetworkConfigManager.get("network.wif"),
             decryptedWif.privateKey,
             decryptedWif.compressed,
         );
 
-        return Identities.Keys.fromWIF(wifKey);
+        return this.cryptoManager.Identities.Keys.fromWIF(wifKey);
     }
 
     /**

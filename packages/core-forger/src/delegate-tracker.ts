@@ -1,5 +1,6 @@
-import { Container, Contracts, Utils, Services } from "@arkecosystem/core-kernel";
-import { Crypto, Managers } from "@arkecosystem/crypto";
+// import { Crypto, Managers } from "@arkecosystem/crypto";
+import { CryptoManager } from "@arkecosystem/core-crypto";
+import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 
 import { Delegate } from "./interfaces";
 
@@ -11,6 +12,9 @@ import { Delegate } from "./interfaces";
 export class DelegateTracker {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
 
     /**
      * @private
@@ -62,11 +66,14 @@ export class DelegateTracker {
     public async handle(): Promise<void> {
         // Arrange...
         const { height, timestamp } = this.blockchainService.getLastBlock().data;
-        const delegatesCount = Managers.configManager.getMilestone(height).activeDelegates;
-        const blockTime: number = Managers.configManager.getMilestone(height).blocktime;
-        const round: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(height);
+        const delegatesCount = this.cryptoManager.MilestoneManager.getMilestone(height).activeDelegates;
+        const blockTime: number = this.cryptoManager.MilestoneManager.getMilestone(height).blocktime;
+        const round: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(
+            height,
+            this.cryptoManager.MilestoneManager.getMilestones(),
+        );
 
-        let activeDelegates = (await this.app
+        const activeDelegates = (await this.app
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .call("getActiveDelegates", { roundInfo: round })) as Contracts.State.Wallet[];
 
@@ -78,7 +85,9 @@ export class DelegateTracker {
         const nextForgers: string[] = [];
         for (let i = 2; i <= delegatesCount; i++) {
             const delegate: string | undefined =
-                activeDelegatesPublicKeys[(Crypto.Slots.getSlotNumber(timestamp) + i) % delegatesCount];
+                activeDelegatesPublicKeys[
+                    (this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(timestamp) + i) % delegatesCount
+                ];
 
             if (delegate) {
                 nextForgers.push(delegate);

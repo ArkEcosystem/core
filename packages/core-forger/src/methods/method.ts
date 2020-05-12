@@ -1,12 +1,20 @@
-import { Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Blocks, Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Blocks, CryptoManager, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
+import { Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Interfaces, Types } from "@arkecosystem/crypto";
 
 /**
  * @export
  * @abstract
  * @class Method
  */
+@Container.injectable()
 export abstract class Method {
+    @Container.inject(Container.Identifiers.CryptoManager)
+    protected readonly cryptoManager!: CryptoManager;
+
+    @Container.inject(Container.Identifiers.BlockFactory)
+    private readonly blockFactory!: Blocks.BlockFactory;
+
     /**
      * @protected
      * @param {Interfaces.IKeyPair} keys
@@ -19,10 +27,10 @@ export abstract class Method {
         keys: Interfaces.IKeyPair,
         transactions: Interfaces.ITransactionData[],
         options: Record<string, any>,
-    ): Interfaces.IBlock {
-        const totals: { amount: Utils.BigNumber; fee: Utils.BigNumber } = {
-            amount: Utils.BigNumber.ZERO,
-            fee: Utils.BigNumber.ZERO,
+    ): BlockInterfaces.IBlock {
+        const totals: { amount: Types.BigNumber; fee: Types.BigNumber } = {
+            amount: this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+            fee: this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
         };
 
         const payloadBuffers: Buffer[] = [];
@@ -35,7 +43,7 @@ export abstract class Method {
             payloadBuffers.push(Buffer.from(transaction.id, "hex"));
         }
 
-        return Blocks.BlockFactory.make(
+        return this.blockFactory.make(
             {
                 version: 0,
                 generatorPublicKey: keys.publicKey,
@@ -48,7 +56,9 @@ export abstract class Method {
                 totalFee: totals.fee,
                 reward: options.reward,
                 payloadLength: 32 * transactions.length,
-                payloadHash: Crypto.HashAlgorithms.sha256(payloadBuffers).toString("hex"),
+                payloadHash: this.cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(payloadBuffers).toString(
+                    "hex",
+                ),
                 transactions,
             },
             keys,

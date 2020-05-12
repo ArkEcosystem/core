@@ -1,5 +1,6 @@
-import Nes from "@hapi/nes";
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Interfaces } from "@arkecosystem/crypto";
+import Nes from "@hapi/nes";
 
 /**
  * @export
@@ -54,5 +55,5 @@ export interface Delegate {
      * @returns {Interfaces.IBlock}
      * @memberof Delegate
      */
-    forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): Interfaces.IBlock;
+    forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): BlockInterfaces.IBlock;
 }

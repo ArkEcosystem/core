@@ -1,3 +1,4 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Providers, Services } from "@arkecosystem/core-kernel";
 
 import { ForgeNewBlockAction, IsForgingAllowedAction } from "./actions";
@@ -97,16 +98,18 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     private makeDelegates(): Delegate[] {
+        const cryptoManager: CryptoManager = this.app.get(Container.Identifiers.CryptoManager);
+
         const delegates: Set<Delegate> = new Set<Delegate>();
 
         for (const secret of this.app.config("delegates.secrets")) {
-            delegates.add(DelegateFactory.fromBIP39(secret));
+            delegates.add(DelegateFactory.fromBIP39(secret, cryptoManager));
         }
 
         const { bip38, password } = this.app.config("app.flags")!;
 
         if (bip38) {
-            delegates.add(DelegateFactory.fromBIP38(bip38, password));
+            delegates.add(DelegateFactory.fromBIP38(bip38, password, cryptoManager));
         }
 
         return [...delegates];

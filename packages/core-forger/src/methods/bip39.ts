@@ -1,4 +1,5 @@
-import { Identities, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/core-crypto";
+import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
 
 import { Delegate } from "../interfaces";
 import { Method } from "./method";
@@ -13,7 +14,7 @@ export class BIP39 extends Method implements Delegate {
      * @type {Interfaces.IKeyPair}
      * @memberof BIP39
      */
-    public keys: Interfaces.IKeyPair | undefined;
+    public keys: TransactionInterfaces.IKeyPair;
 
     /**
      * @type {string}
@@ -34,9 +35,9 @@ export class BIP39 extends Method implements Delegate {
     public constructor(passphrase: string) {
         super();
 
-        this.keys = Identities.Keys.fromPassphrase(passphrase);
+        this.keys = this.cryptoManager.Identities.Keys.fromPassphrase(passphrase);
         this.publicKey = this.keys.publicKey;
-        this.address = Identities.Address.fromPublicKey(this.publicKey);
+        this.address = this.cryptoManager.Identities.Address.fromPublicKey(this.publicKey);
     }
 
     /**
@@ -45,7 +46,10 @@ export class BIP39 extends Method implements Delegate {
      * @returns {(Interfaces.IBlock | undefined)}
      * @memberof BIP39
      */
-    public forge(transactions: Interfaces.ITransactionData[], options: Record<string, any>): Interfaces.IBlock {
-        return this.createBlock(this.keys!, transactions, options);
+    public forge(
+        transactions: TransactionInterfaces.ITransactionData[],
+        options: Record<string, any>,
+    ): Interfaces.IBlock {
+        return this.createBlock(this.keys, transactions, options);
     }
 }
