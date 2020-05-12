@@ -1,28 +1,28 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces as CryptoInterfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Types } from "@arkecosystem/crypto";
 
 import { StaticFeeMismatchError } from "../errors";
 
 export abstract class MagistrateTransactionHandler extends Handlers.TransactionHandler {
     public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
+        return this.cryptoManager.MilestoneManager.getMilestone().aip11 === true;
     }
 
-    public dynamicFee({ height }: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
-        return this.getConstructor().staticFee({ height });
+    public dynamicFee({ height }: Contracts.Shared.DynamicFeeContext): Types.BigNumber {
+        return this.getConstructor().staticFee(this.cryptoManager, { height });
     }
 
     public async throwIfCannotBeApplied(
-        transaction: CryptoInterfaces.ITransaction,
+        transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
         customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        if (Utils.isException(transaction.data.id)) {
+        if (this.cryptoManager.LibraryManager.Utils.isException(transaction.data.id)) {
             return;
         }
 
-        const staticFee: Utils.BigNumber = this.getConstructor().staticFee();
+        const staticFee: Types.BigNumber = this.getConstructor().staticFee(this.cryptoManager);
         if (!transaction.data.fee.isEqualTo(staticFee)) {
             throw new StaticFeeMismatchError(staticFee.toFixed());
         }

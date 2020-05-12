@@ -1,3 +1,4 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
@@ -33,7 +34,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         return [BridgechainRegistrationTransactionHandler];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return MagistrateTransactions.BridgechainUpdateTransaction;
     }
 

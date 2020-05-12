@@ -1,3 +1,4 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
@@ -5,7 +6,7 @@ import {
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import {
     BridgechainAlreadyRegisteredError,
@@ -27,7 +28,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         return [BusinessRegistrationTransactionHandler];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return MagistrateTransactions.BridgechainRegistrationTransaction;
     }
 
@@ -63,7 +64,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         wallet: Contracts.State.Wallet,
         customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        if (Utils.isException(transaction.data.id)) {
+        if (this.cryptoManager.LibraryManager.Utils.isException(transaction.data.id)) {
             return;
         }
 

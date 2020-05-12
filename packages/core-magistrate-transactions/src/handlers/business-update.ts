@@ -1,3 +1,4 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
@@ -26,7 +27,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         return [BusinessRegistrationTransactionHandler];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return MagistrateTransactions.BusinessUpdateTransaction;
     }
 
