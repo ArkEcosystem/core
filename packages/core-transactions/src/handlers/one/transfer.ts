@@ -1,5 +1,6 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { isRecipientOnActiveNetwork } from "../../utils";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
@@ -16,7 +17,7 @@ export class TransferTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.One.TransferTransaction;
     }
 
@@ -42,8 +43,8 @@ export class TransferTransactionHandler extends TransactionHandler {
         Utils.assert.defined<string>(transaction.data.recipientId);
         const recipientId: string = transaction.data.recipientId;
 
-        if (!isRecipientOnActiveNetwork(recipientId)) {
-            const network: string = Managers.configManager.get<string>("network.pubKeyHash");
+        if (!isRecipientOnActiveNetwork(recipientId, this.cryptoManager)) {
+            const network: string = this.cryptoManager.NetworkConfigManager.get<string>("network.pubKeyHash");
             throw new Contracts.TransactionPool.PoolError(
                 `Recipient ${recipientId} is not on the same network: ${network} `,
                 "ERR_INVALID_RECIPIENT",

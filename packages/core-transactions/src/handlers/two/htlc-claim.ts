@@ -1,5 +1,6 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Types } from "@arkecosystem/crypto";
 import { strict } from "assert";
 
 import { HtlcLockExpiredError, HtlcLockTransactionNotFoundError, HtlcSecretHashMismatchError } from "../../errors";
@@ -19,7 +20,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.Two.HtlcClaimTransaction;
     }
 
@@ -32,13 +33,13 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        const milestone = Managers.configManager.getMilestone();
+        const milestone = this.cryptoManager.MilestoneManager.getMilestone();
         return milestone.aip11 === true && milestone.htlcEnabled === true;
     }
 
-    public dynamicFee(context: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
+    public dynamicFee(context: Contracts.Shared.DynamicFeeContext): Types.BigNumber {
         // override dynamicFee calculation as this is a zero-fee transaction
-        return Utils.BigNumber.ZERO;
+        return this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
     }
 
     public async throwIfCannotBeApplied(
@@ -64,7 +65,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
 
         const lock: Interfaces.IHtlcLock = lockWallet.getAttribute("htlc.locks", {})[lockId];
-        const lastBlock: Interfaces.IBlock = this.app
+        const lastBlock: BlockInterfaces.IBlock = this.app
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlock();
 
@@ -73,7 +74,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
 
         const unlockSecretBytes = Buffer.from(claimAsset.unlockSecret, "hex");
-        const unlockSecretHash: string = Crypto.HashAlgorithms.sha256(unlockSecretBytes).toString("hex");
+        const unlockSecretHash: string = this.cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(
+            unlockSecretBytes,
+        ).toString("hex");
         if (lock.secretHash !== unlockSecretHash) {
             throw new HtlcSecretHashMismatchError();
         }
@@ -123,7 +126,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const data: Interfaces.ITransactionData = transaction.data;
 
-        if (Utils.isException(data.id)) {
+        if (this.cryptoManager.LibraryManager.Utils.isException(data.id)) {
             this.app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
@@ -131,7 +134,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         this.verifyTransactionNonceApply(sender, transaction);
 
-        AppUtils.assert.defined<AppUtils.BigNumber>(data.nonce);
+        AppUtils.assert.defined<Types.BigNumber>(data.nonce);
 
         sender.nonce = data.nonce;
 
@@ -153,11 +156,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(recipientId);
 
-        const newBalance: Utils.BigNumber = recipientWallet.balance.plus(locks[lockId].amount).minus(data.fee);
+        const newBalance: Types.BigNumber = recipientWallet.balance.plus(locks[lockId].amount).minus(data.fee);
 
         recipientWallet.balance = newBalance;
-        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
-        const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
+        const lockedBalance: Types.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
+        const newLockedBalance: Types.BigNumber = lockedBalance.minus(locks[lockId].amount);
 
         strict(!newLockedBalance.isNegative());
 
@@ -201,7 +204,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         AppUtils.assert.defined<string>(lockTransaction.senderPublicKey);
 
         const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(lockTransaction.senderPublicKey);
-        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
+        const lockedBalance: Types.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
 
         const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");

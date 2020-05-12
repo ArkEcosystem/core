@@ -1,6 +1,7 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { NotEnoughDelegatesError, WalletAlreadyResignedError, WalletNotADelegateError } from "../../errors";
 import { TransactionReader } from "../../transaction-reader";
@@ -22,7 +23,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return ["delegate.resigned"];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.Two.DelegateResignationTransaction;
     }
 
@@ -36,7 +37,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         }
     }
     public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
+        return this.cryptoManager.MilestoneManager.getMilestone().aip11 === true;
     }
 
     public async throwIfCannotBeApplied(
@@ -52,7 +53,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             throw new WalletAlreadyResignedError();
         }
 
-        const requiredDelegatesCount: number = Managers.configManager.getMilestone().activeDelegates;
+        const requiredDelegatesCount: number = this.cryptoManager.MilestoneManager.getMilestone().activeDelegates;
         const currentDelegatesCount: number = this.walletRepository
             .allByUsername()
             .filter((w) => w.hasAttribute("delegate.resigned") === false).length;

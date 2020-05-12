@@ -1,3 +1,4 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 
@@ -26,7 +27,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         return ["vote"];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.One.VoteTransaction;
     }
 

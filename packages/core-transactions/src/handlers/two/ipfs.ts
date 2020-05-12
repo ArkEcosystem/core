@@ -1,6 +1,7 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions, Utils as CryptoUtils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { IpfsHashAlreadyExists } from "../../errors";
 import { TransactionReader } from "../../transaction-reader";
@@ -18,7 +19,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         return ["ipfs", "ipfs.hashes"];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.Two.IpfsTransaction;
     }
 
@@ -38,7 +39,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
+        return this.cryptoManager.MilestoneManager.getMilestone().aip11 === true;
     }
 
     public async throwIfCannotBeApplied(
@@ -46,7 +47,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         wallet: Contracts.State.Wallet,
         customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        if (CryptoUtils.isException(transaction.data.id)) {
+        if (this.cryptoManager.LibraryManager.Utils.isException(transaction.data.id)) {
             return;
         }
 

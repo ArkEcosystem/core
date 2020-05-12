@@ -1,5 +1,6 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions, Types } from "@arkecosystem/crypto";
 
 import { HtlcLockExpiredError } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
@@ -16,7 +17,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         return ["htlc.locks", "htlc.lockedBalance"];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.Two.HtlcLockTransaction;
     }
 
@@ -27,11 +28,14 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks", {});
 
-            let lockedBalance: Utils.BigNumber = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+            let lockedBalance: Types.BigNumber = wallet.getAttribute(
+                "htlc.lockedBalance",
+                this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+            );
 
             if (transaction.open) {
                 locks[transaction.id] = {
-                    amount: Utils.BigNumber.make(transaction.amount),
+                    amount: this.cryptoManager.LibraryManager.Libraries.BigNumber.make(transaction.amount),
                     recipientId: transaction.recipientId,
                     timestamp: transaction.timestamp,
                     vendorField: transaction.vendorField
@@ -57,7 +61,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        const milestone = Managers.configManager.getMilestone();
+        const milestone = this.cryptoManager.MilestoneManager.getMilestone();
         return milestone.aip11 === true && milestone.htlcEnabled === true;
     }
 
@@ -69,9 +73,9 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(transaction.data.asset?.lock);
 
         const lock: Interfaces.IHtlcLockAsset = transaction.data.asset.lock;
-        const lastBlock: Interfaces.IBlock = this.app.get<any>(Container.Identifiers.StateStore).getLastBlock();
+        const lastBlock: BlockInterfaces.IBlock = this.app.get<any>(Container.Identifiers.StateStore).getLastBlock();
 
-        let { blocktime, activeDelegates } = Managers.configManager.getMilestone();
+        let { blocktime, activeDelegates } = this.cryptoManager.MilestoneManager.getMilestone();
         const expiration: Interfaces.IHtlcExpiration = lock.expiration;
 
         // TODO: find a better way to alter minimum lock expiration
@@ -102,7 +106,10 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
 
         const walletRepository = customWalletRepository ?? this.walletRepository;
         const sender = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
-        const lockedBalance = sender.getAttribute<Utils.BigNumber>("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        const lockedBalance = sender.getAttribute<Types.BigNumber>(
+            "htlc.lockedBalance",
+            this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+        );
         sender.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.data.amount));
 
         walletRepository.index(sender);
@@ -118,7 +125,10 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
 
         const walletRepository = customWalletRepository ?? this.walletRepository;
         const sender = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
-        const lockedBalance = sender.getAttribute<Utils.BigNumber>("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        const lockedBalance = sender.getAttribute<Types.BigNumber>(
+            "htlc.lockedBalance",
+            this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+        );
         sender.setAttribute("htlc.lockedBalance", lockedBalance.minus(transaction.data.amount));
 
         walletRepository.index(sender);

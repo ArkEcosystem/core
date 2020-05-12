@@ -48,11 +48,11 @@ export class Address<T> {
     }
 
     public fromBuffer(buffer: Buffer): string {
-        return this.base58.encode(buffer);
+        return this.base58.encodeCheck(buffer);
     }
 
     public toBuffer(address: string): { addressBuffer: Buffer; addressError?: string } {
-        const buffer: Buffer = this.base58.decode(address);
+        const buffer: Buffer = this.base58.decodeCheck(address);
         const result: { addressBuffer: Buffer; addressError?: string } = {
             addressBuffer: buffer,
         };
@@ -66,7 +66,7 @@ export class Address<T> {
 
     public validate(address: string): boolean {
         try {
-            return this.base58.decode(address)[0] === this.networkVersion;
+            return this.base58.decodeCheck(address)[0] === this.networkVersion;
         } catch (err) {
             return false;
         }

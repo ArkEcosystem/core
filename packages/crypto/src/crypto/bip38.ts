@@ -28,17 +28,17 @@ export class Bip38 {
     public constructor(private libraries: Libraries, private hashAlgorithms: HashAlgorithms, private base58: Base58) {}
 
     public encrypt(privateKey: Buffer, compressed: boolean, passphrase: string): string {
-        return this.base58.encode(this.encryptRaw(privateKey, compressed, passphrase));
+        return this.base58.encodeCheck(this.encryptRaw(privateKey, compressed, passphrase));
     }
 
     public decrypt(bip38: string, passphrase): IDecryptResult {
-        return this.decryptRaw(this.base58.decode(bip38), passphrase);
+        return this.decryptRaw(this.base58.decodeCheck(bip38), passphrase);
     }
 
     public verify(bip38: string): boolean {
         let decoded: Buffer;
         try {
-            decoded = this.base58.decode(bip38);
+            decoded = this.base58.decodeCheck(bip38);
         } catch {
             return false;
         }
@@ -90,7 +90,7 @@ export class Bip38 {
         payload.writeUInt8(0x00, 0);
         buffer.copy(payload, 1);
 
-        return this.base58.encode(payload);
+        return this.base58.encodeCheck(payload);
     }
 
     private encryptRaw(buffer: Buffer, compressed: boolean, passphrase: string): Buffer {

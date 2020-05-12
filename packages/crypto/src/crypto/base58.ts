@@ -4,8 +4,8 @@ import { Libraries } from "../interfaces/libraries";
 import { HashAlgorithms } from "./hash-algorithms";
 
 export class Base58 {
-    public encode = moize(this.encoder.bind(this));
-    public decode = moize(this.decoder.bind(this));
+    public encodeCheck = moize(this.encoder.bind(this));
+    public decodeCheck = moize(this.decoder.bind(this));
 
     public constructor(private libraries: Libraries, private hashAlgorithms: HashAlgorithms) {}
 

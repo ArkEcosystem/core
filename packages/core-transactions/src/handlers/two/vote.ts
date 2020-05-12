@@ -1,3 +1,4 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container } from "@arkecosystem/core-kernel";
 import { Transactions } from "@arkecosystem/crypto";
@@ -14,7 +15,7 @@ export class VoteTransactionHandler extends One.VoteTransactionHandler {
         return [DelegateRegistrationTransactionHandler];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.Two.VoteTransaction;
     }
 

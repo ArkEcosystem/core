@@ -1,5 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
-import { Transactions, Utils } from "@arkecosystem/crypto";
+import { Transactions, Types } from "@arkecosystem/crypto";
 
 export class TransactionError extends Error {
     public constructor(message: string) {
@@ -44,7 +44,7 @@ export class AlreadyRegisteredError extends TransactionError {
 }
 
 export class UnexpectedNonceError extends TransactionError {
-    public constructor(txNonce: Utils.BigNumber, sender: Contracts.State.Wallet, reversal: boolean) {
+    public constructor(txNonce: Types.BigNumber, sender: Contracts.State.Wallet, reversal: boolean) {
         const action: string = reversal ? "revert" : "apply";
         super(
             `Cannot ${action} a transaction with nonce ${txNonce.toFixed()}: the ` +

@@ -1,13 +1,14 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Transactions, Utils } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 
 import { TransactionReader } from "../../transaction-reader";
 import { One } from "../index";
 
 @Container.injectable()
 export class DelegateRegistrationTransactionHandler extends One.DelegateRegistrationTransactionHandler {
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.Two.DelegateRegistrationTransaction;
     }
 
@@ -20,9 +21,9 @@ export class DelegateRegistrationTransactionHandler extends One.DelegateRegistra
 
             wallet.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
                 username: transaction.asset.delegate!.username,
-                voteBalance: Utils.BigNumber.ZERO,
-                forgedFees: Utils.BigNumber.ZERO,
-                forgedRewards: Utils.BigNumber.ZERO,
+                voteBalance: this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+                forgedFees: this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+                forgedRewards: this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
                 producedBlocks: 0,
                 rank: undefined,
             });

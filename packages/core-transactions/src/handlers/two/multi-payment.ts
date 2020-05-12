@@ -1,6 +1,7 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { InsufficientBalanceError } from "../../errors";
 import { TransactionReader } from "../../transaction-reader";
@@ -16,7 +17,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.Two.MultiPaymentTransaction;
     }
 
@@ -34,7 +35,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
+        return this.cryptoManager.MilestoneManager.getMilestone().aip11 === true;
     }
 
     public async throwIfCannotBeApplied(
@@ -45,7 +46,10 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.data.asset?.payments);
 
         const payments: Interfaces.IMultiPaymentItem[] = transaction.data.asset.payments;
-        const totalPaymentsAmount = payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
+        const totalPaymentsAmount = payments.reduce(
+            (a, p) => a.plus(p.amount),
+            this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+        );
 
         if (wallet.balance.minus(totalPaymentsAmount).minus(transaction.data.fee).isNegative()) {
             throw new InsufficientBalanceError();
@@ -66,7 +70,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
         const totalPaymentsAmount = transaction.data.asset.payments.reduce(
             (a, p) => a.plus(p.amount),
-            Utils.BigNumber.ZERO,
+            this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
         );
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
@@ -88,7 +92,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
         const totalPaymentsAmount = transaction.data.asset.payments.reduce(
             (a, p) => a.plus(p.amount),
-            Utils.BigNumber.ZERO,
+            this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
         );
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);

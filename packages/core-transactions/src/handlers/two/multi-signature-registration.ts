@@ -1,6 +1,7 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Identities, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import {
     InvalidMultiSignatureError,
@@ -24,7 +25,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         return ["multiSignature"];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.Two.MultiSignatureRegistrationTransaction;
     }
 
@@ -34,7 +35,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         for (const transaction of transactions) {
             const multiSignature: Contracts.State.WalletMultiSignatureAttributes = transaction.asset.multiSignature!;
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
-                Identities.PublicKey.fromMultiSignatureAsset(multiSignature),
+                this.cryptoManager.Identities.PublicKey.fromMultiSignatureAsset(multiSignature),
             );
 
             if (wallet.hasMultiSignature()) {
@@ -47,7 +48,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     }
 
     public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
+        return this.cryptoManager.MilestoneManager.getMilestone().aip11 === true;
     }
 
     public async throwIfCannotBeApplied(
@@ -74,7 +75,9 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset.multiSignature);
 
-        const multiSigPublicKey: string = Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature);
+        const multiSigPublicKey: string = this.cryptoManager.Identities.PublicKey.fromMultiSignatureAsset(
+            data.asset.multiSignature,
+        );
         const recipientWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(multiSigPublicKey);
 
         if (recipientWallet.hasMultiSignature()) {
@@ -116,7 +119,9 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
 
         walletRepository
-            .findByPublicKey(Identities.PublicKey.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
+            .findByPublicKey(
+                this.cryptoManager.Identities.PublicKey.fromMultiSignatureAsset(transaction.data.asset.multiSignature),
+            )
             .setAttribute("multiSignature", transaction.data.asset.multiSignature);
     }
 
@@ -140,7 +145,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset?.multiSignature);
 
         const recipientWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature),
+            this.cryptoManager.Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature),
         );
 
         recipientWallet.setAttribute("multiSignature", data.asset.multiSignature);
@@ -157,7 +162,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset?.multiSignature);
 
         const recipientWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature),
+            this.cryptoManager.Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature),
         );
 
         recipientWallet.forgetAttribute("multiSignature");

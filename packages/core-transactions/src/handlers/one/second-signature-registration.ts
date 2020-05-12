@@ -1,3 +1,4 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 
@@ -19,7 +20,7 @@ export class SecondSignatureRegistrationTransactionHandler extends TransactionHa
         return ["secondPublicKey"];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.One.SecondSignatureRegistrationTransaction;
     }
 

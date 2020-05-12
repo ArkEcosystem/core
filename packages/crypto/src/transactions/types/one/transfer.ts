@@ -1,6 +1,6 @@
-import { CryptoManager } from "@packages/crypto/src";
 import ByteBuffer from "bytebuffer";
 
+import { CryptoManager } from "../../../crypto-manager";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions, ITransactionData, SchemaError } from "../../../interfaces";
 import { Verifier } from "../../verifier";

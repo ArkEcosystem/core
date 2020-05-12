@@ -1,3 +1,4 @@
+import { TransactionsManager } from "@arkecosystem/core-crypto";
 import { Container, Services, Utils } from "@arkecosystem/core-kernel";
 import { Enums, Transactions } from "@arkecosystem/crypto";
 
@@ -6,6 +7,9 @@ import { TransactionHandler, TransactionHandlerConstructor } from "./transaction
 
 @Container.injectable()
 export class TransactionHandlerProvider {
+    @Container.inject(Container.Identifiers.TransactionManager)
+    private readonly transactionsManager!: TransactionsManager;
+
     @Container.inject(Container.Identifiers.WalletAttributes)
     private readonly attributeSet!: Services.Attributes.AttributeSet;
 
@@ -52,7 +56,7 @@ export class TransactionHandlerProvider {
         }
 
         if (transactionConstructor.typeGroup !== Enums.TransactionTypeGroup.Core) {
-            Transactions.TransactionRegistry.registerTransactionType(transactionConstructor);
+            this.transactionsManager.TransactionRegistry.registerTransactionType(transactionConstructor);
         }
     }
 

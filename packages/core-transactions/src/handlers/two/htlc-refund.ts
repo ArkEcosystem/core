@@ -1,5 +1,6 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Types } from "@arkecosystem/crypto";
 import assert from "assert";
 
 import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "../../errors";
@@ -19,7 +20,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.Two.HtlcRefundTransaction;
     }
 
@@ -36,13 +37,13 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        const milestone = Managers.configManager.getMilestone();
+        const milestone = this.cryptoManager.MilestoneManager.getMilestone();
         return milestone.aip11 === true && milestone.htlcEnabled === true;
     }
 
-    public dynamicFee(context: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
+    public dynamicFee(context: Contracts.Shared.DynamicFeeContext): Types.BigNumber {
         // override dynamicFee calculation as this is a zero-fee transaction
-        return Utils.BigNumber.ZERO;
+        return this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
     }
 
     public async throwIfCannotBeApplied(
@@ -69,7 +70,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
 
         const lock: Interfaces.IHtlcLock = lockWallet.getAttribute("htlc.locks", {})[lockId];
-        const lastBlock: Interfaces.IBlock = this.app
+        const lastBlock: BlockInterfaces.IBlock = this.app
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlock();
 
@@ -122,7 +123,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         const data: Interfaces.ITransactionData = transaction.data;
 
-        if (Utils.isException(data.id)) {
+        if (this.cryptoManager.LibraryManager.Utils.isException(data.id)) {
             this.app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
@@ -145,13 +146,16 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         assert(lockWallet && lockWallet.getAttribute("htlc.locks", {})[lockId]);
 
         const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks", {});
-        const newBalance: Utils.BigNumber = lockWallet.balance.plus(locks[lockId].amount).minus(data.fee);
+        const newBalance: Types.BigNumber = lockWallet.balance.plus(locks[lockId].amount).minus(data.fee);
         assert(!newBalance.isNegative());
 
         lockWallet.balance = newBalance;
-        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        const lockedBalance: Types.BigNumber = lockWallet.getAttribute(
+            "htlc.lockedBalance",
+            this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+        );
 
-        const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
+        const newLockedBalance: Types.BigNumber = lockedBalance.minus(locks[lockId].amount);
 
         assert(!newLockedBalance.isNegative());
         lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
@@ -187,7 +191,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         lockWallet.balance = lockWallet.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
 
-        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
+        const lockedBalance: Types.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
 
         const locks: Interfaces.IHtlcLocks | undefined = lockWallet.getAttribute("htlc.locks");

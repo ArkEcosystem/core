@@ -1,5 +1,6 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import {
     NotSupportedForMultiSignatureWalletError,
@@ -35,7 +36,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         ];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.One.DelegateRegistrationTransaction;
     }
 
@@ -130,9 +131,9 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
         sender.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
             username: transaction.data.asset.delegate.username,
-            voteBalance: Utils.BigNumber.ZERO,
-            forgedFees: Utils.BigNumber.ZERO,
-            forgedRewards: Utils.BigNumber.ZERO,
+            voteBalance: this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+            forgedFees: this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+            forgedRewards: this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
             producedBlocks: 0,
             round: 0,
         });

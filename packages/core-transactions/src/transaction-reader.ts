@@ -1,3 +1,4 @@
+import { Interfaces } from "@arkecosystem/core-crypto";
 import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Utils } from "@arkecosystem/core-kernel";
 import { Transactions } from "@arkecosystem/crypto";
@@ -15,7 +16,7 @@ export class TransactionReader {
     private typeGroup!: number;
     private index: number = 0;
 
-    public initialize(typeConstructor: Transactions.TransactionConstructor): TransactionReader {
+    public initialize(typeConstructor: Transactions.TransactionConstructor<Interfaces.IBlockData>): TransactionReader {
         Utils.assert.defined<number>(typeConstructor.type);
         Utils.assert.defined<number>(typeConstructor.typeGroup);
 

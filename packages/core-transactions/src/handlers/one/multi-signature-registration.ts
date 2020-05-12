@@ -1,6 +1,7 @@
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { LegacyMultiSignatureError, MultiSignatureAlreadyRegisteredError } from "../../errors";
 import { TransactionReader } from "../../transaction-reader";
@@ -18,7 +19,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         return ["multiSignature"];
     }
 
-    public getConstructor(): Transactions.TransactionConstructor {
+    public getConstructor(): Transactions.TransactionConstructor<BlockInterfaces.IBlockData> {
         return Transactions.One.MultiSignatureRegistrationTransaction;
     }
 
@@ -51,7 +52,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
-        if (Utils.isException(data.id)) {
+        if (this.cryptoManager.LibraryManager.Utils.isException(data.id)) {
             return;
         }
 
