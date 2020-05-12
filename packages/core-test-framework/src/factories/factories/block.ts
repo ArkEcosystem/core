@@ -37,7 +37,7 @@ export const registerBlockFactory = (factory: FactoryBuilder): void => {
             }
         }
 
-        return DelegateFactory.fromBIP39(options.passphrase || secrets[0]).forge(transactions, {
+        return DelegateFactory.fromBIP39(options.passphrase || secrets[0], factory.cryptoManager).forge(transactions, {
             previousBlock,
             timestamp:
                 factory.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(
