@@ -1,6 +1,6 @@
+import { Interfaces } from "@arkecosystem/core-crypto";
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 
 import { Action } from "../contracts";
 

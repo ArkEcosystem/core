@@ -1,1 +1,1 @@
-export { ProcessBlockAction } from "./process-block"
+export { ProcessBlockAction } from "./process-block";

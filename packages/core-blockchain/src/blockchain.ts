@@ -1,6 +1,7 @@
+import { Blocks, CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
 import { DatabaseService, Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Enums, Utils, Services } from "@arkecosystem/core-kernel";
-import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
+import { Container, Contracts, Enums, Services, Utils } from "@arkecosystem/core-kernel";
+import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
 import async from "async";
 
 import { BlockProcessor, BlockProcessorResult } from "./processor";
@@ -22,6 +23,12 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     // todo: make this private
     // @ts-ignore
     protected blockProcessor: BlockProcessor;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
+    @Container.inject(Container.Identifiers.BlockFactory)
+    private readonly blockFactory!: Blocks.BlockFactory;
 
     @Container.inject(Container.Identifiers.StateStore)
     private readonly state!: Contracts.State.StateStore;
@@ -185,8 +192,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     public handleIncomingBlock(block: Interfaces.IBlockData, fromForger = false): void {
         this.pushPingBlock(block, fromForger);
 
-        const currentSlot: number = Crypto.Slots.getSlotNumber();
-        const receivedSlot: number = Crypto.Slots.getSlotNumber(block.timestamp);
+        const currentSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber();
+        const receivedSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(block.timestamp);
 
         if (receivedSlot > currentSlot) {
             this.app.log.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
@@ -214,8 +221,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         }
 
         const lastDownloadedHeight: number = this.getLastDownloadedBlock().height;
-        const milestoneHeights: number[] = Managers.configManager
-            .getMilestones()
+        const milestoneHeights: number[] = this.cryptoManager.MilestoneManager.getMilestones()
             .map((milestone) => milestone.height)
             .sort((a, b) => a - b)
             .filter((height) => height >= lastDownloadedHeight);
@@ -263,7 +269,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         );
 
         const removedBlocks: Interfaces.IBlockData[] = [];
-        const removedTransactions: Interfaces.ITransaction[] = [];
+        const removedTransactions: TransactionInterfaces.ITransaction[] = [];
 
         const revertLastBlock = async () => {
             const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
@@ -280,7 +286,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
                 Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlockData);
 
-                const tempNewLastBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(
+                const tempNewLastBlock: Interfaces.IBlock | undefined = this.blockFactory.fromData(
                     tempNewLastBlockData,
                     {
                         deserializeTransactionsUnchecked: true,
@@ -363,10 +369,12 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         if (
             blocks[0] &&
-            !Utils.isBlockChained(this.getLastBlock().data, blocks[0]) &&
-            !CryptoUtils.isException(blocks[0].id)
+            !Utils.isBlockChained(this.getLastBlock().data, blocks[0], this.cryptoManager) &&
+            !this.cryptoManager.LibraryManager.Utils.isException(blocks[0].id)
         ) {
-            this.app.log.warning(Utils.getBlockNotChainedErrorMessage(this.getLastBlock().data, blocks[0]));
+            this.app.log.warning(
+                Utils.getBlockNotChainedErrorMessage(this.getLastBlock().data, blocks[0], this.cryptoManager),
+            );
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
             this.resetLastDownloadedBlock();
@@ -376,7 +384,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         let forkBlock: Interfaces.IBlock | undefined = undefined;
         let lastProcessedBlock: Interfaces.IBlock | undefined = undefined;
         for (const block of blocks) {
-            const blockInstance = Blocks.BlockFactory.fromData(block);
+            const blockInstance = this.blockFactory.fromData(block);
             Utils.assert.defined<Interfaces.IBlock>(blockInstance);
 
             lastProcessResult = await this.app
@@ -408,7 +416,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
                 const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
                 const lastHeight: number = lastBlock.data.height;
-                const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
+                const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(
+                    lastHeight,
+                    this.cryptoManager.MilestoneManager.getMilestones(),
+                ).round;
 
                 this.app.log.info(
                     `Reverting ${Utils.pluralize(
@@ -438,9 +449,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             lastProcessedBlock
         ) {
             // broadcast last processed block
-            const blocktime: number = Managers.configManager.getMilestone(lastProcessedBlock.data.height).blocktime;
+            const blocktime: number = this.cryptoManager.MilestoneManager.getMilestone(lastProcessedBlock.data.height)
+                .blocktime;
 
-            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= lastProcessedBlock.data.timestamp) {
+            if (
+                this.state.started &&
+                this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber() * blocktime <=
+                    lastProcessedBlock.data.timestamp
+            ) {
                 this.app
                     .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                     .broadcastBlock(lastProcessedBlock);
@@ -495,7 +511,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         block = block || this.getLastBlock().data;
 
         return (
-            Crypto.Slots.getTime() - block.timestamp < 3 * Managers.configManager.getMilestone(block.height).blocktime
+            this.cryptoManager.LibraryManager.Crypto.Slots.getTime() - block.timestamp <
+            3 * this.cryptoManager.MilestoneManager.getMilestone(block.height).blocktime
         );
     }
 
@@ -552,7 +569,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     public async checkMissingBlocks(): Promise<void> {
         this.missedBlocks++;
         if (
-            this.missedBlocks >= Managers.configManager.getMilestone().activeDelegates / 3 - 1 &&
+            this.missedBlocks >= this.cryptoManager.MilestoneManager.getMilestone().activeDelegates / 3 - 1 &&
             Math.random() <= 0.8
         ) {
             const networkStatus = await this.app

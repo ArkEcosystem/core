@@ -1,5 +1,5 @@
-import { Container, Contracts, Utils, Services } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
+import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
+import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "../contracts";
@@ -54,6 +54,9 @@ class BlockNotReadyCounter {
 export class UnchainedHandler implements BlockHandler {
     public static notReadyCounter = new BlockNotReadyCounter();
 
+    @Container.inject(Container.Identifiers.CryptoManager)
+    protected readonly cryptoManager!: CryptoManager;
+
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;
 
@@ -81,7 +84,10 @@ export class UnchainedHandler implements BlockHandler {
 
         switch (status) {
             case UnchainedBlockStatus.DoubleForging: {
-                const roundInfo: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(block.data.height);
+                const roundInfo: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(
+                    block.data.height,
+                    this.cryptoManager.MilestoneManager.getMilestones(),
+                );
 
                 const delegates: Contracts.State.Wallet[] = (await this.app
                     .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)

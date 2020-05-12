@@ -1,7 +1,8 @@
+import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
 import { Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Types } from "@arkecosystem/crypto";
 
 import {
     AcceptBlockHandler,
@@ -26,6 +27,9 @@ export class BlockProcessor {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -36,7 +40,7 @@ export class BlockProcessor {
     private readonly transactionRepository!: Repositories.TransactionRepository;
 
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
-        if (Utils.isException(block.data.id)) {
+        if (this.cryptoManager.LibraryManager.Utils.isException(block.data.id)) {
             return this.app.resolve<ExceptionHandler>(ExceptionHandler).execute(block);
         }
 
@@ -53,7 +57,11 @@ export class BlockProcessor {
         }
 
         const isValidGenerator: boolean = await this.validateGenerator(block);
-        const isChained: boolean = AppUtils.isBlockChained(this.blockchain.getLastBlock().data, block.data);
+        const isChained: boolean = AppUtils.isBlockChained(
+            this.blockchain.getLastBlock().data,
+            block.data,
+            this.cryptoManager,
+        );
         if (!isChained) {
             return this.app.resolve<UnchainedHandler>(UnchainedHandler).initialize(isValidGenerator).execute(block);
         }
@@ -168,7 +176,7 @@ export class BlockProcessor {
 
             AppUtils.assert.defined<string>(data.nonce);
 
-            const nonce: AppUtils.BigNumber = data.nonce;
+            const nonce: Types.BigNumber = data.nonce;
 
             if (!nonceBySender[sender].plus(1).isEqualTo(nonce)) {
                 this.logger.warning(
@@ -187,13 +195,16 @@ export class BlockProcessor {
     }
 
     private async validateGenerator(block: Interfaces.IBlock): Promise<boolean> {
-        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(
+            block.data.height,
+            this.cryptoManager.MilestoneManager.getMilestones(),
+        );
 
         const delegates: Contracts.State.Wallet[] = (await this.app
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
 
-        const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
+        const slot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(block.data.timestamp);
         const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
 
         const walletRepository = this.app.getTagged<Contracts.State.WalletRepository>(

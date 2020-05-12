@@ -1,6 +1,6 @@
+import { Interfaces } from "@arkecosystem/core-crypto";
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "../contracts";

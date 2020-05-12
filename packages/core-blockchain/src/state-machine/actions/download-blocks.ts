@@ -1,5 +1,5 @@
+import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import { Action } from "../contracts";
 
@@ -7,6 +7,9 @@ import { Action } from "../contracts";
 export class DownloadBlocks implements Action {
     @Container.inject(Container.Identifiers.Application)
     public readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoManager;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
@@ -36,7 +39,9 @@ export class DownloadBlocks implements Action {
 
         const empty: boolean = !blocks || blocks.length === 0;
         const chained: boolean =
-            !empty && (AppUtils.isBlockChained(lastDownloadedBlock, blocks[0]) || Utils.isException(blocks[0].id));
+            !empty &&
+            (AppUtils.isBlockChained(lastDownloadedBlock, blocks[0], this.cryptoManager) ||
+                this.cryptoManager.LibraryManager.Utils.isException(blocks[0].id));
 
         if (chained) {
             this.logger.info(
