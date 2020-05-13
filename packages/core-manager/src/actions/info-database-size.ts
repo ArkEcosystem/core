@@ -1,4 +1,4 @@
-import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Container } from "@arkecosystem/core-kernel";
 import { Connection, ConnectionOptions, createConnection } from "typeorm";
 
 import { Actions } from "../contracts";
@@ -7,19 +7,18 @@ import { Actions } from "../contracts";
 export class Action implements Actions.Action {
     public name = "info.databaseSize";
 
-    @Container.inject(Container.Identifiers.PluginConfiguration)
-    @Container.tagged("plugin", "@arkecosystem/core-manager")
-    private readonly configuration!: Providers.PluginConfiguration;
-
     public async execute(): Promise<any> {
         return {
             size: await this.getDatabaseSize(),
         };
     }
 
+    private getDatabaseDefaults() {
+        return require("@arkecosystem/core-database/dist/defaults").defaults;
+    }
+
     private getDatabaseName(): string {
-        // @ts-ignore
-        return this.configuration.get("connection").database;
+        return this.getDatabaseDefaults().connection.database;
     }
 
     private async getDatabaseSize(): Promise<string> {
@@ -36,6 +35,6 @@ export class Action implements Actions.Action {
     }
 
     private async connect(): Promise<Connection> {
-        return createConnection(this.configuration.get("connection") as ConnectionOptions);
+        return createConnection(this.getDatabaseDefaults().connection as ConnectionOptions);
     }
 }
