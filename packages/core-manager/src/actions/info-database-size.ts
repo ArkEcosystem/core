@@ -21,14 +21,15 @@ export class Action implements Actions.Action {
         return this.getDatabaseDefaults().connection.database;
     }
 
-    private async getDatabaseSize(): Promise<string> {
+    private async getDatabaseSize(): Promise<number> {
         const connection = await this.connect();
 
         try {
             const result = await connection.query(
-                `SELECT pg_size_pretty( pg_database_size('${this.getDatabaseName()}'));`,
+                `SELECT pg_database_size('${this.getDatabaseName()}');`,
             );
-            return result[0].pg_size_pretty;
+
+            return Math.round(result[0].pg_database_size / 1024);
         } finally {
             await connection.close();
         }

@@ -12,7 +12,7 @@ jest.spyOn(typeorm, "createConnection").mockImplementation(async () => {
     return {
         query: jest.fn().mockResolvedValue([
             {
-                pg_size_pretty: "100 MB",
+                pg_database_size: 1024,
             },
         ]),
         close: jest.fn(),
@@ -33,6 +33,6 @@ describe("Info:DatabaseSize", () => {
     it("should return database size", async () => {
         const result = await action.execute();
 
-        await expect(result.size).toBe("100 MB");
+        await expect(result.size).toBe(1);
     });
 });
