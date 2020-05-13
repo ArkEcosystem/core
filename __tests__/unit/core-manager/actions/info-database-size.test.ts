@@ -1,8 +1,6 @@
 import "jest-extended";
 
-import { Container } from "@packages/core-kernel";
 import { Action } from "@packages/core-manager/src/actions/info-database-size";
-import { defaults } from "@packages/core-manager/src/defaults";
 import { Sandbox } from "@packages/core-test-framework";
 import * as typeorm from "typeorm";
 
@@ -23,10 +21,6 @@ jest.spyOn(typeorm, "createConnection").mockImplementation(async () => {
 
 beforeEach(() => {
     sandbox = new Sandbox();
-
-    sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
-        get: jest.fn().mockReturnValue({ ...defaults.connection }),
-    });
 
     action = sandbox.app.resolve(Action);
 });
