@@ -20,8 +20,8 @@ export class Processor implements Contracts.TransactionPool.Processor {
     @Container.inject(Container.Identifiers.TransactionPoolDynamicFeeMatcher)
     private readonly dynamicFeeMatcher!: Contracts.TransactionPool.DynamicFeeMatcher;
 
-    @Container.inject(Container.Identifiers.TransactionPoolFactoryPool)
-    private readonly factoryPool!: Contracts.TransactionPool.FactoryPool;
+    @Container.inject(Container.Identifiers.TransactionPoolWorkerPool)
+    private readonly workerPool!: Contracts.TransactionPool.WorkerPool;
 
     @Container.inject(Container.Identifiers.PeerTransactionBroadcaster)
     @Container.optional()
@@ -81,8 +81,8 @@ export class Processor implements Contracts.TransactionPool.Processor {
     private async getTransactionFromData(
         transactionData: Interfaces.ITransactionData,
     ): Promise<Interfaces.ITransaction> {
-        if (this.factoryPool.isTypeGroupSupported(transactionData.typeGroup!)) {
-            return this.factoryPool.getTransactionFromData(transactionData);
+        if (this.workerPool.isTypeGroupSupported(transactionData.typeGroup!)) {
+            return this.workerPool.getTransactionFromData(transactionData);
         } else {
             return Transactions.TransactionFactory.fromData(transactionData);
         }

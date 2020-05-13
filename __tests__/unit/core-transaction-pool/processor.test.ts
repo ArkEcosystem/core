@@ -23,14 +23,14 @@ const logger = { warning: jest.fn(), error: jest.fn() };
 const pool = { addTransaction: jest.fn() };
 const dynamicFeeMatcher = { canEnterPool: jest.fn(), canBroadcast: jest.fn() };
 const transactionBroadcaster = { broadcastTransactions: jest.fn() };
-const factoryPool = { isTypeGroupSupported: jest.fn(), getTransactionFromData: jest.fn() };
+const workerPool = { isTypeGroupSupported: jest.fn(), getTransactionFromData: jest.fn() };
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(pool);
 container.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).toConstantValue(dynamicFeeMatcher);
 container.bind(Container.Identifiers.PeerTransactionBroadcaster).toConstantValue(transactionBroadcaster);
-container.bind(Container.Identifiers.TransactionPoolFactoryPool).toConstantValue(factoryPool);
+container.bind(Container.Identifiers.TransactionPoolWorkerPool).toConstantValue(workerPool);
 
 beforeEach(() => {
     logger.warning.mockReset();
@@ -38,14 +38,14 @@ beforeEach(() => {
     dynamicFeeMatcher.canEnterPool.mockReset();
     dynamicFeeMatcher.canBroadcast.mockReset();
     transactionBroadcaster.broadcastTransactions.mockReset();
-    factoryPool.isTypeGroupSupported.mockReset();
-    factoryPool.getTransactionFromData.mockReset();
+    workerPool.isTypeGroupSupported.mockReset();
+    workerPool.getTransactionFromData.mockReset();
 });
 
 describe("Processor.process", () => {
     it("should parse transactions through factory pool", async () => {
-        factoryPool.isTypeGroupSupported.mockReturnValue(true);
-        factoryPool.getTransactionFromData.mockResolvedValueOnce(transaction1).mockResolvedValueOnce(transaction2);
+        workerPool.isTypeGroupSupported.mockReturnValue(true);
+        workerPool.getTransactionFromData.mockResolvedValueOnce(transaction1).mockResolvedValueOnce(transaction2);
         dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true).mockReturnValueOnce(true);
         dynamicFeeMatcher.canBroadcast.mockReturnValueOnce(false).mockReturnValueOnce(false);
 
@@ -65,7 +65,7 @@ describe("Processor.process", () => {
     });
 
     it("should add eligible transactions to pool", async () => {
-        factoryPool.isTypeGroupSupported.mockReturnValue(false);
+        workerPool.isTypeGroupSupported.mockReturnValue(false);
         dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true).mockReturnValueOnce(false);
 
         const processor = container.resolve(Processor);
@@ -85,7 +85,7 @@ describe("Processor.process", () => {
     });
 
     it("should add broadcast eligible transaction", async () => {
-        factoryPool.isTypeGroupSupported.mockReturnValue(false);
+        workerPool.isTypeGroupSupported.mockReturnValue(false);
         dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true).mockReturnValueOnce(true);
         dynamicFeeMatcher.canBroadcast.mockReturnValueOnce(true).mockReturnValueOnce(false);
 
@@ -105,7 +105,7 @@ describe("Processor.process", () => {
     });
 
     it("should rethrow unexpected error", async () => {
-        factoryPool.isTypeGroupSupported.mockReturnValue(false);
+        workerPool.isTypeGroupSupported.mockReturnValue(false);
         dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true);
         pool.addTransaction.mockRejectedValueOnce(new Error("Unexpected error"));
 
@@ -129,7 +129,7 @@ describe("Processor.process", () => {
     it("should track excess transactions", async () => {
         const exceedsError = new Contracts.TransactionPool.PoolError("Exceeds", "ERR_EXCEEDS_MAX_COUNT", transaction1);
 
-        factoryPool.isTypeGroupSupported.mockReturnValue(false);
+        workerPool.isTypeGroupSupported.mockReturnValue(false);
         dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true);
         pool.addTransaction.mockRejectedValueOnce(exceedsError);
 

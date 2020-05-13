@@ -1,4 +1,5 @@
-import { Container, Providers, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { fork } from "child_process";
 
 import {
     ApplyTransactionAction,
@@ -9,8 +10,6 @@ import {
 import { Collator } from "./collator";
 import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
 import { ExpirationService } from "./expiration-service";
-import { FactoryPool } from "./factory-pool";
-import { FactoryWorker } from "./factory-worker";
 import { Mempool } from "./mempool";
 import { Processor } from "./processor";
 import { Query } from "./query";
@@ -18,6 +17,8 @@ import { SenderMempool } from "./sender-mempool";
 import { SenderState } from "./sender-state";
 import { Service } from "./service";
 import { Storage } from "./storage";
+import { Worker } from "./worker";
+import { WorkerPool } from "./worker-pool";
 
 /**
  * @export
@@ -77,11 +78,17 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionPoolService).to(Service).inSingletonScope();
         this.app.bind(Container.Identifiers.TransactionPoolStorage).to(Storage).inSingletonScope();
 
-        this.app.bind(Container.Identifiers.TransactionPoolFactoryPool).to(FactoryPool).inSingletonScope();
-        this.app.bind(Container.Identifiers.TransactionPoolFactoryWorker).to(FactoryWorker);
+        this.app.bind(Container.Identifiers.TransactionPoolWorkerPool).to(WorkerPool).inSingletonScope();
+        this.app.bind(Container.Identifiers.TransactionPoolWorker).to(Worker);
         this.app
-            .bind(Container.Identifiers.TransactionPoolFactoryWorkerFactory)
-            .toAutoFactory(Container.Identifiers.TransactionPoolFactoryWorker);
+            .bind(Container.Identifiers.TransactionPoolWorkerFactory)
+            .toAutoFactory(Container.Identifiers.TransactionPoolWorker);
+        this.app.bind(Container.Identifiers.TransactionPoolWorkerIpcSubprocessFactory).toFactory(() => {
+            return () => {
+                const subprocess = fork(`${__dirname}/worker-scripts.js`);
+                return new AppUtils.IpcSubprocess<Contracts.TransactionPool.WorkerScriptHandler>(subprocess);
+            };
+        });
     }
 
     private registerActions(): void {
