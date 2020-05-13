@@ -107,7 +107,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     }
 
     public async pingPorts(peer: Contracts.P2P.Peer): Promise<void> {
-        Promise.all(
+        await Promise.all(
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
                 try {
                     let valid: boolean = false;
@@ -147,7 +147,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         );
     }
 
-    public validatePeerConfig(peer: Contracts.P2P.Peer, config: Contracts.P2P.PeerConfig): boolean {
+    private validatePeerConfig(peer: Contracts.P2P.Peer, config: Contracts.P2P.PeerConfig): boolean {
         if (config.network.nethash !== Managers.configManager.get("network.nethash")) {
             return false;
         }
@@ -161,7 +161,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         return true;
     }
 
-    public async getPeers(peer: Contracts.P2P.Peer): Promise<any> {
+    public async getPeers(peer: Contracts.P2P.Peer): Promise<Contracts.P2P.PeerBroadcast[]> {
         this.logger.debug(`Fetching a fresh peer list from ${peer.url}`);
 
         const getPeersTimeout = 5000;
@@ -277,7 +277,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             this.parseHeaders(peer, response.payload);
 
             if (!this.validateReply(peer, response.payload, event)) {
-                throw new Error(`Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.data)}`);
+                throw new Error(`Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.payload)}`);
             }
         } catch (e) {
             this.handleSocketError(peer, event, e);
