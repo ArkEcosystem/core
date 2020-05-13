@@ -1,1 +1,1 @@
-export * from "./plugin-factory"
+export * from "./plugin-factory";

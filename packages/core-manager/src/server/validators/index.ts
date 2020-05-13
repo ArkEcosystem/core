@@ -1,2 +1,2 @@
-export * from "./argon2id"
-export * from "./token"
+export * from "./argon2id";
+export * from "./token";
