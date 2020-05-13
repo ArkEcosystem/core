@@ -1,9 +1,10 @@
-import { Container, Providers, Types } from "@arkecosystem/core-kernel";
 import { ApplicationFactory } from "@arkecosystem/core-cli";
-import { Identifiers } from "./ioc";
-import { Server } from "./server/server";
+import { Container, Providers, Types } from "@arkecosystem/core-kernel";
+
 import { ActionReader } from "./action-reader";
+import { Identifiers } from "./ioc";
 import { PluginFactory } from "./server/plugins";
+import { Server } from "./server/server";
 import { Argon2id, SimpleTokenValidator } from "./server/validators";
 
 export class ServiceProvider extends Providers.ServiceProvider {

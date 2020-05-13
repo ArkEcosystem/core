@@ -4,20 +4,21 @@ const getRpcError = (httpResponseCode: number) => {
     if (httpResponseCode === 401) {
         return {
             code: -32001,
-            message: "These credentials do not match our records"
-        }
-    } if (httpResponseCode === 403) {
+            message: "These credentials do not match our records",
+        };
+    }
+    if (httpResponseCode === 403) {
         return {
             code: -32003,
-            message: "Forbidden" // TODO: Maybe another message
-        }
+            message: "Forbidden", // TODO: Maybe another message
+        };
     }
 
     return {
         code: -32603,
-        message: "Internal server error"
-    }
-}
+        message: "Internal server error",
+    };
+};
 
 export const rpcResponseHandler = {
     name: "rcpResponseHandler",
@@ -26,7 +27,7 @@ export const rpcResponseHandler = {
         server.ext({
             type: "onPreResponse",
             method(request, h) {
-                let response = request.response;
+                const response = request.response;
                 if (!response.isBoom) {
                     return h.continue;
                 }
@@ -34,9 +35,9 @@ export const rpcResponseHandler = {
                 return h.response({
                     jsonrpc: "2.0",
                     error: getRpcError(response.output.statusCode),
-                    id: null
+                    id: null,
                 });
-            }
-        })
-    }
-}
+            },
+        });
+    },
+};

@@ -20,7 +20,7 @@ export const defaults = {
         whitelist: ["*"],
         tokenAuthentication: {
             enabled: false,
-            token: "secret_token"
+            token: "secret_token",
         },
         basicAuthentication: {
             enabled: false,
@@ -28,9 +28,10 @@ export const defaults = {
             users: [
                 {
                     username: "username",
-                    password: "$argon2id$v=19$m=4096,t=3,p=1$NiGA5Cy5vFWTxhBaZMG/3Q$TwEFlzTuIB0fDy+qozEas+GzEiBcLRkm5F+/ClVRCDY"
-                }
-            ]
-        }
-    }
+                    password:
+                        "$argon2id$v=19$m=4096,t=3,p=1$NiGA5Cy5vFWTxhBaZMG/3Q$TwEFlzTuIB0fDy+qozEas+GzEiBcLRkm5F+/ClVRCDY",
+                },
+            ],
+        },
+    },
 };
