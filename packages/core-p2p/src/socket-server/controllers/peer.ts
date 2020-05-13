@@ -4,7 +4,6 @@ import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
 import { MissingCommonBlockError } from "../../errors";
-import { isWhitelisted } from "../../utils";
 import { TooManyTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
@@ -53,16 +52,28 @@ export class PeerController extends Controller {
         const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
         const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
 
+        if (!lastBlock) {
+            return {
+                state: {
+                    height: 0,
+                    forgingAllowed: false,
+                    currentSlot: 0,
+                    header: {},
+                },
+                config: getPeerConfig(this.app),
+            }
+        }
+
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, lastBlock.data.height);
 
         const slotInfo = Crypto.Slots.getSlotInfo(blockTimeLookup);
 
         return {
             state: {
-                height: lastBlock ? lastBlock.data.height : 0,
+                height: lastBlock.data.height,
                 forgingAllowed: slotInfo.forgingStatus,
                 currentSlot: slotInfo.slotNumber,
-                header: lastBlock ? lastBlock.getHeader() : {},
+                header: lastBlock.getHeader(),
             },
             config: getPeerConfig(this.app),
         };
@@ -96,7 +107,7 @@ export class PeerController extends Controller {
             transactions: deserialized.transactions.map((tx) => tx.data),
         };
 
-        const fromForger: boolean = isWhitelisted(
+        const fromForger: boolean = Utils.isWhitelisted(
             configuration.getOptional<string[]>("remoteAccess", []),
             request.info.remoteAddress,
         );
@@ -129,7 +140,7 @@ export class PeerController extends Controller {
                 "transaction",
                 block.numberOfTransactions,
                 true,
-            )} from ${request.info.remoteAddress} (${request.headers.host})`,
+            )} from ${mapAddr(request.info.remoteAddress)}`,
         );
 
         // TODO: check we don't need to await here (handleIncomingBlock is now an async operation)
