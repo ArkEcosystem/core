@@ -24,6 +24,7 @@
         "argon2": "^0.26.2",
         "@arkecosystem/core-cli": "^3.0.0-next.0",
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
+        "@arkecosystem/core-cli": "^3.0.0-next.0",
         "@hapi/basic": "^6.0.0",
         "@hapi/boom": "^9.0.0",
         "@hapi/hapi": "^19.0.0",

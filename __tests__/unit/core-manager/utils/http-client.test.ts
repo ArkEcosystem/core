@@ -1,8 +1,7 @@
 import "jest-extended";
 
-// import got from 'got';
-import nock from "nock";
 import { HttpClient } from "@packages/core-manager/src/utils";
+import nock from "nock";
 
 describe("HttpClient", () => {
     describe("get", () => {
@@ -10,17 +9,16 @@ describe("HttpClient", () => {
             nock.cleanAll();
 
             nock(/.*/).get("/").reply(200, {
-                result: {}
+                result: {},
             });
 
-            let httpClient = new HttpClient( "http", "0.0.0.0", 4003);
+            const httpClient = new HttpClient({ ip: "0.0.0.0", port: 4003, protocol: "http" });
 
-            let promise = httpClient.get("/")
+            const promise = httpClient.get("/");
 
-            let result = await promise;
+            const result = await promise;
 
             expect(result).toEqual({ result: {} });
-        })
-    })
-})
-
+        });
+    });
+});
