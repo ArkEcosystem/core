@@ -85,7 +85,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .toAutoFactory(Container.Identifiers.TransactionPoolWorker);
         this.app.bind(Container.Identifiers.TransactionPoolWorkerIpcSubprocessFactory).toFactory(() => {
             return () => {
-                const subprocess = fork(`${__dirname}/worker-scripts.js`);
+                const subprocess = fork(`${__dirname}/worker-script.js`);
                 return new AppUtils.IpcSubprocess<Contracts.TransactionPool.WorkerScriptHandler>(subprocess);
             };
         });
