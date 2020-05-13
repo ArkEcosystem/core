@@ -18,16 +18,15 @@ export class WorkerPool implements Contracts.TransactionPool.WorkerPool {
 
     @Container.postConstruct()
     public initialize() {
-        const workerCount: number = this.pluginConfiguration.getRequired<number>("workerPool.workerCount");
-        const cryptoPackages: CryptoPackagesConfig = this.pluginConfiguration.getRequired<CryptoPackagesConfig>(
-            "workerPool.cryptoPackages",
-        );
+        const workerCount: number = this.pluginConfiguration.getRequired("workerPool.workerCount");
+        const cryptoPackages: CryptoPackagesConfig = this.pluginConfiguration.getRequired("workerPool.cryptoPackages");
 
         for (let i = 0; i < workerCount; i++) {
             const worker = this.createWorker();
-            cryptoPackages
-                .filter((p) => require.resolve(p.packageName))
-                .forEach((p) => worker.loadCryptoPackage(p.packageName));
+            const availableCryptoPackages = cryptoPackages.filter((p) => require.resolve(p.packageName));
+            for (const { packageName } of availableCryptoPackages) {
+                worker.loadCryptoPackage(packageName);
+            }
             this.workers.push(worker);
         }
     }
@@ -37,9 +36,8 @@ export class WorkerPool implements Contracts.TransactionPool.WorkerPool {
             return true;
         }
 
-        return this.pluginConfiguration
-            .getRequired<CryptoPackagesConfig>("workerPool.cryptoPackages")
-            .some((p) => p.typeGroup === typeGroup);
+        const cryptoPackages: CryptoPackagesConfig = this.pluginConfiguration.getRequired("workerPool.cryptoPackages");
+        return cryptoPackages.some((p) => p.typeGroup === typeGroup);
     }
 
     public async getTransactionFromData(
