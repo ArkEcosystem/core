@@ -31,7 +31,8 @@
         "@hapist/whitelist": "^0.1.0",
         "got": "^11.1.3",
         "hapi-auth-bearer-token": "^6.1.6",
-        "latest-version": "^5.1.0"
+        "latest-version": "^5.1.0",
+        "typeorm": "^0.2.21"
     },
     "devDependencies": {
         "nock": "^12.0.3"
