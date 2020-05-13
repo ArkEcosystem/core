@@ -17,7 +17,7 @@ export class ServiceProvider extends BaseServiceProvider {
         this.app
             .bind(Identifiers.RemoteActionsService)
             .toDynamicValue((context: interfaces.Context) =>
-                context.container.get<RemoteActionManager>(Identifiers.ValidationManager).driver(),
+                context.container.get<RemoteActionManager>(Identifiers.RemoteActionManager).driver(),
             );
     }
 }
