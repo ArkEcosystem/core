@@ -4,8 +4,8 @@ import prettyMs from "pretty-ms";
 
 import { NetworkState } from "./network-state";
 import { PeerCommunicator } from "./peer-communicator";
-import { RateLimiter } from "./rate-limiter";
-import { buildRateLimiter, checkDNS, checkNTP } from "./utils";
+import { checkDNS, checkNTP } from "./utils";
+import { Peer } from "./peer";
 
 // todo: review the implementation
 @Container.injectable()
@@ -47,11 +47,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
 
-    private rateLimiter!: RateLimiter;
-
     public initialize() {
         this.config = this.configuration.all(); // >_<
-        this.rateLimiter = buildRateLimiter(this.config);
     }
 
     public async boot(): Promise<void> {
@@ -190,14 +187,14 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                         .slice(0, maxPeersPerPeer)
                         .reduce(
                             // @ts-ignore - rework this so TS stops throwing errors
-                            (acc: object, curr: Contracts.P2P.Peer) => ({
+                            (acc: object, curr: Contracts.P2P.PeerBroadcast) => ({
                                 ...acc,
-                                ...{ [curr.ip]: curr },
+                                ...{ [curr.ip]: new Peer(curr.ip, curr.port) },
                             }),
                             {},
                         ),
                 )
-                .reduce((acc: object, curr: Contracts.P2P.Peer) => ({ ...acc, ...curr }), {}),
+                .reduce((acc: object, curr: { [ip: string]: Contracts.P2P.Peer }) => ({ ...acc, ...curr }), {}),
         );
 
         if (pingAll || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.75) {
@@ -216,21 +213,6 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         this.pingPeerPorts();
 
         return false;
-    }
-
-    public async getRateLimitStatus(ip: string, endpoint?: string): Promise<Contracts.P2P.IRateLimitStatus> {
-        return {
-            blocked: await this.rateLimiter.isBlocked(ip),
-            exceededLimitOnEndpoint: await this.rateLimiter.hasExceededRateLimit(ip, endpoint),
-        };
-    }
-
-    public getRateLimitedEndpoints(): string[] {
-        return this.rateLimiter.getRateLimitedEndpoints();
-    }
-
-    public async isBlockedByRateLimit(ip: string): Promise<boolean> {
-        return this.rateLimiter.isBlocked(ip);
     }
 
     public isColdStart(): boolean {
@@ -292,7 +274,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             return { forked: false };
         }
 
-        const groupedByCommonHeight = Utils.groupBy(allPeers, (peer) => peer.verification.highestCommonHeight);
+        const verifiedPeers = allPeers.filter((peer: Contracts.P2P.Peer) => peer.verificationResult?.highestCommonHeight !== undefined);
+        const groupedByCommonHeight = Utils.groupBy(verifiedPeers, (peer: Contracts.P2P.Peer) => peer.verificationResult!.highestCommonHeight);
 
         const groupedByLength = Utils.groupBy(Object.values(groupedByCommonHeight), (peer) => peer.length);
 
@@ -575,8 +558,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 if (!peerList.find((p) => p.ip === peer.ip)) {
                     peerList.push({
                         ip: peer.ip,
-                        ports: { "@arkecosystem/core-p2p": peer.port },
-                        version: this.app.version(),
+                        port: peer.port,
                     });
                 }
             }
@@ -586,9 +568,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             this.app.terminate("No seed peers defined in peers.json");
         }
 
-        const peers: Contracts.P2P.PeerData[] = peerList.map((peer) => {
-            peer.version = this.app.version();
-            return peer;
+        const peers: Contracts.P2P.Peer[] = peerList.map((peer) => {
+            const peerInstance = new Peer(peer.ip, peer.port);
+            peerInstance.version = this.app.version();
+            return peerInstance;
         });
 
         return Promise.all(
