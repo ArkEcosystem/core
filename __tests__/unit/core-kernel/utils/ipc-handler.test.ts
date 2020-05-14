@@ -39,4 +39,24 @@ describe("IpcHandler.handleRequest", () => {
             process.removeAllListeners("message");
         }
     });
+
+    it("should call method, await result, catch error and send error back", async () => {
+        try {
+            const myHandler = { myRpcRequestMethod: jest.fn() };
+            myHandler.myRpcRequestMethod.mockRejectedValueOnce(new Error("hello"));
+            const ipcHandler = new IpcHandler<MyRpcInterface>(myHandler as any);
+            ipcHandler.handleRequest("myRpcRequestMethod");
+            process.send = jest.fn();
+            process.listeners("message").forEach((l) => {
+                l({ id: 1, method: "myRpcRequestMethod", args: [1, 2] }, null);
+            });
+            try {
+                await myHandler.myRpcRequestMethod.mock.results[0].value;
+            } catch (error) {}
+            expect(myHandler.myRpcRequestMethod).toBeCalledWith(1, 2);
+            expect(process.send).toBeCalledWith({ id: 1, error: "hello" });
+        } finally {
+            process.removeAllListeners("message");
+        }
+    });
 });

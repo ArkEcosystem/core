@@ -42,9 +42,19 @@ describe("IpcSubprocess.sendRequest", () => {
 
         const promise = ipcSubprocess.sendRequest("myRpcRequestMethod", 1, 2);
         ipcSubprocess["onSubprocessMessage"]({ id: 1, result: "hello" });
-        const result = await promise;
 
+        await expect(promise).resolves.toBe("hello");
         expect(subprocess.send).toBeCalledWith({ id: 1, method: "myRpcRequestMethod", args: [1, 2] });
-        expect(result).toBe("hello");
+    });
+
+    it("should rethrow error when reply message arrives", async () => {
+        const subprocess = { on: jest.fn(), send: jest.fn() };
+        const ipcSubprocess = new IpcSubprocess<MyRpcInterface>(subprocess as any);
+
+        const promise = ipcSubprocess.sendRequest("myRpcRequestMethod", 1, 2);
+        ipcSubprocess["onSubprocessMessage"]({ id: 1, error: "failure" });
+
+        await expect(promise).rejects.toThrowError("failure");
+        expect(subprocess.send).toBeCalledWith({ id: 1, method: "myRpcRequestMethod", args: [1, 2] });
     });
 });
