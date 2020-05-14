@@ -10,7 +10,7 @@ export class Worker implements Contracts.TransactionPool.Worker {
     private lastHeight = 0;
 
     @Container.postConstruct()
-    public initialize() {
+    public initialize(): void {
         this.ipcSubprocess = this.createWorkerSubprocess();
     }
 
