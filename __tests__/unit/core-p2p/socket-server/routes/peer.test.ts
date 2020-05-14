@@ -34,7 +34,7 @@ describe("PeerRoute", () => {
                     maxBytes: config.maxBytes,
                 },
             },
-        }))
+        }));
 
         peerRoute.register(server);
 
@@ -45,5 +45,5 @@ describe("PeerRoute", () => {
         for (const route of routesExpected) {
             expect(server.route).toBeCalledWith(route);
         }
-    })
+    });
 });

@@ -57,7 +57,7 @@ describe("Server", () => {
             await server.initialize(name, options);
 
             expect(spyHapiServer).toBeCalledTimes(1);
-        })
+        });
     });
 
     describe("boot", () => {
@@ -66,7 +66,7 @@ describe("Server", () => {
             await server.boot();
 
             expect(hapiServer.start).toBeCalledTimes(1);
-        })
+        });
 
         it("should terminate app if server.start() failed", async () => {
             await server.initialize(name, options);
@@ -76,7 +76,7 @@ describe("Server", () => {
 
             expect(hapiServer.start).toBeCalledTimes(1);
             expect(app.terminate).toBeCalledTimes(1);
-        })
+        });
     });
 
     describe("dispose", () => {
@@ -85,7 +85,7 @@ describe("Server", () => {
             await server.dispose();
 
             expect(hapiServer.stop).toBeCalledTimes(1);
-        })
+        });
 
         it("should terminate app if server.stop() failed", async () => {
             await server.initialize(name, options);
@@ -95,7 +95,7 @@ describe("Server", () => {
 
             expect(hapiServer.stop).toBeCalledTimes(1);
             expect(app.terminate).toBeCalledTimes(1);
-        })
+        });
     });
 
     describe("register", () => {
@@ -108,32 +108,32 @@ describe("Server", () => {
 
             expect(hapiServer.register).toBeCalledTimes(1);
             expect(hapiServer.register).toBeCalledWith(plugin);
-        })
+        });
     });
 
     describe("route", () => {
         it("should call server.register() with the options provided", async () => {
             await server.initialize(name, options);
             hapiServer.route.mockReset();
-            
+
             const route = { method: "POST", path: "/the/path" };
             await server.route(route);
 
             expect(hapiServer.route).toBeCalledTimes(1);
             expect(hapiServer.route).toBeCalledWith(route);
-        })
+        });
     });
 
     describe("inject", () => {
         it("should call server.register() with the options provided", async () => {
             await server.initialize(name, options);
             hapiServer.inject.mockReset();
-            
+
             const toInject = { name: "thing to inject" };
             await server.inject(toInject);
 
             expect(hapiServer.inject).toBeCalledTimes(1);
             expect(hapiServer.inject).toBeCalledWith(toInject);
-        })
+        });
     });
 });

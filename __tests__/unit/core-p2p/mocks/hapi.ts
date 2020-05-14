@@ -17,8 +17,8 @@ export class HapiServer {
     public register() {
         return;
     }
-};
+}
 
 export default {
-    Server: jest.fn().mockImplementation(() => new HapiServer())
+    Server: jest.fn().mockImplementation(() => new HapiServer()),
 };

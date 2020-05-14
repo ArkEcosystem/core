@@ -3,9 +3,9 @@ import { Interfaces } from "@arkecosystem/crypto";
 import prettyMs from "pretty-ms";
 
 import { NetworkState } from "./network-state";
+import { Peer } from "./peer";
 import { PeerCommunicator } from "./peer-communicator";
 import { checkDNS, checkNTP } from "./utils";
-import { Peer } from "./peer";
 
 // todo: review the implementation
 @Container.injectable()
@@ -274,8 +274,13 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             return { forked: false };
         }
 
-        const verifiedPeers = allPeers.filter((peer: Contracts.P2P.Peer) => peer.verificationResult?.highestCommonHeight !== undefined);
-        const groupedByCommonHeight = Utils.groupBy(verifiedPeers, (peer: Contracts.P2P.Peer) => peer.verificationResult!.highestCommonHeight);
+        const verifiedPeers = allPeers.filter(
+            (peer: Contracts.P2P.Peer) => peer.verificationResult?.highestCommonHeight !== undefined,
+        );
+        const groupedByCommonHeight = Utils.groupBy(
+            verifiedPeers,
+            (peer: Contracts.P2P.Peer) => peer.verificationResult!.highestCommonHeight,
+        );
 
         const groupedByLength = Utils.groupBy(Object.values(groupedByCommonHeight), (peer) => peer.length);
 

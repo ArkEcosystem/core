@@ -2,7 +2,7 @@ import { checkNTP } from "@arkecosystem/core-p2p/src/utils/check-ntp";
 
 jest.mock("@hapi/sntp", () => {
     return {
-        time: jest.fn().mockImplementation(options => {
+        time: jest.fn().mockImplementation((options) => {
             if (options.host === "notime.unknown.not") {
                 throw new Error("Host unreachable");
             }
@@ -12,7 +12,7 @@ jest.mock("@hapi/sntp", () => {
 });
 
 const app = {
-    log: { error: jest.fn() }
+    log: { error: jest.fn() },
 } as any;
 
 describe("Check NTP", () => {

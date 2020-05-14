@@ -8,10 +8,10 @@ describe("getPeerConfig", () => {
         "network.nethash": "nethahs",
         "network.client.explorer": "explorer.thechain.com",
         "network.client.token": "TCHAIN",
-        "network.client.symbol": "TCH"
-    }
+        "network.client.symbol": "TCH",
+    };
     jest.spyOn(Managers.configManager, "get").mockImplementation((key) => mockConfig[key]);
-    
+
     const version = "3.0.9";
     const app = { version: () => version };
 
@@ -29,6 +29,6 @@ describe("getPeerConfig", () => {
                 },
             },
             plugins: {},
-        })
-    })
+        });
+    });
 });

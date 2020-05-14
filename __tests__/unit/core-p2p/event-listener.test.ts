@@ -30,6 +30,6 @@ describe("EventListener", () => {
 
             expect(emitter.listen).toBeCalledTimes(1);
             expect(emitter.listen).toBeCalledWith(Enums.PeerEvent.Disconnect, disconnectPeerInstance);
-        })
-    })
+        });
+    });
 });

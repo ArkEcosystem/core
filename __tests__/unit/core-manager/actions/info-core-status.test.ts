@@ -14,19 +14,15 @@ let mockCli;
 beforeEach(() => {
     mockCli = {
         get: jest.fn().mockReturnValue({
-            status: jest.fn().mockReturnValue(ProcessState.Online)
-        })
-    }
+            status: jest.fn().mockReturnValue(ProcessState.Online),
+        }),
+    };
 
-    HttpClient.prototype.get = jest.fn().mockReturnValue(
-        {
-            data: {
-                syncing: true
-            }
-        }
-    )
-
-
+    HttpClient.prototype.get = jest.fn().mockReturnValue({
+        data: {
+            syncing: true,
+        },
+    });
 
     sandbox = new Sandbox();
 
@@ -36,14 +32,14 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    delete process.env.CORE_API_DISABLED
+    delete process.env.CORE_API_DISABLED;
     jest.clearAllMocks();
-})
+});
 
 describe("Info:CoreStatus", () => {
     it("should have name", () => {
         expect(action.name).toEqual("info.coreStatus");
-    })
+    });
 
     it("should return status and syncing using HTTP", async () => {
         let promise = action.execute({});
@@ -52,7 +48,7 @@ describe("Info:CoreStatus", () => {
 
         let result = await promise;
 
-        expect(result).toEqual({ processStatus: "online", syncing: true })
+        expect(result).toEqual({ processStatus: "online", syncing: true });
     });
 
     it("should return status and syncing using HTTPS", async () => {
@@ -64,13 +60,13 @@ describe("Info:CoreStatus", () => {
 
         let result = await promise;
 
-        expect(result).toEqual({ processStatus: "online", syncing: true })
+        expect(result).toEqual({ processStatus: "online", syncing: true });
     });
 
     it("should return syncing = false if error on request", async () => {
         HttpClient.prototype.get = jest.fn().mockImplementation(async () => {
             throw new Error();
-        })
+        });
 
         let promise = action.execute({});
 
@@ -78,13 +74,13 @@ describe("Info:CoreStatus", () => {
 
         let result = await promise;
 
-        expect(result).toEqual({ processStatus: "online", syncing: undefined })
+        expect(result).toEqual({ processStatus: "online", syncing: undefined });
     });
 
     it("should return status undefined if process status is undefined", async () => {
         mockCli.get = jest.fn().mockReturnValue({
-            status: jest.fn().mockReturnValue(undefined)
-        })
+            status: jest.fn().mockReturnValue(undefined),
+        });
 
         let promise = action.execute({});
 
@@ -92,6 +88,6 @@ describe("Info:CoreStatus", () => {
 
         let result = await promise;
 
-        expect(result).toEqual({ processStatus: "undefined", syncing: true })
+        expect(result).toEqual({ processStatus: "undefined", syncing: true });
     });
 });

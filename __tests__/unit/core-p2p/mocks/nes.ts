@@ -9,8 +9,8 @@ export class NesClient {
     public request() {
         return;
     }
-};
+}
 
 export default {
-    Client: jest.fn().mockImplementation((url) => new NesClient())
+    Client: jest.fn().mockImplementation((url) => new NesClient()),
 };

@@ -23,38 +23,31 @@ describe("PeerConnector", () => {
     describe("all", () => {
         it("should return a empty array when there are no connections", () => {
             expect(peerConnector.all()).toBeArrayOfSize(0);
-        })
+        });
 
         it("should return the connections", async () => {
-            const peers = [
-                new Peer("178.165.55.44", 4000),
-                new Peer("178.165.55.33", 4000)
-            ];
+            const peers = [new Peer("178.165.55.44", 4000), new Peer("178.165.55.33", 4000)];
             await peerConnector.connect(peers[0]);
             await peerConnector.connect(peers[1]);
 
             expect(peerConnector.all()).toBeArrayOfSize(2);
-        })
+        });
     });
-
 
     describe("connection", () => {
         it("should return the connection", async () => {
-            const peers = [
-                new Peer("178.165.55.44", 4000),
-                new Peer("178.165.55.33", 4000)
-            ];
+            const peers = [new Peer("178.165.55.44", 4000), new Peer("178.165.55.33", 4000)];
             await peerConnector.connect(peers[0]);
             await peerConnector.connect(peers[1]);
 
             expect(peerConnector.connection(peers[0])).toBeInstanceOf(NesClient);
             expect(peerConnector.connection(peers[1])).toBeInstanceOf(NesClient);
-        })
+        });
 
         it("should return undefined if there is no connection", async () => {
             const peerNotAdded = new Peer("178.0.0.0", 4000);
             expect(peerConnector.connection(peerNotAdded)).toBeUndefined();
-        })
+        });
     });
 
     describe("connect", () => {
@@ -64,7 +57,7 @@ describe("PeerConnector", () => {
 
             expect(peerConnection).toBeInstanceOf(NesClient);
             expect(peerConnection).toBe(peerConnector.connection(peer));
-        })
+        });
     });
 
     describe("disconnect", () => {
@@ -78,7 +71,7 @@ describe("PeerConnector", () => {
             peerConnector.disconnect(peer);
             expect(peerConnector.connection(peer)).toBeUndefined();
             expect(spyDisconnect).toBeCalledTimes(1);
-        })
+        });
 
         it("should not do anything if the peer is not defined", async () => {
             const peer = new Peer("178.165.0.0", 4000);
@@ -87,7 +80,7 @@ describe("PeerConnector", () => {
 
             peerConnector.disconnect(peer);
             expect(peerConnector.connection(peer)).toBeUndefined();
-        })
+        });
     });
 
     describe("emit", () => {
@@ -95,7 +88,7 @@ describe("PeerConnector", () => {
             const peer = new Peer("178.165.11.12", 4000);
 
             const peerConnection = await peerConnector.connect(peer);
-            
+
             const mockResponse = { payload: "mock payload" };
             const spyRequest = jest.spyOn(peerConnection, "request").mockReturnValue(mockResponse);
 
@@ -103,7 +96,7 @@ describe("PeerConnector", () => {
 
             expect(spyRequest).toBeCalledTimes(1);
             expect(response).toEqual(mockResponse);
-        })
+        });
     });
 
     describe("getError", () => {
@@ -114,13 +107,13 @@ describe("PeerConnector", () => {
             peerConnector.setError(peer, peerError);
 
             expect(peerConnector.getError(peer)).toBe(peerError);
-        })
+        });
 
         it("should return undefined when the peer has no error set", () => {
             const peer = new Peer("178.165.11.12", 4000);
 
             expect(peerConnector.getError(peer)).toBeUndefined();
-        })
+        });
     });
 
     describe("setError", () => {
@@ -131,7 +124,7 @@ describe("PeerConnector", () => {
             peerConnector.setError(peer, peerError);
 
             expect(peerConnector.getError(peer)).toBe(peerError);
-        })
+        });
     });
 
     describe("hasError", () => {
@@ -142,7 +135,7 @@ describe("PeerConnector", () => {
             peerConnector.setError(peer, peerError);
 
             expect(peerConnector.hasError(peer, peerError)).toBeTrue();
-        })
+        });
 
         it("should return false if the peer has not the error specified set", () => {
             const peer = new Peer("178.165.11.12", 4000);
@@ -151,7 +144,7 @@ describe("PeerConnector", () => {
             peerConnector.setError(peer, peerError);
 
             expect(peerConnector.hasError(peer, "a different error")).toBeFalse();
-        })
+        });
 
         it("should return false if the peer has no error", () => {
             const peer = new Peer("178.165.11.12", 4000);
@@ -159,7 +152,7 @@ describe("PeerConnector", () => {
             const peerError = `some random error for the peer ${peer.ip}`;
 
             expect(peerConnector.hasError(peer, peerError)).toBeFalse();
-        })
+        });
     });
 
     describe("forgetError", () => {
@@ -173,6 +166,6 @@ describe("PeerConnector", () => {
 
             peerConnector.forgetError(peer);
             expect(peerConnector.getError(peer)).toBeUndefined();
-        })
+        });
     });
 });

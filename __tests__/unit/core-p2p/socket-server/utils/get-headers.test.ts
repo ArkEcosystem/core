@@ -10,8 +10,7 @@ describe("getHeaders", () => {
     const appGet = {
         [Container.Identifiers.StateStore]: stateStore,
         [Container.Identifiers.BlockchainService]: blockchain,
-
-    }
+    };
     const app = {
         version: () => version,
         getTagged: () => ({ get: () => port }),
@@ -22,12 +21,12 @@ describe("getHeaders", () => {
         const headers = getHeaders(app as any);
 
         expect(headers).toEqual({ version, port, height });
-    })
+    });
 
     it("should return { version, port, height: undefined } when state is not 'started'", () => {
         stateStore.started = false;
         const headers = getHeaders(app as any);
 
         expect(headers).toEqual({ version, port, height: undefined });
-    })
+    });
 });

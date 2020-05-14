@@ -34,7 +34,7 @@ describe("InternalRoute", () => {
                     maxBytes: config.maxBytes,
                 },
             },
-        }))
+        }));
 
         internalRoute.register(server);
 
@@ -45,5 +45,5 @@ describe("InternalRoute", () => {
         for (const route of routesExpected) {
             expect(server.route).toBeCalledWith(route);
         }
-    })
+    });
 });

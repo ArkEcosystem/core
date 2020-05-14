@@ -23,7 +23,8 @@ export class Command extends Commands.Command {
      * @type {string}
      * @memberof Command
      */
-    public description: string = "Run the Manager process in background. Exiting the process will stop it from running.";
+    public description: string =
+        "Run the Manager process in background. Exiting the process will stop it from running.";
 
     /**
      * Configure the console command.
@@ -33,9 +34,9 @@ export class Command extends Commands.Command {
      */
     public configure(): void {
         this.definition
-            .setFlag("token", "The name of the token.", Joi.string().default("ark"))                    // TODO: Do we need this?
+            .setFlag("token", "The name of the token.", Joi.string().default("ark")) // TODO: Do we need this?
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
-            .setFlag("env", "", Joi.string().default("production"))
+            .setFlag("env", "", Joi.string().default("production"));
     }
 
     /**
@@ -49,7 +50,7 @@ export class Command extends Commands.Command {
         flags.processType = "manager";
 
         await Utils.buildApplication({
-            flags
+            flags,
         });
     }
 }

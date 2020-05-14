@@ -1,6 +1,6 @@
-import Joi from "@hapi/joi";
-import Boom from "@hapi/boom";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import Boom from "@hapi/boom";
+import Joi from "@hapi/joi";
 
 @Container.injectable()
 export class Controller {

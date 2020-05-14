@@ -12,7 +12,7 @@ beforeEach(() => {
 describe("HelpCommand", () => {
     it("should render a table with process information", async () => {
         let message: string;
-        jest.spyOn(console, "log").mockImplementationOnce(m => (message = m));
+        jest.spyOn(console, "log").mockImplementationOnce((m) => (message = m));
 
         const mockCommands = {
             command1: { description: "test" },
@@ -28,7 +28,7 @@ describe("HelpCommand", () => {
         expect(message).toIncludeMultiple(
             Object.keys(mockCommands).concat(
                 Object.values(mockCommands)
-                    .map(value => value.description)
+                    .map((value) => value.description)
                     .concat(["grouped", "default", "Usage", "Flags", "Available Commands"]),
             ),
         );

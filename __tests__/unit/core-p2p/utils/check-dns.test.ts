@@ -1,7 +1,7 @@
 import { checkDNS } from "@arkecosystem/core-p2p/src/utils/check-dns";
 
 const app = {
-    log: { error: jest.fn() }
+    log: { error: jest.fn() },
 } as any;
 
 describe("Check DNS", () => {

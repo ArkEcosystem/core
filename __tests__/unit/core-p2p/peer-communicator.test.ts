@@ -3,7 +3,11 @@ import { Container, Utils as KernelUtils } from "@arkecosystem/core-kernel";
 import { PeerCommunicator } from "@arkecosystem/core-p2p/src/peer-communicator";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { Blocks, Managers, Utils } from "@arkecosystem/crypto";
-import { PeerStatusResponseError, PeerVerificationFailedError, PeerPingTimeoutError } from "@arkecosystem/core-p2p/src/errors";
+import {
+    PeerStatusResponseError,
+    PeerVerificationFailedError,
+    PeerPingTimeoutError,
+} from "@arkecosystem/core-p2p/src/errors";
 import delay from "delay";
 import { PeerVerificationResult } from "@arkecosystem/core-p2p/src/peer-verifier";
 
@@ -68,7 +72,7 @@ describe("PeerCommunicator", () => {
 
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event, { block: expect.any(Buffer) });
-        })
+        });
     });
 
     describe("postTransactions", () => {
@@ -81,7 +85,7 @@ describe("PeerCommunicator", () => {
 
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event, payload);
-        })
+        });
     });
     describe("ping", () => {
         const baseGetStatusResponse = {
@@ -93,7 +97,7 @@ describe("PeerCommunicator", () => {
                     token: {
                         name: "TARK",
                         symbol: "TARK",
-                    }
+                    },
                 },
                 version: "3.0.0",
                 plugins: {},
@@ -103,7 +107,7 @@ describe("PeerCommunicator", () => {
                 forgingAllowed: true,
                 currentSlot: 1,
                 header: {},
-            }
+            },
         };
 
         it("should not call connector emit when peer.recentlyPinged() && !force", async () => {
@@ -113,7 +117,7 @@ describe("PeerCommunicator", () => {
             await peerCommunicator.ping(peer, 1000, false);
 
             expect(connector.emit).toBeCalledTimes(0);
-        })
+        });
 
         it("should throw PeerStatusResponseError when ping response is undefined", async () => {
             const event = "p2p.peer.getStatus";
@@ -123,7 +127,7 @@ describe("PeerCommunicator", () => {
 
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event, {});
-        })
+        });
 
         describe("when !process.env.CORE_SKIP_PEER_STATE_VERIFICATION", () => {
             it("should throw PeerVerificationFailedError when peer config is not validated", async () => {
@@ -139,7 +143,7 @@ describe("PeerCommunicator", () => {
 
                 expect(connector.emit).toBeCalledTimes(1);
                 expect(connector.emit).toBeCalledWith(peer, event, {});
-            })
+            });
 
             it("should throw PeerPingTimeoutError when deadline is passed", async () => {
                 const event = "p2p.peer.getStatus";
@@ -156,7 +160,7 @@ describe("PeerCommunicator", () => {
 
                 expect(connector.emit).toBeCalledTimes(1);
                 expect(connector.emit).toBeCalledWith(peer, event, {});
-            })
+            });
 
             it("should throw PeerVerificationFailedError when verification fails", async () => {
                 const event = "p2p.peer.getStatus";
@@ -169,7 +173,7 @@ describe("PeerCommunicator", () => {
 
                 expect(connector.emit).toBeCalledTimes(1);
                 expect(connector.emit).toBeCalledWith(peer, event, {});
-            })
+            });
 
             it("should not throw otherwise", async () => {
                 const event = "p2p.peer.getStatus";
@@ -184,8 +188,8 @@ describe("PeerCommunicator", () => {
                 expect(connector.emit).toBeCalledTimes(1);
                 expect(connector.emit).toBeCalledWith(peer, event, {});
                 expect(pingResult).toEqual(baseGetStatusResponse.state);
-            })
-        })
+            });
+        });
 
         describe("when process.env.CORE_SKIP_PEER_STATE_VERIFICATION", () => {
             it("should return pingResponse.state even when peer config is not valid", async () => {
@@ -208,8 +212,8 @@ describe("PeerCommunicator", () => {
                 expect(peer.plugins).toEqual(baseGetStatusResponse.config.plugins);
 
                 delete process.env.CORE_SKIP_PEER_STATE_VERIFICATION;
-            })
-        })
+            });
+        });
     });
 
     describe("pingPorts", () => {
@@ -218,16 +222,19 @@ describe("PeerCommunicator", () => {
             peer.plugins = {
                 "core-api": { enabled: true, port: 4100 },
                 "custom-plugin": { enabled: true, port: 4200 },
-            }
+            };
             jest.spyOn(KernelUtils.http, "get")
-                .mockResolvedValueOnce({ data: { data: { nethash: Managers.configManager.get("network.nethash") } }, statusCode: 200 } as any)
+                .mockResolvedValueOnce({
+                    data: { data: { nethash: Managers.configManager.get("network.nethash") } },
+                    statusCode: 200,
+                } as any)
                 .mockResolvedValueOnce({ data: {}, statusCode: 200 } as any);
 
             await peerCommunicator.pingPorts(peer);
 
             expect(peer.ports["core-api"]).toBe(4100);
             expect(peer.ports["custom-plugin"]).toBe(4200);
-        })
+        });
     });
 
     describe("getPeers", () => {
@@ -236,14 +243,14 @@ describe("PeerCommunicator", () => {
             const payload = {};
             const peer = new Peer("187.168.65.65", 4000);
 
-            const mockConnectorResponse = { payload: [ { ip: "177.176.1.1", port: 4000 }] };
+            const mockConnectorResponse = { payload: [{ ip: "177.176.1.1", port: 4000 }] };
             connector.emit = jest.fn().mockReturnValueOnce(mockConnectorResponse);
             const getPeersResult = await peerCommunicator.getPeers(peer);
 
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event, payload);
             expect(getPeersResult).toEqual(mockConnectorResponse.payload);
-        })
+        });
     });
 
     describe("hasCommonBlocks", () => {
@@ -252,14 +259,14 @@ describe("PeerCommunicator", () => {
             const payload = { ids: ["1234567890"] };
             const peer = new Peer("187.168.65.65", 4000);
 
-            const mockConnectorResponse = { payload: { common: { id: "1234567890", height: 123 }} };
+            const mockConnectorResponse = { payload: { common: { id: "1234567890", height: 123 } } };
             connector.emit = jest.fn().mockReturnValueOnce(mockConnectorResponse);
             const hasCommonBlocksResult = await peerCommunicator.hasCommonBlocks(peer, payload.ids);
 
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event, payload);
             expect(hasCommonBlocksResult).toEqual(mockConnectorResponse.payload.common);
-        })
+        });
     });
 
     describe("getPeerBlocks", () => {
@@ -305,6 +312,6 @@ describe("PeerCommunicator", () => {
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event, expectedEmitPayload);
             expect(getPeerBlocksResult).toEqual(mockConnectorResponse.payload);
-        })
+        });
     });
 });

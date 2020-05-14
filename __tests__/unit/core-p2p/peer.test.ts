@@ -11,18 +11,18 @@ describe("Peer", () => {
 
     beforeEach(() => {
         peer = new Peer(ip, port);
-    })
-    
+    });
+
     describe("url", () => {
         it("should return http url", () => {
             expect(peer.url).toBe(`http://${ip}:${port}`);
-        })
+        });
 
         it.each([[443, 886]])("should return https url when port is multiple of 443", (httpsPort) => {
             const httpsPeer = new Peer(ip, httpsPort);
 
             expect(httpsPeer.url).toBe(`https://${ip}:${httpsPort}`);
-        })
+        });
     });
 
     describe("isVerified", () => {

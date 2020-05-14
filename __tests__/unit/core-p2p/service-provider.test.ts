@@ -16,11 +16,11 @@ describe("ServiceProvider", () => {
         [Container.Identifiers.PeerProcessor]: { initialize: jest.fn() },
         [Container.Identifiers.PeerCommunicator]: { initialize: jest.fn() },
         [serverSymbol]: mockServer,
-        [Container.Identifiers.TriggerService]: triggerService
+        [Container.Identifiers.TriggerService]: triggerService,
     };
     const appBind = {
         to: () => ({ inSingletonScope: () => {} }),
-        toFactory: () => {}
+        toFactory: () => {},
     };
     let application = {
         bind: (key) => appBind,
@@ -41,13 +41,13 @@ describe("ServiceProvider", () => {
         app.bind(Container.Identifiers.Application).toConstantValue(application);
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
         app.bind(Container.Identifiers.ConfigRepository).to(Services.Config.ConfigRepository).inSingletonScope();
-        
+
         serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
 
         const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
         pluginConfiguration.from("core-p2p", {
             // @ts-ignore
-            server: {}
+            server: {},
         });
         serviceProvider.setConfig(pluginConfiguration);
 
@@ -98,38 +98,38 @@ describe("ServiceProvider", () => {
             process.env.DISABLE_P2P_SERVER = "true";
             expect(await serviceProvider.bootWhen()).toBeFalse();
             delete process.env.DISABLE_P2P_SERVER; // reset to initial undefined value
-        })
+        });
 
         it("should return true when !process.env.DISABLE_P2P_SERVER", async () => {
             expect(await serviceProvider.bootWhen()).toBeTrue();
-        })
+        });
     });
     describe("boot", () => {
         it("should call the server boot method", async () => {
             await serviceProvider.boot();
 
             expect(mockServer.boot).toBeCalledTimes(1);
-        })
+        });
     });
     describe("dispose", () => {
         it("should call the server dispose method when !process.env.DISABLE_P2P_SERVER", async () => {
             await serviceProvider.dispose();
 
             expect(mockServer.dispose).toBeCalledTimes(1);
-        })
+        });
 
         it("should not call the server dispose method when process.env.DISABLE_P2P_SERVER", async () => {
             process.env.DISABLE_P2P_SERVER = "true";
-            
+
             await serviceProvider.dispose();
 
             expect(mockServer.dispose).toBeCalledTimes(0);
             delete process.env.DISABLE_P2P_SERVER; // reset to initial undefined value
-        })
+        });
     });
     describe("required", () => {
         it("should return true", async () => {
             expect(await serviceProvider.required()).toBeTrue();
-        })
+        });
     });
 });

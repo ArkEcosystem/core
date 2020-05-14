@@ -13,35 +13,31 @@ describe("RateLimiter", () => {
                 {
                     endpoint: "endpoint.1",
                     rateLimit: 5,
-                    blockDuration: 10
+                    blockDuration: 10,
                 },
                 {
                     endpoint: "endpoint.2",
                     rateLimit: 2,
                     duration: 10,
-                    blockDuration: 15
-                }
-            ]
-        }
+                    blockDuration: 15,
+                },
+            ],
+        },
     };
 
     beforeEach(() => {
         rateLimiter = new RateLimiter(rateLimitConfig);
     });
 
-    describe("hasExceededRateLimit", () => {
-
-    });
+    describe("hasExceededRateLimit", () => {});
 
     describe("getRateLimitedEndpoints", () => {
         it("should return the rate limited endpoints", () => {
             expect(rateLimiter.getRateLimitedEndpoints()).toEqual(
-                rateLimitConfig.configurations.endpoints.map(e => e.endpoint)
+                rateLimitConfig.configurations.endpoints.map((e) => e.endpoint),
             );
-        })
+        });
     });
 
-    describe("isBlocked", () => {
-
-    });
+    describe("isBlocked", () => {});
 });

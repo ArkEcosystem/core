@@ -107,7 +107,6 @@ describe("Triggers", () => {
         });
     });
 
-
     describe("get", () => {
         it("returns a trigger for the given trigger", async () => {
             triggers.bind("count", new DummyAction());
@@ -124,11 +123,13 @@ describe("Triggers", () => {
 
     describe("error handling", () => {
         let dummyParams = {
-            returnValue: false
+            returnValue: false,
         };
 
         it("should call error action if error is thrown on <before> hook", async () => {
-            const before: jest.Mock = jest.fn().mockImplementation(() => {throw new Error()});
+            const before: jest.Mock = jest.fn().mockImplementation(() => {
+                throw new Error();
+            });
             const error: jest.Mock = jest.fn();
             triggers.bind("count", new DummyAction()).before(before).error(error);
 
@@ -138,7 +139,9 @@ describe("Triggers", () => {
         });
 
         it("should throw error if error is thrown on <before> hook and no error handlers are defined", async () => {
-            const before: jest.Mock = jest.fn().mockImplementation(() => {throw new Error()});
+            const before: jest.Mock = jest.fn().mockImplementation(() => {
+                throw new Error();
+            });
             triggers.bind("count", new DummyAction()).before(before);
 
             await expect(triggers.call<boolean>("count", dummyParams)).rejects.toThrowError();
@@ -160,7 +163,9 @@ describe("Triggers", () => {
         });
 
         it("should call error action and return result if error is thrown on <after> hook", async () => {
-            const after: jest.Mock = jest.fn().mockImplementation(() => {throw new Error()});
+            const after: jest.Mock = jest.fn().mockImplementation(() => {
+                throw new Error();
+            });
             const error: jest.Mock = jest.fn();
             triggers.bind("count", new DummyAction()).after(after).error(error);
 
@@ -170,7 +175,9 @@ describe("Triggers", () => {
         });
 
         it("should throw error if error is thrown on <after> hook and no error handlers are defined", async () => {
-            const after: jest.Mock = jest.fn().mockImplementation(() => {throw new Error()});
+            const after: jest.Mock = jest.fn().mockImplementation(() => {
+                throw new Error();
+            });
             triggers.bind("count", new DummyAction()).after(after);
 
             await expect(triggers.call<boolean>("count", dummyParams)).rejects.toThrowError();
@@ -178,5 +185,3 @@ describe("Triggers", () => {
         });
     });
 });
-
-

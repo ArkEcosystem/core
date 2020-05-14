@@ -20,25 +20,25 @@ let logger = {
     info: jest.fn(),
     notice: jest.fn(),
     error: jest.fn(),
-}
+};
 
 let pluginsConfiguration;
 
 beforeEach(() => {
-    let dummyMethod = {...Assets.dummyMethod}
+    let dummyMethod = { ...Assets.dummyMethod };
     // @ts-ignore
-    spyOnMethod = jest.spyOn(dummyMethod, "method")
+    spyOnMethod = jest.spyOn(dummyMethod, "method");
 
     let actionReader: Partial<ActionReader> = {
         discoverActions(): Actions.Method[] {
             return [dummyMethod];
-        }
-    }
+        },
+    };
 
-    pluginsConfiguration = {...defaults.plugins};
+    pluginsConfiguration = { ...defaults.plugins };
 
-    pluginsConfiguration.basicAuthentication.enabled = false
-    pluginsConfiguration.tokenAuthentication.enabled = false
+    pluginsConfiguration.basicAuthentication.enabled = false;
+    pluginsConfiguration.tokenAuthentication.enabled = false;
 
     sandbox = new Sandbox();
 
@@ -50,7 +50,7 @@ beforeEach(() => {
 
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
-        get: jest.fn().mockReturnValue(pluginsConfiguration)
+        get: jest.fn().mockReturnValue(pluginsConfiguration),
     });
 
     sandbox.app.terminate = jest.fn();
@@ -62,13 +62,13 @@ afterEach(async () => {
     await server.dispose();
     jest.clearAllMocks();
     jest.restoreAllMocks();
-})
+});
 
 describe("Server", () => {
     describe("RPC test with dummy class", () => {
         it("should be ok", async () => {
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             const injectOptions = {
                 method: "POST",
@@ -87,12 +87,12 @@ describe("Server", () => {
             const response = await server.inject(injectOptions);
             const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
-            expect(parsedResponse).toEqual({ body: { id: '1', jsonrpc: '2.0', result: {} }, statusCode: 200 })
+            expect(parsedResponse).toEqual({ body: { id: "1", jsonrpc: "2.0", result: {} }, statusCode: 200 });
         });
 
         it("should return RCP error if called with invalid action params", async () => {
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             const injectOptions = {
                 method: "POST",
@@ -101,7 +101,7 @@ describe("Server", () => {
                     jsonrpc: "2.0",
                     id: "1",
                     method: "dummy",
-                    params: { }, // Missing id
+                    params: {}, // Missing id
                 },
                 headers: {
                     "content-type": "application/vnd.api+json",
@@ -111,13 +111,13 @@ describe("Server", () => {
             const response = await server.inject(injectOptions);
             const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
-            expect(parsedResponse.statusCode).toBe(200)
-            expect(parsedResponse.body.error.code).toBe(-32602)
+            expect(parsedResponse.statusCode).toBe(200);
+            expect(parsedResponse.body.error.code).toBe(-32602);
         });
 
         it("should return RCP error if error inside Action method", async () => {
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             const injectOptions = {
                 method: "POST",
@@ -135,19 +135,19 @@ describe("Server", () => {
 
             spyOnMethod.mockImplementation(async () => {
                 throw new Error();
-            })
+            });
 
             const response = await server.inject(injectOptions);
             const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
-            expect(parsedResponse.statusCode).toBe(200)
-            expect(parsedResponse.body.error.code).toBe(-32603)
+            expect(parsedResponse.statusCode).toBe(200);
+            expect(parsedResponse.body.error.code).toBe(-32603);
             expect(spyOnMethod).toHaveBeenCalled();
         });
 
         it("should return RCP error if RPC schema is invalid", async () => {
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             const injectOptions = {
                 method: "POST",
@@ -166,13 +166,13 @@ describe("Server", () => {
             const response = await server.inject(injectOptions);
             const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
-            expect(parsedResponse.statusCode).toBe(200)
-            expect(parsedResponse.body.error.code).toBe(-32600)
+            expect(parsedResponse.statusCode).toBe(200);
+            expect(parsedResponse.body.error.code).toBe(-32600);
         });
 
         it("should return RCP error if error in Validator", async () => {
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             const injectOptions = {
                 method: "POST",
@@ -190,22 +190,22 @@ describe("Server", () => {
 
             jest.spyOn(Validation.validator, "validate").mockImplementation(() => {
                 throw new Error();
-            })
+            });
 
             const response = await server.inject(injectOptions);
             const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
-            expect(parsedResponse.statusCode).toBe(200)
-            expect(parsedResponse.body.error.code).toBe(-32600)
+            expect(parsedResponse.statusCode).toBe(200);
+            expect(parsedResponse.body.error.code).toBe(-32600);
         });
-    })
+    });
 
     describe("Whitelist", () => {
         it("should return RCP error if whitelisted", async () => {
-            pluginsConfiguration.whitelist = []
+            pluginsConfiguration.whitelist = [];
 
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             const injectOptions = {
                 method: "POST",
@@ -226,14 +226,14 @@ describe("Server", () => {
 
             expect(parsedResponse).toEqual({
                 body: {
-                    jsonrpc: '2.0',
-                    error: { code: -32001, message: 'These credentials do not match our records' },
-                    id: null
+                    jsonrpc: "2.0",
+                    error: { code: -32001, message: "These credentials do not match our records" },
+                    id: null,
                 },
-                statusCode: 200
-            })
+                statusCode: 200,
+            });
         });
-    })
+    });
 
     describe("Basic Authentication", () => {
         let injectOptions;
@@ -243,8 +243,9 @@ describe("Server", () => {
             pluginsConfiguration.basicAuthentication.users = [
                 {
                     username: "username",
-                    password: "$argon2id$v=19$m=4096,t=3,p=1$NiGA5Cy5vFWTxhBaZMG/3Q$TwEFlzTuIB0fDy+qozEas+GzEiBcLRkm5F+/ClVRCDY"
-                }
+                    password:
+                        "$argon2id$v=19$m=4096,t=3,p=1$NiGA5Cy5vFWTxhBaZMG/3Q$TwEFlzTuIB0fDy+qozEas+GzEiBcLRkm5F+/ClVRCDY",
+                },
             ];
 
             injectOptions = {
@@ -260,28 +261,28 @@ describe("Server", () => {
                     "content-type": "application/vnd.api+json",
                 },
             };
-        })
+        });
 
         it("should return RCP error if no username and password in header", async () => {
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             const response = await server.inject(injectOptions);
             const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
             expect(parsedResponse).toEqual({
                 body: {
-                    jsonrpc: '2.0',
-                    error: { code: -32001, message: 'These credentials do not match our records' },
-                    id: null
+                    jsonrpc: "2.0",
+                    error: { code: -32001, message: "These credentials do not match our records" },
+                    id: null,
                 },
-                statusCode: 200
-            })
+                statusCode: 200,
+            });
         });
 
         it("should return RCP error if password is invalid", async () => {
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             // Data in header: { username: "username", password: "invalid" }
             injectOptions.headers.Authorization = "Basic dXNlcm5hbWU6aW52YWxpZA==";
@@ -291,19 +292,19 @@ describe("Server", () => {
 
             expect(parsedResponse).toEqual({
                 body: {
-                    jsonrpc: '2.0',
-                    error: { code: -32001, message: 'These credentials do not match our records' },
-                    id: null
+                    jsonrpc: "2.0",
+                    error: { code: -32001, message: "These credentials do not match our records" },
+                    id: null,
                 },
-                statusCode: 200
-            })
+                statusCode: 200,
+            });
         });
 
         it("should return RCP error user not found", async () => {
             pluginsConfiguration.basicAuthentication.users = [];
 
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             // Data in header: { username: "username", password: "password" }
             injectOptions.headers.Authorization = "Basic dXNlcm5hbWU6cGFzc3dvcmQ=";
@@ -313,17 +314,17 @@ describe("Server", () => {
 
             expect(parsedResponse).toEqual({
                 body: {
-                    jsonrpc: '2.0',
-                    error: { code: -32001, message: 'These credentials do not match our records' },
-                    id: null
+                    jsonrpc: "2.0",
+                    error: { code: -32001, message: "These credentials do not match our records" },
+                    id: null,
                 },
-                statusCode: 200
-            })
+                statusCode: 200,
+            });
         });
 
         it("should be ok with valid username and password", async () => {
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             // Data in header: { username: "username", password: "password" }
             injectOptions.headers.Authorization = "Basic dXNlcm5hbWU6cGFzc3dvcmQ=";
@@ -331,16 +332,16 @@ describe("Server", () => {
             const response = await server.inject(injectOptions);
             const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
-            expect(parsedResponse).toEqual({ body: { id: '1', jsonrpc: '2.0', result: {} }, statusCode: 200 })
+            expect(parsedResponse).toEqual({ body: { id: "1", jsonrpc: "2.0", result: {} }, statusCode: 200 });
         });
-    })
+    });
 
     describe("Token Authentication", () => {
         let injectOptions;
 
         beforeEach(() => {
             pluginsConfiguration.tokenAuthentication.enabled = true;
-            pluginsConfiguration.tokenAuthentication.token = "secret_token"
+            pluginsConfiguration.tokenAuthentication.token = "secret_token";
 
             injectOptions = {
                 method: "POST",
@@ -355,23 +356,23 @@ describe("Server", () => {
                     "content-type": "application/vnd.api+json",
                 },
             };
-        })
+        });
 
         it("should be ok with valid token", async () => {
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             injectOptions.headers.Authorization = "Bearer secret_token";
 
             const response = await server.inject(injectOptions);
             const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
-            expect(parsedResponse).toEqual({ body: { id: '1', jsonrpc: '2.0', result: {} }, statusCode: 200 })
+            expect(parsedResponse).toEqual({ body: { id: "1", jsonrpc: "2.0", result: {} }, statusCode: 200 });
         });
 
         it("should return RCP error if token is not valid", async () => {
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             injectOptions.headers.Authorization = "Bearer invalid_token";
 
@@ -380,19 +381,19 @@ describe("Server", () => {
 
             expect(parsedResponse).toEqual({
                 body: {
-                    jsonrpc: '2.0',
-                    error: { code: -32001, message: 'These credentials do not match our records' },
-                    id: null
+                    jsonrpc: "2.0",
+                    error: { code: -32001, message: "These credentials do not match our records" },
+                    id: null,
                 },
-                statusCode: 200
-            })
+                statusCode: 200,
+            });
         });
 
         it("should return RCP error if token configuration is missing", async () => {
-            delete pluginsConfiguration.tokenAuthentication.token
+            delete pluginsConfiguration.tokenAuthentication.token;
 
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             injectOptions.headers.Authorization = "Bearer invalid_token";
 
@@ -401,32 +402,31 @@ describe("Server", () => {
 
             expect(parsedResponse).toEqual({
                 body: {
-                    jsonrpc: '2.0',
-                    error: { code: -32001, message: 'These credentials do not match our records' },
-                    id: null
+                    jsonrpc: "2.0",
+                    error: { code: -32001, message: "These credentials do not match our records" },
+                    id: null,
                 },
-                statusCode: 200
-            })
+                statusCode: 200,
+            });
         });
 
         it("should return RCP error if no Authentication in headers", async () => {
-            delete pluginsConfiguration.tokenAuthentication.token
+            delete pluginsConfiguration.tokenAuthentication.token;
 
-            await server.initialize("serverName", {})
-            await server.boot()
+            await server.initialize("serverName", {});
+            await server.boot();
 
             const response = await server.inject(injectOptions);
             const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
             expect(parsedResponse).toEqual({
                 body: {
-                    jsonrpc: '2.0',
-                    error: { code: -32001, message: 'These credentials do not match our records' },
-                    id: null
+                    jsonrpc: "2.0",
+                    error: { code: -32001, message: "These credentials do not match our records" },
+                    id: null,
                 },
-                statusCode: 200
-            })
+                statusCode: 200,
+            });
         });
     });
 });
-

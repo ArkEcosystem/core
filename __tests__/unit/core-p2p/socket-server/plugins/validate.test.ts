@@ -16,7 +16,7 @@ describe("ValidatePlugin", () => {
             id: "p2p.peer.getPeers",
             handler: () => responsePayload,
             validation: Joi.object().max(0),
-        }
+        },
     };
     const mockRoute = {
         method: "POST",
@@ -25,7 +25,7 @@ describe("ValidatePlugin", () => {
             id: mockRouteByPath["/p2p/peer/mockroute"].id,
             handler: mockRouteByPath["/p2p/peer/mockroute"].handler,
         },
-    }
+    };
     const app = { resolve: jest.fn().mockReturnValue({ getRoutesConfigByPath: () => mockRouteByPath }) };
 
     beforeAll(() => {
@@ -52,8 +52,8 @@ describe("ValidatePlugin", () => {
         const responseValid = await server.inject({
             method: "POST",
             url: "/p2p/peer/mockroute",
-            payload: {}
-        })
+            payload: {},
+        });
         expect(JSON.parse(responseValid.payload)).toEqual(responsePayload);
         expect(responseValid.statusCode).toBe(200);
 
@@ -61,13 +61,13 @@ describe("ValidatePlugin", () => {
         const responseInvalid = await server.inject({
             method: "POST",
             url: "/p2p/peer/mockroute",
-            payload: { unwantedProp: 1 }
-        })
+            payload: { unwantedProp: 1 },
+        });
         expect(responseInvalid.statusCode).toBe(400);
         expect(responseInvalid.result).toEqual({
-            "error": "Bad Request",
-            "message": "Validation failed",
-            "statusCode": 400
+            error: "Bad Request",
+            message: "Validation failed",
+            statusCode: 400,
         });
-    })
+    });
 });

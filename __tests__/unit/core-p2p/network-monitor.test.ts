@@ -43,7 +43,6 @@ describe("NetworkMonitor", () => {
         [Container.Identifiers.TriggerService]: triggerService,
         [Container.Identifiers.StateStore]: stateStore,
         [Container.Identifiers.BlockchainService]: blockchain,
-
     };
     const appConfigPeers = {
         list: [],
@@ -55,7 +54,7 @@ describe("NetworkMonitor", () => {
         config: () => appConfigPeers,
         version: () => "3.0.0",
         terminate: jest.fn(),
-    }
+    };
 
     beforeAll(() => {
         container.unbindAll();
@@ -77,7 +76,9 @@ describe("NetworkMonitor", () => {
 
     describe("boot", () => {
         describe("when peer discovery is disabled", () => {
-            beforeEach(() => { config.skipDiscovery = true });
+            beforeEach(() => {
+                config.skipDiscovery = true;
+            });
             afterEach(() => {
                 config.skipDiscovery = false;
                 appConfigPeers.list = [];
@@ -89,20 +90,20 @@ describe("NetworkMonitor", () => {
                     { ip: "187.177.54.44", port: 4000 },
                     { ip: "188.177.54.44", port: 4000 },
                     { ip: "189.177.54.44", port: 4000 },
-                ]
+                ];
                 await networkMonitor.boot();
 
                 expect(triggerService.call).toBeCalledTimes(appConfigPeers.list.length); // validateAndAcceptPeer for each peer
                 for (const peer of appConfigPeers.list) {
                     expect(triggerService.call).toBeCalledWith("validateAndAcceptPeer", {
                         peer: expect.objectContaining(peer),
-                        options: { seed: true, lessVerbose: true }
+                        options: { seed: true, lessVerbose: true },
                     });
                 }
-            })
+            });
 
             it("should populate peers from URL config by calling validateAndAcceptPeer", async () => {
-                appConfigPeers.sources = [ "http://peers.someurl.com" ];
+                appConfigPeers.sources = ["http://peers.someurl.com"];
 
                 const peers = [
                     { ip: "187.177.54.44", port: 4000 },
@@ -119,14 +120,14 @@ describe("NetworkMonitor", () => {
                 for (const peer of peers) {
                     expect(triggerService.call).toBeCalledWith("validateAndAcceptPeer", {
                         peer: expect.objectContaining(peer),
-                        options: { seed: true, lessVerbose: true }
+                        options: { seed: true, lessVerbose: true },
                     });
                 }
-            })
+            });
 
             it("should populate peers from file by calling validateAndAcceptPeer", async () => {
-                appConfigPeers.sources = [ path.resolve(__dirname, "fixtures", "peers.json") ];
-                
+                appConfigPeers.sources = [path.resolve(__dirname, "fixtures", "peers.json")];
+
                 await networkMonitor.boot();
 
                 const peers = require("./fixtures/peers.json");
@@ -134,11 +135,11 @@ describe("NetworkMonitor", () => {
                 for (const peer of peers) {
                     expect(triggerService.call).toBeCalledWith("validateAndAcceptPeer", {
                         peer: expect.objectContaining(peer),
-                        options: { seed: true, lessVerbose: true }
+                        options: { seed: true, lessVerbose: true },
                     });
                 }
-            })
-        })
+            });
+        });
 
         describe("when peer discovery is enabled", () => {
             beforeEach(() => {
@@ -147,7 +148,7 @@ describe("NetworkMonitor", () => {
             });
             afterEach(() => {
                 delete process.env.NODE_ENV;
-            })
+            });
 
             it("should discover peers from seed peers (calling updateNetworkStatus) and log the peers discovered by version", async () => {
                 const spyUpdateNetworkStatus = jest.spyOn(networkMonitor, "updateNetworkStatus");
@@ -168,8 +169,8 @@ describe("NetworkMonitor", () => {
                 expect(logger.info).toBeCalledWith("Discovered 2 peers with v3.0.0.");
                 expect(logger.info).toBeCalledWith("Discovered 1 peer with v3.0.1.");
                 expect(logger.info).toBeCalledWith("Discovered 2 peers with v3.0.2.");
-            })
-        })
+            });
+        });
     });
 
     describe("updateNetworkStatus", () => {
@@ -179,7 +180,7 @@ describe("NetworkMonitor", () => {
             });
             afterEach(() => {
                 delete process.env.NODE_ENV;
-            })
+            });
 
             it("should not do anything", async () => {
                 const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers");
@@ -188,8 +189,8 @@ describe("NetworkMonitor", () => {
 
                 expect(spyDiscoverPeers).toBeCalledTimes(0);
                 expect(logger.warning).toBeCalledTimes(0);
-            })
-        })
+            });
+        });
 
         describe("when in 'network start' mode", () => {
             beforeEach(() => {
@@ -197,7 +198,7 @@ describe("NetworkMonitor", () => {
             });
             afterEach(() => {
                 config.networkStart = undefined;
-            })
+            });
 
             it("should set coldStart to true and not discover peers", async () => {
                 const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers");
@@ -207,8 +208,8 @@ describe("NetworkMonitor", () => {
 
                 expect(networkMonitor.isColdStart()).toBeTrue();
                 expect(spyDiscoverPeers).toBeCalledTimes(0);
-            })
-        })
+            });
+        });
 
         describe("when in 'disable discovery' mode", () => {
             beforeEach(() => {
@@ -216,16 +217,18 @@ describe("NetworkMonitor", () => {
             });
             afterEach(() => {
                 config.disableDiscovery = undefined;
-            })
+            });
 
             it("should log a warning message and not discover peers", async () => {
                 const spyDiscoverPeers = jest.spyOn(networkMonitor, "discoverPeers");
                 await networkMonitor.updateNetworkStatus();
 
-                expect(logger.warning).toBeCalledWith("Skipped peer discovery because the relay is in non-discovery mode.")
+                expect(logger.warning).toBeCalledWith(
+                    "Skipped peer discovery because the relay is in non-discovery mode.",
+                );
                 expect(spyDiscoverPeers).toBeCalledTimes(0);
-            })
-        })
+            });
+        });
 
         it("should discover new peers from existing", async () => {
             storage.getPeers.mockReturnValue([]);
@@ -234,7 +237,7 @@ describe("NetworkMonitor", () => {
             await networkMonitor.updateNetworkStatus();
 
             expect(spyDiscoverPeers).toBeCalledTimes(1);
-        })
+        });
 
         it("should log an error when discovering new peers fails", async () => {
             storage.getPeers.mockReturnValue([]);
@@ -247,7 +250,7 @@ describe("NetworkMonitor", () => {
             expect(spyDiscoverPeers).toBeCalledTimes(1);
             expect(logger.error).toBeCalledTimes(1);
             expect(logger.error).toBeCalledWith(`Network Status: ${errorMessage}`);
-        })
+        });
 
         it("should fall back to seed peers when after discovering we are below minimum peers", async () => {
             config.minimumNetworkReach = 5;
@@ -256,7 +259,7 @@ describe("NetworkMonitor", () => {
             await networkMonitor.updateNetworkStatus();
 
             expect(logger.info).toBeCalledWith("Couldn't find enough peers. Falling back to seed peers.");
-        })
+        });
     });
 
     describe("cleansePeers", () => {
@@ -279,15 +282,15 @@ describe("NetworkMonitor", () => {
 
             expect(communicator.ping).toBeCalledTimes(peers.length);
             for (const peer of peers) {
-                expect(communicator.ping).toBeCalledWith(peer, config.verifyTimeout, expect.anything())
+                expect(communicator.ping).toBeCalledWith(peer, config.verifyTimeout, expect.anything());
             }
-        })
+        });
 
         it("should ping a max of <peerCount> peers when the peers length is above <peerCount>", async () => {
             await networkMonitor.cleansePeers({ peerCount: 2 });
 
             expect(communicator.ping).toBeCalledTimes(2);
-        })
+        });
 
         it("should dispatch 'p2p.internal.disconnectPeer', PeerEvent.Removed, and log the error when ping fails for a peer", async () => {
             communicator.ping.mockRejectedValueOnce(new Error("Timeout"));
@@ -297,7 +300,7 @@ describe("NetworkMonitor", () => {
             expect(emitter.dispatch).toBeCalledTimes(2);
             expect(emitter.dispatch).toBeCalledWith("internal.p2p.disconnectPeer", { peer: expect.toBeOneOf(peers) });
             expect(emitter.dispatch).toBeCalledWith(Enums.PeerEvent.Removed, expect.toBeOneOf(peers));
-        })
+        });
 
         it("should log the responsive peers count and the median network height when initializing", async () => {
             communicator.ping.mockRejectedValueOnce(new Error("Timeout"));
@@ -306,7 +309,7 @@ describe("NetworkMonitor", () => {
             expect(communicator.ping).toBeCalledTimes(peers.length);
             expect(logger.info).toBeCalledWith("4 of 5 peers on the network are responsive");
             expect(logger.info).toBeCalledWith("Median Network Height: 0"); // the peers have no height
-        })
+        });
     });
 
     describe("discoverPeers", () => {
@@ -343,28 +346,28 @@ describe("NetworkMonitor", () => {
 
             expect(communicator.getPeers).toBeCalledTimes(8);
             expect(triggerService.call).toBeCalledTimes(8 * 4); // validateAndAcceptPeer for each peer fetched from the 8 initial peers
-        })
+        });
 
         describe("when not in pingAll mode + we have more than minimum peers + we have more than 75% of the peers fetched", () => {
             it("should not add the peers fetched", async () => {
                 // mocking different getPeers return for each peer in storage
                 for (let i = 0, peer = peers[0]; i < peers.length; i++, peer = peers[i]) {
-                    communicator.getPeers.mockResolvedValueOnce([
-                        { ip: `${peer.ip}1${i}`, port: peer.port },
-                    ]);
+                    communicator.getPeers.mockResolvedValueOnce([{ ip: `${peer.ip}1${i}`, port: peer.port }]);
                 }
                 config.minimumNetworkReach = 5;
                 await networkMonitor.discoverPeers();
 
                 expect(communicator.getPeers).toBeCalledTimes(8);
                 expect(triggerService.call).toBeCalledTimes(0);
-            })
-        })
+            });
+        });
     });
 
     describe("getNetworkHeight", () => {
-        it.each([[6, [5,6,6,6,7,8]], [79, [34,78,79,79,79,90]]])
-        ("should return the median height from our peers", (expectedNetworkHeight, peersHeights) => {
+        it.each([
+            [6, [5, 6, 6, 6, 7, 8]],
+            [79, [34, 78, 79, 79, 79, 90]],
+        ])("should return the median height from our peers", (expectedNetworkHeight, peersHeights) => {
             const peers = [];
             for (let i = 0; i < peersHeights.length; i++) {
                 const peer = new Peer(`188.185.1.${i}`, 4000);
@@ -376,18 +379,18 @@ describe("NetworkMonitor", () => {
             expect(networkMonitor.getNetworkHeight()).toBe(expectedNetworkHeight);
 
             storage.getPeers = jest.fn();
-        })
+        });
     });
 
     describe("getNetworkState", () => {
         beforeEach(() => {
             process.env.CORE_ENV = "test"; // for NetworkState analyze
             storage.getPeers = jest.fn().mockReturnValue([]);
-        })
+        });
         afterEach(() => {
             delete process.env.CORE_ENV;
             storage.getPeers = jest.fn();
-        })
+        });
 
         const block = {
             data: {
@@ -418,16 +421,16 @@ describe("NetworkMonitor", () => {
             expect(networkState).toBeInstanceOf(NetworkState);
             expect(spyCleansePeers).toBeCalledTimes(1);
             expect(spyCleansePeers).toBeCalledWith({ fast: true, forcePing: true });
-        })
+        });
     });
 
     describe("refreshPeersAfterFork", () => {
         beforeEach(() => {
             storage.getPeers = jest.fn().mockReturnValue([]);
-        })
+        });
         afterEach(() => {
             storage.getPeers = jest.fn();
-        })
+        });
 
         it("should call cleansePeers with {forcePing}", async () => {
             const spyCleansePeers = jest.spyOn(networkMonitor, "cleansePeers");
@@ -436,24 +439,24 @@ describe("NetworkMonitor", () => {
 
             expect(spyCleansePeers).toBeCalledTimes(1);
             expect(spyCleansePeers).toBeCalledWith({ forcePing: true });
-        })
+        });
     });
 
     describe("checkNetworkHealth", () => {
         describe("when we have 0 peer", () => {
             beforeEach(() => {
                 storage.getPeers = jest.fn().mockReturnValue([]);
-            })
+            });
             afterEach(() => {
                 storage.getPeers = jest.fn();
-            })
+            });
 
             it("should return {forked: false}", async () => {
                 const networkStatus = await networkMonitor.checkNetworkHealth();
 
                 expect(networkStatus).toEqual({ forked: false });
-            })
-        })
+            });
+        });
 
         describe("when majority of our peers is on our chain", () => {
             const peers = [
@@ -484,8 +487,8 @@ describe("NetworkMonitor", () => {
                 const networkStatus = await networkMonitor.checkNetworkHealth();
 
                 expect(networkStatus).toEqual({ forked: false });
-            })
-        })
+            });
+        });
 
         describe("when majority of our peers is on another chain", () => {
             const peers = [
@@ -510,7 +513,7 @@ describe("NetworkMonitor", () => {
             peers[6].verificationResult = new PeerVerificationResult(43, 47, 12);
 
             beforeEach(() => {
-                stateStore.getLastBlock = jest.fn().mockReturnValueOnce({ data: { height: 43 }});
+                stateStore.getLastBlock = jest.fn().mockReturnValueOnce({ data: { height: 43 } });
                 storage.getPeers = jest.fn().mockReturnValue(peers);
             });
             afterEach(() => {
@@ -520,9 +523,9 @@ describe("NetworkMonitor", () => {
             it("should return {forked: true, blocksToRollback:<current height - highestCommonHeight>}", async () => {
                 const networkStatus = await networkMonitor.checkNetworkHealth();
 
-                expect(networkStatus).toEqual({ forked: true, blocksToRollback: (43 - 35) });
-            })
-        })
+                expect(networkStatus).toEqual({ forked: true, blocksToRollback: 43 - 35 });
+            });
+        });
     });
 
     describe("downloadBlocksFromHeight", () => {
@@ -536,7 +539,7 @@ describe("NetworkMonitor", () => {
 
         const throwInDownloadAtHeight = 50000;
 
-        const expectedBlocksFromHeight = height => {
+        const expectedBlocksFromHeight = (height) => {
             const blocks = [];
             for (let i = 0; i < maxParallelDownloads * downloadChunkSize; i++) {
                 blocks.push({ height: height + 1 + i });
@@ -622,7 +625,7 @@ describe("NetworkMonitor", () => {
                     height: throwInDownloadAtHeight + numPeers * downloadChunkSize,
                     currentSlot: 2,
                     forgingAllowed: true,
-                    header: {}
+                    header: {},
                 };
                 peer.verificationResult = { forked: false, hisHeight: 2, myHeight: 2, highestCommonHeight: 2 };
 
@@ -712,11 +715,11 @@ describe("NetworkMonitor", () => {
 
         beforeEach(() => {
             storage.getPeers = jest.fn().mockReturnValue(peers);
-        })
+        });
         afterEach(() => {
             storage.getPeers = jest.fn();
             blockchain.getBlockPing = jest.fn();
-        })
+        });
 
         describe("when blockchain is not ready", () => {
             it("should skip broadcasting", async () => {
@@ -726,56 +729,71 @@ describe("NetworkMonitor", () => {
                 await networkMonitor.broadcastBlock(block);
 
                 expect(logger.info).toBeCalledTimes(1);
-                expect(logger.info).toBeCalledWith(`Skipping broadcast of block ${block.data.height.toLocaleString()} as blockchain is not ready`);
+                expect(logger.info).toBeCalledWith(
+                    `Skipping broadcast of block ${block.data.height.toLocaleString()} as blockchain is not ready`,
+                );
                 expect(storage.getPeers).toBeCalledTimes(0);
                 expect(communicator.postBlock).toBeCalledTimes(0);
 
                 // @ts-ignore
                 appGet[Container.Identifiers.BlockchainService] = blockchain;
-            })
-        })
+            });
+        });
 
-        it.each([[4], [5], [10], [50]])
-        ("should not broadcast to any peer when blockPing >= 4", async (count) => {
-            blockchain.getBlockPing = jest.fn().mockReturnValueOnce({ block: block.data, last: 10900, first: 10200, count });
+        it.each([[4], [5], [10], [50]])("should not broadcast to any peer when blockPing >= 4", async (count) => {
+            blockchain.getBlockPing = jest
+                .fn()
+                .mockReturnValueOnce({ block: block.data, last: 10900, first: 10200, count });
 
             await networkMonitor.broadcastBlock(block);
 
             expect(communicator.postBlock).toBeCalledTimes(0);
-        })
+        });
 
-        it.each([[0], [1], [2], [3]])
-        ("should broadcast to (4 - blockPing)/4 of our peers when blockPing < 4", async (count) => {
-            blockchain.getBlockPing = jest.fn().mockReturnValue({ block: block.data, last: 10900, first: 10200, count });
+        it.each([[0], [1], [2], [3]])(
+            "should broadcast to (4 - blockPing)/4 of our peers when blockPing < 4",
+            async (count) => {
+                blockchain.getBlockPing = jest
+                    .fn()
+                    .mockReturnValue({ block: block.data, last: 10900, first: 10200, count });
 
-            await networkMonitor.broadcastBlock(block);
+                await networkMonitor.broadcastBlock(block);
 
-            expect(communicator.postBlock).toBeCalledTimes(Math.ceil(peers.length * (4 - count) / 4));
-        })
+                expect(communicator.postBlock).toBeCalledTimes(Math.ceil((peers.length * (4 - count)) / 4));
+            },
+        );
 
         describe("when blockPing.last - blockPing.first < 500ms", () => {
             it("should wait until 500ms have elapsed between blockPing.last and blockPing.first before broadcasting", async () => {
-                blockchain.getBlockPing = jest.fn().mockReturnValue({ block: block.data, last: 10500, first: 10200, count: 2 });
+                blockchain.getBlockPing = jest
+                    .fn()
+                    .mockReturnValue({ block: block.data, last: 10500, first: 10200, count: 2 });
                 const spySleep = jest.spyOn(Utils, "sleep");
 
                 await networkMonitor.broadcastBlock(block);
-    
-                expect(communicator.postBlock).toBeCalledTimes(Math.ceil(peers.length * 1 / 2));
+
+                expect(communicator.postBlock).toBeCalledTimes(Math.ceil((peers.length * 1) / 2));
                 expect(spySleep).toBeCalledTimes(1);
                 expect(spySleep).toBeCalledWith(200); // 500 - (last - first)
-            })
+            });
 
             it("should not broadcast if during waiting we have received a new block", async () => {
-                blockchain.getBlockPing = jest.fn()
+                blockchain.getBlockPing = jest
+                    .fn()
                     .mockReturnValueOnce({ block: block.data, last: 10500, first: 10200, count: 2 })
-                    .mockReturnValueOnce({ block: { ...block.data, id: "11111111" }, last: 10500, first: 10200, count: 2 });
+                    .mockReturnValueOnce({
+                        block: { ...block.data, id: "11111111" },
+                        last: 10500,
+                        first: 10200,
+                        count: 2,
+                    });
                 const spySleep = jest.spyOn(Utils, "sleep");
 
                 await networkMonitor.broadcastBlock(block);
-    
+
                 expect(communicator.postBlock).toBeCalledTimes(0);
                 expect(spySleep).toBeCalledTimes(1);
-            })
-        })
+            });
+        });
     });
 });

@@ -10,9 +10,11 @@ describe("DisconnectInvalidPeers", () => {
 
     const logger = { warning: jest.fn(), debug: jest.fn() };
     const storage = { getPeers: jest.fn() };
-    const app = { getTagged: () => ({
-        getOptional: () => ["^3.0.0", "^3.0.0-next.0"] // minimumVersions
-    })};
+    const app = {
+        getTagged: () => ({
+            getOptional: () => ["^3.0.0", "^3.0.0-next.0"], // minimumVersions
+        }),
+    };
     const emitter = { dispatch: jest.fn() };
 
     beforeAll(() => {
@@ -38,17 +40,17 @@ describe("DisconnectInvalidPeers", () => {
     beforeEach(() => {
         disconnectInvalidPeers = container.resolve<DisconnectInvalidPeers>(DisconnectInvalidPeers);
         storage.getPeers = jest.fn().mockReturnValue(peers);
-    })
+    });
     afterEach(() => {
         storage.getPeers = jest.fn();
-    })
+    });
 
     describe("handle", () => {
         it("should emit 'internal.p2p.disconnectPeer' for invalid version peers", async () => {
             await disconnectInvalidPeers.handle();
 
             expect(emitter.dispatch).toBeCalledTimes(2); // 2 invalid peers version
-        })
+        });
     });
 });
 
@@ -81,6 +83,6 @@ describe("DisconnectPeer", () => {
             expect(storage.forgetPeer).toBeCalledWith(peer);
             expect(connector.disconnect).toBeCalledTimes(1);
             expect(connector.disconnect).toBeCalledWith(peer);
-        })
+        });
     });
 });

@@ -18,7 +18,7 @@ describe("AcceptPeerPlugin", () => {
             id: "p2p.peer.getPeers",
             handler: () => responsePayload,
             validation: Joi.object().max(0),
-        }
+        },
     };
     const mockRoute = {
         method: "POST",
@@ -27,7 +27,7 @@ describe("AcceptPeerPlugin", () => {
             id: mockRouteByPath["/p2p/peer/mockroute"].id,
             handler: mockRouteByPath["/p2p/peer/mockroute"].handler,
         },
-    }
+    };
     const app = { resolve: jest.fn().mockReturnValue({ getRoutesConfigByPath: () => mockRouteByPath }) };
 
     beforeAll(() => {
@@ -58,10 +58,10 @@ describe("AcceptPeerPlugin", () => {
             url: "/p2p/peer/mockroute",
             payload: {},
             remoteAddress,
-        })
+        });
         expect(JSON.parse(responseValid.payload)).toEqual(responsePayload);
         expect(responseValid.statusCode).toBe(200);
         expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
         expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip: remoteAddress });
-    })
+    });
 });

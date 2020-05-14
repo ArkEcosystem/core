@@ -61,7 +61,7 @@ export class PeerController extends Controller {
                     header: {},
                 },
                 config: getPeerConfig(this.app),
-            }
+            };
         }
 
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, lastBlock.data.height);

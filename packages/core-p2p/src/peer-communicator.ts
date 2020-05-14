@@ -147,20 +147,6 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         );
     }
 
-    private validatePeerConfig(peer: Contracts.P2P.Peer, config: Contracts.P2P.PeerConfig): boolean {
-        if (config.network.nethash !== Managers.configManager.get("network.nethash")) {
-            return false;
-        }
-
-        peer.version = config.version;
-
-        if (!isValidVersion(this.app, peer)) {
-            return false;
-        }
-
-        return true;
-    }
-
     public async getPeers(peer: Contracts.P2P.Peer): Promise<Contracts.P2P.PeerBroadcast[]> {
         this.logger.debug(`Fetching a fresh peer list from ${peer.url}`);
 
@@ -234,6 +220,20 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         return peerBlocks;
     }
 
+    private validatePeerConfig(peer: Contracts.P2P.Peer, config: Contracts.P2P.PeerConfig): boolean {
+        if (config.network.nethash !== Managers.configManager.get("network.nethash")) {
+            return false;
+        }
+
+        peer.version = config.version;
+
+        if (!isValidVersion(this.app, peer)) {
+            return false;
+        }
+
+        return true;
+    }
+
     private parseHeaders(peer: Contracts.P2P.Peer, response): void {
         if (response.headers && response.headers.height) {
             peer.state.height = +response.headers.height;
@@ -277,7 +277,9 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             this.parseHeaders(peer, response.payload);
 
             if (!this.validateReply(peer, response.payload, event)) {
-                throw new Error(`Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.payload)}`);
+                throw new Error(
+                    `Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.payload)}`,
+                );
             }
         } catch (e) {
             this.handleSocketError(peer, event, e);

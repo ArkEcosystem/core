@@ -21,7 +21,7 @@ describe("ListCommand", () => {
 
     it("should list all environment variables", async () => {
         let message: string;
-        jest.spyOn(console, "log").mockImplementationOnce(m => (message = m));
+        jest.spyOn(console, "log").mockImplementationOnce((m) => (message = m));
 
         const envFile: string = `${process.env.CORE_PATH_CONFIG}/.env`;
 

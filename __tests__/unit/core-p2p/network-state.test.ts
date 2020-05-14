@@ -27,13 +27,13 @@ describe("NetworkState", () => {
     } as Blocks.Block;
     const blockchainService = { getLastBlock: () => lastBlock };
     const appGet = {
-        [Container.Identifiers.BlockchainService]: blockchainService
+        [Container.Identifiers.BlockchainService]: blockchainService,
     };
     const configuration = { getOptional: () => 2 }; // minimumNetworkReach
     const app = {
         get: (key) => appGet[key],
         getTagged: () => configuration,
-    }
+    };
     const networkMonitor = {
         app,
         isColdStart: jest.fn(),
@@ -54,8 +54,8 @@ describe("NetworkState", () => {
                 const networkState = await NetworkState.analyze(networkMonitor, peerStorage);
                 expect(networkState.status).toBe(NetworkStateStatus.ColdStart);
                 expect(networkMonitor.completeColdStart).toBeCalledTimes(1);
-            })
-        })
+            });
+        });
 
         describe("when process.env.CORE_ENV='test'", () => {
             it("should return Test status", async () => {
@@ -65,15 +65,15 @@ describe("NetworkState", () => {
                 expect(networkState.status).toBe(NetworkStateStatus.Test);
 
                 delete process.env.CORE_ENV;
-            })
-        })
+            });
+        });
 
         describe("when peers are below minimum network reach", () => {
             it("should return BelowMinimumPeers status", async () => {
                 const networkState = await NetworkState.analyze(networkMonitor, peerStorage);
                 expect(networkState.status).toBe(NetworkStateStatus.BelowMinimumPeers);
-            })
-        })
+            });
+        });
 
         describe("when returning quorum details", () => {
             it("should return accurate quorum values peersNoQuorum peersQuorum peersForked", async () => {
@@ -82,7 +82,7 @@ describe("NetworkState", () => {
                     header: { height: 9, id: "12112607875259085966" },
                     height: 9,
                     forgingAllowed: true,
-                    currentSlot: 10
+                    currentSlot: 10,
                 }; // overheight
                 const peer2 = new Peer("182.168.65.65", 4000);
                 peer2.state = { header: {}, height: 8, forgingAllowed: true, currentSlot: 9 }; // same height
@@ -93,15 +93,14 @@ describe("NetworkState", () => {
                 peer4.verificationResult = new PeerVerificationResult(8, 6, 4); // forked
                 const peer5 = new Peer("185.168.65.65", 4000);
                 peer5.state = { header: {}, height: 6, forgingAllowed: true, currentSlot: 7 }; // below height, not forked
-                peers = [ peer1, peer2, peer3, peer4, peer5 ];
-    
+                peers = [peer1, peer2, peer3, peer4, peer5];
+
                 const networkState = await NetworkState.analyze(networkMonitor, peerStorage);
-    
+
                 expect(networkState.getQuorum()).toBe(3 / 5); // 2 same-height + 1 below-height but not forked
 
                 expect(networkState.getOverHeightBlockHeaders()).toEqual([peer1.state.header]);
-            })
-        })
-    })
-
+            });
+        });
+    });
 });

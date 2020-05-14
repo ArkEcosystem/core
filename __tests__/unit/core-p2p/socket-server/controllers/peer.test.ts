@@ -25,7 +25,7 @@ describe("PeerController", () => {
     const appGet = {
         [Container.Identifiers.BlockchainService]: blockchain,
         [Container.Identifiers.TransactionPoolProcessorFactory]: createProcessor,
-    }
+    };
     const config = { getOptional: jest.fn().mockReturnValue(["127.0.0.1"]) }; // remoteAccess
     const app = {
         get: (key) => appGet[key],
@@ -63,31 +63,31 @@ describe("PeerController", () => {
 
             const peersBroadcast = peerController.getPeers({}, {});
             expect(peersBroadcast).toEqual(
-                [peers[2], peers[1], peers[0], peers[3], peers[4]].map(p => p.toBroadcast())
+                [peers[2], peers[1], peers[0], peers[3], peers[4]].map((p) => p.toBroadcast()),
             );
-        })
+        });
     });
 
     describe("getCommonBlocks", () => {
         it("should return the first common block found and the last height", async () => {
-            const request = { payload: { ids: ["123456789", "111116789"] }};
+            const request = { payload: { ids: ["123456789", "111116789"] } };
             database.getCommonBlocks = jest.fn().mockReturnValueOnce(request.payload.ids);
             const height = 1433;
-            blockchain.getLastBlock = jest.fn().mockReturnValueOnce({ data: { height }});
+            blockchain.getLastBlock = jest.fn().mockReturnValueOnce({ data: { height } });
             const commonBlocks = await peerController.getCommonBlocks(request, {});
 
             expect(commonBlocks).toEqual({
                 common: request.payload.ids[0],
-                lastBlockHeight: height
-            })
-        })
+                lastBlockHeight: height,
+            });
+        });
 
         it("should throw MissingCommonBlockError when no common block found", async () => {
-            const request = { payload: { ids: ["123456789", "111116789"] }};
+            const request = { payload: { ids: ["123456789", "111116789"] } };
             database.getCommonBlocks = jest.fn().mockReturnValueOnce([]);
 
             await expect(peerController.getCommonBlocks(request, {})).rejects.toBeInstanceOf(MissingCommonBlockError);
-        })
+        });
     });
 
     describe("getStatus", () => {
@@ -97,7 +97,7 @@ describe("PeerController", () => {
             const lastBlock = {
                 data: { height },
                 getHeader: () => header,
-            }
+            };
             blockchain.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
             const slotInfo = {
                 forgingStatus: true,
@@ -119,7 +119,7 @@ describe("PeerController", () => {
                 },
                 config: getPeerConfig(app as any),
             });
-        })
+        });
 
         it("should return height=0 and header={} when no last block found", async () => {
             blockchain.getLastBlock = jest.fn();
@@ -143,7 +143,7 @@ describe("PeerController", () => {
                 },
                 config: getPeerConfig(app as any),
             });
-        })
+        });
     });
 
     describe("postBlock", () => {
@@ -175,10 +175,10 @@ describe("PeerController", () => {
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions(blockTooManyTxs.data);
 
                 await expect(
-                    peerController.postBlock({ payload: { block: { data: blockSerialized }}}, {})
+                    peerController.postBlock({ payload: { block: { data: blockSerialized } } }, {}),
                 ).rejects.toBeInstanceOf(TooManyTransactionsError);
-            })
-        })
+            });
+        });
 
         describe("when block is not chained", () => {
             it("should throw UnchainedBlockError", async () => {
@@ -188,14 +188,16 @@ describe("PeerController", () => {
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions(blockUnchained.data);
 
                 await expect(
-                    peerController.postBlock({
-                        payload: { block: { data: blockSerialized } },
-                        info: { remoteAddress: "187.55.33.22" }
-                    }, {})
+                    peerController.postBlock(
+                        {
+                            payload: { block: { data: blockSerialized } },
+                            info: { remoteAddress: "187.55.33.22" },
+                        },
+                        {},
+                    ),
                 ).rejects.toBeInstanceOf(UnchainedBlockError);
-            })
-        })
-
+            });
+        });
 
         describe("when block comes from forger", () => {
             it("should call handleIncomingBlock with the block and fromForger=true", async () => {
@@ -204,18 +206,18 @@ describe("PeerController", () => {
                 config.getOptional.mockReturnValueOnce([ip]);
 
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions(block.data);
-                await peerController.postBlock({
-                    payload: { block: { data: blockSerialized } },
-                    info: { remoteAddress: ip }
-                }, {});
+                await peerController.postBlock(
+                    {
+                        payload: { block: { data: blockSerialized } },
+                        info: { remoteAddress: ip },
+                    },
+                    {},
+                );
 
                 expect(blockchain.handleIncomingBlock).toBeCalledTimes(1);
-                expect(blockchain.handleIncomingBlock).toBeCalledWith(
-                    expect.objectContaining(block.data),
-                    true
-                );
-            })
-        })
+                expect(blockchain.handleIncomingBlock).toBeCalledWith(expect.objectContaining(block.data), true);
+            });
+        });
 
         describe("when block does not come from forger", () => {
             it("should call handleIncomingBlock with the block and fromForger=false", async () => {
@@ -225,34 +227,33 @@ describe("PeerController", () => {
                 config.getOptional.mockReturnValueOnce(["188.66.55.44"]);
 
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions(block.data);
-                await peerController.postBlock({
-                    payload: { block: { data: blockSerialized } },
-                    info: { remoteAddress: ip }
-                }, {});
+                await peerController.postBlock(
+                    {
+                        payload: { block: { data: blockSerialized } },
+                        info: { remoteAddress: ip },
+                    },
+                    {},
+                );
 
                 expect(blockchain.handleIncomingBlock).toBeCalledTimes(1);
-                expect(blockchain.handleIncomingBlock).toBeCalledWith(
-                    expect.objectContaining(block.data),
-                    false
-                );
-            })
-
-        })
+                expect(blockchain.handleIncomingBlock).toBeCalledWith(expect.objectContaining(block.data), false);
+            });
+        });
     });
 
     describe("postTransactions", () => {
         it("should create transaction processor and use it to process the transactions", async () => {
             const transactions = Networks.testnet.genesisBlock.transactions;
-            const processor = { process: jest.fn(), accept: [ transactions[0].id ] };
+            const processor = { process: jest.fn(), accept: [transactions[0].id] };
             createProcessor.mockReturnValueOnce(processor);
 
-            expect(
-                await peerController.postTransactions({ payload: { transactions }}, {})
-            ).toEqual([ transactions[0].id ]);
+            expect(await peerController.postTransactions({ payload: { transactions } }, {})).toEqual([
+                transactions[0].id,
+            ]);
 
             expect(processor.process).toBeCalledTimes(1);
             expect(processor.process).toBeCalledWith(transactions);
-        })
+        });
     });
 
     describe("getBlocks", () => {
@@ -274,8 +275,8 @@ describe("PeerController", () => {
             expect(database.getBlocksForDownload).toBeCalledWith(
                 payload.lastBlockHeight + 1,
                 payload.blockLimit,
-                payload.headersOnly
+                payload.headersOnly,
             );
-        })
+        });
     });
 });

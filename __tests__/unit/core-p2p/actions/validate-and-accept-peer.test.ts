@@ -15,9 +15,9 @@ describe("ValidateAndAcceptPeerAction", () => {
             const peer = { ip: "187.165.33.2", port: 4000 };
             const options = { someParam: 1 };
             await validateAndAcceptPeerAction.execute({ peer, options });
-    
+
             expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
             expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith(peer, options);
-        })
+        });
     });
 });

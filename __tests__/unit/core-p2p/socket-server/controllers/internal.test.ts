@@ -23,7 +23,7 @@ describe("InternalController", () => {
         [Container.Identifiers.TransactionPoolCollator]: poolCollator,
         [Container.Identifiers.TransactionPoolService]: poolService,
         [Container.Identifiers.BlockchainService]: blockchain,
-    }
+    };
     const app = {
         get: (key) => appGet[key],
     };
@@ -45,42 +45,42 @@ describe("InternalController", () => {
     describe("acceptNewPeer", () => {
         it("should call peerProcessor.validateAndAcceptPeer with the ip from payload", async () => {
             const ip = "187.155.66.33";
-            await internalController.acceptNewPeer({ payload: { ip }}, {});
+            await internalController.acceptNewPeer({ payload: { ip } }, {});
 
             expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
             expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip });
-        })
+        });
     });
 
     describe("emitEvent", () => {
         it("should call eventDispatcher.dispatch with {event, body} from payload", () => {
             const event = "test event";
             const body = { stuff: "thing" };
-            internalController.emitEvent({ payload: { event, body }}, {});
+            internalController.emitEvent({ payload: { event, body } }, {});
 
             expect(emitter.dispatch).toBeCalledTimes(1);
             expect(emitter.dispatch).toBeCalledWith(event, body);
-        })
+        });
     });
 
     describe("getUnconfirmedTransactions", () => {
         it("should return the unconfirmed transactions from the pool", async () => {
             const poolSize = 330;
-            const unconfirmedTxs = Networks.testnet.genesisBlock.transactions.map(
-                tx => TransactionFactory.fromData({
+            const unconfirmedTxs = Networks.testnet.genesisBlock.transactions.map((tx) =>
+                TransactionFactory.fromData({
                     ...tx,
                     amount: Utils.BigNumber.make(tx.amount),
                     fee: Utils.BigNumber.make(1000000),
-                })
+                }),
             );
             poolService.getPoolSize = jest.fn().mockReturnValueOnce(poolSize);
             poolCollator.getBlockCandidateTransactions = jest.fn().mockReturnValueOnce(unconfirmedTxs);
 
             expect(await internalController.getUnconfirmedTransactions({}, {})).toEqual({
                 poolSize,
-                transactions: unconfirmedTxs.map(tx => tx.serialized.toString("hex")),
+                transactions: unconfirmedTxs.map((tx) => tx.serialized.toString("hex")),
             });
-        })
+        });
     });
 
     describe("getCurrentRound", () => {
@@ -103,7 +103,7 @@ describe("InternalController", () => {
             },
             transactions: [],
         } as Blocks.Block;
-        
+
         it("should return the info of the current round", async () => {
             blockchain.getLastBlock = jest.fn().mockReturnValueOnce(block);
             const delegates = [
@@ -124,7 +124,7 @@ describe("InternalController", () => {
                 currentForger: 0,
                 nextForger: 1,
                 canForge: true,
-            }
+            };
             jest.spyOn(KernelUtils.forgingInfoCalculator, "calculateForgingInfo").mockReturnValueOnce(forgingInfo);
             const roundInfo = { round: 1, nextRound: 2, maxDelegates: 71, roundHeight: 1 };
             jest.spyOn(KernelUtils.roundCalculator, "calculateRound").mockReturnValueOnce(roundInfo);
@@ -140,8 +140,8 @@ describe("InternalController", () => {
                 nextForger: delegates[forgingInfo.nextForger],
                 lastBlock: block.data,
                 canForge: forgingInfo.canForge,
-            })
-        })
+            });
+        });
     });
 
     describe("getNetworkState", () => {
@@ -153,7 +153,7 @@ describe("InternalController", () => {
 
             expect(networkState).toEqual(networkStateMock);
             expect(networkMonitor.getNetworkState).toBeCalledTimes(1);
-        })
+        });
     });
 
     describe("syncBlockchain", () => {
@@ -161,6 +161,6 @@ describe("InternalController", () => {
             internalController.syncBlockchain({}, {});
 
             expect(blockchain.forceWakeup).toBeCalledTimes(1);
-        })
+        });
     });
 });

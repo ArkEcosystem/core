@@ -11,7 +11,7 @@ describe("validate", () => {
         validate(schema, data);
 
         expect(spyValidate).toBeCalledWith(schema, data);
-    })
+    });
 
     it("should throw if crypto validate() returns errors", () => {
         const spyValidate = jest.spyOn(Validation.validator, "validate");
@@ -24,5 +24,5 @@ describe("validate", () => {
         expect(() => validate(schema, data)).toThrow(expectedError);
 
         expect(spyValidate).toBeCalledWith(schema, data);
-    })
+    });
 });

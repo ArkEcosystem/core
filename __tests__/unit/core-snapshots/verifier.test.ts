@@ -5,7 +5,7 @@ import { Assets } from "./__fixtures__";
 
 afterEach(() => {
     jest.clearAllMocks();
-})
+});
 
 describe("Verifier", () => {
     describe("verifyBlock", () => {
@@ -14,54 +14,62 @@ describe("Verifier", () => {
         });
 
         it("should be true if chained", async () => {
-            let firstBlock = {...Assets.blocksBigNumber[0]};
-            let secondBlock = {...Assets.blocksBigNumber[1]};
+            let firstBlock = { ...Assets.blocksBigNumber[0] };
+            let secondBlock = { ...Assets.blocksBigNumber[1] };
 
             firstBlock.id = secondBlock.previousBlock; // Genesis block fix
 
-            Verifier.verifyBlock(secondBlock, firstBlock)
+            Verifier.verifyBlock(secondBlock, firstBlock);
         });
 
         it("should throw if block is not chained", async () => {
-            let firstBlock = {...Assets.blocksBigNumber[0]};
-            let secondBlock = {...Assets.blocksBigNumber[1]};
+            let firstBlock = { ...Assets.blocksBigNumber[0] };
+            let secondBlock = { ...Assets.blocksBigNumber[1] };
 
             firstBlock.id = "123";
 
-            expect(() => { Verifier.verifyBlock(secondBlock, firstBlock)}).toThrow();
+            expect(() => {
+                Verifier.verifyBlock(secondBlock, firstBlock);
+            }).toThrow();
         });
 
         it("should throw", async () => {
-            let block = {...Assets.blocksBigNumber[0]};
+            let block = { ...Assets.blocksBigNumber[0] };
 
             block.payloadLength = 123;
 
-            expect(() => { Verifier.verifyBlock(block, undefined)}).toThrow();
+            expect(() => {
+                Verifier.verifyBlock(block, undefined);
+            }).toThrow();
         });
 
         it("should throw if verifyECDSA throws error", async () => {
             Crypto.Hash.verifyECDSA = jest.fn().mockImplementation(() => {
                 throw new Error();
-            })
+            });
 
-            let block = {...Assets.blocksBigNumber[0]};
+            let block = { ...Assets.blocksBigNumber[0] };
 
-            expect(() => { Verifier.verifyBlock(block, undefined)}).toThrow();
+            expect(() => {
+                Verifier.verifyBlock(block, undefined);
+            }).toThrow();
         });
     });
 
     describe("verifyTransaction", () => {
         it("should be ok", async () => {
-            Verifier.verifyTransaction(Assets.transactions[0])
+            Verifier.verifyTransaction(Assets.transactions[0]);
         });
 
         it("should throw if transaction is not valid", async () => {
             Transactions.TransactionFactory.fromBytes = jest.fn().mockReturnValue(false);
-            let transaction = {...Assets.transactions[0]};
+            let transaction = { ...Assets.transactions[0] };
 
             transaction.timestamp = 100;
 
-            expect(() => {Verifier.verifyTransaction(transaction)}).toThrow();
+            expect(() => {
+                Verifier.verifyTransaction(transaction);
+            }).toThrow();
         });
 
         it("should throw if fromBytes throws error", async () => {
@@ -69,25 +77,29 @@ describe("Verifier", () => {
                 throw new Error();
             });
 
-            let transaction = {...Assets.transactions[0]};
+            let transaction = { ...Assets.transactions[0] };
 
             transaction.timestamp = 100;
 
-            expect(() => {Verifier.verifyTransaction(transaction)}).toThrow();
+            expect(() => {
+                Verifier.verifyTransaction(transaction);
+            }).toThrow();
         });
     });
 
     describe("verifyRound", () => {
         it("should be ok", async () => {
-            Verifier.verifyRound(Assets.rounds[0])
+            Verifier.verifyRound(Assets.rounds[0]);
         });
 
         it("should throw", async () => {
-            let round = {...Assets.rounds[0]};
+            let round = { ...Assets.rounds[0] };
 
-            round.publicKey = "123123"
+            round.publicKey = "123123";
 
-            expect(() => {Verifier.verifyRound(round)}).toThrow();
+            expect(() => {
+                Verifier.verifyRound(round);
+            }).toThrow();
         });
     });
 });

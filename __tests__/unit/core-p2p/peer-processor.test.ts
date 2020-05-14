@@ -29,7 +29,7 @@ describe("PeerProcessor", () => {
         forgetPendingPeer: jest.fn(),
     };
     const peerFactory = (ip) => new Peer(ip, 4000);
-    const appGet = { [Container.Identifiers.PeerFactory]: peerFactory }
+    const appGet = { [Container.Identifiers.PeerFactory]: peerFactory };
     const app = { get: (key) => appGet[key], resolve: jest.fn() };
 
     beforeAll(() => {
@@ -61,7 +61,7 @@ describe("PeerProcessor", () => {
             expect(peerStorage.setPendingPeer).toBeCalledTimes(1);
             expect(peerCommunicator.ping).toBeCalledTimes(1);
             expect(peerStorage.setPeer).toBeCalledTimes(1);
-        })
+        });
 
         it("should disconnect the peer on any error", async () => {
             const peer = new Peer("178.165.55.55", 4000);
@@ -74,7 +74,7 @@ describe("PeerProcessor", () => {
             expect(peerCommunicator.ping).toBeCalledTimes(1);
             expect(peerStorage.setPeer).toBeCalledTimes(0);
             expect(peerConnector.disconnect).toBeCalledTimes(1);
-        })
+        });
 
         it("should not do anything if peer is already added", async () => {
             const peer = new Peer("178.165.55.55", 4000);
@@ -86,7 +86,7 @@ describe("PeerProcessor", () => {
             expect(peerStorage.setPendingPeer).toBeCalledTimes(0);
             expect(peerCommunicator.ping).toBeCalledTimes(0);
             expect(peerStorage.setPeer).toBeCalledTimes(0);
-        })
+        });
     });
 
     describe("validatePeerIp", () => {
@@ -119,17 +119,14 @@ describe("PeerProcessor", () => {
         });
 
         it("should return false when there are already too many peers on the peer subnet and not in seed mode", () => {
-            const sameSubnetPeers = [
-                new Peer("178.165.55.50", 4000),
-                new Peer("178.165.55.51", 4000),
-            ];
+            const sameSubnetPeers = [new Peer("178.165.55.50", 4000), new Peer("178.165.55.51", 4000)];
             peerStorage.getSameSubnetPeers = jest.fn().mockReturnValueOnce(sameSubnetPeers);
             expect(peerProcessor.validatePeerIp(peer)).toBeFalse();
         });
 
         it("should return true otherwise", () => {
             peerStorage.getSameSubnetPeers = jest.fn().mockReturnValueOnce([]);
-            
+
             expect(peerProcessor.validatePeerIp(peer)).toBeTrue();
         });
     });
