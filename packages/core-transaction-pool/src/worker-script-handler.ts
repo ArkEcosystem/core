@@ -9,7 +9,7 @@ export class WorkerScriptHandler implements Contracts.TransactionPool.WorkerScri
         }
     }
 
-    public setNetworkConfig(networkConfig: any): void {
+    public setConfig(networkConfig: any): void {
         Managers.configManager.setConfig(networkConfig);
     }
 

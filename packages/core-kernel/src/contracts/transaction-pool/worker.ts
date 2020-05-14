@@ -9,7 +9,7 @@ export type SerializedTransaction = {
 
 export interface WorkerScriptHandler {
     loadCryptoPackage(packageName: string): void;
-    setNetworkConfig(networkConfig: any): void;
+    setConfig(networkConfig: any): void;
     setHeight(height: number): void;
     setMilestone(milestoneData: Interfaces.IMilestone["data"]): void;
     getTransactionFromData(transactionData: Interfaces.ITransactionData): Promise<SerializedTransaction>;

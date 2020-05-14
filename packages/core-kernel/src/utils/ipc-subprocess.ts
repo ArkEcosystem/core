@@ -8,19 +8,17 @@ type Requests<T extends {}> = {
     [K in keyof T]: T[K] extends (...args: any[]) => any ? (ReturnType<T[K]> extends Promise<any> ? K : never) : never;
 }[keyof T];
 
-type SuccessReply<T, K extends Requests<T>> = {
+type SuccessReply = {
     id: number;
-    method: K;
-    result: ReturnType<T[K]>;
+    result: any;
 };
 
-type ErrorReply<T, K extends Requests<T>> = {
+type ErrorReply = {
     id: number;
-    method: K;
     error: string;
 };
 
-type Reply<T, K extends Requests<T>> = SuccessReply<T, K> | ErrorReply<T, K>;
+type Reply = SuccessReply | ErrorReply;
 
 type RequestCallback<T, K extends Requests<T>> = {
     resolve: (result: ReturnType<T[K]>) => void;
@@ -36,16 +34,7 @@ export class IpcSubprocess<T> {
 
     public constructor(subprocess: ChildProcess) {
         this.subprocess = subprocess;
-        this.subprocess.on("message", (message: Reply<T, Requests<T>>) => {
-            const cb = this.callbacks.get(message.id);
-            if (cb) {
-                try {
-                    "error" in message ? cb.reject(new Error(message.error)) : cb.resolve(message.result);
-                } finally {
-                    this.callbacks.delete(message.id);
-                }
-            }
-        });
+        this.subprocess.on("message", this.onSubprocessMessage.bind(this));
     }
 
     public getQueueSize(): number {
@@ -62,5 +51,17 @@ export class IpcSubprocess<T> {
             this.callbacks.set(id, { resolve, reject });
             this.subprocess.send({ id, method, args });
         });
+    }
+
+    private onSubprocessMessage(message: Reply): void {
+        try {
+            if ("error" in message) {
+                this.callbacks.get(message.id)?.reject(new Error(message.error));
+            } else {
+                this.callbacks.get(message.id)?.resolve(message.result);
+            }
+        } finally {
+            this.callbacks.delete(message.id);
+        }
     }
 }

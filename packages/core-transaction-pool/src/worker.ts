@@ -29,7 +29,7 @@ export class Worker implements Contracts.TransactionPool.Worker {
         if (currentHeight !== this.lastHeight) {
             this.lastHeight = currentHeight;
             this.ipcSubprocess.sendAction("setHeight", currentHeight);
-            this.ipcSubprocess.sendAction("setNetworkConfig", Managers.configManager["config"]);
+            this.ipcSubprocess.sendAction("setConfig", Managers.configManager["config"]);
             this.ipcSubprocess.sendAction("setMilestone", Managers.configManager.getMilestone());
         }
 
