@@ -14,6 +14,7 @@ export class Action implements Actions.Action {
     }
 
     private getDatabaseDefaults() {
+        // todo: this has to be grabbed from the container for the alias `database` or the manager will only work with official plugins
         return require("@arkecosystem/core-database/dist/defaults").defaults;
     }
 
