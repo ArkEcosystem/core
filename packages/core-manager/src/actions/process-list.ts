@@ -25,6 +25,8 @@ export class Action implements Actions.Action {
         for (const processInfo of processList) {
             delete processInfo.pm2_env;
 
+            processInfo.monit.memory = Math.round(processInfo.monit.memory / 1024);
+
             processInfo.status = processManager.status(processInfo.name) || "undefined";
         }
 

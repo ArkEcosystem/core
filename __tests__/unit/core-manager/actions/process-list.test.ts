@@ -59,7 +59,7 @@ describe("Process:List", () => {
                 name: "ark-manager",
                 pm_id: 0,
                 monit: {
-                    memory: 98283520,
+                    memory: 95980,
                     cpu: 0.1,
                 },
                 status: "online",
