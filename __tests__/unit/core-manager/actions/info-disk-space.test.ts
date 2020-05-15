@@ -33,7 +33,7 @@ beforeEach(() => {
     action = sandbox.app.resolve(Action);
 });
 
-describe("Info:CoreVersion", () => {
+describe("Info:DiskSpace", () => {
     it("should have name", () => {
         expect(action.name).toEqual("info.diskSpace");
     });

@@ -1,10 +1,10 @@
 import "jest-extended";
 
-import { Sandbox } from "@packages/core-test-framework";
 import { ProcessState } from "@packages/core-cli/src/contracts";
 import { Action } from "@packages/core-manager/src/actions/info-core-status";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import { HttpClient } from "@packages/core-manager/src/utils";
+import { Sandbox } from "@packages/core-test-framework";
 
 let sandbox: Sandbox;
 let action: Action;
@@ -42,11 +42,11 @@ describe("Info:CoreStatus", () => {
     });
 
     it("should return status and syncing using HTTP", async () => {
-        let promise = action.execute({});
+        const promise = action.execute({});
 
         await expect(promise).toResolve();
 
-        let result = await promise;
+        const result = await promise;
 
         expect(result).toEqual({ processStatus: "online", syncing: true });
     });
@@ -54,11 +54,11 @@ describe("Info:CoreStatus", () => {
     it("should return status and syncing using HTTPS", async () => {
         process.env.CORE_API_DISABLED = "true";
 
-        let promise = action.execute({});
+        const promise = action.execute({});
 
         await expect(promise).toResolve();
 
-        let result = await promise;
+        const result = await promise;
 
         expect(result).toEqual({ processStatus: "online", syncing: true });
     });
@@ -68,11 +68,11 @@ describe("Info:CoreStatus", () => {
             throw new Error();
         });
 
-        let promise = action.execute({});
+        const promise = action.execute({});
 
         await expect(promise).toResolve();
 
-        let result = await promise;
+        const result = await promise;
 
         expect(result).toEqual({ processStatus: "online", syncing: undefined });
     });
@@ -82,11 +82,11 @@ describe("Info:CoreStatus", () => {
             status: jest.fn().mockReturnValue(undefined),
         });
 
-        let promise = action.execute({});
+        const promise = action.execute({});
 
         await expect(promise).toResolve();
 
-        let result = await promise;
+        const result = await promise;
 
         expect(result).toEqual({ processStatus: "undefined", syncing: true });
     });
