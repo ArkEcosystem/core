@@ -69,7 +69,7 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
                 }
             }
 
-            return { rows, count, countIsEstimate: true };
+            return { rows, count: Math.max(count, rows.length), countIsEstimate: true };
         }
     }
 
