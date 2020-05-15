@@ -34,6 +34,7 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         expression: Contracts.Search.Expression<TEntity>,
         order: Contracts.Search.ListOrder,
         page: Contracts.Search.ListPage,
+        options?: Contracts.Search.ListOptions,
     ): Promise<Contracts.Search.ListResult<TEntity>> {
         const queryBuilder = this.createQueryBuilder().select().skip(page.offset).take(page.limit);
 
@@ -52,8 +53,24 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
             }
         }
 
-        const [rows, count]: [TEntity[], number] = await queryBuilder.getManyAndCount();
-        return { rows, count, countIsEstimate: false };
+        if (options?.estimateCount === false) {
+            const [rows, count]: [TEntity[], number] = await queryBuilder.getManyAndCount();
+            return { rows, count, countIsEstimate: false };
+        } else {
+            const rows = await queryBuilder.getMany();
+
+            let count = 0;
+            const [query, parameters] = queryBuilder.getQueryAndParameters();
+            const explainedQuery = await this.query(`EXPLAIN ${query}`, parameters);
+            for (const row of explainedQuery) {
+                const match = row["QUERY PLAN"].match(/rows=([0-9]+)/);
+                if (match) {
+                    count = parseFloat(match[1]);
+                }
+            }
+
+            return { rows, count, countIsEstimate: true };
+        }
     }
 
     protected rawToEntity(
