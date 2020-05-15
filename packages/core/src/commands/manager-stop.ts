@@ -1,5 +1,4 @@
-import { Commands, Container, Utils } from "@arkecosystem/core-cli";
-import { Networks } from "@arkecosystem/crypto";
+import { Commands, Container } from "@arkecosystem/core-cli";
 import Joi from "@hapi/joi";
 
 /**
@@ -15,7 +14,7 @@ export class Command extends Commands.Command {
      * @type {string}
      * @memberof Command
      */
-    public signature: string = "manager:run";
+    public signature: string = "manager:stop";
 
     /**
      * The console command description.
@@ -23,8 +22,7 @@ export class Command extends Commands.Command {
      * @type {string}
      * @memberof Command
      */
-    public description: string =
-        "Run the Manager process in background. Exiting the process will stop it from running.";
+    public description: string = "Stop the Manager process.";
 
     /**
      * Configure the console command.
@@ -35,8 +33,7 @@ export class Command extends Commands.Command {
     public configure(): void {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
-            .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
-            .setFlag("env", "", Joi.string().default("production"));
+            .setFlag("daemon", "Stop the Core process or daemon.", Joi.boolean());
     }
 
     /**
@@ -46,11 +43,8 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        const flags = { ...this.getFlags() };
-        flags.processType = "manager";
-
-        await Utils.buildApplication({
-            flags,
-        });
+        this.app
+            .get<any>(Container.Identifiers.ProcessFactory)(this.getFlag("token"), "manager")
+            .stop(this.getFlag("daemon"));
     }
 }
