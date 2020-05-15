@@ -138,11 +138,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 } catch (error) {
                     unresponsivePeers++;
 
-                    if (peerErrors[error]) {
-                        peerErrors[error].push(peer);
-                    } else {
-                        peerErrors[error] = [peer];
-                    }
+                    peerErrors[error] = peerErrors[error] || [];
+                    peerErrors[error].push(peer);
 
                     this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
                     this.emitter.dispatch(Enums.PeerEvent.Removed, peer);
@@ -497,15 +494,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         this.logger.debug(`Checking ports of ${Utils.pluralize("peer", peers.length, true)}.`);
 
-        Promise.all(
-            peers.map(async (peer) => {
-                try {
-                    return await this.communicator.pingPorts(peer);
-                } catch (error) {
-                    return undefined;
-                }
-            }),
-        );
+        Promise.all(peers.map((peer) => this.communicator.pingPorts(peer)));
     }
 
     private async checkDNSConnectivity(options): Promise<void> {
