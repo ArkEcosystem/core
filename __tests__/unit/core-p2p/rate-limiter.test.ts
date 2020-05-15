@@ -29,7 +29,24 @@ describe("RateLimiter", () => {
         rateLimiter = new RateLimiter(rateLimitConfig);
     });
 
-    describe("hasExceededRateLimit", () => {});
+    describe("hasExceededRateLimit", () => {
+        it("should return true until it hits global rate limit", async () => {
+            const ip = "187.155.66.55";
+            for (let i = 0; i < 20; i++) {
+                expect(await rateLimiter.hasExceededRateLimit(ip)).toBeFalse();
+            }
+            expect(await rateLimiter.hasExceededRateLimit(ip)).toBeTrue();
+        })
+
+        it("should return true until it hits endpoint rate limit", async () => {
+            const ip = "187.155.66.55";
+            const endpoint = "endpoint.1";
+            for (let i = 0; i < 5; i++) {
+                expect(await rateLimiter.hasExceededRateLimit(ip, endpoint)).toBeFalse();
+            }
+            expect(await rateLimiter.hasExceededRateLimit(ip, endpoint)).toBeTrue();
+        })
+    });
 
     describe("getRateLimitedEndpoints", () => {
         it("should return the rate limited endpoints", () => {
@@ -39,5 +56,19 @@ describe("RateLimiter", () => {
         });
     });
 
-    describe("isBlocked", () => {});
+    describe("isBlocked", () => {
+        it("should return true when ip is blocked, false when it is not", async () => {
+            const ip = "187.155.66.55";
+            for (let i = 0; i < 19; i++) {
+                expect(await rateLimiter.hasExceededRateLimit(ip)).toBeFalse();
+                expect(await rateLimiter.isBlocked(ip)).toBeFalse();
+            }
+
+            expect(await rateLimiter.hasExceededRateLimit(ip)).toBeFalse();
+            expect(await rateLimiter.isBlocked(ip)).toBeTrue(); // no remaining points
+            
+            expect(await rateLimiter.hasExceededRateLimit(ip)).toBeTrue();
+            expect(await rateLimiter.isBlocked(ip)).toBeTrue();
+        })
+    });
 });

@@ -1,6 +1,7 @@
 import { Container, Application, Providers, Services } from "@arkecosystem/core-kernel";
 
 import { ServiceProvider } from "@arkecosystem/core-p2p/src/service-provider";
+import { Peer } from "@arkecosystem/core-p2p/src/peer";
 
 describe("ServiceProvider", () => {
     const serverSymbol = Symbol.for("P2P<Server>");
@@ -18,9 +19,10 @@ describe("ServiceProvider", () => {
         [serverSymbol]: mockServer,
         [Container.Identifiers.TriggerService]: triggerService,
     };
+    let factoryBound; 
     const appBind = {
         to: () => ({ inSingletonScope: () => {} }),
-        toFactory: () => {},
+        toFactory: (factoryFn) => { factoryBound = factoryFn },
     };
     let application = {
         bind: (key) => appBind,
@@ -78,6 +80,11 @@ describe("ServiceProvider", () => {
 
             expect(spyBind).toBeCalledWith(serverSymbol);
             expect(mockServer.initialize).toBeCalledTimes(1);
+
+            // factory bound should be peer factory, testing it
+            const ip = "188.133.1.2";
+            const testPeer = factoryBound()(ip);
+            expect(testPeer).toBeInstanceOf(Peer);
         });
 
         it("should not build server when process.env.DISABLE_P2P_SERVER", async () => {
