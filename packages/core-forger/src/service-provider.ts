@@ -5,7 +5,7 @@ import { DelegateFactory } from "./delegate-factory";
 import { DelegateTracker } from "./delegate-tracker";
 import { ForgerService } from "./forger-service";
 import { Delegate } from "./interfaces";
-// import { TestRemoteAction } from "./remote-actions";
+import { TestRemoteAction } from "./remote-actions";
 
 /**
  * @export
@@ -75,9 +75,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     private registerRemoteActions(): void {
-        // this.app
-        //     .get<Contracts.Kernel.RemoteActionsService>(Container.Identifiers.RemoteActionsService)
-        //     .register(new TestRemoteAction());
+        this.app
+            .get<Contracts.Kernel.RemoteActionsService>(Container.Identifiers.RemoteActionsService)
+            .register(new TestRemoteAction());
     }
 
     /**
