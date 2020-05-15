@@ -1,6 +1,7 @@
-import { ServiceProvider } from "@arkecosystem/core-forger/src/service-provider";
-import { DelegateFactory } from "@arkecosystem/core-forger/src/delegate-factory";
-import { Container, Application, Providers } from "@arkecosystem/core-kernel";
+import { ServiceProvider } from "@packages/core-forger/src/service-provider";
+import { DelegateFactory } from "@packages/core-forger/src/delegate-factory";
+import { Container, Application, Providers } from "@packages/core-kernel";
+import { Pm2RemoteActionsService } from "@packages/core-kernel/src/services/remote-actions/drivers/pm2";
 
 describe("ServiceProvider", () => {
     let app: Application;
@@ -20,10 +21,11 @@ describe("ServiceProvider", () => {
         app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
         app.bind(Container.Identifiers.TriggerService).toConstantValue(triggerService);
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.RemoteActionsService).to(Pm2RemoteActionsService).inSingletonScope();
 
         app.config("delegates", { secrets: [], bip38: "dummy bip 38" });
         app.config("app", { flags: { bip38: "dummy bip 38", password: "dummy pwd" } });
-        
+
         serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
 
         const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
@@ -78,7 +80,7 @@ describe("ServiceProvider", () => {
 
             const anotherBip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4fe"} as any;
             jest.spyOn(DelegateFactory, "fromBIP39").mockReturnValueOnce(anotherBip39DelegateMock);
-            
+
             await serviceProvider.boot();
 
             expect(forgerService.boot).toBeCalledTimes(1);
