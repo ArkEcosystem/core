@@ -8,7 +8,7 @@ export class Pm2RemoteActionsService implements RemoteActionsService {
     public register(remoteAction: RemoteAction): void {
         pmx.action(remoteAction.name, (reply) => {
             remoteAction
-                .handler({})
+                .handler()
                 .then((response) => {
                     reply({ response: response });
                 })
