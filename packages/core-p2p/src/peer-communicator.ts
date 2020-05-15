@@ -155,24 +155,14 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     }
 
     public async hasCommonBlocks(peer: Contracts.P2P.Peer, ids: string[], timeoutMsec?: number): Promise<any> {
-        try {
-            const getCommonBlocksTimeout = timeoutMsec && timeoutMsec < 5000 ? timeoutMsec : 5000;
-            const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, getCommonBlocksTimeout);
+        const getCommonBlocksTimeout = timeoutMsec && timeoutMsec < 5000 ? timeoutMsec : 5000;
+        const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, getCommonBlocksTimeout);
 
-            if (!body || !body.common) {
-                return false;
-            }
-
-            return body.common;
-        } catch (error) {
-            const sfx = timeoutMsec !== undefined ? ` within ${timeoutMsec} ms` : "";
-
-            this.logger.error(`Could not determine common blocks with ${peer.ip}${sfx}: ${error.message}`);
-
-            this.emitter.dispatch(Enums.PeerEvent.Disconnect, { peer });
+        if (!body || !body.common) {
+            return false;
         }
 
-        return false;
+        return body.common;
     }
 
     public async getPeerBlocks(
@@ -198,7 +188,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             maxPayload,
         );
 
-        if (!peerBlocks) {
+        if (!peerBlocks || !peerBlocks.length) {
             this.logger.debug(
                 `Peer ${peer.ip} did not return any blocks via height ${fromBlockHeight.toLocaleString()}.`,
             );
@@ -277,9 +267,11 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             this.parseHeaders(peer, response.payload);
 
             if (!this.validateReply(peer, response.payload, event)) {
-                throw new Error(
+                const validationError = new Error(
                     `Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.payload)}`,
                 );
+                validationError.name = SocketErrors.Validation;
+                throw validationError;
             }
         } catch (e) {
             this.handleSocketError(peer, event, e);
