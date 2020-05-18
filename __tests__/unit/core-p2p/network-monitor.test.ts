@@ -575,10 +575,10 @@ describe("NetworkMonitor", () => {
             // 7 peers are forked out of 10
             peers[0].verificationResult = new PeerVerificationResult(43, 47, 31);
             peers[1].verificationResult = new PeerVerificationResult(43, 47, 31);
-            peers[2].verificationResult = new PeerVerificationResult(43, 47, 35);
+            peers[2].verificationResult = new PeerVerificationResult(43, 47, 31);
             peers[3].verificationResult = new PeerVerificationResult(43, 47, 35);
             peers[4].verificationResult = new PeerVerificationResult(43, 47, 35);
-            peers[5].verificationResult = new PeerVerificationResult(43, 47, 12);
+            peers[5].verificationResult = new PeerVerificationResult(43, 47, 35);
             peers[6].verificationResult = new PeerVerificationResult(43, 47, 12);
 
             beforeEach(() => {
@@ -627,7 +627,7 @@ describe("NetworkMonitor", () => {
         it("should return empty array and log an error when we have zero peer", async () => {
             storage.getPeers = jest.fn().mockReturnValue([]);
 
-            expect(await networkMonitor.downloadBlocksFromHeight(1, maxParallelDownloads)).toEqual([]);
+            expect(await networkMonitor.downloadBlocksFromHeight(1)).toEqual([]);
             expect(logger.error).toBeCalledTimes(1);
             expect(logger.error).toBeCalledWith("Could not download blocks: we have 0 peers");
         });

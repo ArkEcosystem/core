@@ -11,6 +11,7 @@ import {
 import delay from "delay";
 import { PeerVerificationResult } from "@arkecosystem/core-p2p/src/peer-verifier";
 import { replySchemas } from "@arkecosystem/core-p2p/src/schemas";
+import { constants } from "@arkecosystem/core-p2p/src/constants";
 
 Managers.configManager.getMilestone().aip11 = true;
 
@@ -482,7 +483,6 @@ describe("PeerCommunicator", () => {
             const event = "p2p.peer.getBlocks";
             const options = {
                 fromBlockHeight: 1,
-                blockLimit: 1,
                 headersOnly: true,
             };
             const peer = new Peer("187.168.65.65", 4000);
@@ -493,7 +493,7 @@ describe("PeerCommunicator", () => {
 
             const expectedEmitPayload = {
                 lastBlockHeight: options.fromBlockHeight,
-                blockLimit: options.blockLimit,
+                blockLimit: constants.MAX_DOWNLOAD_BLOCKS, // default value when blockLimit not specified
                 headersOnly: options.headersOnly,
                 serialized: true,
             };
