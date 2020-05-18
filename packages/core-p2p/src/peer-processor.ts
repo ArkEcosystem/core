@@ -74,7 +74,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         return true;
     }
 
-    private async acceptNewPeer(peer, options: Contracts.P2P.AcceptNewPeerOptions = {}): Promise<void> {
+    private async acceptNewPeer(peer, options: Contracts.P2P.AcceptNewPeerOptions): Promise<void> {
         if (this.storage.hasPeer(peer.ip)) {
             return;
         }
