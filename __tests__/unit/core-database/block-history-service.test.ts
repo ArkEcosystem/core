@@ -109,7 +109,7 @@ describe("BlockHistoryService.listByCriteria", () => {
         const result = await blockHistoryService.listByCriteria(criteria, order, page);
 
         expect(blockFilter.getExpression).toBeCalledWith(criteria);
-        expect(blockRepository.listByExpression).toBeCalledWith(expression, order, page);
+        expect(blockRepository.listByExpression).toBeCalledWith(expression, order, page, undefined);
         expect(blockModelConverter.getBlockData).toBeCalledWith(model1);
         expect(blockModelConverter.getBlockData).toBeCalledWith(model2);
         expect(result).toEqual({

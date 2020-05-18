@@ -34,9 +34,10 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
         criteria: Contracts.Shared.OrBlockCriteria,
         order: Contracts.Search.ListOrder,
         page: Contracts.Search.ListPage,
+        options?: Contracts.Search.ListOptions,
     ): Promise<Contracts.Search.ListResult<Interfaces.IBlockData>> {
         const expression = await this.blockFilter.getExpression(criteria);
-        const listResult = await this.blockRepository.listByExpression(expression, order, page);
+        const listResult = await this.blockRepository.listByExpression(expression, order, page, options);
         const rows = listResult.rows.map((m) => this.blockModelConverter.getBlockData(m));
         return { ...listResult, rows };
     }
