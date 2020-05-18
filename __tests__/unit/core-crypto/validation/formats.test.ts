@@ -1,8 +1,16 @@
 import "jest-extended";
 
-import { Managers, Validation } from "../../../../packages/crypto/";
+import { CryptoManager } from "@packages/core-crypto";
+import { Validator } from "@packages/core-crypto/src/validation/index";
 
-const ajv = Validation.validator.getInstance();
+let ajv;
+let crypto: CryptoManager;
+
+beforeAll(() => {
+    crypto = CryptoManager.createFromPreset("devnet");
+    const validator = Validator.make(crypto);
+    ajv = validator.getInstance();
+});
 
 describe("format vendorField", () => {
     it("should be ok with 64 bytes", () => {
@@ -26,14 +34,12 @@ describe("format vendorField", () => {
     });
 
     it("should be ok with up to 255 bytes with milestone ", () => {
-        Managers.configManager.getMilestone().vendorFieldLength = 255;
+        crypto.MilestoneManager.getMilestone().vendorFieldLength = 255;
         const schema = { type: "string", format: "vendorField" };
         const validate = ajv.compile(schema);
         expect(validate("a".repeat(65))).toBeTrue();
         expect(validate("⊁".repeat(85))).toBeTrue();
         expect(validate("a".repeat(256))).toBeFalse();
         expect(validate("⊁".repeat(86))).toBeFalse();
-
-        Managers.configManager.getMilestone().vendorFieldLength = 64;
     });
 });
