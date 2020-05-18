@@ -36,9 +36,10 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
         criteria: Contracts.Shared.OrTransactionCriteria,
         order: Contracts.Search.ListOrder,
         page: Contracts.Search.ListPage,
+        options?: Contracts.Search.ListOptions,
     ): Promise<Contracts.Search.ListResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getExpression(criteria);
-        const listResult = await this.transactionRepository.listByExpression(expression, order, page);
+        const listResult = await this.transactionRepository.listByExpression(expression, order, page, options);
         const rows = listResult.rows.map((m) => this.transactionModelConverter.getTransactionData(m));
         return { ...listResult, rows };
     }
