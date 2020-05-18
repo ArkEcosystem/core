@@ -22,7 +22,7 @@ export const Identifiers = {
     FilesystemManager: Symbol.for("Manager<Filesystem>"),
     LogManager: Symbol.for("Manager<Log>"),
     QueueManager: Symbol.for("Manager<Queue>"),
-    RemoteActionManager: Symbol.for("Manager<RemoteAction>"),
+    ProcessActionsManager: Symbol.for("Manager<ProcessAction>"),
     ValidationManager: Symbol.for("Manager<Validation>"),
     // Services
     BlockchainService: Symbol.for("Service<Blockchain>"),
@@ -39,7 +39,7 @@ export const Identifiers = {
     ScheduleService: Symbol.for("Service<Schedule>"),
     SnapshotService: Symbol.for("Service<Snapshot>"),
     TriggerService: Symbol.for("Service<Actions>"),
-    RemoteActionsService: Symbol.for("Service<RemoteActions>"),
+    ProcessActionsService: Symbol.for("Service<ProcessActions>"),
     ValidationService: Symbol.for("Service<Validation>"),
     BlockHistoryService: Symbol.for("Service<BlockHistory>"),
     TransactionHistoryService: Symbol.for("Service<TransactionHistory>"),

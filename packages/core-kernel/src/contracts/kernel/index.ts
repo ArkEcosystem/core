@@ -7,5 +7,5 @@ export * from "./filesystem";
 export * from "./log";
 export * from "./pipeline";
 export * from "./queue";
-export * from "./remote-actions";
+export * from "./process-actions";
 export * from "./validation";

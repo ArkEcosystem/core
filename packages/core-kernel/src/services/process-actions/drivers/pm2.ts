@@ -1,11 +1,11 @@
 import pmx from "@pm2/io";
 
-import { RemoteAction, RemoteActionsService } from "../../../contracts/kernel/remote-actions";
+import { ProcessAction, ProcessActionsService } from "../../../contracts/kernel/process-actions";
 import { injectable } from "../../../ioc";
 
 @injectable()
-export class Pm2RemoteActionsService implements RemoteActionsService {
-    public register(remoteAction: RemoteAction): void {
+export class Pm2ProcessActionsService implements ProcessActionsService {
+    public register(remoteAction: ProcessAction): void {
         pmx.action(remoteAction.name, (reply) => {
             remoteAction
                 .handler()

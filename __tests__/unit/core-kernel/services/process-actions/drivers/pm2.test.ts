@@ -1,12 +1,12 @@
 import "jest-extended";
 
-import { RemoteAction } from "@arkecosystem/core-kernel/dist/contracts/kernel";
-import { Pm2RemoteActionsService } from "@packages/core-kernel/src/services/remote-actions/drivers/pm2";
+import { ProcessAction } from "@packages/core-kernel/src/contracts/kernel";
+import { Pm2ProcessActionsService } from "@packages/core-kernel/src/services/process-actions/drivers/pm2";
 import pmx from "@pm2/io";
 
-let pm2: Pm2RemoteActionsService;
+let pm2: Pm2ProcessActionsService;
 
-class DummyRemoteAction implements RemoteAction {
+class DummyProcessAction implements ProcessAction {
     public name = "dummy";
 
     public async handler() {
@@ -14,12 +14,12 @@ class DummyRemoteAction implements RemoteAction {
     }
 }
 
-let dummyRemoteAction: DummyRemoteAction;
+let dummyProcessAction: DummyProcessAction;
 
 beforeEach(() => {
-    pm2 = new Pm2RemoteActionsService();
+    pm2 = new Pm2ProcessActionsService();
 
-    dummyRemoteAction = new DummyRemoteAction();
+    dummyProcessAction = new DummyProcessAction();
 });
 
 jest.mock("@pm2/io", () => {
@@ -38,13 +38,13 @@ jest.mock("@pm2/io", () => {
     return new MockPmx();
 });
 
-describe("Pm2RemoteActionsService", () => {
+describe("Pm2ProcessActionsService", () => {
     it("should register action", async () => {
-        pm2.register(dummyRemoteAction);
+        pm2.register(dummyProcessAction);
     });
 
     it("should run action and return response", async () => {
-        pm2.register(dummyRemoteAction);
+        pm2.register(dummyProcessAction);
 
         const reply = jest.fn();
 
@@ -55,11 +55,11 @@ describe("Pm2RemoteActionsService", () => {
     });
 
     it("should run action and return error", async () => {
-        dummyRemoteAction.handler = jest.fn().mockImplementation(async () => {
+        dummyProcessAction.handler = jest.fn().mockImplementation(async () => {
             throw new Error();
         });
 
-        pm2.register(dummyRemoteAction);
+        pm2.register(dummyProcessAction);
 
         const reply = jest.fn();
 
