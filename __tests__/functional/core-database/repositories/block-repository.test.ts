@@ -280,11 +280,31 @@ describe("BlockRepository.listByExpression", () => {
                 { property: "id", direction: "desc" },
             ],
             { offset: 0, limit: 2 },
+            { estimateCount: false },
         );
         expect(listResult).toStrictEqual({
             rows: [toBlockModel(block3), toBlockModel(block2)],
             count: 3,
             countIsEstimate: false,
         });
+    });
+
+    it("should return result page and estimate count by height greaterThanEqual expression", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const listResult = await blockRepository.listByExpression(
+            {
+                property: "height",
+                op: "greaterThanEqual",
+                value: block1.data.height,
+            },
+            [
+                { property: "height", direction: "desc" },
+                { property: "id", direction: "desc" },
+            ],
+            { offset: 0, limit: 2 },
+        );
+        expect(listResult.countIsEstimate).toBe(true);
+        expect(listResult.rows).toStrictEqual([toBlockModel(block3), toBlockModel(block2)]);
     });
 });

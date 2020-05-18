@@ -9,11 +9,11 @@ import { SnapshotApplicationEvents } from "@packages/core-snapshots/src";
 let sandbox: Sandbox;
 let progressDispatcher: ProgressDispatcher;
 let eventDispatcher: Partial<Contracts.Kernel.EventDispatcher> = {
-    dispatch: jest.fn()
-}
+    dispatch: jest.fn(),
+};
 
 beforeEach(() => {
-    sandbox = new Sandbox;
+    sandbox = new Sandbox();
 
     sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);
 
@@ -28,12 +28,18 @@ describe("ProgressDispatcher", () => {
         let count = 3;
 
         await progressDispatcher.start(table, count);
-        expect(eventDispatcher.dispatch).toHaveBeenCalledWith(SnapshotApplicationEvents.SnapshotStart, {table, count});
+        expect(eventDispatcher.dispatch).toHaveBeenCalledWith(SnapshotApplicationEvents.SnapshotStart, {
+            table,
+            count,
+        });
 
         await progressDispatcher.update(2);
-        expect(eventDispatcher.dispatch).toHaveBeenCalledWith(SnapshotApplicationEvents.SnapshotProgress, {table, value: 2});
+        expect(eventDispatcher.dispatch).toHaveBeenCalledWith(SnapshotApplicationEvents.SnapshotProgress, {
+            table,
+            value: 2,
+        });
 
         await progressDispatcher.end();
-        expect(eventDispatcher.dispatch).toHaveBeenCalledWith(SnapshotApplicationEvents.SnapshotComplete, {table});
+        expect(eventDispatcher.dispatch).toHaveBeenCalledWith(SnapshotApplicationEvents.SnapshotComplete, { table });
     });
 });

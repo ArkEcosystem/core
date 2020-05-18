@@ -16,3 +16,7 @@ export type ListResult<T> = {
     count: number;
     countIsEstimate: boolean;
 };
+
+export type ListOptions = {
+    estimateCount?: boolean;
+};

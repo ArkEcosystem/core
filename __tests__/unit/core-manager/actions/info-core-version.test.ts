@@ -18,7 +18,7 @@ beforeEach(() => {
 describe("Info:CoreVersion", () => {
     it("should have name", () => {
         expect(action.name).toEqual("info.coreVersion");
-    })
+    });
 
     it("should return current and latest version", async () => {
         let promise = action.execute({});

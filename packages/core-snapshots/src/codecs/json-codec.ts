@@ -1,9 +1,9 @@
 import { Container } from "@arkecosystem/core-kernel";
+import { Models } from "@packages/core-database";
 import { camelizeKeys } from "xcase";
 
 import { Codec } from "../contracts";
 import { Codec as CodecException } from "../exceptions";
-import { Models } from "@packages/core-database";
 
 @Container.injectable()
 export class JSONCodec implements Codec {

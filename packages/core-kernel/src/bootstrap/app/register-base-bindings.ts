@@ -1,8 +1,9 @@
+import { resolve } from "path";
+
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
-import { resolve } from "path";
 
 /**
  * @export

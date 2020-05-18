@@ -130,8 +130,13 @@ export const replySchemas = {
                         },
                     ],
                 },
+                port: {
+                    type: "integer",
+                    minimum: 0,
+                    maximum: 65535,
+                },
             },
-            required: ["ip"],
+            required: ["ip", "port"],
         },
     },
     "p2p.peer.getStatus": {

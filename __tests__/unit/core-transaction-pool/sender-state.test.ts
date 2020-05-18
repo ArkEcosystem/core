@@ -7,7 +7,8 @@ import { Services } from "@packages/core-kernel/dist";
 import {
     ApplyTransactionAction,
     RevertTransactionAction,
-    ThrowIfCannotEnterPoolAction, VerifyTransactionAction,
+    ThrowIfCannotEnterPoolAction,
+    VerifyTransactionAction,
 } from "@packages/core-transaction-pool/src/actions";
 
 jest.mock("@packages/crypto");
@@ -27,16 +28,20 @@ beforeEach(() => {
     sandbox.app.bind(Container.Identifiers.TransactionPoolExpirationService).toConstantValue(expirationService);
     sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
-    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
         .bind("applyTransaction", new ApplyTransactionAction());
 
-    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
         .bind("revertTransaction", new RevertTransactionAction());
 
-    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
         .bind("throwIfCannotEnterPool", new ThrowIfCannotEnterPoolAction());
 
-    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
         .bind("verifyTransaction", new VerifyTransactionAction());
 
     (Managers.configManager.get as jest.Mock).mockReset();

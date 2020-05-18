@@ -84,7 +84,7 @@ export class Command extends Commands.Command {
                 name: "port",
                 message: "What port do you want to use?",
                 initial: 5432,
-                validate: /* istanbul ignore next */ value =>
+                validate: /* istanbul ignore next */ (value) =>
                     value < 1 || value > 65535 ? `The port must be in the range of 1-65535.` : true,
             },
             {

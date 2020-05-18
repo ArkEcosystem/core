@@ -1,6 +1,7 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import {
+    ListOptions,
     ListOrder,
     ListPage,
     ListResult,
@@ -39,5 +40,6 @@ export interface TransactionHistoryService {
         criteria: OrTransactionCriteria,
         order: ListOrder,
         page: ListPage,
+        options?: ListOptions,
     ): Promise<ListResult<Interfaces.ITransactionData>>;
 }
