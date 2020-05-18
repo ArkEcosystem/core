@@ -1,9 +1,17 @@
 import "jest-extended";
 
-import { Managers, Utils, Validation } from "../../../../packages/crypto";
-import { TransactionType } from "../../../../packages/crypto/src/enums";
+import { Validator } from "@packages/core-crypto/src/validation/index";
+import { CryptoManager } from "@packagespackages/core-crypto";
+import { TransactionType } from "@packagespackages/crypto/src/enums";
 
-const ajv = Validation.validator.getInstance();
+let ajv;
+let crypto: CryptoManager;
+
+beforeAll(() => {
+    crypto = CryptoManager.createFromPreset("devnet");
+    const validator = Validator.make(crypto);
+    ajv = validator.getInstance();
+});
 
 describe("keyword maxBytes", () => {
     it("should be ok", () => {
@@ -25,21 +33,24 @@ describe("keyword network", () => {
         const schema = { network: true };
         const validate = ajv.compile(schema);
 
-        expect(validate(30)).toBeTrue();
-        expect(validate(23)).toBeFalse();
+        const mainnetCrypto: CryptoManager = CryptoManager.createFromPreset("mainnet");
+        const mainnetValidator = Validator.make(mainnetCrypto);
+        const mainnetAjv = mainnetValidator.getInstance();
+        const mainnetValidate = mainnetAjv.compile(schema);
+
+        expect(mainnetValidate(23)).toBeTrue();
+        expect(mainnetValidate(30)).toBeFalse();
+
+        const devnetCrypto: CryptoManager = CryptoManager.createFromPreset("devnet");
+        const devnetValidator = Validator.make(devnetCrypto);
+        const devnetAjv = devnetValidator.getInstance();
+        const devnetValidate = devnetAjv.compile(schema);
+
+        expect(devnetValidate(30)).toBeTrue();
+        expect(devnetValidate(23)).toBeFalse();
         expect(validate("a")).toBeFalse();
-
-        Managers.configManager.setFromPreset("mainnet");
-
-        expect(validate(23)).toBeTrue();
-        expect(validate(30)).toBeFalse();
-
-        Managers.configManager.setFromPreset("devnet");
-
-        expect(validate(30)).toBeTrue();
-        expect(validate(23)).toBeFalse();
-        expect(validate({})).toBeFalse();
-        expect(validate(undefined)).toBeFalse();
+        expect(devnetValidate({})).toBeFalse();
+        expect(devnetValidate(undefined)).toBeFalse();
     });
 });
 
@@ -85,7 +96,7 @@ describe("keyword blockId", () => {
         expect(validate("")).toBeFalse();
         expect(validate(undefined)).toBeFalse();
         expect(validate(1243)).toBeFalse();
-        expect(validate(Utils.BigNumber.make(0))).toBeFalse();
+        expect(validate(crypto.LibraryManager.Libraries.BigNumber.make(0))).toBeFalse();
     });
 
     it("should be ok (genesis)", () => {
@@ -155,7 +166,7 @@ describe("keyword bignumber", () => {
         for (const value of [100, 1e2, 1020.0, 500, 2000]) {
             expect(validate(value)).toBeTrue();
             expect(validate(String(value))).toBeTrue();
-            expect(validate(Utils.BigNumber.make(value))).toBeTrue();
+            expect(validate(crypto.LibraryManager.Libraries.BigNumber.make(value))).toBeTrue();
         }
 
         for (const value of [1e8, 1999.000001, 1 / 1e8, -100, -500, -2000.1]) {
@@ -190,8 +201,7 @@ describe("keyword bignumber", () => {
 
             const validate = ajv.compile(schema);
             expect(validate(data)).toBeTrue();
-            expect(data.amount).toBeInstanceOf(Utils.BigNumber);
-            expect(data.amount).toEqual(Utils.BigNumber.make(100));
+            expect(data.amount).toEqual(crypto.LibraryManager.Libraries.BigNumber.make(100));
         });
 
         it("should cast string to Bignumber", () => {
@@ -208,8 +218,7 @@ describe("keyword bignumber", () => {
 
             const validate = ajv.compile(schema);
             expect(validate(data)).toBeTrue();
-            expect(data.amount).toBeInstanceOf(Utils.BigNumber);
-            expect(data.amount).toEqual(Utils.BigNumber.make(100));
+            expect(data.amount).toEqual(crypto.LibraryManager.Libraries.BigNumber.make(100));
         });
     });
 
