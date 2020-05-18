@@ -26,23 +26,21 @@ let dummyPlugin = {
     register: (server: HapiServer) => {
         server.ext({
             type: "onRequest",
-            method: mockOnRequest
-        })
-    }
-}
+            method: mockOnRequest,
+        });
+    },
+};
 
 let mockPluginFactory: Plugins.PluginFactory = {
     preparePlugins() {
         return [
             {
-                plugin: rpcResponseHandler
+                plugin: rpcResponseHandler,
             },
             {
                 plugin: rpc,
                 options: {
-                    methods: [
-                         Assets.dummyMethod
-                    ],
+                    methods: [Assets.dummyMethod],
                     processor: {
                         schema: {
                             properties: {
@@ -72,27 +70,27 @@ let mockPluginFactory: Plugins.PluginFactory = {
                             }
                         },
                     },
-                }
+                },
             },
             {
-                plugin: dummyPlugin
+                plugin: dummyPlugin,
             },
-        ]
-    }
-}
+        ];
+    },
+};
 
 let logger = {
     info: jest.fn(),
     notice: jest.fn(),
     error: jest.fn(),
-}
+};
 
 beforeEach(() => {
     let actionReader: Partial<ActionReader> = {
         discoverActions(): Actions.Method[] {
             return [Assets.dummyMethod];
-        }
-    }
+        },
+    };
 
     sandbox = new Sandbox();
 
@@ -108,7 +106,7 @@ beforeEach(() => {
 afterEach(async () => {
     await server.dispose();
     jest.clearAllMocks();
-})
+});
 
 describe("RPC Response Handler", () => {
     let injectOptions;
@@ -127,82 +125,82 @@ describe("RPC Response Handler", () => {
                 "content-type": "application/vnd.api+json",
             },
         };
-    })
+    });
 
     it("should return result", async () => {
-        await server.initialize("serverName", {})
-        await server.boot()
+        await server.initialize("serverName", {});
+        await server.boot();
 
         mockOnRequest.mockImplementation((request, h) => {
             return h.continue;
-        })
+        });
 
         const response = await server.inject(injectOptions);
         const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
-        expect(parsedResponse).toEqual({ body: { id: '1', jsonrpc: '2.0', result: {} }, statusCode: 200 })
+        expect(parsedResponse).toEqual({ body: { id: "1", jsonrpc: "2.0", result: {} }, statusCode: 200 });
     });
 
     it("should return status -32001 if 401 response code", async () => {
-        await server.initialize("serverName", {})
-        await server.boot()
+        await server.initialize("serverName", {});
+        await server.boot();
 
         mockOnRequest.mockImplementation((request, h) => {
             return Boom.unauthorized();
-        })
+        });
 
         const response = await server.inject(injectOptions);
         const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
         expect(parsedResponse).toEqual({
             body: {
-                jsonrpc: '2.0',
-                error: { code: -32001, message: 'These credentials do not match our records' },
-                id: null
+                jsonrpc: "2.0",
+                error: { code: -32001, message: "These credentials do not match our records" },
+                id: null,
             },
-            statusCode: 200
-        })
+            statusCode: 200,
+        });
     });
 
     it("should return status -32003 if 403 response code", async () => {
-        await server.initialize("serverName", {})
-        await server.boot()
+        await server.initialize("serverName", {});
+        await server.boot();
 
         mockOnRequest.mockImplementation((request, h) => {
             return Boom.forbidden();
-        })
+        });
 
         const response = await server.inject(injectOptions);
         const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
         expect(parsedResponse).toEqual({
             body: {
-                jsonrpc: '2.0',
-                error: { code: -32003, message: 'Forbidden' },
-                id: null
+                jsonrpc: "2.0",
+                error: { code: -32003, message: "Forbidden" },
+                id: null,
             },
-            statusCode: 200
-        })
+            statusCode: 200,
+        });
     });
 
     it("should return status -32603 if unhandled response code", async () => {
-        await server.initialize("serverName", {})
-        await server.boot()
+        await server.initialize("serverName", {});
+        await server.boot();
 
         mockOnRequest.mockImplementation((request, h) => {
             return Boom.notImplemented();
-        })
+        });
 
         const response = await server.inject(injectOptions);
         const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
 
         expect(parsedResponse).toEqual({
             body: {
-                jsonrpc: '2.0',
-                error: { code: -32603, message: 'Internal server error' },
-                id: null
+                jsonrpc: "2.0",
+                error: { code: -32603, message: "Internal server error" },
+                id: null,
             },
-            statusCode: 200
-        })
+            statusCode: 200,
+        });
     });
-})
+});

@@ -19,7 +19,7 @@ const setPluginConfiguration = (app: Application, serviceProvider: ServiceProvid
     const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-monitor", configuration);
 
     serviceProvider.setConfig(instance);
-}
+};
 
 beforeEach(() => {
     app = new Application(new Container.Container());
@@ -39,7 +39,7 @@ describe("ServiceProvider", () => {
     });
 
     it("should register", async () => {
-        let usedDefaults = {...defaults};
+        let usedDefaults = { ...defaults };
 
         setPluginConfiguration(app, serviceProvider, usedDefaults);
 
@@ -47,7 +47,7 @@ describe("ServiceProvider", () => {
     });
 
     it("should boot and dispose HTTP server", async () => {
-        let usedDefaults = {...defaults};
+        let usedDefaults = { ...defaults };
 
         usedDefaults.server.http.enabled = true;
 
@@ -64,7 +64,7 @@ describe("ServiceProvider", () => {
     });
 
     it("should boot and dispose HTTPS server", async () => {
-        let usedDefaults = {...defaults};
+        let usedDefaults = { ...defaults };
 
         usedDefaults.server.http.enabled = false;
         usedDefaults.server.https.enabled = "enabled";
@@ -82,7 +82,7 @@ describe("ServiceProvider", () => {
     });
 
     it("should dispose with HTTP and HTTPS server", async () => {
-        let usedDefaults = {...defaults};
+        let usedDefaults = { ...defaults };
 
         usedDefaults.server.http.enabled = true;
         usedDefaults.server.https.enabled = "enabled";

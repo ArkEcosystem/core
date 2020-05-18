@@ -2,10 +2,10 @@ import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import Nes from "@hapi/nes";
 
+import { AcceptPeerPlugin } from "./plugins/accept-peer";
+import { ValidatePlugin } from "./plugins/validate";
 import { InternalRoute } from "./routes/internal";
 import { PeerRoute } from "./routes/peer";
-import { ValidatePlugin } from "./plugins/validate";
-import { AcceptPeerPlugin } from "./plugins/accept-peer";
 
 // todo: review the implementation
 @Container.injectable()

@@ -127,14 +127,15 @@ export const calculateRanks = async () => {
         "blockchain",
     );
 
-    const delegateWallets = Object.values(walletRepository.allByUsername()).sort(
-        (a: Contracts.State.Wallet, b: Contracts.State.Wallet) =>
-            b
-                .getAttribute<Utils.BigNumber>("delegate.voteBalance")
-                .comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
+    const delegateWallets = Object.values(
+        walletRepository.allByUsername(),
+    ).sort((a: Contracts.State.Wallet, b: Contracts.State.Wallet) =>
+        b
+            .getAttribute<Utils.BigNumber>("delegate.voteBalance")
+            .comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
     );
 
-    AppUtils.sortBy(delegateWallets, wallet => wallet.publicKey).forEach((delegate, i) => {
+    AppUtils.sortBy(delegateWallets, (wallet) => wallet.publicKey).forEach((delegate, i) => {
         const wallet = walletRepository.findByPublicKey(delegate.publicKey!);
         wallet.setAttribute("delegate.rank", i + 1);
 

@@ -8,10 +8,14 @@ let sandbox: Sandbox;
 
 let spyOnGetCustomRepository = jest.spyOn(typeorm, "getCustomRepository").mockReturnValue(undefined);
 let spyOnCreateConnection = jest.spyOn(typeorm, "createConnection").mockResolvedValue({
-    close: jest.fn()
+    close: jest.fn(),
 } as any);
 
-ServiceProvider.prototype.config = jest.fn().mockReturnValue({ all() {return {}} });
+ServiceProvider.prototype.config = jest.fn().mockReturnValue({
+    all() {
+        return {};
+    },
+});
 
 beforeEach(() => {
     sandbox = new Sandbox();
