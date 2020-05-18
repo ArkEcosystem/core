@@ -1,5 +1,5 @@
 import { Blocks, CryptoManager, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
-import { Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Types } from "@arkecosystem/crypto";
 
 /**
@@ -7,13 +7,11 @@ import { Interfaces, Types } from "@arkecosystem/crypto";
  * @abstract
  * @class Method
  */
-@Container.injectable()
 export abstract class Method {
-    @Container.inject(Container.Identifiers.CryptoManager)
-    protected readonly cryptoManager!: CryptoManager;
-
-    @Container.inject(Container.Identifiers.BlockFactory)
-    private readonly blockFactory!: Blocks.BlockFactory;
+    public constructor(
+        protected readonly cryptoManager: CryptoManager,
+        private readonly blockFactory: Blocks.BlockFactory,
+    ) {}
 
     /**
      * @protected

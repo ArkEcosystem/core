@@ -1,6 +1,6 @@
 import { CryptoManager } from "../../../crypto-manager";
 import { IHtlcRefundAsset, ITransactionData, SchemaError } from "../../../interfaces";
-import { TransactionsManager } from "../../transactions-manager";
+import { TransactionTools } from "../../transactions-manager";
 import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
@@ -9,8 +9,8 @@ export class HtlcRefundBuilder<
     U extends ITransactionData = ITransactionData,
     E = SchemaError
 > extends TransactionBuilder<T, HtlcRefundBuilder<T, U, E>, U, E> {
-    public constructor(cryptoManager: CryptoManager<T>, transactionsManager: TransactionsManager<T, U, E>) {
-        super(cryptoManager, transactionsManager);
+    public constructor(cryptoManager: CryptoManager<T>, transactionTools: TransactionTools<T, U, E>) {
+        super(cryptoManager, transactionTools);
         this.data.type = Two.HtlcRefundTransaction.type;
         this.data.typeGroup = Two.HtlcRefundTransaction.typeGroup;
         this.data.fee = Two.HtlcRefundTransaction.staticFee(cryptoManager);

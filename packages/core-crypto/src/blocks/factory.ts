@@ -9,16 +9,13 @@ import { Serializer } from "./serializer";
 export class BlockFactory<T extends IBlockData = IBlockData> {
     public serializer: Serializer;
     public deserializer: Deserializer;
-    public validator: Validator;
 
     public constructor(
-        private cryptoManager: CryptoManager<T>,
-        transactionManager: Transactions.TransactionsManager<T>,
-        options?: Record<string, any>,
+        public cryptoManager: CryptoManager<T>,
+        public transactionManager: Transactions.TransactionManager<T>,
+        public validator: Validator,
     ) {
-        this.validator = Validator.make(cryptoManager, options);
-
-        this.serializer = new Serializer(cryptoManager, transactionManager);
+        this.serializer = new Serializer(cryptoManager, transactionManager.TransactionTools);
         this.deserializer = new Deserializer(cryptoManager, transactionManager);
     }
 

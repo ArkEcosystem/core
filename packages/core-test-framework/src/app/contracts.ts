@@ -1,3 +1,4 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Application, Container, Types } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import { Paths } from "env-paths";
@@ -44,10 +45,7 @@ export interface CryptoFlags {
 
 export interface CryptoOptions {
     flags: CryptoFlags;
-    exceptions?: Types.JsonObject;
-    genesisBlock?: Types.JsonObject;
-    milestones?: Types.JsonObject;
-    network?: Types.JsonObject;
+    cryptoManager: CryptoManager;
 }
 
 export interface SandboxOptions {

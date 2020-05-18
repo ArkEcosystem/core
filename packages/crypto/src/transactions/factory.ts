@@ -14,21 +14,10 @@ import {
     ITransactionJson,
     SchemaError,
 } from "../interfaces";
-import { Deserializer } from "./deserializer";
-import { Serializer } from "./serializer";
-import { TransactionTypeFactory } from "./types";
-import { Utils } from "./utils";
-import { Verifier } from "./verifier";
+import { TransactionTools } from "./transactions-manager";
 
 export class TransactionFactory<T, U extends ITransactionData = ITransactionData, E = SchemaError> {
-    public constructor(
-        private cryptoManager: CryptoManager<T>,
-        private deserializer: Deserializer<T, U, E>,
-        private serializer: Serializer<T, U, E>,
-        private verifier: Verifier<T, U, E>,
-        private utils: Utils<T, U, E>,
-        private transactionTypeFactory: TransactionTypeFactory<T, U, E>,
-    ) {}
+    public constructor(private cryptoManager: CryptoManager<T>, private transactionTools: TransactionTools<T, U, E>) {}
 
     public fromHex(hex: string): ITransaction<U, E> {
         return this.fromSerialized(hex);
@@ -48,8 +37,8 @@ export class TransactionFactory<T, U extends ITransactionData = ITransactionData
     public fromBytesUnsafe(buffer: Buffer, id?: string): ITransaction<U, E> {
         try {
             const options: IDeserializeOptions | ISerializeOptions = { acceptLegacyVersion: true };
-            const transaction = this.deserializer.deserialize(buffer, options);
-            transaction.data.id = id || this.utils.getId(transaction.data, options);
+            const transaction = this.transactionTools.Deserializer.deserialize(buffer, options);
+            transaction.data.id = id || this.transactionTools.Utils.getId(transaction.data, options);
             transaction.isVerified = true;
 
             return transaction;
@@ -67,7 +56,7 @@ export class TransactionFactory<T, U extends ITransactionData = ITransactionData
     }
 
     public fromData(data: U, strict = true): ITransaction<U, E> {
-        const { value, error } = this.verifier.verifySchema(data, strict);
+        const { value, error } = this.transactionTools.Verifier.verifySchema(data, strict);
 
         if (
             (error && value !== undefined && !this.cryptoManager.LibraryManager.Utils.isException(value.id)) ||
@@ -76,24 +65,23 @@ export class TransactionFactory<T, U extends ITransactionData = ITransactionData
             throw new TransactionSchemaError(error);
         }
 
-        const transaction: ITransaction<U, E> = this.transactionTypeFactory.create(value);
+        const transaction: ITransaction<U, E> = this.transactionTools.TransactionTypeFactory.create(value);
 
         const { version } = transaction.data;
         if (version === 1) {
-            this.deserializer.applyV1Compatibility(transaction.data);
+            this.transactionTools.Deserializer.applyV1Compatibility(transaction.data);
         }
 
-        this.serializer.serialize(transaction);
+        this.transactionTools.Serializer.serialize(transaction);
 
         return this.fromBytes(transaction.serialized, strict);
     }
 
     private fromSerialized(serialized: string, strict = true): ITransaction<U, E> {
         try {
-            const transaction = this.deserializer.deserialize(serialized);
-            transaction.data.id = this.utils.getId(transaction.data);
-
-            const { value, error } = this.verifier.verifySchema(transaction.data, strict);
+            const transaction = this.transactionTools.Deserializer.deserialize(serialized);
+            transaction.data.id = this.transactionTools.Utils.getId(transaction.data);
+            const { value, error } = this.transactionTools.Verifier.verifySchema(transaction.data, strict);
 
             if (value === undefined || value.id === undefined) {
                 throw new TransactionSchemaIdError(error);

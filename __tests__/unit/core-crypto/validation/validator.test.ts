@@ -1,28 +1,44 @@
 import "jest-extended";
 
-import { Factories, Generators } from "@packages/core-test-framework/src";
-import { IBlock, ITransactionData } from "@packages/crypto/src/interfaces";
-import { configManager } from "@packages/crypto/src/managers";
-import { TransactionTypeFactory } from "@packages/crypto/src/transactions";
-import { TransactionSchema } from "@packages/crypto/src/transactions/types/schemas";
-import { BigNumber } from "@packages/crypto/src/utils";
-import { validator } from "@packages/crypto/src/validation";
+import { Blocks, CryptoManager, TransactionManager } from "@packages/core-crypto";
+import { IBlock } from "@packages/core-crypto/src/interfaces";
+import { Validator } from "@packages/core-crypto/src/validation/index";
+import * as Generators from "@packages/core-test-framework/src/app/generators";
+import * as Factories from "@packages/core-test-framework/src/factories";
+import { Interfaces, Transactions } from "@packages/crypto";
 import ajv from "ajv";
+
+let crypto: CryptoManager;
+let validator;
+
+let transactionsManager: TransactionManager;
+let blockFactory: Blocks.BlockFactory;
+
+beforeAll(() => {
+    crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
+
+    validator = Validator.make(crypto);
+    transactionsManager = new TransactionManager(crypto, validator);
+    blockFactory = new Blocks.BlockFactory(crypto, transactionsManager, validator);
+});
 
 describe("validator", () => {
     describe("validate", () => {
         describe("transaction", () => {
-            const transaction = {
-                type: 0,
-                amount: BigNumber.make(1000),
-                fee: BigNumber.make(2000),
-                recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
-                asset: {},
-                senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
-                signature:
-                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-                id: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-            } as ITransactionData;
+            let transaction;
+            beforeAll(() => {
+                transaction = {
+                    type: 0,
+                    amount: crypto.LibraryManager.Libraries.BigNumber.make(1000),
+                    fee: crypto.LibraryManager.Libraries.BigNumber.make(2000),
+                    recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
+                    asset: {},
+                    senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
+                    signature:
+                        "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                    id: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
+                } as Interfaces.ITransactionData;
+            });
 
             it("should expect a timestamp if version = 1 or absent", () => {
                 expect(validator.validate("transferSigned", transaction).error).toEqual(
@@ -45,26 +61,28 @@ describe("validator", () => {
                     "data should have required property '.nonce'",
                 );
 
-                transaction.nonce = BigNumber.ZERO;
+                transaction.nonce = crypto.LibraryManager.Libraries.BigNumber.ZERO;
                 expect(validator.validate("transferSigned", transaction).error).toBeUndefined();
             });
         });
 
         describe("transaction ", () => {
-            const transaction = {
-                type: 0,
-                amount: BigNumber.make(1000),
-                fee: BigNumber.make(2000),
-                recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
-                timestamp: 141738,
-                asset: {},
-                senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
-                signature:
-                    "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-                id: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-            };
+            it("should use correct schemas", () => {
+                const transaction = {
+                    type: 0,
+                    amount: crypto.LibraryManager.Libraries.BigNumber.make(1000),
+                    fee: crypto.LibraryManager.Libraries.BigNumber.make(2000),
+                    recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
+                    timestamp: 141738,
+                    asset: {},
+                    senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
+                    signature:
+                        "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
+                    id: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
+                };
 
-            expect(validator.validate("transferSigned", transaction).error).toBeUndefined();
+                expect(validator.validate("transferSigned", transaction).error).toBeUndefined();
+            });
         });
 
         describe("publicKey", () => {
@@ -253,30 +271,24 @@ describe("validator", () => {
         });
 
         describe("block", () => {
-            beforeAll(() => {
-                TransactionTypeFactory.get(0); // Make sure registry is loaded, since it adds the "transactions" schema.
-
-                // todo: completely wrap this into a function to hide the generation and setting of the config?
-                configManager.setConfig(Generators.generateCryptoConfigRaw());
-            });
-
             it("should be ok", () => {
-                const block: IBlock = Factories.factory("Block")
+                const block: IBlock = Factories.factory("Block", blockFactory)
                     .withOptions({
-                        config: configManager.all(),
                         nonce: "0",
                         transactionsCount: 10,
                     })
+
                     .make();
 
                 expect(validator.validate("block", block.toJson()).error).toBeUndefined();
-                expect(validator.validate("block", configManager.get("genesisBlock")).error).toBeUndefined();
+                expect(
+                    validator.validate("block", crypto.NetworkConfigManager.get("genesisBlock")).error,
+                ).toBeUndefined();
             });
 
             it("should not be ok", () => {
-                const block: IBlock = Factories.factory("Block")
+                const block: IBlock = Factories.factory("Block", blockFactory)
                     .withOptions({
-                        config: configManager.all(),
                         nonce: "0",
                         transactionsCount: 10,
                     })
@@ -298,7 +310,7 @@ describe("validator", () => {
 
     describe("extend", () => {
         it("should extend transaction schema", () => {
-            const customTransactionSchema = { $id: "custom" } as TransactionSchema;
+            const customTransactionSchema = { $id: "custom" } as Transactions.schemas.TransactionSchema;
             validator.extendTransaction(customTransactionSchema);
             expect(validator.getInstance().getSchema("custom")).not.toBeUndefined();
         });

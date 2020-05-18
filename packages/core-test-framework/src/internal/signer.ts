@@ -1,4 +1,4 @@
-import { CryptoManager, TransactionsManager } from "@arkecosystem/core-crypto";
+import { CryptoManager, TransactionManager } from "@arkecosystem/core-crypto";
 import { Types } from "@arkecosystem/crypto";
 
 export class Signer {
@@ -6,7 +6,7 @@ export class Signer {
 
     public constructor(
         private cryptoManager: CryptoManager,
-        private transactionsManager: TransactionsManager,
+        private transactionsManager: TransactionManager,
         nonce: string,
     ) {
         this.nonce = cryptoManager.LibraryManager.Libraries.BigNumber.make(nonce || 0);

@@ -1,8 +1,6 @@
-import { CryptoManager, TransactionsManager } from "@arkecosystem/core-crypto";
-
-import { defaultSchemaValidator } from "./schema-validator";
+import { CryptoManager, TransactionTools, Validation } from "@arkecosystem/core-crypto";
 
 export const createDefaultTransactionManager = (
     cryptoManager: CryptoManager = CryptoManager.createFromPreset("testnet"),
-    validator = defaultSchemaValidator,
-) => new TransactionsManager(cryptoManager, validator);
+    validator = Validation.Validator.make(cryptoManager),
+) => new TransactionTools(cryptoManager, validator);

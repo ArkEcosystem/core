@@ -1,6 +1,6 @@
 import { CryptoManager } from "../../../crypto-manager";
 import { ITransactionData, SchemaError } from "../../../interfaces";
-import { TransactionsManager } from "../../transactions-manager";
+import { TransactionTools } from "../../transactions-manager";
 import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
@@ -10,8 +10,8 @@ export class IPFSBuilder<T, U extends ITransactionData = ITransactionData, E = S
     U,
     E
 > {
-    public constructor(cryptoManager: CryptoManager<T>, transactionsManager: TransactionsManager<T, U, E>) {
-        super(cryptoManager, transactionsManager);
+    public constructor(cryptoManager: CryptoManager<T>, transactionTools: TransactionTools<T, U, E>) {
+        super(cryptoManager, transactionTools);
         this.data.type = Two.IpfsTransaction.type;
         this.data.typeGroup = Two.IpfsTransaction.typeGroup;
         this.data.fee = Two.IpfsTransaction.staticFee(cryptoManager);

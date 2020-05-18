@@ -1,16 +1,15 @@
-import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
-import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { CryptoManager } from "@arkecosystem/core-crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 
 import passphrases from "../../internal/passphrases.json";
-import { defaultSchemaValidator } from "../../utils/schema-validator";
 import { SandboxOptions, Wallet } from "../contracts";
 
 /**
  * @export
  * @class Generator
  */
-export abstract class Generator<T = BlockInterfaces.IBlockData> {
+export abstract class Generator {
     /**
      * @private
      * @type {ConfigPaths}
@@ -35,26 +34,22 @@ export abstract class Generator<T = BlockInterfaces.IBlockData> {
                 explorer: "http://uexplorer.ark.io",
                 distribute: true,
             },
+            cryptoManager: CryptoManager.createFromPreset("testnet"),
         },
     };
 
-    protected cryptoManager: CryptoManager<T>;
-    protected transactionManager: Transactions.TransactionsManager<T>;
+    protected cryptoManager: CryptoManager;
 
     /**
      * @param {SandboxOptions} options
      * @memberof Generator
      */
-    public constructor(options?: SandboxOptions, schemaValidator = defaultSchemaValidator) {
+    public constructor(options?: SandboxOptions) {
         if (options) {
             this.options = { ...this.options, ...options };
         }
 
-        const config = { ...CryptoManager.findNetworkByName("devnet"), ...this.options.crypto };
-
-        this.cryptoManager = CryptoManager.createFromConfig(config as Interfaces.NetworkConfig<T>);
-
-        this.transactionManager = new Transactions.TransactionsManager(this.cryptoManager, schemaValidator);
+        this.cryptoManager = this.options.crypto.cryptoManager;
     }
 
     /**

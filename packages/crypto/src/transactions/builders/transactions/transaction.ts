@@ -1,8 +1,8 @@
 import { CryptoManager } from "../../../crypto-manager";
 import { TransactionTypeGroup } from "../../../enums";
 import { MissingTransactionSignatureError, VendorFieldLengthExceededError } from "../../../errors";
-import { IKeyPair, ITransaction, ITransactionData, SchemaError } from "../../../interfaces";
-import { TransactionsManager } from "../../transactions-manager";
+import { IKeyPair, ITransactionData, SchemaError } from "../../../interfaces";
+import { TransactionTools } from "../../transactions-manager";
 
 export abstract class TransactionBuilder<
     T,
@@ -16,7 +16,7 @@ export abstract class TransactionBuilder<
 
     public constructor(
         protected cryptoManager: CryptoManager<T>,
-        protected transactionsManager: TransactionsManager<T, U, E>,
+        protected transactionTools: TransactionTools<T, U, E>,
     ) {
         this.data = {
             id: undefined,
@@ -24,14 +24,12 @@ export abstract class TransactionBuilder<
             typeGroup: TransactionTypeGroup.Test,
             nonce: cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
             version: cryptoManager.MilestoneManager.getMilestone().aip11 ? 0x02 : 0x01,
-            // TODO: check this works as expected
-            network: cryptoManager.NetworkConfigManager.get("network").pubKeyHash,
         } as U;
     }
 
-    public build(data: Partial<U> = {}): ITransaction<U, E> {
-        return this.transactionsManager.TransactionFactory.fromData({ ...this.data, ...data }, false);
-    }
+    // public build(data: Partial<U> = {}): ITransaction<U, E> {
+    //     return this.transactionsManager.TransactionFactory.fromData({ ...this.data, ...data }, false);
+    // }
 
     public version(version: number): TBuilder {
         this.data.version = version;
@@ -49,13 +47,6 @@ export abstract class TransactionBuilder<
         if (nonce) {
             this.data.nonce = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(nonce);
         }
-
-        return this.instance();
-    }
-
-    // TODO: should this still be set - or should these builders only ever be accessed by instance based cryptoManagers with the network already set...
-    public network(network: number): TBuilder {
-        // this.data.network = network;
 
         return this.instance();
     }
@@ -133,7 +124,7 @@ export abstract class TransactionBuilder<
     }
 
     public verify(): boolean {
-        return this.transactionsManager.Verifier.verifyHash(this.data);
+        return this.transactionTools.Verifier.verifyHash(this.data);
     }
 
     public getStruct(): U {
@@ -142,7 +133,7 @@ export abstract class TransactionBuilder<
         }
 
         const struct: U = {
-            id: this.transactionsManager.Utils.getId(this.data).toString(),
+            id: this.transactionTools.Utils.getId(this.data).toString(),
             signature: this.data.signature,
             secondSignature: this.data.secondSignature,
             version: this.data.version,
@@ -174,13 +165,13 @@ export abstract class TransactionBuilder<
             this.data.recipientId = this.cryptoManager.Identities.Address.fromPublicKey(keys.publicKey);
         }
 
-        this.data.signature = this.transactionsManager.Signer.sign(this.getSigningObject(), keys);
+        this.data.signature = this.transactionTools.Signer.sign(this.getSigningObject(), keys);
 
         return this.instance();
     }
 
     private secondSignWithKeyPair(keys: IKeyPair): TBuilder {
-        this.data.secondSignature = this.transactionsManager.Signer.secondSign(this.getSigningObject(), keys);
+        this.data.secondSignature = this.transactionTools.Signer.secondSign(this.getSigningObject(), keys);
         return this.instance();
     }
 
@@ -190,7 +181,7 @@ export abstract class TransactionBuilder<
         }
 
         this.version(2);
-        this.transactionsManager.Signer.multiSign(this.getSigningObject(), keys, index);
+        this.transactionTools.Signer.multiSign(this.getSigningObject(), keys, index);
 
         return this.instance();
     }

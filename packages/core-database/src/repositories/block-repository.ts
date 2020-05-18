@@ -1,4 +1,4 @@
-import { CryptoManager, Interfaces as BlockInterfaces, TransactionsManager } from "@arkecosystem/core-crypto";
+import { CryptoManager, Interfaces as BlockInterfaces, TransactionManager } from "@arkecosystem/core-crypto";
 import { Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import { EntityRepository, In } from "typeorm";
@@ -8,7 +8,7 @@ import { AbstractEntityRepository } from "./repository";
 
 @EntityRepository(Block)
 export class BlockRepository extends AbstractEntityRepository<Block> {
-    public constructor(private cryptoManager: CryptoManager, private transactionsManager: TransactionsManager) {
+    public constructor(private cryptoManager: CryptoManager, private transactionsManager: TransactionManager) {
         super();
     }
 

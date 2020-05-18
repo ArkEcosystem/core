@@ -11,7 +11,7 @@ import {
     SchemaError,
 } from "../../interfaces";
 import { BigNumber } from "../../types";
-import { Verifier } from "../verifier";
+import { TransactionTools } from "../transactions-manager";
 import { TransactionSchema } from "./schemas";
 
 export abstract class Transaction<T, U extends ITransactionData = ITransactionData, E = SchemaError>
@@ -30,7 +30,10 @@ export abstract class Transaction<T, U extends ITransactionData = ITransactionDa
     // @ts-ignore - todo: this is public but not initialised on creation, either make it private or declare it as undefined
     public timestamp: number;
 
-    public constructor(protected cryptoManager: CryptoManager<T>, private verifier: Verifier<T, U, E>) {}
+    public constructor(
+        protected cryptoManager: CryptoManager<T>,
+        protected transactionTools: TransactionTools<T, U, E>,
+    ) {}
 
     public static staticFee<T, U extends ITransactionData>(
         cryptoManager: CryptoManager<T>,
@@ -53,15 +56,15 @@ export abstract class Transaction<T, U extends ITransactionData = ITransactionDa
     }
 
     public verify(): boolean {
-        return this.verifier.verify(this.data);
+        return this.transactionTools.Verifier.verify(this.data);
     }
 
     public verifySecondSignature(publicKey: string): boolean {
-        return this.verifier.verifySecondSignature(this.data, publicKey);
+        return this.transactionTools.Verifier.verifySecondSignature(this.data, publicKey);
     }
 
     public verifySchema(): ISchemaValidationResult<U, E> {
-        return this.verifier.verifySchema(this.data);
+        return this.transactionTools.Verifier.verifySchema(this.data);
     }
 
     public toJson(): ITransactionJson {

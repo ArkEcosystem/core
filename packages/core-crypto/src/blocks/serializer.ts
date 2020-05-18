@@ -5,10 +5,7 @@ import { IBlock, IBlockData } from "../interfaces";
 import { SerializerUtils } from "./serialization-utils";
 
 export class Serializer<T extends IBlockData = IBlockData> extends SerializerUtils {
-    public constructor(
-        cryptoManager: CryptoManager<T>,
-        private transactionManager: Transactions.TransactionsManager<T>,
-    ) {
+    public constructor(cryptoManager: CryptoManager<T>, private transactionTools: Transactions.TransactionTools<T>) {
         super(cryptoManager);
     }
 
@@ -33,7 +30,7 @@ export class Serializer<T extends IBlockData = IBlockData> extends SerializerUti
             .skip(transactions.length * 4);
 
         for (let i = 0; i < transactions.length; i++) {
-            const serialized: Buffer = this.transactionManager.Utils.toBytes(transactions[i]);
+            const serialized: Buffer = this.transactionTools.Utils.toBytes(transactions[i]);
             buffer.writeUint32(serialized.length, serializedHeader.length + i * 4);
             buffer.append(serialized);
         }

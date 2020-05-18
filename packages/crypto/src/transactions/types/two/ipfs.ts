@@ -1,11 +1,9 @@
 import { base58 } from "bstring";
 import ByteBuffer from "bytebuffer";
 
-import { CryptoManager } from "../../../crypto-manager";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions, SchemaError } from "../../../interfaces";
 import { ITransactionData } from "../../../interfaces";
-import { Verifier } from "../../verifier";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
@@ -20,10 +18,6 @@ export abstract class IpfsTransaction<
     public static version: number = 2;
 
     protected static defaultStaticFee: string = "500000000";
-
-    public constructor(protected cryptoManager: CryptoManager<T>, verifier: Verifier<T, U, E>) {
-        super(cryptoManager, verifier);
-    }
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.ipfs;

@@ -1,9 +1,7 @@
 import ByteBuffer from "bytebuffer";
 
-import { CryptoManager } from "../../../crypto-manager";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions, ITransactionData, SchemaError } from "../../../interfaces";
-import { Verifier } from "../../verifier";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
@@ -17,10 +15,6 @@ export abstract class TransferTransaction<
     public static key = "transfer";
     public static version: number = 1;
     protected static defaultStaticFee: string = "10000000";
-
-    public constructor(protected cryptoManager: CryptoManager<T>, verifier: Verifier<T, U, E>) {
-        super(cryptoManager, verifier);
-    }
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.transfer;

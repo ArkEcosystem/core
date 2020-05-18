@@ -1,9 +1,7 @@
 import ByteBuffer from "bytebuffer";
 
-import { CryptoManager } from "../../../crypto-manager";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { ISerializeOptions, ITransactionData, SchemaError } from "../../../interfaces";
-import { Verifier } from "../../verifier";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
@@ -18,10 +16,6 @@ export abstract class HtlcClaimTransaction<
     public static version: number = 2;
 
     protected static defaultStaticFee: number = 0;
-
-    public constructor(protected cryptoManager: CryptoManager<T>, verifier: Verifier<T, U, E>) {
-        super(cryptoManager, verifier);
-    }
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.htlcClaim;

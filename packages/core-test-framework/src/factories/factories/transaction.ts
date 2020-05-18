@@ -104,9 +104,6 @@ export const registerDelegateRegistrationFactory = (factory: FactoryBuilder): vo
 };
 
 export const registerDelegateResignationFactory = (factory: FactoryBuilder): void => {
-    // TODO: check that we can remove this
-    factory.cryptoManager.MilestoneManager.getMilestone().aip11 = true; // todo: remove this after reworking the crypto package
-
     factory.set("DelegateResignation", () => factory.transactionManager.BuilderFactory.delegateResignation());
     factory.get("DelegateResignation").state("sign", sign);
     factory.get("DelegateResignation").state("secondSign", secondSign);
@@ -249,7 +246,7 @@ export const registerMultiPaymentFactory = (factory: FactoryBuilder): void => {
 
 export const registerBusinessRegistrationFactory = (factory: FactoryBuilder): void => {
     try {
-        factory.transactionManager.TransactionRegistry.registerTransactionType(
+        factory.transactionManager.TransactionTools.TransactionRegistry.registerTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
     } catch {}
@@ -258,7 +255,7 @@ export const registerBusinessRegistrationFactory = (factory: FactoryBuilder): vo
         applyModifiers(
             new MagistrateBuilders.BusinessRegistrationBuilder(
                 factory.cryptoManager,
-                factory.transactionManager,
+                factory.transactionManager.TransactionTools,
             ).businessRegistrationAsset({
                 name: options.name || chance.first(),
                 website: options.website || chance.domain(),
@@ -274,14 +271,17 @@ export const registerBusinessRegistrationFactory = (factory: FactoryBuilder): vo
 
 export const registerBusinessResignationFactory = (factory: FactoryBuilder): void => {
     try {
-        factory.transactionManager.TransactionRegistry.registerTransactionType(
+        factory.transactionManager.TransactionTools.TransactionRegistry.registerTransactionType(
             MagistrateTransactions.BusinessResignationTransaction,
         );
     } catch {}
 
     factory.set("BusinessResignation", ({ options }) =>
         applyModifiers(
-            new MagistrateBuilders.BusinessResignationBuilder(factory.cryptoManager, factory.transactionManager),
+            new MagistrateBuilders.BusinessResignationBuilder(
+                factory.cryptoManager,
+                factory.transactionManager.TransactionTools,
+            ),
             options,
         ),
     );
@@ -293,7 +293,7 @@ export const registerBusinessResignationFactory = (factory: FactoryBuilder): voi
 
 export const registerBusinessUpdateFactory = (factory: FactoryBuilder): void => {
     try {
-        factory.transactionManager.TransactionRegistry.registerTransactionType(
+        factory.transactionManager.TransactionTools.TransactionRegistry.registerTransactionType(
             MagistrateTransactions.BusinessUpdateTransaction,
         );
     } catch {}
@@ -302,7 +302,7 @@ export const registerBusinessUpdateFactory = (factory: FactoryBuilder): void => 
         applyModifiers(
             new MagistrateBuilders.BusinessUpdateBuilder(
                 factory.cryptoManager,
-                factory.transactionManager,
+                factory.transactionManager.TransactionTools,
             ).businessUpdateAsset({
                 name: options.name || chance.first(),
                 website: options.website || chance.domain(),
@@ -320,7 +320,7 @@ export const registerBusinessUpdateFactory = (factory: FactoryBuilder): void => 
 
 export const registerBridgechainRegistrationFactory = (factory: FactoryBuilder): void => {
     try {
-        factory.transactionManager.TransactionRegistry.registerTransactionType(
+        factory.transactionManager.TransactionTools.TransactionRegistry.registerTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
@@ -329,7 +329,7 @@ export const registerBridgechainRegistrationFactory = (factory: FactoryBuilder):
         applyModifiers(
             new MagistrateBuilders.BridgechainRegistrationBuilder(
                 factory.cryptoManager,
-                factory.transactionManager,
+                factory.transactionManager.TransactionTools,
             ).bridgechainRegistrationAsset({
                 name: options.name || chance.first(),
                 seedNodes: options.seedNodes || [chance.ip(), chance.ip(), chance.ip()],
@@ -348,7 +348,7 @@ export const registerBridgechainRegistrationFactory = (factory: FactoryBuilder):
 
 export const registerBridgechainResignationFactory = (factory: FactoryBuilder): void => {
     try {
-        factory.transactionManager.TransactionRegistry.registerTransactionType(
+        factory.transactionManager.TransactionTools.TransactionRegistry.registerTransactionType(
             MagistrateTransactions.BridgechainResignationTransaction,
         );
     } catch {}
@@ -357,7 +357,7 @@ export const registerBridgechainResignationFactory = (factory: FactoryBuilder): 
         applyModifiers(
             new MagistrateBuilders.BridgechainResignationBuilder(
                 factory.cryptoManager,
-                factory.transactionManager,
+                factory.transactionManager.TransactionTools,
             ).bridgechainResignationAsset(options.genesisHash || randomHash()),
             options,
         ),
@@ -370,7 +370,7 @@ export const registerBridgechainResignationFactory = (factory: FactoryBuilder): 
 
 export const registerBridgechainUpdateFactory = (factory: FactoryBuilder): void => {
     try {
-        factory.transactionManager.TransactionRegistry.registerTransactionType(
+        factory.transactionManager.TransactionTools.TransactionRegistry.registerTransactionType(
             MagistrateTransactions.BridgechainUpdateTransaction,
         );
     } catch {}
@@ -379,7 +379,7 @@ export const registerBridgechainUpdateFactory = (factory: FactoryBuilder): void 
         applyModifiers(
             new MagistrateBuilders.BridgechainUpdateBuilder(
                 factory.cryptoManager,
-                factory.transactionManager,
+                factory.transactionManager.TransactionTools,
             ).bridgechainUpdateAsset({
                 bridgechainId: options.bridgechainId || randomHash(),
                 seedNodes: options.seedNodes || [chance.ip(), chance.ip(), chance.ip()],

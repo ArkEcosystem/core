@@ -7,7 +7,7 @@ import { SerializerUtils } from "./serialization-utils";
 export class Deserializer<T extends IBlockData = IBlockData> extends SerializerUtils {
     public constructor(
         cryptoManager: CryptoManager<T>,
-        private transactionManager: Transactions.TransactionsManager<T>,
+        private transactionManager: Transactions.TransactionManager<T>,
     ) {
         super(cryptoManager);
     }

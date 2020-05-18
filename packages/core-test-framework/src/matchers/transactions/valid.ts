@@ -16,12 +16,12 @@ declare global {
 expect.extend({
     toBeValidTransaction: (
         actual,
-        transactionManager: Transactions.TransactionsManager<any> = createDefaultTransactionManager(),
+        transactionTools: Transactions.TransactionTools<any> = createDefaultTransactionManager(),
     ) => {
         let verified = false;
 
         try {
-            verified = transactionManager.Verifier.verifyHash(actual);
+            verified = transactionTools.Verifier.verifyHash(actual);
         } catch {}
 
         return {

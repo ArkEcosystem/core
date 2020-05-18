@@ -1,6 +1,5 @@
-import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
-import { Validator } from "@arkecosystem/core-crypto/dist/validation";
-import { CryptoManager, Transactions } from "@arkecosystem/crypto";
+import { Blocks } from "@arkecosystem/core-crypto";
+import { CryptoManager, TransactionManager } from "@arkecosystem/core-crypto";
 import { strictEqual } from "assert";
 
 import { Factory } from "./factory";
@@ -10,8 +9,9 @@ import { FactoryFunction } from "./types";
  * @export
  * @class FactoryBuilder
  */
-export class FactoryBuilder<T = BlockInterfaces.IBlockData> {
-    public transactionManager: Transactions.TransactionsManager<T>;
+export class FactoryBuilder {
+    public transactionManager!: TransactionManager;
+    public cryptoManager!: CryptoManager;
 
     /**
      * @private
@@ -20,8 +20,9 @@ export class FactoryBuilder<T = BlockInterfaces.IBlockData> {
      */
     private readonly factories: Map<string, Factory> = new Map<string, Factory>();
 
-    public constructor(public cryptoManager: CryptoManager<T>, validator: Validator) {
-        this.transactionManager = new Transactions.TransactionsManager(cryptoManager, validator);
+    public constructor(public blockFactory: Blocks.BlockFactory) {
+        this.transactionManager = blockFactory.transactionManager;
+        this.cryptoManager = blockFactory.cryptoManager;
     }
 
     /**

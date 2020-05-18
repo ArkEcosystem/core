@@ -125,7 +125,7 @@ export class Validator {
 
             return { value: data, error, errors: ajv.errors || undefined };
         } catch (error) {
-            return { value: undefined, error: error.stack, errors: [] };
+            return { value: undefined, error: error.stack, errors: [error] };
         }
     }
 

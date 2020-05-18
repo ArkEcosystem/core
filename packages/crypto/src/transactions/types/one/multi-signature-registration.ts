@@ -4,7 +4,6 @@ import { CryptoManager } from "../../../crypto-manager";
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { IMultiSignatureLegacyAsset, ISerializeOptions, ITransactionData, SchemaError } from "../../../interfaces";
 import { BigNumber } from "../../../types";
-import { Verifier } from "../../verifier";
 import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
 
@@ -19,10 +18,6 @@ export abstract class MultiSignatureRegistrationTransaction<
     public static version: number = 1;
 
     protected static defaultStaticFee: string = "500000000";
-
-    public constructor(protected cryptoManager: CryptoManager<T>, verifier: Verifier<T, U, E>) {
-        super(cryptoManager, verifier);
-    }
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.multiSignatureLegacy;

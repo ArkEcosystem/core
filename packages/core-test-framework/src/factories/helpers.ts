@@ -1,7 +1,5 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
-import memoize from "fast-memoize";
+import { Blocks } from "@arkecosystem/core-crypto";
 
-import { defaultSchemaValidator } from "../utils/schema-validator";
 import {
     registerBlockFactory,
     registerIdentityFactory,
@@ -13,26 +11,23 @@ import {
 import { Factory } from "./factory";
 import { FactoryBuilder } from "./factory-builder";
 
-const createFactory = memoize(
-    (cryptoManager: CryptoManager, validator): FactoryBuilder => {
-        const factory: FactoryBuilder = new FactoryBuilder(cryptoManager, validator);
+const createFactory = (blockFactory: Blocks.BlockFactory): FactoryBuilder => {
+    const factory: FactoryBuilder = new FactoryBuilder(blockFactory);
 
-        registerBlockFactory(factory);
+    registerBlockFactory(factory);
 
-        registerIdentityFactory(factory);
+    registerIdentityFactory(factory);
 
-        registerPeerFactory(factory);
+    registerPeerFactory(factory);
 
-        registerRoundFactory(factory);
+    registerRoundFactory(factory);
 
-        registerTransactionFactory(factory);
+    registerTransactionFactory(factory);
 
-        registerWalletFactory(factory);
+    registerWalletFactory(factory);
 
-        return factory;
-    },
-);
-
+    return factory;
+};
 /**
  * This serves as a helper function to quickly access a factory
  * without having to perform all the manual registrations.
@@ -40,8 +35,5 @@ const createFactory = memoize(
  * @param {string} name
  * @returns {FactoryBuilder}
  */
-export const factory = (
-    name: string,
-    cryptoManager: CryptoManager = CryptoManager.createFromPreset("testnet"),
-    validator = defaultSchemaValidator,
-): Factory => createFactory(cryptoManager, validator).get(name);
+export const factory = (name: string, blockFactory: Blocks.BlockFactory): Factory =>
+    createFactory(blockFactory).get(name);

@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoManager } from "@arkecosystem/core-crypto";
 
 import { Delegate } from "./interfaces";
 import { BIP38 } from "./methods/bip38";
@@ -16,12 +16,17 @@ export class DelegateFactory {
      * @returns {Delegate}
      * @memberof DelegateFactory
      */
-    public static fromBIP38(bip38: string, password: string, cryptoManager: CryptoManager): Delegate {
+    public static fromBIP38(
+        bip38: string,
+        password: string,
+        cryptoManager: CryptoManager,
+        blockFactory: Blocks.BlockFactory,
+    ): Delegate {
         if (!cryptoManager.LibraryManager.Crypto.Bip38.verify(bip38)) {
             throw new Error("not bip38");
         }
 
-        return new BIP38(bip38, password);
+        return new BIP38(cryptoManager, blockFactory, bip38, password);
     }
 
     /**
@@ -30,11 +35,15 @@ export class DelegateFactory {
      * @returns {Delegate}
      * @memberof DelegateFactory
      */
-    public static fromBIP39(passphrase: string, cryptoManager: CryptoManager): Delegate {
+    public static fromBIP39(
+        passphrase: string,
+        cryptoManager: CryptoManager,
+        blockFactory: Blocks.BlockFactory,
+    ): Delegate {
         if (cryptoManager.LibraryManager.Crypto.Bip38.verify(passphrase)) {
             throw new Error("seems to be bip38");
         }
 
-        return new BIP39(passphrase);
+        return new BIP39(cryptoManager, blockFactory, passphrase);
     }
 }

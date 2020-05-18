@@ -1,3 +1,4 @@
+import { CryptoManager } from "@arkecosystem/core-crypto";
 import { Application, Container, Providers, Services, Types } from "@arkecosystem/core-kernel";
 import { removeSync } from "fs-extra";
 import { setGracefulCleanup } from "tmp";
@@ -61,6 +62,7 @@ export class Sandbox {
                 explorer: "http://uexplorer.ark.io",
                 distribute: true,
             },
+            cryptoManager: CryptoManager.createFromPreset("testnet"),
         },
     };
 

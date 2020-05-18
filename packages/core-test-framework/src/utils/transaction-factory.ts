@@ -1,14 +1,18 @@
+import {
+    CryptoManager,
+    Interfaces as BlockInterfaces,
+    TransactionManager,
+    Validation,
+} from "@arkecosystem/core-crypto";
 import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
     Builders as MagistrateBuilders,
     Interfaces as MagistrateInterfaces,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Interfaces, Types } from "@arkecosystem/crypto";
-import { CryptoManager, Transactions } from "@arkecosystem/crypto";
 
 import secrets from "../internal/passphrases.json";
 import { getWalletNonce } from "./generic";
-import { defaultSchemaValidator } from "./schema-validator";
 
 const defaultPassphrase: string = secrets[0];
 
@@ -18,9 +22,9 @@ interface IPassphrasePair {
 }
 
 // todo: replace this by the use of real factories
-export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
-    public cryptoManager: CryptoManager<T>;
-    public transactionsManager: Transactions.TransactionsManager<T, U>;
+export class TransactionFactory {
+    public cryptoManager: CryptoManager;
+    public transactionsManager: TransactionManager;
     private builder: any;
     private nonce: Types.BigNumber | undefined;
     private fee: Types.BigNumber | undefined;
@@ -37,8 +41,8 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
 
     private constructor(
         app?: Contracts.Kernel.Application,
-        config?: Interfaces.NetworkConfig<T>,
-        schemaValidator = defaultSchemaValidator,
+        config?: Interfaces.NetworkConfig<BlockInterfaces.IBlockData>,
+        schemaValidator?,
     ) {
         // @ts-ignore - this is only needed because of the "getNonce"
         // method so we don't care if it is undefined in certain scenarios
@@ -46,16 +50,15 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         this.cryptoManager = config
             ? CryptoManager.createFromConfig(config)
             : CryptoManager.createFromPreset("testnet");
-        this.transactionsManager = new Transactions.TransactionsManager(this.cryptoManager, schemaValidator);
+        const validator = schemaValidator ? schemaValidator : Validation.Validator.make(this.cryptoManager);
+        this.transactionsManager = new TransactionManager(this.cryptoManager, validator);
     }
 
-    public static initialize<T, U extends Interfaces.ITransactionData>(
-        app?: Contracts.Kernel.Application,
-    ): TransactionFactory<T, U> {
+    public static initialize(app?: Contracts.Kernel.Application): TransactionFactory {
         return new TransactionFactory(app);
     }
 
-    public transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory<T, U> {
+    public transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory {
         const builder = this.transactionsManager.BuilderFactory.transfer()
             .amount(this.cryptoManager.LibraryManager.Libraries.BigNumber.make(amount).toFixed())
             .recipientId(recipientId || this.cryptoManager.Identities.Address.fromPassphrase(defaultPassphrase));
@@ -69,7 +72,7 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         return this;
     }
 
-    public secondSignature(secondPassphrase?: string): TransactionFactory<T, U> {
+    public secondSignature(secondPassphrase?: string): TransactionFactory {
         this.builder = this.transactionsManager.BuilderFactory.secondSignature().signatureAsset(
             secondPassphrase || defaultPassphrase,
         );
@@ -77,7 +80,7 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         return this;
     }
 
-    public delegateRegistration(username?: string): TransactionFactory<T, U> {
+    public delegateRegistration(username?: string): TransactionFactory {
         const builder = this.transactionsManager.BuilderFactory.delegateRegistration();
 
         if (username) {
@@ -89,13 +92,13 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         return this;
     }
 
-    public delegateResignation(): TransactionFactory<T, U> {
+    public delegateResignation(): TransactionFactory {
         this.builder = this.transactionsManager.BuilderFactory.delegateResignation();
 
         return this;
     }
 
-    public vote(publicKey?: string): TransactionFactory<T, U> {
+    public vote(publicKey?: string): TransactionFactory {
         this.builder = this.transactionsManager.BuilderFactory.vote().votesAsset([
             `+${publicKey || this.cryptoManager.Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
         ]);
@@ -103,7 +106,7 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         return this;
     }
 
-    public unvote(publicKey?: string): TransactionFactory<T, U> {
+    public unvote(publicKey?: string): TransactionFactory {
         this.builder = this.transactionsManager.BuilderFactory.vote().votesAsset([
             `-${publicKey || this.cryptoManager.Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
         ]);
@@ -111,7 +114,7 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         return this;
     }
 
-    public multiSignature(participants?: string[], min?: number): TransactionFactory<T, U> {
+    public multiSignature(participants?: string[], min?: number): TransactionFactory {
         let passphrases: string[] | undefined;
         if (!participants) {
             passphrases = [secrets[0], secrets[1], secrets[2]];
@@ -137,7 +140,7 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         return this;
     }
 
-    public ipfs(ipfsId: string): TransactionFactory<T, U> {
+    public ipfs(ipfsId: string): TransactionFactory {
         this.builder = this.transactionsManager.BuilderFactory.ipfs().ipfsAsset(ipfsId);
 
         return this;
@@ -147,7 +150,7 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         lockAsset: Interfaces.IHtlcLockAsset,
         recipientId?: string,
         amount: number = 2 * 1e8,
-    ): TransactionFactory<T, U> {
+    ): TransactionFactory {
         const builder = this.transactionsManager.BuilderFactory.htlcLock()
             .htlcLockAsset(lockAsset)
             .amount(this.cryptoManager.LibraryManager.Libraries.BigNumber.make(amount).toFixed())
@@ -158,19 +161,19 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         return this;
     }
 
-    public htlcClaim(claimAsset: Interfaces.IHtlcClaimAsset): TransactionFactory<T, U> {
+    public htlcClaim(claimAsset: Interfaces.IHtlcClaimAsset): TransactionFactory {
         this.builder = this.transactionsManager.BuilderFactory.htlcClaim().htlcClaimAsset(claimAsset);
 
         return this;
     }
 
-    public htlcRefund(refundAsset: Interfaces.IHtlcRefundAsset): TransactionFactory<T, U> {
+    public htlcRefund(refundAsset: Interfaces.IHtlcRefundAsset): TransactionFactory {
         this.builder = this.transactionsManager.BuilderFactory.htlcRefund().htlcRefundAsset(refundAsset);
 
         return this;
     }
 
-    public multiPayment(payments: Array<{ recipientId: string; amount: string }>): TransactionFactory<T, U> {
+    public multiPayment(payments: Array<{ recipientId: string; amount: string }>): TransactionFactory {
         const builder = this.transactionsManager.BuilderFactory.multiPayment();
 
         for (const payment of payments) {
@@ -184,7 +187,7 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
 
     public businessRegistration(
         businessRegistrationAsset: MagistrateInterfaces.IBusinessRegistrationAsset,
-    ): TransactionFactory<T, U> {
+    ): TransactionFactory {
         const businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder(
             this.cryptoManager,
             this.transactionsManager,
@@ -196,13 +199,13 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         return this;
     }
 
-    public businessResignation(): TransactionFactory<T, U> {
+    public businessResignation(): TransactionFactory {
         this.builder = new MagistrateBuilders.BusinessResignationBuilder(this.cryptoManager, this.transactionsManager);
 
         return this;
     }
 
-    public businessUpdate(businessUpdateAsset: MagistrateInterfaces.IBusinessUpdateAsset): TransactionFactory<T, U> {
+    public businessUpdate(businessUpdateAsset: MagistrateInterfaces.IBusinessUpdateAsset): TransactionFactory {
         const businessUpdateBuilder = new MagistrateBuilders.BusinessUpdateBuilder(
             this.cryptoManager,
             this.transactionsManager,
@@ -216,7 +219,7 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
 
     public bridgechainRegistration(
         bridgechainRegistrationAsset: MagistrateInterfaces.IBridgechainRegistrationAsset,
-    ): TransactionFactory<T, U> {
+    ): TransactionFactory {
         const bridgechainRegistrationBuilder = new MagistrateBuilders.BridgechainRegistrationBuilder(
             this.cryptoManager,
             this.transactionsManager,
@@ -228,7 +231,7 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         return this;
     }
 
-    public bridgechainResignation(registeredBridgechainId: string): TransactionFactory<T, U> {
+    public bridgechainResignation(registeredBridgechainId: string): TransactionFactory {
         const bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder(
             this.cryptoManager,
             this.transactionsManager,
@@ -240,9 +243,7 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         return this;
     }
 
-    public bridgechainUpdate(
-        bridgechainUpdateAsset: MagistrateInterfaces.IBridgechainUpdateAsset,
-    ): TransactionFactory<T, U> {
+    public bridgechainUpdate(bridgechainUpdateAsset: MagistrateInterfaces.IBridgechainUpdateAsset): TransactionFactory {
         const bridgechainUpdateBuilder = new MagistrateBuilders.BridgechainUpdateBuilder(
             this.cryptoManager,
             this.transactionsManager,
@@ -254,88 +255,88 @@ export class TransactionFactory<T, U extends Interfaces.ITransactionData> {
         return this;
     }
 
-    public withFee(fee: number): TransactionFactory<T, U> {
+    public withFee(fee: number): TransactionFactory {
         this.fee = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(fee);
 
         return this;
     }
 
-    public withTimestamp(timestamp: number): TransactionFactory<T, U> {
+    public withTimestamp(timestamp: number): TransactionFactory {
         this.timestamp = timestamp;
 
         return this;
     }
 
     // TODO: check this is no longer needed
-    // public withNetwork(network: Types.NetworkName): TransactionFactory<T, U> {
+    // public withNetwork(network: Types.NetworkName): TransactionFactory {
     //     this.network = network;
 
     //     return this;
     // }
 
     // TODO: check this is no longer needed
-    // public withNetworkConfig(networkConfig: Interfaces.NetworkConfig): TransactionFactory<T, U> {
+    // public withNetworkConfig(networkConfig: Interfaces.NetworkConfig): TransactionFactory {
     //     this.networkConfig = networkConfig;
 
     //     return this;
     // }
 
-    public withHeight(height: number): TransactionFactory<T, U> {
+    public withHeight(height: number): TransactionFactory {
         this.cryptoManager.HeightTracker.setHeight(height);
 
         return this;
     }
 
-    public withSenderPublicKey(sender: string): TransactionFactory<T, U> {
+    public withSenderPublicKey(sender: string): TransactionFactory {
         this.senderPublicKey = sender;
 
         return this;
     }
 
-    public withNonce(nonce: Types.BigNumber): TransactionFactory<T, U> {
+    public withNonce(nonce: Types.BigNumber): TransactionFactory {
         this.nonce = nonce;
 
         return this;
     }
 
-    public withExpiration(expiration: number): TransactionFactory<T, U> {
+    public withExpiration(expiration: number): TransactionFactory {
         this.expiration = expiration;
 
         return this;
     }
 
-    public withVersion(version: number): TransactionFactory<T, U> {
+    public withVersion(version: number): TransactionFactory {
         this.version = version;
 
         return this;
     }
 
-    public withPassphrase(passphrase: string): TransactionFactory<T, U> {
+    public withPassphrase(passphrase: string): TransactionFactory {
         this.passphrase = passphrase;
 
         return this;
     }
 
-    public withSecondPassphrase(secondPassphrase: string): TransactionFactory<T, U> {
+    public withSecondPassphrase(secondPassphrase: string): TransactionFactory {
         this.secondPassphrase = secondPassphrase;
 
         return this;
     }
 
-    public withPassphraseList(passphrases: string[]): TransactionFactory<T, U> {
+    public withPassphraseList(passphrases: string[]): TransactionFactory {
         this.passphraseList = passphrases;
 
         return this;
     }
 
-    public withPassphrasePair(passphrases: IPassphrasePair): TransactionFactory<T, U> {
+    public withPassphrasePair(passphrases: IPassphrasePair): TransactionFactory {
         this.passphrase = passphrases.passphrase;
         this.secondPassphrase = passphrases.secondPassphrase;
 
         return this;
     }
 
-    public withPassphrasePairs(passphrases: IPassphrasePair[]): TransactionFactory<T, U> {
+    public withPassphrasePairs(passphrases: IPassphrasePair[]): TransactionFactory {
         this.passphrasePairs = passphrases;
 
         return this;

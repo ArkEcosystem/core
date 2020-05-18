@@ -24,9 +24,5 @@ export const sandboxOptions: SandboxOptions = {
             explorer: "http://uexplorer.ark.io",
             distribute: true,
         },
-        exceptions: {},
-        genesisBlock: {},
-        milestones: {},
-        network: {},
     },
 };

@@ -1,4 +1,3 @@
-import { CryptoManager } from "..";
 import {
     TransactionAlreadyRegisteredError,
     TransactionKeyAlreadyRegisteredError,
@@ -6,8 +5,7 @@ import {
     UnkownTransactionError,
 } from "../errors";
 import { ITransactionData, SchemaError, Validator } from "../interfaces";
-import { TransactionsManager } from "./transactions-manager";
-import { One, Transaction, TransactionTypeFactory, Two } from "./types";
+import { One, Transaction, Two } from "./types"; //TransactionTypeFactory
 import { InternalTransactionType } from "./types/internal-transaction-type";
 
 export type TransactionConstructor<
@@ -17,18 +15,12 @@ export type TransactionConstructor<
 > = typeof Transaction;
 
 export class TransactionRegistry<T, U extends ITransactionData, E> {
-    public readonly TransactionTypeFactory: TransactionTypeFactory<T, U, E>;
-
-    private readonly transactionTypes: Map<
+    public readonly transactionTypes: Map<
         InternalTransactionType,
         Map<number, TransactionConstructor<T, U, E>>
     > = new Map();
 
-    public constructor(
-        cryptoManager: CryptoManager<T>,
-        transactionManager: TransactionsManager<T, U, E>,
-        private validator: Validator<U, E>,
-    ) {
+    public constructor(private validator: Validator<U, E>) {
         this.registerTransactionType(One.TransferTransaction);
         this.registerTransactionType(Two.TransferTransaction);
         this.registerTransactionType(One.SecondSignatureRegistrationTransaction);
@@ -52,13 +44,6 @@ export class TransactionRegistry<T, U extends ITransactionData, E> {
         this.registerTransactionType(Two.HtlcLockTransaction);
         this.registerTransactionType(Two.HtlcClaimTransaction);
         this.registerTransactionType(Two.HtlcRefundTransaction);
-
-        // TODO: move this to resovle circular dependency
-        this.TransactionTypeFactory = new TransactionTypeFactory(
-            cryptoManager,
-            transactionManager,
-            this.transactionTypes,
-        );
     }
 
     public registerTransactionType(constructor: TransactionConstructor<T, U, E>): void {
