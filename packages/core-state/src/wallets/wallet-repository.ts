@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Types } from "@arkecosystem/crypto";
 
@@ -12,7 +12,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     protected readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.multiInject(Container.Identifiers.WalletRepositoryIndexerIndex)
     private readonly indexerIndexes!: Contracts.State.WalletIndexerIndex[];

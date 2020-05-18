@@ -1,4 +1,4 @@
-import { Blocks, CryptoManager } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite } from "@arkecosystem/core-crypto";
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import dayjs from "dayjs";
 import { EntityRepository, In } from "typeorm";
@@ -10,7 +10,7 @@ import { AbstractEntityRepository } from "./repository";
 export class TransactionRepository extends AbstractEntityRepository<Transaction> {
     public getWalletRepository!: () => Contracts.State.WalletRepository;
 
-    public constructor(private cryptoManager: CryptoManager) {
+    public constructor(private cryptoManager: CryptoSuite.CryptoManager) {
         super();
     }
 

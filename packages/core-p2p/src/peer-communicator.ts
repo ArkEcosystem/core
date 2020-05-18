@@ -1,4 +1,4 @@
-import { Blocks, CryptoManager, Interfaces, TransactionManager } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
@@ -32,10 +32,10 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     private readonly connector!: Contracts.P2P.PeerConnector;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.TransactionManager)
-    private readonly transactionsManager!: TransactionManager;
+    private readonly transactionsManager!: CryptoSuite.TransactionManager;
 
     @Container.inject(Container.Identifiers.BlockFactory)
     private readonly blockFactory!: Blocks.BlockFactory;

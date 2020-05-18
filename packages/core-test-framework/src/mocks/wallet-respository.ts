@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
 import { Types } from "@arkecosystem/crypto";
 
@@ -9,7 +9,7 @@ export const setNonce = (nonce: Types.BigNumber) => {
 };
 
 export class WalletRepositoryMock implements Partial<WalletRepository> {
-    public constructor(private cryptoManager: CryptoManager) {}
+    public constructor(private cryptoManager: CryptoSuite.CryptoManager) {}
 
     public getNonce(publicKey: string): Types.BigNumber {
         return this.cryptoManager.LibraryManager.Libraries.BigNumber.make(mockNonce);

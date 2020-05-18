@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import semver from "semver";
 
@@ -6,7 +6,7 @@ import semver from "semver";
 export const isValidVersion = (
     app: Contracts.Kernel.Application,
     peer: Contracts.P2P.Peer,
-    cryptoManager: CryptoManager,
+    cryptoManager: CryptoSuite.CryptoManager,
 ): boolean => {
     if (!peer.version) {
         return false;

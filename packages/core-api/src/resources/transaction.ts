@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
@@ -16,7 +16,7 @@ export class TransactionResource implements Resource {
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     /**
      * Return the raw representation of the resource.

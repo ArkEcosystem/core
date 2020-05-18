@@ -1,4 +1,4 @@
-import { TransactionsManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
@@ -7,7 +7,7 @@ import { strictEqual } from "assert";
 @Container.injectable()
 export class TransactionValidator implements Contracts.State.TransactionValidator {
     @Container.inject(Container.Identifiers.TransactionManager)
-    private readonly transactionsManager!: TransactionsManager;
+    private readonly transactionsManager!: CryptoSuite.TransactionManager;
 
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
     @Container.tagged("state", "clone")

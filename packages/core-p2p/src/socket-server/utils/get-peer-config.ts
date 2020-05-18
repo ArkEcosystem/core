@@ -1,10 +1,10 @@
 // import { Plugins } from "@arkecosystem/core-kernel";
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Contracts } from "@arkecosystem/core-kernel";
 
 export const getPeerConfig = (
     app: Contracts.Kernel.Application,
-    cryptoManager: CryptoManager,
+    cryptoManager: CryptoSuite.CryptoManager,
 ): Contracts.P2P.PeerConfig => {
     return {
         version: app.version(),

@@ -1,4 +1,4 @@
-import { Transactions } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 
 import { createDefaultTransactionManager } from "../../utils/transaction-manager";
 
@@ -16,7 +16,7 @@ declare global {
 expect.extend({
     toBeValidTransaction: (
         actual,
-        transactionTools: Transactions.TransactionTools<any> = createDefaultTransactionManager(),
+        transactionTools: CryptoSuite.TransactionTools = createDefaultTransactionManager(),
     ) => {
         let verified = false;
 

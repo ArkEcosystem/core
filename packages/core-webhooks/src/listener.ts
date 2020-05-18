@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { Conditions } from "./conditions";
@@ -21,7 +21,7 @@ export class Listener {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     private conditions: Conditions;
 

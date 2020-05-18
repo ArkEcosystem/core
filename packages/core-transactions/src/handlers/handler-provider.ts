@@ -1,4 +1,4 @@
-import { TransactionsManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Services, Utils } from "@arkecosystem/core-kernel";
 import { Enums, Transactions } from "@arkecosystem/crypto";
 
@@ -8,7 +8,7 @@ import { TransactionHandler, TransactionHandlerConstructor } from "./transaction
 @Container.injectable()
 export class TransactionHandlerProvider {
     @Container.inject(Container.Identifiers.TransactionManager)
-    private readonly transactionsManager!: TransactionsManager;
+    private readonly transactionsManager!: CryptoSuite.TransactionManager;
 
     @Container.inject(Container.Identifiers.WalletAttributes)
     private readonly attributeSet!: Services.Attributes.AttributeSet;

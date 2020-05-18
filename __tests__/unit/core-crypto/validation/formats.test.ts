@@ -1,13 +1,13 @@
 import "jest-extended";
 
-import { CryptoManager } from "@packages/core-crypto";
+import { CryptoSuite } from "@packages/core-crypto";
 import { Validator } from "@packages/core-crypto/src/validation/index";
 
 let ajv;
-let crypto: CryptoManager;
+let crypto: CryptoSuite.CryptoManager;
 
 beforeAll(() => {
-    crypto = CryptoManager.createFromPreset("devnet");
+    crypto = CryptoSuite.CryptoManager.createFromPreset("devnet");
     const validator = Validator.make(crypto);
     ajv = validator.getInstance();
 });

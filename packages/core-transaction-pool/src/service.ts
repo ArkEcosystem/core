@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
@@ -7,7 +7,7 @@ import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./error
 @Container.injectable()
 export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;

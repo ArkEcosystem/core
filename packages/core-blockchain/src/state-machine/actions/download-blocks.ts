@@ -1,4 +1,4 @@
-import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
+import { CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 
 import { Action } from "../contracts";
@@ -9,7 +9,7 @@ export class DownloadBlocks implements Action {
     public readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;

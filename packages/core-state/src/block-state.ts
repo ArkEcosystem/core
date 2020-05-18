@@ -1,4 +1,4 @@
-import { CryptoManager, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
+import { CryptoSuite, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Types } from "@arkecosystem/crypto";
@@ -21,7 +21,7 @@ export class BlockState {
     private logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     public async applyBlock(block: BlockInterfaces.IBlock): Promise<void> {
         if (block.data.height === 1) {

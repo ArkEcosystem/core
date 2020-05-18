@@ -1,4 +1,4 @@
-import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
+import { CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Providers, Services, Utils } from "@arkecosystem/core-kernel";
 import prettyMs from "pretty-ms";
 
@@ -32,7 +32,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-p2p")

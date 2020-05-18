@@ -1,4 +1,4 @@
-import { Blocks, CryptoManager } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite } from "@arkecosystem/core-crypto";
 
 import { Delegate } from "./interfaces";
 import { BIP38 } from "./methods/bip38";
@@ -19,7 +19,7 @@ export class DelegateFactory {
     public static fromBIP38(
         bip38: string,
         password: string,
-        cryptoManager: CryptoManager,
+        cryptoManager: CryptoSuite.CryptoManager,
         blockFactory: Blocks.BlockFactory,
     ): Delegate {
         if (!cryptoManager.LibraryManager.Crypto.Bip38.verify(bip38)) {
@@ -37,7 +37,7 @@ export class DelegateFactory {
      */
     public static fromBIP39(
         passphrase: string,
-        cryptoManager: CryptoManager,
+        cryptoManager: CryptoSuite.CryptoManager,
         blockFactory: Blocks.BlockFactory,
     ): Delegate {
         if (cryptoManager.LibraryManager.Crypto.Bip38.verify(passphrase)) {

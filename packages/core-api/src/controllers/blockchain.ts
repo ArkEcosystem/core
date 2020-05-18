@@ -1,11 +1,11 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { Controller } from "./controller";
 
 export class BlockchainController extends Controller {
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;

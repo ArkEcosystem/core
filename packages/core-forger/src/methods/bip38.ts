@@ -1,4 +1,4 @@
-import { Blocks, CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
 import forge from "node-forge";
@@ -62,7 +62,7 @@ export class BIP38 extends Method implements Delegate {
      * @memberof BIP38
      */
     public constructor(
-        cryptoManager: CryptoManager,
+        cryptoManager: CryptoSuite.CryptoManager,
         blockFactory: Blocks.BlockFactory,
         bip38: string,
         password: string,

@@ -1,4 +1,4 @@
-import { Blocks, CryptoManager, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Types } from "@arkecosystem/crypto";
 
@@ -9,7 +9,7 @@ import { Interfaces, Types } from "@arkecosystem/crypto";
  */
 export abstract class Method {
     public constructor(
-        protected readonly cryptoManager: CryptoManager,
+        protected readonly cryptoManager: CryptoSuite.CryptoManager,
         private readonly blockFactory: Blocks.BlockFactory,
     ) {}
 

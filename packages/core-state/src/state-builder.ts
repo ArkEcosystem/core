@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Repositories } from "@arkecosystem/core-database";
 import { Application, Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
@@ -11,7 +11,7 @@ export class StateBuilder {
     private readonly app!: Application;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)
     private blockRepository!: Repositories.BlockRepository;

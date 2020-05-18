@@ -1,5 +1,4 @@
-// import { Crypto, Managers } from "@arkecosystem/crypto";
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 
 import { Delegate } from "./interfaces";
@@ -14,7 +13,7 @@ export class DelegateTracker {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     /**
      * @private

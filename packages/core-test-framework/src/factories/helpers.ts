@@ -1,4 +1,4 @@
-import { Blocks } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 
 import {
     registerBlockFactory,
@@ -11,8 +11,8 @@ import {
 import { Factory } from "./factory";
 import { FactoryBuilder } from "./factory-builder";
 
-const createFactory = (blockFactory: Blocks.BlockFactory): FactoryBuilder => {
-    const factory: FactoryBuilder = new FactoryBuilder(blockFactory);
+const createFactory = (cryptoSuite: CryptoSuite.CryptoSuite): FactoryBuilder => {
+    const factory: FactoryBuilder = new FactoryBuilder(cryptoSuite);
 
     registerBlockFactory(factory);
 
@@ -35,5 +35,5 @@ const createFactory = (blockFactory: Blocks.BlockFactory): FactoryBuilder => {
  * @param {string} name
  * @returns {FactoryBuilder}
  */
-export const factory = (name: string, blockFactory: Blocks.BlockFactory): Factory =>
-    createFactory(blockFactory).get(name);
+export const factory = (name: string, cryptoSuite: CryptoSuite.CryptoSuite): Factory =>
+    createFactory(cryptoSuite).get(name);

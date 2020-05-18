@@ -1,4 +1,4 @@
-import { Blocks, CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 // import { Interfaces } from "@arkecosystem/crypto";
@@ -33,7 +33,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.BlockFactory)
     private readonly blockFactory!: Blocks.BlockFactory;

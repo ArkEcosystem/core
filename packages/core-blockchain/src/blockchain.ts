@@ -1,4 +1,4 @@
-import { Blocks, CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { DatabaseService, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums, Services, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
@@ -25,7 +25,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     protected blockProcessor: BlockProcessor;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.BlockFactory)
     private readonly blockFactory!: Blocks.BlockFactory;

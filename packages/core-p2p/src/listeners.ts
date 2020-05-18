@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import { PeerConnector } from "./peer-connector";
@@ -35,7 +35,7 @@ export class DisconnectInvalidPeers implements Contracts.Kernel.EventListener {
     private readonly storage!: Contracts.P2P.PeerStorage;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     /**
      * @returns {Promise<void>}

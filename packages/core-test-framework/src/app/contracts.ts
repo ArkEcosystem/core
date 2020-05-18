@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Application, Container, Types } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import { Paths } from "env-paths";
@@ -45,7 +45,7 @@ export interface CryptoFlags {
 
 export interface CryptoOptions {
     flags: CryptoFlags;
-    cryptoManager: CryptoManager;
+    cryptoManager: CryptoSuite.CryptoManager;
 }
 
 export interface SandboxOptions {

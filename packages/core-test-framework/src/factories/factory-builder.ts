@@ -1,5 +1,5 @@
 import { Blocks } from "@arkecosystem/core-crypto";
-import { CryptoManager, TransactionManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { strictEqual } from "assert";
 
 import { Factory } from "./factory";
@@ -10,8 +10,9 @@ import { FactoryFunction } from "./types";
  * @class FactoryBuilder
  */
 export class FactoryBuilder {
-    public transactionManager!: TransactionManager;
-    public cryptoManager!: CryptoManager;
+    public blockFactory: Blocks.BlockFactory;
+    public transactionManager!: CryptoSuite.TransactionManager;
+    public cryptoManager!: CryptoSuite.CryptoManager;
 
     /**
      * @private
@@ -20,9 +21,10 @@ export class FactoryBuilder {
      */
     private readonly factories: Map<string, Factory> = new Map<string, Factory>();
 
-    public constructor(public blockFactory: Blocks.BlockFactory) {
-        this.transactionManager = blockFactory.transactionManager;
-        this.cryptoManager = blockFactory.cryptoManager;
+    public constructor(public cryptoSuite: CryptoSuite.CryptoSuite) {
+        this.blockFactory = cryptoSuite.BlockFactory;
+        this.transactionManager = cryptoSuite.TransactionManager;
+        this.cryptoManager = cryptoSuite.CryptoManager;
     }
 
     /**

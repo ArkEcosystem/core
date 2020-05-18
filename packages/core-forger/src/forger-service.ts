@@ -1,7 +1,7 @@
-import { Blocks, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import { Client } from "./client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
@@ -27,13 +27,10 @@ export class ForgerService {
     private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager<BlockInterfaces.IBlockData>;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.TransactionManager)
-    private readonly transactionsManager!: Transactions.TransactionsManager<
-        BlockInterfaces.IBlockData,
-        Interfaces.ITransactionData
-    >;
+    private readonly transactionManager!: CryptoSuite.TransactionManager;
 
     /**
      * @private
@@ -273,7 +270,7 @@ export class ForgerService {
             return [];
         }
         const transactions = response.transactions.map(
-            (hex) => this.transactionsManager.TransactionFactory.fromBytesUnsafe(Buffer.from(hex, "hex")).data,
+            (hex) => this.transactionManager.TransactionFactory.fromBytesUnsafe(Buffer.from(hex, "hex")).data,
         );
         this.logger.debug(
             `Received ${AppUtils.pluralize("transaction", transactions.length, true)} ` +

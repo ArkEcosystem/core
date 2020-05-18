@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Interfaces } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 
@@ -34,11 +34,11 @@ export abstract class Generator {
                 explorer: "http://uexplorer.ark.io",
                 distribute: true,
             },
-            cryptoManager: CryptoManager.createFromPreset("testnet"),
+            cryptoManager: CryptoSuite.CryptoManager.createFromPreset("testnet"),
         },
     };
 
-    protected cryptoManager: CryptoManager;
+    protected cryptoManager: CryptoSuite.CryptoManager;
 
     /**
      * @param {SandboxOptions} options

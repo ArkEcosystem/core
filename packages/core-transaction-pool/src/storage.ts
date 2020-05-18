@@ -1,4 +1,4 @@
-import { TransactionsManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import BetterSqlite3 from "better-sqlite3";
@@ -7,7 +7,7 @@ import { ensureFileSync } from "fs-extra";
 @Container.injectable()
 export class Storage implements Contracts.TransactionPool.Storage {
     @Container.inject(Container.Identifiers.TransactionManager)
-    private readonly transactionsManager!: TransactionsManager;
+    private readonly transactionsManager!: CryptoSuite.TransactionManager;
 
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")

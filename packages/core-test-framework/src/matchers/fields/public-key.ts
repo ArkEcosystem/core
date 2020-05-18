@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 
 export {};
 
@@ -12,7 +12,7 @@ declare global {
 }
 
 expect.extend({
-    toBePublicKey: (received, cryptoManager = CryptoManager.createFromPreset("testnet")) => {
+    toBePublicKey: (received, cryptoManager = CryptoSuite.CryptoManager.createFromPreset("testnet")) => {
         let pass: boolean;
 
         try {

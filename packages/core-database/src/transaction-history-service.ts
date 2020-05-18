@@ -1,4 +1,4 @@
-import { TransactionsManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
@@ -8,7 +8,7 @@ import { TransactionRepository } from "./repositories/transaction-repository";
 @Container.injectable()
 export class TransactionHistoryService implements Contracts.Shared.TransactionHistoryService {
     @Container.inject(Container.Identifiers.TransactionManager)
-    private readonly transactionsManager!: TransactionsManager;
+    private readonly transactionsManager!: CryptoSuite.TransactionManager;
 
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
     private readonly transactionRepository!: TransactionRepository;

@@ -1,4 +1,4 @@
-import { TransactionTools } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 
 import { createDefaultTransactionManager } from "../../utils/transaction-manager";
 
@@ -17,7 +17,7 @@ expect.extend({
     toHaveValidSecondSignature: (
         actual,
         expected,
-        transactionTools: TransactionTools = createDefaultTransactionManager(),
+        transactionTools: CryptoSuite.TransactionTools = createDefaultTransactionManager(),
     ) => {
         let verified: boolean = false;
         try {

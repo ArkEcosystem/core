@@ -1,25 +1,18 @@
 import "jest-extended";
 
-import { Blocks, CryptoManager, TransactionManager } from "@packages/core-crypto";
+import { CryptoSuite } from "@packages/core-crypto";
 import { IBlock } from "@packages/core-crypto/src/interfaces";
-import { Validator } from "@packages/core-crypto/src/validation/index";
 import * as Generators from "@packages/core-test-framework/src/app/generators";
 import * as Factories from "@packages/core-test-framework/src/factories";
 import { Interfaces, Transactions } from "@packages/crypto";
 import ajv from "ajv";
 
-let crypto: CryptoManager;
+let crypto: CryptoSuite.CryptoSuite;
 let validator;
 
-let transactionsManager: TransactionManager;
-let blockFactory: Blocks.BlockFactory;
-
 beforeAll(() => {
-    crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
-
-    validator = Validator.make(crypto);
-    transactionsManager = new TransactionManager(crypto, validator);
-    blockFactory = new Blocks.BlockFactory(crypto, transactionsManager, validator);
+    crypto = new CryptoSuite.CryptoSuite(Generators.generateCryptoConfigRaw());
+    validator = crypto.Validator;
 });
 
 describe("validator", () => {
@@ -29,8 +22,8 @@ describe("validator", () => {
             beforeAll(() => {
                 transaction = {
                     type: 0,
-                    amount: crypto.LibraryManager.Libraries.BigNumber.make(1000),
-                    fee: crypto.LibraryManager.Libraries.BigNumber.make(2000),
+                    amount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1000),
+                    fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(2000),
                     recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
                     asset: {},
                     senderPublicKey: "034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
@@ -61,7 +54,7 @@ describe("validator", () => {
                     "data should have required property '.nonce'",
                 );
 
-                transaction.nonce = crypto.LibraryManager.Libraries.BigNumber.ZERO;
+                transaction.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
                 expect(validator.validate("transferSigned", transaction).error).toBeUndefined();
             });
         });
@@ -70,8 +63,8 @@ describe("validator", () => {
             it("should use correct schemas", () => {
                 const transaction = {
                     type: 0,
-                    amount: crypto.LibraryManager.Libraries.BigNumber.make(1000),
-                    fee: crypto.LibraryManager.Libraries.BigNumber.make(2000),
+                    amount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1000),
+                    fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(2000),
                     recipientId: "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh",
                     timestamp: 141738,
                     asset: {},
@@ -272,7 +265,7 @@ describe("validator", () => {
 
         describe("block", () => {
             it("should be ok", () => {
-                const block: IBlock = Factories.factory("Block", blockFactory)
+                const block: IBlock = Factories.factory("Block", crypto)
                     .withOptions({
                         nonce: "0",
                         transactionsCount: 10,
@@ -282,12 +275,12 @@ describe("validator", () => {
 
                 expect(validator.validate("block", block.toJson()).error).toBeUndefined();
                 expect(
-                    validator.validate("block", crypto.NetworkConfigManager.get("genesisBlock")).error,
+                    validator.validate("block", crypto.CryptoManager.NetworkConfigManager.get("genesisBlock")).error,
                 ).toBeUndefined();
             });
 
             it("should not be ok", () => {
-                const block: IBlock = Factories.factory("Block", blockFactory)
+                const block: IBlock = Factories.factory("Block", crypto)
                     .withOptions({
                         nonce: "0",
                         transactionsCount: 10,

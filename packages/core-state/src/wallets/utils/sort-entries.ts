@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Types } from "@arkecosystem/crypto";
 
@@ -7,7 +7,11 @@ import { getProperty } from "./get-property";
 export type OrderBy = (any | string)[];
 
 // todo: review the implementation
-export const sortEntries = (params: OrderBy, wallets: Contracts.State.Wallet[], cryptoManager: CryptoManager) => {
+export const sortEntries = (
+    params: OrderBy,
+    wallets: Contracts.State.Wallet[],
+    cryptoManager: CryptoSuite.CryptoManager,
+) => {
     const [iteratee, order] = params;
 
     if (["balance", "voteBalance"].includes(iteratee)) {

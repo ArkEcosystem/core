@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Types } from "@arkecosystem/crypto";
 import { cloneDeep } from "@arkecosystem/utils";
@@ -32,7 +32,7 @@ export class Wallet implements Contracts.State.Wallet {
     public nonce: Types.BigNumber;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     /**
      * @param {string} address

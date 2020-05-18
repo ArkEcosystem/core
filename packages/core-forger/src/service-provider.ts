@@ -1,4 +1,4 @@
-import { Blocks, CryptoManager } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Providers, Services } from "@arkecosystem/core-kernel";
 
 import { ForgeNewBlockAction, IsForgingAllowedAction } from "./actions";
@@ -98,7 +98,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     private makeDelegates(): Delegate[] {
-        const cryptoManager: CryptoManager = this.app.get(Container.Identifiers.CryptoManager);
+        const cryptoManager: CryptoSuite.CryptoManager = this.app.get(Container.Identifiers.CryptoManager);
 
         const blockFactory: Blocks.BlockFactory = this.app.get(Container.Identifiers.BlockFactory);
 

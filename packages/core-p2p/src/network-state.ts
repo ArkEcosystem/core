@@ -1,4 +1,4 @@
-import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
+import { CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 
 import { NetworkStateStatus } from "./enums";
@@ -70,7 +70,7 @@ export class NetworkState implements Contracts.P2P.NetworkState {
     public static analyze(
         monitor: Contracts.P2P.NetworkMonitor,
         storage: Contracts.P2P.PeerStorage,
-        cryptoManager: CryptoManager,
+        cryptoManager: CryptoSuite.CryptoManager,
     ): Contracts.P2P.NetworkState {
         // @ts-ignore - app exists but isn't on the interface for now
         const lastBlock: Interfaces.IBlock = monitor.app
@@ -114,7 +114,7 @@ export class NetworkState implements Contracts.P2P.NetworkState {
     private static analyzeNetwork(
         lastBlock,
         peers: Contracts.P2P.Peer[],
-        cryptoManager: CryptoManager,
+        cryptoManager: CryptoSuite.CryptoManager,
     ): Contracts.P2P.NetworkState {
         const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
         const currentSlot = cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber();

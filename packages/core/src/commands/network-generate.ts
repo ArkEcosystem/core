@@ -1,5 +1,5 @@
 import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
-import { CryptoManager, TransactionsManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container as KernelContainer } from "@arkecosystem/core-kernel";
 import { Interfaces, Types } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
@@ -48,10 +48,10 @@ export class Command extends Commands.Command {
     public requiresNetwork: boolean = false;
 
     @Container.inject(KernelContainer.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(KernelContainer.Identifiers.TransactionManager)
-    private readonly transactionsManager!: TransactionsManager;
+    private readonly transactionsManager!: CryptoSuite.TransactionManager;
 
     /**
      * Configure the console command.

@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Types } from "@arkecosystem/crypto";
@@ -6,7 +6,7 @@ import { Interfaces, Types } from "@arkecosystem/crypto";
 @Container.injectable()
 export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMatcher {
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")

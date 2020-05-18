@@ -1,4 +1,4 @@
-import { TransactionsManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
@@ -13,7 +13,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     public errors?: { [id: string]: Contracts.TransactionPool.ProcessorError };
 
     @Container.inject(Container.Identifiers.TransactionManager)
-    private readonly transactionsManager!: TransactionsManager;
+    private readonly transactionsManager!: CryptoSuite.TransactionManager;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;

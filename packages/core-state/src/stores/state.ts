@@ -1,4 +1,4 @@
-import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
+import { CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -22,7 +22,7 @@ export class StateStore implements Contracts.State.StateStore {
     public networkStart = false;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;

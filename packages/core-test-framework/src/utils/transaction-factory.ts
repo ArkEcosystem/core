@@ -1,9 +1,4 @@
-import {
-    CryptoManager,
-    Interfaces as BlockInterfaces,
-    TransactionManager,
-    Validation,
-} from "@arkecosystem/core-crypto";
+import { CryptoSuite, Interfaces as BlockInterfaces, Validation } from "@arkecosystem/core-crypto";
 import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
     Builders as MagistrateBuilders,
@@ -23,8 +18,8 @@ interface IPassphrasePair {
 
 // todo: replace this by the use of real factories
 export class TransactionFactory {
-    public cryptoManager: CryptoManager;
-    public transactionsManager: TransactionManager;
+    public cryptoManager: CryptoSuite.CryptoManager;
+    public transactionsManager: CryptoSuite.TransactionManager;
     private builder: any;
     private nonce: Types.BigNumber | undefined;
     private fee: Types.BigNumber | undefined;
@@ -48,10 +43,10 @@ export class TransactionFactory {
         // method so we don't care if it is undefined in certain scenarios
         this.app = app;
         this.cryptoManager = config
-            ? CryptoManager.createFromConfig(config)
-            : CryptoManager.createFromPreset("testnet");
+            ? CryptoSuite.CryptoManager.createFromConfig(config)
+            : CryptoSuite.CryptoManager.createFromPreset("testnet");
         const validator = schemaValidator ? schemaValidator : Validation.Validator.make(this.cryptoManager);
-        this.transactionsManager = new TransactionManager(this.cryptoManager, validator);
+        this.transactionsManager = new CryptoSuite.TransactionManager(this.cryptoManager, validator);
     }
 
     public static initialize(app?: Contracts.Kernel.Application): TransactionFactory {

@@ -1,4 +1,4 @@
-import { Blocks, CryptoManager, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
@@ -13,7 +13,7 @@ import { Controller } from "./controller";
 
 export class PeerController extends Controller {
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.BlockFactory)
     private readonly blockFactory!: Blocks.BlockFactory;

@@ -1,4 +1,4 @@
-import { Blocks, CryptoManager, Interfaces, TransactionsManager } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -56,10 +56,10 @@ export class DatabaseService {
     private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.TransactionManager)
-    private readonly transactionsManager!: TransactionsManager;
+    private readonly transactionsManager!: CryptoSuite.TransactionManager;
 
     @Container.inject(Container.Identifiers.BlockFactory)
     private readonly blockFactory!: Blocks.BlockFactory;

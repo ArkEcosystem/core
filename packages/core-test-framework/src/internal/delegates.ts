@@ -1,9 +1,9 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 
 import passphrases from "./passphrases.json";
 
 export class Delegates {
-    public constructor(private cryptoManager: CryptoManager) {}
+    public constructor(private cryptoManager: CryptoSuite.CryptoManager) {}
 
     public addresses(): string[] {
         return passphrases.map((passphrase: string) =>

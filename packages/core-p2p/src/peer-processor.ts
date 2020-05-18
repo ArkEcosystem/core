@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Enums, Providers } from "@arkecosystem/core-kernel";
 
 import { PeerFactory } from "./contracts";
@@ -34,7 +34,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     private readonly storage!: Contracts.P2P.PeerStorage;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     public initialize() {
         this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, this.app.resolve(DisconnectInvalidPeers));

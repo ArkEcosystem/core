@@ -1,14 +1,14 @@
 import "jest-extended";
 
-import { CryptoManager } from "@packages/core-crypto";
+import { CryptoSuite } from "@packages/core-crypto";
 import { Validator } from "@packages/core-crypto/src/validation/index";
 import { TransactionType } from "@packages/crypto/src/enums";
 
 let ajv;
-let crypto: CryptoManager;
+let crypto: CryptoSuite.CryptoManager;
 
 beforeAll(() => {
-    crypto = CryptoManager.createFromPreset("devnet");
+    crypto = CryptoSuite.CryptoManager.createFromPreset("devnet");
     const validator = Validator.make(crypto);
     ajv = validator.getInstance();
 });
@@ -33,7 +33,7 @@ describe("keyword network", () => {
         const schema = { network: true };
         const validate = ajv.compile(schema);
 
-        const mainnetCrypto: CryptoManager = CryptoManager.createFromPreset("mainnet");
+        const mainnetCrypto: CryptoSuite.CryptoManager = CryptoSuite.CryptoManager.createFromPreset("mainnet");
         const mainnetValidator = Validator.make(mainnetCrypto);
         const mainnetAjv = mainnetValidator.getInstance();
         const mainnetValidate = mainnetAjv.compile(schema);
@@ -41,7 +41,7 @@ describe("keyword network", () => {
         expect(mainnetValidate(23)).toBeTrue();
         expect(mainnetValidate(30)).toBeFalse();
 
-        const devnetCrypto: CryptoManager = CryptoManager.createFromPreset("devnet");
+        const devnetCrypto: CryptoSuite.CryptoManager = CryptoSuite.CryptoManager.createFromPreset("devnet");
         const devnetValidator = Validator.make(devnetCrypto);
         const devnetAjv = devnetValidator.getInstance();
         const devnetValidate = devnetAjv.compile(schema);

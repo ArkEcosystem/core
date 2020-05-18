@@ -1,4 +1,4 @@
-import { Blocks, CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Interfaces as TransactionInterfaces } from "@arkecosystem/crypto";
 
 import { Delegate } from "../interfaces";
@@ -32,7 +32,11 @@ export class BIP39 extends Method implements Delegate {
      * @param {string} passphrase
      * @memberof BIP39
      */
-    public constructor(cryptoManager: CryptoManager, blockFactory: Blocks.BlockFactory, passphrase: string) {
+    public constructor(
+        cryptoManager: CryptoSuite.CryptoManager,
+        blockFactory: Blocks.BlockFactory,
+        passphrase: string,
+    ) {
         super(cryptoManager, blockFactory);
 
         this.keys = this.cryptoManager.Identities.Keys.fromPassphrase(passphrase);

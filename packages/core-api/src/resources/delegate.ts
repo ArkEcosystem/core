@@ -6,7 +6,7 @@ import { Resource } from "../interfaces";
 @Container.injectable()
 export class DelegateResource implements Resource {
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoManager.CryptoManager;
 
     /**
      * Return the raw representation of the resource.

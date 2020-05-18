@@ -9,7 +9,7 @@ export class LockResource implements Resource {
     protected readonly stateStore!: Contracts.State.StateStore;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoManager.CryptoManager;
 
     /**
      * Return the raw representation of the resource.

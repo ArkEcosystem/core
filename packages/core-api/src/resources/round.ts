@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container } from "@arkecosystem/core-kernel";
 
 import { Resource } from "../interfaces";
@@ -6,7 +6,7 @@ import { Resource } from "../interfaces";
 @Container.injectable()
 export class RoundResource implements Resource {
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     /**
      * Return the raw representation of the resource.

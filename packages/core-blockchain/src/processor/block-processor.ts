@@ -1,4 +1,4 @@
-import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
+import { CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
@@ -28,7 +28,7 @@ export class BlockProcessor {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
