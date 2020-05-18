@@ -109,7 +109,7 @@ describe("TransactionHistoryService.listByCriteria", () => {
         const result = await blockHistoryService.listByCriteria(criteria, order, page);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
-        expect(transactionRepository.listByExpression).toBeCalledWith(expression, order, page);
+        expect(transactionRepository.listByExpression).toBeCalledWith(expression, order, page, undefined);
         expect(transactionModelConverter.getTransactionData).toBeCalledWith(model1);
         expect(transactionModelConverter.getTransactionData).toBeCalledWith(model2);
         expect(result).toEqual({
