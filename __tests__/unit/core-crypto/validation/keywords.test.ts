@@ -1,8 +1,8 @@
 import "jest-extended";
 
+import { CryptoManager } from "@packages/core-crypto";
 import { Validator } from "@packages/core-crypto/src/validation/index";
-import { CryptoManager } from "@packagespackages/core-crypto";
-import { TransactionType } from "@packagespackages/crypto/src/enums";
+import { TransactionType } from "@packages/crypto/src/enums";
 
 let ajv;
 let crypto: CryptoManager;
