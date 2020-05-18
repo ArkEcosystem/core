@@ -512,7 +512,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
 
         const block: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockData, blockTimeLookup);
 
-        Utils.assert.defined<number>(block);
+        Utils.assert.defined<Interfaces.IBlock>(block);
 
         if (!block.verifySignature()) {
             this.log(

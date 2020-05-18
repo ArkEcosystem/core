@@ -1,1 +1,1 @@
-export { BuildDelegateRankingAction } from "./build-delegate-ranking"
+export { BuildDelegateRankingAction } from "./build-delegate-ranking";

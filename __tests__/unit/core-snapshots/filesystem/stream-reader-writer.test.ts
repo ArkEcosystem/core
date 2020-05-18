@@ -23,7 +23,7 @@ class DbStream extends Readable {
     constructor(private table: string) {
         super({ objectMode: true });
 
-        this.prefix = table.charAt(0).toUpperCase() + table.slice(1, -1) + '_';
+        this.prefix = table.charAt(0).toUpperCase() + table.slice(1, -1) + "_";
     }
 
     _read() {
@@ -31,7 +31,7 @@ class DbStream extends Readable {
             this.push(this.appendPrefix(Assets[this.table][this.count]));
             this.count++;
         } else {
-            this.push(null)
+            this.push(null);
         }
     }
 
@@ -40,7 +40,7 @@ class DbStream extends Readable {
 
         let item = entity;
 
-        for(let key of Object.keys(item)) {
+        for (let key of Object.keys(item)) {
             itemToReturn[this.prefix + decamelize(key)] = item[key];
         }
 
@@ -50,21 +50,21 @@ class DbStream extends Readable {
 
 const getSingularCapitalizedTableName = (table: string) => {
     return pascalize(pluralize.singular(table));
-}
+};
 
 const getEncode = (table, codec) => {
     if (codec === "json") {
         return new JSONCodec()[`encode${getSingularCapitalizedTableName(table)}`];
     }
     return new MessagePackCodec()[`encode${getSingularCapitalizedTableName(table)}`];
-}
+};
 
 const getDecode = (table, codec) => {
     if (codec === "json") {
         return new JSONCodec()[`decode${getSingularCapitalizedTableName(table)}`];
     }
     return new MessagePackCodec()[`decode${getSingularCapitalizedTableName(table)}`];
-}
+};
 
 let sandbox: Sandbox;
 let streamWriterFactory: Contracts.Stream.StreamWriterFactory;
@@ -75,19 +75,25 @@ beforeEach(() => {
 
     sandbox.app
         .bind<StreamWriter>(Identifiers.StreamWriterFactory)
-        .toFactory<StreamWriter>((context: Container.interfaces.Context) => (dbStream: NodeJS.ReadableStream, path: string, useCompression: boolean, encode: Function) =>
-            new StreamWriter(dbStream, path, useCompression, encode)
+        .toFactory<StreamWriter>(
+            (context: Container.interfaces.Context) => (
+                dbStream: NodeJS.ReadableStream,
+                path: string,
+                useCompression: boolean,
+                encode: Function,
+            ) => new StreamWriter(dbStream, path, useCompression, encode),
         );
 
     sandbox.app
         .bind<StreamReader>(Identifiers.StreamReaderFactory)
-        .toFactory<StreamReader>((context: Container.interfaces.Context) => (path: string, useCompression: boolean, decode: Function) =>
-            new StreamReader(path, useCompression, decode)
+        .toFactory<StreamReader>(
+            (context: Container.interfaces.Context) => (path: string, useCompression: boolean, decode: Function) =>
+                new StreamReader(path, useCompression, decode),
         );
 
     streamWriterFactory = sandbox.app.get<Contracts.Stream.StreamWriterFactory>(Identifiers.StreamWriterFactory);
     streamReaderFactory = sandbox.app.get<Contracts.Stream.StreamReaderFactory>(Identifiers.StreamReaderFactory);
-})
+});
 
 afterAll(() => {
     setGracefulCleanup();
@@ -107,23 +113,23 @@ const cases = [
     ["rounds", "default", true],
     ["rounds", "json", false],
     ["rounds", "json", true],
-]
+];
 
 describe("StreamReader and StreamWriter", () => {
     describe.each(cases)("Table: [%s], Codec: [%s], UseCompression : [%s]", (table, codec, useCompression) => {
         let file: string;
 
         it(`Should throw error if stream not open`, async () => {
-            file = dirSync({mode: 0o777}).name +  "/" +  table;
+            file = dirSync({ mode: 0o777 }).name + "/" + table;
 
             let dbStream = new DbStream(table as string);
             let streamWriter = streamWriterFactory(dbStream, file, useCompression as boolean, getEncode(table, codec));
 
             await expect(streamWriter.write()).rejects.toThrow(Exceptions.Stream.StreamNotOpen);
-        })
+        });
 
         it(`Should write all entities`, async () => {
-            file = dirSync({mode: 0o777}).name +  "/" +  table;
+            file = dirSync({ mode: 0o777 }).name + "/" + table;
 
             let dbStream = new DbStream(table as string);
             let streamWriter = streamWriterFactory(dbStream, file, useCompression as boolean, getEncode(table, codec));
@@ -131,42 +137,46 @@ describe("StreamReader and StreamWriter", () => {
             await expect(streamWriter.open()).toResolve();
 
             await expect(streamWriter.write()).toResolve();
-        })
+        });
 
         it(`Should read all entities`, async () => {
-            let streamReader = streamReaderFactory(file, useCompression as boolean, getDecode(table, codec))
+            let streamReader = streamReaderFactory(file, useCompression as boolean, getDecode(table, codec));
 
             await expect(streamReader.open()).toResolve();
 
             // @ts-ignore
-            for(let item of Assets[table]) {
+            for (let item of Assets[table]) {
                 // await expect(streamWriter.readNext()).resolves.toEqual(item);
                 await expect(streamReader.readNext()).toResolve();
             }
 
             await expect(streamReader.readNext()).resolves.toBeNull();
-        })
+        });
 
         it(`Should throw error if stream not open`, async () => {
-            let streamReader = streamReaderFactory(file, useCompression as boolean, getDecode(table, codec))
+            let streamReader = streamReaderFactory(file, useCompression as boolean, getDecode(table, codec));
 
             await expect(streamReader.readNext()).rejects.toThrow(Exceptions.Stream.StreamNotOpen);
-        })
+        });
 
         it(`Should throw error if file is not valid`, async () => {
-            let streamReader = streamReaderFactory(file + "invalid_file", useCompression as boolean, getDecode(table, codec))
+            let streamReader = streamReaderFactory(
+                file + "invalid_file",
+                useCompression as boolean,
+                getDecode(table, codec),
+            );
 
             await expect(streamReader.open()).rejects.toThrow();
-        })
+        });
 
         it(`Should throw error if error in codec`, async () => {
-            let streamReader = streamReaderFactory(file, useCompression as boolean,() => {
+            let streamReader = streamReaderFactory(file, useCompression as boolean, () => {
                 throw new Error();
-            })
+            });
 
             await expect(streamReader.open()).toResolve();
 
             await expect(streamReader.readNext()).rejects.toThrow();
-        })
-    })
+        });
+    });
 });

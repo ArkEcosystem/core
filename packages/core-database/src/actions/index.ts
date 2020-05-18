@@ -1,1 +1,1 @@
-export { GetActiveDelegatesAction } from "./get-active-delegates"
+export { GetActiveDelegatesAction } from "./get-active-delegates";

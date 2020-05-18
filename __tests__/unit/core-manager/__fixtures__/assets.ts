@@ -7,14 +7,14 @@ export class DummyAction implements Actions.Action {
         type: "object",
         properties: {
             id: {
-                type: "number"
-            }
+                type: "number",
+            },
         },
         required: ["id"],
-    }
+    };
 
     public async execute() {
-        return {}
+        return {};
     }
 }
 
@@ -24,7 +24,7 @@ export const dummyMethod: Actions.Method = {
     name: dummyAction.name,
     schema: dummyAction.schema,
 
-    async method (params) {
+    async method(params) {
         return dummyAction.execute();
-    }
-}
+    },
+};

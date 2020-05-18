@@ -1,15 +1,14 @@
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Nes from "@hapi/nes";
-import os from "os";
 
 // todo: review the implementation
 @Container.injectable()
 export class PeerConnector implements Contracts.P2P.PeerConnector {
-    private readonly connections: Utils.Collection<Nes.Client> = new Utils.Collection<Nes.Client>();
+    private readonly connections: Map<string, Nes.Client> = new Map<string, Nes.Client>();
     private readonly errors: Map<string, string> = new Map<string, string>();
 
     public all(): Nes.Client[] {
-        return this.connections.values();
+        return Array.from(this.connections, ([key, value]) => value);
     }
 
     public connection(peer: Contracts.P2P.Peer): Nes.Client | undefined {
@@ -32,41 +31,15 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         if (connection) {
             connection.disconnect();
 
-            this.connections.forget(peer.ip);
-        }
-    }
-
-    public terminate(peer: Contracts.P2P.Peer): void {
-        const connection = this.connection(peer);
-
-        if (connection) {
-            connection.transport.socket.terminate();
-
-            this.connections.forget(peer.ip);
+            this.connections.delete(peer.ip);
         }
     }
 
     public async emit(peer: Contracts.P2P.Peer, event: string, payload: any): Promise<any> {
-        const ifaces = os.networkInterfaces();
-
-        const ipHeader = Object.values(ifaces)
-            .reduce((finalifaces, arrIface) => [...finalifaces, ...arrIface], [])
-            .filter((iface) => {
-                if ("IPv4" !== iface.family || iface.internal !== false) {
-                    // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
-                    return false;
-                }
-                return true;
-            })
-            .map((iface) => iface.address)
-            .join();
-
         const connection: Nes.Client = await this.connect(peer);
         const options = {
             path: event,
-            headers: {
-                "x-forwarded-for": ipHeader,
-            },
+            headers: {},
             method: "POST",
             payload,
         };

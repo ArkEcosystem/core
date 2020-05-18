@@ -1,1 +1,1 @@
-export * as Assets from "./assets"
+export * as Assets from "./assets";

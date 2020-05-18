@@ -29,7 +29,7 @@ describe("Client", () => {
     let client: Client;
 
     const host = { hostname: "127.0.0.1", port: 4000, socket: undefined };
-    const hosts = [ host ];
+    const hosts = [host];
 
     beforeEach(() => {
         client = app.resolve<Client>(Client);
@@ -42,7 +42,7 @@ describe("Client", () => {
         it("should register hosts", async () => {
             client.register(hosts);
             expect(Nes.Client).toHaveBeenCalledWith(`ws://${host.hostname}:${host.port}`);
-            expect(client.hosts).toEqual([ { ...host, socket: expect.anything() } ]);
+            expect(client.hosts).toEqual([{ ...host, socket: expect.anything() }]);
         });
 
         it("on error the socket should call logger", () => {
@@ -57,7 +57,7 @@ describe("Client", () => {
 
     describe("dispose", () => {
         it("should call disconnect on all sockets", () => {
-            client.register([ host, { hostname: "127.0.0.5", port: 4000 }]);
+            client.register([host, { hostname: "127.0.0.5", port: 4000 }]);
             client.dispose();
             expect(client.hosts[0].socket.disconnect).toHaveBeenCalled();
             expect(client.hosts[1].socket.disconnect).toHaveBeenCalled();
@@ -96,7 +96,7 @@ describe("Client", () => {
                 path: "p2p.peer.postBlock",
                 headers: {},
                 method: "POST",
-                payload: { block: expect.anything() }
+                payload: { block: expect.anything() },
             });
             expect(logger.error).not.toHaveBeenCalled();
         });
@@ -117,18 +117,7 @@ describe("Client", () => {
         let hosts;
 
         beforeEach(() => {
-            hosts = [
-                host,
-                host,
-                host,
-                host,
-                host,
-                host,
-                host,
-                host,
-                host,
-                host,
-            ];
+            hosts = [host, host, host, host, host, host, host, host, host, host];
         });
 
         it("should select the first open socket", async () => {
@@ -158,14 +147,12 @@ describe("Client", () => {
         it("should call p2p.internal.getUnconfirmedTransactions endpoint", async () => {
             client.register([host]);
             await client.getTransactions();
-            expect(nesClient.request).toHaveBeenCalledWith(
-                {
-                    path: "p2p.internal.getUnconfirmedTransactions",
-                    headers: {},
-                    method: "POST",
-                    payload: {}
-                }
-            );
+            expect(nesClient.request).toHaveBeenCalledWith({
+                path: "p2p.internal.getUnconfirmedTransactions",
+                headers: {},
+                method: "POST",
+                payload: {},
+            });
         });
     });
 
@@ -176,14 +163,12 @@ describe("Client", () => {
 
             await client.getRound();
 
-            expect(nesClient.request).toHaveBeenCalledWith(
-                {
-                    path: "p2p.internal.getCurrentRound",
-                    headers: {},
-                    method: "POST",
-                    payload: {}
-                }
-            );
+            expect(nesClient.request).toHaveBeenCalledWith({
+                path: "p2p.internal.getCurrentRound",
+                headers: {},
+                method: "POST",
+                payload: {},
+            });
         });
     });
 
@@ -193,24 +178,24 @@ describe("Client", () => {
             host.socket._isReady = () => true;
             await client.syncWithNetwork();
 
-            expect(nesClient.request).toHaveBeenCalledWith(
-                {
-                    path: "p2p.internal.syncBlockchain",
-                    headers: {},
-                    method: "POST",
-                    payload: {}
-                }
-            );
+            expect(nesClient.request).toHaveBeenCalledWith({
+                path: "p2p.internal.syncBlockchain",
+                headers: {},
+                method: "POST",
+                payload: {},
+            });
             expect(logger.debug).toHaveBeenCalledWith(`Sending wake-up check to relay node ${host.hostname}`);
         });
 
         it("should log error message if syncing fails", async () => {
             const errorMessage = "Fake Error";
-            nesClient.request.mockRejectedValueOnce(new Error(errorMessage))
+            nesClient.request.mockRejectedValueOnce(new Error(errorMessage));
             host.socket._isReady = () => true;
             client.register([host]);
             await expect(client.syncWithNetwork()).toResolve();
-            expect(logger.error).toHaveBeenCalledWith(`Could not sync check: Request to 127.0.0.1:4000<p2p.internal.syncBlockchain> failed, because of '${errorMessage}'.`);
+            expect(logger.error).toHaveBeenCalledWith(
+                `Could not sync check: Request to 127.0.0.1:4000<p2p.internal.syncBlockchain> failed, because of '${errorMessage}'.`,
+            );
         });
     });
 
@@ -219,19 +204,17 @@ describe("Client", () => {
             client.register([host]);
             await client.getNetworkState();
 
-            expect(nesClient.request).toHaveBeenCalledWith(
-                {
-                    path: "p2p.internal.getNetworkState",
-                    headers: {},
-                    method: "POST",
-                    payload: {}
-                }
-            );
+            expect(nesClient.request).toHaveBeenCalledWith({
+                path: "p2p.internal.getNetworkState",
+                headers: {},
+                method: "POST",
+                payload: {},
+            });
         });
 
         it("should return valid network state on error", async () => {
             const errorMessage = "Fake Error";
-            nesClient.request.mockRejectedValueOnce(new Error(errorMessage))
+            nesClient.request.mockRejectedValueOnce(new Error(errorMessage));
 
             client.register([host]);
             const networkState = await client.getNetworkState();
@@ -249,17 +232,15 @@ describe("Client", () => {
 
             await client.emitEvent("test-event", data);
 
-            expect(nesClient.request).toHaveBeenCalledWith(
-                {
-                    path: "p2p.internal.emitEvent",
-                    headers: {},
-                    method: "POST",
-                    payload: {
-                        body: data,
-                        event: "test-event",
-                    }
-                }
-            );
+            expect(nesClient.request).toHaveBeenCalledWith({
+                path: "p2p.internal.emitEvent",
+                headers: {},
+                method: "POST",
+                payload: {
+                    body: data,
+                    event: "test-event",
+                },
+            });
         });
 
         it("should not emit events which are not from localhost", async () => {
@@ -274,7 +255,7 @@ describe("Client", () => {
 
         it("should log error if emitting fails", async () => {
             const errorMessage = "Fake Error";
-            nesClient.request.mockRejectedValueOnce(new Error(errorMessage))
+            nesClient.request.mockRejectedValueOnce(new Error(errorMessage));
 
             host.hostname = "127.0.0.1";
             client.register([host]);
@@ -283,9 +264,7 @@ describe("Client", () => {
             const data = { activeDelegates: ["delegate-one"] };
             await client.emitEvent(event, data);
 
-            expect(logger.error).toHaveBeenCalledWith(
-                `Failed to emit "${event}" to "${host.hostname}:${host.port}"`,
-            );
+            expect(logger.error).toHaveBeenCalledWith(`Failed to emit "${event}" to "${host.hostname}:${host.port}"`);
         });
     });
 });

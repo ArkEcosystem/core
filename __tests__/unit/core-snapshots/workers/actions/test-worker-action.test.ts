@@ -6,50 +6,52 @@ let testWorkerAction = new TestWorkerAction();
 describe("TestWorkerAction", () => {
     it("should start with no action", async () => {
         testWorkerAction.init({
-            table: "no_action"
-        })
+            table: "no_action",
+        });
 
         await expect(testWorkerAction.start()).toResolve();
-    })
+    });
 
     it("start should throw error", async () => {
         testWorkerAction.init({
-            table: "throwError"
-        })
+            table: "throwError",
+        });
 
         await expect(testWorkerAction.start()).rejects.toThrow();
-    })
+    });
 
     it("start should wait for sync", async () => {
         testWorkerAction.init({
-            table: "wait"
-        })
+            table: "wait",
+        });
 
         let promise = testWorkerAction.start();
 
         await new Promise((resolve) => {
             setTimeout(() => {
-                resolve()
-            }, 10)
-        })
+                resolve();
+            }, 10);
+        });
 
-        testWorkerAction.sync({})
+        testWorkerAction.sync({});
 
         await new Promise((resolve) => {
             setTimeout(() => {
-                resolve()
-            }, 10)
-        })
-        testWorkerAction.sync({})
+                resolve();
+            }, 10);
+        });
+        testWorkerAction.sync({});
 
         await expect(promise).toResolve();
-    })
+    });
 
     it("sync should run with no action", async () => {
-        testWorkerAction.sync({})
-    })
+        testWorkerAction.sync({});
+    });
 
     it("sync should throw error", async () => {
-        expect(() => {testWorkerAction.sync({execute: "throwError"})}).toThrow();
-    })
+        expect(() => {
+            testWorkerAction.sync({ execute: "throwError" });
+        }).toThrow();
+    });
 });

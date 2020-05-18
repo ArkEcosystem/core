@@ -1,7 +1,7 @@
-import Nes from "@hapi/nes";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
+import Nes from "@hapi/nes";
 
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 import { RelayHost } from "./interfaces";
@@ -42,9 +42,9 @@ export class Client {
     public register(hosts: RelayHost[]) {
         this.hosts = hosts.map((host: RelayHost) => {
             const connection = new Nes.Client(`ws://${host.hostname}:${host.port}`);
-            connection.connect().catch(e => {}); // connect promise can fail when p2p is not ready, it's fine it will retry 
+            connection.connect().catch((e) => {}); // connect promise can fail when p2p is not ready, it's fine it will retry
 
-            connection.onError = e => {
+            connection.onError = (e) => {
                 this.logger.error(e.message);
             };
 
@@ -215,9 +215,9 @@ export class Client {
                 path: event,
                 headers: {},
                 method: "POST",
-                payload
+                payload,
             };
-            
+
             const response = await this.host.socket.request(options);
 
             return response.payload;

@@ -1,9 +1,8 @@
-import pluralize from "pluralize";
-import { pascalize } from "xcase";
-
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
+import pluralize from "pluralize";
+import { pascalize } from "xcase";
 
 import { Codec, Repository, RepositoryFactory, Stream, Worker, WorkerAction } from "../../contracts";
 import { StreamReader, StreamWriter } from "../../filesystem";
@@ -51,7 +50,11 @@ export abstract class AbstractWorkerAction implements WorkerAction {
         const streamReaderFactory = this.app.get<Stream.StreamReaderFactory>(Identifiers.StreamReaderFactory);
 
         // passing a codec method as last parameter. Example: Codec.decodeBlock
-        return streamReaderFactory(this.filePath!, !this.skipCompression!, this.getCodec()[`decode${this.getSingularCapitalizedTableName()}`]);
+        return streamReaderFactory(
+            this.filePath!,
+            !this.skipCompression!,
+            this.getCodec()[`decode${this.getSingularCapitalizedTableName()}`],
+        );
     }
 
     protected getStreamWriter(dbStream: NodeJS.ReadableStream): StreamWriter {

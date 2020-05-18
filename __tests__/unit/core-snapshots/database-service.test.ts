@@ -26,8 +26,8 @@ class MockWorkerWrapper extends EventEmitter {
     }
 
     public async start() {
-        this.emit("count", 1)
-        this.emit("exit")
+        this.emit("count", 1);
+        this.emit("exit");
     }
 
     public async sync() {}
@@ -36,18 +36,19 @@ class MockWorkerWrapper extends EventEmitter {
 
 let mockWorkerWrapper;
 
-jest.mock('@packages/core-snapshots/src/workers/worker-wrapper', ()=> {
+jest.mock("@packages/core-snapshots/src/workers/worker-wrapper", () => {
     return {
-        WorkerWrapper : jest.fn().mockImplementation(() => { return mockWorkerWrapper })
-    }
+        WorkerWrapper: jest.fn().mockImplementation(() => {
+            return mockWorkerWrapper;
+        }),
+    };
 });
-
 
 const configuration = {
     chunkSize: 50000,
     dispatchUpdateStep: 1000,
     connection: {},
-}
+};
 
 let logger;
 let connection: Partial<Connection>;
@@ -68,9 +69,8 @@ beforeEach(() => {
     };
 
     connection = {
-        isConnected: true
+        isConnected: true,
     };
-
 
     let lastBlock = Assets.blocksBigNumber[0];
     lastBlock.height = 100;
@@ -78,26 +78,26 @@ beforeEach(() => {
     blockRepository = {
         count: jest.fn().mockResolvedValue(1),
         clear: jest.fn(),
-        delete : jest.fn(),
+        delete: jest.fn(),
         findFirst: jest.fn().mockResolvedValue(Assets.blocksBigNumber[0] as any),
         findLast: jest.fn().mockResolvedValue(lastBlock as any),
         findByHeight: jest.fn().mockResolvedValue(lastBlock as any),
         rollback: jest.fn(),
-        countInRange: jest.fn().mockResolvedValue(5)
+        countInRange: jest.fn().mockResolvedValue(5),
     };
 
     transactionRepository = {
         count: jest.fn(),
         clear: jest.fn(),
-        delete : jest.fn(),
-        countInRange: jest.fn().mockResolvedValue(5)
+        delete: jest.fn(),
+        countInRange: jest.fn().mockResolvedValue(5),
     };
 
     roundRepository = {
         count: jest.fn(),
         clear: jest.fn(),
-        delete : jest.fn(),
-        countInRange: jest.fn().mockResolvedValue(5)
+        delete: jest.fn(),
+        countInRange: jest.fn().mockResolvedValue(5),
     };
 
     progressDispatcher = {
@@ -106,7 +106,7 @@ beforeEach(() => {
         update: jest.fn(),
     };
 
-    sandbox = new Sandbox;
+    sandbox = new Sandbox();
 
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
@@ -114,7 +114,8 @@ beforeEach(() => {
 
     sandbox.app.bind(Container.Identifiers.ApplicationNetwork).toConstantValue("testnet");
 
-    sandbox.app.bind(Container.Identifiers.PluginConfiguration)
+    sandbox.app
+        .bind(Container.Identifiers.PluginConfiguration)
         .to(Providers.PluginConfiguration)
         .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("plugin", "@arkecosystem/core-snapshots"));
 
@@ -131,11 +132,15 @@ beforeEach(() => {
 
     sandbox.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
 
-    let pluginConfiguration = sandbox.app.getTagged<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration, "plugin", "@arkecosystem/core-snapshots");
+    let pluginConfiguration = sandbox.app.getTagged<Providers.PluginConfiguration>(
+        Container.Identifiers.PluginConfiguration,
+        "plugin",
+        "@arkecosystem/core-snapshots",
+    );
 
-    pluginConfiguration.set("chunkSize", configuration.chunkSize)
-    pluginConfiguration.set("dispatchUpdateStep", configuration.dispatchUpdateStep)
-    pluginConfiguration.set("connection", configuration.connection)
+    pluginConfiguration.set("chunkSize", configuration.chunkSize);
+    pluginConfiguration.set("dispatchUpdateStep", configuration.dispatchUpdateStep);
+    pluginConfiguration.set("connection", configuration.connection);
 
     database = sandbox.app.get<SnapshotDatabaseService>(Identifiers.SnapshotDatabaseService);
     filesystem = sandbox.app.get<Filesystem>(Identifiers.SnapshotFilesystem);
@@ -146,7 +151,6 @@ afterEach(() => {
 });
 
 describe("DatabaseService", () => {
-
     describe("init", () => {
         it("should be ok", async () => {
             database.init("default", false);
@@ -176,7 +180,7 @@ describe("DatabaseService", () => {
                 nextRound: 2,
                 maxDelegates: 51,
                 roundHeight: 1,
-            }
+            };
 
             await expect(database.rollback(roundInfo)).toResolve();
         });
@@ -192,8 +196,8 @@ describe("DatabaseService", () => {
             let dumpOptions = {
                 network: "testnet",
                 skipCompression: false,
-                codec: "default"
-            }
+                codec: "default",
+            };
 
             let promise = database.dump(dumpOptions);
 
@@ -211,8 +215,8 @@ describe("DatabaseService", () => {
             let dumpOptions = {
                 network: "testnet",
                 skipCompression: false,
-                codec: "default"
-            }
+                codec: "default",
+            };
 
             let promise = database.dump(dumpOptions);
 
@@ -230,8 +234,8 @@ describe("DatabaseService", () => {
             let dumpOptions = {
                 network: "testnet",
                 skipCompression: false,
-                codec: "default"
-            }
+                codec: "default",
+            };
 
             let promise = database.dump(dumpOptions);
 
@@ -247,8 +251,8 @@ describe("DatabaseService", () => {
             let dumpOptions = {
                 network: "testnet",
                 skipCompression: false,
-                codec: "default"
-            }
+                codec: "default",
+            };
 
             mockWorkerWrapper.start = jest.fn().mockRejectedValue(new Error());
 
@@ -265,7 +269,7 @@ describe("DatabaseService", () => {
 
             filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
 
-            let promise = database.restore(Assets.metaData, {truncate: true});
+            let promise = database.restore(Assets.metaData, { truncate: true });
 
             await expect(promise).toResolve();
         });
@@ -278,7 +282,7 @@ describe("DatabaseService", () => {
 
             mockWorkerWrapper.sync = jest.fn();
 
-            let promise = database.restore(Assets.metaData, {truncate: true});
+            let promise = database.restore(Assets.metaData, { truncate: true });
 
             await expect(promise).toResolve();
         });
@@ -291,7 +295,7 @@ describe("DatabaseService", () => {
 
             mockWorkerWrapper.start = jest.fn().mockRejectedValue(new Error());
 
-            let promise = database.restore(Assets.metaData, {truncate: true});
+            let promise = database.restore(Assets.metaData, { truncate: true });
 
             await expect(promise).rejects.toThrow();
         });

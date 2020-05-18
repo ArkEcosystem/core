@@ -35,9 +35,7 @@ describe("PluginUpdateCommand", () => {
     it("if the plugin is a git directory, it should be updated", async () => {
         expect(gitUpdateCalled).toEqual(false);
 
-        jest.spyOn(fs, "existsSync")
-            .mockReturnValueOnce(true)
-            .mockReturnValueOnce(true);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(true);
 
         await expect(cli.execute(Command)).toResolve();
         expect(gitUpdateCalled).toEqual(true);
@@ -45,9 +43,7 @@ describe("PluginUpdateCommand", () => {
 
     it("if the plugin is a NPM package, it should be updated", async () => {
         expect(npmUpdateCalled).toEqual(false);
-        jest.spyOn(fs, "existsSync")
-            .mockReturnValueOnce(true)
-            .mockReturnValueOnce(false);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(false);
 
         await expect(cli.execute(Command)).toResolve();
         expect(npmUpdateCalled).toEqual(true);

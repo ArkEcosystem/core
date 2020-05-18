@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Crypto, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 

@@ -9,7 +9,7 @@ export class InternalRoute extends Route {
             "/p2p/internal/emitEvent": {
                 id: "p2p.internal.emitEvent",
                 handler: controller.emitEvent,
-                validation: internalSchemas.emitEvent
+                validation: internalSchemas.emitEvent,
             },
             "/p2p/internal/getUnconfirmedTransactions": {
                 id: "p2p.internal.getUnconfirmedTransactions",
@@ -27,7 +27,7 @@ export class InternalRoute extends Route {
                 id: "p2p.internal.syncBlockchain",
                 handler: controller.syncBlockchain,
             },
-        }
+        };
     }
 
     protected getController(): InternalController {

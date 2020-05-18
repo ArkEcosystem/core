@@ -1,6 +1,5 @@
-import Boom from "@hapi/boom";
-
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import Boom from "@hapi/boom";
 
 import { InternalRoute } from "../routes/internal";
 import { PeerRoute } from "../routes/peer";
@@ -13,7 +12,7 @@ export class ValidatePlugin {
     public register(server) {
         const allRoutesConfigByPath = {
             ...this.app.resolve(InternalRoute).getRoutesConfigByPath(),
-            ...this.app.resolve(PeerRoute).getRoutesConfigByPath()
+            ...this.app.resolve(PeerRoute).getRoutesConfigByPath(),
         };
 
         server.ext({

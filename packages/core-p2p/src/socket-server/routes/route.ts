@@ -1,7 +1,7 @@
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
-import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Controller } from "../controllers/controller";
 
 export type RouteConfig = {
@@ -31,7 +31,7 @@ export abstract class Route {
                         maxBytes: config.maxBytes,
                     },
                 },
-            })
+            });
         }
     }
 
