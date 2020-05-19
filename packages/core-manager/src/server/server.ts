@@ -1,5 +1,5 @@
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
-import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
+import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
 import { Plugins } from "../contracts";
@@ -30,10 +30,6 @@ export class Server {
 
     public async register(plugins: any | any[]): Promise<void> {
         return this.server.register(plugins);
-    }
-
-    public async route(routes: ServerRoute | ServerRoute[]): Promise<void> {
-        return this.server.route(routes);
     }
 
     public async inject(options: string | ServerInjectOptions): Promise<ServerInjectResponse> {
