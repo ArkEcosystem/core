@@ -1,14 +1,14 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
+import { Block } from "@packages/core-crypto/src/blocks";
+import { IBlock } from "@packages/core-crypto/src/interfaces";
+import { BIP39 } from "@packages/core-forger/src/methods/bip39";
+import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
+import * as networks from "@packages/crypto/src/networks";
+import { NetworkName } from "@packages/crypto/src/types";
 import ByteBuffer from "bytebuffer";
 
-import { CryptoSuite } from "../../../../packages/core-crypto";
-import { Block } from "../../../../packages/core-crypto/src/blocks";
-import { IBlock } from "../../../../packages/core-crypto/src/interfaces";
-import { BIP39 } from "../../../../packages/core-forger/src/methods/bip39";
-import { TransactionFactory } from "../../../../packages/core-test-framework/src/utils/transaction-factory";
-import * as networks from "../../../../packages/crypto/src/networks";
-import { NetworkName } from "../../../../packages/crypto/src/types";
 import { dummyBlockSize, makeDummyBlock, makeDummyBlock2 } from "../fixtures/block";
 
 const { outlookTable } = CryptoSuite.CryptoManager.findNetworkByName("mainnet").exceptions;

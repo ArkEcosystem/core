@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { BlockFactory, Serializer } from "../../../../packages/crypto/src/blocks";
-import { IBlockData } from "../../../../packages/crypto/src/interfaces";
-import { configManager } from "../../../../packages/crypto/src/managers";
-import { blockWithExceptions, dummyBlock } from "../fixtures/block";
+import { CryptoSuite } from "@packages/core-crypto";
+import { IBlockData } from "@packages/core-crypto/src/interfaces";
+
+import { blockWithExceptions, makeDummyBlock } from "../fixtures/block";
 
 export const expectBlock = ({ data }: { data: IBlockData }) => {
     delete data.idHex;
@@ -17,7 +17,17 @@ export const expectBlock = ({ data }: { data: IBlockData }) => {
     expect(data).toEqual(blockWithoutTransactions);
 };
 
-beforeEach(() => configManager.setFromPreset("devnet"));
+let crypto: CryptoSuite.CryptoSuite;
+let dummyBlock;
+let Serializer;
+let BlockFactory;
+
+beforeEach(() => {
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+    Serializer = crypto.BlockFactory.serializer;
+    BlockFactory = crypto.BlockFactory;
+    dummyBlock = makeDummyBlock(crypto.CryptoManager);
+});
 
 describe("BlockFactory", () => {
     describe(".fromHex", () => {

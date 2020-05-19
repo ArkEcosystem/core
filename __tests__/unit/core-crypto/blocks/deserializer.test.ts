@@ -1,6 +1,5 @@
-import { CryptoSuite } from "../../../../packages/core-crypto";
-// import { Deserializer } from "../../../../packages/core-crypto/src/blocks/deserializer";
-// import { Serializer } from "../../../../packages/core-crypto/src/blocks/serializer";
+import { CryptoSuite } from "@packages/core-crypto";
+
 import { makeDummyBlock2, makeDummyBlock3 } from "../fixtures/block";
 
 let crypto: CryptoSuite.CryptoSuite;
