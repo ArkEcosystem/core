@@ -1,9 +1,11 @@
 import "@packages/core-test-framework/src/matchers/api/block";
-import { Utils } from "@packages/crypto";
+
+import { CryptoSuite } from "@packages/core-crypto";
 
 let block: any;
 
 beforeEach(() => {
+    const crypto = new CryptoSuite.CryptoSuite();
     // @ts-ignore
     block = {
         version: 0,
@@ -13,9 +15,9 @@ beforeEach(() => {
         previousBlock: "13114381566690093367",
         transactions: [],
         numberOfTransactions: 0,
-        totalAmount: Utils.BigNumber.make("0"),
-        totalFee: Utils.BigNumber.make("0"),
-        reward: Utils.BigNumber.make("0"),
+        totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
+        totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
+        reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
         payloadLength: 0,
         payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         generatorPublicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",

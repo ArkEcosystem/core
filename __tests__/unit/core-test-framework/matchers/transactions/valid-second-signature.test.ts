@@ -1,11 +1,17 @@
 import "@packages/core-test-framework/src/matchers/transactions/valid-second-signature";
+
+import { CryptoSuite } from "@packages/core-crypto";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { Identities, Interfaces } from "@packages/crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Interfaces } from "@packages/crypto";
 
 let factory: FactoryBuilder;
 
+let Identities;
+
 beforeEach(() => {
+    const crypto = new CryptoSuite.CryptoSuite();
+    Identities = crypto.CryptoManager.Identities;
     factory = new FactoryBuilder();
 
     Factories.registerTransactionFactory(factory);

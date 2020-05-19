@@ -1,5 +1,6 @@
 import "@packages/core-test-framework/src/matchers/functional/forged";
-import { Interfaces } from "@packages/crypto";
+
+import { Interfaces } from "@packages/core-crypto";
 import got from "got";
 
 let block: Partial<Interfaces.IBlockData>;
@@ -14,7 +15,7 @@ describe("Forged", () => {
     describe("toBeForged", () => {
         it("should pass", async () => {
             // @ts-ignore
-            let spyOnPost = jest.spyOn(got, "get").mockImplementation((url: any) => {
+            const spyOnPost = jest.spyOn(got, "get").mockImplementation((url: any) => {
                 return {
                     body: JSON.stringify({
                         data: {
@@ -30,7 +31,7 @@ describe("Forged", () => {
 
         it("should not pass due thrown error", async () => {
             // @ts-ignore
-            let spyOnPost = jest.spyOn(got, "get").mockImplementation((url: any) => {
+            const spyOnPost = jest.spyOn(got, "get").mockImplementation((url: any) => {
                 throw new Error();
             });
 

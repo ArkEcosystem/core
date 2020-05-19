@@ -1,10 +1,15 @@
 import "@packages/core-test-framework/src/matchers/fields/address";
-import { Identities } from "@packages/crypto";
+
+import { CryptoSuite } from "@packages/core-crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 
 let address: string;
 
+let Identities;
+
 beforeEach(() => {
+    const crypto = new CryptoSuite.CryptoSuite();
+    Identities = crypto.CryptoManager.Identities;
     address = Identities.Address.fromPassphrase(passphrases[0]);
 });
 

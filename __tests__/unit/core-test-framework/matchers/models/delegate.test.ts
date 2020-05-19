@@ -1,10 +1,15 @@
 import "@packages/core-test-framework/src/matchers/models/delegate";
-import { Identities } from "@packages/crypto";
+
+import { CryptoSuite } from "@packages/core-crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 
 let delegate: any;
 
+let Identities;
+
 beforeEach(() => {
+    const crypto = new CryptoSuite.CryptoSuite();
+    Identities = crypto.CryptoManager.Identities;
     delegate = {
         address: Identities.Address.fromPassphrase(passphrases[0]),
         publicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
