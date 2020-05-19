@@ -43,7 +43,7 @@ export class TransactionManager<T, U extends ITransactionData = ITransactionData
         this.TransactionTools = new TransactionTools(cryptoManager, validator);
         this.TransactionFactory = new TransactionFactory(cryptoManager, this.TransactionTools);
         this.BuilderFactory = new BuilderFactory(cryptoManager);
-        this.TransactionTools.TransactionTypeFactory.initialize(this.TransactionTools);
-        this.BuilderFactory.initialize(this.TransactionTools);
+        this.TransactionTools.TransactionTypeFactory.initialize(this.TransactionTools, this.TransactionFactory);
+        this.BuilderFactory.initialize(this.TransactionTools, this.TransactionFactory);
     }
 }

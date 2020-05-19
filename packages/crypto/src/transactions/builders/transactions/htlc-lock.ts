@@ -1,5 +1,6 @@
 import { CryptoManager } from "../../../crypto-manager";
 import { IHtlcLockAsset, ITransactionData, SchemaError } from "../../../interfaces";
+import { TransactionFactory } from "../../factory";
 import { TransactionTools } from "../../transactions-manager";
 import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
@@ -9,8 +10,12 @@ export class HtlcLockBuilder<
     U extends ITransactionData = ITransactionData,
     E = SchemaError
 > extends TransactionBuilder<T, HtlcLockBuilder<T, U, E>, U, E> {
-    public constructor(cryptoManager: CryptoManager<T>, transactionTools: TransactionTools<T, U, E>) {
-        super(cryptoManager, transactionTools);
+    public constructor(
+        cryptoManager: CryptoManager<T>,
+        transactionTools: TransactionTools<T, U, E>,
+        transactionFactory: TransactionFactory<T, U, E>,
+    ) {
+        super(cryptoManager, transactionTools, transactionFactory);
         this.data.type = Two.HtlcLockTransaction.type;
         this.data.typeGroup = Two.HtlcLockTransaction.typeGroup;
         this.data.recipientId = undefined;

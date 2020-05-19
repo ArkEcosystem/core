@@ -1,6 +1,7 @@
 import { CryptoManager } from "../../../crypto-manager";
 import { MaximumPaymentCountExceededError, MinimumPaymentCountSubceededError } from "../../../errors";
 import { ITransactionData, SchemaError } from "../../../interfaces";
+import { TransactionFactory } from "../../factory";
 import { TransactionTools } from "../../transactions-manager";
 import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
@@ -10,8 +11,12 @@ export class MultiPaymentBuilder<
     U extends ITransactionData = ITransactionData,
     E = SchemaError
 > extends TransactionBuilder<T, MultiPaymentBuilder<T, U, E>, U, E> {
-    public constructor(cryptoManager: CryptoManager<T>, transactionTools: TransactionTools<T, U, E>) {
-        super(cryptoManager, transactionTools);
+    public constructor(
+        cryptoManager: CryptoManager<T>,
+        transactionTools: TransactionTools<T, U, E>,
+        transactionFactory: TransactionFactory<T, U, E>,
+    ) {
+        super(cryptoManager, transactionTools, transactionFactory);
         this.data.type = Two.MultiPaymentTransaction.type;
         this.data.typeGroup = Two.MultiPaymentTransaction.typeGroup;
         this.data.fee = Two.MultiPaymentTransaction.staticFee(cryptoManager);

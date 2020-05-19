@@ -1,7 +1,8 @@
 import { CryptoManager } from "../../../crypto-manager";
 import { TransactionTypeGroup } from "../../../enums";
 import { MissingTransactionSignatureError, VendorFieldLengthExceededError } from "../../../errors";
-import { IKeyPair, ITransactionData, SchemaError } from "../../../interfaces";
+import { IKeyPair, ITransaction, ITransactionData, SchemaError } from "../../../interfaces";
+import { TransactionFactory } from "../../factory";
 import { TransactionTools } from "../../transactions-manager";
 
 export abstract class TransactionBuilder<
@@ -17,6 +18,7 @@ export abstract class TransactionBuilder<
     public constructor(
         protected cryptoManager: CryptoManager<T>,
         protected transactionTools: TransactionTools<T, U, E>,
+        private transactionFactory: TransactionFactory<T, U, E>,
     ) {
         this.data = {
             id: undefined,
@@ -27,9 +29,9 @@ export abstract class TransactionBuilder<
         } as U;
     }
 
-    // public build(data: Partial<U> = {}): ITransaction<U, E> {
-    //     return this.transactionsManager.TransactionFactory.fromData({ ...this.data, ...data }, false);
-    // }
+    public build(data: Partial<U> = {}): ITransaction<U, E> {
+        return this.transactionFactory.fromData({ ...this.data, ...data }, false);
+    }
 
     public version(version: number): TBuilder {
         this.data.version = version;

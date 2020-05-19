@@ -1,5 +1,6 @@
 import { CryptoManager } from "../../crypto-manager";
 import { ITransactionData, SchemaError } from "../../interfaces";
+import { TransactionFactory } from "../factory";
 import { TransactionTools } from "../transactions-manager";
 import { DelegateRegistrationBuilder } from "./transactions/delegate-registration";
 import { DelegateResignationBuilder } from "./transactions/delegate-resignation";
@@ -16,54 +17,56 @@ export * from "./transactions/transaction";
 
 export class BuilderFactory<T, U extends ITransactionData = ITransactionData, E = SchemaError> {
     private transactionTools!: TransactionTools<T, U, E>;
+    private transactionFactory!: TransactionFactory<T, U, E>;
 
     public constructor(private cryptoManager: CryptoManager<T>) {}
 
-    public initialize(transactionTools: TransactionTools<T, U, E>) {
+    public initialize(transactionTools: TransactionTools<T, U, E>, transactionFactory: TransactionFactory<T, U, E>) {
         this.transactionTools = transactionTools;
+        this.transactionFactory = transactionFactory;
     }
 
     public transfer(): TransferBuilder<T, U, E> {
-        return new TransferBuilder(this.cryptoManager, this.transactionTools);
+        return new TransferBuilder(this.cryptoManager, this.transactionTools, this.transactionFactory);
     }
 
     public secondSignature(): SecondSignatureBuilder<T, U, E> {
-        return new SecondSignatureBuilder(this.cryptoManager, this.transactionTools);
+        return new SecondSignatureBuilder(this.cryptoManager, this.transactionTools, this.transactionFactory);
     }
 
     public delegateRegistration(): DelegateRegistrationBuilder<T, U, E> {
-        return new DelegateRegistrationBuilder(this.cryptoManager, this.transactionTools);
+        return new DelegateRegistrationBuilder(this.cryptoManager, this.transactionTools, this.transactionFactory);
     }
 
     public vote(): VoteBuilder<T, U, E> {
-        return new VoteBuilder(this.cryptoManager, this.transactionTools);
+        return new VoteBuilder(this.cryptoManager, this.transactionTools, this.transactionFactory);
     }
 
     public multiSignature(): MultiSignatureBuilder<T, U, E> {
-        return new MultiSignatureBuilder(this.cryptoManager, this.transactionTools);
+        return new MultiSignatureBuilder(this.cryptoManager, this.transactionTools, this.transactionFactory);
     }
 
     public ipfs(): IPFSBuilder<T, U, E> {
-        return new IPFSBuilder(this.cryptoManager, this.transactionTools);
+        return new IPFSBuilder(this.cryptoManager, this.transactionTools, this.transactionFactory);
     }
 
     public multiPayment(): MultiPaymentBuilder<T, U, E> {
-        return new MultiPaymentBuilder(this.cryptoManager, this.transactionTools);
+        return new MultiPaymentBuilder(this.cryptoManager, this.transactionTools, this.transactionFactory);
     }
 
     public delegateResignation(): DelegateResignationBuilder<T, U, E> {
-        return new DelegateResignationBuilder(this.cryptoManager, this.transactionTools);
+        return new DelegateResignationBuilder(this.cryptoManager, this.transactionTools, this.transactionFactory);
     }
 
     public htlcLock(): HtlcLockBuilder<T, U, E> {
-        return new HtlcLockBuilder(this.cryptoManager, this.transactionTools);
+        return new HtlcLockBuilder(this.cryptoManager, this.transactionTools, this.transactionFactory);
     }
 
     public htlcClaim(): HtlcClaimBuilder<T, U, E> {
-        return new HtlcClaimBuilder(this.cryptoManager, this.transactionTools);
+        return new HtlcClaimBuilder(this.cryptoManager, this.transactionTools, this.transactionFactory);
     }
 
     public htlcRefund(): HtlcRefundBuilder<T, U, E> {
-        return new HtlcRefundBuilder(this.cryptoManager, this.transactionTools);
+        return new HtlcRefundBuilder(this.cryptoManager, this.transactionTools, this.transactionFactory);
     }
 }
