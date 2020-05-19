@@ -1,9 +1,11 @@
 import "jest-extended";
 
-import fsExtra from "fs-extra";
-import { PathLike } from "fs";
-import { CryptoGenerator } from "@packages/core-test-framework/src/app/generators/crypto";
+import { CryptoSuite } from "@packages/core-crypto";
 import { CryptoConfigPaths, SandboxOptions } from "@packages/core-test-framework/src";
+import { CryptoGenerator } from "@packages/core-test-framework/src/app/generators/crypto";
+import { PathLike } from "fs";
+import fsExtra from "fs-extra";
+
 import { sandboxOptions } from "./__fixtures__/assets";
 
 afterEach(() => {
@@ -12,9 +14,9 @@ afterEach(() => {
 
 describe("CryptoGenerator", () => {
     it("should generate crypto config paths", async () => {
-        let generator: CryptoGenerator = new CryptoGenerator();
+        const generator: CryptoGenerator = new CryptoGenerator();
 
-        let result: CryptoConfigPaths = generator.generate();
+        const result: CryptoConfigPaths = generator.generate();
 
         expect(result.root).toBeString();
         expect(result.exceptions).toBeString();
@@ -24,9 +26,9 @@ describe("CryptoGenerator", () => {
     });
 
     it("should generate crypto config paths with options", async () => {
-        let generator: CryptoGenerator = new CryptoGenerator(sandboxOptions);
+        const generator: CryptoGenerator = new CryptoGenerator(sandboxOptions);
 
-        let result: CryptoConfigPaths = generator.generate();
+        const result: CryptoConfigPaths = generator.generate();
 
         expect(result.root).toBeString();
         expect(result.exceptions).toBeString();
@@ -35,15 +37,14 @@ describe("CryptoGenerator", () => {
         expect(result.network).toBeString();
     });
 
-    it("should generate crypto config paths without genesis block", async () => {
-        let options: SandboxOptions = JSON.parse(JSON.stringify(sandboxOptions));
+    it("should generate crypto config paths without specific cryptoManager config being set", async () => {
+        const options: SandboxOptions = JSON.parse(JSON.stringify(sandboxOptions));
 
         options.crypto.flags.distribute = false;
-        delete options.crypto.genesisBlock;
 
-        let generator: CryptoGenerator = new CryptoGenerator(options);
+        const generator: CryptoGenerator = new CryptoGenerator(options);
 
-        let result: CryptoConfigPaths = generator.generate();
+        const result: CryptoConfigPaths = generator.generate();
 
         expect(result.root).toBeString();
         expect(result.exceptions).toBeString();
@@ -52,17 +53,16 @@ describe("CryptoGenerator", () => {
         expect(result.network).toBeString();
     });
 
-    // TODO: Test
-    it("should generate crypto config paths without genesis block", async () => {
-        let options: SandboxOptions = JSON.parse(JSON.stringify(sandboxOptions));
+    it("should generate crypto config paths with specific cryptoManager config being set", async () => {
+        const options: SandboxOptions = JSON.parse(JSON.stringify(sandboxOptions));
 
         options.crypto.flags.distribute = false;
         options.crypto.flags.pubKeyHash = 22;
-        delete options.crypto.genesisBlock;
+        options.crypto.cryptoManager = CryptoSuite.CryptoManager.createFromPreset("devnet");
 
-        let generator: CryptoGenerator = new CryptoGenerator(options);
+        const generator: CryptoGenerator = new CryptoGenerator(options);
 
-        let result: CryptoConfigPaths = generator.generate();
+        const result: CryptoConfigPaths = generator.generate();
 
         expect(result.root).toBeString();
         expect(result.exceptions).toBeString();
@@ -76,7 +76,7 @@ describe("CryptoGenerator", () => {
             return true;
         });
 
-        let generator: CryptoGenerator = new CryptoGenerator();
+        const generator: CryptoGenerator = new CryptoGenerator();
 
         expect(() => {
             generator.generate();

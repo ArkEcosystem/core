@@ -50,7 +50,7 @@ export class CryptoGenerator extends Generator {
     private writeExceptions(): void {
         const filePath: string = resolve(this.destination, "exceptions.json");
 
-        writeJSONSync(filePath, this.options.crypto.cryptoManager.NetworkConfigManager.get("exceptions"), {
+        writeJSONSync(filePath, this.cryptoManager.NetworkConfigManager.get("exceptions"), {
             spaces: 4,
         });
     }
@@ -62,7 +62,7 @@ export class CryptoGenerator extends Generator {
     private writeGenesisBlock(): void {
         const filePath: string = resolve(this.destination, "genesisBlock.json");
 
-        writeJSONSync(filePath, this.options.crypto.cryptoManager.NetworkConfigManager.get("genesisBlock"), {
+        writeJSONSync(filePath, this.cryptoManager.NetworkConfigManager.get("genesisBlock"), {
             spaces: 4,
         });
     }
@@ -74,7 +74,7 @@ export class CryptoGenerator extends Generator {
     private writeMilestones(): void {
         const filePath: string = resolve(this.destination, "milestones.json");
 
-        writeJSONSync(filePath, this.options.crypto.cryptoManager.NetworkConfigManager.get("milestones"), {
+        writeJSONSync(filePath, this.cryptoManager.NetworkConfigManager.get("milestones"), {
             spaces: 4,
         });
     }
@@ -86,6 +86,6 @@ export class CryptoGenerator extends Generator {
     private writeNetwork(): void {
         const filePath: string = resolve(this.destination, "network.json");
 
-        writeJSONSync(filePath, this.options.crypto.cryptoManager.NetworkConfigManager.get("network"), { spaces: 4 });
+        writeJSONSync(filePath, this.cryptoManager.NetworkConfigManager.get("network"), { spaces: 4 });
     }
 }

@@ -45,7 +45,7 @@ export interface CryptoFlags {
 
 export interface CryptoOptions {
     flags: CryptoFlags;
-    cryptoManager: CryptoSuite.CryptoManager;
+    cryptoManager?: CryptoSuite.CryptoManager;
 }
 
 export interface SandboxOptions {

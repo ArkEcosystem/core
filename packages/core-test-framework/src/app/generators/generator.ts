@@ -34,7 +34,6 @@ export abstract class Generator {
                 explorer: "http://uexplorer.ark.io",
                 distribute: true,
             },
-            cryptoManager: CryptoSuite.CryptoManager.createFromPreset("testnet"),
         },
     };
 
@@ -49,7 +48,9 @@ export abstract class Generator {
             this.options = { ...this.options, ...options };
         }
 
-        this.cryptoManager = this.options.crypto.cryptoManager;
+        this.cryptoManager = this.options.crypto.cryptoManager
+            ? this.options.crypto.cryptoManager
+            : CryptoSuite.CryptoManager.createFromPreset("testnet");
     }
 
     /**
