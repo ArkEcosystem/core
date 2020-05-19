@@ -11,7 +11,7 @@ import {
 import { Factory } from "./factory";
 import { FactoryBuilder } from "./factory-builder";
 
-const createFactory = (cryptoSuite: CryptoSuite.CryptoSuite): FactoryBuilder => {
+const createFactory = (cryptoSuite?: CryptoSuite.CryptoSuite): FactoryBuilder => {
     const factory: FactoryBuilder = new FactoryBuilder(cryptoSuite);
 
     registerBlockFactory(factory);
@@ -35,5 +35,5 @@ const createFactory = (cryptoSuite: CryptoSuite.CryptoSuite): FactoryBuilder => 
  * @param {string} name
  * @returns {FactoryBuilder}
  */
-export const factory = (name: string, cryptoSuite: CryptoSuite.CryptoSuite): Factory =>
+export const factory = (name: string, cryptoSuite?: CryptoSuite.CryptoSuite): Factory =>
     createFactory(cryptoSuite).get(name);
