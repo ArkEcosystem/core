@@ -21,7 +21,7 @@ export class FactoryBuilder {
      */
     private readonly factories: Map<string, Factory> = new Map<string, Factory>();
 
-    public constructor(public cryptoSuite: CryptoSuite.CryptoSuite) {
+    public constructor(public cryptoSuite: CryptoSuite.CryptoSuite = new CryptoSuite.CryptoSuite()) {
         this.blockFactory = cryptoSuite.BlockFactory;
         this.transactionManager = cryptoSuite.TransactionManager;
         this.cryptoManager = cryptoSuite.CryptoManager;
