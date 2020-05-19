@@ -10,6 +10,7 @@ export const registerWalletFactory = (factory: FactoryBuilder): void => {
         const passphrase: string = options.passphrase || generateMnemonic();
 
         const wallet: Wallets.Wallet = new Wallets.Wallet(
+            factory.cryptoManager,
             factory.cryptoManager.Identities.Address.fromPassphrase(passphrase),
             new Services.Attributes.AttributeMap(getWalletAttributeSet()),
         );

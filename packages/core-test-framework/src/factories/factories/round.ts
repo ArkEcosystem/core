@@ -15,6 +15,7 @@ export const registerRoundFactory = (factory: FactoryBuilder): void => {
 
         return publicKeys.map((publicKey: string, i: number) => {
             const wallet = new Wallets.Wallet(
+                factory.cryptoManager,
                 factory.cryptoManager.Identities.Address.fromPublicKey(publicKey),
                 knownAttributes,
             );

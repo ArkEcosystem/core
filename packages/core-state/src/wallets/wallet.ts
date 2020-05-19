@@ -1,5 +1,5 @@
 import { CryptoSuite } from "@arkecosystem/core-crypto";
-import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
+import { Contracts, Services } from "@arkecosystem/core-kernel";
 import { Types } from "@arkecosystem/crypto";
 import { cloneDeep } from "@arkecosystem/utils";
 
@@ -11,7 +11,6 @@ import { cloneDeep } from "@arkecosystem/utils";
  * @export
  * @class Wallet
  */
-@Container.injectable()
 export class Wallet implements Contracts.State.Wallet {
     /**
      * @type {(string | undefined)}
@@ -23,22 +22,23 @@ export class Wallet implements Contracts.State.Wallet {
      * @type {Utils.BigNumber}
      * @memberof Wallet
      */
-    public balance: Types.BigNumber;
+    public balance!: Types.BigNumber;
 
     /**
      * @type {Utils.BigNumber}
      * @memberof Wallet
      */
-    public nonce: Types.BigNumber;
-
-    @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoSuite.CryptoManager;
+    public nonce!: Types.BigNumber;
 
     /**
      * @param {string} address
      * @memberof Wallet
      */
-    public constructor(public readonly address: string, private readonly attributes: Services.Attributes.AttributeMap) {
+    public constructor(
+        private readonly cryptoManager: CryptoSuite.CryptoManager,
+        public readonly address: string,
+        private readonly attributes: Services.Attributes.AttributeMap,
+    ) {
         this.balance = this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
         this.nonce = this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
     }

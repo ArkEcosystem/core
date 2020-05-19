@@ -2,7 +2,6 @@ import "jest-extended";
 
 import { Wallets } from "@packages/core-state";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { Utils } from "@packages/crypto";
 
 let factory: FactoryBuilder;
 
@@ -23,8 +22,8 @@ describe("RoundFactory", () => {
             expect(delegate).toBeInstanceOf(Wallets.Wallet);
             expect(delegate.address).toBeString();
             expect(delegate.publicKey).toBeString();
-            expect(delegate.balance).toBeInstanceOf(Utils.BigNumber);
-            expect(delegate.nonce).toBeInstanceOf(Utils.BigNumber);
+            expect(delegate.balance).toEqual(factory.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO);
+            expect(delegate.nonce).toEqual(factory.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO);
             expect(delegate.isDelegate()).toBeTrue();
         });
     });

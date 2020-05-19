@@ -46,6 +46,7 @@ export const registerFactories = (app: Contracts.Kernel.Application): void => {
     app.bind(Container.Identifiers.WalletFactory).toFactory<Contracts.State.Wallet>(
         (context: Container.interfaces.Context) => (address: string) =>
             new Wallet(
+                app.get(Container.Identifiers.CryptoManager),
                 address,
                 new Services.Attributes.AttributeMap(
                     context.container.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes),
