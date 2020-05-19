@@ -1,13 +1,19 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
+import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { Interfaces, Identities } from "@packages/crypto/src";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Interfaces } from "@packages/crypto/src";
 
 let factory: FactoryBuilder;
+let Identities;
 
 beforeEach(() => {
-    factory = new FactoryBuilder();
+    const crypto = new CryptoSuite.CryptoSuite(Generators.generateCryptoConfigRaw());
+    crypto.CryptoManager.HeightTracker.setHeight(2);
+    factory = new FactoryBuilder(crypto);
+    Identities = crypto.CryptoManager.Identities;
 
     Factories.registerTransactionFactory(factory);
 });
@@ -23,7 +29,7 @@ describe("TransactionFactory", () => {
         });
 
         it("should create a builder with options", () => {
-            let options = {
+            const options = {
                 version: 2,
                 nonce: 1,
                 fee: 2,

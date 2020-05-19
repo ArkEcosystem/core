@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { Blocks, Interfaces } from "../../../../../packages/core-crypto";
-import { Utils } from "../../../../../packages/core-kernel";
-import { Generators } from "../../../../../packages/core-test-framework/src";
-import { Factories, FactoryBuilder } from "../../../../../packages/core-test-framework/src/factories";
+import { Blocks, Interfaces } from "@packages/core-crypto";
+import { Utils } from "@packages/core-kernel";
+import { Generators } from "@packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 
 let factory: FactoryBuilder;
 
