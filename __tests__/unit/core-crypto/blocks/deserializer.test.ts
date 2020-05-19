@@ -1,19 +1,35 @@
-import { Deserializer } from "../../../../packages/crypto/src/blocks/deserializer";
-import { Serializer } from "../../../../packages/crypto/src/blocks/serializer";
-import { configManager } from "../../../../packages/crypto/src/managers";
-import { dummyBlock2, dummyBlock3 } from "../fixtures/block";
+import { CryptoSuite } from "../../../../packages/core-crypto";
+// import { Deserializer } from "../../../../packages/core-crypto/src/blocks/deserializer";
+// import { Serializer } from "../../../../packages/core-crypto/src/blocks/serializer";
+import { makeDummyBlock2, makeDummyBlock3 } from "../fixtures/block";
+
+let crypto: CryptoSuite.CryptoSuite;
+let dummyBlock2;
+let dummyBlock3;
+let Serializer;
+let Deserializer;
+
+beforeAll(() => {
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+    Serializer = crypto.BlockFactory.serializer;
+    Deserializer = crypto.BlockFactory.deserializer;
+    dummyBlock2 = makeDummyBlock2(crypto.CryptoManager);
+    dummyBlock3 = makeDummyBlock3(crypto.CryptoManager);
+});
 
 describe("block deserializer", () => {
     describe("deserialize", () => {
         it("should get block id from outlook table", () => {
             const outlookTableBlockId = "123456";
-            configManager.set("exceptions.outlookTable", { [dummyBlock3.id]: outlookTableBlockId });
+            crypto.CryptoManager.NetworkConfigManager.set("exceptions.outlookTable", {
+                [dummyBlock3.id]: outlookTableBlockId,
+            });
 
             const deserialized = Deserializer.deserialize(Serializer.serialize(dummyBlock3).toString("hex"), true).data;
 
             expect(deserialized.id).toEqual(outlookTableBlockId);
 
-            configManager.set("exceptions.outlookTable", {});
+            crypto.CryptoManager.NetworkConfigManager.set("exceptions.outlookTable", {});
         });
 
         it("should correctly deserialize a block", () => {
