@@ -18,7 +18,7 @@ let BlockFactory;
 let dummyBlock;
 let dummyBlock2;
 
-beforeEach(() => {
+beforeAll(() => {
     crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
     BlockFactory = crypto.BlockFactory;
     dummyBlock = makeDummyBlock(crypto.CryptoManager);
@@ -26,23 +26,27 @@ beforeEach(() => {
 });
 
 describe("Block", () => {
-    const data = {
-        id: "187940162505562345",
-        blockSignature:
-            "3045022100a6605198e0f590c88798405bc76748d84e280d179bcefed2c993e70cded2a5dd022008c7f915b89fc4f3250fc4b481abb753c68f30ac351871c50bd6cfaf151370e8",
-        generatorPublicKey: "024c8247388a02ecd1de2a3e3fd5b7c61ecc2797fa3776599d558333ef1802d231",
-        height: 10,
-        numberOfTransactions: 0,
-        payloadHash: "578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23",
-        payloadLength: 1,
-        previousBlock: "12123",
-        timestamp: 111150,
-        reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ONE,
-        totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(10),
-        totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ONE,
-        transactions: [],
-        version: 6,
-    };
+    let data;
+
+    beforeAll(() => {
+        data = {
+            id: "187940162505562345",
+            blockSignature:
+                "3045022100a6605198e0f590c88798405bc76748d84e280d179bcefed2c993e70cded2a5dd022008c7f915b89fc4f3250fc4b481abb753c68f30ac351871c50bd6cfaf151370e8",
+            generatorPublicKey: "024c8247388a02ecd1de2a3e3fd5b7c61ecc2797fa3776599d558333ef1802d231",
+            height: 10,
+            numberOfTransactions: 0,
+            payloadHash: "578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23",
+            payloadLength: 1,
+            previousBlock: "12123",
+            timestamp: 111150,
+            reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ONE,
+            totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(10),
+            totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ONE,
+            transactions: [],
+            version: 6,
+        };
+    });
 
     describe("constructor", () => {
         it("should store the data", () => {
@@ -97,6 +101,7 @@ describe("Block", () => {
 
         it("should fail to verify a block with too much transactions", () => {
             const delegate = new BIP39(crypto.CryptoManager, crypto.BlockFactory, "super cool passphrase");
+
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -106,7 +111,7 @@ describe("Block", () => {
                 },
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.initialize()
+            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
                 .transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withPassphrase("super cool passphrase")
                 .create(210);
@@ -128,7 +133,7 @@ describe("Block", () => {
                 },
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.initialize()
+            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
                 .transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withPassphrase("super cool passphrase")
                 .create();
@@ -182,7 +187,7 @@ describe("Block", () => {
                 },
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.initialize()
+            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
                 .transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withTimestamp(optionsDefault.timestamp)
                 .withPassphrase("super cool passphrase")
@@ -195,6 +200,8 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with expired transactions", () => {
+            const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
             const delegate = new BIP39(crypto.CryptoManager, crypto.BlockFactory, "super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
@@ -205,7 +212,7 @@ describe("Block", () => {
                 },
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.initialize()
+            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 10)
                 .withVersion(2)
                 .withExpiration(52)
@@ -218,6 +225,8 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with expired transaction timestamp", () => {
+            const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
             const delegate = new BIP39(crypto.CryptoManager, crypto.BlockFactory, "super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
@@ -229,7 +238,9 @@ describe("Block", () => {
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.initialize()
+            crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
+
+            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withVersion(1)
                 .withTimestamp(optionsDefault.timestamp - 21601)
@@ -255,7 +266,7 @@ describe("Block", () => {
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.initialize()
+            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withVersion(1)
                 .withTimestamp(
@@ -274,6 +285,8 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with future transaction timestamp", () => {
+            const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
             const delegate = new BIP39(crypto.CryptoManager, crypto.BlockFactory, "super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
@@ -285,7 +298,7 @@ describe("Block", () => {
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.initialize()
+            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withVersion(1)
                 .withTimestamp(
@@ -316,7 +329,7 @@ describe("Block", () => {
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.initialize()
+            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withVersion(1)
                 .withTimestamp(
@@ -344,7 +357,7 @@ describe("Block", () => {
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.initialize()
+            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withVersion(1)
                 .withTimestamp(
@@ -443,13 +456,16 @@ describe("Block", () => {
     });
 
     describe("serialize", () => {
-        const serialize = (object, includeSignature?: any) => {
-            const serialized = crypto.BlockFactory.serializer.serialize(object, includeSignature);
-            const buffer = new ByteBuffer(1024, true);
-            buffer.append(serialized);
-            buffer.flip();
-            return buffer;
-        };
+        let serialize;
+        beforeAll(() => {
+            serialize = (object, includeSignature?: any) => {
+                const serialized = crypto.BlockFactory.serializer.serialize(object, includeSignature);
+                const buffer = new ByteBuffer(1024, true);
+                buffer.append(serialized);
+                buffer.flip();
+                return buffer;
+            };
+        });
 
         it("version is serialized as a TODO", () => {
             expect(serialize(data).readUint32(0)).toEqual(data.version);
@@ -550,7 +566,7 @@ describe("Block", () => {
                 ["devnet", 14492],
                 ["testnet", 46488],
             ])("%s", (network: NetworkName, length: number) => {
-                const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+                const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName(network));
 
                 crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = false;
 
@@ -563,7 +579,7 @@ describe("Block", () => {
 
         it("should validate hash", () => {
             // @ts-ignore
-            const s = Serializer.serializeWithTransactions(dummyBlock).toString("hex");
+            const s = crypto.BlockFactory.serializer.serializeWithTransactions(dummyBlock).toString("hex");
             const serialized =
                 "00000000006fb50300db1a002b324b8b33a85802070000000049d97102000000801d2c040000000000c2eb0b00000000e0000000de56269cae3ab156f6979b94a04c30b82ed7d6f9a97d162583c98215c18c65db03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac3730450221008c59bd2379061ad3539b73284fc0bbb57dbc97efd54f55010ba3f198c04dde7402202e482126b3084c6313c1378d686df92a3e2ef5581323de11e74fe07eeab339f3990000009a0000009a0000009a000000990000009a00000099000000ff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37809698000000000000006d7c4d00000000000000001e46550551e12d2531ea9d2968696b75f68ae7f29530440220714c2627f0e9c3bd6bf13b8b4faa5ec2d677694c27f580e2f9e3875bde9bc36f02201c33faacab9eafd799d9ceecaa153e3b87b4cd04535195261fd366e552652549ff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac3780969800000000000000f1536500000000000000001e46550551e12d2531ea9d2968696b75f68ae7f2953045022100e6039f810684515c0d6b31039040a76c98f3624b6454cb156a0a2137e5f8dba7022001ada19bcca5798e1c7cc8cc39bab5d4019525e3d72a42bd2c4129352b8ead87ff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37809698000000000000002f685900000000000000001e46550551e12d2531ea9d2968696b75f68ae7f2953045022100c2b5ef772b36e468e95ec2e457bfaba7bad0e13b3faf57e229ff5d67a0e017c902202339664595ea5c70ce20e4dd182532f7fa385d86575b0476ff3eda9f9785e1e9ff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac3780969800000000000000105e5f00000000000000001e46550551e12d2531ea9d2968696b75f68ae7f29530450221009ceb56688705e6b12000bde726ca123d84982231d7434f059612ff5f987409c602200d908667877c902e7ba35024951046b883e0bce9103d4717928d94ecc958884aff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37809698000000000000008c864700000000000000001e46550551e12d2531ea9d2968696b75f68ae7f29530440220464beac6d49943ad8afaac4fdc863c9cd7cf3a84f9938c1d7269ed522298f11a02203581bf180de1966f86d914afeb005e1e818c9213514f96a34e1391c2a08514faff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac3780969800000000000000d2496b00000000000000001e46550551e12d2531ea9d2968696b75f68ae7f2953045022100c7b40d7134d909762d18d6bfb7ac1c32be0ee8c047020131f499faea70ca0b2b0220117c0cf026f571f5a85e3ae800a6fd595185076ff38e64c7a4bd14f34e1d4dd1ff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37809698000000000000004e725300000000000000001e46550551e12d2531ea9d2968696b75f68ae7f295304402206a4a8e4e6918fbc15728653b117f51db716aeb04e5ee1de047f80b0476ee4efb02200f486dfaf0def3f3e8636d46ee75a2c07de9714ce4283a25fde9b6218b5e7923";
             const block1 = BlockFactory.fromData(dummyBlock);

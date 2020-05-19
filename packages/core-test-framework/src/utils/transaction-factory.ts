@@ -1,4 +1,4 @@
-import { CryptoSuite, Interfaces as BlockInterfaces, Validation } from "@arkecosystem/core-crypto";
+import { CryptoSuite, Validation } from "@arkecosystem/core-crypto";
 import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
     Builders as MagistrateBuilders,
@@ -35,22 +35,24 @@ export class TransactionFactory {
     private app: Contracts.Kernel.Application;
 
     private constructor(
+        cryptoManager?: CryptoSuite.CryptoManager,
         app?: Contracts.Kernel.Application,
-        config?: Interfaces.NetworkConfig<BlockInterfaces.IBlockData>,
-        schemaValidator?,
+        schemaValidator?: Interfaces.Validator,
     ) {
         // @ts-ignore - this is only needed because of the "getNonce"
         // method so we don't care if it is undefined in certain scenarios
         this.app = app;
-        this.cryptoManager = config
-            ? CryptoSuite.CryptoManager.createFromConfig(config)
-            : CryptoSuite.CryptoManager.createFromPreset("testnet");
+        this.cryptoManager = cryptoManager ? cryptoManager : CryptoSuite.CryptoManager.createFromPreset("testnet");
         const validator = schemaValidator ? schemaValidator : Validation.Validator.make(this.cryptoManager);
         this.transactionsManager = new CryptoSuite.TransactionManager(this.cryptoManager, validator);
     }
 
-    public static initialize(app?: Contracts.Kernel.Application): TransactionFactory {
-        return new TransactionFactory(app);
+    public static initialize(
+        cryptoManager?: CryptoSuite.CryptoManager,
+        app?: Contracts.Kernel.Application,
+        schemaValidator?: Interfaces.Validator,
+    ): TransactionFactory {
+        return new TransactionFactory(cryptoManager, app, schemaValidator);
     }
 
     public transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory {
