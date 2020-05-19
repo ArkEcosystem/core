@@ -1,6 +1,13 @@
 import "jest-extended";
 
-import { delegates } from "@packages/core-test-framework/src/internal/delegates";
+import { CryptoSuite } from "@packages/core-crypto";
+import { Delegates } from "@packages/core-test-framework/src/internal/delegates";
+
+let delegates;
+
+beforeAll(() => {
+    delegates = new Delegates(CryptoSuite.CryptoManager.createFromPreset("testnet")).delegates();
+});
 
 describe("Delegates", () => {
     it("should create delegates from passphrases", async () => {
