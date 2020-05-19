@@ -1,16 +1,16 @@
 import "jest-extended";
 
+import { Interfaces } from "@packages/core-crypto";
 import { Blockchain } from "@packages/core-test-framework/src/mocks";
-import { Interfaces } from "@packages/crypto";
 
-let blockData: Partial<Interfaces.IBlockData> = {
+const blockData: Partial<Interfaces.IBlockData> = {
     id: "717093ac984e1a82a2de1fb334e92bda648547955417bc830d7825c515b5f2f9",
     version: 2,
     timestamp: 123132,
     height: 5,
 };
 
-let block = {
+const block = {
     data: blockData,
 } as Interfaces.IBlock;
 

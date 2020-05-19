@@ -1,15 +1,20 @@
 import "jest-extended";
 
-import { RoundRepository } from "@packages/core-test-framework/src/mocks";
-import { Identities, Utils } from "@packages/crypto";
+import { CryptoSuite } from "@packages/core-crypto";
 import { Models } from "@packages/core-database";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { RoundRepository } from "@packages/core-test-framework/src/mocks";
 
-const round: Models.Round = {
-    publicKey: Identities.PublicKey.fromPassphrase(passphrases[1]),
-    round: Utils.BigNumber.make("12"),
-    balance: Utils.BigNumber.make("555"),
-};
+let round: Models.Round;
+
+beforeAll(() => {
+    const crypto = new CryptoSuite.CryptoSuite();
+    round = {
+        publicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
+        round: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("12"),
+        balance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("555"),
+    };
+});
 
 const clear = () => {
     RoundRepository.setRounds([]);

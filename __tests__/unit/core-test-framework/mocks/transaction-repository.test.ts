@@ -1,20 +1,26 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@packages/core-crypto";
 import { Models } from "@packages/core-database";
 import { TransactionRepository } from "@packages/core-test-framework/src/mocks";
 
-const transaction: Partial<Models.Transaction> = {
-    id: "0c79fe9faf214de92847baa322a9e991a49f6f6f0bc774927098c7feae627d77",
-    blockId: "6749a4b976e792817d32e1cf06d6b303badd2a5aff3086cc682349b9029290d5",
-    version: 2,
-    type: 2,
-    typeGroup: 1,
-    amount: Utils.BigNumber.make("0"),
-    fee: Utils.BigNumber.make("2500000000"),
-    senderPublicKey: "0272a9fb36e7a7d212aedfab53b2cdd48c8b620583d1927e03104122e6792482db",
-    recipientId: "DRwgqrfuuaPCy3AE8Sz1AjdrncKfHjePn5",
-};
+let transaction: Partial<Models.Transaction>;
+
+beforeAll(() => {
+    const crypto = new CryptoSuite.CryptoSuite();
+
+    transaction = {
+        id: "0c79fe9faf214de92847baa322a9e991a49f6f6f0bc774927098c7feae627d77",
+        blockId: "6749a4b976e792817d32e1cf06d6b303badd2a5aff3086cc682349b9029290d5",
+        version: 2,
+        type: 2,
+        typeGroup: 1,
+        amount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
+        fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("2500000000"),
+        senderPublicKey: "0272a9fb36e7a7d212aedfab53b2cdd48c8b620583d1927e03104122e6792482db",
+        recipientId: "DRwgqrfuuaPCy3AE8Sz1AjdrncKfHjePn5",
+    };
+});
 
 const feeStatistics: TransactionRepository.FeeStatistics = {
     type: 1,
