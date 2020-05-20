@@ -1,13 +1,13 @@
 import "jest-extended";
 
+import { CryptoSuite, Interfaces } from "@packages/core-crypto/src";
+import { Block } from "@packages/core-database/src/models";
+import { Container } from "@packages/core-kernel";
+import { Generators, Sandbox } from "@packages/core-test-framework/src";
+import { Mocks } from "@packages/core-test-framework/src";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { performance } from "perf_hooks";
 
-import { CryptoSuite, Interfaces } from "../../../../packages/core-crypto";
-import { Block } from "../../../../packages/core-database/src/models";
-import { Container } from "../../../../packages/core-kernel";
-import { Generators, Sandbox } from "../../../../packages/core-test-framework/src";
-import { Mocks } from "../../../../packages/core-test-framework/src";
-import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
 import {
     getLastHeight,
     getSenderNonce,

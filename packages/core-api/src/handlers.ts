@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import Hapi from "@hapi/hapi";
 
 import * as Blockchain from "./routes/blockchain";
@@ -13,7 +13,7 @@ import * as Votes from "./routes/votes";
 import * as Wallets from "./routes/wallets";
 
 export = {
-    async register(server: Hapi.Server, cryptoManager: CryptoManager): Promise<void> {
+    async register(server: Hapi.Server, cryptoManager: CryptoSuite.CryptoManager): Promise<void> {
         const handlers = [Blockchain, Blocks, Delegates, Locks, Node, Peers, Rounds, Transactions, Votes, Wallets];
 
         for (const handler of handlers) {

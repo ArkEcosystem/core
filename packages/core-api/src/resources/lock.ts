@@ -1,4 +1,4 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { Resource } from "../interfaces";
@@ -9,7 +9,7 @@ export class LockResource implements Resource {
     protected readonly stateStore!: Contracts.State.StateStore;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    private readonly cryptoManager!: CryptoManager.CryptoManager;
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     /**
      * Return the raw representation of the resource.

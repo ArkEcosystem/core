@@ -1,5 +1,5 @@
 import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { validateMnemonic } from "bip39";
@@ -37,7 +37,7 @@ export class Command extends Commands.Command {
      */
     public isHidden: boolean = true;
 
-    public cryptoManager!: CryptoManager;
+    public cryptoManager!: CryptoSuite.CryptoManager;
 
     /**
      * Configure the console command.

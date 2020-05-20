@@ -1,10 +1,10 @@
-import { Blocks, Interfaces as BlockInterfaces, Validation } from "@arkecosystem/core-crypto";
-import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Blocks, CryptoSuite, Validation } from "@arkecosystem/core-crypto";
+import { IBlockData } from "@arkecosystem/core-crypto/dist/interfaces";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { ConfigRepository } from "../../services/config";
-import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
 
 /**
@@ -34,9 +34,9 @@ export class LoadCryptography implements Bootstrapper {
     @inject(Identifiers.ConfigRepository)
     private readonly configRepository!: ConfigRepository;
 
-    private cryptoManager: CryptoManager<BlockInterfaces.IBlockData> | undefined;
-    private transactionManager: Transactions.TransactionsManager<BlockInterfaces.IBlockData> | undefined;
-    private blockFactory: Blocks.BlockFactory | undefined;
+    private cryptoManager!: CryptoSuite.CryptoManager;
+    private transactionManager!: CryptoSuite.TransactionManager;
+    private blockFactory!: Blocks.BlockFactory;
 
     /**
      * @returns {Promise<void>}
@@ -52,27 +52,16 @@ export class LoadCryptography implements Bootstrapper {
             ? this.fromConfigRepository()
             : this.fromPreset();
 
-        assert.defined(this.cryptoManager);
+        const validator = Validation.Validator.make(this.cryptoManager); // TODO: this should be configurable
 
-        this.transactionManager = new Transactions.TransactionsManager(
-            this.cryptoManager,
-            Validation.Validator.make(this.cryptoManager), // TODO: this should be configurable
-        );
+        this.transactionManager = new CryptoSuite.TransactionManager(this.cryptoManager, validator);
 
-        assert.defined(this.transactionManager);
+        this.blockFactory = new Blocks.BlockFactory(this.cryptoManager, this.transactionManager, validator);
 
-        this.blockFactory = new Blocks.BlockFactory(this.cryptoManager, this.transactionManager);
-
-        assert.defined(this.blockFactory);
+        this.app.bind<CryptoSuite.CryptoManager>(Identifiers.CryptoManager).toConstantValue(this.cryptoManager);
 
         this.app
-            .bind<CryptoManager<BlockInterfaces.IBlockData>>(Identifiers.CryptoManager)
-            .toConstantValue(this.cryptoManager);
-
-        this.app
-            .bind<Transactions.TransactionsManager<BlockInterfaces.IBlockData, Interfaces.ITransactionData>>(
-                Identifiers.TransactionManager,
-            )
+            .bind<CryptoSuite.TransactionManager>(Identifiers.TransactionManager)
             .toConstantValue(this.transactionManager);
 
         this.app.bind<Blocks.BlockFactory>(Identifiers.BlockFactory).toConstantValue(this.blockFactory);
@@ -82,22 +71,22 @@ export class LoadCryptography implements Bootstrapper {
      * @private
      * @memberof LoadCryptography
      */
-    private fromPreset(): CryptoManager<BlockInterfaces.IBlockData> {
-        return CryptoManager.createFromPreset(this.app.network() as any);
+    private fromPreset(): CryptoSuite.CryptoManager {
+        return CryptoSuite.CryptoManager.createFromPreset(this.app.network() as any);
     }
 
     /**
      * @private
      * @memberof LoadCryptography
      */
-    private fromConfigRepository(): CryptoManager<BlockInterfaces.IBlockData> {
-        const networkConfig: Interfaces.NetworkConfig<BlockInterfaces.IBlockData> = {
+    private fromConfigRepository(): CryptoSuite.CryptoManager {
+        const networkConfig: Interfaces.NetworkConfig<IBlockData> = {
             genesisBlock: this.configRepository.get("crypto.genesisBlock"),
             exceptions: this.configRepository.get("crypto.exceptions"),
             milestones: this.configRepository.get("crypto.milestones"),
             network: this.configRepository.get("crypto.network"),
         };
 
-        return CryptoManager.createFromConfig(networkConfig);
+        return CryptoSuite.CryptoManager.createFromConfig(networkConfig);
     }
 }

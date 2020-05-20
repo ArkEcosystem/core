@@ -1,7 +1,7 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 
 export class Conditions {
-    public constructor(private cryptoManager: CryptoManager) {}
+    public constructor(private cryptoManager: CryptoSuite.CryptoManager) {}
 
     /**
      * @param {*} actual

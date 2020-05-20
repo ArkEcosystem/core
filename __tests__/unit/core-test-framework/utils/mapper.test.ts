@@ -1,11 +1,14 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
+import { Generators } from "@packages/core-test-framework/src";
 import { mapTransactionToModel } from "@packages/core-test-framework/src/utils/mapper";
 
 let transaction: Interfaces.ITransaction;
 let transactionModel: Models.Transaction;
+const crypto = new CryptoSuite.CryptoSuite(Generators.generateCryptoConfigRaw());
 
 beforeEach(() => {
     transaction = {
@@ -15,7 +18,7 @@ beforeEach(() => {
         verified: true,
         isVerified: true,
         key: "123",
-        staticFee: Utils.BigNumber.make(5),
+        staticFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(5),
         timestamp: 2000123,
         data: {
             id: "f0880e972206698bf48e43325ec03045a3b2ab215b8f716a51742a909b718177",
@@ -24,10 +27,10 @@ beforeEach(() => {
             type: 2,
             typeGroup: 1,
             timestamp: 2000123,
-            nonce: Utils.BigNumber.make(5),
+            nonce: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(5),
             senderPublicKey: "025805c82bb3ff7068e1b20da4ad2f89638e404950b0af7a0d2e23512b3701a21a",
-            fee: Utils.BigNumber.make(5),
-            amount: Utils.BigNumber.make(5),
+            fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(5),
+            amount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(5),
             recipientId: "D7RVC5iZqs3f8ETtHRL3REeVzsxrrBexcT",
             signature:
                 "efd9acefcc843123f7f518ebc34cd8a81ba536b9604d42eaf3bc84fa9df4e2f51e4596ca2671e5726e99bff83a85f98122512ec9ed5f9a3de97045d23f6c94f3",
@@ -50,14 +53,14 @@ beforeEach(() => {
         blockId: "717093ac984e1a82a2de1fb334e92bda648547955417bc830d7825c515b5f2f9",
         sequence: 0,
         timestamp: 2000123,
-        nonce: Utils.BigNumber.make(5),
+        nonce: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(5),
         senderPublicKey: "025805c82bb3ff7068e1b20da4ad2f89638e404950b0af7a0d2e23512b3701a21a",
         recipientId: "D7RVC5iZqs3f8ETtHRL3REeVzsxrrBexcT",
         type: 2,
         typeGroup: 1,
         vendorField: undefined,
-        amount: Utils.BigNumber.make(5),
-        fee: Utils.BigNumber.make(5),
+        amount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(5),
+        fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(5),
         serialized: Buffer.from(""),
         asset: {},
     };
@@ -79,7 +82,7 @@ describe("Mapper", () => {
 
             transactionModel.version = 1;
             transactionModel.blockId = "";
-            transactionModel.nonce = Utils.BigNumber.make(1);
+            transactionModel.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1);
             transactionModel.senderPublicKey = "";
             transactionModel.recipientId = "";
             transactionModel.typeGroup = 1;

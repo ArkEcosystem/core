@@ -359,7 +359,7 @@ export class TransactionFactory {
         AppUtils.assert.defined<string>(this.senderPublicKey);
 
         return this.cryptoManager.LibraryManager.Libraries.BigNumber.make(
-            getWalletNonce(this.app, this.senderPublicKey),
+            getWalletNonce(this.app, this.cryptoManager, this.senderPublicKey),
         );
     }
 

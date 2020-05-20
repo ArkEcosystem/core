@@ -1,8 +1,8 @@
-import { CryptoManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import Hapi from "@hapi/hapi";
 import NodeCache from "node-cache";
 
-const generateCacheKey = (request: Hapi.Request, cryptoManager: CryptoManager): string =>
+const generateCacheKey = (request: Hapi.Request, cryptoManager: CryptoSuite.CryptoManager): string =>
     cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(
         JSON.stringify({
             pathname: request.url.pathname,
@@ -19,7 +19,7 @@ export = {
     async register(
         server: Hapi.Server,
         options: { enabled: boolean; stdTTL: number; checkperiod: number },
-        cryptoManager: CryptoManager,
+        cryptoManager: CryptoSuite.CryptoManager,
     ): Promise<void> {
         if (options.enabled === false) {
             return;
