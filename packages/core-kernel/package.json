@@ -24,6 +24,7 @@
         "@arkecosystem/crypto": "^3.0.0-next.0",
         "@arkecosystem/utils": "^1.1.7",
         "@hapi/joi": "^17.1.0",
+        "@pm2/io": "^4.3.5",
         "chalk": "^4.0.0",
         "cron": "^1.7.2",
         "dayjs": "^1.8.17",
