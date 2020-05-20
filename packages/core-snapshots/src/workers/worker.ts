@@ -48,7 +48,8 @@ export const init = async () => {
         (context: Container.interfaces.Context) => (table: string) => {
             if (table === "blocks") {
                 return getCustomRepository(Repositories.BlockRepository);
-            } if (table === "transactions") {
+            }
+            if (table === "transactions") {
                 return getCustomRepository(Repositories.TransactionRepository);
             }
             return getCustomRepository(Repositories.RoundRepository);

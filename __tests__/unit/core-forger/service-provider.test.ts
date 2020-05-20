@@ -8,8 +8,8 @@ describe("ServiceProvider", () => {
 
     const triggerService = { bind: jest.fn() };
 
-    const bip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4ax"} as any;
-    const bip38DelegateMock = { address: "D6Z26L69gbk8qYmTv5uzk3uGepigtHY4ax"} as any;
+    const bip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4ax" } as any;
+    const bip38DelegateMock = { address: "D6Z26L69gbk8qYmTv5uzk3uGepigtHY4ax" } as any;
 
     beforeEach(() => {
         app = new Application(new Container.Container());
@@ -23,7 +23,7 @@ describe("ServiceProvider", () => {
 
         app.config("delegates", { secrets: [], bip38: "dummy bip 38" });
         app.config("app", { flags: { bip38: "dummy bip 38", password: "dummy pwd" } });
-        
+
         serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
 
         const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
@@ -53,7 +53,7 @@ describe("ServiceProvider", () => {
 
     describe("boot", () => {
         it("should call boot on forger service", async () => {
-            app.config("delegates", { secrets: [ "this is a super secret passphrase" ], bip38: "dummy bip 38" });
+            app.config("delegates", { secrets: ["this is a super secret passphrase"], bip38: "dummy bip 38" });
 
             const forgerService = { boot: jest.fn() };
             app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
@@ -64,21 +64,18 @@ describe("ServiceProvider", () => {
         });
 
         it("should create delegates from delegates.secret and flags.bip38 / flags.password", async () => {
-            const secrets = [
-                "this is a super secret passphrase",
-                "this is a super secret passphrase2"
-            ]
+            const secrets = ["this is a super secret passphrase", "this is a super secret passphrase2"];
             app.config("delegates", { secrets, bip38: "dummy bip 38" });
 
             const flagsConfig = { bip38: "dummy bip38", password: "dummy password" };
-            app.config("app.flags", flagsConfig)
+            app.config("app.flags", flagsConfig);
 
             const forgerService = { boot: jest.fn() };
             app.bind(Container.Identifiers.ForgerService).toConstantValue(forgerService);
 
-            const anotherBip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4fe"} as any;
+            const anotherBip39DelegateMock = { address: "D6Z26L69gdk8qYmTv5uzk3uGepigtHY4fe" } as any;
             jest.spyOn(DelegateFactory, "fromBIP39").mockReturnValueOnce(anotherBip39DelegateMock);
-            
+
             await serviceProvider.boot();
 
             expect(forgerService.boot).toBeCalledTimes(1);
@@ -126,7 +123,7 @@ describe("ServiceProvider", () => {
 
             expect(bootWhenResultBip38).toBeTrue();
 
-            app.config("delegates", { secrets: [ "shhhh" ], bip38: undefined });
+            app.config("delegates", { secrets: ["shhhh"], bip38: undefined });
 
             const bootWhenResultSecrets = await serviceProvider.bootWhen();
 

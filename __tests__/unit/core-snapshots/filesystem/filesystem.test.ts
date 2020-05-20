@@ -14,7 +14,7 @@ let sandbox: Sandbox;
 let filesystem: Filesystem;
 
 beforeEach(() => {
-    sandbox = new Sandbox;
+    sandbox = new Sandbox();
 
     sandbox.app.bind(Container.Identifiers.FilesystemService).to(LocalFilesystem).inSingletonScope();
 
@@ -25,11 +25,10 @@ beforeEach(() => {
 
 afterEach(() => {
     setGracefulCleanup();
-   jest.resetAllMocks();
+    jest.resetAllMocks();
 });
 
 describe("Filesystem", () => {
-
     describe("getSnapshotFolderPath", () => {
         it("should return if network and snapshot are set", async () => {
             filesystem.setSnapshot("1-200");
@@ -38,7 +37,9 @@ describe("Filesystem", () => {
         });
 
         it("should throw error if no snapshot is set", async () => {
-            expect(() => {filesystem.getSnapshotPath()}).toThrowError();
+            expect(() => {
+                filesystem.getSnapshotPath();
+            }).toThrowError();
         });
     });
 

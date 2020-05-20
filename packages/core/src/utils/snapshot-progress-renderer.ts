@@ -11,13 +11,13 @@ export class ProgressRenderer {
         blocks: 0,
         transactions: 0,
         rounds: 0,
-    }
+    };
 
     private progress = {
         blocks: "---.--",
         transactions: "---.--",
         rounds: "---.--",
-    }
+    };
 
     public constructor(spinner: Ora, app: Contracts.Kernel.Application) {
         this.spinner = spinner;

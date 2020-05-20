@@ -1,5 +1,5 @@
 import { DatabaseService, Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Enums, Utils, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Services, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 import async from "async";
 

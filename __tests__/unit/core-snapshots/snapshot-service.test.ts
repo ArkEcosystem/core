@@ -15,7 +15,6 @@ let logger;
 let database: Partial<SnapshotDatabaseService>;
 let filesystem: Partial<Filesystem>;
 
-
 beforeEach(() => {
     logger = {
         info: jest.fn(),
@@ -28,18 +27,18 @@ beforeEach(() => {
         dump: jest.fn().mockResolvedValue({}),
         restore: jest.fn().mockResolvedValue({}),
         verify: jest.fn().mockResolvedValue({}),
-        rollback: jest.fn().mockResolvedValue({data: Assets.blocksBigNumber[1]}),
-        getLastBlock: jest.fn().mockResolvedValue({data: Assets.blocksBigNumber[1]}),
+        rollback: jest.fn().mockResolvedValue({ data: Assets.blocksBigNumber[1] }),
+        getLastBlock: jest.fn().mockResolvedValue({ data: Assets.blocksBigNumber[1] }),
     };
 
     filesystem = {
         setSnapshot: jest.fn(),
         getSnapshotPath: jest.fn(),
         readMetaData: jest.fn().mockResolvedValue(Assets.metaData),
-        snapshotExists: jest.fn().mockResolvedValue(true)
+        snapshotExists: jest.fn().mockResolvedValue(true),
     };
 
-    sandbox = new Sandbox;
+    sandbox = new Sandbox();
 
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     sandbox.app.bind(Container.Identifiers.SnapshotService).to(SnapshotService).inSingletonScope();
@@ -55,38 +54,37 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-   jest.resetAllMocks();
+    jest.resetAllMocks();
 });
 
 describe("SnapshotService", () => {
-
     describe("dump", () => {
         it("should be ok", async () => {
             let options = {
-                network: "testnet"
-            }
+                network: "testnet",
+            };
 
             await expect(snapshotService.dump(options)).toResolve();
 
             expect(database.dump).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).not.toHaveBeenCalled()
+            expect(logger.error).not.toHaveBeenCalled();
         });
 
         it("should log error if error in dump", async () => {
             database.dump = jest.fn().mockRejectedValue(new Error());
 
             let options = {
-                network: "testnet"
-            }
+                network: "testnet",
+            };
 
             await expect(snapshotService.dump(options)).toResolve();
 
             expect(database.dump).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).toHaveBeenCalled()
+            expect(logger.error).toHaveBeenCalled();
         });
     });
 
@@ -95,62 +93,62 @@ describe("SnapshotService", () => {
             let options = {
                 network: "testnet",
                 blocks: "1-99",
-            }
+            };
 
             await expect(snapshotService.restore(options)).toResolve();
 
             expect(database.restore).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).not.toHaveBeenCalled()
+            expect(logger.error).not.toHaveBeenCalled();
         });
 
         it("should log error if error in restore", async () => {
-            database.restore = jest.fn().mockRejectedValue(new Error())
+            database.restore = jest.fn().mockRejectedValue(new Error());
 
             let options = {
                 network: "testnet",
                 blocks: "1-99",
-            }
+            };
 
             await expect(snapshotService.restore(options)).toResolve();
 
             expect(database.restore).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).toHaveBeenCalled()
+            expect(logger.error).toHaveBeenCalled();
         });
 
         it("should log error if snapshot does not exist", async () => {
-            filesystem.snapshotExists = jest.fn().mockResolvedValue(false)
+            filesystem.snapshotExists = jest.fn().mockResolvedValue(false);
 
             let options = {
                 network: "testnet",
                 blocks: "1-99",
-            }
+            };
 
             await expect(snapshotService.restore(options)).toResolve();
 
             expect(database.restore).not.toHaveBeenCalled();
             expect(logger.info).not.toHaveBeenCalled();
 
-            expect(logger.error).toHaveBeenCalled()
+            expect(logger.error).toHaveBeenCalled();
         });
 
         it("should log error if meta data cannot be read", async () => {
-            filesystem.readMetaData = jest.fn().mockRejectedValue(new Error())
+            filesystem.readMetaData = jest.fn().mockRejectedValue(new Error());
 
             let options = {
                 network: "testnet",
                 blocks: "1-99",
-            }
+            };
 
             await expect(snapshotService.restore(options)).toResolve();
 
             expect(database.restore).not.toHaveBeenCalled();
             expect(logger.info).not.toHaveBeenCalled();
 
-            expect(logger.error).toHaveBeenCalled()
+            expect(logger.error).toHaveBeenCalled();
         });
     });
 
@@ -158,63 +156,63 @@ describe("SnapshotService", () => {
         it("should be ok", async () => {
             let options = {
                 network: "testnet",
-                blocks: "1-99"
-            }
+                blocks: "1-99",
+            };
 
             await expect(snapshotService.verify(options)).toResolve();
 
             expect(database.verify).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).not.toHaveBeenCalled()
+            expect(logger.error).not.toHaveBeenCalled();
         });
 
         it("should log error if snapshot does not exist", async () => {
-            filesystem.snapshotExists = jest.fn().mockResolvedValue(false)
+            filesystem.snapshotExists = jest.fn().mockResolvedValue(false);
 
             let options = {
                 network: "testnet",
-                blocks: "1-99"
-            }
+                blocks: "1-99",
+            };
 
             await expect(snapshotService.verify(options)).toResolve();
 
             expect(database.verify).not.toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).toHaveBeenCalled()
+            expect(logger.error).toHaveBeenCalled();
         });
 
         it("should log error if meta cannot be read", async () => {
-            filesystem.readMetaData = jest.fn().mockRejectedValue(new Error())
+            filesystem.readMetaData = jest.fn().mockRejectedValue(new Error());
 
             let options = {
                 network: "testnet",
-                blocks: "1-99"
-            }
+                blocks: "1-99",
+            };
 
             await expect(snapshotService.verify(options)).toResolve();
 
             expect(database.verify).not.toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).toHaveBeenCalled()
+            expect(logger.error).toHaveBeenCalled();
         });
 
         it("should log error if error on verify", async () => {
-            database.verify = jest.fn().mockRejectedValue(new Error())
+            database.verify = jest.fn().mockRejectedValue(new Error());
 
             let options = {
                 network: "testnet",
-                blocks: "1-99"
-            }
+                blocks: "1-99",
+            };
 
             await expect(snapshotService.verify(options)).toResolve();
 
             expect(database.verify).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).toHaveBeenCalled()
+            expect(logger.error).toHaveBeenCalled();
         });
     });
 
@@ -225,7 +223,7 @@ describe("SnapshotService", () => {
             expect(database.rollback).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).not.toHaveBeenCalled()
+            expect(logger.error).not.toHaveBeenCalled();
         });
 
         it("should log error if height is not valid", async () => {
@@ -234,7 +232,7 @@ describe("SnapshotService", () => {
             expect(database.rollback).not.toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).toHaveBeenCalled()
+            expect(logger.error).toHaveBeenCalled();
         });
 
         it("should log error if height greater than last block height", async () => {
@@ -243,7 +241,7 @@ describe("SnapshotService", () => {
             expect(database.rollback).not.toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).toHaveBeenCalled()
+            expect(logger.error).toHaveBeenCalled();
         });
 
         it("should log error if error in rollback", async () => {
@@ -254,7 +252,7 @@ describe("SnapshotService", () => {
             expect(database.rollback).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).toHaveBeenCalled()
+            expect(logger.error).toHaveBeenCalled();
         });
     });
 
@@ -265,7 +263,7 @@ describe("SnapshotService", () => {
             expect(database.rollback).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).not.toHaveBeenCalled()
+            expect(logger.error).not.toHaveBeenCalled();
         });
     });
 
@@ -276,7 +274,7 @@ describe("SnapshotService", () => {
             expect(database.truncate).toHaveBeenCalled();
             expect(logger.info).toHaveBeenCalled();
 
-            expect(logger.error).not.toHaveBeenCalled()
+            expect(logger.error).not.toHaveBeenCalled();
         });
 
         it("should log error if error in truncate", async () => {

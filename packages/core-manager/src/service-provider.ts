@@ -6,6 +6,7 @@ import { Identifiers } from "./ioc";
 import { PluginFactory } from "./server/plugins";
 import { Server } from "./server/server";
 import { Argon2id, SimpleTokenValidator } from "./server/validators";
+import Handlers from "./server/handlers";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -66,6 +67,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     cors: true,
                 },
             },
+        });
+
+        await server.register({
+            plugin: Handlers,
         });
     }
 }

@@ -14,8 +14,7 @@ jest.mock("@arkecosystem/core-kernel", () => ({
     },
 }));
 
-beforeEach(() => {
-});
+beforeEach(() => {});
 
 describe("RunCommand", () => {
     it("should throw if the process does not exist", async () => {
