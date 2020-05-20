@@ -1,6 +1,16 @@
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
-import { Cache, Filesystem, Log, Pipeline, Queue, Schedule, Triggers, Validation } from "../../services";
+import {
+    Cache,
+    Filesystem,
+    Log,
+    Pipeline,
+    ProcessActions,
+    Queue,
+    Schedule,
+    Triggers,
+    Validation,
+} from "../../services";
 import { Bootstrapper } from "../interfaces";
 
 /**
@@ -37,6 +47,8 @@ export class RegisterBaseServiceProviders implements Bootstrapper {
         await this.app.resolve(Pipeline.ServiceProvider).register();
 
         await this.app.resolve(Queue.ServiceProvider).register();
+
+        await this.app.resolve(ProcessActions.ServiceProvider).register();
 
         await this.app.resolve(Validation.ServiceProvider).register();
 
