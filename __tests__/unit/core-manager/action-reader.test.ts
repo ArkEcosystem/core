@@ -13,6 +13,7 @@ beforeEach(() => {
 
     sandbox.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({});
+    sandbox.app.bind(Container.Identifiers.FilesystemService).toConstantValue({});
 
     actionReader = sandbox.app.get<ActionReader>(Identifiers.ActionReader);
 });
