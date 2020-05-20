@@ -1616,21 +1616,6 @@
     "@hapi/hoek" "9.x.x"
     mime-db "1.x.x"
 
-"@hapi/nes@^12.0.2":
-  version "12.0.2"
-  resolved "https://registry.yarnpkg.com/@hapi/nes/-/nes-12.0.2.tgz#718b9ea64e126437e2492ced448620c4a2280918"
-  integrity sha512-FZ+0iKmeTJqEwpGUSYol6nCLIthLlh6P5eN2chz8VEVw7zCH1bxbYKxlxK0f0VxQRt89yAIKQC4In3i0tOwb7Q==
-  dependencies:
-    "@hapi/boom" "9.x.x"
-    "@hapi/bounce" "2.x.x"
-    "@hapi/call" "6.x.x"
-    "@hapi/cryptiles" "5.x.x"
-    "@hapi/hoek" "9.x.x"
-    "@hapi/iron" "6.x.x"
-    "@hapi/joi" "17.x.x"
-    "@hapi/teamwork" "4.x.x"
-    ws "6.x.x"
-
 "@hapi/nes@air1one/nes#fix/remoteAddress":
   version "12.0.2"
   resolved "https://codeload.github.com/air1one/nes/tar.gz/1ea0fd262eef79f7784a21092aa91dd612799c05"
@@ -3600,10 +3585,10 @@
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-2.3.5.tgz#9da44ed75571999b65c37b60c9b2b88db54c585d"
   integrity sha512-SCcK7mvGi3+ZNz833RRjFIxrn4gI1PPR3NtuIS+6vMkvmsGjosqTJwRt5bAEFLRz+wtJMWv8+uOnZf2hi2QXTg==
 
-"@types/uuid@^7.0.0", "@types/uuid@^7.0.2":
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-7.0.2.tgz#d680a9c596ef84abf5c4c07a32ffd66d582526f8"
-  integrity sha512-8Ly3zIPTnT0/8RCU6Kg/G3uTICf9sRwYOpUzSIM3503tLIKcnJPRuinHhXngJUy2MntrEf6dlpOHXJju90Qh5w==
+"@types/uuid@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.0.0.tgz#165aae4819ad2174a17476dbe66feebd549556c0"
+  integrity sha512-xSQfNcvOiE5f9dyd4Kzxbof1aTrLobL278pGLKOZI6esGfZ7ts9Ka16CzIN6Y8hFHE1C7jIBZokULhK1bOgjRw==
 
 "@types/wif@^2.0.1":
   version "2.0.1"
