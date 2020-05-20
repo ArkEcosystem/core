@@ -35,7 +35,7 @@ export class Action implements Actions.Action {
             pluginsResolved = requireFromString(content);
         } catch {}
 
-        if (!(pluginsResolved instanceof Object)) {
+        if (typeof pluginsResolved !== "object") {
             throw new Error("Content cannot be resolved");
         }
 
