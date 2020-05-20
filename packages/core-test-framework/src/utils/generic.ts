@@ -1,10 +1,10 @@
-import { Interfaces } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { CryptoManager, Types } from "@arkecosystem/crypto";
+import { Types } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
 
-export const snoozeForBlock = async <T = Interfaces.IBlockData>(
-    cryptoManager: CryptoManager<T>,
+export const snoozeForBlock = async (
+    cryptoManager: CryptoSuite.CryptoManager,
     sleep: number = 0,
     height: number = 1,
 ): Promise<void> => {
@@ -15,8 +15,8 @@ export const snoozeForBlock = async <T = Interfaces.IBlockData>(
     return AppUtils.sleep(blockTime + remainingTimeInSlot + sleepTime);
 };
 
-export const injectMilestone = <T = Interfaces.IBlockData>(
-    cryptoManager: CryptoManager<T>,
+export const injectMilestone = (
+    cryptoManager: CryptoSuite.CryptoManager,
     index: number,
     milestone: Record<string, any>,
 ): void =>
@@ -50,12 +50,16 @@ export const resetBlockchain = async (app: Contracts.Kernel.Application) => {
     // app.get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService).flush();
 };
 
-export const getWalletNonce = (app: Contracts.Kernel.Application, publicKey: string): Types.BigNumber | number => {
+export const getWalletNonce = (
+    app: Contracts.Kernel.Application,
+    cryptoManager: CryptoSuite.CryptoManager,
+    publicKey: string,
+): Types.BigNumber => {
     try {
         return app
             .getTagged<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository, "state", "blockchain")
             .getNonce(publicKey);
     } catch {
-        return 0;
+        return cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
     }
 };

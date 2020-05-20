@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Interfaces } from "@packages/ccrypto";
 import { TransactionPoolQuery } from "@packages/core-test-framework/src/mocks";
+import { Interfaces } from "@packages/crypto";
 
 const tranasction: Partial<Interfaces.ITransaction> = {
     id: "f0880e972206698bf48e43325ec03045a3b2ab215b8f716a51742a909b718177",
