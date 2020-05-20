@@ -17,7 +17,6 @@ export class Action implements Actions.Action {
     };
 
     @Container.inject(Container.Identifiers.Application)
-    // @ts-ignore
     private readonly app!: Application;
 
     @Container.inject(Container.Identifiers.FilesystemService)
@@ -36,7 +35,7 @@ export class Action implements Actions.Action {
             if (line === "") {
                 continue;
             }
-            const matches: RegExpExecArray | null = new RegExp(/^[A-Z][A-Z0-9_]*=\S*$/).exec(line);
+            const matches: RegExpExecArray | null = new RegExp(/^[A-Z][A-Z0-9_]*=\S\S*$/).exec(line);
 
             if (!matches) {
                 throw new Error(`Invalid line [${count}]: ${line}`);
