@@ -60,6 +60,7 @@ export class WalletsController extends Controller {
             criteria,
             this.getListingOrder(request),
             this.getListingPage(request),
+            this.getListingOptions(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -79,6 +80,7 @@ export class WalletsController extends Controller {
             criteria,
             this.getListingOrder(request),
             this.getListingPage(request),
+            this.getListingOptions(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -95,6 +97,7 @@ export class WalletsController extends Controller {
             criteria,
             this.getListingOrder(request),
             this.getListingPage(request),
+            this.getListingOptions(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -120,6 +123,7 @@ export class WalletsController extends Controller {
             criteria,
             this.getListingOrder(request),
             this.getListingPage(request),
+            this.getListingOptions(request),
         );
 
         return this.toPagination(transactionListResult, TransactionResource);

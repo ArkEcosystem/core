@@ -453,7 +453,7 @@ describe("TransactionRepository.listByExpression", () => {
             },
             [],
             { offset: 0, limit: 2 },
-            { estimateCount: false },
+            { estimateTotalCount: false },
         );
         expect(listResult.count).toBe(3);
         expect(listResult.countIsEstimate).toBe(false);
@@ -477,7 +477,7 @@ describe("TransactionRepository.listByExpression", () => {
             },
             [],
             { offset: 0, limit: 2 },
-            { estimateCount: true },
+            { estimateTotalCount: true },
         );
         expect(listResult.countIsEstimate).toBe(true);
         expect(listResult.rows.length).toBe(2);

@@ -33,6 +33,14 @@ export class Controller {
         }));
     }
 
+    protected getListingOptions(request: Hapi.Request): Contracts.Search.ListOptions {
+        const options: Contracts.Search.ListOptions = {
+            estimateTotalCount: request.query.estimateTotalCount,
+        };
+
+        return options;
+    }
+
     protected respondWithResource(data, transformer, transform = true): any {
         if (!data) {
             return Boom.notFound();
