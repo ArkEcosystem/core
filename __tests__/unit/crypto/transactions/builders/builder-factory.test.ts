@@ -14,13 +14,16 @@ let BuilderFactory;
 
 beforeEach(() => {
     const crypto = CryptoManager.createFromPreset("devnet");
-    const transactionsManagerRawConfig = new Transactions.TransactionsManager(crypto, {
-        extendTransaction: () => {},
-        // @ts-ignore
-        validate: (_, data) => ({
-            value: data,
-        }),
-    });
+    const transactionsManagerRawConfig: Transactions.TransactionManager<any> = new Transactions.TransactionManager(
+        crypto,
+        {
+            extendTransaction: () => {},
+            // @ts-ignore
+            validate: (_, data) => ({
+                value: data,
+            }),
+        },
+    );
     BuilderFactory = transactionsManagerRawConfig.BuilderFactory;
 });
 

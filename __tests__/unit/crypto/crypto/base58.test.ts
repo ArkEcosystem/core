@@ -23,10 +23,10 @@ describe("Base58", () => {
     });
 
     it("encodeCheck", () => {
-        expect(Base58.encode(createPayload())).toBe("D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib");
+        expect(Base58.encodeCheck(createPayload())).toBe("D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib");
     });
 
     it("decodeCheck", () => {
-        expect(Base58.decode("D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib")).toEqual(createPayload());
+        expect(Base58.decodeCheck("D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib")).toEqual(createPayload());
     });
 });

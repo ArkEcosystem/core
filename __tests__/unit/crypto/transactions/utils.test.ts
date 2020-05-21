@@ -1,8 +1,7 @@
 import "jest-extended";
 
-import * as Generators from "@packages/core-test-framework/src/app/generators";
-import { TransactionFactory as TestTransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
-
+import * as Generators from "../../../../packages/core-test-framework/src/app/generators";
+import { TransactionFactory as TestTransactionFactory } from "../../../../packages/core-test-framework/src/utils/transaction-factory";
 import { CryptoManager, Interfaces, Transactions } from "../../../../packages/crypto/src";
 import {
     InvalidTransactionBytesError,
@@ -101,14 +100,15 @@ const createRandomTx = (type) => {
 };
 
 let crypto: CryptoManager<any>;
+let transactionsManager: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
 let cryptoFromConfigRaw: CryptoManager<any>;
-let transactionsManagerConfigRaw: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
+let transactionsManagerConfigRaw: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
 
 describe("Transaction", () => {
     beforeEach(() => {
         crypto = CryptoManager.createFromPreset("devnet");
 
-        const transactionsManager = new Transactions.TransactionsManager(crypto, {
+        transactionsManager = new Transactions.TransactionManager(crypto, {
             extendTransaction: () => {},
             // @ts-ignore
             validate: (_, data) => ({
@@ -117,7 +117,7 @@ describe("Transaction", () => {
         });
 
         Keys = crypto.Identities.Keys;
-        Utils = transactionsManager.Utils;
+        Utils = transactionsManager.TransactionTools.Utils;
         BuilderFactory = transactionsManager.BuilderFactory;
         TransactionFactory = transactionsManager.TransactionFactory;
 
@@ -129,7 +129,7 @@ describe("Transaction", () => {
 
         cryptoFromConfigRaw = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
 
-        transactionsManagerConfigRaw = new Transactions.TransactionsManager(cryptoFromConfigRaw, {
+        transactionsManagerConfigRaw = new Transactions.TransactionManager(cryptoFromConfigRaw, {
             extendTransaction: () => {},
             // @ts-ignore
             validate: (_, data) => ({
@@ -162,11 +162,11 @@ describe("Transaction", () => {
                     }
 
                     // @ts-ignore
-                    transaction.data.amount = crypto.LibraryManager.Libraries.BigNumber.make(
+                    transaction.data.amount = cryptoFromConfigRaw.LibraryManager.Libraries.BigNumber.make(
                         transaction.data.amount,
                     ).toFixed();
                     // @ts-ignore
-                    transaction.data.fee = crypto.LibraryManager.Libraries.BigNumber.make(
+                    transaction.data.fee = cryptoFromConfigRaw.LibraryManager.Libraries.BigNumber.make(
                         transaction.data.fee,
                     ).toFixed();
 
@@ -201,7 +201,9 @@ describe("Transaction", () => {
 
             let hex = transaction.serialized.toString("hex");
             hex = hex.slice(0, 2) + "04" + hex.slice(4);
-            expect(() => transactionsManagerConfigRaw.TransactionFactory.fromHex(hex)).toThrow(TransactionVersionError);
+            expect(() => transactionsManagerConfigRaw.TransactionFactory.fromHex(hex)).toThrow(
+                InvalidTransactionBytesError,
+            );
         });
     });
 
@@ -209,7 +211,7 @@ describe("Transaction", () => {
         let transaction: ITransactionData;
 
         beforeEach(() => {
-            transaction = TestTransactionFactory.initialize()
+            transaction = TestTransactionFactory.initialize(cryptoFromConfigRaw as any)
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")
@@ -218,7 +220,7 @@ describe("Transaction", () => {
         });
 
         it("should return Buffer and Buffer most be 32 bytes length", () => {
-            const result = transactionsManagerConfigRaw.Utils.toHash(transaction);
+            const result = transactionsManagerConfigRaw.TransactionTools.Utils.toHash(transaction);
             expect(result).toBeObject();
             expect(result).toHaveLength(32);
             expect(result.toString("hex")).toBe("27f68f1e62b9e6e3bc13b7113488f1e27263a4e47e7d9c7acd9c9af67d7fa11c");
@@ -235,7 +237,7 @@ describe("Transaction", () => {
         let transaction: ITransactionData;
 
         beforeEach(() => {
-            transaction = TestTransactionFactory.initialize()
+            transaction = TestTransactionFactory.initialize(cryptoFromConfigRaw as any)
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")
@@ -244,7 +246,7 @@ describe("Transaction", () => {
         });
 
         it("should return string id and be equal to 27f68f1e62b9e6e3bc13b7113488f1e27263a4e47e7d9c7acd9c9af67d7fa11c", () => {
-            const id = transactionsManagerConfigRaw.Utils.getId(transaction); // old id
+            const id = transactionsManagerConfigRaw.TransactionTools.Utils.getId(transaction); // old id
             expect(id).toBeString();
             expect(id).toBe("27f68f1e62b9e6e3bc13b7113488f1e27263a4e47e7d9c7acd9c9af67d7fa11c");
         });

@@ -10,13 +10,13 @@ import { constructIdentity } from "../../__support__/identitity";
 
 let crypto: CryptoManager<any>;
 let builder: TransferBuilder<any, Interfaces.ITransactionData, any>;
-let transactionsManager: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
+let transactionsManager: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
 let identity;
 
 beforeEach(() => {
     crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
 
-    transactionsManager = new Transactions.TransactionsManager(crypto, {
+    transactionsManager = new Transactions.TransactionManager(crypto, {
         extendTransaction: () => {},
         // @ts-ignore
         validate: (_, data) => ({
@@ -58,11 +58,10 @@ describe("Transfer Transaction", () => {
     describe("signWithWif", () => {
         it("should sign a transaction and match signed with a passphrase", () => {
             const passphrase = "sample passphrase";
-            const network = 23;
             const keys = crypto.Identities.Keys.fromPassphrase(passphrase);
             const wif = crypto.Identities.Wif.fromKeys(keys);
 
-            const wifTransaction = builder.recipientId(identity.address).amount("10").fee("10").network(network);
+            const wifTransaction = builder.recipientId(identity.address).amount("10").fee("10");
 
             const passphraseTransaction = transactionsManager.BuilderFactory.transfer();
             passphraseTransaction.data = { ...wifTransaction.data };

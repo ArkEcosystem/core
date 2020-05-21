@@ -10,13 +10,14 @@ import { constructIdentity } from "../../__support__/identitity";
 
 let crypto: CryptoManager<any>;
 let builder: VoteBuilder<any, Interfaces.ITransactionData, any>;
-let transactionsManager: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
+let transactionsManager: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
 let identity;
 
 beforeEach(() => {
     crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
+    crypto.HeightTracker.setHeight(2);
 
-    transactionsManager = new Transactions.TransactionsManager(crypto, {
+    transactionsManager = new Transactions.TransactionManager(crypto, {
         extendTransaction: () => {},
         // @ts-ignore
         validate: (_, data) => ({

@@ -1,19 +1,21 @@
 import "jest-extended";
 
 import { CryptoManager, Interfaces, Transactions } from "@arkecosystem/crypto/src";
-import * as Generators from "@packages/core-test-framework/src/app/generators";
-import { TransactionType } from "@packages/crypto/src/enums";
-import { DelegateResignationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-resignation";
-import { Two } from "@packages/crypto/src/transactions/types";
+
+import * as Generators from "../../../../../../packages/core-test-framework/src/app/generators";
+import { TransactionType } from "../../../../../../packages/crypto/src/enums";
+import { DelegateResignationBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/delegate-resignation";
+import { Two } from "../../../../../../packages/crypto/src/transactions/types";
 
 let crypto: CryptoManager<any>;
 let builder: DelegateResignationBuilder<any, Interfaces.ITransactionData, any>;
-let transactionsManager: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
+let transactionsManager: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
 
 beforeEach(() => {
     crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
+    crypto.HeightTracker.setHeight(2);
 
-    transactionsManager = new Transactions.TransactionsManager(crypto, {
+    transactionsManager = new Transactions.TransactionManager(crypto, {
         extendTransaction: () => {},
         // @ts-ignore
         validate: (_, data) => ({

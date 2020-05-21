@@ -1,17 +1,17 @@
 import "jest-extended";
 
-import { CryptoManager } from "@packages/crypto/src";
-import * as errors from "@packages/crypto/src/errors";
 import ByteBuffer from "bytebuffer";
 import wif from "wif";
 
+import { CryptoManager } from "../../../../packages/crypto/src";
+import * as errors from "../../../../packages/crypto/src/errors";
 import fixtures from "./fixtures/bip38.json";
 
 describe("BIP38", () => {
     let bip38;
     let base58;
     beforeAll(() => {
-        const crypto = CryptoManager.createFromPreset("testnet");
+        const crypto: CryptoManager<any> = CryptoManager.createFromPreset("testnet");
         bip38 = crypto.LibraryManager.Crypto.Bip38;
         base58 = crypto.LibraryManager.Crypto.Base58;
     });
@@ -35,7 +35,7 @@ describe("BIP38", () => {
         }
 
         it("should throw if compression flag is different than 0xe0 0xc0", () => {
-            jest.spyOn(base58, "decode").mockImplementation(() => {
+            jest.spyOn(base58, "decodeCheck").mockImplementation(() => {
                 const byteBuffer = new ByteBuffer(512, true);
                 byteBuffer.writeUint8(0x01);
                 byteBuffer.writeUint8(0x42); // type
@@ -63,7 +63,7 @@ describe("BIP38", () => {
             }
 
             it(`should encrypt '${fixture.description}'`, () => {
-                const buffer = base58.decode(fixture.wif);
+                const buffer = base58.decodeCheck(fixture.wif);
                 const actual = bip38.encrypt(buffer.slice(1, 33), !!buffer[33], fixture.passphrase);
                 expect(actual).toEqual(fixture.bip38);
             });
@@ -92,7 +92,7 @@ describe("BIP38", () => {
         }
 
         it("should return false if encrypted WIF flag is different than 0xc0 0xe0", () => {
-            jest.spyOn(bip38.base58, "decode").mockImplementation(() => {
+            jest.spyOn(bip38.base58, "decodeCheck").mockImplementation(() => {
                 const byteBuffer = new ByteBuffer(512, true);
                 byteBuffer.writeUint8(0x01);
                 byteBuffer.writeUint8(0x42); // type
@@ -112,7 +112,7 @@ describe("BIP38", () => {
         });
 
         it("should return false if encrypted EC mult flag is different than 0x24", () => {
-            jest.spyOn(bip38.base58, "decode").mockImplementation(() => {
+            jest.spyOn(bip38.base58, "decodeCheck").mockImplementation(() => {
                 const byteBuffer = new ByteBuffer(512, true);
                 byteBuffer.writeUint8(0x01);
                 byteBuffer.writeUint8(0x43); // type

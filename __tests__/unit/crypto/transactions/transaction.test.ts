@@ -6,14 +6,14 @@ import { Two } from "../../../../packages/crypto/src/transactions/types";
 import { buildDevnetTxs, buildMainnetTxs } from "./__fixtures__/transaction";
 
 let cryptoManagerMainnet: CryptoManager<any>;
-let transactionManagerMainnet: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
+let transactionManagerMainnet: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
 let cryptoManagerDevnet: CryptoManager<any>;
-let transactionManagerDevnet: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
+let transactionManagerDevnet: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
 
 describe("Transaction", () => {
     beforeAll(() => {
         cryptoManagerMainnet = CryptoManager.createFromPreset("mainnet");
-        transactionManagerMainnet = new Transactions.TransactionsManager(cryptoManagerMainnet, {
+        transactionManagerMainnet = new Transactions.TransactionManager(cryptoManagerMainnet, {
             extendTransaction: () => {},
             // @ts-ignore
             validate: (_, data) => ({
@@ -22,7 +22,7 @@ describe("Transaction", () => {
         });
 
         cryptoManagerDevnet = CryptoManager.createFromPreset("mainnet");
-        transactionManagerDevnet = new Transactions.TransactionsManager(cryptoManagerDevnet, {
+        transactionManagerDevnet = new Transactions.TransactionManager(cryptoManagerDevnet, {
             extendTransaction: () => {},
             // @ts-ignore
             validate: (_, data) => ({

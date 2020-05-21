@@ -1,22 +1,22 @@
 import "jest-extended";
 
 import { TransactionVersionError } from "@arkecosystem/crypto/src/errors";
-import * as Generators from "@packages/core-test-framework/src/app/generators";
-import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
-import { CryptoManager, Interfaces, Transactions } from "@packages/crypto/src";
 
+import * as Generators from "../../../../packages/core-test-framework/src/app/generators";
+import { TransactionFactory } from "../../../../packages/core-test-framework/src/utils/transaction-factory";
+import { CryptoManager, Interfaces, Transactions } from "../../../../packages/crypto/src";
 import { createRandomTx } from "./__support__";
 
 let Identities;
 let BuilderFactory;
 let Verifier;
 let crypto: CryptoManager<any>;
-let transactionsManager: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
+let transactionsManager: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
 
 beforeEach(() => {
     crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
 
-    transactionsManager = new Transactions.TransactionsManager(crypto, {
+    transactionsManager = new Transactions.TransactionManager(crypto, {
         extendTransaction: () => {},
         // @ts-ignore
         validate: (_, data) => ({
@@ -26,7 +26,7 @@ beforeEach(() => {
 
     Identities = crypto.Identities;
     BuilderFactory = transactionsManager.BuilderFactory;
-    Verifier = transactionsManager.Verifier;
+    Verifier = transactionsManager.TransactionTools.Verifier;
 });
 
 describe("Verifier", () => {
@@ -71,7 +71,7 @@ describe("Verifier", () => {
                 .fee("10")
                 .amount("100");
 
-            const hash = transactionsManager.Utils.toHash(data);
+            const hash = transactionsManager.TransactionTools.Utils.toHash(data);
             data.signature = crypto.LibraryManager.Crypto.Hash.signECDSA(hash, keys);
 
             expect(Verifier.verify(data)).toBeTrue();

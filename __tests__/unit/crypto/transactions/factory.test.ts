@@ -1,14 +1,13 @@
 import "jest-extended";
 
-import { CryptoManager, Interfaces, Transactions } from "@packages/crypto/src";
+import { CryptoManager, Interfaces, Transactions } from "../../../../packages/crypto/src";
 import {
     InvalidTransactionBytesError,
     TransactionSchemaError,
     UnkownTransactionError,
-} from "@packages/crypto/src/errors";
-import { ITransactionData } from "@packages/crypto/src/interfaces";
-import { Transaction } from "@packages/crypto/src/transactions/types/transaction";
-
+} from "../../../../packages/crypto/src/errors";
+import { ITransactionData } from "../../../../packages/crypto/src/interfaces";
+import { Transaction } from "../../../../packages/crypto/src/transactions/types/transaction";
 import { buildTransaction as transactionFixture } from "../fixtures/transaction";
 import { buildTransaction as transactionDataFixture } from "../fixtures/transaction";
 import { createRandomTx } from "./__support__";
@@ -37,17 +36,20 @@ let transaction: Interfaces.ITransaction<ITransactionData, any>;
 beforeEach(() => {
     cryptoManagerDevNet = CryptoManager.createFromPreset("devnet");
 
-    const transactionsManager = new Transactions.TransactionsManager(cryptoManagerDevNet, {
-        extendTransaction: () => {},
-        // @ts-ignore
-        validate: (_, data) => ({
-            value: data,
-        }),
-    });
+    const transactionsManager: Transactions.TransactionManager<any> = new Transactions.TransactionManager(
+        cryptoManagerDevNet,
+        {
+            extendTransaction: () => {},
+            // @ts-ignore
+            validate: (_, data) => ({
+                value: data,
+            }),
+        },
+    );
 
     TransactionFactoryDevNet = transactionsManager.TransactionFactory;
-    Serializer = transactionsManager.Serializer;
-    TransactionUtils = transactionsManager.Utils;
+    Serializer = transactionsManager.TransactionTools.Serializer;
+    TransactionUtils = transactionsManager.TransactionTools.Utils;
     BuilderFactory = transactionsManager.BuilderFactory;
 
     transactionData = { ...transactionDataFixture(cryptoManagerDevNet.LibraryManager.Libraries.BigNumber) };
@@ -122,7 +124,7 @@ describe("TransactionFactory", () => {
     describe(".fromData", () => {
         let validatedTransactionFactory;
         beforeEach(() => {
-            const transactionsManager = new Transactions.TransactionsManager(cryptoManagerDevNet, {
+            const transactionsManager = new Transactions.TransactionManager(cryptoManagerDevNet, {
                 extendTransaction: () => {},
                 // @ts-ignore
                 validate: (error, data) => ({ error, value: data }),
@@ -168,7 +170,7 @@ describe("TransactionFactory", () => {
     describe(".fromJson", () => {
         let validatedTransactionFactory;
         beforeEach(() => {
-            const transactionsManager = new Transactions.TransactionsManager(cryptoManagerDevNet, {
+            const transactionsManager = new Transactions.TransactionManager(cryptoManagerDevNet, {
                 extendTransaction: () => {},
                 // @ts-ignore
                 validate: (error, data) => ({ error, value: data }),

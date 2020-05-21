@@ -10,12 +10,13 @@ import { htlcSecretHex } from "../../__fixtures__/htlc";
 
 let crypto: CryptoManager<any>;
 let builder: HtlcClaimBuilder<any, Interfaces.ITransactionData, any>;
-let transactionsManager: Transactions.TransactionsManager<any, Interfaces.ITransactionData, any>;
+let transactionsManager: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
 
 beforeEach(() => {
     crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
+    crypto.HeightTracker.setHeight(2);
 
-    transactionsManager = new Transactions.TransactionsManager(crypto, {
+    transactionsManager = new Transactions.TransactionManager(crypto, {
         extendTransaction: () => {},
         // @ts-ignore
         validate: (_, data) => ({

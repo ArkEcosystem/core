@@ -1,8 +1,7 @@
 import "jest-extended";
 
-import * as Generators from "@packages/core-test-framework/src/app/generators";
-import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
-
+import * as Generators from "../../../../packages/core-test-framework/src/app/generators";
+import { TransactionFactory } from "../../../../packages/core-test-framework/src/utils/transaction-factory";
 import { CryptoManager, Transactions } from "../../../../packages/crypto/src";
 import { TransactionVersionError } from "../../../../packages/crypto/src/errors";
 
@@ -13,15 +12,15 @@ describe("Signer", () => {
 
     beforeAll(() => {
         cryptoManager = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
-
-        const transactionsManagerRawConfig = new Transactions.TransactionsManager(cryptoManager, {
+        cryptoManager.HeightTracker.setHeight(2);
+        const transactionsManagerRawConfig = new Transactions.TransactionManager(cryptoManager, {
             extendTransaction: () => {},
             // @ts-ignore
             validate: (_, data) => ({
                 value: data,
             }),
         });
-        Signer = transactionsManagerRawConfig.Signer;
+        Signer = transactionsManagerRawConfig.TransactionTools.Signer;
         Keys = cryptoManager.Identities.Keys;
     });
 

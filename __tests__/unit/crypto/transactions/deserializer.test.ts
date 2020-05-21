@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import * as Generators from "@packages/core-test-framework/src/app/generators";
-import { CryptoManager, Enums, Errors, Transactions } from "@packages/crypto/src";
 import ByteBuffer from "bytebuffer";
 
+import * as Generators from "../../../../packages/core-test-framework/src/app/generators";
+import { CryptoManager, Enums, Errors, Transactions } from "../../../../packages/crypto/src";
 import {
     InvalidTransactionBytesError,
     TransactionSchemaError,
@@ -26,35 +26,38 @@ let Address;
 let PublicKey;
 
 let cryptoManagerRawConfig;
-let transactionsManagerRawConfig;
+let transactionsManagerRawConfig: Transactions.TransactionManager<any>;
 
 beforeAll(() => {
     cryptoManagerDevNet = CryptoManager.createFromPreset("devnet");
-
-    const transactionsManager = new Transactions.TransactionsManager(cryptoManagerDevNet, {
-        extendTransaction: () => {},
-        // @ts-ignore
-        validate: (_, data) => ({
-            value: data,
-        }),
-    });
-    Deserializer = transactionsManager.Deserializer;
-    Serializer = transactionsManager.Serializer;
-    Verifier = transactionsManager.Verifier;
+    cryptoManagerDevNet.HeightTracker.setHeight(2);
+    const transactionsManager: Transactions.TransactionManager<any> = new Transactions.TransactionManager(
+        cryptoManagerDevNet,
+        {
+            extendTransaction: () => {},
+            // @ts-ignore
+            validate: (_, data) => ({
+                value: data,
+            }),
+        },
+    );
+    Deserializer = transactionsManager.TransactionTools.Deserializer;
+    Serializer = transactionsManager.TransactionTools.Serializer;
+    Verifier = transactionsManager.TransactionTools.Verifier;
     BuilderFactory = transactionsManager.BuilderFactory;
     TransactionFactory = transactionsManager.TransactionFactory;
-    TransactionUtils = transactionsManager.Utils;
+
+    TransactionUtils = transactionsManager.TransactionTools.Utils;
     Address = cryptoManagerDevNet.Identities.Address;
     Keys = cryptoManagerDevNet.Identities.Keys;
     PublicKey = cryptoManagerDevNet.Identities.PublicKey;
 
     cryptoManagerDevNet.MilestoneManager.getMilestone().aip11 = true;
 
-    // raw
-
     cryptoManagerRawConfig = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
+    cryptoManagerRawConfig.HeightTracker.setHeight(2);
 
-    transactionsManagerRawConfig = new Transactions.TransactionsManager(cryptoManagerRawConfig, {
+    transactionsManagerRawConfig = new Transactions.TransactionManager(cryptoManagerRawConfig, {
         extendTransaction: () => {},
         // @ts-ignore
         validate: (_, data) => ({
@@ -276,7 +279,7 @@ describe("Transaction serializer / deserializer", () => {
             const serialized = transactionsManagerRawConfig.TransactionFactory.fromData(
                 ipfsTransaction,
             ).serialized.toString("hex");
-            const deserialized = transactionsManagerRawConfig.Deserializer.deserialize(serialized);
+            const deserialized = transactionsManagerRawConfig.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, ipfsTransaction);
 
@@ -331,7 +334,7 @@ describe("Transaction serializer / deserializer", () => {
             const serialized = transactionsManagerRawConfig.TransactionFactory.fromData(
                 multiPayment,
             ).serialized.toString("hex");
-            const deserialized = transactionsManagerRawConfig.Deserializer.deserialize(serialized);
+            const deserialized = transactionsManagerRawConfig.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, multiPayment);
         });
@@ -405,7 +408,7 @@ describe("Transaction serializer / deserializer", () => {
             const serialized = transactionsManagerRawConfig.TransactionFactory.fromData(htlcLock).serialized.toString(
                 "hex",
             );
-            const deserialized = transactionsManagerRawConfig.Deserializer.deserialize(serialized);
+            const deserialized = transactionsManagerRawConfig.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, htlcLock);
 
@@ -444,7 +447,7 @@ describe("Transaction serializer / deserializer", () => {
             const serialized = transactionsManagerRawConfig.TransactionFactory.fromData(htlcClaim).serialized.toString(
                 "hex",
             );
-            const deserialized = transactionsManagerRawConfig.Deserializer.deserialize(serialized);
+            const deserialized = transactionsManagerRawConfig.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, htlcClaim);
 
@@ -480,7 +483,7 @@ describe("Transaction serializer / deserializer", () => {
             const serialized = transactionsManagerRawConfig.TransactionFactory.fromData(htlcRefund).serialized.toString(
                 "hex",
             );
-            const deserialized = transactionsManagerRawConfig.Deserializer.deserialize(serialized);
+            const deserialized = transactionsManagerRawConfig.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, htlcRefund);
 
@@ -535,7 +538,7 @@ describe("Transaction serializer / deserializer", () => {
             transactionWrongType.type = 55;
 
             const serialized = serializeWrongType(transactionWrongType).toString("hex");
-            expect(() => transactionsManagerRawConfig.Deserializer.deserialize(serialized)).toThrow(
+            expect(() => transactionsManagerRawConfig.TransactionTools.Deserializer.deserialize(serialized)).toThrow(
                 UnkownTransactionError,
             );
         });
@@ -651,7 +654,7 @@ describe("Transaction serializer / deserializer", () => {
 
     describe("serialize - others", () => {
         it("should throw if type is not supported", () => {
-            const transactionWrongType = BuilderFactory.transfer()
+            const transactionWrongType = transactionsManagerRawConfig.BuilderFactory.transfer()
                 .recipientId("APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq")
                 .amount("10000")
                 .fee("50000000")
