@@ -31,6 +31,10 @@ describe("Cache", () => {
                     checkperiod: 0, // no periodic check
                 },
             },
+            options: {
+                estimateTotalCount: true,
+                chooseEstimateTotalCount: false,
+            },
         };
 
         customResponse = {

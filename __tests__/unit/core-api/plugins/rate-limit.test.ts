@@ -30,6 +30,10 @@ describe("Rate limit", () => {
                     duration: 1,
                 },
             },
+            options: {
+                estimateTotalCount: true,
+                chooseEstimateTotalCount: false,
+            },
         };
 
         customResponse = {
