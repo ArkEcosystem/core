@@ -187,7 +187,8 @@ export class TransactionFactory {
     ): TransactionFactory {
         const businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder(
             this.cryptoManager,
-            this.transactionsManager,
+            this.transactionsManager.TransactionFactory,
+            this.transactionsManager.TransactionTools,
         );
         businessRegistrationBuilder.businessRegistrationAsset(businessRegistrationAsset);
 
@@ -197,7 +198,11 @@ export class TransactionFactory {
     }
 
     public businessResignation(): TransactionFactory {
-        this.builder = new MagistrateBuilders.BusinessResignationBuilder(this.cryptoManager, this.transactionsManager);
+        this.builder = new MagistrateBuilders.BusinessResignationBuilder(
+            this.cryptoManager,
+            this.transactionsManager.TransactionFactory,
+            this.transactionsManager.TransactionTools,
+        );
 
         return this;
     }
@@ -205,7 +210,8 @@ export class TransactionFactory {
     public businessUpdate(businessUpdateAsset: MagistrateInterfaces.IBusinessUpdateAsset): TransactionFactory {
         const businessUpdateBuilder = new MagistrateBuilders.BusinessUpdateBuilder(
             this.cryptoManager,
-            this.transactionsManager,
+            this.transactionsManager.TransactionFactory,
+            this.transactionsManager.TransactionTools,
         );
         businessUpdateBuilder.businessUpdateAsset(businessUpdateAsset);
 
@@ -219,7 +225,8 @@ export class TransactionFactory {
     ): TransactionFactory {
         const bridgechainRegistrationBuilder = new MagistrateBuilders.BridgechainRegistrationBuilder(
             this.cryptoManager,
-            this.transactionsManager,
+            this.transactionsManager.TransactionFactory,
+            this.transactionsManager.TransactionTools,
         );
         bridgechainRegistrationBuilder.bridgechainRegistrationAsset(bridgechainRegistrationAsset);
 
@@ -231,7 +238,8 @@ export class TransactionFactory {
     public bridgechainResignation(registeredBridgechainId: string): TransactionFactory {
         const bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder(
             this.cryptoManager,
-            this.transactionsManager,
+            this.transactionsManager.TransactionFactory,
+            this.transactionsManager.TransactionTools,
         );
         bridgechainResignationBuilder.bridgechainResignationAsset(registeredBridgechainId);
 
@@ -243,7 +251,8 @@ export class TransactionFactory {
     public bridgechainUpdate(bridgechainUpdateAsset: MagistrateInterfaces.IBridgechainUpdateAsset): TransactionFactory {
         const bridgechainUpdateBuilder = new MagistrateBuilders.BridgechainUpdateBuilder(
             this.cryptoManager,
-            this.transactionsManager,
+            this.transactionsManager.TransactionFactory,
+            this.transactionsManager.TransactionTools,
         );
         bridgechainUpdateBuilder.bridgechainUpdateAsset(bridgechainUpdateAsset);
 

@@ -11,9 +11,10 @@ export class BridgechainRegistrationBuilder<
 > extends Transactions.TransactionBuilder<T, BridgechainRegistrationBuilder<T, U, E>, U, E> {
     public constructor(
         cryptoManager: CryptoManager<T>,
-        transactionsManager: Transactions.TransactionsManager<T, U, E>,
+        transactionFactory: Transactions.TransactionFactory<T, U, E>,
+        transactionTools: Transactions.TransactionTools<T, U, E>,
     ) {
-        super(cryptoManager, transactionsManager);
+        super(cryptoManager, transactionTools, transactionFactory);
         this.data.version = 2;
         this.data.typeGroup = MagistrateTransactionGroup;
         this.data.type = MagistrateTransactionType.BridgechainRegistration;

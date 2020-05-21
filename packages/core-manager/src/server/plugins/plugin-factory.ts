@@ -1,5 +1,5 @@
+import { Blocks } from "@arkecosystem/core-crypto";
 import { Container, Providers } from "@arkecosystem/core-kernel";
-import { Validation } from "@arkecosystem/crypto";
 import * as basicAuthenticationPlugin from "@hapi/basic";
 import { Server as HapiServer } from "@hapi/hapi";
 import * as rpc from "@hapist/json-rpc";
@@ -26,8 +26,13 @@ export class PluginFactory implements Plugins.PluginFactory {
     @Container.inject(Identifiers.TokenValidator)
     private readonly tokenValidator!: Authentication.TokenValidator;
 
+    @Container.inject(Container.Identifiers.BlockFactory)
+    private readonly blockFactory!: Blocks.BlockFactory;
+
     public preparePlugins(): Array<Plugins.RegisterPluginObject> {
         const pluginConfig = this.configuration.get("plugins");
+
+        const validator = this.blockFactory.validator;
 
         const plugins = [
             {
@@ -66,7 +71,7 @@ export class PluginFactory implements Plugins.PluginFactory {
                         },
                         validate(data: object, schema: object) {
                             try {
-                                const { error } = Validation.validator.validate(schema, data);
+                                const { error } = validator.validate(schema, data);
                                 return { value: data, error: error ? error : null };
                             } catch (error) {
                                 return { value: null, error: error.stack };

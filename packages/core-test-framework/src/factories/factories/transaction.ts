@@ -255,6 +255,7 @@ export const registerBusinessRegistrationFactory = (factory: FactoryBuilder): vo
         applyModifiers(
             new MagistrateBuilders.BusinessRegistrationBuilder(
                 factory.cryptoManager,
+                factory.transactionManager.TransactionFactory,
                 factory.transactionManager.TransactionTools,
             ).businessRegistrationAsset({
                 name: options.name || chance.first(),
@@ -280,6 +281,7 @@ export const registerBusinessResignationFactory = (factory: FactoryBuilder): voi
         applyModifiers(
             new MagistrateBuilders.BusinessResignationBuilder(
                 factory.cryptoManager,
+                factory.transactionManager.TransactionFactory,
                 factory.transactionManager.TransactionTools,
             ),
             options,
@@ -302,6 +304,7 @@ export const registerBusinessUpdateFactory = (factory: FactoryBuilder): void => 
         applyModifiers(
             new MagistrateBuilders.BusinessUpdateBuilder(
                 factory.cryptoManager,
+                factory.transactionManager.TransactionFactory,
                 factory.transactionManager.TransactionTools,
             ).businessUpdateAsset({
                 name: options.name || chance.first(),
@@ -329,6 +332,7 @@ export const registerBridgechainRegistrationFactory = (factory: FactoryBuilder):
         applyModifiers(
             new MagistrateBuilders.BridgechainRegistrationBuilder(
                 factory.cryptoManager,
+                factory.transactionManager.TransactionFactory,
                 factory.transactionManager.TransactionTools,
             ).bridgechainRegistrationAsset({
                 name: options.name || chance.first(),
@@ -357,6 +361,7 @@ export const registerBridgechainResignationFactory = (factory: FactoryBuilder): 
         applyModifiers(
             new MagistrateBuilders.BridgechainResignationBuilder(
                 factory.cryptoManager,
+                factory.transactionManager.TransactionFactory,
                 factory.transactionManager.TransactionTools,
             ).bridgechainResignationAsset(options.genesisHash || randomHash()),
             options,
@@ -379,6 +384,7 @@ export const registerBridgechainUpdateFactory = (factory: FactoryBuilder): void 
         applyModifiers(
             new MagistrateBuilders.BridgechainUpdateBuilder(
                 factory.cryptoManager,
+                factory.transactionManager.TransactionFactory,
                 factory.transactionManager.TransactionTools,
             ).bridgechainUpdateAsset({
                 bridgechainId: options.bridgechainId || randomHash(),
