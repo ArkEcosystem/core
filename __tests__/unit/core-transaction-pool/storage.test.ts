@@ -36,14 +36,14 @@ const transaction2 = Transactions.BuilderFactory.transfer()
 
 describe("Storage.boot", () => {
     it("should instantiate BetterSqlite3 using configured filename", () => {
-        configuration.getRequired.mockReturnValueOnce("database.db"); // storage
+        configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
         const storage = container.resolve(Storage);
         storage.boot();
 
         try {
             const database = storage["database"] as BetterSqlite3.Database;
-            expect(ensureFileSync).toBeCalledWith("database.db");
-            expect(database.name).toBe("database.db");
+            expect(ensureFileSync).toBeCalledWith(":memory:");
+            expect(database.name).toBe(":memory:");
             expect(database.open).toBe(true);
         } finally {
             storage.dispose();
@@ -53,7 +53,7 @@ describe("Storage.boot", () => {
 
 describe("Storage.dispose", () => {
     it("should close database", () => {
-        configuration.getRequired.mockReturnValueOnce("database.db"); // storage
+        configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
         const storage = container.resolve(Storage);
         storage.boot();
         const database = storage["database"] as BetterSqlite3.Database;
@@ -66,7 +66,7 @@ describe("Storage.dispose", () => {
 
 describe("Storage.hasTransaction", () => {
     it("should find transaction that was added", () => {
-        configuration.getRequired.mockReturnValueOnce("database.db"); // storage
+        configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
         const storage = container.resolve(Storage);
         storage.boot();
 
@@ -80,7 +80,7 @@ describe("Storage.hasTransaction", () => {
     });
 
     it("should not find transaction that wasn't added", () => {
-        configuration.getRequired.mockReturnValueOnce("database.db"); // storage
+        configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
         const storage = container.resolve(Storage);
         storage.boot();
 
@@ -96,7 +96,7 @@ describe("Storage.hasTransaction", () => {
 
 describe("Storage.getAllTransactions", () => {
     it("should return all added transactions", () => {
-        configuration.getRequired.mockReturnValueOnce("database.db"); // storage
+        configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
         const storage = container.resolve(Storage);
         storage.boot();
 
@@ -113,7 +113,7 @@ describe("Storage.getAllTransactions", () => {
 
 describe("Storage.addTransaction", () => {
     it("should add new transaction", () => {
-        configuration.getRequired.mockReturnValueOnce("database.db"); // storage
+        configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
         const storage = container.resolve(Storage);
         storage.boot();
 
@@ -127,7 +127,7 @@ describe("Storage.addTransaction", () => {
     });
 
     it("should throw when adding same transaction twice", () => {
-        configuration.getRequired.mockReturnValueOnce("database.db"); // storage
+        configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
         const storage = container.resolve(Storage);
         storage.boot();
 
@@ -143,7 +143,7 @@ describe("Storage.addTransaction", () => {
 
 describe("Storage.removeTransaction", () => {
     it("should remove previously added transaction", () => {
-        configuration.getRequired.mockReturnValueOnce("database.db"); // storage
+        configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
         const storage = container.resolve(Storage);
         storage.boot();
 
@@ -160,7 +160,7 @@ describe("Storage.removeTransaction", () => {
 
 describe("Storage.flush", () => {
     it("should remove all previously added transactions", () => {
-        configuration.getRequired.mockReturnValueOnce("database.db"); // storage
+        configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
         const storage = container.resolve(Storage);
         storage.boot();
 

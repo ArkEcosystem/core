@@ -95,7 +95,19 @@ export class ForgerService {
         try {
             await this.loadRound();
 
-            timeout = this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot();
+            AppUtils.assert.defined<Contracts.P2P.CurrentRound>(this.round);
+
+            let height;
+            try {
+                AppUtils.assert.defined<string>(this.round.lastBlock.height);
+                height = this.round.lastBlock.height;
+            } catch {
+                height = 1;
+            }
+
+            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
+
+            timeout = this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup);
         } catch (error) {
             this.logger.warning("Waiting for a responsive host");
         } finally {
@@ -138,6 +150,16 @@ export class ForgerService {
 
             const delegate: Delegate | undefined = this.isActiveDelegate(this.round.currentForger.publicKey);
 
+            let height;
+            try {
+                AppUtils.assert.defined<string>(this.round.lastBlock.height);
+                height = this.round.lastBlock.height;
+            } catch {
+                height = 1;
+            }
+
+            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
+
             if (!delegate) {
                 AppUtils.assert.defined<string>(this.round.nextForger.publicKey);
 
@@ -151,7 +173,9 @@ export class ForgerService {
                     await this.client.syncWithNetwork();
                 }
 
-                return this.checkLater(this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot());
+                return this.checkLater(
+                    this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup),
+                );
             }
 
             const networkState: Contracts.P2P.NetworkState = await this.client.getNetworkState();
@@ -172,7 +196,9 @@ export class ForgerService {
                     .call("forgeNewBlock", { forgerService: this, delegate, round: this.round, networkState });
             }
 
-            return this.checkLater(this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot());
+            return this.checkLater(
+                this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup),
+            );
         } catch (error) {
             if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
                 if (error.message.includes("blockchain isn't ready") || error.message.includes("App is not ready.")) {
@@ -215,25 +241,39 @@ export class ForgerService {
 
         const transactions: Interfaces.ITransactionData[] = await this.getTransactionsForForging();
 
-        const block: BlockInterfaces.IBlock | undefined = delegate.forge(transactions, {
-            previousBlock: {
-                id: networkState.lastBlockId,
-                idHex: this.cryptoManager.MilestoneManager.getMilestone().block.idFullSha256
-                    ? networkState.lastBlockId
-                    : Blocks.Serializer.toBytesHex(networkState.lastBlockId, this.cryptoManager),
-                height: networkState.nodeHeight,
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(
+            this.app,
+            networkState.nodeHeight,
+        );
+
+        const block: BlockInterfaces.IBlock | undefined = delegate.forge(
+            transactions,
+            {
+                previousBlock: {
+                    id: networkState.lastBlockId,
+                    idHex: this.cryptoManager.MilestoneManager.getMilestone().block.idFullSha256
+                        ? networkState.lastBlockId
+                        : Blocks.Serializer.toBytesHex(networkState.lastBlockId, this.cryptoManager),
+                    height: networkState.nodeHeight,
+                },
+                timestamp: round.timestamp,
+                reward: round.reward,
             },
-            timestamp: round.timestamp,
-            reward: round.reward,
-        });
+            blockTimeLookup,
+        );
 
         AppUtils.assert.defined<BlockInterfaces.IBlock>(block);
         AppUtils.assert.defined<string>(delegate.publicKey);
 
         const minimumMs = 2000;
-        const timeLeftInMs: number = this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot();
-        const currentSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber();
-        const roundSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(round.timestamp);
+        const timeLeftInMs: number = this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot(
+            blockTimeLookup,
+        );
+        const currentSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(blockTimeLookup);
+        const roundSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(
+            blockTimeLookup,
+            round.timestamp,
+        );
         const prettyName = `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`;
 
         if (timeLeftInMs >= minimumMs && currentSlot === roundSlot) {

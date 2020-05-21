@@ -9,6 +9,11 @@ import { Delegate } from "./interfaces";
  */
 @Container.injectable()
 export class DelegateTracker {
+    /**
+     * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof ForgerService
+     */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -65,8 +70,8 @@ export class DelegateTracker {
     public async handle(): Promise<void> {
         // Arrange...
         const { height, timestamp } = this.blockchainService.getLastBlock().data;
-        const delegatesCount = this.cryptoManager.MilestoneManager.getMilestone(height).activeDelegates;
-        const blockTime: number = this.cryptoManager.MilestoneManager.getMilestone(height).blocktime;
+        const maxDelegates = this.cryptoManager.MilestoneManager.getMilestone(height).activeDelegates;
+        const blockTime: number = this.cryptoManager.MilestoneManager.calculateBlockTime(height);
         const round: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(
             height,
             this.cryptoManager.MilestoneManager.getMilestones(),
@@ -80,26 +85,33 @@ export class DelegateTracker {
             (delegate: Contracts.State.Wallet) => delegate.publicKey,
         );
 
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
+
+        const forgingInfo: Contracts.Shared.ForgingInfo = Utils.forgingInfoCalculator.calculateForgingInfo(
+            timestamp,
+            height,
+            this.cryptoManager,
+            blockTimeLookup,
+        );
+
         // Determine Next Forgers...
         const nextForgers: string[] = [];
-        for (let i = 2; i <= delegatesCount; i++) {
+        for (let i = 0; i <= maxDelegates; i++) {
             const delegate: string | undefined =
-                activeDelegatesPublicKeys[
-                    (this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(timestamp) + i) % delegatesCount
-                ];
+                activeDelegatesPublicKeys[(forgingInfo.currentForger + i) % maxDelegates];
 
             if (delegate) {
                 nextForgers.push(delegate);
             }
         }
 
-        if (activeDelegatesPublicKeys.length < delegatesCount) {
+        if (activeDelegatesPublicKeys.length < maxDelegates) {
             return this.logger.warning(
                 `Tracker only has ${Utils.pluralize(
                     "active delegate",
                     activeDelegatesPublicKeys.length,
                     true,
-                )} from a required ${delegatesCount}`,
+                )} from a required ${maxDelegates}`,
             );
         }
 
@@ -110,34 +122,31 @@ export class DelegateTracker {
             )}`,
         );
 
-        let secondsToNextRound: number | undefined;
+        const secondsToNextRound: number = (maxDelegates - forgingInfo.currentForger - 1) * blockTime;
+
         for (const delegate of this.delegates) {
-            let secondsToForge: number = 0;
+            let indexInNextForgers = 0;
             for (let i = 0; i < nextForgers.length; i++) {
                 if (nextForgers[i] === delegate.publicKey) {
+                    indexInNextForgers = i;
                     break;
                 }
-
-                secondsToForge += blockTime;
             }
 
-            // Round Information...
-            secondsToNextRound = (delegatesCount - (height % delegatesCount)) * blockTime;
-
-            if (secondsToForge === 0) {
+            if (indexInNextForgers === 0) {
                 this.logger.debug(`${this.getUsername(delegate.publicKey)} will forge next.`);
-            } else if (secondsToForge > secondsToNextRound) {
+            } else if (indexInNextForgers <= maxDelegates - forgingInfo.nextForger) {
                 this.logger.debug(
-                    `${this.getUsername(delegate.publicKey)} will forge in ${Utils.prettyTime(secondsToForge * 1000)}.`,
+                    `${this.getUsername(delegate.publicKey)} will forge in ${Utils.prettyTime(
+                        indexInNextForgers * blockTime * 1000,
+                    )}.`,
                 );
             } else {
                 this.logger.debug(`${this.getUsername(delegate.publicKey)} has already forged.`);
             }
         }
 
-        if (secondsToNextRound) {
-            this.logger.debug(`Round ${round.round} will end in ${Utils.prettyTime(secondsToNextRound * 1000)}.`);
-        }
+        this.logger.debug(`Round ${round.round} will end in ${Utils.prettyTime(secondsToNextRound * 1000)}.`);
     }
 
     /**

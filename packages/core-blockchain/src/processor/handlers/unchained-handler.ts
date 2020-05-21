@@ -1,4 +1,4 @@
-import { CryptoManager, Interfaces } from "@arkecosystem/core-crypto";
+import { CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 
 import { BlockProcessorResult } from "../block-processor";
@@ -55,7 +55,7 @@ export class UnchainedHandler implements BlockHandler {
     public static notReadyCounter = new BlockNotReadyCounter();
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    protected readonly cryptoManager!: CryptoManager;
+    protected readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;

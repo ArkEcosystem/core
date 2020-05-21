@@ -103,6 +103,7 @@ export class Peer implements Contracts.P2P.Peer {
     public toBroadcast(): Contracts.P2P.PeerBroadcast {
         return {
             ip: this.ip,
+            port: this.port,
             ports: this.ports,
             version: this.version,
             height: this.state.height,

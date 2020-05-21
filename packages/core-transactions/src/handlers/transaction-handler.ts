@@ -1,4 +1,4 @@
-import { CryptoManager, Interfaces as BlockInterfaces, TransactionsManager } from "@arkecosystem/core-crypto";
+import { CryptoSuite, Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Transactions, Types } from "@arkecosystem/crypto";
@@ -24,10 +24,10 @@ export abstract class TransactionHandler {
     protected readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.CryptoManager)
-    protected readonly cryptoManager!: CryptoManager;
+    protected readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     @Container.inject(Container.Identifiers.TransactionManager)
-    protected readonly transactionsManager!: TransactionsManager;
+    protected readonly transactionsManager!: CryptoSuite.TransactionManager;
 
     @Container.inject(Container.Identifiers.DatabaseBlockRepository)
     protected readonly blockRepository!: Repositories.BlockRepository;
@@ -201,7 +201,7 @@ export abstract class TransactionHandler {
         transaction: Interfaces.ITransactionData,
         multiSignature?: Interfaces.IMultiSignatureAsset,
     ): boolean {
-        return this.transactionsManager.Verifier.verifySignatures(
+        return this.transactionsManager.TransactionTools.Verifier.verifySignatures(
             transaction,
             multiSignature || wallet.getAttribute("multiSignature"),
         );
@@ -243,7 +243,10 @@ export abstract class TransactionHandler {
             }
 
             if (
-                !this.transactionsManager.Verifier.verifySecondSignature(data, dbSender.getAttribute("secondPublicKey"))
+                !this.transactionsManager.TransactionTools.Verifier.verifySecondSignature(
+                    data,
+                    dbSender.getAttribute("secondPublicKey"),
+                )
             ) {
                 throw new InvalidSecondSignatureError();
             }

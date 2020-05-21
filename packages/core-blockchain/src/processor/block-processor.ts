@@ -56,11 +56,14 @@ export class BlockProcessor {
             return this.app.resolve<NonceOutOfOrderHandler>(NonceOutOfOrderHandler).execute();
         }
 
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.data.height);
+
         const isValidGenerator: boolean = await this.validateGenerator(block);
         const isChained: boolean = AppUtils.isBlockChained(
             this.blockchain.getLastBlock().data,
             block.data,
             this.cryptoManager,
+            blockTimeLookup,
         );
         if (!isChained) {
             return this.app.resolve<UnchainedHandler>(UnchainedHandler).initialize(isValidGenerator).execute(block);
@@ -195,17 +198,24 @@ export class BlockProcessor {
     }
 
     private async validateGenerator(block: Interfaces.IBlock): Promise<boolean> {
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.data.height);
+
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(
             block.data.height,
             this.cryptoManager.MilestoneManager.getMilestones(),
         );
-
         const delegates: Contracts.State.Wallet[] = (await this.app
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
 
-        const slot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(block.data.timestamp);
-        const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
+        const forgingInfo: Contracts.Shared.ForgingInfo = AppUtils.forgingInfoCalculator.calculateForgingInfo(
+            block.data.timestamp,
+            block.data.height,
+            this.cryptoManager,
+            blockTimeLookup,
+        );
+
+        const forgingDelegate: Contracts.State.Wallet = delegates[forgingInfo.currentForger];
 
         const walletRepository = this.app.getTagged<Contracts.State.WalletRepository>(
             Container.Identifiers.WalletRepository,

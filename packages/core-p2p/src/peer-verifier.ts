@@ -1,7 +1,6 @@
 import { Blocks, CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
-// import { Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import pluralize from "pluralize";
 import { inspect } from "util";
@@ -115,7 +114,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         claimedState: Contracts.P2P.PeerState,
         deadline: number,
     ): Promise<PeerVerificationResult | undefined> {
-        if (!this.checkStateHeader(claimedState)) {
+        if (!(await this.checkStateHeader(claimedState))) {
             return undefined;
         }
 
@@ -140,7 +139,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
     }
 
-    private checkStateHeader(claimedState: Contracts.P2P.PeerState): boolean {
+    private async checkStateHeader(claimedState: Contracts.P2P.PeerState): Promise<boolean> {
         const blockHeader: Interfaces.IBlockData = claimedState.header as Interfaces.IBlockData;
         const claimedHeight = Number(blockHeader.height);
         if (claimedHeight !== claimedState.height) {
@@ -153,6 +152,8 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         }
 
         try {
+            const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blockHeader.height);
+
             const ownBlock: Interfaces.IBlock | undefined = this.app
                 .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
                 .getLastBlocks()
@@ -163,7 +164,10 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
                 return true;
             }
 
-            const claimedBlock: Interfaces.IBlock | undefined = this.blockFactory.fromData(blockHeader);
+            const claimedBlock: Interfaces.IBlock | undefined = this.blockFactory.fromData(
+                blockHeader,
+                blockTimeLookup,
+            );
             if (claimedBlock && claimedBlock.verifySignature()) {
                 return true;
             }
@@ -513,9 +517,11 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
             return true;
         }
 
-        const block: Interfaces.IBlock | undefined = this.blockFactory.fromData(blockData);
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blockData.height);
 
-        Utils.assert.defined<number>(block);
+        const block: Interfaces.IBlock | undefined = this.blockFactory.fromData(blockData, blockTimeLookup);
+
+        Utils.assert.defined<Interfaces.IBlock>(block);
 
         if (!block.verifySignature()) {
             this.log(

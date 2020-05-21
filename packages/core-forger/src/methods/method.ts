@@ -25,6 +25,7 @@ export abstract class Method {
         keys: Interfaces.IKeyPair,
         transactions: Interfaces.ITransactionData[],
         options: Record<string, any>,
+        getBlockTimeLookup: (height: number) => number,
     ): BlockInterfaces.IBlock {
         const totals: { amount: Types.BigNumber; fee: Types.BigNumber } = {
             amount: this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
@@ -60,6 +61,7 @@ export abstract class Method {
                 transactions,
             },
             keys,
+            getBlockTimeLookup,
         )!; // todo: this method should never return undefined
     }
 }

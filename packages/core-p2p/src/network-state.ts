@@ -67,15 +67,21 @@ export class NetworkState implements Contracts.P2P.NetworkState {
         }
     }
 
-    public static analyze(
+    public static async analyze(
         monitor: Contracts.P2P.NetworkMonitor,
         storage: Contracts.P2P.PeerStorage,
         cryptoManager: CryptoSuite.CryptoManager,
-    ): Contracts.P2P.NetworkState {
+    ): Promise<Contracts.P2P.NetworkState> {
         // @ts-ignore - app exists but isn't on the interface for now
         const lastBlock: Interfaces.IBlock = monitor.app
             .get<any>(Container.Identifiers.BlockchainService)
             .getLastBlock();
+
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(
+            // @ts-ignore - app exists but isn't on the interface for now
+            monitor.app,
+            lastBlock.data.height,
+        );
 
         const peers: Contracts.P2P.Peer[] = storage.getPeers();
         // @ts-ignore - app exists but isn't on the interface for now
@@ -95,7 +101,7 @@ export class NetworkState implements Contracts.P2P.NetworkState {
             return new NetworkState(NetworkStateStatus.BelowMinimumPeers, lastBlock);
         }
 
-        return this.analyzeNetwork(lastBlock, peers, cryptoManager);
+        return this.analyzeNetwork(lastBlock, peers, cryptoManager, blockTimeLookup);
     }
 
     public static parse(data: any): Contracts.P2P.NetworkState {
@@ -115,9 +121,10 @@ export class NetworkState implements Contracts.P2P.NetworkState {
         lastBlock,
         peers: Contracts.P2P.Peer[],
         cryptoManager: CryptoSuite.CryptoManager,
+        getTimeStampForBlock: (height: number) => number,
     ): Contracts.P2P.NetworkState {
         const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
-        const currentSlot = cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber();
+        const currentSlot = cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(getTimeStampForBlock);
 
         for (const peer of peers) {
             networkState.update(peer, currentSlot);
@@ -152,7 +159,9 @@ export class NetworkState implements Contracts.P2P.NetworkState {
     }
 
     private update(peer: Contracts.P2P.Peer, currentSlot: number): void {
-        if (Utils.assert.defined<number>(peer.state.height) > Utils.assert.defined<number>(this.nodeHeight)) {
+        Utils.assert.defined<number>(peer.state.height);
+        Utils.assert.defined<number>(this.nodeHeight);
+        if (peer.state.height > this.nodeHeight) {
             this.quorumDetails.peersNoQuorum++;
             this.quorumDetails.peersOverHeight++;
             this.quorumDetails.peersOverHeightBlockHeaders[peer.state.header.id] = peer.state.header;

@@ -21,6 +21,7 @@ export class Block implements IBlock {
             transactions: Interfaces.ITransaction[];
             id?: string;
         },
+        private getBlockTimeStampLookup: Interfaces.GetBlockTimeStampLookup,
         private cryptoManager: CryptoManager<IBlockData>,
         private validator: Validator,
         private serializer: Serializer,
@@ -129,8 +130,10 @@ export class Block implements IBlock {
             }
 
             if (
-                this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(block.timestamp) >
-                this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber()
+                this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(
+                    this.getBlockTimeStampLookup,
+                    block.timestamp,
+                ) > this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(this.getBlockTimeStampLookup)
             ) {
                 result.errors.push("Invalid block timestamp");
             }

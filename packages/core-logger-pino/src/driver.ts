@@ -237,7 +237,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                 try {
                     const json = JSON.parse(chunk);
 
-                    if (getLevel(json.level) >= getLevel(level)) {
+                    if (getLevel(json.level) <= getLevel(level)) {
                         const line: string | undefined = pinoPretty(json);
 
                         if (line !== undefined) {

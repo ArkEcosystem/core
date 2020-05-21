@@ -29,11 +29,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     /**
-    * @returns {Promise<boolean>}
-    * @memberof ServiceProvider
-    */
+     * @returns {Promise<boolean>}
+     * @memberof ServiceProvider
+     */
     public async bootWhen(): Promise<boolean> {
-        return !process.env.DISABLE_P2P_SERVER
+        return !process.env.DISABLE_P2P_SERVER;
     }
 
     /**
@@ -48,7 +48,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         if (process.env.DISABLE_P2P_SERVER) {
             return;
         }
-        
+
         this.app.get<Server>(this.serverSymbol).dispose();
     }
 

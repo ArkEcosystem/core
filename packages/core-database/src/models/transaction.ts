@@ -1,8 +1,10 @@
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Types } from "@arkecosystem/crypto";
 import { Column, Entity, Index } from "typeorm";
 
-import { transformBigInt, transformVendorField } from "./utils";
+import { transformBigInt, transformVendorField } from "../utils/transform";
 
+// TODO: Fix model to have undefined type on nullable fields
 @Entity({
     name: "transactions",
 })
@@ -11,7 +13,7 @@ import { transformBigInt, transformVendorField } from "./utils";
 @Index(["senderPublicKey"])
 @Index(["recipientId"])
 @Index(["timestamp"])
-export class Transaction {
+export class Transaction implements Contracts.Database.TransactionModel {
     @Column({
         primary: true,
         type: "varchar",

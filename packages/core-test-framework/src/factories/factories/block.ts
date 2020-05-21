@@ -4,7 +4,15 @@ import secrets from "../../internal/passphrases.json";
 import { Signer } from "../../internal/signer";
 import { FactoryBuilder } from "../factory-builder";
 
-export const registerBlockFactory = (factory: FactoryBuilder): void => {
+const defaultblockTimestampLookup = (height: number): number => {
+    if (height === 1) return 0;
+    throw new Error(`Attemped to lookup block with height ${height}, but no lookup implementation was provided`);
+};
+
+export const registerBlockFactory = (
+    factory: FactoryBuilder,
+    blockTimestampLookup = defaultblockTimestampLookup,
+): void => {
     factory.set("Block", ({ options }) => {
         let previousBlock;
         if (options.getPreviousBlock) {
@@ -41,13 +49,18 @@ export const registerBlockFactory = (factory: FactoryBuilder): void => {
             options.passphrase || secrets[0],
             factory.cryptoManager,
             factory.blockFactory,
-        ).forge(transactions, {
-            previousBlock,
-            timestamp:
-                factory.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(
-                    factory.cryptoManager.LibraryManager.Crypto.Slots.getTime(),
-                ) * options.blocktime || blocktime,
-            reward: options.reward || reward,
-        })!;
+        ).forge(
+            transactions,
+            {
+                previousBlock,
+                timestamp:
+                    factory.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(
+                        blockTimestampLookup,
+                        factory.cryptoManager.LibraryManager.Crypto.Slots.getTime(),
+                    ) * options.blocktime || blocktime,
+                reward: options.reward || reward,
+            },
+            blockTimestampLookup,
+        )!;
     });
 };

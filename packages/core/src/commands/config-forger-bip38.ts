@@ -121,7 +121,7 @@ export class Command extends Commands.Command {
                 title: "Prepare crypto.",
                 task: () => {
                     // TODO: handle this properly
-                    this.cryptoManager = CryptoManager.createFromPreset(flags.network);
+                    this.cryptoManager = CryptoSuite.CryptoManager.createFromPreset(flags.network);
                 },
             },
             {

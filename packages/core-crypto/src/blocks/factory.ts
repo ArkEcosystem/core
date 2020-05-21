@@ -19,7 +19,11 @@ export class BlockFactory<T extends IBlockData = IBlockData> {
         this.deserializer = new Deserializer(cryptoManager, transactionManager);
     }
 
-    public make(data: IBlockData, keys: Interfaces.IKeyPair): IBlock | undefined {
+    public make(
+        data: IBlockData,
+        keys: Interfaces.IKeyPair,
+        getBlockTimeStampLookup: Interfaces.GetBlockTimeStampLookup,
+    ): IBlock | undefined {
         data.generatorPublicKey = keys.publicKey;
 
         const payloadHash: Buffer = this.serializer.serialize(data, false);
@@ -28,18 +32,18 @@ export class BlockFactory<T extends IBlockData = IBlockData> {
         data.blockSignature = this.cryptoManager.LibraryManager.Crypto.Hash.signECDSA(hash, keys);
         data.id = this.serializer.getId(data);
 
-        return this.fromData(data);
+        return this.fromData(data, getBlockTimeStampLookup);
     }
 
-    public fromHex(hex: string): IBlock {
-        return this.fromSerialized(hex);
+    public fromHex(hex: string, getBlockTimeStampLookup: Interfaces.GetBlockTimeStampLookup): IBlock {
+        return this.fromSerialized(hex, getBlockTimeStampLookup);
     }
 
-    public fromBytes(buffer: Buffer): IBlock {
-        return this.fromSerialized(buffer.toString("hex"));
+    public fromBytes(buffer: Buffer, getBlockTimeStampLookup: Interfaces.GetBlockTimeStampLookup): IBlock {
+        return this.fromSerialized(buffer.toString("hex"), getBlockTimeStampLookup);
     }
 
-    public fromJson(json: IBlockJson): IBlock | undefined {
+    public fromJson(json: IBlockJson, getBlockTimeStampLookup: Interfaces.GetBlockTimeStampLookup): IBlock | undefined {
         // @ts-ignore
         const data: IBlockData = { ...json };
         data.totalAmount = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(data.totalAmount);
@@ -53,11 +57,12 @@ export class BlockFactory<T extends IBlockData = IBlockData> {
             }
         }
 
-        return this.fromData(data);
+        return this.fromData(data, getBlockTimeStampLookup);
     }
 
     public fromData(
         data: IBlockData,
+        getBlockTimeStampLookup: Interfaces.GetBlockTimeStampLookup,
         options: { deserializeTransactionsUnchecked?: boolean } = {},
     ): IBlock | undefined {
         const block: IBlockData | undefined = this.validator.applySchema(data);
@@ -69,6 +74,7 @@ export class BlockFactory<T extends IBlockData = IBlockData> {
                     ...this.deserializer.deserialize(serialized, false, options),
                     id: data.id,
                 },
+                getBlockTimeStampLookup,
                 this.cryptoManager,
                 this.validator,
                 this.serializer,
@@ -81,7 +87,7 @@ export class BlockFactory<T extends IBlockData = IBlockData> {
         return undefined;
     }
 
-    private fromSerialized(serialized: string): IBlock {
+    private fromSerialized(serialized: string, getBlockTimeStampLookup: Interfaces.GetBlockTimeStampLookup): IBlock {
         const deserialized: {
             data: IBlockData;
             transactions: Interfaces.ITransaction[];
@@ -93,7 +99,13 @@ export class BlockFactory<T extends IBlockData = IBlockData> {
             deserialized.data = validated;
         }
 
-        const block: IBlock = new Block(deserialized, this.cryptoManager, this.validator, this.serializer);
+        const block: IBlock = new Block(
+            deserialized,
+            getBlockTimeStampLookup,
+            this.cryptoManager,
+            this.validator,
+            this.serializer,
+        );
         block.serialized = serialized;
 
         return block;

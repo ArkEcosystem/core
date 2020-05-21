@@ -38,6 +38,7 @@
         "forger:mainnet": "cross-env CORE_PATH_CONFIG=./bin/config/mainnet yarn ark forger:run --network=mainnet",
         "forger:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark forger:run --env=test --network=testnet",
         "full:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark core:run --networkStart --env=test --network=testnet",
+        "manager:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark manager:run --env=test --network=testnet",
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
@@ -53,6 +54,7 @@
         "@arkecosystem/core-magistrate-transactions": "^3.0.0-next.0",
         "@arkecosystem/core-p2p": "^3.0.0-next.0",
         "@arkecosystem/core-state": "^3.0.0-next.0",
+        "@arkecosystem/core-snapshots": "^3.0.0-next.0",
         "@arkecosystem/core-transaction-pool": "^3.0.0-next.0",
         "@arkecosystem/core-transactions": "^3.0.0-next.0",
         "@arkecosystem/core-webhooks": "^3.0.0-next.0",
@@ -67,10 +69,10 @@
         "ngrok": "^3.2.5",
         "nodejs-tail": "^1.1.0",
         "pretty-bytes": "^5.2.0",
-        "pretty-ms": "^6.0.0",
+        "pretty-ms": "^7.0.0",
         "prompts": "^2.1.0",
         "read-last-lines": "^1.7.1",
-        "simple-git": "^1.126.0",
+        "simple-git": "^2.0.0",
         "tar": "^6.0.0",
         "type-fest": "^0.13.0",
         "wif": "^2.0.6"

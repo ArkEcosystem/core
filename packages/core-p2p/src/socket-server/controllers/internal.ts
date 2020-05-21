@@ -58,9 +58,7 @@ export class InternalController extends Controller {
             height,
             this.cryptoManager.MilestoneManager.getMilestones(),
         );
-        const { maxDelegates, round } = roundInfo;
 
-        const blockTime = this.cryptoManager.MilestoneManager.getMilestone(height).blocktime;
         const reward = this.cryptoManager.MilestoneManager.getMilestone(height).reward;
         const delegates: Contracts.P2P.DelegateWallet[] = (await this.database.getActiveDelegates(roundInfo)).map(
             (wallet) => ({
@@ -69,20 +67,25 @@ export class InternalController extends Controller {
             }),
         );
 
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
+
         const timestamp = this.cryptoManager.LibraryManager.Crypto.Slots.getTime();
-        const blockTimestamp = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(timestamp) * blockTime;
-        const currentForger = parseInt((timestamp / blockTime) as any) % maxDelegates;
-        const nextForger = (parseInt((timestamp / blockTime) as any) + 1) % maxDelegates;
+        const forgingInfo = Utils.forgingInfoCalculator.calculateForgingInfo(
+            timestamp,
+            height,
+            this.cryptoManager,
+            blockTimeLookup,
+        );
 
         return {
-            current: round,
+            current: roundInfo.round,
             reward,
-            timestamp: blockTimestamp,
+            timestamp: forgingInfo.blockTimestamp,
             delegates,
-            currentForger: delegates[currentForger],
-            nextForger: delegates[nextForger],
+            currentForger: delegates[forgingInfo.currentForger],
+            nextForger: delegates[forgingInfo.nextForger],
             lastBlock: lastBlock.data,
-            canForge: parseInt((1 + lastBlock.data.timestamp / blockTime) as any) * blockTime < timestamp - 1,
+            canForge: forgingInfo.canForge,
         };
     }
 

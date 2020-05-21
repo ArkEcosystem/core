@@ -25,14 +25,12 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(): Promise<void> {
-        const transactions = await this.transactionRepository.getRefundedHtlcLockBalances();
+        const balances = await this.transactionRepository.getRefundedHtlcLockBalances();
 
-        for (const transaction of transactions) {
-            const refundWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
-                transaction.senderPublicKey,
-            ); // sender is from the original lock
-
-            refundWallet.balance = refundWallet.balance.plus(transaction.amount);
+        for (const { senderPublicKey, refundedBalance } of balances) {
+            // sender is from the original lock
+            const refundWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(senderPublicKey);
+            refundWallet.balance = refundWallet.balance.plus(refundedBalance);
         }
     }
 

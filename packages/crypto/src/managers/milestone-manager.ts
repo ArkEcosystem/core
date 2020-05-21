@@ -5,6 +5,12 @@ import { IMilestone } from "../interfaces";
 import { NetworkConfig } from "../interfaces/networks";
 import { HeightTracker } from "./height-tracker";
 
+export interface MilestoneSearchResult {
+    found: boolean;
+    height: number;
+    data: any;
+}
+
 export class MilestoneManager<T> {
     private milestone: IMilestone;
     private milestones: Record<string, any>;
@@ -18,6 +24,45 @@ export class MilestoneManager<T> {
 
         this.validateMilestones();
         this.buildConstants();
+    }
+
+    public isNewBlockTime(height: number): boolean {
+        if (height === 1) return true;
+
+        let milestone;
+
+        for (let i = this.milestones.length - 1; i >= 0; i--) {
+            const temp = this.milestones[i];
+
+            if (temp.height > height) {
+                continue;
+            }
+
+            if (!milestone || temp.blocktime === milestone.blocktime) {
+                if (temp.blocktime) {
+                    milestone = temp;
+                }
+            } else {
+                break;
+            }
+        }
+
+        if (!milestone) return false;
+
+        return height - milestone.height === 0;
+    }
+
+    public calculateBlockTime(height: number): number {
+        for (let i = this.milestones.length - 1; i >= 0; i--) {
+            const milestone = this.milestones[i];
+            if (milestone.height <= height) {
+                if (milestone.blocktime) {
+                    return milestone.blocktime;
+                }
+            }
+        }
+
+        throw new Error(`No milestones specifying any height were found`);
     }
 
     // TODO: should we set the height on the tracker whenever height is passed here?
@@ -44,6 +89,33 @@ export class MilestoneManager<T> {
         }
 
         return this.milestone.data;
+    }
+
+    public getNextMilestoneWithNewKey(previousMilestone: number, key: string): MilestoneSearchResult {
+        if (!this.milestones || !this.milestones.length) {
+            throw new Error(`Attempted to get next milestone but none were set`);
+        }
+
+        for (let i = 0; i < this.milestones.length; i++) {
+            const milestone = this.milestones[i];
+            if (
+                milestone[key] &&
+                milestone[key] !== this.getMilestone(previousMilestone)[key] &&
+                milestone.height > previousMilestone
+            ) {
+                return {
+                    found: true,
+                    height: milestone.height,
+                    data: milestone[key],
+                };
+            }
+        }
+
+        return {
+            found: false,
+            height: previousMilestone,
+            data: null,
+        };
     }
 
     public getMilestones(): any {

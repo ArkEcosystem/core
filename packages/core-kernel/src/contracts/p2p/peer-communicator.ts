@@ -1,7 +1,7 @@
 import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { Peer, PeerConfig } from "./peer";
+import { Peer } from "./peer";
 
 export interface PeerCommunicator {
     initialize();
@@ -13,8 +13,6 @@ export interface PeerCommunicator {
     ping(peer: Peer, timeoutMsec: number, force?: boolean): Promise<any>;
 
     pingPorts(peer: Peer): Promise<void>;
-
-    validatePeerConfig(peer: Peer, config: PeerConfig): boolean;
 
     getPeers(peer: Peer): Promise<any>;
 

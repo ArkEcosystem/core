@@ -27,9 +27,6 @@ export interface NetworkMonitor {
     discoverPeers(initialRun?: boolean): Promise<boolean>;
     getNetworkHeight(): number;
     getNetworkState(): Promise<NetworkState>;
-    getRateLimitedEndpoints(): string[];
-    getRateLimitStatus(ip: string, endpoint?: string): Promise<IRateLimitStatus>;
-    isBlockedByRateLimit(ip: string): Promise<boolean>;
     refreshPeersAfterFork(): Promise<void>;
     checkNetworkHealth(): Promise<NetworkStatus>;
     downloadBlocksFromHeight(fromBlockHeight: number, maxParallelDownloads?: number): Promise<Interfaces.IBlockData[]>;

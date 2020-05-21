@@ -38,9 +38,13 @@ export class DownloadBlocks implements Action {
         }
 
         const empty: boolean = !blocks || blocks.length === 0;
+
+        const useLookupHeight = empty ? lastDownloadedBlock.height : blocks[0].height;
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, useLookupHeight);
+
         const chained: boolean =
             !empty &&
-            (AppUtils.isBlockChained(lastDownloadedBlock, blocks[0], this.cryptoManager) ||
+            (AppUtils.isBlockChained(lastDownloadedBlock, blocks[0], this.cryptoManager, blockTimeLookup) ||
                 this.cryptoManager.LibraryManager.Utils.isException(blocks[0].id));
 
         if (chained) {

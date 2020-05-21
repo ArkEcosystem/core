@@ -189,11 +189,16 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     /**
      * Push a block to the process queue.
      */
-    public handleIncomingBlock(block: Interfaces.IBlockData, fromForger = false): void {
+    public async handleIncomingBlock(block: Interfaces.IBlockData, fromForger = false): Promise<void> {
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
+
         this.pushPingBlock(block, fromForger);
 
-        const currentSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber();
-        const receivedSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(block.timestamp);
+        const currentSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(blockTimeLookup);
+        const receivedSlot: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(
+            blockTimeLookup,
+            block.timestamp,
+        );
 
         if (receivedSlot > currentSlot) {
             this.app.log.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
@@ -286,8 +291,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
                 Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlockData);
 
+                const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(
+                    this.app,
+                    lastBlock.data.height,
+                );
+
                 const tempNewLastBlock: Interfaces.IBlock | undefined = this.blockFactory.fromData(
                     tempNewLastBlockData,
+                    blockTimeLookup,
                     {
                         deserializeTransactionsUnchecked: true,
                     },
@@ -364,16 +375,23 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Process the given block.
      */
     public async processBlocks(blocks: Interfaces.IBlockData[]): Promise<Interfaces.IBlock[] | undefined> {
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blocks[0].height);
+
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult | undefined;
 
         if (
             blocks[0] &&
-            !Utils.isBlockChained(this.getLastBlock().data, blocks[0], this.cryptoManager) &&
+            !Utils.isBlockChained(this.getLastBlock().data, blocks[0], this.cryptoManager, blockTimeLookup) &&
             !this.cryptoManager.LibraryManager.Utils.isException(blocks[0].id)
         ) {
             this.app.log.warning(
-                Utils.getBlockNotChainedErrorMessage(this.getLastBlock().data, blocks[0], this.cryptoManager),
+                Utils.getBlockNotChainedErrorMessage(
+                    this.getLastBlock().data,
+                    blocks[0],
+                    this.cryptoManager,
+                    blockTimeLookup,
+                ),
             );
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
@@ -384,7 +402,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         let forkBlock: Interfaces.IBlock | undefined = undefined;
         let lastProcessedBlock: Interfaces.IBlock | undefined = undefined;
         for (const block of blocks) {
-            const blockInstance = this.blockFactory.fromData(block);
+            const blockInstance = this.blockFactory.fromData(block, blockTimeLookup);
             Utils.assert.defined<Interfaces.IBlock>(blockInstance);
 
             lastProcessResult = await this.app
@@ -448,13 +466,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
             lastProcessedBlock
         ) {
-            // broadcast last processed block
-            const blocktime: number = this.cryptoManager.MilestoneManager.getMilestone(lastProcessedBlock.data.height)
-                .blocktime;
-
             if (
                 this.state.started &&
-                this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber() * blocktime <=
+                this.cryptoManager.LibraryManager.Crypto.Slots.getSlotInfo(blockTimeLookup).startTime <=
                     lastProcessedBlock.data.timestamp
             ) {
                 this.app

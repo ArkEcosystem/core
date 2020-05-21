@@ -4,6 +4,9 @@ import { Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class ExpirationService {
+    @Container.inject(Container.Identifiers.Application)
+    public readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.CryptoManager)
     private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
@@ -22,27 +25,31 @@ export class ExpirationService {
         }
     }
 
-    public isExpired(transaction: Interfaces.ITransaction): boolean {
+    public async isExpired(transaction: Interfaces.ITransaction): Promise<boolean> {
         if (this.canExpire(transaction)) {
-            return this.getExpirationHeight(transaction) <= this.stateStore.getLastHeight() + 1;
+            return (await this.getExpirationHeight(transaction)) <= this.stateStore.getLastHeight() + 1;
         } else {
             return false;
         }
     }
 
-    public getExpirationHeight(transaction: Interfaces.ITransaction): number {
+    public async getExpirationHeight(transaction: Interfaces.ITransaction): Promise<number> {
         if (transaction.data.version && transaction.data.version >= 2) {
             AppUtils.assert.defined<number>(transaction.data.expiration);
             return transaction.data.expiration;
         } else {
             const currentHeight: number = this.stateStore.getLastHeight();
-            const blockTime: number = this.cryptoManager.MilestoneManager.getMilestone(currentHeight).blocktime;
+            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, currentHeight);
+
             const createdSecondsAgo: number =
                 this.cryptoManager.LibraryManager.Crypto.Slots.getTime() - transaction.data.timestamp;
-            const createdBlocksAgo: number = Math.floor(createdSecondsAgo / blockTime); // ! varying block times
+            const createdBlocksAgo: number = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(
+                blockTimeLookup,
+                createdSecondsAgo,
+            );
             const maxTransactionAge: number = this.configuration.getRequired<number>("maxTransactionAge");
 
-            return currentHeight - createdBlocksAgo + maxTransactionAge;
+            return Math.floor(currentHeight - createdBlocksAgo + maxTransactionAge);
         }
     }
 }

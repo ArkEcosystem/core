@@ -1,6 +1,5 @@
 import { Transaction } from "@arkecosystem/core-database/src/models";
 import { TransactionRepository } from "@arkecosystem/core-database/src/repositories";
-import { Contracts } from "@arkecosystem/core-kernel";
 
 export type FeeStatistics = {
     type: number;
@@ -36,18 +35,6 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
         return mockTransaction as Transaction;
     }
 
-    public async listByExpression(
-        expressions: Contracts.Shared.WhereExpression,
-        order: Contracts.Shared.ListingOrder,
-        page: Contracts.Shared.ListingPage,
-    ): Promise<Contracts.Shared.ListingResult<Transaction>> {
-        return {
-            rows: mockTransactions as Transaction[],
-            count: mockTransactions.length,
-            countIsEstimate: false,
-        };
-    }
-
     public async findByType(type: number, typeGroup: number, limit?: number, offset?: number) {
         return mockTransactions as any;
     }
@@ -70,15 +57,15 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
         return mockTransactions as any;
     }
 
-    public async getClaimedHtlcLockBalances(): Promise<{ amount: string; recipientId: string }[]> {
+    public async getClaimedHtlcLockBalances(): Promise<{ claimedBalance: string; recipientId: string }[]> {
         return mockTransactions.map((x) => {
-            return { recipientId: x.recipientId!.toString(), amount: x.amount!.toString() };
+            return { recipientId: x.recipientId!.toString(), claimedBalance: x.amount!.toString() };
         });
     }
 
-    public async getRefundedHtlcLockBalances(): Promise<{ amount: string; senderPublicKey: string }[]> {
+    public async getRefundedHtlcLockBalances(): Promise<{ refundedBalance: string; senderPublicKey: string }[]> {
         return mockTransactions.map((x) => {
-            return { senderPublicKey: x.senderPublicKey!.toString(), amount: x.amount!.toString() };
+            return { senderPublicKey: x.senderPublicKey!.toString(), refundedBalance: x.amount!.toString() };
         });
     }
 

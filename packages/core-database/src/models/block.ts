@@ -1,13 +1,14 @@
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Types } from "@arkecosystem/crypto";
 import { Column, Entity, Index } from "typeorm";
 
-import { transformBigInt } from "./utils";
+import { transformBigInt } from "../utils/transform";
 
 @Entity({
     name: "blocks",
 })
 @Index(["generatorPublicKey"])
-export class Block {
+export class Block implements Contracts.Database.BlockModel {
     @Column({
         primary: true,
         type: "varchar",

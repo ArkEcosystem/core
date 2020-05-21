@@ -1,0 +1,10 @@
+{
+    "blocks": { "count": 51, "start": 1, "end": 52 },
+    "transactions": { "count": 153, "start": 0, "end": 98136840 },
+    "rounds": { "count": 51, "start": 1, "end": 2 },
+    "folder": "1-52",
+    "skipCompression": true,
+    "network": "testnet",
+    "packageVersion": "3.0.0-next.0",
+    "codec": "json"
+}

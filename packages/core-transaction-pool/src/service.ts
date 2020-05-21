@@ -161,7 +161,7 @@ export class Service implements Contracts.TransactionPool.Service {
 
     private async cleanExpired(): Promise<void> {
         for (const transaction of this.poolQuery.getAll()) {
-            if (this.expirationService.isExpired(transaction)) {
+            if (await this.expirationService.isExpired(transaction)) {
                 this.logger.warning(`${transaction} expired`);
                 await this.removeTransaction(transaction);
             }

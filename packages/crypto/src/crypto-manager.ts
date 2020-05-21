@@ -24,6 +24,7 @@ export class CryptoManager<T> {
             network.network,
             this.NetworkConfigManager,
             this.MilestoneManager,
+            this.HeightTracker,
         );
         this.Identities = new IdentitiesManager(this.LibraryManager, network.network);
     }

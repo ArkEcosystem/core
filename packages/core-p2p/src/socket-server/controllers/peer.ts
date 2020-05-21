@@ -5,7 +5,6 @@ import { Interfaces } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
 import { MissingCommonBlockError } from "../../errors";
-import { isWhitelisted } from "../../utils";
 import { TooManyTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
@@ -62,18 +61,34 @@ export class PeerController extends Controller {
         const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
         const lastBlock: BlockInterfaces.IBlock = blockchain.getLastBlock();
 
+        if (!lastBlock) {
+            return {
+                state: {
+                    height: 0,
+                    forgingAllowed: false,
+                    currentSlot: 0,
+                    header: {},
+                },
+                config: getPeerConfig(this.app, this.cryptoManager),
+            };
+        }
+
+        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, lastBlock.data.height);
+
+        const slotInfo = this.cryptoManager.LibraryManager.Crypto.Slots.getSlotInfo(blockTimeLookup);
+
         return {
             state: {
-                height: lastBlock ? lastBlock.data.height : 0,
-                forgingAllowed: this.cryptoManager.LibraryManager.Crypto.Slots.isForgingAllowed(),
-                currentSlot: this.cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(),
-                header: lastBlock ? lastBlock.getHeader() : {},
+                height: lastBlock.data.height,
+                forgingAllowed: slotInfo.forgingStatus,
+                currentSlot: slotInfo.slotNumber,
+                header: lastBlock.getHeader(),
             },
             config: getPeerConfig(this.app, this.cryptoManager),
         };
     }
 
-    public postBlock(request: Hapi.Request, h: Hapi.ResponseToolkit): boolean {
+    public async postBlock(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<boolean> {
         const configuration = this.app.getTagged<Providers.PluginConfiguration>(
             Container.Identifiers.PluginConfiguration,
             "plugin",
@@ -102,7 +117,7 @@ export class PeerController extends Controller {
             transactions: deserialized.transactions.map((tx) => tx.data),
         };
 
-        const fromForger: boolean = isWhitelisted(
+        const fromForger: boolean = Utils.isWhitelisted(
             configuration.getOptional<string[]>("remoteAccess", []),
             request.info.remoteAddress,
         );
@@ -116,7 +131,9 @@ export class PeerController extends Controller {
 
             const lastDownloadedBlock: BlockInterfaces.IBlockData = blockchain.getLastDownloadedBlock();
 
-            if (!Utils.isBlockChained(lastDownloadedBlock, block, this.cryptoManager)) {
+            const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
+
+            if (!Utils.isBlockChained(lastDownloadedBlock, block, this.cryptoManager, blockTimeLookup)) {
                 throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
             }
         }
@@ -133,9 +150,10 @@ export class PeerController extends Controller {
                 "transaction",
                 block.numberOfTransactions,
                 true,
-            )} from ${request.info.remoteAddress} (${request.headers.host})`,
+            )} from ${mapAddr(request.info.remoteAddress)}`,
         );
 
+        // TODO: check we don't need to await here (handleIncomingBlock is now an async operation)
         blockchain.handleIncomingBlock(block, fromForger);
         return true;
     }

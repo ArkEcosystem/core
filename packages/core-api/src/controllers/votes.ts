@@ -34,7 +34,11 @@ export class VotesController extends Controller {
             id: request.params.id,
         });
 
-        if (!transaction) {
+        if (
+            !transaction ||
+            transaction.type !== Enums.TransactionType.Vote ||
+            transaction.typeGroup !== Enums.TransactionTypeGroup.Core
+        ) {
             return Boom.notFound("Vote not found");
         }
 

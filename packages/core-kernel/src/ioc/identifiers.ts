@@ -52,10 +52,12 @@ export const Identifiers = {
 
     // Database
     DatabaseConnection: Symbol.for("Database<Connection>"),
-    DatabaseBlockRepository: Symbol.for("Database<BlockRepository>"),
     DatabaseRoundRepository: Symbol.for("Database<RoundRepository>"),
-    DatabaseTransactionRepository: Symbol.for("Database<TransactionRepository>"),
+    DatabaseBlockRepository: Symbol.for("Database<BlockRepository>"),
+    DatabaseBlockModelConverter: Symbol.for("Database<BlockModelConverter>"),
     DatabaseBlockFilter: Symbol.for("Database<BlockFilter>"),
+    DatabaseTransactionRepository: Symbol.for("Database<TransactionRepository>"),
+    DatabaseTransactionModelConverter: Symbol.for("Database<TransactionModelConverter>"),
     DatabaseTransactionFilter: Symbol.for("Database<TransactionFilter>"),
 
     // Kernel

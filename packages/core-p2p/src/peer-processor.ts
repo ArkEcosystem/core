@@ -1,9 +1,8 @@
 import { CryptoSuite } from "@arkecosystem/core-crypto";
-import { Container, Contracts, Enums, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 
 import { PeerFactory } from "./contracts";
 import { DisconnectInvalidPeers } from "./listeners";
-import { isWhitelisted } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
@@ -50,7 +49,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     }
 
     public validatePeerIp(peer, options: Contracts.P2P.AcceptNewPeerOptions = {}): boolean {
-        if (this.configuration.get("disableDiscovery") && !this.storage.hasPendingPeer(peer.ip)) {
+        if (this.configuration.get("disableDiscovery")) {
             this.logger.warning(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return false;
         }
@@ -59,7 +58,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
             return false;
         }
 
-        if (!isWhitelisted(this.configuration.get("whitelist") || [], peer.ip)) {
+        if (!Utils.isWhitelisted(this.configuration.get("whitelist") || [], peer.ip)) {
             return false;
         }
 
@@ -78,7 +77,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         return true;
     }
 
-    private async acceptNewPeer(peer, options: Contracts.P2P.AcceptNewPeerOptions = {}): Promise<void> {
+    private async acceptNewPeer(peer, options: Contracts.P2P.AcceptNewPeerOptions): Promise<void> {
         if (this.storage.hasPeer(peer.ip)) {
             return;
         }

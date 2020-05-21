@@ -3,13 +3,21 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Types } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
 
+const defaultblockTimestampLookup = (height: number): number => {
+    if (height === 1) return 0;
+    throw new Error(`Attemped to lookup block with height ${height}, but no lookup implementation was provided`);
+};
+
 export const snoozeForBlock = async (
     cryptoManager: CryptoSuite.CryptoManager,
     sleep: number = 0,
     height: number = 1,
+    blockTimestampLookupByHeight = defaultblockTimestampLookup,
 ): Promise<void> => {
     const blockTime: number = cryptoManager.MilestoneManager.getMilestone(height).blocktime * 1000;
-    const remainingTimeInSlot: number = cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot();
+    const remainingTimeInSlot: number = cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot(
+        blockTimestampLookupByHeight,
+    );
     const sleepTime: number = sleep * 1000;
 
     return AppUtils.sleep(blockTime + remainingTimeInSlot + sleepTime);

@@ -21,7 +21,7 @@ describe("CLI", () => {
         // @ts-ignore
         const mockExit = jest.spyOn(process, "exit").mockImplementation(() => {});
         let message: string;
-        jest.spyOn(console, "warn").mockImplementationOnce(m => (message = m));
+        jest.spyOn(console, "warn").mockImplementationOnce((m) => (message = m));
 
         const cli = new CommandLineInterface(["hello"]);
         prompts.inject([false]);

@@ -1,8 +1,8 @@
 import "jest-extended";
 
+import { Sandbox } from "@packages/core-test-framework/src";
 import { ServiceProviderRepository } from "@packages/core-test-framework/src/mocks";
 import { ServiceProvider } from "@packages/core-webhooks";
-import { Sandbox } from "@packages/core-test-framework/src";
 
 const clear = () => {
     ServiceProviderRepository.setServiceProviders([]);
@@ -21,7 +21,7 @@ describe("ServiceProviderRepository", () => {
         beforeEach(() => {
             clear();
 
-            let sandbox = new Sandbox();
+            const sandbox = new Sandbox();
             serviceProvider = sandbox.app.resolve(ServiceProvider);
 
             ServiceProviderRepository.setServiceProviders([serviceProvider]);

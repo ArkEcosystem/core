@@ -4,10 +4,10 @@ import { Interfaces } from "@arkecosystem/crypto";
 import { EntityRepository, In } from "typeorm";
 
 import { Block, Round, Transaction } from "../models";
-import { AbstractEntityRepository } from "./repository";
+import { AbstractRepository } from "./abstract-repository";
 
 @EntityRepository(Block)
-export class BlockRepository extends AbstractEntityRepository<Block> {
+export class BlockRepository extends AbstractRepository<Block> {
     public constructor(
         private cryptoManager: CryptoSuite.CryptoManager,
         private transactionsManager: CryptoSuite.TransactionManager,
@@ -38,15 +38,6 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
             },
             take: limit,
         });
-    }
-
-    public async findByIdOrHeight(idOrHeight: string | number): Promise<Block> {
-        try {
-            const block: Block | undefined = await this.findByHeight(idOrHeight as number);
-            return block ?? this.findById(idOrHeight as string);
-        } catch (error) {
-            return this.findById(idOrHeight as string);
-        }
     }
 
     public async findByHeight(height: number): Promise<Block | undefined> {
@@ -97,23 +88,12 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                         entity.transactions = value.map(
                             (buffer) => this.transactionsManager.TransactionFactory.fromBytesUnsafe(buffer).data,
                         );
+                    } else {
+                        entity.transactions = [];
                     }
                 },
             );
         });
-    }
-
-    public async findCommon(
-        ids: string[],
-    ): Promise<{ id: string; timestamp: number; previousBlock: string; height: string }[]> {
-        return this.createQueryBuilder()
-            .select(["id", "timestamp"])
-            .addSelect("previous_block", "previousBlock")
-            .addSelect("MAX(height)", "height")
-            .where("id IN (:...ids)", { ids })
-            .groupBy("id")
-            .orderBy("height", "DESC")
-            .getRawMany();
     }
 
     public async getStatistics(): Promise<{
@@ -189,23 +169,13 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                 });
 
                 if (block.transactions.length > 0) {
-                    let transactions = block.transactions.map((tx) =>
+                    const transactions = block.transactions.map((tx) =>
                         Object.assign(new Transaction(), {
                             ...tx.data,
                             timestamp: tx.timestamp,
                             serialized: tx.serialized,
                         }),
                     );
-
-                    // Order of transactions messed up in mainnet V1
-                    const { wrongTransactionOrder } = this.cryptoManager.NetworkConfigManager.get("exceptions");
-                    if (wrongTransactionOrder && wrongTransactionOrder[block.data.id!]) {
-                        const fixedOrderIds = wrongTransactionOrder[block.data.id!].reverse();
-
-                        transactions = fixedOrderIds.map((id: string) =>
-                            transactions.find((transaction) => transaction.id === id),
-                        );
-                    }
 
                     transactionEntities.push(...transactions);
                 }
@@ -228,6 +198,17 @@ export class BlockRepository extends AbstractEntityRepository<Block> {
                 this.cryptoManager.MilestoneManager.getMilestones(),
             );
             const blockIds = { blockIds: blocks.map((b) => b.id) };
+
+            const afterLastBlockCount = await manager
+                .createQueryBuilder()
+                .select()
+                .from(Block, "blocks")
+                .where("blocks.height > :lastBlockHeight", { lastBlockHeight })
+                .getCount();
+
+            if (afterLastBlockCount !== 0) {
+                throw new Error("Removing blocks from the middle");
+            }
 
             await manager
                 .createQueryBuilder()

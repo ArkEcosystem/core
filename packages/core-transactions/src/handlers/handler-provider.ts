@@ -56,7 +56,9 @@ export class TransactionHandlerProvider {
         }
 
         if (transactionConstructor.typeGroup !== Enums.TransactionTypeGroup.Core) {
-            this.transactionsManager.TransactionRegistry.registerTransactionType(transactionConstructor);
+            this.transactionsManager.TransactionTools.TransactionRegistry.registerTransactionType(
+                transactionConstructor,
+            );
         }
     }
 

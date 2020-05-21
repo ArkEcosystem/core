@@ -1,6 +1,6 @@
 import { Network } from "../interfaces";
 import { Libraries } from "../interfaces/libraries";
-import { MilestoneManager } from "../managers";
+import { HeightTracker, MilestoneManager } from "../managers";
 import { Base58 } from "./base58";
 import { Bip38 } from "./bip38";
 import { Hash } from "./hash";
@@ -16,13 +16,18 @@ export class CryptoToolsManager<T> {
     public Slots: Slots<T>;
     public Base58: Base58;
 
-    public constructor(libraries: Libraries, network: Network, milestoneManager: MilestoneManager<T>) {
+    public constructor(
+        libraries: Libraries,
+        network: Network,
+        milestoneManager: MilestoneManager<T>,
+        heightTracker: HeightTracker,
+    ) {
         this.Hash = new Hash(libraries);
         this.HashAlgorithms = new HashAlgorithms(libraries);
         this.Base58 = new Base58(libraries, this.HashAlgorithms);
         this.Bip38 = new Bip38(libraries, this.HashAlgorithms, this.Base58);
         this.HDWallet = new HDWallet(libraries, network);
-        this.Slots = new Slots(libraries, milestoneManager);
+        this.Slots = new Slots(libraries, milestoneManager, heightTracker);
     }
 
     public numberToHex(num: number, padding = 2): string {

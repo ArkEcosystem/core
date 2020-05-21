@@ -264,20 +264,6 @@ export class TransactionFactory {
         return this;
     }
 
-    // TODO: check this is no longer needed
-    // public withNetwork(network: Types.NetworkName): TransactionFactory {
-    //     this.network = network;
-
-    //     return this;
-    // }
-
-    // TODO: check this is no longer needed
-    // public withNetworkConfig(networkConfig: Interfaces.NetworkConfig): TransactionFactory {
-    //     this.networkConfig = networkConfig;
-
-    //     return this;
-    // }
-
     public withHeight(height: number): TransactionFactory {
         this.cryptoManager.HeightTracker.setHeight(height);
 
@@ -378,17 +364,6 @@ export class TransactionFactory {
     }
 
     private sign<T>(quantity: number, method: string): T[] {
-        // TODO: check this is no longer needed
-        // if (this.networkConfig !== undefined) {
-        //     this.cryptoManager.NetworkConfigManager.setConfig(this.networkConfig);
-        // } else {
-        //     this.cryptoManager.NetworkConfigManager.setFromPreset(this.network);
-        // }
-
-        // // ensure we use aip11
-        // this.cryptoManager.MilestoneManager.getMilestone().aip11 = true;
-        // this.builder.data.version = 2;
-
         if (!this.senderPublicKey) {
             this.senderPublicKey = this.cryptoManager.Identities.PublicKey.fromPassphrase(this.passphrase);
         }

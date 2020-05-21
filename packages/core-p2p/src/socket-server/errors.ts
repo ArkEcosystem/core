@@ -18,18 +18,6 @@ export class ServerError extends Error {
     }
 }
 
-export class InvalidBlockReceivedError extends ServerError {
-    public constructor(block: Interfaces.IBlockData) {
-        super(`Received block ${block.id} at height ${block.height} failed to be verified.`);
-    }
-}
-
-export class InvalidTransactionsError extends ServerError {
-    public constructor() {
-        super("The payload contains invalid transaction.");
-    }
-}
-
 export class TooManyTransactionsError extends ServerError {
     public constructor(block: Interfaces.IBlockData) {
         super(

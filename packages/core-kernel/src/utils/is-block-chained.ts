@@ -14,12 +14,19 @@ const getBlockChainedDetails = (
     previousBlock: Interfaces.IBlockData,
     nextBlock: Interfaces.IBlockData,
     cryptoManager: CryptoManager<Interfaces.IBlockData>,
+    getTimeStampForBlock: (blockheight: number) => number,
 ): BlockChainedDetails => {
     const followsPrevious: boolean = nextBlock.previousBlock === previousBlock.id;
     const isPlusOne: boolean = nextBlock.height === previousBlock.height + 1;
 
-    const previousSlot: number = cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(previousBlock.timestamp);
-    const nextSlot: number = cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(nextBlock.timestamp);
+    const previousSlot: number = cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(
+        getTimeStampForBlock,
+        previousBlock.timestamp,
+    );
+    const nextSlot: number = cryptoManager.LibraryManager.Crypto.Slots.getSlotNumber(
+        getTimeStampForBlock,
+        nextBlock.timestamp,
+    );
     const isAfterPreviousSlot: boolean = previousSlot < nextSlot;
 
     const isChained: boolean = followsPrevious && isPlusOne && isAfterPreviousSlot;
@@ -31,8 +38,14 @@ export const isBlockChained = (
     previousBlock: Interfaces.IBlockData,
     nextBlock: Interfaces.IBlockData,
     cryptoManager: CryptoManager<Interfaces.IBlockData>,
+    getTimeStampForBlock: (blockheight: number) => number,
 ): boolean => {
-    const details: BlockChainedDetails = getBlockChainedDetails(previousBlock, nextBlock, cryptoManager);
+    const details: BlockChainedDetails = getBlockChainedDetails(
+        previousBlock,
+        nextBlock,
+        cryptoManager,
+        getTimeStampForBlock,
+    );
     return details.isChained;
 };
 
@@ -40,8 +53,14 @@ export const getBlockNotChainedErrorMessage = (
     previousBlock: Interfaces.IBlockData,
     nextBlock: Interfaces.IBlockData,
     cryptoManager: CryptoManager<Interfaces.IBlockData>,
+    getTimeStampForBlock: (blockheight: number) => number,
 ): string => {
-    const details: BlockChainedDetails = getBlockChainedDetails(previousBlock, nextBlock, cryptoManager);
+    const details: BlockChainedDetails = getBlockChainedDetails(
+        previousBlock,
+        nextBlock,
+        cryptoManager,
+        getTimeStampForBlock,
+    );
 
     if (details.isChained) {
         throw new Error("Block had no chain error");

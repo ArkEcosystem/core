@@ -86,12 +86,13 @@ export class BIP38 extends Method implements Delegate {
     public forge(
         transactions: TransactionInterfaces.ITransactionData[],
         options: Record<string, any>,
+        getBlockTimeLookup: (height: number) => number,
     ): Interfaces.IBlock {
         this.decryptKeysWithOtp();
 
         AppUtils.assert.defined<TransactionInterfaces.IKeyPair>(this.keys);
 
-        const block: Interfaces.IBlock = this.createBlock(this.keys, transactions, options);
+        const block: Interfaces.IBlock = this.createBlock(this.keys, transactions, options, getBlockTimeLookup);
 
         this.encryptKeysWithOtp();
 

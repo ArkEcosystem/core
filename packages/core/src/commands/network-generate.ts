@@ -385,7 +385,6 @@ export class Command extends Commands.Command {
     private createTransferTransaction(sender: Wallet, recipient: Wallet, amount: string, pubKeyHash: number): any {
         return this.formatGenesisTransaction(
             this.transactionsManager.BuilderFactory.transfer()
-                .network(pubKeyHash)
                 .recipientId(recipient.address)
                 .amount(amount)
                 .sign(sender.passphrase).data,
@@ -412,7 +411,6 @@ export class Command extends Commands.Command {
         return senders.map((sender: Wallet) =>
             this.formatGenesisTransaction(
                 this.transactionsManager.BuilderFactory.delegateRegistration()
-                    .network(pubKeyHash)
                     .usernameAsset(sender.username!)
                     .fee(`${25 * 1e8}`)
                     .sign(sender.passphrase).data,
@@ -425,7 +423,6 @@ export class Command extends Commands.Command {
         return senders.map((sender: Wallet) =>
             this.formatGenesisTransaction(
                 this.transactionsManager.BuilderFactory.vote()
-                    .network(pubKeyHash)
                     .votesAsset([`+${sender.keys.publicKey}`])
                     .fee(`${1 * 1e8}`)
                     .sign(sender.passphrase).data,
@@ -439,8 +436,8 @@ export class Command extends Commands.Command {
             fee: "0",
             timestamp: 0,
         });
-        transaction.signature = this.transactionsManager.Signer.sign(transaction, wallet.keys);
-        transaction.id = this.transactionsManager.Utils.getId(transaction);
+        transaction.signature = this.transactionsManager.TransactionTools.Signer.sign(transaction, wallet.keys);
+        transaction.id = this.transactionsManager.TransactionTools.Utils.getId(transaction);
 
         return transaction;
     }
@@ -460,7 +457,7 @@ export class Command extends Commands.Command {
         const allBytes: Buffer[] = [];
 
         for (const transaction of transactions) {
-            const bytes: Buffer = this.transactionsManager.Serializer.getBytes(transaction);
+            const bytes: Buffer = this.transactionsManager.TransactionTools.Serializer.getBytes(transaction);
 
             allBytes.push(bytes);
 
