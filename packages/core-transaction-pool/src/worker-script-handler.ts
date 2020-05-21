@@ -17,11 +17,6 @@ export class WorkerScriptHandler implements Contracts.TransactionPool.WorkerScri
         Managers.configManager.setHeight(height);
     }
 
-    public setMilestone(milestoneData: { [key: string]: any }): void {
-        const milestone = Managers.configManager.getMilestone();
-        Object.assign(milestone, milestoneData);
-    }
-
     public async getTransactionFromData(
         transactionData: Interfaces.ITransactionData,
     ): Promise<Contracts.TransactionPool.SerializedTransaction> {

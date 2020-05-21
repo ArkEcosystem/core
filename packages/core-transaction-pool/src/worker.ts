@@ -28,9 +28,8 @@ export class Worker implements Contracts.TransactionPool.Worker {
         const currentHeight = Managers.configManager.getHeight()!;
         if (currentHeight !== this.lastHeight) {
             this.lastHeight = currentHeight;
+            this.ipcSubprocess.sendAction("setConfig", Managers.configManager.all());
             this.ipcSubprocess.sendAction("setHeight", currentHeight);
-            this.ipcSubprocess.sendAction("setConfig", Managers.configManager["config"]);
-            this.ipcSubprocess.sendAction("setMilestone", Managers.configManager.getMilestone());
         }
 
         const { id, serialized } = await this.ipcSubprocess.sendRequest("getTransactionFromData", transactionData);

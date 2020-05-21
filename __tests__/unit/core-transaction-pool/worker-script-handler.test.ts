@@ -34,18 +34,9 @@ describe("WorkerScriptHandler.setHeight", () => {
     });
 });
 
-describe("WorkerScriptHandler.setMilestone", () => {
-    it("should assign values to current milestone", () => {
-        const workerScriptHandler = new WorkerScriptHandler();
-        workerScriptHandler.setMilestone({ aip11: true });
-        expect(Managers.configManager.getMilestone().aip11).toBe(true);
-    });
-});
-
 describe("WorkerScriptHandler.getTransactionFromData", () => {
     it("should return serialized transaction and its id", async () => {
         const workerScriptHandler = new WorkerScriptHandler();
-        workerScriptHandler.setMilestone({ aip11: true });
 
         const transaction = Transactions.BuilderFactory.transfer()
             .version(2)

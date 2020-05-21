@@ -68,9 +68,8 @@ describe("Worker.getTransactionFromData", () => {
 
         const result = await worker.getTransactionFromData(transaction.data);
 
+        expect(ipcSubprocess.sendAction).toBeCalledWith("setConfig", Managers.configManager.all());
         expect(ipcSubprocess.sendAction).toBeCalledWith("setHeight", Managers.configManager.getHeight());
-        expect(ipcSubprocess.sendAction).toBeCalledWith("setConfig", Managers.configManager["config"]);
-        expect(ipcSubprocess.sendAction).toBeCalledWith("setMilestone", Managers.configManager.getMilestone());
         expect(ipcSubprocess.sendRequest).toBeCalledWith("getTransactionFromData", transaction.data);
 
         expect(result).toEqual(transaction);
