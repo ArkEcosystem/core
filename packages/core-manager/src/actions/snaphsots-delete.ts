@@ -31,7 +31,7 @@ export class Action implements Actions.Action {
         const snapshotPath = join(snapshotsDir, name);
 
         if (!(await this.filesystem.exists(snapshotPath))) {
-            throw new Error("Snapshot does not exist");
+            throw new Error("Snapshot not found");
         }
 
         if (!(await this.filesystem.delete(snapshotPath))) {
