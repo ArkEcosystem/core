@@ -1,4 +1,4 @@
-import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { basename, join } from "path";
 
 import { Actions } from "../contracts";
@@ -7,12 +7,7 @@ import { Actions } from "../contracts";
 export class Action implements Actions.Action {
     public name = "snapshots.list";
 
-    @Container.inject(Container.Identifiers.Application)
-    // @ts-ignore
-    private readonly app!: Application;
-
     @Container.inject(Container.Identifiers.FilesystemService)
-    // @ts-ignore
     private readonly filesystem!: Contracts.Kernel.Filesystem;
 
     public async execute(params: object): Promise<any> {
