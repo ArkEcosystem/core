@@ -1,7 +1,7 @@
 import { ApplicationFactory, Commands, Container, Contracts, InputParser, Plugins } from "@arkecosystem/core-cli";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { resolve } from "path";
 import { PackageJson } from "type-fest";
-
 /**
  * @export
  * @class CommandLineInterface
@@ -35,12 +35,17 @@ export class CommandLineInterface {
      * @returns {Promise<void>}
      * @memberof CommandLineInterface
      */
-    public async execute(dirname = __dirname): Promise<void> {
+    public async execute(
+        dirname = __dirname,
+        cryptoSuite: CryptoSuite.CryptoSuite = new CryptoSuite.CryptoSuite(
+            CryptoSuite.CryptoManager.findNetworkByName("testnet"),
+        ),
+    ): Promise<void> {
         // Load the package information. Only needed for updates and installations.
         const pkg: PackageJson = require("../package.json");
 
         // Create the application we will work with
-        this.app = ApplicationFactory.make(new Container.Container(), pkg);
+        this.app = ApplicationFactory.make(new Container.Container(), pkg, cryptoSuite);
 
         // Check for updates
         this.app.get<Contracts.Updater>(Container.Identifiers.Updater).check();

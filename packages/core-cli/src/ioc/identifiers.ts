@@ -12,6 +12,10 @@ export const Identifiers = {
     Package: Symbol.for("Package"),
     ProcessManager: Symbol.for("ProcessManager"),
     Updater: Symbol.for("Updater"),
+    // Crypto
+    CryptoManager: Symbol.for("Crypto<CryptoManager>"),
+    TransactionManager: Symbol.for("Crypto<TransactionManager>"),
+    BlockFactory: Symbol.for("Crypto<BlockFactory>"),
     // Input
     InputValidator: Symbol.for("Input<Validator>"),
     // Factories

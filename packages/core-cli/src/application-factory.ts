@@ -1,3 +1,4 @@
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import envPaths from "env-paths";
 import { PackageJson } from "type-fest";
 
@@ -50,8 +51,13 @@ import { Config, Environment, Installer, Logger, ProcessManager, Updater } from 
 import { Process } from "./utils";
 
 export class ApplicationFactory {
-    public static make(container: Container, pkg: PackageJson): Application {
+    public static make(container: Container, pkg: PackageJson, cryptoSuite: CryptoSuite.CryptoSuite): Application {
         const app: Application = new Application(container);
+
+        // CryptoConfig
+        app.bind(Identifiers.CryptoManager).toConstantValue(cryptoSuite.CryptoManager);
+        app.bind(Identifiers.TransactionManager).toConstantValue(cryptoSuite.TransactionManager);
+        app.bind(Identifiers.BlockFactory).toConstantValue(cryptoSuite.BlockFactory);
 
         // Package
         app.bind(Identifiers.Package).toConstantValue(pkg);
