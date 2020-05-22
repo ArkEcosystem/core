@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { CryptoSuite, Interfaces as BlockInterfaces } from "@packages/core-crypto/src";
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
@@ -19,10 +20,8 @@ import {
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { Enums, Interfaces, Transactions } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { configManager } from "@packages/crypto/src/managers";
 
 import {
     buildMultiSignatureWallet,
@@ -40,28 +39,32 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-
+let mockLastBlockData: Partial<BlockInterfaces.IBlockData>;
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
-beforeEach(() => {
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+let crypto: CryptoSuite.CryptoSuite;
 
-    app = initApp();
+beforeEach(() => {
+    crypto = new CryptoSuite.CryptoSuite({
+        ...Generators.generateCryptoConfigRaw(),
+    });
+    crypto.CryptoManager.HeightTracker.setHeight(2);
+
+    app = initApp(crypto);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
 
     factoryBuilder = new FactoryBuilder();
     Factories.registerWalletFactory(factoryBuilder);
     Factories.registerTransactionFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(factoryBuilder);
-    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
-    multiSignatureWallet = buildMultiSignatureWallet();
+    senderWallet = buildSenderWallet(factoryBuilder, crypto.CryptoManager);
+    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder, crypto.CryptoManager);
+    multiSignatureWallet = buildMultiSignatureWallet(crypto.CryptoManager);
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.index(senderWallet);
@@ -85,14 +88,14 @@ describe("General Tests", () => {
             2,
         );
 
-        transferTransaction = BuilderFactory.transfer()
+        transferTransaction = crypto.TransactionManager.BuilderFactory.transfer()
             .recipientId(recipientWallet.address)
             .amount("10000000")
             .nonce("1")
             .sign(passphrases[0])
             .build();
 
-        transactionWithSecondSignature = BuilderFactory.transfer()
+        transactionWithSecondSignature = crypto.TransactionManager.BuilderFactory.transfer()
             .recipientId(recipientWallet.address)
             .amount("10000000")
             .nonce("1")
@@ -100,7 +103,7 @@ describe("General Tests", () => {
             .secondSign(passphrases[1])
             .build();
 
-        multiSignatureTransferTransaction = BuilderFactory.transfer()
+        multiSignatureTransferTransaction = crypto.TransactionManager.BuilderFactory.transfer()
             .senderPublicKey(multiSignatureWallet.publicKey!)
             .recipientId(recipientWallet.address)
             .amount("1")
@@ -142,7 +145,7 @@ describe("General Tests", () => {
         });
 
         it("should throw if the sender has a second signature, but stored walled has not", async () => {
-            const secondSigWallet = buildSenderWallet(factoryBuilder);
+            const secondSigWallet = buildSenderWallet(factoryBuilder, crypto.CryptoManager);
             secondSigWallet.setAttribute(
                 "secondPublicKey",
                 "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
@@ -153,7 +156,7 @@ describe("General Tests", () => {
         });
 
         it("should throw if nonce is invalid", async () => {
-            senderWallet.nonce = Utils.BigNumber.make(1);
+            senderWallet.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1);
             await expect(
                 handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository),
             ).rejects.toThrowError(UnexpectedNonceError);
@@ -162,9 +165,9 @@ describe("General Tests", () => {
         it("should throw if sender has legacy multi signature", async () => {
             const multiSignatureAsset: IMultiSignatureAsset = {
                 publicKeys: [
-                    Identities.PublicKey.fromPassphrase(passphrases[0]),
-                    Identities.PublicKey.fromPassphrase(passphrases[1]),
-                    Identities.PublicKey.fromPassphrase(passphrases[2]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[2]),
                 ],
                 min: 2,
                 // @ts-ignore
@@ -180,14 +183,14 @@ describe("General Tests", () => {
         it("should throw if sender has multi signature, but indexed wallet has not", async () => {
             const multiSignatureAsset: IMultiSignatureAsset = {
                 publicKeys: [
-                    Identities.PublicKey.fromPassphrase(passphrases[0]),
-                    Identities.PublicKey.fromPassphrase(passphrases[1]),
-                    Identities.PublicKey.fromPassphrase(passphrases[2]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[2]),
                 ],
                 min: 2,
             };
 
-            const multiSigWallet = buildSenderWallet(factoryBuilder);
+            const multiSigWallet = buildSenderWallet(factoryBuilder, crypto.CryptoManager);
             multiSigWallet.setAttribute("multiSignature", multiSignatureAsset);
             await expect(
                 handler.throwIfCannotBeApplied(transferTransaction, multiSigWallet, walletRepository),
@@ -197,9 +200,9 @@ describe("General Tests", () => {
         it("should throw if sender and transaction multi signatures does not match", async () => {
             const multiSignatureAsset: IMultiSignatureAsset = {
                 publicKeys: [
-                    Identities.PublicKey.fromPassphrase(passphrases[1]),
-                    Identities.PublicKey.fromPassphrase(passphrases[0]),
-                    Identities.PublicKey.fromPassphrase(passphrases[2]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[2]),
                 ],
                 min: 2,
             };
@@ -244,7 +247,7 @@ describe("General Tests", () => {
             transferTransaction.data.senderPublicKey = transferTransaction.data.senderPublicKey!.toUpperCase();
             senderWallet.publicKey = senderWallet.publicKey!.toLowerCase();
 
-            const instance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
+            const instance: Interfaces.ITransaction = crypto.TransactionManager.TransactionFactory.fromData(
                 transferTransaction.data,
             );
             await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletRepository)).toResolve();
@@ -264,14 +267,14 @@ describe("General Tests", () => {
                 2,
             );
 
-            transferTransaction = BuilderFactory.transfer()
+            transferTransaction = crypto.TransactionManager.BuilderFactory.transfer()
                 .amount("10000000")
                 .recipientId(recipientWallet.address)
                 .sign("secret")
                 .nonce("0")
                 .build();
 
-            Managers.configManager.getMilestone().aip11 = true;
+            crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
         });
 
         it("should correctly calculate the transaction fee based on transaction size and addonBytes", async () => {
@@ -279,15 +282,27 @@ describe("General Tests", () => {
 
             expect(
                 handler.dynamicFee({ transaction: transferTransaction, addonBytes, satoshiPerByte: 3, height: 1 }),
-            ).toEqual(Utils.BigNumber.make(137 + transferTransaction.serialized.length / 2).times(3));
+            ).toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(
+                    137 + transferTransaction.serialized.length / 2,
+                ).times(3),
+            );
 
             expect(
                 handler.dynamicFee({ transaction: transferTransaction, addonBytes, satoshiPerByte: 6, height: 1 }),
-            ).toEqual(Utils.BigNumber.make(137 + transferTransaction.serialized.length / 2).times(6));
+            ).toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(
+                    137 + transferTransaction.serialized.length / 2,
+                ).times(6),
+            );
 
             expect(
                 handler.dynamicFee({ transaction: transferTransaction, addonBytes: 0, satoshiPerByte: 9, height: 1 }),
-            ).toEqual(Utils.BigNumber.make(transferTransaction.serialized.length / 2).times(9));
+            ).toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(
+                    transferTransaction.serialized.length / 2,
+                ).times(9),
+            );
         });
 
         it("should default satoshiPerByte to 1 if value provided is <= 0", async () => {
@@ -305,16 +320,7 @@ describe("General Tests", () => {
     });
 
     describe("apply", () => {
-        let pubKeyHash: number;
-
-        beforeEach(() => {
-            pubKeyHash = configManager.get("network.pubKeyHash");
-        });
-
         afterEach(() => {
-            configManager.set("exceptions.transactions", []);
-            configManager.set("network.pubKeyHash", pubKeyHash);
-            configManager.getMilestone().aip11 = true;
             process.env.CORE_ENV === "test";
         });
 
@@ -325,7 +331,7 @@ describe("General Tests", () => {
         it("should not fail due to case mismatch", async () => {
             const transactionData: Interfaces.ITransactionData = transferTransaction.data;
             transactionData.senderPublicKey = transactionData.senderPublicKey?.toUpperCase();
-            const instance = Transactions.TransactionFactory.fromData(transactionData);
+            const instance = crypto.TransactionManager.TransactionFactory.fromData(transactionData);
 
             const senderBalance = senderWallet.balance;
             const recipientBalance = recipientWallet.balance;
@@ -333,22 +339,28 @@ describe("General Tests", () => {
             await handler.apply(instance, walletRepository);
 
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance).minus(instance.data.amount).minus(instance.data.fee),
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance)
+                    .minus(instance.data.amount)
+                    .minus(instance.data.fee),
             );
 
-            expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).plus(instance.data.amount));
+            expect(recipientWallet.balance).toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(recipientBalance).plus(
+                    instance.data.amount,
+                ),
+            );
         });
 
         it("should resolve defined as exception", async () => {
-            configManager.set("exceptions.transactions", [transferTransaction.id]);
-            configManager.set("network.pubKeyHash", 99);
+            crypto.CryptoManager.NetworkConfigManager.set("exceptions.transactions", [transferTransaction.id]);
+            crypto.CryptoManager.NetworkConfigManager.set("network.pubKeyHash", 99);
             await expect(handler.apply(transferTransaction, walletRepository)).toResolve();
         });
 
         it("should resolve with V1", async () => {
-            configManager.getMilestone().aip11 = false;
+            crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = false;
 
-            transferTransaction = BuilderFactory.transfer()
+            transferTransaction = crypto.TransactionManager.BuilderFactory.transfer()
                 .recipientId(recipientWallet.address)
                 .amount("10000000")
                 .nonce("1")
@@ -359,7 +371,7 @@ describe("General Tests", () => {
         });
 
         it("should throw with negative balance", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
             await expect(handler.apply(transferTransaction, walletRepository)).rejects.toThrow(
                 InsufficientBalanceError,
             );
@@ -367,7 +379,7 @@ describe("General Tests", () => {
 
         it("should throw with negative balance if environment is not test", async () => {
             process.env.CORE_ENV === "unitest";
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
             await expect(handler.apply(transferTransaction, walletRepository)).rejects.toThrow(
                 InsufficientBalanceError,
             );
@@ -382,27 +394,33 @@ describe("General Tests", () => {
 
         it("should throw if nonce is invalid", async () => {
             await expect(handler.apply(transferTransaction, walletRepository)).toResolve();
-            senderWallet.nonce = Utils.BigNumber.make(100);
+            senderWallet.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(100);
             await expect(handler.revert(transferTransaction, walletRepository)).rejects.toThrow(UnexpectedNonceError);
         });
 
         it("should not fail due to case mismatch", async () => {
-            senderWallet.nonce = Utils.BigNumber.make(1);
+            senderWallet.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1);
 
             const transactionData: Interfaces.ITransactionData = transferTransaction.data;
             transactionData.senderPublicKey = transactionData.senderPublicKey?.toUpperCase();
-            const instance = Transactions.TransactionFactory.fromData(transactionData);
+            const instance = crypto.TransactionManager.TransactionFactory.fromData(transactionData);
 
             const senderBalance = senderWallet.balance;
             const recipientBalance = recipientWallet.balance;
 
             await handler.revert(instance, walletRepository);
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance).plus(instance.data.amount).plus(instance.data.fee),
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance)
+                    .plus(instance.data.amount)
+                    .plus(instance.data.fee),
             );
 
             expect(senderWallet.nonce.isZero()).toBeTrue();
-            expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).minus(instance.data.amount));
+            expect(recipientWallet.balance).toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(recipientBalance).minus(
+                    instance.data.amount,
+                ),
+            );
         });
     });
 });

@@ -1,9 +1,11 @@
 import "jest-extended";
 
+import { CryptoSuite, Interfaces as BlockInterfaces } from "@packages/core-crypto/src";
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework/src";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -15,55 +17,47 @@ import {
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { Enums, Interfaces, Transactions } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { configManager } from "@packages/crypto/src/managers";
 
-import {
-    buildMultiSignatureWallet,
-    buildRecipientWallet,
-    buildSecondSignatureWallet,
-    buildSenderWallet,
-    initApp,
-} from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
+import { buildRecipientWallet, buildSecondSignatureWallet, buildSenderWallet, initApp } from "../__support__/app";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
 let secondSignatureWallet: Wallets.Wallet;
-let multiSignatureWallet: Wallets.Wallet;
 let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-
+let mockLastBlockData: Partial<BlockInterfaces.IBlockData>;
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
-beforeEach(() => {
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+let crypto: CryptoSuite.CryptoSuite;
 
-    app = initApp();
+beforeEach(() => {
+    crypto = new CryptoSuite.CryptoSuite({
+        ...Generators.generateCryptoConfigRaw(),
+    });
+    crypto.CryptoManager.HeightTracker.setHeight(2);
+
+    app = initApp(crypto);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    factoryBuilder = new FactoryBuilder();
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
+
+    factoryBuilder = new FactoryBuilder(crypto as any);
     Factories.registerWalletFactory(factoryBuilder);
     Factories.registerTransactionFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(factoryBuilder);
-    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
-    multiSignatureWallet = buildMultiSignatureWallet();
+    senderWallet = buildSenderWallet(factoryBuilder, crypto.CryptoManager);
+    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder, crypto.CryptoManager);
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.index(senderWallet);
     walletRepository.index(secondSignatureWallet);
-    walletRepository.index(multiSignatureWallet);
     walletRepository.index(recipientWallet);
 });
 
@@ -87,7 +81,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
             2,
         );
 
-        secondSignatureTransaction = BuilderFactory.secondSignature()
+        secondSignatureTransaction = crypto.TransactionManager.BuilderFactory.secondSignature()
             .nonce("1")
             .signatureAsset(passphrases[1])
             .sign(passphrases[0])
@@ -123,9 +117,9 @@ describe("SecondSignatureRegistrationTransaction", () => {
             const multiSignatureAsset: IMultiSignatureAsset = {
                 min: 2,
                 publicKeys: [
-                    Identities.PublicKey.fromPassphrase(passphrases[21]),
-                    Identities.PublicKey.fromPassphrase(passphrases[22]),
-                    Identities.PublicKey.fromPassphrase(passphrases[23]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[21]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[22]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[23]),
                 ],
             };
 
@@ -137,7 +131,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
 
             await expect(
                 handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet, walletRepository),

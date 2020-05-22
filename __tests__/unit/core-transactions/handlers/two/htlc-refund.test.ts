@@ -1,9 +1,11 @@
 import "jest-extended";
 
+import { CryptoSuite, Interfaces as BlockInterfaces } from "@packages/core-crypto/src";
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework/src";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -11,9 +13,7 @@ import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { configManager } from "@packages/crypto/src/managers";
+import { Enums, Interfaces, Transactions } from "@packages/crypto";
 
 import { htlcSecretHashHex } from "../__fixtures__/htlc-secrets";
 import {
@@ -23,7 +23,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -35,35 +34,42 @@ let factoryBuilder: FactoryBuilder;
 
 const { EpochTimestamp, BlockHeight } = Enums.HtlcLockExpirationType;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-
-const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
-    mockLastBlockData.height! + heightRelativeToLastBlock;
-const makeExpiredTimestamp = (type) =>
-    type === EpochTimestamp ? mockLastBlockData.timestamp! - 9 : makeBlockHeightTimestamp(-2);
-const makeNotExpiredTimestamp = (type) =>
-    type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
+let mockLastBlockData: Partial<BlockInterfaces.IBlockData>;
+let makeBlockHeightTimestamp;
+let makeExpiredTimestamp;
+let makeNotExpiredTimestamp;
 
 const mockGetLastBlock = jest.fn();
-StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
+
+let crypto: CryptoSuite.CryptoSuite;
 
 beforeEach(() => {
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+    crypto = new CryptoSuite.CryptoSuite({
+        ...Generators.generateCryptoConfigRaw(),
+    });
+    crypto.CryptoManager.HeightTracker.setHeight(2);
 
-    app = initApp();
+    app = initApp(crypto);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    factoryBuilder = new FactoryBuilder();
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
+    makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) => mockLastBlockData.height! + heightRelativeToLastBlock;
+    makeExpiredTimestamp = (type) =>
+        type === EpochTimestamp ? mockLastBlockData.timestamp! - 9 : makeBlockHeightTimestamp(-2);
+    makeNotExpiredTimestamp = (type) =>
+        type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
+
+    StateStore.prototype.getLastBlock = mockGetLastBlock;
+    mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
+
+    factoryBuilder = new FactoryBuilder(crypto as any);
     Factories.registerWalletFactory(factoryBuilder);
     Factories.registerTransactionFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(factoryBuilder);
-    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
-    multiSignatureWallet = buildMultiSignatureWallet();
+    senderWallet = buildSenderWallet(factoryBuilder, crypto.CryptoManager);
+    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder, crypto.CryptoManager);
+    multiSignatureWallet = buildMultiSignatureWallet(crypto.CryptoManager);
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.index(senderWallet);
@@ -81,14 +87,11 @@ describe("Htlc refund", () => {
         const lockPassphrase = passphrases[2];
         let htlcLockTransaction: Interfaces.ITransaction;
         let htlcRefundTransaction: Interfaces.ITransaction;
+        let htlcRefundTransactionException: Interfaces.ITransaction;
         let secondSignatureHtlcRefundTransaction: Interfaces.ITransaction;
         let multiSignatureHtlcRefundTransaction: Interfaces.ITransaction;
         let handler: TransactionHandler;
         let lockWallet: Wallets.Wallet;
-
-        beforeAll(() => {
-            Managers.configManager.setFromPreset("testnet");
-        });
 
         beforeEach(async () => {
             const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
@@ -118,7 +121,7 @@ describe("Htlc refund", () => {
                 value: makeExpiredTimestamp(expirationType),
             };
 
-            htlcLockTransaction = BuilderFactory.htlcLock()
+            htlcLockTransaction = crypto.TransactionManager.BuilderFactory.htlcLock()
                 .htlcLockAsset({
                     secretHash: htlcSecretHashHex,
                     expiration: expiration,
@@ -130,7 +133,10 @@ describe("Htlc refund", () => {
                 .sign(lockPassphrase)
                 .build();
 
-            lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
+            lockWallet.setAttribute(
+                "htlc.lockedBalance",
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(amount),
+            );
 
             lockWallet.setAttribute("htlc.locks", {
                 [htlcLockTransaction.id!]: {
@@ -142,7 +148,7 @@ describe("Htlc refund", () => {
 
             walletRepository.index(lockWallet);
 
-            htlcRefundTransaction = BuilderFactory.htlcRefund()
+            htlcRefundTransaction = crypto.TransactionManager.BuilderFactory.htlcRefund()
                 .htlcRefundAsset({
                     lockTransactionId: htlcLockTransaction.id!,
                 })
@@ -150,7 +156,15 @@ describe("Htlc refund", () => {
                 .sign(lockPassphrase)
                 .build();
 
-            secondSignatureHtlcRefundTransaction = BuilderFactory.htlcRefund()
+            htlcRefundTransactionException = crypto.TransactionManager.BuilderFactory.htlcRefund()
+                .htlcRefundAsset({
+                    lockTransactionId: htlcLockTransaction.id!,
+                })
+                .nonce("1")
+                .sign("other")
+                .build();
+
+            secondSignatureHtlcRefundTransaction = crypto.TransactionManager.BuilderFactory.htlcRefund()
                 .htlcRefundAsset({
                     lockTransactionId: htlcLockTransaction.id!,
                 })
@@ -159,7 +173,7 @@ describe("Htlc refund", () => {
                 .secondSign(passphrases[2])
                 .build();
 
-            multiSignatureHtlcRefundTransaction = BuilderFactory.htlcRefund()
+            multiSignatureHtlcRefundTransaction = crypto.TransactionManager.BuilderFactory.htlcRefund()
                 .htlcRefundAsset({
                     lockTransactionId: htlcLockTransaction.id!,
                 })
@@ -187,7 +201,7 @@ describe("Htlc refund", () => {
                         satoshiPerByte: 3,
                         height: 1,
                     }),
-                ).toBe(Utils.BigNumber.ZERO);
+                ).toBe(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO);
             });
         });
 
@@ -238,7 +252,7 @@ describe("Htlc refund", () => {
 
                 walletRepository.index(dummyWallet);
 
-                htlcRefundTransaction = BuilderFactory.htlcRefund()
+                htlcRefundTransaction = crypto.TransactionManager.BuilderFactory.htlcRefund()
                     .htlcRefundAsset({
                         lockTransactionId: htlcLockTransaction.id!,
                     })
@@ -258,7 +272,7 @@ describe("Htlc refund", () => {
                     value: makeNotExpiredTimestamp(expirationType),
                 };
 
-                htlcLockTransaction = BuilderFactory.htlcLock()
+                htlcLockTransaction = crypto.TransactionManager.BuilderFactory.htlcLock()
                     .htlcLockAsset({
                         secretHash: htlcSecretHashHex,
                         expiration: expiration,
@@ -269,7 +283,10 @@ describe("Htlc refund", () => {
                     .sign(lockPassphrase)
                     .build();
 
-                lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
+                lockWallet.setAttribute(
+                    "htlc.lockedBalance",
+                    crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(amount),
+                );
 
                 lockWallet.setAttribute("htlc.locks", {
                     [htlcLockTransaction.id!]: {
@@ -281,7 +298,7 @@ describe("Htlc refund", () => {
 
                 walletRepository.index(lockWallet);
 
-                htlcRefundTransaction = BuilderFactory.htlcRefund()
+                htlcRefundTransaction = crypto.TransactionManager.BuilderFactory.htlcRefund()
                     .htlcRefundAsset({
                         lockTransactionId: htlcLockTransaction.id!,
                     })
@@ -309,7 +326,7 @@ describe("Htlc refund", () => {
             });
 
             it("should throw if refund transaction already in pool", async () => {
-                const anotherHtlcRefundTransaction = BuilderFactory.htlcRefund()
+                const anotherHtlcRefundTransaction = crypto.TransactionManager.BuilderFactory.htlcRefund()
                     .htlcRefundAsset({
                         lockTransactionId: htlcLockTransaction.id!,
                     })
@@ -319,7 +336,10 @@ describe("Htlc refund", () => {
 
                 await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(anotherHtlcRefundTransaction);
 
-                lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(6 * 1e8));
+                lockWallet.setAttribute(
+                    "htlc.lockedBalance",
+                    crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(6 * 1e8),
+                );
 
                 lockWallet.setAttribute("htlc.locks", {
                     [htlcLockTransaction.id!]: {
@@ -338,17 +358,6 @@ describe("Htlc refund", () => {
         });
 
         describe("apply", () => {
-            let pubKeyHash: number;
-
-            beforeEach(() => {
-                pubKeyHash = configManager.get("network.pubKeyHash");
-            });
-
-            afterEach(() => {
-                configManager.set("exceptions.transactions", []);
-                configManager.set("network.pubKeyHash", pubKeyHash);
-            });
-
             it("should apply htlc refund transaction", async () => {
                 await expect(
                     handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
@@ -363,17 +372,25 @@ describe("Htlc refund", () => {
                 await handler.apply(htlcRefundTransaction, walletRepository);
 
                 expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(
+                    crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+                );
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
             });
 
             it("should apply htlc refund transaction defined as exception", async () => {
-                configManager.set("network.pubKeyHash", 99);
-                configManager.set("exceptions.transactions", [htlcRefundTransaction.id]);
-
-                await expect(handler.apply(htlcRefundTransaction, walletRepository)).toResolve();
+                // @ts-ignore
+                const logSpy = jest.spyOn(handler.app.log, "warning");
+                // @ts-ignore
+                crypto.CryptoManager.LibraryManager.Utils.whitelistedBlockAndTransactionIds[
+                    htlcRefundTransactionException.id
+                ] = true;
+                await expect(handler.apply(htlcRefundTransactionException, walletRepository)).toResolve();
+                expect(logSpy).toHaveBeenCalledWith(
+                    `Transaction forcibly applied as an exception: ${htlcRefundTransactionException.id}.`,
+                );
             });
 
             it("should apply htlc refund transaction - when sender is not refund wallet", async () => {
@@ -388,7 +405,7 @@ describe("Htlc refund", () => {
 
                 walletRepository.index(dummyWallet);
 
-                htlcRefundTransaction = BuilderFactory.htlcRefund()
+                htlcRefundTransaction = crypto.TransactionManager.BuilderFactory.htlcRefund()
                     .htlcRefundAsset({
                         lockTransactionId: htlcLockTransaction.id!,
                     })
@@ -409,7 +426,9 @@ describe("Htlc refund", () => {
                 await handler.apply(htlcRefundTransaction, walletRepository);
 
                 expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(
+                    crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+                );
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
@@ -429,7 +448,9 @@ describe("Htlc refund", () => {
 
                 // @ts-ignore
                 expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeUndefined();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(
+                    crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+                );
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
@@ -465,7 +486,9 @@ describe("Htlc refund", () => {
 
                 // @ts-ignore
                 expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeUndefined();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(
+                    crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+                );
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );

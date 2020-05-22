@@ -1,18 +1,19 @@
 import "jest-extended";
 
+import { CryptoSuite, Interfaces as BlockInterfaces } from "@packages/core-crypto/src";
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework/src";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { InsufficientBalanceError, IpfsHashAlreadyExists } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { configManager } from "@packages/crypto/src/managers";
+import { Enums, Interfaces, Transactions } from "@packages/crypto";
+
 import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
@@ -20,7 +21,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -30,28 +30,37 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
+let mockLastBlockData: Partial<BlockInterfaces.IBlockData>;
 
 const mockGetLastBlock = jest.fn();
-StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
+
+let crypto: CryptoSuite.CryptoSuite;
 
 beforeEach(() => {
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+    crypto = new CryptoSuite.CryptoSuite({
+        ...Generators.generateCryptoConfigRaw(),
+        exceptions: {
+            transactions: ["9fbb5985e9c1f6fc9958fbf72aae5aa33e796d175ed9575c8cbe92186d443ad7"],
+        },
+    });
+    crypto.CryptoManager.HeightTracker.setHeight(2);
 
-    app = initApp();
+    app = initApp(crypto);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    factoryBuilder = new FactoryBuilder();
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
+
+    StateStore.prototype.getLastBlock = mockGetLastBlock;
+    mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
+
+    factoryBuilder = new FactoryBuilder(crypto as any);
     Factories.registerWalletFactory(factoryBuilder);
     Factories.registerTransactionFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(factoryBuilder);
-    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
-    multiSignatureWallet = buildMultiSignatureWallet();
+    senderWallet = buildSenderWallet(factoryBuilder, crypto.CryptoManager);
+    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder, crypto.CryptoManager);
+    multiSignatureWallet = buildMultiSignatureWallet(crypto.CryptoManager);
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.index(senderWallet);
@@ -66,6 +75,7 @@ afterEach(() => {
 
 describe("Ipfs", () => {
     let ipfsTransaction: Interfaces.ITransaction;
+    let ipfsTransactionException: Interfaces.ITransaction;
     let secondSignatureIpfsTransaction: Interfaces.ITransaction;
     let multiSignatureIpfsTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
@@ -79,20 +89,26 @@ describe("Ipfs", () => {
             2,
         );
 
-        ipfsTransaction = BuilderFactory.ipfs()
+        ipfsTransaction = crypto.TransactionManager.BuilderFactory.ipfs()
             .ipfsAsset("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w")
             .nonce("1")
             .sign(passphrases[0])
             .build();
 
-        secondSignatureIpfsTransaction = BuilderFactory.ipfs()
+        ipfsTransactionException = crypto.TransactionManager.BuilderFactory.ipfs()
+            .ipfsAsset("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w")
+            .nonce("1")
+            .sign("other")
+            .build();
+
+        secondSignatureIpfsTransaction = crypto.TransactionManager.BuilderFactory.ipfs()
             .ipfsAsset("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w")
             .nonce("1")
             .sign(passphrases[1])
             .secondSign(passphrases[2])
             .build();
 
-        multiSignatureIpfsTransaction = BuilderFactory.ipfs()
+        multiSignatureIpfsTransaction = crypto.TransactionManager.BuilderFactory.ipfs()
             .senderPublicKey(multiSignatureWallet.publicKey!)
             .ipfsAsset("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w")
             .nonce("1")
@@ -110,26 +126,18 @@ describe("Ipfs", () => {
     });
 
     describe("throwIfCannotBeApplied", () => {
-        let pubKeyHash: number;
-
-        beforeEach(() => {
-            pubKeyHash = configManager.get("network.pubKeyHash");
-        });
-
-        afterEach(() => {
-            configManager.set("exceptions.transactions", []);
-            configManager.set("network.pubKeyHash", pubKeyHash);
-        });
-
         it("should not throw", async () => {
             await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).toResolve();
         });
 
         it("should not throw defined as exception", async () => {
-            configManager.set("network.pubKeyHash", 99);
-            configManager.set("exceptions.transactions", [ipfsTransaction.id]);
-
-            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).toResolve();
+            // @ts-ignore
+            crypto.CryptoManager.LibraryManager.Utils.whitelistedBlockAndTransactionIds[
+                ipfsTransactionException.id
+            ] = true;
+            await expect(
+                handler.throwIfCannotBeApplied(ipfsTransactionException, senderWallet, walletRepository),
+            ).toResolve();
         });
 
         it("should not throw - second sign", async () => {
@@ -145,7 +153,7 @@ describe("Ipfs", () => {
         });
 
         it("should throw if wallet has insufficient funds", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
 
             await expect(
                 handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository),

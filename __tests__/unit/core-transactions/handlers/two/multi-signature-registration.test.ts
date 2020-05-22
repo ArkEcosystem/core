@@ -1,9 +1,11 @@
 import "jest-extended";
 
+import { CryptoSuite, Interfaces as BlockInterfaces } from "@packages/core-crypto/src";
 import { Application, Contracts, Services } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework/src";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -19,13 +21,10 @@ import {
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { Enums, Errors, Interfaces, Transactions } from "@packages/crypto";
 import { IMultiSignatureAsset, IMultiSignatureLegacyAsset } from "@packages/crypto/src/interfaces";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { configManager } from "@packages/crypto/src/managers";
 
 import { buildRecipientWallet, buildSecondSignatureWallet, buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -34,27 +33,31 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-
+let mockLastBlockData: Partial<BlockInterfaces.IBlockData>;
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
-beforeEach(() => {
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+let crypto: CryptoSuite.CryptoSuite;
 
-    app = initApp();
+beforeEach(() => {
+    crypto = new CryptoSuite.CryptoSuite({
+        ...Generators.generateCryptoConfigRaw(),
+    });
+    crypto.CryptoManager.HeightTracker.setHeight(2);
+
+    app = initApp(crypto);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    factoryBuilder = new FactoryBuilder();
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
+
+    factoryBuilder = new FactoryBuilder(crypto as any);
     Factories.registerWalletFactory(factoryBuilder);
     Factories.registerTransactionFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(factoryBuilder);
-    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
+    senderWallet = buildSenderWallet(factoryBuilder, crypto.CryptoManager);
+    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder, crypto.CryptoManager);
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.index(senderWallet);
@@ -84,25 +87,26 @@ describe("MultiSignatureRegistrationTransaction", () => {
             2,
         );
 
-        senderWallet.balance = Utils.BigNumber.make(100390000000);
+        senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(100390000000);
 
         multiSignatureAsset = {
             publicKeys: [
-                Identities.PublicKey.fromPassphrase(passphrases[0]),
-                Identities.PublicKey.fromPassphrase(passphrases[1]),
-                Identities.PublicKey.fromPassphrase(passphrases[2]),
+                crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
+                crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
+                crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[2]),
             ],
             min: 2,
         };
 
         recipientWallet = new Wallets.Wallet(
-            Identities.Address.fromMultiSignatureAsset(multiSignatureAsset),
+            crypto.CryptoManager,
+            crypto.CryptoManager.Identities.Address.fromMultiSignatureAsset(multiSignatureAsset),
             new Services.Attributes.AttributeMap(getWalletAttributeSet()),
         );
 
         walletRepository.index(recipientWallet);
 
-        multiSignatureTransaction = BuilderFactory.multiSignature()
+        multiSignatureTransaction = crypto.TransactionManager.BuilderFactory.multiSignature()
             .multiSignatureAsset(multiSignatureAsset)
             .senderPublicKey(senderWallet.publicKey!)
             .nonce("1")
@@ -113,16 +117,16 @@ describe("MultiSignatureRegistrationTransaction", () => {
             .sign(passphrases[0])
             .build();
 
-        secondSignatureMultiSignatureTransaction = BuilderFactory.multiSignature()
+        secondSignatureMultiSignatureTransaction = crypto.TransactionManager.BuilderFactory.multiSignature()
             .multiSignatureAsset({
                 publicKeys: [
-                    Identities.PublicKey.fromPassphrase(passphrases[1]),
-                    Identities.PublicKey.fromPassphrase(passphrases[0]),
-                    Identities.PublicKey.fromPassphrase(passphrases[2]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[2]),
                 ],
                 min: 2,
             })
-            .senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[1]))
+            .senderPublicKey(crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]))
             .nonce("1")
             .recipientId(recipientWallet.publicKey!)
             .multiSign(passphrases[1], 0)
@@ -147,10 +151,6 @@ describe("MultiSignatureRegistrationTransaction", () => {
     });
 
     describe("throwIfCannotBeApplied", () => {
-        afterEach(() => {
-            Managers.configManager.getMilestone().aip11 = true;
-        });
-
         it("should not throw", async () => {
             await expect(
                 handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
@@ -201,13 +201,14 @@ describe("MultiSignatureRegistrationTransaction", () => {
             multiSignatureTransaction.data.timestamp = 1000;
             multiSignatureTransaction.data.asset!.legacyAsset = legacyAssset;
 
-            Managers.configManager.getMilestone().aip11 = false;
+            crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = false;
 
             handler.verifySignatures = jest.fn().mockReturnValue(true);
 
             await expect(
                 handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
             ).rejects.toThrow(UnexpectedMultiSignatureError);
+            crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
         });
 
         // TODO: check value 02 thwors DuplicateParticipantInMultiSignatureError, 03 throws nodeError
@@ -228,7 +229,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             senderWallet.forgetAttribute("multiSignature");
 
             handler.verifySignatures = jest.fn(() => true);
-            Transactions.Verifier.verifySecondSignature = jest.fn(() => true);
+            crypto.TransactionManager.TransactionTools.Verifier.verifySecondSignature = jest.fn(() => true);
 
             multiSignatureTransaction.data.asset!.multiSignature!.publicKeys.splice(0, 2);
             await expect(
@@ -240,7 +241,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             senderWallet.forgetAttribute("multiSignature");
 
             handler.verifySignatures = jest.fn(() => true);
-            Transactions.Verifier.verifySecondSignature = jest.fn(() => true);
+            crypto.TransactionManager.TransactionTools.Verifier.verifySecondSignature = jest.fn(() => true);
 
             multiSignatureTransaction.data.signatures!.splice(0, 2);
             await expect(
@@ -251,20 +252,20 @@ describe("MultiSignatureRegistrationTransaction", () => {
         it("should throw if the same participant provides multiple signatures", async () => {
             const passphrases = ["secret1", "secret2", "secret3"];
             const participants = [
-                Identities.PublicKey.fromPassphrase(passphrases[0]),
-                Identities.PublicKey.fromPassphrase(passphrases[1]),
-                Identities.PublicKey.fromPassphrase(passphrases[2]),
+                crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
+                crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
+                crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[2]),
             ];
 
             const participantWallet = walletRepository.findByPublicKey(participants[0]);
-            participantWallet.balance = Utils.BigNumber.make(1e8 * 100);
+            participantWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1e8 * 100);
 
-            multiSignatureTransaction = BuilderFactory.multiSignature()
+            multiSignatureTransaction = crypto.TransactionManager.BuilderFactory.multiSignature()
                 .multiSignatureAsset({
                     publicKeys: participants,
                     min: 2,
                 })
-                .senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]))
+                .senderPublicKey(crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]))
                 .nonce("1")
                 .recipientId(recipientWallet.publicKey!)
                 .multiSign(passphrases[0], 0)
@@ -274,7 +275,9 @@ describe("MultiSignatureRegistrationTransaction", () => {
                 .build();
 
             const multiSigWallet = walletRepository.findByPublicKey(
-                Identities.PublicKey.fromMultiSignatureAsset(multiSignatureTransaction.data.asset!.multiSignature!),
+                crypto.CryptoManager.Identities.PublicKey.fromMultiSignatureAsset(
+                    multiSignatureTransaction.data.asset!.multiSignature!,
+                ),
             );
 
             await expect(
@@ -287,7 +290,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
             expect(multiSigWallet.hasMultiSignature()).toBeTrue();
 
-            multiSigWallet.balance = Utils.BigNumber.make(1e8 * 100);
+            multiSigWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1e8 * 100);
 
             const transferBuilder = factoryBuilder
                 .get("Transfer")
@@ -311,7 +314,9 @@ describe("MultiSignatureRegistrationTransaction", () => {
             // All verify with participants[0]
             transferBuilder.data.signatures = [];
             for (const signature of signatures) {
-                transferBuilder.data.signatures.push(`${Utils.numberToHex(0)}${signature}`);
+                transferBuilder.data.signatures.push(
+                    `${crypto.CryptoManager.LibraryManager.Crypto.numberToHex(0)}${signature}`,
+                );
             }
             //
             expect(() => transferBuilder.build()).toThrow(Errors.DuplicateParticipantInMultiSignatureError);
@@ -322,7 +327,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
         it("should throw if wallet has insufficient funds", async () => {
             senderWallet.forgetAttribute("multiSignature");
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
 
             await expect(
                 handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
@@ -351,13 +356,17 @@ describe("MultiSignatureRegistrationTransaction", () => {
             expect(senderWallet.hasAttribute("multiSignature")).toBeFalse();
             expect(recipientWallet.hasAttribute("multiSignature")).toBeFalse();
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(100390000000));
-            expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
+            expect(senderWallet.balance).toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(100390000000),
+            );
+            expect(recipientWallet.balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO);
 
             await handler.apply(multiSignatureTransaction, walletRepository);
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(98390000000));
-            expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
+            expect(senderWallet.balance).toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(98390000000),
+            );
+            expect(recipientWallet.balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO);
 
             expect(senderWallet.hasAttribute("multiSignature")).toBeFalse();
             expect(recipientWallet.getAttribute("multiSignature")).toEqual(
@@ -368,7 +377,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("revert", () => {
         it("should be ok", async () => {
-            senderWallet.nonce = Utils.BigNumber.make(1);
+            senderWallet.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1);
 
             await handler.revert(multiSignatureTransaction, walletRepository);
 

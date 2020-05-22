@@ -1,18 +1,19 @@
 import "jest-extended";
 
+import { CryptoSuite, Interfaces as BlockInterfaces } from "@packages/core-crypto/src";
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework/src";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { InsufficientBalanceError } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { configManager } from "@packages/crypto/src/managers";
+import { Enums, Interfaces, Transactions } from "@packages/crypto";
+
 import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
@@ -20,7 +21,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -30,28 +30,32 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-
+let mockLastBlockData: Partial<BlockInterfaces.IBlockData>;
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
-beforeEach(() => {
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+let crypto: CryptoSuite.CryptoSuite;
 
-    app = initApp();
+beforeEach(() => {
+    crypto = new CryptoSuite.CryptoSuite({
+        ...Generators.generateCryptoConfigRaw(),
+    });
+    crypto.CryptoManager.HeightTracker.setHeight(2);
+
+    app = initApp(crypto);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
 
     factoryBuilder = new FactoryBuilder();
     Factories.registerWalletFactory(factoryBuilder);
     Factories.registerTransactionFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(factoryBuilder);
-    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
-    multiSignatureWallet = buildMultiSignatureWallet();
+    senderWallet = buildSenderWallet(factoryBuilder, crypto.CryptoManager);
+    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder, crypto.CryptoManager);
+    multiSignatureWallet = buildMultiSignatureWallet(crypto.CryptoManager);
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.index(senderWallet);
@@ -82,7 +86,7 @@ describe("MultiPaymentTransaction", () => {
             2,
         );
 
-        multiPaymentTransaction = BuilderFactory.multiPayment()
+        multiPaymentTransaction = crypto.TransactionManager.BuilderFactory.multiPayment()
             .addPayment("ARYJmeYHSUTgbxaiqsgoPwf6M3CYukqdKN", "10")
             .addPayment("AFyjB5jULQiYNsp37wwipCm9c7V1xEzTJD", "20")
             .addPayment("AJwD3UJM7UESFnP1fsKYr4EX9Gc1EJNSqm", "30")
@@ -92,7 +96,7 @@ describe("MultiPaymentTransaction", () => {
             .sign(passphrases[0])
             .build();
 
-        secondSignatureMultiPaymentTransaction = BuilderFactory.multiPayment()
+        secondSignatureMultiPaymentTransaction = crypto.TransactionManager.BuilderFactory.multiPayment()
             .addPayment("ARYJmeYHSUTgbxaiqsgoPwf6M3CYukqdKN", "10")
             .addPayment("AFyjB5jULQiYNsp37wwipCm9c7V1xEzTJD", "20")
             .addPayment("AJwD3UJM7UESFnP1fsKYr4EX9Gc1EJNSqm", "30")
@@ -103,7 +107,7 @@ describe("MultiPaymentTransaction", () => {
             .secondSign(passphrases[2])
             .build();
 
-        multiSignatureMultiPaymentTransaction = BuilderFactory.multiPayment()
+        multiSignatureMultiPaymentTransaction = crypto.TransactionManager.BuilderFactory.multiPayment()
             .addPayment("ARYJmeYHSUTgbxaiqsgoPwf6M3CYukqdKN", "10")
             .addPayment("AFyjB5jULQiYNsp37wwipCm9c7V1xEzTJD", "20")
             .addPayment("AJwD3UJM7UESFnP1fsKYr4EX9Gc1EJNSqm", "30")
@@ -152,14 +156,14 @@ describe("MultiPaymentTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
             await expect(
                 handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository),
             ).rejects.toThrow(InsufficientBalanceError);
         });
 
         it("should throw if wallet has insufficient funds send all payouts", async () => {
-            senderWallet.balance = Utils.BigNumber.make(150); // short by the fee
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(150); // short by the fee
             await expect(
                 handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository),
             ).rejects.toThrow(InsufficientBalanceError);
@@ -171,13 +175,15 @@ describe("MultiPaymentTransaction", () => {
             const senderBalance = senderWallet.balance;
             const totalPaymentsAmount = multiPaymentTransaction.data.asset!.payments!.reduce(
                 (prev, curr) => prev.plus(curr.amount),
-                Utils.BigNumber.ZERO,
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
             );
 
             await handler.apply(multiPaymentTransaction, walletRepository);
 
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance).minus(totalPaymentsAmount).minus(multiPaymentTransaction.data.fee),
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance)
+                    .minus(totalPaymentsAmount)
+                    .minus(multiPaymentTransaction.data.fee),
             );
 
             for (const { recipientId, amount } of multiPaymentTransaction.data.asset!.payments!) {
@@ -190,7 +196,7 @@ describe("MultiPaymentTransaction", () => {
     describe("revert", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
-            senderWallet.nonce = Utils.BigNumber.make(1);
+            senderWallet.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1);
 
             for (const { recipientId, amount } of multiPaymentTransaction.data.asset!.payments!) {
                 const paymentRecipientWallet = walletRepository.findByAddress(recipientId);
@@ -198,16 +204,18 @@ describe("MultiPaymentTransaction", () => {
             }
             const totalPaymentsAmount = multiPaymentTransaction.data.asset!.payments!.reduce(
                 (prev, curr) => prev.plus(curr.amount),
-                Utils.BigNumber.ZERO,
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
             );
 
             await handler.revert(multiPaymentTransaction, walletRepository);
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance).plus(totalPaymentsAmount).plus(multiPaymentTransaction.data.fee),
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance)
+                    .plus(totalPaymentsAmount)
+                    .plus(multiPaymentTransaction.data.fee),
             );
 
             expect(senderWallet.nonce.isZero()).toBeTrue();
-            expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
+            expect(recipientWallet.balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO);
         });
     });
 });

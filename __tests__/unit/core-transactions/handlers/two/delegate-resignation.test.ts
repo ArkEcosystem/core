@@ -1,10 +1,12 @@
 import "jest-extended";
 
+import { CryptoSuite, Interfaces as BlockInterfaces } from "@packages/core-crypto/src";
 import { Application, Contracts } from "@packages/core-kernel";
 import { DelegateEvent } from "@packages/core-kernel/src/enums";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework/src";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -18,9 +20,7 @@ import {
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { configManager } from "@packages/crypto/src/managers";
+import { Enums, Interfaces, Transactions } from "@packages/crypto";
 
 import {
     buildMultiSignatureWallet,
@@ -29,7 +29,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -39,28 +38,32 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-
+let mockLastBlockData: Partial<BlockInterfaces.IBlockData>;
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
-beforeEach(() => {
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+let crypto: CryptoSuite.CryptoSuite;
 
-    app = initApp();
+beforeEach(() => {
+    crypto = new CryptoSuite.CryptoSuite({
+        ...Generators.generateCryptoConfigRaw(),
+    });
+    crypto.CryptoManager.HeightTracker.setHeight(2);
+
+    app = initApp(crypto);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
 
     factoryBuilder = new FactoryBuilder();
     Factories.registerWalletFactory(factoryBuilder);
     Factories.registerTransactionFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(factoryBuilder);
-    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
-    multiSignatureWallet = buildMultiSignatureWallet();
+    senderWallet = buildSenderWallet(factoryBuilder, crypto.CryptoManager);
+    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder, crypto.CryptoManager);
+    multiSignatureWallet = buildMultiSignatureWallet(crypto.CryptoManager);
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.index(senderWallet);
@@ -119,16 +122,16 @@ describe("DelegateResignationTransaction", () => {
             })
             .make();
 
-        delegateWallet.balance = Utils.BigNumber.make(66 * 1e8);
+        delegateWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(66 * 1e8);
         delegateWallet.setAttribute("delegate", { username: "dummy" });
         walletRepository.index(delegateWallet);
 
-        delegateResignationTransaction = BuilderFactory.delegateResignation()
+        delegateResignationTransaction = crypto.TransactionManager.BuilderFactory.delegateResignation()
             .nonce("1")
             .sign(delegatePassphrase)
             .build();
 
-        secondSignatureDelegateResignationTransaction = BuilderFactory.delegateResignation()
+        secondSignatureDelegateResignationTransaction = crypto.TransactionManager.BuilderFactory.delegateResignation()
             .nonce("1")
             .sign(passphrases[1])
             .secondSign(passphrases[2])
@@ -209,7 +212,7 @@ describe("DelegateResignationTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds", async () => {
-            delegateWallet.balance = Utils.BigNumber.ZERO;
+            delegateWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
             await expect(
                 handler.throwIfCannotBeApplied(delegateResignationTransaction, delegateWallet, walletRepository),
             ).rejects.toThrow(InsufficientBalanceError);
@@ -305,7 +308,7 @@ describe("DelegateResignationTransaction", () => {
             await handler.apply(delegateResignationTransaction, walletRepository);
             expect(delegateWallet.getAttribute<boolean>("delegate.resigned")).toBeTrue();
 
-            const voteTransaction = BuilderFactory.vote()
+            const voteTransaction = crypto.TransactionManager.BuilderFactory.vote()
                 .votesAsset(["+" + delegateWallet.publicKey])
                 .nonce("1")
                 .sign(passphrases[0])

@@ -1,10 +1,12 @@
 import "jest-extended";
 
+import { CryptoSuite, Interfaces as BlockInterfaces } from "@packages/core-crypto/src";
 import { Application, Contracts } from "@packages/core-kernel";
 import { DelegateEvent } from "@packages/core-kernel/src/enums";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework/src";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -17,10 +19,8 @@ import {
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { Enums, Interfaces, Transactions } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { configManager } from "@packages/crypto/src/managers";
 
 import {
     buildMultiSignatureWallet,
@@ -29,7 +29,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -39,27 +38,33 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
+let mockLastBlockData: Partial<BlockInterfaces.IBlockData>;
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
-beforeEach(() => {
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+let crypto: CryptoSuite.CryptoSuite;
 
-    app = initApp();
+beforeEach(() => {
+    crypto = new CryptoSuite.CryptoSuite({
+        ...Generators.generateCryptoConfigRaw(),
+        exceptions: { transactions: ["37b5f11e763bdfce6816bcdc36ed7d7ad7bc3b2a16b1bbd3e7c355fceed3c22a"] },
+    });
+    crypto.CryptoManager.HeightTracker.setHeight(2);
+
+    app = initApp(crypto);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
 
     factoryBuilder = new FactoryBuilder();
     Factories.registerWalletFactory(factoryBuilder);
     Factories.registerTransactionFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(factoryBuilder);
-    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
-    multiSignatureWallet = buildMultiSignatureWallet();
+    senderWallet = buildSenderWallet(factoryBuilder, crypto.CryptoManager);
+    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder, crypto.CryptoManager);
+    multiSignatureWallet = buildMultiSignatureWallet(crypto.CryptoManager);
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.index(senderWallet);
@@ -85,13 +90,13 @@ describe("DelegateRegistrationTransaction", () => {
             2,
         );
 
-        delegateRegistrationTransaction = BuilderFactory.delegateRegistration()
+        delegateRegistrationTransaction = crypto.TransactionManager.BuilderFactory.delegateRegistration()
             .usernameAsset("dummy")
             .nonce("1")
             .sign(passphrases[0])
             .build();
 
-        secondSignaturedDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
+        secondSignaturedDelegateRegistrationTransaction = crypto.TransactionManager.BuilderFactory.delegateRegistration()
             .usernameAsset("dummy")
             .nonce("1")
             .sign(passphrases[1])
@@ -120,7 +125,7 @@ describe("DelegateRegistrationTransaction", () => {
 
             Mocks.BlockRepository.setDelegateForgedBlocks([
                 {
-                    generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    generatorPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
                     totalRewards: "2",
                     totalFees: "2",
                     totalProduced: 1,
@@ -129,7 +134,7 @@ describe("DelegateRegistrationTransaction", () => {
 
             Mocks.BlockRepository.setLastForgedBlocks([
                 {
-                    generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    generatorPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
                     id: "123",
                     height: "1",
                     timestamp: 1,
@@ -142,7 +147,7 @@ describe("DelegateRegistrationTransaction", () => {
         it("should resolve with bocks and genesis wallet", async () => {
             Mocks.BlockRepository.setDelegateForgedBlocks([
                 {
-                    generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    generatorPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
                     totalRewards: "2",
                     totalFees: "2",
                     totalProduced: 1,
@@ -151,7 +156,7 @@ describe("DelegateRegistrationTransaction", () => {
 
             Mocks.BlockRepository.setLastForgedBlocks([
                 {
-                    generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    generatorPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
                     id: "123",
                     height: "1",
                     timestamp: 1,
@@ -197,9 +202,9 @@ describe("DelegateRegistrationTransaction", () => {
             const multiSignatureAsset: IMultiSignatureAsset = {
                 min: 2,
                 publicKeys: [
-                    Identities.PublicKey.fromPassphrase(passphrases[21]),
-                    Identities.PublicKey.fromPassphrase(passphrases[22]),
-                    Identities.PublicKey.fromPassphrase(passphrases[23]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[21]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[22]),
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[23]),
                 ],
             };
 
@@ -245,7 +250,7 @@ describe("DelegateRegistrationTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
 
             await expect(
                 handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository),
@@ -275,11 +280,11 @@ describe("DelegateRegistrationTransaction", () => {
                 })
                 .make();
 
-            anotherWallet.balance = Utils.BigNumber.make(7527654310);
+            anotherWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(7527654310);
 
             walletRepository.index(anotherWallet);
 
-            const anotherDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
+            const anotherDelegateRegistrationTransaction = crypto.TransactionManager.BuilderFactory.delegateRegistration()
                 .usernameAsset("dummy")
                 .nonce("1")
                 .sign(passphrases[2])

@@ -4,6 +4,7 @@ import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "@packages/core-test-framework/src";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -17,9 +18,6 @@ import {
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { configManager } from "@packages/crypto/src/managers";
 
 import {
     buildMultiSignatureWallet,
@@ -28,7 +26,8 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
+import { CryptoSuite, Interfaces as BlockInterfaces } from "../../../../../packages/core-crypto/src";
+import { Enums, Interfaces, Transactions } from "../../../../../packages/crypto";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -38,34 +37,38 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-
+let mockLastBlockData: Partial<BlockInterfaces.IBlockData>;
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
-beforeEach(() => {
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+let crypto: CryptoSuite.CryptoSuite;
 
-    app = initApp();
+beforeEach(() => {
+    crypto = new CryptoSuite.CryptoSuite({
+        ...Generators.generateCryptoConfigRaw(),
+    });
+    crypto.CryptoManager.HeightTracker.setHeight(2);
+
+    app = initApp(crypto);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    factoryBuilder = new FactoryBuilder();
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
+
+    factoryBuilder = new FactoryBuilder(crypto as any);
     Factories.registerWalletFactory(factoryBuilder);
     Factories.registerTransactionFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(factoryBuilder);
-    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
-    multiSignatureWallet = buildMultiSignatureWallet();
+    senderWallet = buildSenderWallet(factoryBuilder, crypto.CryptoManager);
+    secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder, crypto.CryptoManager);
+    multiSignatureWallet = buildMultiSignatureWallet(crypto.CryptoManager);
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.index(senderWallet);
     walletRepository.index(secondSignatureWallet);
-    walletRepository.index(multiSignatureWallet);
     walletRepository.index(recipientWallet);
+    walletRepository.index(multiSignatureWallet);
 });
 
 afterEach(() => {
@@ -103,20 +106,20 @@ describe("VoteTransaction", () => {
 
         walletRepository.index(delegateWallet);
 
-        voteTransaction = BuilderFactory.vote()
+        voteTransaction = crypto.TransactionManager.BuilderFactory.vote()
             .votesAsset(["+" + delegateWallet.publicKey!])
             .nonce("1")
             .sign(passphrases[0])
             .build();
 
-        secondSignatureVoteTransaction = BuilderFactory.vote()
+        secondSignatureVoteTransaction = crypto.TransactionManager.BuilderFactory.vote()
             .votesAsset(["+" + delegateWallet.publicKey!])
             .nonce("1")
             .sign(passphrases[1])
             .secondSign(passphrases[2])
             .build();
 
-        multiSignatureVoteTransaction = BuilderFactory.vote()
+        multiSignatureVoteTransaction = crypto.TransactionManager.BuilderFactory.vote()
             .senderPublicKey(multiSignatureWallet.publicKey!)
             .votesAsset(["+" + delegateWallet.publicKey!])
             .nonce("1")
@@ -125,20 +128,20 @@ describe("VoteTransaction", () => {
             .multiSign(passphrases[2], 2)
             .build();
 
-        unvoteTransaction = BuilderFactory.vote()
+        unvoteTransaction = crypto.TransactionManager.BuilderFactory.vote()
             .votesAsset(["-" + delegateWallet.publicKey!])
             .nonce("1")
             .sign(passphrases[0])
             .build();
 
-        secondSignatureUnvoteTransaction = BuilderFactory.vote()
+        secondSignatureUnvoteTransaction = crypto.TransactionManager.BuilderFactory.vote()
             .votesAsset(["-" + delegateWallet.publicKey!])
             .nonce("1")
             .sign(passphrases[1])
             .secondSign(passphrases[2])
             .build();
 
-        multiSignatureUnvoteTransaction = BuilderFactory.vote()
+        multiSignatureUnvoteTransaction = crypto.TransactionManager.BuilderFactory.vote()
             .senderPublicKey(multiSignatureWallet.publicKey!)
             .votesAsset(["-" + delegateWallet.publicKey!])
             .nonce("1")
@@ -226,6 +229,7 @@ describe("VoteTransaction", () => {
             ).toResolve();
         });
 
+        // TODO:
         it("should not throw - multi sign unvote", async () => {
             multiSignatureWallet.setAttribute("vote", delegateWallet.publicKey);
             await expect(
@@ -262,14 +266,14 @@ describe("VoteTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds for vote", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
             await expect(
                 handler.throwIfCannotBeApplied(voteTransaction, senderWallet, walletRepository),
             ).rejects.toThrow(InsufficientBalanceError);
         });
 
         it("should not if wallet has insufficient funds for unvote", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
             senderWallet.setAttribute("vote", delegateWallet.publicKey);
             await expect(
                 handler.throwIfCannotBeApplied(unvoteTransaction, senderWallet, walletRepository),
@@ -328,7 +332,7 @@ describe("VoteTransaction", () => {
         describe("vote", () => {
             it("should remove the vote from the wallet", async () => {
                 senderWallet.setAttribute("vote", delegateWallet.publicKey);
-                senderWallet.nonce = Utils.BigNumber.make(1);
+                senderWallet.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1);
 
                 expect(senderWallet.getAttribute("vote")).not.toBeUndefined();
 
@@ -341,7 +345,7 @@ describe("VoteTransaction", () => {
 
         describe("unvote", () => {
             it("should add the vote to the wallet", async () => {
-                senderWallet.nonce = Utils.BigNumber.make(1);
+                senderWallet.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1);
 
                 expect(senderWallet.hasAttribute("vote")).toBeFalse();
 

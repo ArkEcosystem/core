@@ -1,3 +1,4 @@
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { existsSync, removeSync, writeFileSync } from "fs-extra";
 import { join } from "path";
 
@@ -34,11 +35,21 @@ export class Application implements Contracts.Kernel.Application {
      * @param {Contracts.Kernel.Container.Container} container
      * @memberof Contracts.Kernel.Application
      */
-    public constructor(public readonly container: Contracts.Kernel.Container.Container) {
+    public constructor(
+        public readonly container: Contracts.Kernel.Container.Container,
+        cryptoSuite: CryptoSuite.CryptoSuite = new CryptoSuite.CryptoSuite(
+            CryptoSuite.CryptoManager.findNetworkByName("testnet"),
+        ),
+    ) {
         // todo: enable this after solving the event emitter limit issues
         // this.listenToShutdownSignals();
 
         this.bind<Contracts.Kernel.Application>(Identifiers.Application).toConstantValue(this);
+
+        // CryptoConfig
+        this.bind(Identifiers.CryptoManager).toConstantValue(cryptoSuite.CryptoManager);
+        this.bind(Identifiers.TransactionManager).toConstantValue(cryptoSuite.TransactionManager);
+        this.bind(Identifiers.BlockFactory).toConstantValue(cryptoSuite.BlockFactory);
 
         this.bind<ConfigRepository>(Identifiers.ConfigRepository).to(ConfigRepository).inSingletonScope();
 

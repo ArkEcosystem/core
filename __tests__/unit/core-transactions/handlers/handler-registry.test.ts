@@ -1,5 +1,7 @@
 import "jest-extended";
 
+import { IBlockData } from "@arkecosystem/core-crypto/dist/interfaces";
+import { CryptoSuite } from "@packages/core-crypto";
 import { Contracts, Services } from "@packages/core-kernel";
 import { Application } from "@packages/core-kernel/src/application";
 import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
@@ -10,7 +12,7 @@ import {
 import { One, TransactionHandler, TransactionHandlerConstructor, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import { Enums, Interfaces, Transactions } from "@packages/crypto";
 import { TransactionSchema } from "@packages/crypto/src/transactions/types/schemas";
 import ByteBuffer from "bytebuffer";
 
@@ -24,7 +26,7 @@ const TEST_TRANSACTION_TYPE = 100;
 const DEPENDANT_TEST_TRANSACTION_TYPE = 101;
 const { schemas } = Transactions;
 
-abstract class TestTransaction extends Transactions.Transaction {
+abstract class TestTransaction extends Transactions.Transaction<IBlockData> {
     public static type: number = TEST_TRANSACTION_TYPE;
     public static typeGroup: number = Enums.TransactionTypeGroup.Test;
     public static key: string = "test";
@@ -42,7 +44,7 @@ abstract class TestTransaction extends Transactions.Transaction {
     }
 }
 
-abstract class TestWithDependencyTransaction extends Transactions.Transaction {
+abstract class TestWithDependencyTransaction extends Transactions.Transaction<IBlockData> {
     public static type: number = DEPENDANT_TEST_TRANSACTION_TYPE;
     public static typeGroup: number = Enums.TransactionTypeGroup.Test;
     public static key: string = "test_with_dependency";
@@ -69,7 +71,8 @@ class TestTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    getConstructor(): Transactions.TransactionConstructor {
+    getConstructor(): Transactions.TransactionConstructor<IBlockData> {
+        // @ts-ignore
         return TestTransaction;
     }
 
@@ -101,7 +104,8 @@ class TestWithDependencyTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    getConstructor(): Transactions.TransactionConstructor {
+    getConstructor(): Transactions.TransactionConstructor<IBlockData> {
+        // @ts-ignore
         return TestWithDependencyTransaction;
     }
 
@@ -123,9 +127,11 @@ class TestWithDependencyTransactionHandler extends TransactionHandler {
         customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {}
 }
+let cryptoSuite: CryptoSuite.CryptoSuite;
 
 beforeEach(() => {
-    app = new Application(new Container());
+    cryptoSuite = new CryptoSuite.CryptoSuite();
+    app = new Application(new Container(), cryptoSuite);
     app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-unitnet");
 
     app.bind<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes)
@@ -156,13 +162,7 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
     app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
 
-    Managers.configManager.getMilestone().aip11 = false;
-});
-
-afterEach(() => {
-    try {
-        Transactions.TransactionRegistry.deregisterTransactionType(TestTransaction);
-    } catch {}
+    cryptoSuite.CryptoManager.MilestoneManager.getMilestone().aip11 = false;
 });
 
 describe("Registry", () => {
@@ -315,16 +315,16 @@ describe("Registry", () => {
             Identifiers.TransactionHandlerRegistry,
         );
 
-        const keys = Identities.Keys.fromPassphrase("secret");
+        const keys = cryptoSuite.CryptoManager.Identities.Keys.fromPassphrase("secret");
         const data: Interfaces.ITransactionData = {
             version: 1,
             typeGroup: Enums.TransactionTypeGroup.Test,
             type: TEST_TRANSACTION_TYPE,
-            nonce: Utils.BigNumber.ONE,
-            timestamp: Crypto.Slots.getTime(),
+            nonce: cryptoSuite.CryptoManager.LibraryManager.Libraries.BigNumber.ONE,
+            timestamp: cryptoSuite.CryptoManager.LibraryManager.Crypto.Slots.getTime(),
             senderPublicKey: keys.publicKey,
-            fee: Utils.BigNumber.make("10000000"),
-            amount: Utils.BigNumber.make("200000000"),
+            fee: cryptoSuite.CryptoManager.LibraryManager.Libraries.BigNumber.make("10000000"),
+            amount: cryptoSuite.CryptoManager.LibraryManager.Libraries.BigNumber.make("200000000"),
             recipientId: "APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq",
             asset: {
                 test: 256,
@@ -371,7 +371,7 @@ describe("Registry", () => {
             NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_FALSE,
         );
 
-        Managers.configManager.getMilestone().aip11 = true;
+        cryptoSuite.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
         expect((await transactionHandlerRegistry.getActivatedHandlers()).length).toBe(
             NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_TRUE,
         );
@@ -387,7 +387,7 @@ describe("Registry", () => {
             NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_FALSE + 1,
         );
 
-        Managers.configManager.getMilestone().aip11 = true;
+        cryptoSuite.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
         expect((await transactionHandlerRegistry.getActivatedHandlers()).length).toBe(
             NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_TRUE + 1,
         );
@@ -449,12 +449,12 @@ describe("Registry", () => {
             Enums.TransactionTypeGroup.Core,
         );
 
-        Managers.configManager.getMilestone().aip11 = false;
+        cryptoSuite.CryptoManager.MilestoneManager.getMilestone().aip11 = false;
         await expect(transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType, 2)).rejects.toThrow(
             DeactivatedTransactionHandlerError,
         );
 
-        Managers.configManager.getMilestone().aip11 = true;
+        cryptoSuite.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
         expect(await transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType, 2)).toBeInstanceOf(
             Two.DelegateResignationTransactionHandler,
         );
