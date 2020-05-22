@@ -1,14 +1,14 @@
-import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
+import { CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { assert } from "@packages/core-kernel/src/utils/assert";
 import { Generators } from "@packages/core-test-framework/src";
 
 let block: Interfaces.IBlock;
-beforeAll(() => {
-    // todo: completely wrap this into a function to hide the generation and setting of the config?
-    Managers.configManager.setConfig(Generators.generateCryptoConfigRaw());
+let crypto: CryptoSuite.CryptoSuite;
 
-    // Black Magic to get the genesis block to pass
-    Managers.configManager.getMilestone().aip11 = false;
+beforeAll(() => {
+    crypto = new CryptoSuite.CryptoSuite(Generators.generateCryptoConfigRaw());
+
+    crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = false;
 
     const mockGetBlockTimeLookup = (height: number) => {
         switch (height) {
@@ -19,7 +19,10 @@ beforeAll(() => {
         }
     };
 
-    block = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"), mockGetBlockTimeLookup);
+    block = crypto.BlockFactory.fromJson(
+        crypto.CryptoManager.NetworkConfigManager.get("genesisBlock"),
+        mockGetBlockTimeLookup,
+    );
 });
 
 describe("Assertions", () => {

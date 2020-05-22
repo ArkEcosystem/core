@@ -1,15 +1,18 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
-import { Managers, Utils } from "@arkecosystem/crypto";
 import { calculateApproval, calculateForgedTotal } from "@packages/core-kernel/src/utils/delegate-calculator";
 import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
+let crypto: CryptoSuite.CryptoSuite;
 
 beforeAll(() => {
-    sandbox = new Sandbox();
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+
+    sandbox = new Sandbox(crypto);
 
     sandbox.app
         .bind<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
@@ -21,11 +24,12 @@ beforeAll(() => {
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
         .set("delegate.voteBalance");
 
-    Managers.configManager.set("genesisBlock.totalAmount", 1000000 * 1e8);
+    crypto.CryptoManager.NetworkConfigManager.set("genesisBlock.totalAmount", 1000000 * 1e8);
 });
 
 const createWallet = (address: string): Contracts.State.Wallet =>
     new Wallets.Wallet(
+        crypto.CryptoManager,
         address,
         new Services.Attributes.AttributeMap(
             sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes),
@@ -39,10 +43,10 @@ describe("Delegate Calculator", () => {
 
             delegate.setAttribute("delegate", {
                 producedBlocks: 0,
-                voteBalance: Utils.BigNumber.make(10000 * 1e8),
+                voteBalance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(10000 * 1e8),
             });
 
-            expect(calculateApproval(delegate, 1)).toBe(1);
+            expect(calculateApproval(crypto.CryptoManager, delegate, 1)).toBe(1);
         });
 
         it("should calculate correctly with default height 1", () => {
@@ -50,10 +54,10 @@ describe("Delegate Calculator", () => {
 
             delegate.setAttribute("delegate", {
                 producedBlocks: 0,
-                voteBalance: Utils.BigNumber.make(10000 * 1e8),
+                voteBalance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(10000 * 1e8),
             });
 
-            expect(calculateApproval(delegate)).toBe(1);
+            expect(calculateApproval(crypto.CryptoManager, delegate)).toBe(1);
         });
 
         it("should calculate correctly with 2 decimals", () => {
@@ -61,10 +65,10 @@ describe("Delegate Calculator", () => {
 
             delegate.setAttribute("delegate", {
                 producedBlocks: 0,
-                voteBalance: Utils.BigNumber.make(16500 * 1e8),
+                voteBalance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(16500 * 1e8),
             });
 
-            expect(calculateApproval(delegate, 1)).toBe(1.65);
+            expect(calculateApproval(crypto.CryptoManager, delegate, 1)).toBe(1.65);
         });
     });
 
@@ -74,11 +78,11 @@ describe("Delegate Calculator", () => {
 
             delegate.setAttribute("delegate", {
                 producedBlocks: 0,
-                forgedFees: Utils.BigNumber.make(10),
-                forgedRewards: Utils.BigNumber.make(100),
+                forgedFees: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(10),
+                forgedRewards: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(100),
             });
 
-            expect(calculateForgedTotal(delegate)).toBe("110");
+            expect(calculateForgedTotal(crypto.CryptoManager, delegate)).toBe("110");
         });
     });
 });

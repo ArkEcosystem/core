@@ -71,12 +71,16 @@ export class Sandbox {
      *
      * @memberof Sandbox
      */
-    public constructor() {
+    public constructor(
+        cryptoSuite: CryptoSuite.CryptoSuite = new CryptoSuite.CryptoSuite(
+            CryptoSuite.CryptoManager.findNetworkByName("testnet"),
+        ),
+    ) {
         setGracefulCleanup();
 
         this.container = new Container.Container();
 
-        this.app = new Application(this.container);
+        this.app = new Application(this.container, cryptoSuite);
     }
 
     /**

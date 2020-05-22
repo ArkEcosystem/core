@@ -4,8 +4,6 @@ import { RoundInfo } from "../contracts/shared";
 
 // todo: review the implementation
 export const isNewRound = (height: number, milestones: Array<Record<string, any>>): boolean => {
-    // const milestones = Managers.configManager.get("milestones");
-
     // Since milestones are merged, find the first milestone to introduce the delegate count.
     let milestone;
     for (let i = milestones.length - 1; i >= 0; i--) {
@@ -26,8 +24,6 @@ export const isNewRound = (height: number, milestones: Array<Record<string, any>
 
 // todo: review the implementation
 export const calculateRound = (height: number, milestones: Array<Record<string, any>>): RoundInfo => {
-    // const milestones = Managers.configManager.get("milestones");
-
     let round = 0;
     let roundHeight = 1;
     let nextRound = 0;

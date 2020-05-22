@@ -1,9 +1,8 @@
 import "jest-extended";
 
-import { Application } from "@packages/core-kernel";
+import { CryptoSuite } from "@packages/core-crypto";
+import { Application, Container } from "@packages/core-kernel";
 import { getBlockTimeLookup } from "@packages/core-kernel/src/utils/get-blocktime-lookup";
-import { Managers } from "@packages/crypto";
-import { configManager } from "@packages/crypto/src/managers";
 import { devnet } from "@packages/crypto/src/networks";
 
 afterEach(() => jest.clearAllMocks());
@@ -14,31 +13,36 @@ const milestones = [
     { height: 5, blocktime: 6 },
 ];
 
-const mockApp: Application = {
-    // @ts-ignore
-    get: () => {
-        return {
-            getBlocksByHeight: async (heights: Array<number>): Promise<Array<any>> => {
-                const result = [{ timestamp: 0 }];
-                switch (heights[0]) {
-                    case 2:
-                        result[0].timestamp = 5;
-                        return result;
-                    case 4:
-                        result[0].timestamp = 14;
-                        return result;
-                    default:
-                        throw new Error(`Test scenarios should not hit this line`);
-                }
-            },
-        };
-    },
-};
+let mockApp: Application;
+let crypto: CryptoSuite.CryptoSuite;
 
-beforeEach(() => {
+beforeAll(() => {
     const config = { ...devnet, milestones };
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+    crypto = new CryptoSuite.CryptoSuite(config);
+    mockApp = {
+        // @ts-ignore
+        get: (identifier) => {
+            if (identifier === Container.Identifiers.CryptoManager) {
+                return crypto.CryptoManager;
+            } else {
+                return {
+                    getBlocksByHeight: async (heights: Array<number>): Promise<Array<any>> => {
+                        const result = [{ timestamp: 0 }];
+                        switch (heights[0]) {
+                            case 2:
+                                result[0].timestamp = 5;
+                                return result;
+                            case 4:
+                                result[0].timestamp = 14;
+                                return result;
+                            default:
+                                throw new Error(`Test scenarios should not hit this line`);
+                        }
+                    },
+                };
+            }
+        },
+    };
 });
 
 describe("getBlockTimeLookup", () => {

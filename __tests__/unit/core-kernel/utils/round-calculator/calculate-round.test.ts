@@ -1,14 +1,19 @@
 import "jest-extended";
 
-import { Managers } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@packages/core-crypto/src";
 import { calculateRound, isNewRound } from "@packages/core-kernel/src/utils/round-calculator";
+
+const crypto = new CryptoSuite.CryptoSuite();
 
 describe("Round Calculator", () => {
     describe("calculateRound", () => {
         describe("static delegate count", () => {
             it("should calculate the round when nextRound is the same", () => {
                 for (let i = 0, height = 51; i < 1000; i++, height += 51) {
-                    const { round, nextRound } = calculateRound(height - 1);
+                    const { round, nextRound } = calculateRound(
+                        height - 1,
+                        crypto.CryptoManager.MilestoneManager.getMilestones(),
+                    );
                     expect(round).toBe(i + 1);
                     expect(nextRound).toBe(i + 1);
                 }
@@ -16,7 +21,10 @@ describe("Round Calculator", () => {
 
             it("should calculate the round when nextRound is not the same", () => {
                 for (let i = 0, height = 51; i < 1000; i++, height += 51) {
-                    const { round, nextRound } = calculateRound(height);
+                    const { round, nextRound } = calculateRound(
+                        height,
+                        crypto.CryptoManager.MilestoneManager.getMilestones(),
+                    );
                     expect(round).toBe(i + 1);
                     expect(nextRound).toBe(i + 2);
                 }
@@ -25,7 +33,10 @@ describe("Round Calculator", () => {
             it("should calculate the correct round", () => {
                 const activeDelegates = 51;
                 for (let i = 0; i < 1000; i++) {
-                    const { round, nextRound } = calculateRound(i + 1);
+                    const { round, nextRound } = calculateRound(
+                        i + 1,
+                        crypto.CryptoManager.MilestoneManager.getMilestones(),
+                    );
                     expect(round).toBe(Math.floor(i / activeDelegates) + 1);
                     expect(nextRound).toBe(Math.floor((i + 1) / activeDelegates) + 1);
                 }
@@ -46,15 +57,11 @@ describe("Round Calculator", () => {
 
                 const milestones = testVector.reduce((acc, vector) => acc.set(vector.height, vector), new Map());
 
-                Managers.configManager.set("milestones", [...milestones.values()]);
-
-                Managers.configManager.getMilestone = jest.fn().mockImplementation((height) => milestones.get(height));
-
                 testVector.forEach(({ height, round, roundHeight, nextRound, activeDelegates }) => {
-                    const result = calculateRound(height);
+                    const result = calculateRound(height, [...milestones.values()]);
                     expect(result.round).toBe(round);
                     expect(result.roundHeight).toBe(roundHeight);
-                    expect(isNewRound(result.roundHeight)).toBeTrue();
+                    expect(isNewRound(result.roundHeight, [...milestones.values()])).toBeTrue();
                     expect(result.nextRound).toBe(nextRound);
                     expect(result.maxDelegates).toBe(activeDelegates);
                 });

@@ -6,7 +6,7 @@ import {
     hasOrCriteria,
     optimizeExpression,
     someOrCriteria,
-} from "../../../../packages/core-kernel/src/utils/search";
+} from "@packages/core-kernel/src/utils/search";
 
 type UserEntity = {
     id: number;

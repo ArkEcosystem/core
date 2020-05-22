@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import { Enums, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces as BlockInterfaces } from "@packages/core-crypto";
 import {
     calculateLockExpirationStatus,
     calculateTransactionExpiration,
@@ -54,7 +55,7 @@ describe("Calculate Transaction Expiration", () => {
 
 describe("Calculate Lock Expiration Status", () => {
     it("should return false when expiration value is higher than block timestamp", () => {
-        const lastBlock = { data: { timestamp: 1000 } } as Interfaces.IBlock;
+        const lastBlock = { data: { timestamp: 1000 } } as BlockInterfaces.IBlock;
         const expiration = {
             type: Enums.HtlcLockExpirationType.EpochTimestamp,
             value: 1001,
@@ -66,7 +67,7 @@ describe("Calculate Lock Expiration Status", () => {
     });
 
     it("should return true when expiration value isn't higher than block timestamp", () => {
-        const lastBlock = { data: { timestamp: 1000 } } as Interfaces.IBlock;
+        const lastBlock = { data: { timestamp: 1000 } } as BlockInterfaces.IBlock;
         const expiration = {
             type: Enums.HtlcLockExpirationType.EpochTimestamp,
             value: 1000,
@@ -78,7 +79,7 @@ describe("Calculate Lock Expiration Status", () => {
     });
 
     it("should return false when expiration value is higher than block height", () => {
-        const lastBlock = { data: { height: 1000 } } as Interfaces.IBlock;
+        const lastBlock = { data: { height: 1000 } } as BlockInterfaces.IBlock;
         const expiration = {
             type: Enums.HtlcLockExpirationType.BlockHeight,
             value: 1001,
@@ -90,7 +91,7 @@ describe("Calculate Lock Expiration Status", () => {
     });
 
     it("should return true when expiration value isn't higher than block height", () => {
-        const lastBlock = { data: { height: 1000 } } as Interfaces.IBlock;
+        const lastBlock = { data: { height: 1000 } } as BlockInterfaces.IBlock;
         const expiration = {
             type: Enums.HtlcLockExpirationType.BlockHeight,
             value: 1000,
