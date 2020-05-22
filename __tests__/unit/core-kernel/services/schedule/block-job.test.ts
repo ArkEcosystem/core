@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto/src";
 import { BlockEvent } from "@packages/core-kernel/src/enums/events";
 import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
@@ -8,9 +9,12 @@ import { BlockJob } from "@packages/core-kernel/src/services/schedule/block-job"
 let job: BlockJob;
 let eventDispatcher: MemoryEventDispatcher;
 beforeEach(() => {
+    const crypto = new CryptoSuite.CryptoSuite();
+
     const container: interfaces.Container = new Container();
     eventDispatcher = container.resolve<MemoryEventDispatcher>(MemoryEventDispatcher);
     container.bind(Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);
+    container.bind(Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
 
     job = container.resolve(BlockJob);
 });
