@@ -128,7 +128,7 @@ export class Command extends Commands.Command {
                 title: "Loading private key.",
                 task: () => {
                     // @ts-ignore
-                    decodedWIF = wif.decode(Identities.WIF.fromPassphrase(flags.bip39));
+                    decodedWIF = wif.decode(this.cryptoManager.Identities.Wif.fromPassphrase(flags.bip39));
                 },
             },
             {

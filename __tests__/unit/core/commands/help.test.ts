@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Container } from "@arkecosystem/core-cli";
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import { Command } from "@packages/core/src/commands/help";
 
 let cli;

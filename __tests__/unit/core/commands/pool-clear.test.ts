@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Console } from "@packages/core-test-framework";
+import { Console } from "@packages/core-test-framework/src";
 import { Command } from "@packages/core/src/commands/pool-clear";
 import fs from "fs-extra";
 import prompts from "prompts";

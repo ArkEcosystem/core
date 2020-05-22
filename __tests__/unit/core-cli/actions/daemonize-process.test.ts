@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-cli";
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import { DaemonizeProcess } from "@packages/core-cli/src/actions";
 import os from "os";
 

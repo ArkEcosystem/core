@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-cli";
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import { Info } from "@packages/core-cli/src/components";
 import { white } from "kleur";
 

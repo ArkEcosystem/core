@@ -1,7 +1,7 @@
 // public mute() {
 // public unmute() {
 
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import { Output } from "@packages/core-cli/src/output";
 
 let cli;

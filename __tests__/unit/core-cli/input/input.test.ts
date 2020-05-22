@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import Joi from "@hapi/joi";
 import { Input, InputDefinition } from "@packages/core-cli/src/input";
 

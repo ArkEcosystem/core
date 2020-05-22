@@ -1,4 +1,4 @@
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import { DiscoverNetwork } from "@packages/core-cli/src/commands";
 import envPaths from "env-paths";
 import { ensureDirSync } from "fs-extra";

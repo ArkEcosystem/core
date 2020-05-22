@@ -1,4 +1,4 @@
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import { ComponentFactory, Container } from "@packages/core-cli/src";
 
 let cli;

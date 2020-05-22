@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-cli";
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import Joi from "@hapi/joi";
 import { Command } from "@packages/core-cli/src/commands";
 import { setGracefulCleanup } from "tmp";

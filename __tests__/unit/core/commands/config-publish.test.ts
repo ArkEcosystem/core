@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-cli";
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import { Command } from "@packages/core/src/commands/config-publish";
 import fs from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";

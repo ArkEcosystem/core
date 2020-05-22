@@ -1,4 +1,4 @@
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import { Command } from "@packages/core/src/commands/env-set";
 import envfile from "envfile";
 import { ensureFileSync, removeSync } from "fs-extra";

@@ -1,6 +1,5 @@
 import { Container } from "@arkecosystem/core-cli";
-import { Console } from "@arkecosystem/core-test-framework";
-import { AbortErroredProcess } from "@packages/core-cli/src/actions";
+import { Console } from "@arkecosystem/core-test-framework/src";import { AbortErroredProcess } from "@packages/core-cli/src/actions";
 
 const processName: string = "ark-core";
 

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Console } from "@arkecosystem/core-test-framework";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import { Command } from "@packages/core/src/commands/network-generate";
 import fs from "fs-extra";
 import { resolve } from "path";

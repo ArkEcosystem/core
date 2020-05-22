@@ -1,7 +1,7 @@
-import { Console } from "@arkecosystem/core-test-framework";
-import { Command } from "@packages/core/src/commands/snapshot-dump";
+import { Console } from "@arkecosystem/core-test-framework/src";
 import { Application, Container } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-snapshots";
+import { Command } from "@packages/core/src/commands/snapshot-dump";
 import { join, resolve } from "path";
 
 let cli;

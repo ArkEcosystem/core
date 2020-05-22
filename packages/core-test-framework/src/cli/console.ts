@@ -1,4 +1,6 @@
 import { Application, ApplicationFactory, Commands, Container, Services, Utils } from "@arkecosystem/core-cli";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
+import { Container as KernelContainer } from "@arkecosystem/core-kernel";
 
 /**
  * @export
@@ -33,8 +35,16 @@ export class Console {
     /**
      * @memberof Console
      */
-    public constructor(private useDefaultFlags = true) {
+    public constructor(
+        private useDefaultFlags = true,
+        cryptoSuite: CryptoSuite.CryptoSuite = new CryptoSuite.CryptoSuite(
+            CryptoSuite.CryptoManager.findNetworkByName("testnet"),
+        ),
+    ) {
         this.app = this.createApplication();
+        this.app.bind(KernelContainer.Identifiers.CryptoManager).toConstantValue(cryptoSuite.CryptoManager);
+        this.app.bind(KernelContainer.Identifiers.TransactionManager).toConstantValue(cryptoSuite.TransactionManager);
+        this.app.bind(KernelContainer.Identifiers.BlockFactory).toConstantValue(cryptoSuite.BlockFactory);
     }
 
     /**
