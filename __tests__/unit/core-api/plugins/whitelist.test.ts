@@ -24,10 +24,6 @@ describe("Whitelist", () => {
                 },
                 whitelist: ["127.0.0.1"],
             },
-            options: {
-                estimateTotalCount: true,
-                chooseEstimateTotalCount: false,
-            },
         };
 
         customRoute = {

@@ -40,6 +40,5 @@ export const defaults = {
     },
     options: {
         estimateTotalCount: !process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT,
-        chooseEstimateTotalCount: !!process.env.CORE_API_CHOOSE_ESTIMATE_TOTAL_COUNT,
     },
 };

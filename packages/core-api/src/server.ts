@@ -53,7 +53,6 @@ export class Server {
             pagination: {
                 limit: this.configuration.getRequired<number>("plugins.pagination.limit"),
             },
-            options: this.configuration.getRequired("options"),
         });
 
         this.server.ext({

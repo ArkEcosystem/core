@@ -25,7 +25,7 @@ export class BlocksController extends Controller {
             request.query,
             this.getListingOrder(request),
             this.getListingPage(request),
-            this.getListingOptions(request),
+            this.getListingOptions(),
         );
 
         return this.toPagination(blockListResult, BlockResource, request.query.transform);
@@ -60,7 +60,7 @@ export class BlocksController extends Controller {
             criteria,
             this.getListingOrder(request),
             this.getListingPage(request),
-            this.getListingOptions(request),
+            this.getListingOptions(),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -71,7 +71,7 @@ export class BlocksController extends Controller {
             request.payload,
             this.getListingOrder(request),
             this.getListingPage(request),
-            this.getListingOptions(request),
+            this.getListingOptions(),
         );
 
         return this.toPagination(blockListResult, BlockResource, request.query.transform);

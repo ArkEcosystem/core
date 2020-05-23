@@ -24,10 +24,6 @@ describe("Pagination", () => {
                     limit: 100,
                 },
             },
-            options: {
-                estimateTotalCount: true,
-                chooseEstimateTotalCount: false,
-            },
         };
 
         customResponse = ["Item1", "Item2", "Item3"];

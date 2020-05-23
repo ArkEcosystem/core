@@ -4,10 +4,6 @@ type SchemaSettings = {
     pagination: {
         limit: number;
     };
-    options: {
-        estimateTotalCount: boolean;
-        chooseEstimateTotalCount: boolean;
-    };
 };
 
 export const createSchemas = (settings: SchemaSettings) => {
@@ -68,10 +64,6 @@ export const createSchemas = (settings: SchemaSettings) => {
         /^[a-z._]{1,40}:(asc|desc)$/i,
         "orderBy query parameter (<iteratee>:<direction>)",
     );
-
-    const estimateTotalCount = settings.options.chooseEstimateTotalCount
-        ? Joi.bool().default(settings.options.estimateTotalCount)
-        : Joi.bool().default(settings.options.estimateTotalCount).valid(settings.options.estimateTotalCount);
 
     const equalCriteria = (value: any) => value;
     const numericCriteria = (value: any) =>
@@ -134,7 +126,6 @@ export const createSchemas = (settings: SchemaSettings) => {
         numberFixedOrBetween,
         walletId,
         orderBy,
-        estimateTotalCount,
         equalCriteria,
         numericCriteria,
         likeCriteria,

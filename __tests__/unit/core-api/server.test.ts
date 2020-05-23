@@ -28,10 +28,6 @@ describe("Server", () => {
                 },
                 whitelist: ["*"],
             },
-            options: {
-                estimateTotalCount: true,
-                chooseEstimateTotalCount: false,
-            },
         };
 
         serverConfig = {
