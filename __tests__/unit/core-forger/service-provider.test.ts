@@ -1,6 +1,7 @@
-import { ServiceProvider } from "@arkecosystem/core-forger/src/service-provider";
-import { DelegateFactory } from "@arkecosystem/core-forger/src/delegate-factory";
-import { Container, Application, Providers } from "@arkecosystem/core-kernel";
+import { ServiceProvider } from "@packages/core-forger/src/service-provider";
+import { DelegateFactory } from "@packages/core-forger/src/delegate-factory";
+import { Container, Application, Providers } from "@packages/core-kernel";
+import { Pm2ProcessActionsService } from "@packages/core-kernel/src/services/process-actions/drivers/pm2";
 
 describe("ServiceProvider", () => {
     let app: Application;
@@ -20,6 +21,7 @@ describe("ServiceProvider", () => {
         app.bind(Container.Identifiers.WalletRepository).toConstantValue({});
         app.bind(Container.Identifiers.TriggerService).toConstantValue(triggerService);
         app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+        app.bind(Container.Identifiers.ProcessActionsService).to(Pm2ProcessActionsService).inSingletonScope();
 
         app.config("delegates", { secrets: [], bip38: "dummy bip 38" });
         app.config("app", { flags: { bip38: "dummy bip 38", password: "dummy pwd" } });
