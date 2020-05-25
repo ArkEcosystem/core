@@ -54,6 +54,7 @@ export class DelegatesController extends Controller {
             criteria,
             this.getListingOrder(request),
             this.getListingPage(request),
+            this.getListingOptions(),
         );
 
         return this.toPagination(blockListResult, BlockResource, request.query.transform);

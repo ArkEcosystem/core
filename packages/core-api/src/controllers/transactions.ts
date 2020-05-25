@@ -30,6 +30,7 @@ export class TransactionsController extends Controller {
             request.query,
             this.getListingOrder(request),
             this.getListingPage(request),
+            this.getListingOptions(),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -89,6 +90,7 @@ export class TransactionsController extends Controller {
             request.payload,
             this.getListingOrder(request),
             this.getListingPage(request),
+            this.getListingOptions(),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);

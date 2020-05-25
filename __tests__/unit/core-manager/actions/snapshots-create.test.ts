@@ -8,7 +8,7 @@ let sandbox: Sandbox;
 let action: Action;
 
 const mockSnapshotManager = {
-    start: jest.fn(),
+    dump: jest.fn(),
 };
 
 beforeEach(() => {
@@ -33,7 +33,7 @@ describe("Snapshots:Create", () => {
     });
 
     it("should return error if manager throws error", async () => {
-        mockSnapshotManager.start.mockImplementation(async () => {
+        mockSnapshotManager.dump.mockImplementation(async () => {
             throw new Error();
         });
 

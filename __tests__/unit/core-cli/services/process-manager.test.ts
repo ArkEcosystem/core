@@ -468,6 +468,24 @@ describe("ProcessManager", () => {
         });
     });
 
+    describe("#trigger", () => {
+        it(".trigger()", () => {
+            // Arrange...
+            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+                stdout: null,
+                stderr: undefined,
+                failed: false,
+            });
+
+            // Act...
+            const { failed } = processManager.trigger("ark-core", "module.name", "params");
+
+            // Assert...
+            expect(failed).toBeFalse();
+            expect(spySync).toHaveBeenCalledWith("pm2 trigger ark-core module.name params", { shell: true });
+        });
+    });
+
     describe("#status", () => {
         it("should return the status if the process exists", () => {
             // Arrange...
