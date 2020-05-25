@@ -16,6 +16,13 @@ const mockSnapshotService = {
             }, 500);
         });
     },
+    restore: () => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, 500);
+        });
+    },
 };
 
 beforeEach(() => {
@@ -28,21 +35,43 @@ beforeEach(() => {
 });
 
 describe("Snapshots:Create", () => {
-    it("should resolve if no actions is running", async () => {
-        await expect(snapshotsManager.start("dummy_name", {})).toResolve();
+    describe("Dump", () => {
+        it("should resolve if no actions is running", async () => {
+            await expect(snapshotsManager.dump({} as any)).toResolve();
 
-        // Delay
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, 800);
+            // Delay
+            await new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, 800);
+            });
+
+            await expect(snapshotsManager.dump({} as any)).toResolve();
         });
 
-        await expect(snapshotsManager.start("dummy_name", {})).toResolve();
+        it("should throw if another action is running", async () => {
+            await expect(snapshotsManager.dump({} as any)).toResolve();
+            await expect(snapshotsManager.dump({} as any)).rejects.toThrow();
+        });
     });
 
-    it("should throw if another action is running", async () => {
-        await expect(snapshotsManager.start("dummy_name", {})).toResolve();
-        await expect(snapshotsManager.start("dummy_name", {})).rejects.toThrow();
+    describe("Restore", () => {
+        it("should resolve if no actions is running", async () => {
+            await expect(snapshotsManager.restore({} as any)).toResolve();
+
+            // Delay
+            await new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, 800);
+            });
+
+            await expect(snapshotsManager.restore({} as any)).toResolve();
+        });
+
+        it("should throw if another action is running", async () => {
+            await expect(snapshotsManager.restore({} as any)).toResolve();
+            await expect(snapshotsManager.restore({} as any)).rejects.toThrow();
+        });
     });
 });

@@ -33,7 +33,7 @@ export class Action implements Actions.Action {
     private readonly snapshotManager!: SnapshotsManager;
 
     public async execute(params: any): Promise<any> {
-        await this.snapshotManager.start("snapshot:create", {
+        await this.snapshotManager.dump({
             network: this.app.network(),
             ...params,
         });
