@@ -38,10 +38,8 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
     ): Promise<Contracts.Search.ListResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getExpression(criteria);
         const modelListResult = await this.transactionRepository.listByExpression(expression, order, page, options);
-        const dataListResult = {
-            ...modelListResult,
-            rows: this.transactionModelConverter.getTransactionData(modelListResult.rows),
-        };
-        return dataListResult;
+        const models = modelListResult.rows;
+        const data = this.transactionModelConverter.getTransactionData(models);
+        return { ...modelListResult, rows: data };
     }
 }
