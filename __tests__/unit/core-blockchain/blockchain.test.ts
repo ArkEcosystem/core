@@ -238,6 +238,120 @@ describe("Blockchain", () => {
             blockchain.enqueueBlocks = enqueueBlocks;
         });
 
+        it("should handle block from forger if in right slot", () => {
+            blockchain.state.started = true;
+            const dispatch = blockchain.dispatch;
+            const enqueueBlocks = blockchain.enqueueBlocks;
+            blockchain.dispatch = jest.fn(() => true);
+            blockchain.enqueueBlocks = jest.fn(() => true);
+
+            const block = {
+                height: 100,
+                timestamp: Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber()),
+            };
+
+            // @ts-ignore
+            blockchain.handleIncomingBlock(block, false);
+
+            expect(blockchain.dispatch).toHaveBeenCalled();
+            expect(blockchain.enqueueBlocks).toHaveBeenCalled();
+
+            blockchain.dispatch = dispatch;
+            blockchain.enqueueBlocks = enqueueBlocks;
+        });
+
+        it("should not handle block from forger if in wrong slot", () => {
+            blockchain.state.started = true;
+            const dispatch = blockchain.dispatch;
+            const enqueueBlocks = blockchain.enqueueBlocks;
+            blockchain.dispatch = jest.fn(() => true);
+            blockchain.enqueueBlocks = jest.fn(() => true);
+
+            const block = {
+                height: 100,
+                timestamp: Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber() - 1),
+            };
+
+            // @ts-ignore
+            blockchain.handleIncomingBlock(block, true);
+
+            expect(blockchain.dispatch).not.toHaveBeenCalled();
+            expect(blockchain.enqueueBlocks).not.toHaveBeenCalled();
+
+            blockchain.dispatch = dispatch;
+            blockchain.enqueueBlocks = enqueueBlocks;
+        });
+
+        it("should handle block if not from forger if in wrong slot", () => {
+            blockchain.state.started = true;
+            const dispatch = blockchain.dispatch;
+            const enqueueBlocks = blockchain.enqueueBlocks;
+            blockchain.dispatch = jest.fn(() => true);
+            blockchain.enqueueBlocks = jest.fn(() => true);
+
+            const block = {
+                height: 100,
+                timestamp: Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber() - 1),
+            };
+
+            // @ts-ignore
+            blockchain.handleIncomingBlock(block, false);
+
+            expect(blockchain.dispatch).toHaveBeenCalled();
+            expect(blockchain.enqueueBlocks).toHaveBeenCalled();
+
+            blockchain.dispatch = dispatch;
+            blockchain.enqueueBlocks = enqueueBlocks;
+        });
+
+        it("should not handle block from forger if less than 2 seconds left in slot", async () => {
+            blockchain.state.started = true;
+            const dispatch = blockchain.dispatch;
+            const enqueueBlocks = blockchain.enqueueBlocks;
+            blockchain.dispatch = jest.fn(() => true);
+            blockchain.enqueueBlocks = jest.fn(() => true);
+
+            const block = {
+                height: 100,
+                timestamp: Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber()),
+            };
+
+            await delay(Crypto.Slots.getTimeInMsUntilNextSlot() - 1000);
+
+            // @ts-ignore
+            blockchain.handleIncomingBlock(block, true);
+
+            expect(blockchain.dispatch).not.toHaveBeenCalled();
+            expect(blockchain.enqueueBlocks).not.toHaveBeenCalled();
+
+            blockchain.dispatch = dispatch;
+            blockchain.enqueueBlocks = enqueueBlocks;
+        }, 10000);
+
+        it("should handle block if not from forger if less than 2 seconds left in slot", async () => {
+            blockchain.state.started = true;
+            const dispatch = blockchain.dispatch;
+            const enqueueBlocks = blockchain.enqueueBlocks;
+            blockchain.dispatch = jest.fn(() => true);
+            blockchain.enqueueBlocks = jest.fn(() => true);
+
+            const block = {
+                height: 100,
+                timestamp: Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber()),
+            };
+
+            await delay(Crypto.Slots.getTimeInMsUntilNextSlot() - 1000);
+
+            // @ts-ignore
+            blockchain.handleIncomingBlock(block, false);
+
+            expect(blockchain.dispatch).toHaveBeenCalled();
+            expect(blockchain.enqueueBlocks).toHaveBeenCalled();
+
+            blockchain.dispatch = dispatch;
+            blockchain.enqueueBlocks = enqueueBlocks;
+        }, 10000);
+
         it("should disregard block when blockchain is not ready", async () => {
             blockchain.state.started = false;
             const loggerInfo = jest.spyOn(logger, "info");

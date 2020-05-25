@@ -238,6 +238,15 @@ export class Blockchain implements blockchain.IBlockchain {
         const currentSlot: number = Crypto.Slots.getSlotNumber();
         const receivedSlot: number = Crypto.Slots.getSlotNumber(block.timestamp);
 
+        if (fromForger) {
+            const minimumMs: number = 2000;
+            const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
+            if (currentSlot !== receivedSlot || timeLeftInMs < minimumMs) {
+                logger.info(`Discarded block ${block.height.toLocaleString()} because it was received too late.`);
+                return;
+            }
+        }
+
         if (receivedSlot > currentSlot) {
             logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
             return;
