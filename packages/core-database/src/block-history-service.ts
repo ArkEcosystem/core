@@ -17,16 +17,14 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
     public async findOneByCriteria(
         criteria: Contracts.Shared.OrBlockCriteria,
     ): Promise<Interfaces.IBlockData | undefined> {
-        const expression = await this.blockFilter.getExpression(criteria);
-        const model = await this.blockRepository.findOneByExpression(expression);
-        const data = model ? this.blockModelConverter.getBlockData(model) : undefined;
-        return data;
+        const data = await this.findManyByCriteria(criteria);
+        return data[0];
     }
 
     public async findManyByCriteria(criteria: Contracts.Shared.OrBlockCriteria): Promise<Interfaces.IBlockData[]> {
         const expression = await this.blockFilter.getExpression(criteria);
         const models = await this.blockRepository.findManyByExpression(expression);
-        const data = models.map((m) => this.blockModelConverter.getBlockData(m));
+        const data = this.blockModelConverter.getBlockData(models);
         return data;
     }
 
@@ -37,8 +35,11 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
         options?: Contracts.Search.ListOptions,
     ): Promise<Contracts.Search.ListResult<Interfaces.IBlockData>> {
         const expression = await this.blockFilter.getExpression(criteria);
-        const listResult = await this.blockRepository.listByExpression(expression, order, page, options);
-        const rows = listResult.rows.map((m) => this.blockModelConverter.getBlockData(m));
-        return { ...listResult, rows };
+        const modelListResult = await this.blockRepository.listByExpression(expression, order, page, options);
+        const dataListResult = {
+            ...modelListResult,
+            rows: this.blockModelConverter.getBlockData(modelListResult.rows),
+        };
+        return dataListResult;
     }
 }

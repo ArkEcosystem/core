@@ -5,11 +5,11 @@ import { Block } from "./models/block";
 
 @Container.injectable()
 export class BlockModelConverter implements Contracts.Database.BlockModelConverter {
-    public getBlockModel(block: Interfaces.IBlock): Contracts.Database.BlockModel {
-        return Object.assign(new Block(), block.data);
+    public getBlockModels(blocks: Interfaces.IBlock[]): Contracts.Database.BlockModel[] {
+        return blocks.map((b) => Object.assign(new Block(), b.data));
     }
 
-    public getBlockData(model: Contracts.Database.BlockModel): Interfaces.IBlockData {
-        return model;
+    public getBlockData(models: Contracts.Database.BlockModel[]): Interfaces.IBlockData[] {
+        return models;
     }
 }
