@@ -18,13 +18,13 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async getExpression(
-        criteria: Contracts.Shared.OrTransactionCriteria,
+        ...criteria: Contracts.Shared.OrTransactionCriteria[]
     ): Promise<Contracts.Search.Expression<Transaction>> {
-        const expression = await handleOrCriteria(criteria, (c) => {
-            return this.handleTransactionCriteria(c);
-        });
+        const expressions = await Promise.all(
+            criteria.map((c) => handleOrCriteria(c, (c) => this.handleTransactionCriteria(c))),
+        );
 
-        return optimizeExpression(expression);
+        return optimizeExpression({ op: "and", expressions });
     }
 
     private async handleTransactionCriteria(
