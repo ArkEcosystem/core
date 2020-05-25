@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Action } from "@packages/core-manager/src/actions/snapshots-create";
+import { Action } from "@packages/core-manager/src/actions/snapshots-restore";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import { Sandbox } from "@packages/core-test-framework";
 
@@ -8,7 +8,7 @@ let sandbox: Sandbox;
 let action: Action;
 
 const mockSnapshotManager = {
-    dump: jest.fn(),
+    restore: jest.fn(),
 };
 
 beforeEach(() => {
@@ -21,9 +21,9 @@ beforeEach(() => {
     action = sandbox.app.resolve(Action);
 });
 
-describe("Snapshots:Create", () => {
+describe("Snapshots:Restore", () => {
     it("should have name", () => {
-        expect(action.name).toEqual("snapshots.create");
+        expect(action.name).toEqual("snapshots.restore");
     });
 
     it("should return empty object if ok", async () => {
@@ -33,7 +33,7 @@ describe("Snapshots:Create", () => {
     });
 
     it("should return error if manager throws error", async () => {
-        mockSnapshotManager.dump.mockImplementation(async () => {
+        mockSnapshotManager.restore.mockImplementation(async () => {
             throw new Error();
         });
 
