@@ -17,7 +17,6 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.blockCriteriaSchemas,
                     ...server.app.schemas.pagination,
                     orderBy: server.app.schemas.orderBy,
-                    estimateTotalCount: server.app.schemas.estimateTotalCount,
                     transform: Joi.bool().default(true),
                 }),
             },
@@ -79,7 +78,6 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.transactionCriteriaSchemas,
                     ...server.app.schemas.pagination,
                     orderBy: server.app.schemas.orderBy,
-                    estimateTotalCount: server.app.schemas.estimateTotalCount,
                     transform: Joi.bool().default(true),
                 }),
             },
@@ -95,7 +93,6 @@ export const register = (server: Hapi.Server): void => {
                 query: Joi.object({
                     ...server.app.schemas.pagination,
                     orderBy: server.app.schemas.orderBy,
-                    estimateTotalCount: server.app.schemas.estimateTotalCount,
                     transform: Joi.bool().default(true),
                 }),
                 payload: Joi.object({
