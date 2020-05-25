@@ -280,7 +280,7 @@ describe("BlockRepository.listByExpression", () => {
                 { property: "id", direction: "desc" },
             ],
             { offset: 0, limit: 2 },
-            { estimateCount: false },
+            { estimateTotalCount: false },
         );
         expect(listResult).toStrictEqual({
             rows: [toBlockModel(block3), toBlockModel(block2)],
