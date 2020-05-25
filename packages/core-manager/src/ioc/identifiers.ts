@@ -6,4 +6,5 @@ export const Identifiers = {
     PluginFactory: Symbol.for("Factory<Plugin>"),
     BasicCredentialsValidator: Symbol.for("Validator<BasicCreadentials>"),
     TokenValidator: Symbol.for("Validator<Token>"),
+    SnapshotsManager: Symbol.for("Manager<Snapshots>"),
 };
