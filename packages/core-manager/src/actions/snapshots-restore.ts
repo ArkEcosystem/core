@@ -6,22 +6,19 @@ import { SnapshotsManager } from "../snapshots/snapshots-manager";
 
 @Container.injectable()
 export class Action implements Actions.Action {
-    public name = "snapshots.create";
+    public name = "snapshots.restore";
 
     public schema = {
         type: "object",
         properties: {
-            codec: {
+            blocks: {
                 type: "string",
             },
-            skipCompression: {
+            truncate: {
                 type: "boolean",
             },
-            start: {
-                type: "number",
-            },
-            end: {
-                type: "number",
+            verify: {
+                type: "boolean",
             },
         },
     };
@@ -33,7 +30,7 @@ export class Action implements Actions.Action {
     private readonly snapshotManager!: SnapshotsManager;
 
     public async execute(params: any): Promise<any> {
-        await this.snapshotManager.dump({
+        await this.snapshotManager.restore({
             network: this.app.network(),
             ...params,
         });
