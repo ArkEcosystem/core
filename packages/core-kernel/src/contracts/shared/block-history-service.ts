@@ -29,7 +29,8 @@ export type BlockCriteria = {
 
 export type OrBlockCriteria = OrCriteria<BlockCriteria>;
 
-export type BlockDataWithTransactionData = Interfaces.IBlockData & {
+export type BlockDataWithTransactionData = {
+    data: Interfaces.IBlockData;
     transactions: Interfaces.ITransactionData[];
 };
 

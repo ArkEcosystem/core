@@ -1,9 +1,9 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Enums } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { BlockResource, TransactionResource } from "../resources";
+import { BlockResource, BlockWithTransactionsResource, TransactionResource } from "../resources";
 import { Controller } from "./controller";
 
 @Container.injectable()
@@ -21,42 +21,81 @@ export class BlocksController extends Controller {
     private readonly stateStore!: Contracts.State.StateStore;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blockListResult = await this.blockHistoryService.listByCriteria(
-            request.query,
-            this.getListingOrder(request),
-            this.getListingPage(request),
-        );
+        if (request.query.transform) {
+            const blockWithSomeTransactionsListResult = await this.blockHistoryService.listByCriteriaJoinTransactions(
+                request.query,
+                { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
+                this.getListingOrder(request),
+                this.getListingPage(request),
+            );
 
-        return this.toPagination(blockListResult, BlockResource, request.query.transform);
+            return this.toPagination(blockWithSomeTransactionsListResult, BlockWithTransactionsResource, true);
+        } else {
+            const blockListResult = await this.blockHistoryService.listByCriteria(
+                request.query,
+                this.getListingOrder(request),
+                this.getListingPage(request),
+            );
+
+            return this.toPagination(blockListResult, BlockResource, false);
+        }
     }
 
     public async first(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const block = this.stateStore.getGenesisBlock().data;
-        return super.respondWithResource(block, BlockResource, request.query.transform);
+        const block = this.stateStore.getGenesisBlock();
+
+        if (request.query.transform) {
+            return this.respondWithResource(block, BlockWithTransactionsResource, true);
+        } else {
+            return this.respondWithResource(block.data, BlockResource, false);
+        }
     }
 
     public async last(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const block = this.blockchain.getLastBlock().data;
-        return super.respondWithResource(block, BlockResource, request.query.transform);
+        const block = this.blockchain.getLastBlock();
+
+        if (request.query.transform) {
+            return this.respondWithResource(block, BlockWithTransactionsResource, true);
+        } else {
+            return this.respondWithResource(block.data, BlockResource, false);
+        }
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const block = await this.findBlockByIdOrHeight(request.params.id);
-        if (!block) {
-            return Boom.notFound("Block not found");
+        if (request.query.transform) {
+            const blockCriteria = this.getBlockCriteriaByIdOrHeight(request.params.id);
+            const transactionCriteria = {
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.MultiPayment,
+            };
+            const block = await this.blockHistoryService.findOneByCriteriaJoinTransactions(
+                blockCriteria,
+                transactionCriteria,
+            );
+            if (!block) {
+                return Boom.notFound("Block not found");
+            }
+            return this.respondWithResource(block, BlockWithTransactionsResource, true);
+        } else {
+            const blockCriteria = this.getBlockCriteriaByIdOrHeight(request.params.id);
+            const blockData = await this.blockHistoryService.findOneByCriteria(blockCriteria);
+            if (!blockData) {
+                return Boom.notFound("Block not found");
+            }
+            return this.respondWithResource(blockData, BlockResource, false);
         }
-        return this.respondWithResource(block, BlockResource, request.query.transform);
     }
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const block = await this.findBlockByIdOrHeight(request.params.id);
-        if (!block) {
+        const blockCriteria = this.getBlockCriteriaByIdOrHeight(request.params.id);
+        const blockData = await this.blockHistoryService.findOneByCriteria(blockCriteria);
+        if (!blockData) {
             return Boom.notFound("Block not found");
         }
 
-        const criteria = { ...request.query, blockId: block.id! };
+        const transactionCriteria = { ...request.query, blockId: blockData.id! };
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            criteria,
+            transactionCriteria,
             this.getListingOrder(request),
             this.getListingPage(request),
         );
@@ -65,22 +104,28 @@ export class BlocksController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const blockListResult = await this.blockHistoryService.listByCriteria(
-            request.payload,
-            this.getListingOrder(request),
-            this.getListingPage(request),
-        );
+        if (request.transform) {
+            const blockWithSomeTransactionsListResult = await this.blockHistoryService.listByCriteriaJoinTransactions(
+                request.query,
+                { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
+                this.getListingOrder(request),
+                this.getListingPage(request),
+            );
 
-        return this.toPagination(blockListResult, BlockResource, request.query.transform);
+            return this.toPagination(blockWithSomeTransactionsListResult, BlockWithTransactionsResource, true);
+        } else {
+            const blockListResult = await this.blockHistoryService.listByCriteria(
+                request.payload,
+                this.getListingOrder(request),
+                this.getListingPage(request),
+            );
+
+            return this.toPagination(blockListResult, BlockResource, false);
+        }
     }
 
-    private findBlockByIdOrHeight(idOrHeight: string): Promise<Interfaces.IBlockData | undefined> {
+    private getBlockCriteriaByIdOrHeight(idOrHeight: string): Contracts.Shared.OrBlockCriteria {
         const asHeight = parseFloat(idOrHeight);
-
-        if (asHeight && asHeight <= this.blockchain.getLastHeight()) {
-            return this.blockHistoryService.findOneByCriteria({ height: asHeight });
-        } else {
-            return this.blockHistoryService.findOneByCriteria({ id: idOrHeight });
-        }
+        return asHeight && asHeight <= this.blockchain.getLastHeight() ? { height: asHeight } : { id: idOrHeight };
     }
 }

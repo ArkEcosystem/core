@@ -23,9 +23,9 @@ export class BlockModelConverter implements Contracts.Database.BlockModelConvert
         const blockData = this.getBlockData(blockModels);
         const transactionData = this.transactionModelConverter.getTransactionData(transactionModels);
 
-        const blockDataWithTransactions = blockData.map((blockDataEntry) => {
-            const transactions = transactionData.filter((t) => t.blockId === blockDataEntry.id);
-            return Object.assign({}, blockDataEntry, { transactions });
+        const blockDataWithTransactions = blockData.map((data) => {
+            const transactions = transactionData.filter((t) => t.blockId === data.id);
+            return { data, transactions };
         });
 
         return blockDataWithTransactions;
