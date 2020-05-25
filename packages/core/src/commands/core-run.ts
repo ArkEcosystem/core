@@ -58,7 +58,7 @@ export class Command extends Commands.Command {
         const flags: Contracts.AnyObject = { ...this.getFlags() };
         flags.processType = "core";
 
-        this.actions.abortRunningProcess(`${flags.token}-core`);
+        // this.actions.abortRunningProcess(`${flags.token}-core`);
 
         await Utils.buildApplication({
             flags,

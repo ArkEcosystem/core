@@ -119,6 +119,14 @@ describe("ForgerService", () => {
         };
     });
 
+    describe("GetRound", () => {
+        it("should return undefined", async () => {
+            forgerService.register({ hosts: [mockHost] });
+
+            expect(forgerService.getRound()).toBeUndefined();
+        });
+    });
+
     describe("Register", () => {
         it("should register an associated client", async () => {
             forgerService.register({ hosts: [mockHost] });

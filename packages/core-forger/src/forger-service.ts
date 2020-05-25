@@ -67,6 +67,10 @@ export class ForgerService {
      */
     private initialized: boolean = false;
 
+    public getRound(): Contracts.P2P.CurrentRound | undefined {
+        return this.round;
+    }
+
     /**
      * @param {*} options
      * @memberof ForgerService
