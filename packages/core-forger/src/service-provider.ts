@@ -5,6 +5,7 @@ import { DelegateFactory } from "./delegate-factory";
 import { DelegateTracker } from "./delegate-tracker";
 import { ForgerService } from "./forger-service";
 import { Delegate } from "./interfaces";
+import { CurrentDelegateProcessAction } from "./process-actions";
 
 /**
  * @export
@@ -22,6 +23,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.get<ForgerService>(Container.Identifiers.ForgerService).register(this.config().all()); // ? why it isn't in boot?
 
         this.registerActions();
+
+        this.registerProcessActions();
     }
 
     /**
@@ -70,6 +73,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .bind("isForgingAllowed", new IsForgingAllowedAction());
+    }
+
+    private registerProcessActions(): void {
+        this.app
+            .get<Contracts.Kernel.ProcessActionsService>(Container.Identifiers.ProcessActionsService)
+            .register(this.app.resolve(CurrentDelegateProcessAction));
     }
 
     /**
