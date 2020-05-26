@@ -3,9 +3,11 @@ import { Container, Providers, Types } from "@arkecosystem/core-kernel";
 
 import { ActionReader } from "./action-reader";
 import { Identifiers } from "./ioc";
+import Handlers from "./server/handlers";
 import { PluginFactory } from "./server/plugins";
 import { Server } from "./server/server";
 import { Argon2id, SimpleTokenValidator } from "./server/validators";
+import { SnapshotsManager } from "./snapshots/snapshots-manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -13,6 +15,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
         this.app.bind(Identifiers.BasicCredentialsValidator).to(Argon2id).inSingletonScope();
         this.app.bind(Identifiers.TokenValidator).to(SimpleTokenValidator).inSingletonScope();
+        this.app.bind(Identifiers.SnapshotsManager).to(SnapshotsManager).inSingletonScope();
 
         const pkg: Types.PackageJson = require("../package.json");
         this.app.bind(Identifiers.CLI).toConstantValue(ApplicationFactory.make(new Container.Container(), pkg));
@@ -66,6 +69,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     cors: true,
                 },
             },
+        });
+
+        await server.register({
+            plugin: Handlers,
         });
     }
 }

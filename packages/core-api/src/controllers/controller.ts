@@ -1,4 +1,4 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -8,6 +8,10 @@ import { Resource } from "../interfaces";
 export class Controller {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-api")
+    protected readonly apiConfiguration!: Providers.PluginConfiguration;
 
     protected getListingPage(request: Hapi.Request): Contracts.Search.ListPage {
         const pagination = {
@@ -31,6 +35,14 @@ export class Controller {
             property: s.split(":")[0],
             direction: s.split(":")[1] === "desc" ? "desc" : "asc",
         }));
+    }
+
+    protected getListingOptions(): Contracts.Search.ListOptions {
+        const options: Contracts.Search.ListOptions = {
+            estimateTotalCount: this.apiConfiguration.getOptional<boolean>("options.estimateTotalCount", true),
+        };
+
+        return options;
     }
 
     protected respondWithResource(data, transformer, transform = true): any {

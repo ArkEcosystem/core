@@ -19,7 +19,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
     @Container.inject(Container.Identifiers.CryptoManager)
     private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
-    public async dump(options: any): Promise<void> {
+    public async dump(options: Contracts.Snapshot.DumpOptions): Promise<void> {
         try {
             Utils.assert.defined<string>(options.network);
 
@@ -36,7 +36,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
         }
     }
 
-    public async restore(options: any): Promise<void> {
+    public async restore(options: Contracts.Snapshot.RestoreOptions): Promise<void> {
         try {
             Utils.assert.defined<string>(options.network);
             Utils.assert.defined<string>(options.blocks);
@@ -75,7 +75,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
         }
     }
 
-    public async verify(options: any): Promise<void> {
+    public async verify(options: Contracts.Snapshot.RestoreOptions): Promise<void> {
         try {
             this.logger.info("Running VERIFICATION");
 
