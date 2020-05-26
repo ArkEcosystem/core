@@ -72,7 +72,7 @@ export class ForgerService {
      * @type {(Interfaces.IBlock | undefined)}
      * @memberof ForgerService
      */
-    private lastForgedBlock: Interfaces.IBlock | undefined;
+    private lastForgedBlock: BlockInterfaces.IBlock | undefined;
 
     /**
      * @private
@@ -85,7 +85,7 @@ export class ForgerService {
         return this.round;
     }
 
-    public getLastForgedBlock(): Interfaces.IBlock | undefined {
+    public getLastForgedBlock(): BlockInterfaces.IBlock | undefined {
         return this.lastForgedBlock;
     }
 
