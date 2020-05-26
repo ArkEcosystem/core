@@ -1,27 +1,34 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { BridgechainUpdateBuilder } from "@packages/core-magistrate-crypto/src/builders";
-import { Managers, Transactions, Validation } from "@packages/crypto";
 import { BridgechainUpdateTransaction } from "@packages/core-magistrate-crypto/src/transactions";
 
 import { bridgechainUpdateAsset1, checkCommonFields } from "../helper";
 
+let crypto: CryptoSuite.CryptoSuite;
 const genesisHash = "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61";
-let builder: BridgechainUpdateBuilder;
+let builder: BridgechainUpdateBuilder<any, any, any>;
 
 describe("Bridgechain update ser/deser", () => {
-    Managers.configManager.setFromPreset("testnet");
-    Managers.configManager.setHeight(2);
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+    crypto.CryptoManager.HeightTracker.setHeight(2);
 
-    Transactions.TransactionRegistry.registerTransactionType(BridgechainUpdateTransaction);
+    crypto.TransactionManager.TransactionTools.TransactionRegistry.registerTransactionType(
+        BridgechainUpdateTransaction,
+    );
 
     beforeEach(() => {
-        builder = new BridgechainUpdateBuilder();
+        builder = new BridgechainUpdateBuilder(
+            crypto.CryptoManager,
+            crypto.TransactionManager.TransactionFactory,
+            crypto.TransactionManager.TransactionTools,
+        );
     });
 
     it("should ser/deserialize giving back original fields", () => {
         const businessResignation = builder
-            .network(23)
+
             .bridgechainUpdateAsset({
                 bridgechainId: genesisHash,
                 seedNodes: ["74.125.224.72"],
@@ -32,8 +39,10 @@ describe("Bridgechain update ser/deser", () => {
             .sign("passphrase")
             .getStruct();
 
-        const serialized = Transactions.TransactionFactory.fromData(businessResignation).serialized.toString("hex");
-        const deserialized = Transactions.Deserializer.deserialize(serialized);
+        const serialized = crypto.TransactionManager.TransactionFactory.fromData(
+            businessResignation,
+        ).serialized.toString("hex");
+        const deserialized = crypto.TransactionManager.TransactionTools.Deserializer.deserialize(serialized);
 
         checkCommonFields(deserialized, businessResignation);
     });
@@ -48,7 +57,7 @@ describe("Bridgechain update ser/deser", () => {
         it("should not throw any error", () => {
             const bridgechainUpdate = builder.bridgechainUpdateAsset(bridgechainUpdateAsset1).sign("passphrase");
 
-            const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+            const { error } = crypto.Validator.validate(transactionSchema, bridgechainUpdate.getStruct());
             expect(error).toBeUndefined();
         });
 
@@ -61,7 +70,7 @@ describe("Bridgechain update ser/deser", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainUpdate.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -73,7 +82,7 @@ describe("Bridgechain update ser/deser", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainUpdate.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -85,7 +94,7 @@ describe("Bridgechain update ser/deser", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainUpdate.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });
@@ -99,7 +108,7 @@ describe("Bridgechain update ser/deser", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainUpdate.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -111,7 +120,7 @@ describe("Bridgechain update ser/deser", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainUpdate.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -123,7 +132,7 @@ describe("Bridgechain update ser/deser", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainUpdate.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -135,7 +144,7 @@ describe("Bridgechain update ser/deser", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainUpdate.getStruct());
                 expect(error).toBeUndefined();
             });
         });

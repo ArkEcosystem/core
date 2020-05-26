@@ -1,36 +1,42 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { BridgechainResignationBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { BridgechainResignationTransaction } from "@packages/core-magistrate-crypto/src/transactions";
-import { Managers, Transactions, Validation as Ajv } from "@packages/crypto";
 
 import { checkCommonFields } from "../helper";
 
+let crypto: CryptoSuite.CryptoSuite;
 const genesisHash = "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61";
-let builder: BridgechainResignationBuilder;
+let builder: BridgechainResignationBuilder<any, any, any>;
 
 describe("Bridgechain registration transaction", () => {
-    Managers.configManager.setFromPreset("testnet");
-    Managers.configManager.setHeight(2);
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+    crypto.CryptoManager.HeightTracker.setHeight(2);
 
-    Transactions.TransactionRegistry.registerTransactionType(BridgechainResignationTransaction);
+    crypto.TransactionManager.TransactionTools.TransactionRegistry.registerTransactionType(
+        BridgechainResignationTransaction,
+    );
 
     beforeEach(() => {
-        builder = new BridgechainResignationBuilder();
+        builder = new BridgechainResignationBuilder(
+            crypto.CryptoManager,
+            crypto.TransactionManager.TransactionFactory,
+            crypto.TransactionManager.TransactionTools,
+        );
     });
 
     describe("Ser/deser", () => {
         it("should ser/deserialize giving back original fields", () => {
             const bridgechainResignation = builder
                 .bridgechainResignationAsset(genesisHash)
-                .network(23)
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(bridgechainResignation).serialized.toString(
-                "hex",
-            );
-            const deserialized = Transactions.Deserializer.deserialize(serialized);
+            const serialized = crypto.TransactionManager.TransactionFactory.fromData(
+                bridgechainResignation,
+            ).serialized.toString("hex");
+            const deserialized = crypto.TransactionManager.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, bridgechainResignation);
         });
@@ -46,21 +52,21 @@ describe("Bridgechain registration transaction", () => {
         it("should not throw any error", () => {
             const bridgechainRegistration = builder.bridgechainResignationAsset(genesisHash).sign("passphrase");
 
-            const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+            const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
         it("should not throw any error", () => {
             const bridgechainRegistration = builder.bridgechainResignationAsset(genesisHash).sign("passphrase");
 
-            const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+            const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
         it("should fail because invalid asset", () => {
             const bridgechainRegistration = builder.bridgechainResignationAsset("wrongGenesisHash").sign("passphrase");
 
-            const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+            const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).not.toBeUndefined();
         });
     });

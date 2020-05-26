@@ -1,8 +1,8 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { BusinessRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { BusinessRegistrationTransaction } from "@packages/core-magistrate-crypto/src/transactions";
-import { Managers, Transactions, Validation as Ajv } from "@packages/crypto";
 
 import {
     businessRegistrationAsset1,
@@ -11,31 +11,36 @@ import {
     businessRegistrationAsset4,
     checkCommonFields,
 } from "../helper";
-
-let builder: BusinessRegistrationBuilder;
+let crypto: CryptoSuite.CryptoSuite;
+let builder: BusinessRegistrationBuilder<any, any, any>;
 
 describe("Business registration transaction", () => {
-    Managers.configManager.setFromPreset("testnet");
-    Managers.configManager.setHeight(2);
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+    crypto.CryptoManager.HeightTracker.setHeight(2);
 
-    Transactions.TransactionRegistry.registerTransactionType(BusinessRegistrationTransaction);
+    crypto.TransactionManager.TransactionTools.TransactionRegistry.registerTransactionType(
+        BusinessRegistrationTransaction,
+    );
 
     beforeEach(() => {
-        builder = new BusinessRegistrationBuilder();
+        builder = new BusinessRegistrationBuilder(
+            crypto.CryptoManager,
+            crypto.TransactionManager.TransactionFactory,
+            crypto.TransactionManager.TransactionTools,
+        );
     });
 
     describe("Ser/deser", () => {
         it("should ser/deserialize giving back original fields", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset1)
-                .network(23)
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
-                "hex",
-            );
-            const deserialized = Transactions.Deserializer.deserialize(serialized);
+            const serialized = crypto.TransactionManager.TransactionFactory.fromData(
+                businessRegistration,
+            ).serialized.toString("hex");
+            const deserialized = crypto.TransactionManager.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
 
@@ -44,14 +49,13 @@ describe("Business registration transaction", () => {
         it("should ser/deserialize giving back original fields", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset2)
-                .network(23)
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
-                "hex",
-            );
-            const deserialized = Transactions.Deserializer.deserialize(serialized);
+            const serialized = crypto.TransactionManager.TransactionFactory.fromData(
+                businessRegistration,
+            ).serialized.toString("hex");
+            const deserialized = crypto.TransactionManager.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
 
@@ -60,14 +64,13 @@ describe("Business registration transaction", () => {
         it("should ser/deserialize giving back original fields", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset3)
-                .network(23)
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
-                "hex",
-            );
-            const deserialized = Transactions.Deserializer.deserialize(serialized);
+            const serialized = crypto.TransactionManager.TransactionFactory.fromData(
+                businessRegistration,
+            ).serialized.toString("hex");
+            const deserialized = crypto.TransactionManager.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
 
@@ -76,14 +79,13 @@ describe("Business registration transaction", () => {
         it("should ser/deserialize giving back original fields", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset4)
-                .network(23)
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
-                "hex",
-            );
-            const deserialized = Transactions.Deserializer.deserialize(serialized);
+            const serialized = crypto.TransactionManager.TransactionFactory.fromData(
+                businessRegistration,
+            ).serialized.toString("hex");
+            const deserialized = crypto.TransactionManager.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
 
@@ -101,37 +103,36 @@ describe("Business registration transaction", () => {
         it("should not throw any error ", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset1)
-                .network(23)
                 .sign("passphrase");
 
-            const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+            const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
             expect(error).toBeUndefined();
         });
         it("should not throw any error ", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset2)
-                .network(23)
+
                 .sign("passphrase");
 
-            const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+            const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
             expect(error).toBeUndefined();
         });
         it("should not throw any error ", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset3)
-                .network(23)
+
                 .sign("passphrase");
 
-            const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+            const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
             expect(error).toBeUndefined();
         });
         it("should not throw any error ", () => {
             const businessRegistration = builder
                 .businessRegistrationAsset(businessRegistrationAsset4)
-                .network(23)
+
                 .sign("passphrase");
 
-            const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+            const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
@@ -142,10 +143,9 @@ describe("Business registration transaction", () => {
                         name: "",
                         website: "https://www.google.com",
                     })
-                    .network(23)
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -155,10 +155,9 @@ describe("Business registration transaction", () => {
                         name: "a".repeat(41),
                         website: "https://www.google.com",
                     })
-                    .network(23)
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });
@@ -170,10 +169,10 @@ describe("Business registration transaction", () => {
                         name: "business",
                         website: "somewebsite.com",
                     })
-                    .network(23)
+
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -183,10 +182,9 @@ describe("Business registration transaction", () => {
                         name: "business",
                         website: "http://" + "w".repeat(81),
                     })
-                    .network(23)
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });
@@ -199,10 +197,9 @@ describe("Business registration transaction", () => {
                         website: "https://www.google.com",
                         vat: "1234567",
                     })
-                    .network(23)
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -213,10 +210,9 @@ describe("Business registration transaction", () => {
                         website: "https://www.google.com",
                         vat: "1".repeat(16),
                     })
-                    .network(23)
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });
@@ -229,10 +225,9 @@ describe("Business registration transaction", () => {
                         website: "https://ark.io",
                         repository: "my-awesome-repo.com",
                     })
-                    .network(23)
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -243,10 +238,9 @@ describe("Business registration transaction", () => {
                         website: "https://ark.io",
                         repository: "http://" + "a".repeat(81),
                     })
-                    .network(23)
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, businessRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });

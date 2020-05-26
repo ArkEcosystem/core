@@ -1,35 +1,41 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { BridgechainRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
-import { Managers, Transactions, Validation } from "@packages/crypto";
-
 import { BridgechainRegistrationTransaction } from "@packages/core-magistrate-crypto/src/transactions";
+
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, checkCommonFields } from "../helper";
 
-let builder: BridgechainRegistrationBuilder;
+let crypto: CryptoSuite.CryptoSuite;
+let builder: BridgechainRegistrationBuilder<any, any, any>;
 
 describe("Bridgechain registration transaction", () => {
-    Managers.configManager.setFromPreset("testnet");
-    Managers.configManager.setHeight(2);
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+    crypto.CryptoManager.HeightTracker.setHeight(2);
 
-    Transactions.TransactionRegistry.registerTransactionType(BridgechainRegistrationTransaction);
+    crypto.TransactionManager.TransactionTools.TransactionRegistry.registerTransactionType(
+        BridgechainRegistrationTransaction,
+    );
 
     beforeEach(() => {
-        builder = new BridgechainRegistrationBuilder();
+        builder = new BridgechainRegistrationBuilder(
+            crypto.CryptoManager,
+            crypto.TransactionManager.TransactionFactory,
+            crypto.TransactionManager.TransactionTools,
+        );
     });
 
     describe("Ser/deser", () => {
         it("should ser/deserialize giving back original fields", () => {
             const bridgechainRegistration = builder
                 .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
-                .network(23)
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString(
-                "hex",
-            );
-            const deserialized = Transactions.Deserializer.deserialize(serialized);
+            const serialized = crypto.TransactionManager.TransactionFactory.fromData(
+                bridgechainRegistration,
+            ).serialized.toString("hex");
+            const deserialized = crypto.TransactionManager.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, bridgechainRegistration);
 
@@ -38,17 +44,16 @@ describe("Bridgechain registration transaction", () => {
             );
         });
 
-        it("should ser/deserialize giving back original fields", () => {
+        it("should ser/deserialize giving back original fields for bridgechain registration", () => {
             const bridgechainRegistration = builder
                 .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
-                .network(23)
                 .sign("passphrase")
                 .getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString(
-                "hex",
-            );
-            const deserialized = Transactions.Deserializer.deserialize(serialized);
+            const serialized = crypto.TransactionManager.TransactionFactory.fromData(
+                bridgechainRegistration,
+            ).serialized.toString("hex");
+            const deserialized = crypto.TransactionManager.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, bridgechainRegistration);
 
@@ -70,16 +75,16 @@ describe("Bridgechain registration transaction", () => {
                 .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
                 .sign("passphrase");
 
-            const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+            const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
-        it("should not throw any error", () => {
+        it("should not throw any error when validating bridgechain registration", () => {
             const bridgechainRegistration = builder
                 .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
                 .sign("passphrase");
 
-            const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+            const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
@@ -95,7 +100,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -110,7 +115,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });
@@ -127,7 +132,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -142,7 +147,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });
@@ -159,7 +164,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -174,7 +179,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -189,7 +194,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });
@@ -206,7 +211,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -221,7 +226,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -236,7 +241,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = crypto.Validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });
