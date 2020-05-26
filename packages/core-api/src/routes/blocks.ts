@@ -92,7 +92,7 @@ export const register = (server: Hapi.Server): void => {
             validate: {
                 query: Joi.object({
                     ...server.app.schemas.pagination,
-                    orderBy: Joi.string(),
+                    orderBy: server.app.schemas.orderBy,
                     transform: Joi.bool().default(true),
                 }),
                 payload: Joi.object({
