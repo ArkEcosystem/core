@@ -37,7 +37,7 @@
         "nsfw": "^1.2.5",
         "reflect-metadata": "^0.1.13",
         "semver": "^6.3.0",
-        "type-fest": "^0.14.0"
+        "type-fest": "^0.15.0"
     },
     "devDependencies": {
         "@types/cron": "^1.7.1",
