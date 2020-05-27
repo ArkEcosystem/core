@@ -2,6 +2,8 @@ import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
+import { TransactionFeeToHighError, TransactionFeeToLowError } from "./errors";
+
 @Container.injectable()
 export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMatcher {
     @Container.inject(Container.Identifiers.PluginConfiguration)
@@ -18,7 +20,7 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    public async canEnterPool(transaction: Interfaces.ITransaction): Promise<boolean> {
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
         const dynamicFeesConfiguration: Record<string, any> = this.configuration.getRequired<Record<string, any>>(
             "dynamicFees",
         );
@@ -39,25 +41,29 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
 
             if (transaction.data.fee.isGreaterThanEqual(minFeePool)) {
                 this.logger.debug(`${transaction} eligible to enter pool (fee ${feeStr} >= ${minFeeStr})`);
-                return true;
-            } else {
-                this.logger.notice(`${transaction} not eligible to enter pool (fee ${feeStr} < ${minFeeStr})`);
-                return false;
+                return;
             }
+
+            this.logger.notice(`${transaction} not eligible to enter pool (fee ${feeStr} < ${minFeeStr})`);
+            throw new TransactionFeeToLowError(transaction);
         } else {
             const staticFeeStr = Utils.formatSatoshi(transaction.staticFee);
 
             if (transaction.data.fee.isEqualTo(transaction.staticFee)) {
                 this.logger.debug(`${transaction} eligible to enter pool (fee ${feeStr} = ${staticFeeStr})`);
-                return true;
-            } else {
-                this.logger.notice(`${transaction} not eligible to enter pool (fee ${feeStr} != ${staticFeeStr})`);
-                return false;
+                return;
             }
+            if (transaction.data.fee.isLessThan(transaction.staticFee)) {
+                this.logger.notice(`${transaction} not eligible to enter pool (fee ${feeStr} < ${staticFeeStr})`);
+                throw new TransactionFeeToLowError(transaction);
+            }
+
+            this.logger.notice(`${transaction} not eligible to enter pool (fee ${feeStr} > ${staticFeeStr})`);
+            throw new TransactionFeeToHighError(transaction);
         }
     }
 
-    public async canBroadcast(transaction: Interfaces.ITransaction): Promise<boolean> {
+    public async throwIfCannotBroadcast(transaction: Interfaces.ITransaction): Promise<void> {
         const dynamicFeesConfiguration: Record<string, any> = this.configuration.getRequired<Record<string, any>>(
             "dynamicFees",
         );
@@ -78,21 +84,25 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
 
             if (transaction.data.fee.isGreaterThanEqual(minFeeBroadcast)) {
                 this.logger.debug(`${transaction} eligible for broadcast (fee ${feeStr} >= ${minFeeStr})`);
-                return true;
-            } else {
-                this.logger.notice(`${transaction} not eligible for broadcast (fee ${feeStr} < ${minFeeStr})`);
-                return false;
+                return;
             }
+
+            this.logger.notice(`${transaction} not eligible for broadcast (fee ${feeStr} < ${minFeeStr})`);
+            throw new TransactionFeeToLowError(transaction);
         } else {
             const staticFeeStr = Utils.formatSatoshi(transaction.staticFee);
 
             if (transaction.data.fee.isEqualTo(transaction.staticFee)) {
                 this.logger.debug(`${transaction} eligible for broadcast (fee ${feeStr} = ${staticFeeStr})`);
-                return true;
-            } else {
-                this.logger.notice(`${transaction} not eligible for broadcast (fee ${feeStr} != ${staticFeeStr})`);
-                return false;
+                return;
             }
+            if (transaction.data.fee.isLessThan(transaction.staticFee)) {
+                this.logger.notice(`${transaction} not eligible to enter pool (fee ${feeStr} < ${staticFeeStr})`);
+                throw new TransactionFeeToLowError(transaction);
+            }
+
+            this.logger.notice(`${transaction} not eligible to enter pool (fee ${feeStr} > ${staticFeeStr})`);
+            throw new TransactionFeeToHighError(transaction);
         }
     }
 }
