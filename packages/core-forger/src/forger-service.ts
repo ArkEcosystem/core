@@ -85,6 +85,17 @@ export class ForgerService {
         return this.round;
     }
 
+    public async getRemainingSlotTime(): Promise<number> {
+        const networkState: Contracts.P2P.NetworkState = await this.client.getNetworkState();
+
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(
+            this.app,
+            networkState.nodeHeight!,
+        );
+
+        return this.cryptoManager.LibraryManager.Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup);
+    }
+
     public getLastForgedBlock(): BlockInterfaces.IBlock | undefined {
         return this.lastForgedBlock;
     }
