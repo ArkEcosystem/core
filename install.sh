@@ -98,7 +98,7 @@ if [[ ! -z $DEB ]]; then
     sudo apt-get install -y git curl apt-transport-https update-notifier
 elif [[ ! -z $RPM ]]; then
     sudo yum update -y
-    sudo yum install git curl epel-release -y
+    sudo yum install git curl epel-release --skip-broken -y
 fi
 
 success "Installed system dependencies!"
