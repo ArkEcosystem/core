@@ -1,7 +1,7 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces, Utils } from "@arkecosystem/crypto";
-
-import { DynamicFeeMatcher } from "../../../packages/core-transaction-pool/src/dynamic-fee-matcher";
+import { Interfaces } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@packages/core-crypto";
+import { DynamicFeeMatcher } from "@packages/core-transaction-pool/src/dynamic-fee-matcher";
 
 const handler = { dynamicFee: jest.fn() };
 const configuration = { getRequired: jest.fn() };
@@ -14,6 +14,12 @@ container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(config
 container.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue(handlerRegistry);
 container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+crypto.CryptoManager.HeightTracker.setHeight(2);
+
+container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
 
 beforeEach(() => {
     handler.dynamicFee.mockReset();
@@ -35,14 +41,14 @@ describe("when dynamic fees are enabled", () => {
     beforeEach(() => {
         configuration.getRequired.mockReturnValueOnce({ enabled: true, minFeePool, minFeeBroadcast, addonBytes });
         stateStore.getLastHeight.mockReturnValueOnce(height);
-        handler.dynamicFee.mockReturnValueOnce(new Utils.BigNumber(1000));
+        handler.dynamicFee.mockReturnValueOnce(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"));
     });
 
     describe("DynamicFeeMatcher.canEnterPool", () => {
         it("should allow entering pool when fee is higher or equal than dynamic fee", async () => {
             const transaction = {
                 key: "transfer",
-                data: { fee: new Utils.BigNumber(1000) },
+                data: { fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000") },
             } as Interfaces.ITransaction;
 
             const dynamicFeeMatcher = container.resolve(DynamicFeeMatcher);
@@ -64,7 +70,7 @@ describe("when dynamic fees are enabled", () => {
         it("should not allow entering pool when fee is lower than dynamic fee", async () => {
             const transaction = {
                 key: "transfer",
-                data: { fee: new Utils.BigNumber(999) },
+                data: { fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("999") },
             } as Interfaces.ITransaction;
 
             const dynamicFeeMatcher = container.resolve(DynamicFeeMatcher);
@@ -88,7 +94,7 @@ describe("when dynamic fees are enabled", () => {
         it("should allow broadcast when fee is higher or equal than dynamic fee", async () => {
             const transaction = {
                 key: "transfer",
-                data: { fee: new Utils.BigNumber(1000) },
+                data: { fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000") },
             } as Interfaces.ITransaction;
 
             const dynamicFeeMatcher = container.resolve(DynamicFeeMatcher);
@@ -110,7 +116,7 @@ describe("when dynamic fees are enabled", () => {
         it("should not allow broadcast when fee is lower than dynamic fee", async () => {
             const transaction = {
                 key: "transfer",
-                data: { fee: new Utils.BigNumber(999) },
+                data: { fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("999") },
             } as Interfaces.ITransaction;
 
             const dynamicFeeMatcher = container.resolve(DynamicFeeMatcher);
@@ -140,8 +146,8 @@ describe("when dynamic fees are disabled", () => {
         it("should allow entering pool when fee equals static fee", async () => {
             const transaction = {
                 key: "transfer",
-                staticFee: new Utils.BigNumber(1000),
-                data: { fee: new Utils.BigNumber(1000) },
+                staticFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
+                data: { fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000") },
             };
 
             const dynamicFeeMatcher = container.resolve(DynamicFeeMatcher);
@@ -154,8 +160,8 @@ describe("when dynamic fees are disabled", () => {
         it("should not allow entering pool when fee does not equal static fee", async () => {
             const transaction = {
                 key: "transfer",
-                staticFee: new Utils.BigNumber(1000),
-                data: { fee: new Utils.BigNumber(1001) },
+                staticFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
+                data: { fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1001") },
             };
 
             const dynamicFeeMatcher = container.resolve(DynamicFeeMatcher);
@@ -170,8 +176,8 @@ describe("when dynamic fees are disabled", () => {
         it("should allow entering pool when fee equals static fee", async () => {
             const transaction = {
                 key: "transfer",
-                staticFee: new Utils.BigNumber(1000),
-                data: { fee: new Utils.BigNumber(1000) },
+                staticFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
+                data: { fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000") },
             };
 
             const dynamicFeeMatcher = container.resolve(DynamicFeeMatcher);
@@ -184,8 +190,8 @@ describe("when dynamic fees are disabled", () => {
         it("should not allow entering pool when fee does not equal static fee", async () => {
             const transaction = {
                 key: "transfer",
-                staticFee: new Utils.BigNumber(1000),
-                data: { fee: new Utils.BigNumber(1001) },
+                staticFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
+                data: { fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1001") },
             };
 
             const dynamicFeeMatcher = container.resolve(DynamicFeeMatcher);

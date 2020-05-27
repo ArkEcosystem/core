@@ -1,7 +1,11 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@packages/core-crypto";
+import { Service } from "@packages/core-transaction-pool/src/service";
 
-import { Service } from "../../../packages/core-transaction-pool/src/service";
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
+crypto.CryptoManager.HeightTracker.setHeight(2);
+crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
 
 const logger = {
     debug: jest.fn(),
@@ -41,6 +45,10 @@ container.bind(Container.Identifiers.TransactionPoolMempool).toConstantValue(mem
 container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
 container.bind(Container.Identifiers.TransactionPoolExpirationService).toConstantValue(expirationService);
 
+container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
+
 beforeEach(() => {
     logger.debug.mockReset();
     logger.warning.mockReset();
@@ -60,27 +68,26 @@ beforeEach(() => {
     poolQuery.getFromLowestPriority.mockReset();
 });
 
-Managers.configManager.getMilestone().aip11 = true;
-const transaction1 = Transactions.BuilderFactory.transfer()
+const transaction1 = crypto.TransactionManager.BuilderFactory.transfer()
     .version(2)
     .amount("100")
-    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("1")
     .fee("1000")
     .sign("sender's secret")
     .build();
-const transaction2 = Transactions.BuilderFactory.transfer()
+const transaction2 = crypto.TransactionManager.BuilderFactory.transfer()
     .version(2)
     .amount("100")
-    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("2")
     .fee("2000")
     .sign("sender's secret")
     .build();
-const transaction3 = Transactions.BuilderFactory.transfer()
+const transaction3 = crypto.TransactionManager.BuilderFactory.transfer()
     .version(2)
     .amount("100")
-    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("3")
     .fee("3000")
     .sign("sender's secret")

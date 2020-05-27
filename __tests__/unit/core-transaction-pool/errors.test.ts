@@ -1,6 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-
+import { CryptoSuite } from "@packages/core-crypto";
 import {
     RetryTransactionError,
     SenderExceededMaximumTransactionCountError,
@@ -13,13 +12,15 @@ import {
     TransactionFromWrongNetworkError,
     TransactionHasExpiredError,
     TransactionPoolFullError,
-} from "../../../packages/core-transaction-pool/src/errors";
+} from "@packages/core-transaction-pool/src/errors";
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+crypto.CryptoManager.HeightTracker.setHeight(2);
+crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
 
-Managers.configManager.getMilestone().aip11 = true;
-const transaction = Transactions.BuilderFactory.transfer()
+const transaction = crypto.TransactionManager.BuilderFactory.transfer()
     .version(2)
     .amount("100")
-    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("1")
     .fee("900")
     .sign("sender's secret")
@@ -83,7 +84,11 @@ test("SenderExceededMaximumTransactionCountError", () => {
 });
 
 test("TransactionPoolFullError", () => {
-    const error = new TransactionPoolFullError(transaction, new Utils.BigNumber(1000));
+    const error = new TransactionPoolFullError(
+        transaction,
+        crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
+        crypto.CryptoManager,
+    );
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_POOL_FULL");

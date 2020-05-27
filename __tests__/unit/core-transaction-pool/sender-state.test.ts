@@ -1,18 +1,20 @@
+import { CryptoSuite } from "@packages/core-crypto";
 import { Container, Contracts } from "@packages/core-kernel";
-import { Crypto, Interfaces, Managers } from "@packages/crypto";
-
-import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
-import { Sandbox } from "@packages/core-test-framework";
 import { Services } from "@packages/core-kernel/dist";
+import { Sandbox } from "@packages/core-test-framework/src";
 import {
     ApplyTransactionAction,
     RevertTransactionAction,
     ThrowIfCannotEnterPoolAction,
     VerifyTransactionAction,
 } from "@packages/core-transaction-pool/src/actions";
+import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
+import { Interfaces } from "@packages/crypto";
 
-jest.mock("@packages/crypto");
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
+crypto.CryptoManager.HeightTracker.setHeight(2);
+crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
 const configuration = { getRequired: jest.fn(), getOptional: jest.fn() };
 const handler = { verify: jest.fn(), throwIfCannotEnterPool: jest.fn(), apply: jest.fn(), revert: jest.fn() };
 const handlerRegistry = { getActivatedHandlerForData: jest.fn() };
@@ -20,8 +22,11 @@ const expirationService = { isExpired: jest.fn(), getExpirationHeight: jest.fn()
 
 let sandbox: Sandbox;
 
+const networkConfigSpy = jest.spyOn(crypto.CryptoManager.NetworkConfigManager, "get");
+const getTimeSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTime");
+
 beforeEach(() => {
-    sandbox = new Sandbox();
+    sandbox = new Sandbox(crypto);
 
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
     sandbox.app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue(handlerRegistry);
@@ -44,8 +49,8 @@ beforeEach(() => {
         .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
         .bind("verifyTransaction", new VerifyTransactionAction());
 
-    (Managers.configManager.get as jest.Mock).mockReset();
-    (Crypto.Slots.getTime as jest.Mock).mockReset();
+    networkConfigSpy.mockReset();
+    getTimeSpy.mockReset();
 
     configuration.getRequired.mockReset();
     configuration.getOptional.mockReset();
@@ -78,7 +83,8 @@ describe("SenderState.apply", () => {
     });
 
     it("should throw when transaction is from wrong network", async () => {
-        (Managers.configManager.get as jest.Mock).mockReturnValue(321); // network.pubKeyHash
+        networkConfigSpy.mockReturnValue(321); // network.pubKeyHash
+
         configuration.getRequired.mockReturnValueOnce(1024); // maxTransactionBytes
 
         const senderState = sandbox.app.resolve(SenderState);
@@ -89,8 +95,9 @@ describe("SenderState.apply", () => {
     });
 
     it("should throw when transaction is from future", async () => {
-        (Managers.configManager.get as jest.Mock).mockReturnValue(123); // network.pubKeyHash
-        (Crypto.Slots.getTime as jest.Mock).mockReturnValue(9999);
+        networkConfigSpy.mockReturnValue(123); // network.pubKeyHash
+        getTimeSpy.mockReturnValue(9999);
+
         configuration.getRequired.mockReturnValueOnce(1024); // maxTransactionBytes
 
         const senderState = sandbox.app.resolve(SenderState);
@@ -101,8 +108,9 @@ describe("SenderState.apply", () => {
     });
 
     it("should throw when transaction expired", async () => {
-        (Managers.configManager.get as jest.Mock).mockReturnValue(123); // network.pubKeyHash
-        (Crypto.Slots.getTime as jest.Mock).mockReturnValue(13600);
+        networkConfigSpy.mockReturnValue(123); // network.pubKeyHash
+        getTimeSpy.mockReturnValue(13600);
+
         configuration.getRequired.mockReturnValueOnce(1024); // maxTransactionBytes
         expirationService.isExpired.mockReturnValueOnce(true);
         expirationService.getExpirationHeight.mockReturnValueOnce(10);
@@ -115,8 +123,9 @@ describe("SenderState.apply", () => {
     });
 
     it("should throw when transaction fails to verify", async () => {
-        (Managers.configManager.get as jest.Mock).mockReturnValue(123); // network.pubKeyHash
-        (Crypto.Slots.getTime as jest.Mock).mockReturnValue(13600);
+        networkConfigSpy.mockReturnValue(123); // network.pubKeyHash
+        getTimeSpy.mockReturnValue(13600);
+
         configuration.getRequired.mockReturnValueOnce(1024); // maxTransactionBytes
         expirationService.isExpired.mockReturnValueOnce(false);
         handler.verify.mockResolvedValue(false);
@@ -131,8 +140,9 @@ describe("SenderState.apply", () => {
     it("should throw when state is corrupted", async () => {
         handler.revert.mockRejectedValueOnce(new Error("Corrupt it"));
 
-        (Managers.configManager.get as jest.Mock).mockReturnValue(123); // network.pubKeyHash
-        (Crypto.Slots.getTime as jest.Mock).mockReturnValue(13600);
+        networkConfigSpy.mockReturnValue(123); // network.pubKeyHash
+        getTimeSpy.mockReturnValue(13600);
+
         configuration.getRequired.mockReturnValueOnce(1024); // maxTransactionBytes
         expirationService.isExpired.mockReturnValueOnce(false);
         handler.verify.mockResolvedValue(true);
@@ -146,8 +156,9 @@ describe("SenderState.apply", () => {
     });
 
     it("should throw when transaction fails to apply", async () => {
-        (Managers.configManager.get as jest.Mock).mockReturnValue(123); // network.pubKeyHash
-        (Crypto.Slots.getTime as jest.Mock).mockReturnValue(13600);
+        networkConfigSpy.mockReturnValue(123); // network.pubKeyHash
+        getTimeSpy.mockReturnValue(13600);
+
         configuration.getRequired.mockReturnValueOnce(1024); // maxTransactionBytes
         expirationService.isExpired.mockReturnValueOnce(false);
         handler.verify.mockResolvedValue(true);
@@ -161,8 +172,8 @@ describe("SenderState.apply", () => {
     });
 
     it("should call handler to apply transaction", async () => {
-        (Managers.configManager.get as jest.Mock).mockReturnValue(123); // network.pubKeyHash
-        (Crypto.Slots.getTime as jest.Mock).mockReturnValue(13600);
+        networkConfigSpy.mockReturnValue(123); // network.pubKeyHash
+        getTimeSpy.mockReturnValue(13600);
         configuration.getRequired.mockReturnValueOnce(1024); // maxTransactionBytes
         expirationService.isExpired.mockReturnValueOnce(false);
         handler.verify.mockResolvedValue(true);

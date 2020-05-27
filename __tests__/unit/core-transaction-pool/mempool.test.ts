@@ -1,7 +1,7 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Identities, Interfaces } from "@arkecosystem/crypto";
-
-import { Mempool } from "../../../packages/core-transaction-pool/src/mempool";
+import { CryptoSuite } from "@packages/core-crypto";
+import { Mempool } from "@packages/core-transaction-pool/src/mempool";
+import { Interfaces } from "@packages/crypto";
 
 const createSenderMempool = jest.fn();
 const logger = { debug: jest.fn() };
@@ -9,6 +9,11 @@ const logger = { debug: jest.fn() };
 const container = new Container.Container();
 container.bind(Container.Identifiers.TransactionPoolSenderMempoolFactory).toConstantValue(createSenderMempool);
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
+container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
 
 beforeEach(() => {
     createSenderMempool.mockReset();
@@ -22,10 +27,10 @@ describe("Mempool.getSize", () => {
             .mockReturnValueOnce({ addTransaction: jest.fn(), getSize: () => 20, isEmpty: () => false });
 
         const transaction1 = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const transaction2 = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender2") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender2") },
         } as Interfaces.ITransaction;
 
         const memory = container.resolve(Mempool);
@@ -42,12 +47,12 @@ describe("Mempool.hasSenderMempool", () => {
         createSenderMempool.mockReturnValueOnce({ addTransaction: jest.fn(), isEmpty: () => false });
 
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender's key") },
         } as Interfaces.ITransaction;
 
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
-        const has = memory.hasSenderMempool(Identities.PublicKey.fromPassphrase("sender's key"));
+        const has = memory.hasSenderMempool(crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender's key"));
 
         expect(has).toBe(true);
     });
@@ -56,12 +61,14 @@ describe("Mempool.hasSenderMempool", () => {
         createSenderMempool.mockReturnValueOnce({ addTransaction: jest.fn(), isEmpty: () => false });
 
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender's key") },
         } as Interfaces.ITransaction;
 
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
-        const has = memory.hasSenderMempool(Identities.PublicKey.fromPassphrase("not sender's key"));
+        const has = memory.hasSenderMempool(
+            crypto.CryptoManager.Identities.PublicKey.fromPassphrase("not sender's key"),
+        );
 
         expect(has).toBe(false);
     });
@@ -73,12 +80,14 @@ describe("Mempool.getSenderMempool", () => {
         createSenderMempool.mockReturnValueOnce(expectedSenderMempool);
 
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender's key") },
         } as Interfaces.ITransaction;
 
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
-        const SenderMempool = memory.getSenderMempool(Identities.PublicKey.fromPassphrase("sender's key"));
+        const SenderMempool = memory.getSenderMempool(
+            crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender's key"),
+        );
 
         expect(SenderMempool).toBe(expectedSenderMempool);
     });
@@ -87,12 +96,13 @@ describe("Mempool.getSenderMempool", () => {
         createSenderMempool.mockReturnValueOnce({ addTransaction: jest.fn(), isEmpty: () => false });
 
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender's key") },
         } as Interfaces.ITransaction;
 
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
-        const cb = () => memory.getSenderMempool(Identities.PublicKey.fromPassphrase("not sender's key"));
+        const cb = () =>
+            memory.getSenderMempool(crypto.CryptoManager.Identities.PublicKey.fromPassphrase("not sender's key"));
 
         expect(cb).toThrow();
     });
@@ -105,10 +115,10 @@ describe("Mempool.getSenderMempools", () => {
         createSenderMempool.mockReturnValueOnce(SenderMempool1).mockReturnValueOnce(SenderMempool2);
 
         const transaction1 = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const transaction2 = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender2") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender2") },
         } as Interfaces.ITransaction;
 
         const memory = container.resolve(Mempool);
@@ -126,7 +136,7 @@ describe("Mempool.addTransaction", () => {
         createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
@@ -142,7 +152,7 @@ describe("Mempool.addTransaction", () => {
         createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const memory = container.resolve(Mempool);
         const promise = memory.addTransaction(transaction);
@@ -157,7 +167,7 @@ describe("Mempool.addTransaction", () => {
 describe("Mempool.removeTransaction", () => {
     it("should return empty array when removing transaction of sender that wasn't previously added", async () => {
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const memory = container.resolve(Mempool);
         const removedTransactions = await memory.removeTransaction(transaction);
@@ -167,7 +177,7 @@ describe("Mempool.removeTransaction", () => {
 
     it("should remove previously added transaction and return list of removed transactions", async () => {
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const expectedRemovedTransactions = [transaction];
         const SenderMempool = {
@@ -194,7 +204,7 @@ describe("Mempool.removeTransaction", () => {
         createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
@@ -210,7 +220,7 @@ describe("Mempool.removeTransaction", () => {
 describe("Mempool.acceptForgedTransaction", () => {
     it("should return empty array when accepting transaction of sender that wasn't previously added", async () => {
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const memory = container.resolve(Mempool);
         const removedTransactions = await memory.acceptForgedTransaction(transaction);
@@ -220,7 +230,7 @@ describe("Mempool.acceptForgedTransaction", () => {
 
     it("should accept previously added transaction and return list of removed transactions", async () => {
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const expectedRemovedTransactions = [transaction];
         const SenderMempool = {
@@ -247,7 +257,7 @@ describe("Mempool.acceptForgedTransaction", () => {
         createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
@@ -266,7 +276,7 @@ describe("Mempool.flush", () => {
         createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const transaction = {
-            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+            data: { senderPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);

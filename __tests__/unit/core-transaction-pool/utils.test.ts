@@ -1,4 +1,4 @@
-import { createLock, IteratorMany } from "../../../packages/core-transaction-pool/src/utils";
+import { createLock, IteratorMany } from "@packages/core-transaction-pool/src/utils";
 
 describe("IteratorMany", () => {
     it("should choose next item based on comparator", () => {

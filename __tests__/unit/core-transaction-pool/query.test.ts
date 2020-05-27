@@ -1,7 +1,12 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Enums, Identities, Managers, Transactions } from "@arkecosystem/crypto";
+import { Enums } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@packages/core-crypto";
+import { Query, QueryIterable } from "@packages/core-transaction-pool/src/query";
 
-import { Query, QueryIterable } from "../../../packages/core-transaction-pool/src/query";
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
+crypto.CryptoManager.HeightTracker.setHeight(2);
+crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
 
 const mempool = {
     getSenderMempools: jest.fn(),
@@ -12,37 +17,40 @@ const mempool = {
 const container = new Container.Container();
 container.bind(Container.Identifiers.TransactionPoolMempool).toConstantValue(mempool);
 
+container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
+
 beforeEach(() => {
     mempool.getSenderMempools.mockReset();
     mempool.hasSenderMempool.mockReset();
     mempool.getSenderMempool.mockReset();
 });
 
-Managers.configManager.getMilestone().aip11 = true;
-const sender1Transaction100 = Transactions.BuilderFactory.transfer()
+const sender1Transaction100 = crypto.TransactionManager.BuilderFactory.transfer()
     .version(2)
     .amount("100")
-    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("1")
     .fee("100")
     .sign("sender1 secret")
     .build();
-const sender1Transaction200 = Transactions.BuilderFactory.delegateRegistration()
+const sender1Transaction200 = crypto.TransactionManager.BuilderFactory.delegateRegistration()
     .usernameAsset("sender1")
     .version(2)
     .nonce("1")
     .fee("200")
     .sign("sender1 secret")
     .build();
-const sender2Transaction100 = Transactions.BuilderFactory.transfer()
+const sender2Transaction100 = crypto.TransactionManager.BuilderFactory.transfer()
     .version(2)
     .amount("100")
-    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("1")
     .fee("100")
     .sign("sender2 secret")
     .build();
-const sender2Transaction200 = Transactions.BuilderFactory.delegateRegistration()
+const sender2Transaction200 = crypto.TransactionManager.BuilderFactory.delegateRegistration()
     .usernameAsset("sender2")
     .version(2)
     .nonce("1")

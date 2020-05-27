@@ -1,7 +1,7 @@
 import { Container, Utils } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
-
-import { ExpirationService } from "../../../packages/core-transaction-pool/src/expiration-service";
+import { CryptoSuite } from "@packages/core-crypto";
+import { ExpirationService } from "@packages/core-transaction-pool/src/expiration-service";
+import { Interfaces } from "@packages/crypto";
 
 const configuration = { getRequired: jest.fn() };
 const stateStore = { getLastHeight: jest.fn() };
@@ -11,6 +11,11 @@ const container = new Container.Container();
 container.bind(Container.Identifiers.Application).toConstantValue(app);
 container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
 container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
+container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
 
 beforeEach(() => {
     jest.resetAllMocks();
@@ -103,8 +108,8 @@ describe("ExpirationService.isExpired", () => {
     });
 
     it("should return true if transaction expired when checking v1 transaction", async () => {
-        jest.spyOn(Managers.configManager, "get").mockReturnValue([{ height: 1, blocktime: 60 }]);
-        jest.spyOn(Crypto.Slots, "getTime").mockReturnValue(60 * 180);
+        jest.spyOn(crypto.CryptoManager.NetworkConfigManager, "get").mockReturnValue([{ height: 1, blocktime: 60 }]);
+        jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTime").mockReturnValue(60 * 180);
         configuration.getRequired.mockReturnValue(60);
         stateStore.getLastHeight.mockReturnValue(180);
 
@@ -116,9 +121,13 @@ describe("ExpirationService.isExpired", () => {
     });
 
     it("should return false if transaction not expired when checking v1 transaction", async () => {
-        jest.spyOn(Managers.configManager, "get").mockReturnValue([{ height: 1, blocktime: 60 }]);
-
-        jest.spyOn(Crypto.Slots, "getTime").mockReturnValue(60 * 100);
+        const networkGetSpy = jest.spyOn(crypto.CryptoManager.NetworkConfigManager, "get");
+        networkGetSpy.mockReturnValue([{ height: 1, blocktime: 60 }]);
+        jest.spyOn(crypto.CryptoManager.MilestoneManager, "getMilestones").mockReturnValue([
+            { height: 1, blocktime: 60 },
+        ]);
+        const getTimeSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTime");
+        getTimeSpy.mockReturnValue(60 * 100);
 
         configuration.getRequired.mockReturnValue(60);
         stateStore.getLastHeight.mockReturnValue(100);
@@ -126,6 +135,9 @@ describe("ExpirationService.isExpired", () => {
         const transaction = { data: { timestamp: 3600 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
         const expired = await expirationService.isExpired(transaction);
+
+        networkGetSpy.mockClear();
+        getTimeSpy.mockClear();
 
         expect(expired).toBe(false);
     });
@@ -149,9 +161,15 @@ describe("ExpirationService.getExpirationHeight", () => {
     });
 
     it("should calculate expiration height when checking v1 transaction", async () => {
-        jest.spyOn(Managers.configManager, "get").mockReturnValue([{ height: 1, blocktime: 60 }]);
+        const networkGetSpy = jest.spyOn(crypto.CryptoManager.NetworkConfigManager, "get");
+        jest.spyOn(crypto.CryptoManager.MilestoneManager, "getMilestones").mockReturnValue([
+            { height: 1, blocktime: 60 },
+        ]);
 
-        jest.spyOn(Crypto.Slots, "getTime").mockReturnValue(60 * 120);
+        networkGetSpy.mockReturnValue([{ height: 1, blocktime: 60 }]);
+
+        const getTimeSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTime");
+        getTimeSpy.mockReturnValue(7200);
 
         configuration.getRequired.mockReturnValue(60);
         stateStore.getLastHeight.mockReturnValue(120);
@@ -159,6 +177,9 @@ describe("ExpirationService.getExpirationHeight", () => {
         const transaction = { data: { timestamp: 3600 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
         const expirationHeight = await expirationService.getExpirationHeight(transaction);
+
+        networkGetSpy.mockClear();
+        getTimeSpy.mockClear();
 
         expect(expirationHeight).toBe(120);
     });

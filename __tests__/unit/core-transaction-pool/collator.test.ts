@@ -1,9 +1,6 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Managers } from "@arkecosystem/crypto";
-
-import { Collator } from "../../../packages/core-transaction-pool/src/collator";
-
-jest.mock("@arkecosystem/crypto");
+import { CryptoSuite } from "@packages/core-crypto";
+import { Container } from "@packages/core-kernel";
+import { Collator } from "@packages/core-transaction-pool/src/collator";
 
 const validator = { validate: jest.fn() };
 const configuration = { get: jest.fn() };
@@ -21,9 +18,14 @@ container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(poo
 container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
-beforeEach(() => {
-    (Managers.configManager.getMilestone as jest.Mock).mockReset();
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+crypto.CryptoManager.HeightTracker.setHeight(2);
 
+container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
+
+beforeEach(() => {
     validator.validate.mockReset();
     configuration.get.mockReset();
     createTransactionValidator.mockReset();
@@ -41,7 +43,9 @@ describe("Collator.getBlockCandidateTransactions", () => {
         const milestone = { block: { maxTransactions: 5 } };
         const lastBlock = { data: { height: 10 } };
 
-        (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
+        crypto.CryptoManager.MilestoneManager.getMilestone = () => milestone;
+
+        const getMilestoneSpy = jest.spyOn(crypto.CryptoManager.MilestoneManager, "getMilestone");
         blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
         poolQuery.getFromHighestPriority.mockReturnValueOnce(poolTransactions);
 
@@ -50,10 +54,11 @@ describe("Collator.getBlockCandidateTransactions", () => {
 
         expect(candidateTransaction.length).toBe(5);
         expect(configuration.get).toBeCalled();
-        expect(Managers.configManager.getMilestone).toBeCalled();
+        expect(getMilestoneSpy).toBeCalled();
         expect(createTransactionValidator).toBeCalled();
         expect(pool.cleanUp).toBeCalled();
         expect(validator.validate).toBeCalledTimes(5);
+        getMilestoneSpy.mockRestore();
     });
 
     it("should respect maxTransactionBytes configuration limit", async () => {
@@ -61,7 +66,9 @@ describe("Collator.getBlockCandidateTransactions", () => {
         const milestone = { block: { maxTransactions: 100 } };
         const lastBlock = { data: { height: 10 } };
 
-        (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
+        crypto.CryptoManager.MilestoneManager.getMilestone = () => milestone;
+        const getMilestoneSpy = jest.spyOn(crypto.CryptoManager.MilestoneManager, "getMilestone");
+
         configuration.get.mockReturnValueOnce(25);
         blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
         poolQuery.getFromHighestPriority.mockReturnValueOnce(poolTransactions);
@@ -71,18 +78,21 @@ describe("Collator.getBlockCandidateTransactions", () => {
 
         expect(candidateTransaction.length).toBe(2);
         expect(configuration.get).toBeCalled();
-        expect(Managers.configManager.getMilestone).toBeCalled();
+        expect(getMilestoneSpy).toBeCalled();
         expect(createTransactionValidator).toBeCalled();
         expect(pool.cleanUp).toBeCalled();
         expect(validator.validate).toBeCalledTimes(2);
+
+        getMilestoneSpy.mockRestore();
     });
 
     it("should remove invalid transaction from pool", async () => {
         const poolTransactions = new Array(5).fill({ data: "12345678" });
         const milestone = { block: { maxTransactions: 5 } };
         const lastBlock = { data: { height: 10 } };
+        crypto.CryptoManager.MilestoneManager.getMilestone = () => milestone;
+        const getMilestoneSpy = jest.spyOn(crypto.CryptoManager.MilestoneManager, "getMilestone");
 
-        (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
         blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
         poolQuery.getFromHighestPriority.mockReturnValueOnce(poolTransactions);
         validator.validate.mockRejectedValueOnce(new Error("Some error"));
@@ -92,11 +102,12 @@ describe("Collator.getBlockCandidateTransactions", () => {
 
         expect(candidateTransaction.length).toBe(4);
         expect(configuration.get).toBeCalled();
-        expect(Managers.configManager.getMilestone).toBeCalled();
+        expect(getMilestoneSpy).toBeCalled();
         expect(createTransactionValidator).toBeCalled();
         expect(pool.cleanUp).toBeCalled();
         expect(validator.validate).toBeCalledTimes(5);
         expect(logger.warning).toBeCalledTimes(1);
         expect(pool.removeTransaction).toBeCalledTimes(1);
+        getMilestoneSpy.mockRestore();
     });
 });

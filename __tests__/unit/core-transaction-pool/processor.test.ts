@@ -1,20 +1,23 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@packages/core-crypto";
+import { Processor } from "@packages/core-transaction-pool/src/processor";
 
-import { Processor } from "../../../packages/core-transaction-pool/src/processor";
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
-Managers.configManager.getMilestone().aip11 = true;
-const transaction1 = Transactions.BuilderFactory.transfer()
+crypto.CryptoManager.HeightTracker.setHeight(2);
+crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
+
+const transaction1 = crypto.TransactionManager.BuilderFactory.transfer()
     .version(2)
     .amount("100")
-    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("1")
     .sign("sender's secret")
     .build();
-const transaction2 = Transactions.BuilderFactory.transfer()
+const transaction2 = crypto.TransactionManager.BuilderFactory.transfer()
     .version(2)
     .amount("100")
-    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("2")
     .sign("sender's secret")
     .build();
@@ -29,6 +32,10 @@ container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(pool);
 container.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).toConstantValue(dynamicFeeMatcher);
 container.bind(Container.Identifiers.PeerTransactionBroadcaster).toConstantValue(transactionBroadcaster);
+
+container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
 
 beforeEach(() => {
     logger.warning.mockReset();
