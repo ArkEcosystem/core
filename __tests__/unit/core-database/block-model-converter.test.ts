@@ -4,7 +4,10 @@ import { Blocks } from "@arkecosystem/crypto";
 import { BlockModelConverter } from "../../../packages/core-database/src/block-model-converter";
 import block1760000 from "./__fixtures__/block1760000";
 
+const transactionModelConverter = {};
+
 const container = new Container.Container();
+container.bind(Container.Identifiers.DatabaseTransactionModelConverter).toConstantValue(transactionModelConverter);
 
 const getTimeStampForBlock = (height: number) => {
     switch (height) {
@@ -19,9 +22,9 @@ describe("BlockModelConverter", () => {
     it("should convert block to model and back to data", () => {
         const blockModelConverter = container.resolve(BlockModelConverter);
         const block = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
-        const model = blockModelConverter.getBlockModel(block);
-        const data = blockModelConverter.getBlockData(model);
+        const models = blockModelConverter.getBlockModels([block]);
+        const data = blockModelConverter.getBlockData(models);
 
-        expect(data).toEqual(block.data);
+        expect(data).toEqual([block.data]);
     });
 });
