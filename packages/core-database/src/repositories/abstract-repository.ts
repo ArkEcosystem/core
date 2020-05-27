@@ -44,7 +44,7 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
             }
         }
 
-        if (options?.estimateCount === false) {
+        if (options?.estimateTotalCount === false) {
             const [rows, count]: [TEntity[], number] = await queryBuilder.getManyAndCount();
             return { rows, count, countIsEstimate: false };
         } else {

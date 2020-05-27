@@ -62,6 +62,13 @@ export class ForgerService {
 
     /**
      * @private
+     * @type {(Interfaces.IBlock | undefined)}
+     * @memberof ForgerService
+     */
+    private lastForgedBlock: Interfaces.IBlock | undefined;
+
+    /**
+     * @private
      * @type {boolean}
      * @memberof ForgerService
      */
@@ -69,6 +76,21 @@ export class ForgerService {
 
     public getRound(): Contracts.P2P.CurrentRound | undefined {
         return this.round;
+    }
+
+    public async getRemainingSlotTime(): Promise<number> {
+        const networkState: Contracts.P2P.NetworkState = await this.client.getNetworkState();
+
+        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(
+            this.app,
+            networkState.nodeHeight!,
+        );
+
+        return Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup);
+    }
+
+    public getLastForgedBlock(): Interfaces.IBlock | undefined {
+        return this.lastForgedBlock;
     }
 
     /**
@@ -269,6 +291,7 @@ export class ForgerService {
 
             await this.client.broadcastBlock(block);
 
+            this.lastForgedBlock = block;
             this.client.emitEvent(Enums.BlockEvent.Forged, block.data);
 
             for (const transaction of transactions) {

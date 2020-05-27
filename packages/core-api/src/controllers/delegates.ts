@@ -57,6 +57,7 @@ export class DelegatesController extends Controller {
                 { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
                 this.getListingOrder(request),
                 this.getListingPage(request),
+                this.getListingOptions(),
             );
 
             return this.toPagination(blockWithSomeTransactionsListResult, BlockWithTransactionsResource, true);
@@ -66,6 +67,7 @@ export class DelegatesController extends Controller {
                 blockCriteria,
                 this.getListingOrder(request),
                 this.getListingPage(request),
+                this.getListingOptions(),
             );
 
             return this.toPagination(blockListResult, BlockResource, false);

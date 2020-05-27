@@ -27,6 +27,7 @@ export class BlocksController extends Controller {
                 { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
                 this.getListingOrder(request),
                 this.getListingPage(request),
+                this.getListingOptions(),
             );
 
             return this.toPagination(blockWithSomeTransactionsListResult, BlockWithTransactionsResource, true);
@@ -98,6 +99,7 @@ export class BlocksController extends Controller {
             transactionCriteria,
             this.getListingOrder(request),
             this.getListingPage(request),
+            this.getListingOptions(),
         );
 
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
@@ -110,6 +112,7 @@ export class BlocksController extends Controller {
                 { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
                 this.getListingOrder(request),
                 this.getListingPage(request),
+                this.getListingOptions(),
             );
 
             return this.toPagination(blockWithSomeTransactionsListResult, BlockWithTransactionsResource, true);
