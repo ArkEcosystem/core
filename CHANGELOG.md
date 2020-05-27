@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.38] - 2020-05-27
+
+### Fixed
+
+-   Custom validation for `postBlock` in `core-p2p` worker ([#3695])
+
 ## [2.6.37] - 2020-05-12
 
 ### Changed
