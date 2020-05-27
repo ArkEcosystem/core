@@ -31,10 +31,8 @@ export class PublicKey {
         const minKey: string = PublicKey.fromPassphrase(numberToHex(min));
         const keys: string[] = [minKey, ...publicKeys];
 
-        return keys.reduce((previousValue: string, currentValue: string) =>
-            secp256k1
-                .publicKeyAdd(Buffer.from(previousValue, "hex"), Buffer.from(currentValue, "hex"), true)
-                .toString("hex"),
-        );
+        return secp256k1
+            .publicKeyCombine(keys.map((publicKey: string) => Buffer.from(publicKey, "hex")))
+            .toString("hex");
     }
 }

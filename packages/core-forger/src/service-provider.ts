@@ -5,7 +5,7 @@ import { DelegateFactory } from "./delegate-factory";
 import { DelegateTracker } from "./delegate-tracker";
 import { ForgerService } from "./forger-service";
 import { Delegate } from "./interfaces";
-import { CurrentDelegateProcessAction, LastForgedBlockRemoteAction } from "./process-actions";
+import { CurrentDelegateProcessAction, NextSlotProcessAction, LastForgedBlockRemoteAction } from "./process-actions";
 
 /**
  * @export
@@ -81,6 +81,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .register(this.app.resolve(CurrentDelegateProcessAction));
 
         this.app
+            .get<Contracts.Kernel.ProcessActionsService>(Container.Identifiers.ProcessActionsService)
+            .register(this.app.resolve(NextSlotProcessAction));
+      
+      this.app
             .get<Contracts.Kernel.ProcessActionsService>(Container.Identifiers.ProcessActionsService)
             .register(this.app.resolve(LastForgedBlockRemoteAction));
     }

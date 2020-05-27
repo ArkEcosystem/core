@@ -1,6 +1,6 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface DynamicFeeMatcher {
-    canEnterPool(transaction: Interfaces.ITransaction): Promise<boolean>;
-    canBroadcast(transaction: Interfaces.ITransaction): Promise<boolean>;
+    throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void>;
+    throwIfCannotBroadcast(transaction: Interfaces.ITransaction): Promise<void>;
 }
