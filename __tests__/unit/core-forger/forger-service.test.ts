@@ -127,7 +127,19 @@ describe("ForgerService", () => {
         });
     });
 
-    describe("GetLastForgedBlock", () => {
+    describe("GetRemainingSlotTime", () => {
+        it("should return undefined", async () => {
+            forgerService.register({ hosts: [mockHost] });
+
+            // @ts-ignore
+            const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
+            spyGetNetworkState.mockResolvedValue(mockNetworkState);
+
+            await expect(forgerService.getRemainingSlotTime()).resolves.toBeNumber();
+        });
+    });
+
+  describe("GetLastForgedBlock", () => {
         it("should return undefined", async () => {
             forgerService.register({ hosts: [mockHost] });
 
