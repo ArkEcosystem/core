@@ -26,7 +26,7 @@ export class Action implements Actions.Action {
         const result = parseProcessActionResponse(response);
 
         if (result.error) {
-            throw new Error("Trigger returned error.");
+            throw new Error("Trigger returned error");
         }
 
         return result.response;
