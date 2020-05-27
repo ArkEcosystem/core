@@ -1,5 +1,7 @@
 import { P2P } from "@arkecosystem/core-interfaces";
 import Ajv from "ajv";
+import delay from "delay";
+
 import { cidr } from "ip";
 import { RateLimiter } from "../rate-limiter";
 import { buildRateLimiter } from "../utils";
@@ -373,7 +375,7 @@ export class Worker extends SCWorker {
             req.socket.terminate();
             return;
         }
-
+        await delay(1);
         next();
     }
 
