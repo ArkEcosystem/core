@@ -82,7 +82,7 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
         transactionCriteria: Contracts.Search.OrCriteria<Contracts.Shared.TransactionCriteria>,
         order: Contracts.Search.ListOrder,
         page: Contracts.Search.ListPage,
-        options?: Contracts.Search.ListOptions | undefined,
+        options?: Contracts.Search.ListOptions,
     ): Promise<Contracts.Search.ListResult<Contracts.Shared.BlockDataWithTransactionData>> {
         const expression = await this.blockFilter.getExpression(blockCriteria);
         const modelListResult = await this.blockRepository.listByExpression(expression, order, page, options);
