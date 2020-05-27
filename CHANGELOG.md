@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
--   Custom validation for `postBlock` in `core-p2p` worker ([#3695])
+-   Discard late-forged blocks from forger ([#3746])
 
 ## [2.6.37] - 2020-05-12
 
@@ -1533,6 +1533,7 @@ Closed security vulnerabilities:
 [#3669]: https://github.com/ARKEcosystem/core/pull/3669
 [#3678]: https://github.com/ARKEcosystem/core/pull/3678
 [#3695]: https://github.com/ARKEcosystem/core/pull/3695
+[#3746]: https://github.com/ARKEcosystem/core/pull/3746
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
