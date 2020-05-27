@@ -1,61 +1,64 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { BridgechainRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
+import _ from "lodash";
+
+import { buildSenderWallet, initApp } from "../__support__/app";
+import { CryptoSuite, Interfaces } from "../../../../packages/core-crypto";
+import { Application, Contracts } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Enums, Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
+import { BridgechainRegistrationBuilder } from "../../../../packages/core-magistrate-crypto/src/builders";
 import {
     IBridgechainRegistrationAsset,
     IBusinessRegistrationAsset,
-} from "@packages/core-magistrate-crypto/src/interfaces";
+} from "../../../../packages/core-magistrate-crypto/src/interfaces";
 import {
     BridgechainAlreadyRegisteredError,
     BusinessIsResignedError,
     GenesisHashAlreadyRegisteredError,
     PortKeyMustBeValidPackageNameError,
     WalletIsNotBusinessError,
-} from "@packages/core-magistrate-transactions/src/errors";
-import { MagistrateApplicationEvents } from "@packages/core-magistrate-transactions/src/events";
+} from "../../../../packages/core-magistrate-transactions/src/errors";
+import { MagistrateApplicationEvents } from "../../../../packages/core-magistrate-transactions/src/events";
 import {
     BridgechainRegistrationTransactionHandler,
     BusinessRegistrationTransactionHandler,
-} from "@packages/core-magistrate-transactions/src/handlers";
-import { Wallets } from "@packages/core-state";
-import { StateStore } from "@packages/core-state/src/stores/state";
-import { Generators } from "@packages/core-test-framework/src";
-import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { InsufficientBalanceError } from "@packages/core-transactions/dist/errors";
-import { TransactionHandler } from "@packages/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { configManager } from "@packages/crypto/src/managers";
-
-import { buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
+} from "../../../../packages/core-magistrate-transactions/src/handlers";
+import { Wallets } from "../../../../packages/core-state";
+import { StateStore } from "../../../../packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "../../../../packages/core-test-framework/src";
+import { Generators } from "../../../../packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "../../../../packages/core-test-framework/src/factories";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { InsufficientBalanceError } from "../../../../packages/core-transactions/dist/errors";
+import { TransactionHandler } from "../../../../packages/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
+import { Interfaces as TransactionInterfaces, Transactions } from "../../../../packages/crypto";
 import { Assets } from "./__fixtures__";
-import _ from "lodash";
 
+let crypto: CryptoSuite.CryptoSuite;
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 let transactionHandlerRegistry: TransactionHandlerRegistry;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-const mockGetLastBlock = jest.fn();
-StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
+let mockLastBlockData: Partial<Interfaces.IBlockData>;
+let mockGetLastBlock;
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
-
+    crypto = new CryptoSuite.CryptoSuite(config);
+    crypto.CryptoManager.HeightTracker.setHeight(2);
     Mocks.TransactionRepository.setTransaction(null);
     Mocks.TransactionRepository.setTransactions([]);
 
-    app = initApp();
+    app = initApp(crypto);
+
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
+    mockGetLastBlock = jest.fn();
+    StateStore.prototype.getLastBlock = mockGetLastBlock;
+    mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
@@ -67,13 +70,13 @@ beforeEach(() => {
     factoryBuilder = new FactoryBuilder();
     Factories.registerWalletFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(app);
+    senderWallet = buildSenderWallet(app, crypto.CryptoManager);
 
     walletRepository.index(senderWallet);
 });
 
 describe("BusinessRegistration", () => {
-    let bridgechainRegistrationTransaction: Interfaces.ITransaction;
+    let bridgechainRegistrationTransaction: TransactionInterfaces.ITransaction;
     let handler: TransactionHandler;
     let businessRegistrationAsset: IBusinessRegistrationAsset;
     let bridgechainRegistrationAsset: IBridgechainRegistrationAsset;
@@ -90,7 +93,11 @@ describe("BusinessRegistration", () => {
         businessRegistrationAsset = _.cloneDeep(Assets.businessRegistrationAsset);
         bridgechainRegistrationAsset = _.cloneDeep(Assets.bridgechainRegistrationAsset);
 
-        bridgechainRegistrationTransaction = new BridgechainRegistrationBuilder()
+        bridgechainRegistrationTransaction = new BridgechainRegistrationBuilder(
+            crypto.CryptoManager,
+            crypto.TransactionManager.TransactionFactory,
+            crypto.TransactionManager.TransactionTools,
+        )
             .bridgechainRegistrationAsset(bridgechainRegistrationAsset)
             .nonce("1")
             .sign(passphrases[0])
@@ -103,10 +110,10 @@ describe("BusinessRegistration", () => {
 
     afterEach(() => {
         try {
-            Transactions.TransactionRegistry.deregisterTransactionType(
+            crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
                 MagistrateTransactions.BusinessRegistrationTransaction,
             );
-            Transactions.TransactionRegistry.deregisterTransactionType(
+            crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
                 MagistrateTransactions.BridgechainRegistrationTransaction,
             );
         } catch {}
@@ -115,7 +122,7 @@ describe("BusinessRegistration", () => {
     describe("bootstrap", () => {
         it("should resolve", async () => {
             Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(bridgechainRegistrationTransaction),
+                Mapper.mapTransactionToModel(bridgechainRegistrationTransaction, crypto.CryptoManager as any),
             ]);
             await expect(handler.bootstrap()).toResolve();
 
@@ -141,18 +148,18 @@ describe("BusinessRegistration", () => {
     });
 
     describe("throwIfCannotBeApplied", () => {
-        let pubKeyHash: number;
+        // let pubKeyHash: number;
 
-        beforeEach(() => {
-            pubKeyHash = configManager.get("network.pubKeyHash");
-        });
+        // beforeEach(() => {
+        //     pubKeyHash = configManager.get("network.pubKeyHash");
+        // });
 
-        afterEach(() => {
-            configManager.set("exceptions.transactions", []);
-            configManager.set("network.pubKeyHash", pubKeyHash);
-            // Trigger whitelistedBlockAndTransactionIds recalculation
-            Utils.isException(bridgechainRegistrationTransaction.data.id);
-        });
+        // afterEach(() => {
+        //     configManager.set("exceptions.transactions", []);
+        //     configManager.set("network.pubKeyHash", pubKeyHash);
+        //     // Trigger whitelistedBlockAndTransactionIds recalculation
+        //     crypto.CryptoManager.LibraryManager.Libraries.isException(bridgechainRegistrationTransaction.data.id);
+        // });
 
         it("should not throw", async () => {
             await expect(
@@ -165,8 +172,8 @@ describe("BusinessRegistration", () => {
         });
 
         it("should not throw defined as exception", async () => {
-            configManager.set("network.pubKeyHash", 99);
-            configManager.set("exceptions.transactions", [bridgechainRegistrationTransaction.data.id]);
+            // configManager.set("network.pubKeyHash", 99);
+            // configManager.set("exceptions.transactions", [bridgechainRegistrationTransaction.data.id]);
 
             await expect(
                 handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet, walletRepository),
@@ -237,7 +244,7 @@ describe("BusinessRegistration", () => {
         });
 
         it("should throw if wallet has insufficient balance", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
             await expect(
                 handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet, walletRepository),
             ).rejects.toThrowError(InsufficientBalanceError);
@@ -262,7 +269,7 @@ describe("BusinessRegistration", () => {
             ).toEqual(bridgechainRegistrationAsset);
 
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance)
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance)
                     .minus(bridgechainRegistrationTransaction.data.amount)
                     .minus(bridgechainRegistrationTransaction.data.fee),
             );
@@ -279,7 +286,7 @@ describe("BusinessRegistration", () => {
             ).toEqual(bridgechainRegistrationAsset);
 
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance)
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance)
                     .minus(bridgechainRegistrationTransaction.data.amount)
                     .minus(bridgechainRegistrationTransaction.data.fee),
             );
@@ -309,7 +316,9 @@ describe("BusinessRegistration", () => {
                 senderWallet.hasAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash],
             ).toBeUndefined();
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.balance).toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance),
+            );
         });
 
         it("should be ok without custom wallet repository", async () => {
@@ -328,7 +337,9 @@ describe("BusinessRegistration", () => {
                 senderWallet.hasAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash],
             ).toBeUndefined();
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.balance).toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance),
+            );
         });
     });
 });

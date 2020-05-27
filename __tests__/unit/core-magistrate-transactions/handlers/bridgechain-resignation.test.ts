@@ -1,57 +1,61 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { BridgechainResignationBuilder } from "@packages/core-magistrate-crypto/src/builders";
+import _ from "lodash";
+
+import { buildSenderWallet, initApp } from "../__support__/app";
+import { CryptoSuite, Interfaces as BlockInterfaces } from "../../../../packages/core-crypto";
+import { Application, Contracts } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Enums, Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
+import { BridgechainResignationBuilder } from "../../../../packages/core-magistrate-crypto/src/builders";
 import {
     BridgechainIsNotRegisteredByWalletError,
     BridgechainIsResignedError,
     BusinessIsResignedError,
     WalletIsNotBusinessError,
-} from "@packages/core-magistrate-transactions/src/errors";
-import { MagistrateApplicationEvents } from "@packages/core-magistrate-transactions/src/events";
+} from "../../../../packages/core-magistrate-transactions/src/errors";
+import { MagistrateApplicationEvents } from "../../../../packages/core-magistrate-transactions/src/events";
 import {
     BridgechainRegistrationTransactionHandler,
     BridgechainResignationTransactionHandler,
     BusinessRegistrationTransactionHandler,
-} from "@packages/core-magistrate-transactions/src/handlers";
-import { Wallets } from "@packages/core-state";
-import { StateStore } from "@packages/core-state/src/stores/state";
-import { Generators } from "@packages/core-test-framework/src";
-import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { Mempool } from "@packages/core-transaction-pool";
-import { InsufficientBalanceError } from "@packages/core-transactions/dist/errors";
-import { TransactionHandler } from "@packages/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { configManager } from "@packages/crypto/src/managers";
-
-import { buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
+} from "../../../../packages/core-magistrate-transactions/src/handlers";
+import { Wallets } from "../../../../packages/core-state";
+import { StateStore } from "../../../../packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "../../../../packages/core-test-framework/src";
+import { Generators } from "../../../../packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "../../../../packages/core-test-framework/src/factories";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { Mempool } from "../../../../packages/core-transaction-pool";
+import { InsufficientBalanceError } from "../../../../packages/core-transactions/dist/errors";
+import { TransactionHandler } from "../../../../packages/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
+import { Interfaces, Transactions } from "../../../../packages/crypto";
 import { Assets } from "./__fixtures__";
-import _ from "lodash";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 let transactionHandlerRegistry: TransactionHandlerRegistry;
+let crypto: CryptoSuite.CryptoSuite;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-const mockGetLastBlock = jest.fn();
-StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
+let mockLastBlockData: Partial<BlockInterfaces.IBlockData>;
+let mockGetLastBlock;
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+    crypto = new CryptoSuite.CryptoSuite(config);
+    crypto.CryptoManager.HeightTracker.setHeight(2);
 
     Mocks.TransactionRepository.setTransactions([]);
 
-    app = initApp();
+    app = initApp(crypto);
+
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
+    mockGetLastBlock = jest.fn();
+    StateStore.prototype.getLastBlock = mockGetLastBlock;
+    mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
@@ -61,10 +65,10 @@ beforeEach(() => {
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    factoryBuilder = new FactoryBuilder();
+    factoryBuilder = new FactoryBuilder(crypto);
     Factories.registerWalletFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(app);
+    senderWallet = buildSenderWallet(app, crypto.CryptoManager);
 
     walletRepository.index(senderWallet);
 });
@@ -84,7 +88,11 @@ describe("BusinessRegistration", () => {
             2,
         );
 
-        bridgechainResignationTransaction = new BridgechainResignationBuilder()
+        bridgechainResignationTransaction = new BridgechainResignationBuilder(
+            crypto.CryptoManager,
+            crypto.TransactionManager.TransactionFactory,
+            crypto.TransactionManager.TransactionTools,
+        )
             .bridgechainResignationAsset(bridgechainRegistrationAsset.genesisHash)
             .nonce("1")
             .sign(passphrases[0])
@@ -107,13 +115,13 @@ describe("BusinessRegistration", () => {
 
     afterEach(() => {
         try {
-            Transactions.TransactionRegistry.deregisterTransactionType(
+            crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
                 MagistrateTransactions.BusinessRegistrationTransaction,
             );
-            Transactions.TransactionRegistry.deregisterTransactionType(
+            crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
                 MagistrateTransactions.BridgechainRegistrationTransaction,
             );
-            Transactions.TransactionRegistry.deregisterTransactionType(
+            crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
                 MagistrateTransactions.BridgechainResignationTransaction,
             );
         } catch {}
@@ -178,7 +186,11 @@ describe("BusinessRegistration", () => {
         });
 
         it("should throw if bridgechain is not registered", async () => {
-            bridgechainResignationTransaction = new BridgechainResignationBuilder()
+            bridgechainResignationTransaction = new BridgechainResignationBuilder(
+                crypto.CryptoManager,
+                crypto.TransactionManager.TransactionFactory,
+                crypto.TransactionManager.TransactionTools,
+            )
                 .bridgechainResignationAsset("6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b")
                 .nonce("1")
                 .sign(passphrases[0])
@@ -208,7 +220,18 @@ describe("BusinessRegistration", () => {
         });
 
         it("should throw if wallet has insufficient balance", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
+            const bridgechainResignationTransaction = new BridgechainResignationBuilder(
+                crypto.CryptoManager,
+                crypto.TransactionManager.TransactionFactory,
+                crypto.TransactionManager.TransactionTools,
+            )
+                .bridgechainResignationAsset(bridgechainRegistrationAsset.genesisHash)
+                .amount("10")
+                .nonce("1")
+                .sign(passphrases[0])
+                .build();
+
             await expect(
                 handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository),
             ).rejects.toThrowError(InsufficientBalanceError);
@@ -242,7 +265,7 @@ describe("BusinessRegistration", () => {
             ).toBeTrue();
 
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance)
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance)
                     .minus(bridgechainResignationTransaction.data.amount)
                     .minus(bridgechainResignationTransaction.data.fee),
             );
@@ -271,7 +294,9 @@ describe("BusinessRegistration", () => {
                 senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].resigned,
             ).toBeFalse();
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.balance).toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance),
+            );
         });
 
         it("should throw if transaction asset is missing", async () => {

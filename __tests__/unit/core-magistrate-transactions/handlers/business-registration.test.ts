@@ -1,49 +1,53 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { BusinessRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
-import { BusinessAlreadyRegisteredError } from "@packages/core-magistrate-transactions/src/errors";
-import { MagistrateApplicationEvents } from "@packages/core-magistrate-transactions/src/events";
-import { BusinessRegistrationTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers";
-import { MagistrateIndex } from "@packages/core-magistrate-transactions/src/wallet-indexes";
-import { Wallets } from "@packages/core-state";
-import { StateStore } from "@packages/core-state/src/stores/state";
-import { Generators } from "@packages/core-test-framework/src";
-import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { Mempool } from "@packages/core-transaction-pool";
-import { InsufficientBalanceError } from "@packages/core-transactions/dist/errors";
-import { TransactionHandler } from "@packages/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { configManager } from "@packages/crypto/src/managers";
+import _ from "lodash";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
+import { CryptoSuite, Interfaces as BlockInterfaces } from "../../../../packages/core-crypto";
+import { Application, Contracts } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Enums, Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
+import { BusinessRegistrationBuilder } from "../../../../packages/core-magistrate-crypto/src/builders";
+import { BusinessAlreadyRegisteredError } from "../../../../packages/core-magistrate-transactions/src/errors";
+import { MagistrateApplicationEvents } from "../../../../packages/core-magistrate-transactions/src/events";
+import { BusinessRegistrationTransactionHandler } from "../../../../packages/core-magistrate-transactions/src/handlers";
+import { MagistrateIndex } from "../../../../packages/core-magistrate-transactions/src/wallet-indexes";
+import { Wallets } from "../../../../packages/core-state";
+import { StateStore } from "../../../../packages/core-state/src/stores/state";
+import { Mapper, Mocks } from "../../../../packages/core-test-framework/src";
+import { Generators } from "../../../../packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "../../../../packages/core-test-framework/src/factories";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { Mempool } from "../../../../packages/core-transaction-pool";
+import { InsufficientBalanceError } from "../../../../packages/core-transactions/dist/errors";
+import { TransactionHandler } from "../../../../packages/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
+import { Interfaces, Transactions } from "../../../../packages/crypto";
 import { Assets } from "./__fixtures__";
-import _ from "lodash";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 let transactionHandlerRegistry: TransactionHandlerRegistry;
+let crypto: CryptoSuite.CryptoSuite;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-const mockGetLastBlock = jest.fn();
-StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
+let mockLastBlockData: Partial<BlockInterfaces.IBlockData>;
+let mockGetLastBlock;
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+    crypto = new CryptoSuite.CryptoSuite(config);
+    crypto.CryptoManager.HeightTracker.setHeight(2);
 
     Mocks.TransactionRepository.setTransactions([]);
 
-    app = initApp();
+    app = initApp(crypto);
+
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
+    mockGetLastBlock = jest.fn();
+    StateStore.prototype.getLastBlock = mockGetLastBlock;
+    mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
 
@@ -51,10 +55,10 @@ beforeEach(() => {
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    factoryBuilder = new FactoryBuilder();
+    factoryBuilder = new FactoryBuilder(crypto);
     Factories.registerWalletFactory(factoryBuilder);
 
-    senderWallet = buildSenderWallet(app);
+    senderWallet = buildSenderWallet(app, crypto.CryptoManager);
 
     walletRepository.index(senderWallet);
 });
@@ -73,7 +77,11 @@ describe("BusinessRegistration", () => {
             2,
         );
 
-        businessRegistrationTransaction = new BusinessRegistrationBuilder()
+        businessRegistrationTransaction = new BusinessRegistrationBuilder(
+            crypto.CryptoManager,
+            crypto.TransactionManager.TransactionFactory,
+            crypto.TransactionManager.TransactionTools,
+        )
             .businessRegistrationAsset(businessRegistrationAsset)
             .nonce("1")
             .sign(passphrases[0])
@@ -82,7 +90,7 @@ describe("BusinessRegistration", () => {
 
     afterEach(() => {
         try {
-            Transactions.TransactionRegistry.deregisterTransactionType(
+            crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
                 MagistrateTransactions.BusinessRegistrationTransaction,
             );
         } catch {}
@@ -129,7 +137,7 @@ describe("BusinessRegistration", () => {
         });
 
         it("should throw if wallet has insufficient balance", async () => {
-            senderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
             await expect(
                 handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository),
             ).rejects.toThrowError(InsufficientBalanceError);
@@ -160,7 +168,7 @@ describe("BusinessRegistration", () => {
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessRegistrationAsset);
 
             expect(senderWallet.balance).toEqual(
-                Utils.BigNumber.make(senderBalance)
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance)
                     .minus(businessRegistrationTransaction.data.amount)
                     .minus(businessRegistrationTransaction.data.fee),
             );
@@ -188,7 +196,9 @@ describe("BusinessRegistration", () => {
             await handler.revert(businessRegistrationTransaction, walletRepository);
 
             expect(senderWallet.hasAttribute("business")).toBeFalse();
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+            expect(senderWallet.balance).toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(senderBalance),
+            );
 
             expect(() => {
                 walletRepository.findByIndex(MagistrateIndex.Businesses, senderWallet.publicKey!);

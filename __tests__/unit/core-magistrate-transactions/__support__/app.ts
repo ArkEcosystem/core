@@ -1,3 +1,4 @@
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Application, Container, Contracts, Providers, Services } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { NullEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/null";
@@ -15,7 +16,7 @@ import {
     publicKeysIndexer,
     usernamesIndexer,
 } from "@packages/core-state/src/wallets/indexers/indexers";
-import { Mocks } from "@packages/core-test-framework";
+import { Mocks } from "@packages/core-test-framework/src";
 import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { knownAttributes } from "@packages/core-test-framework/src/internal/wallet-attributes";
@@ -35,7 +36,6 @@ import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
 import { One, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
 
 const logger = {
@@ -44,8 +44,8 @@ const logger = {
     warning: jest.fn(),
 };
 
-export const initApp = (): Application => {
-    const app: Application = new Application(new Container.Container());
+export const initApp = (cryptoSuite: CryptoSuite.CryptoSuite): Application => {
+    const app: Application = new Application(new Container.Container(), cryptoSuite);
     app.bind(Identifiers.ApplicationNamespace).toConstantValue("testnet");
 
     app.bind(Identifiers.LogService).toConstantValue(logger);
@@ -92,6 +92,7 @@ export const initApp = (): Application => {
     app.bind(Identifiers.WalletFactory).toFactory<Contracts.State.Wallet>(
         (context: Container.interfaces.Context) => (address: string) =>
             new Wallets.Wallet(
+                cryptoSuite.CryptoManager,
                 address,
                 new Services.Attributes.AttributeMap(
                     context.container.get<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes),
@@ -180,7 +181,10 @@ export const initApp = (): Application => {
     return app;
 };
 
-export const buildSenderWallet = (app: Application): Contracts.State.Wallet => {
+export const buildSenderWallet = (
+    app: Application,
+    cryptoManager: CryptoSuite.CryptoManager,
+): Contracts.State.Wallet => {
     // const wallet: Wallets.Wallet = factoryBuilder
     //     .get("Wallet")
     //     .withOptions({
@@ -189,21 +193,20 @@ export const buildSenderWallet = (app: Application): Contracts.State.Wallet => {
     //     })
     //     .make();
 
-    const walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+    // const walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    const wallet: Contracts.State.Wallet = walletRepository.createWallet(
-        Identities.Address.fromPassphrase(passphrases[0]),
-    );
-
-    // let wallet: Wallets.Wallet = new Wallets.Wallet(
-    //     Identities.Address.fromPassphrase(passphrases[0]),
-    //     new Services.Attributes.AttributeMap(
-    //         app.get<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes),
-    //     ),
+    // const wallet: Contracts.State.Wallet = walletRepository.createWallet(
+    //     cryptoManager.Identities.Address.fromPassphrase(passphrases[0]),
     // );
 
-    wallet.publicKey = Identities.PublicKey.fromPassphrase(passphrases[0]);
-    wallet.balance = Utils.BigNumber.make(7527654310);
+    const wallet: Wallets.Wallet = new Wallets.Wallet(
+        cryptoManager,
+        cryptoManager.Identities.Address.fromPassphrase(passphrases[0]),
+        new Services.Attributes.AttributeMap(app.get<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes)),
+    );
+
+    wallet.publicKey = cryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]);
+    wallet.balance = cryptoManager.LibraryManager.Libraries.BigNumber.make(7527654310);
 
     return wallet;
 };
@@ -217,7 +220,10 @@ export const buildRecipientWallet = (factoryBuilder: FactoryBuilder): Wallets.Wa
         .make();
 };
 
-export const buildSecondSignatureWallet = (factoryBuilder: FactoryBuilder): Wallets.Wallet => {
+export const buildSecondSignatureWallet = (
+    factoryBuilder: FactoryBuilder,
+    cryptoManager: CryptoSuite.CryptoManager,
+): Wallets.Wallet => {
     const wallet: Wallets.Wallet = factoryBuilder
         .get("Wallet")
         .withOptions({
@@ -226,25 +232,29 @@ export const buildSecondSignatureWallet = (factoryBuilder: FactoryBuilder): Wall
         })
         .make();
 
-    wallet.balance = Utils.BigNumber.make(7527654310);
+    wallet.balance = cryptoManager.LibraryManager.Libraries.BigNumber.make(7527654310);
     wallet.setAttribute("secondPublicKey", "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
 
     return wallet;
 };
 
-export const buildMultiSignatureWallet = (): Wallets.Wallet => {
+export const buildMultiSignatureWallet = (cryptoManager: CryptoSuite.CryptoManager): Wallets.Wallet => {
     const multiSignatureAsset: IMultiSignatureAsset = {
         publicKeys: [
-            Identities.PublicKey.fromPassphrase(passphrases[0]),
-            Identities.PublicKey.fromPassphrase(passphrases[1]),
-            Identities.PublicKey.fromPassphrase(passphrases[2]),
+            cryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
+            cryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
+            cryptoManager.Identities.PublicKey.fromPassphrase(passphrases[2]),
         ],
         min: 2,
     };
 
-    const wallet = new Wallets.Wallet(Identities.Address.fromMultiSignatureAsset(multiSignatureAsset), knownAttributes);
-    wallet.publicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignatureAsset);
-    wallet.balance = Utils.BigNumber.make(100390000000);
+    const wallet = new Wallets.Wallet(
+        cryptoManager,
+        cryptoManager.Identities.Address.fromMultiSignatureAsset(multiSignatureAsset),
+        knownAttributes,
+    );
+    wallet.publicKey = cryptoManager.Identities.PublicKey.fromMultiSignatureAsset(multiSignatureAsset);
+    wallet.balance = cryptoManager.LibraryManager.Libraries.BigNumber.make(100390000000);
     wallet.setAttribute("multiSignature", multiSignatureAsset);
 
     return wallet;
