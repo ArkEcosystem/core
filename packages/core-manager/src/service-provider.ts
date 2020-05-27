@@ -1,4 +1,5 @@
 import { ApplicationFactory } from "@arkecosystem/core-cli";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Providers, Types } from "@arkecosystem/core-kernel";
 
 import { ActionReader } from "./action-reader";
@@ -18,7 +19,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Identifiers.SnapshotsManager).to(SnapshotsManager).inSingletonScope();
 
         const pkg: Types.PackageJson = require("../package.json");
-        this.app.bind(Identifiers.CLI).toConstantValue(ApplicationFactory.make(new Container.Container(), pkg));
+        const cryptoSuite = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+        this.app
+            .bind(Identifiers.CLI)
+            .toConstantValue(ApplicationFactory.make(new Container.Container(), pkg, cryptoSuite));
 
         if (this.config().get("server.http.enabled")) {
             await this.buildServer("http", Identifiers.HTTP);
