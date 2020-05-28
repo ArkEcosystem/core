@@ -1,10 +1,15 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Blocks } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@packages/core-crypto";
 
 import { BlockModelConverter } from "../../../packages/core-database/src/block-model-converter";
-import block1760000 from "./__fixtures__/block1760000";
+import { makeMockBlock } from "./__fixtures__/block1760000";
 
 const container = new Container.Container();
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+
+container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
 
 const getTimeStampForBlock = (height: number) => {
     switch (height) {
@@ -18,7 +23,7 @@ const getTimeStampForBlock = (height: number) => {
 describe("BlockModelConverter", () => {
     it("should convert block to model and back to data", () => {
         const blockModelConverter = container.resolve(BlockModelConverter);
-        const block = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const block = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
         const model = blockModelConverter.getBlockModel(block);
         const data = blockModelConverter.getBlockData(model);
 

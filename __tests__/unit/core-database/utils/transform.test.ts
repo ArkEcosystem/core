@@ -1,13 +1,15 @@
-import { Utils } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@packages/core-crypto";
 import { FindOperator } from "typeorm";
 
 import { transformBigInt, transformVendorField } from "../../../../packages/core-database/src/utils/transform";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 describe("transformBigInt.from", () => {
     it("should transform string value to BigNumber", () => {
         const original = "5";
         const transformed = transformBigInt.from(original);
-        expect(transformed).toEqual(Utils.BigNumber.make("5"));
+        expect(transformed).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("5"));
     });
 
     it("should not transform undefined value", () => {
@@ -19,15 +21,15 @@ describe("transformBigInt.from", () => {
 
 describe("transformBigInt.to", () => {
     it("should transform BigNumber value to string", () => {
-        const original = Utils.BigNumber.make("5");
-        const transformed = transformBigInt.to(original);
+        const original = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("5");
+        const transformed = transformBigInt.to(original as any);
         expect(transformed).toEqual("5");
     });
 
     it("should return FindOperator.value", () => {
-        const original = new FindOperator("equal", Utils.BigNumber.make("5"));
+        const original = new FindOperator("equal", crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("5"));
         const transformed = transformBigInt.to(original);
-        expect(transformed).toEqual(Utils.BigNumber.make("5"));
+        expect(transformed).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("5"));
     });
 });
 

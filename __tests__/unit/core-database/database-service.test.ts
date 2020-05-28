@@ -1,15 +1,21 @@
 import { Container, Enums } from "@arkecosystem/core-kernel";
-import { Blocks, Identities, Utils } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@packages/core-crypto";
 
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
-import block1760000 from "./__fixtures__/block1760000";
+import { makeMockBlock } from "./__fixtures__/block1760000";
 
 const getTimeStampForBlock = () => {
     throw new Error("Unreachable");
 };
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 const app = {
-    get: jest.fn(),
+    // @ts-ignore
+    get: (identifier) => {
+        if (identifier === Container.Identifiers.CryptoManager) {
+            return crypto.CryptoManager;
+        }
+    },
     terminate: jest.fn(),
 };
 
@@ -105,6 +111,11 @@ const emitter = {
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.Application).toConstantValue(app);
+
+container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
+
 container.bind(Container.Identifiers.DatabaseConnection).toConstantValue(connection);
 container.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(blockRepository);
 container.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue(transactionRepository);
@@ -122,7 +133,6 @@ container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
 
 beforeEach(() => {
-    app.get.mockReset();
     app.terminate.mockReset();
 
     connection.query.mockReset();
@@ -301,7 +311,7 @@ describe("DatabaseService.restoreCurrentRound", () => {
     it("should restore round to its initial state", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
 
         const lastBlocksByHeight = [lastBlock.data];
@@ -565,13 +575,13 @@ describe("DatabaseService.getActiveDelegates", () => {
     it("should return shuffled round delegates", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
 
         blockRepository.findLatest.mockResolvedValueOnce(lastBlock.data);
         transactionRepository.findByBlockIds.mockResolvedValueOnce(lastBlock.transactions);
 
         const delegatePublicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
-        const delegateVoteBalance = Utils.BigNumber.make("100");
+        const delegateVoteBalance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100");
         const roundDelegateModel = { publicKey: delegatePublicKey, balance: delegateVoteBalance };
         roundRepository.find.mockResolvedValueOnce([roundDelegateModel]);
 
@@ -590,7 +600,9 @@ describe("DatabaseService.getActiveDelegates", () => {
         await databaseService.getActiveDelegates();
 
         expect(walletRepository.findByPublicKey).toBeCalledWith(delegatePublicKey);
-        expect(walletRepository.createWallet).toBeCalledWith(Identities.Address.fromPublicKey(delegatePublicKey));
+        expect(walletRepository.createWallet).toBeCalledWith(
+            crypto.CryptoManager.Identities.Address.fromPublicKey(delegatePublicKey),
+        );
         expect(oldDelegateWallet.getAttribute).toBeCalledWith("delegate.username", "");
         expect(newDelegateWallet.setAttribute).toBeCalledWith("delegate", {
             voteBalance: delegateVoteBalance,
@@ -619,7 +631,7 @@ describe("DatabaseService.getBlock", () => {
     it("should return block", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const block = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const block = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
         blockRepository.findOne.mockResolvedValueOnce({ ...block.data });
         transactionRepository.find.mockResolvedValueOnce(block.transactions);
 
@@ -768,7 +780,7 @@ describe("DatabaseService.getBlocksForRound", () => {
         const databaseService = container.resolve(DatabaseService);
 
         const block1 = { data: { height: 1 } };
-        const block2 = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const block2 = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
         stateStore.getLastBlock.mockReturnValueOnce(block2);
         stateStore.getLastBlocksByHeight.mockReturnValueOnce([
             block1.data,
@@ -801,7 +813,7 @@ describe("DatabaseService.getLastBlock", () => {
     it("should return last block from repository", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
         blockRepository.findLatest.mockResolvedValueOnce({ ...lastBlock.data });
         transactionRepository.findByBlockIds.mockResolvedValueOnce(lastBlock.transactions);
 
@@ -894,7 +906,7 @@ describe("DatabaseService.getTopBlocks", () => {
     it("should return top blocks with transactions", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const block = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const block = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
         blockRepository.findTop.mockResolvedValueOnce([block.data]);
 
         const dbTransactions = block.transactions.map((t) => ({
@@ -944,7 +956,7 @@ describe("DatabaseService.loadBlocksFromCurrentRound", () => {
     it("should initialize blocksInCurrentRound property", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
         stateStore.getLastBlocksByHeight.mockReturnValueOnce([lastBlock.data]);
         blockRepository.findByHeightRangeWithTransactions.mockReturnValueOnce([lastBlock.data]);
@@ -980,7 +992,7 @@ describe("DatabaseService.revertRound", () => {
     it("should revert, and delete round when reverting to previous round", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
         stateStore.getLastBlocksByHeight.mockReturnValueOnce([lastBlock.data]);
         blockRepository.findByHeightRangeWithTransactions.mockReturnValueOnce([lastBlock.data]);
@@ -1079,7 +1091,7 @@ describe("DatabaseService.verifyBlockchain", () => {
     it("should return false when there are discrepancies", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
 
         const numberOfBlocks = 1760000;
@@ -1111,7 +1123,7 @@ describe("DatabaseService.verifyBlockchain", () => {
     it("should check last block statistics", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
 
         const numberOfBlocks = 1760000;

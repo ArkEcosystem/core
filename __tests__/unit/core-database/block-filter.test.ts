@@ -1,9 +1,14 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@packages/core-crypto";
 
 import { BlockFilter } from "../../../packages/core-database/src/block-filter";
 
 const container = new Container.Container();
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
+container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
 
 describe("BlockFilter.getExpression", () => {
     describe("BlockCriteria.unknown", () => {
@@ -135,12 +140,14 @@ describe("BlockFilter.getExpression", () => {
     describe("BlockCriteria.totalAmount", () => {
         it("should compare using equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
-            const expression = await blockFilter.getExpression({ totalAmount: Utils.BigNumber.make("10000") });
+            const expression = await blockFilter.getExpression({
+                totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("10000"),
+            });
 
             expect(expression).toEqual({
                 property: "totalAmount",
                 op: "equal",
-                value: Utils.BigNumber.make("10000"),
+                value: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("10000"),
             });
         });
 
@@ -148,16 +155,16 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({
                 totalAmount: {
-                    from: Utils.BigNumber.make("10000"),
-                    to: Utils.BigNumber.make("20000"),
+                    from: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("10000"),
+                    to: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("20000"),
                 },
             });
 
             expect(expression).toEqual({
                 property: "totalAmount",
                 op: "between",
-                from: Utils.BigNumber.make("10000"),
-                to: Utils.BigNumber.make("20000"),
+                from: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("10000"),
+                to: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("20000"),
             });
         });
 
@@ -165,14 +172,14 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({
                 totalAmount: {
-                    from: Utils.BigNumber.make("10000"),
+                    from: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("10000"),
                 },
             });
 
             expect(expression).toEqual({
                 property: "totalAmount",
                 op: "greaterThanEqual",
-                value: Utils.BigNumber.make("10000"),
+                value: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("10000"),
             });
         });
 
@@ -180,14 +187,14 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({
                 totalAmount: {
-                    to: Utils.BigNumber.make("10000"),
+                    to: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("10000"),
                 },
             });
 
             expect(expression).toEqual({
                 property: "totalAmount",
                 op: "lessThanEqual",
-                value: Utils.BigNumber.make("10000"),
+                value: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("10000"),
             });
         });
     });
@@ -195,25 +202,31 @@ describe("BlockFilter.getExpression", () => {
     describe("BlockCriteria.totalFee", () => {
         it("should compare using equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
-            const expression = await blockFilter.getExpression({ totalFee: Utils.BigNumber.make("100") });
+            const expression = await blockFilter.getExpression({
+                totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
+            });
 
-            expect(expression).toEqual({ property: "totalFee", op: "equal", value: Utils.BigNumber.make("100") });
+            expect(expression).toEqual({
+                property: "totalFee",
+                op: "equal",
+                value: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
+            });
         });
 
         it("should compare using between expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({
                 totalFee: {
-                    from: Utils.BigNumber.make("100"),
-                    to: Utils.BigNumber.make("200"),
+                    from: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
+                    to: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("200"),
                 },
             });
 
             expect(expression).toEqual({
                 property: "totalFee",
                 op: "between",
-                from: Utils.BigNumber.make("100"),
-                to: Utils.BigNumber.make("200"),
+                from: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
+                to: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("200"),
             });
         });
 
@@ -221,14 +234,14 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({
                 totalFee: {
-                    from: Utils.BigNumber.make("100"),
+                    from: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
                 },
             });
 
             expect(expression).toEqual({
                 property: "totalFee",
                 op: "greaterThanEqual",
-                value: Utils.BigNumber.make("100"),
+                value: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
             });
         });
 
@@ -236,14 +249,14 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({
                 totalFee: {
-                    to: Utils.BigNumber.make("100"),
+                    to: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
                 },
             });
 
             expect(expression).toEqual({
                 property: "totalFee",
                 op: "lessThanEqual",
-                value: Utils.BigNumber.make("100"),
+                value: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
             });
         });
     });
@@ -251,25 +264,31 @@ describe("BlockFilter.getExpression", () => {
     describe("BlockCriteria.reward", () => {
         it("should compare using equal expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
-            const expression = await blockFilter.getExpression({ reward: Utils.BigNumber.make("1000") });
+            const expression = await blockFilter.getExpression({
+                reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
+            });
 
-            expect(expression).toEqual({ property: "reward", op: "equal", value: Utils.BigNumber.make("1000") });
+            expect(expression).toEqual({
+                property: "reward",
+                op: "equal",
+                value: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
+            });
         });
 
         it("should compare using between expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({
                 reward: {
-                    from: Utils.BigNumber.make("1000"),
-                    to: Utils.BigNumber.make("2000"),
+                    from: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
+                    to: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("2000"),
                 },
             });
 
             expect(expression).toEqual({
                 property: "reward",
                 op: "between",
-                from: Utils.BigNumber.make("1000"),
-                to: Utils.BigNumber.make("2000"),
+                from: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
+                to: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("2000"),
             });
         });
 
@@ -277,14 +296,14 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({
                 reward: {
-                    from: Utils.BigNumber.make("1000"),
+                    from: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
                 },
             });
 
             expect(expression).toEqual({
                 property: "reward",
                 op: "greaterThanEqual",
-                value: Utils.BigNumber.make("1000"),
+                value: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
             });
         });
 
@@ -292,14 +311,14 @@ describe("BlockFilter.getExpression", () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({
                 reward: {
-                    to: Utils.BigNumber.make("1000"),
+                    to: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
                 },
             });
 
             expect(expression).toEqual({
                 property: "reward",
                 op: "lessThanEqual",
-                value: Utils.BigNumber.make("1000"),
+                value: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
             });
         });
     });
