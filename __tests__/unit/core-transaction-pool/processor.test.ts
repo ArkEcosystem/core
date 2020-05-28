@@ -1,15 +1,9 @@
-<<<<<<< HEAD
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { CryptoSuite } from "@packages/core-crypto";
+import { TransactionFeeToLowError } from "@packages/core-transaction-pool/src/errors";
 import { Processor } from "@packages/core-transaction-pool/src/processor";
 
 const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
-=======
-import { Container, Contracts } from "@packages/core-kernel";
-import { TransactionFeeToLowError } from "@packages/core-transaction-pool/src/errors";
-import { Processor } from "@packages/core-transaction-pool/src/processor";
-import { Identities, Managers, Transactions } from "@packages/crypto";
->>>>>>> c74e4ca7217a4b22b2984bf491c5a5564ff915a9
 
 crypto.CryptoManager.HeightTracker.setHeight(2);
 crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;

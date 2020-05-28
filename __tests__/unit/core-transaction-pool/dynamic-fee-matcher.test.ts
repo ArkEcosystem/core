@@ -1,16 +1,10 @@
-<<<<<<< HEAD
+import "jest-extended";
+
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import { CryptoSuite } from "@packages/core-crypto";
 import { DynamicFeeMatcher } from "@packages/core-transaction-pool/src/dynamic-fee-matcher";
-=======
-import "jest-extended";
-
-import { Container, Contracts } from "@packages/core-kernel";
-import { DynamicFeeMatcher } from "@packages/core-transaction-pool/src/dynamic-fee-matcher";
 import { TransactionFeeToHighError, TransactionFeeToLowError } from "@packages/core-transaction-pool/src/errors";
-import { Interfaces, Utils } from "@packages/crypto";
->>>>>>> c74e4ca7217a4b22b2984bf491c5a5564ff915a9
 
 const handler = { dynamicFee: jest.fn() };
 const configuration = { getRequired: jest.fn() };
@@ -171,8 +165,8 @@ describe("when dynamic fees are disabled", () => {
         it("should not allow entering pool when fee is lower than static fee", async () => {
             const transaction = {
                 key: "transfer",
-                staticFee: new Utils.BigNumber(1000),
-                data: { fee: new Utils.BigNumber(999) },
+                staticFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
+                data: { fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("999") },
             };
 
             const dynamicFeeMatcher = container.resolve(DynamicFeeMatcher);
@@ -216,8 +210,8 @@ describe("when dynamic fees are disabled", () => {
         it("should not allow entering pool when fee is lower than static fee", async () => {
             const transaction = {
                 key: "transfer",
-                staticFee: new Utils.BigNumber(1000),
-                data: { fee: new Utils.BigNumber(999) },
+                staticFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1000"),
+                data: { fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("999") },
             };
 
             const dynamicFeeMatcher = container.resolve(DynamicFeeMatcher);
