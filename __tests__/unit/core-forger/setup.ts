@@ -1,18 +1,18 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { Container, Services } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Sandbox } from "@packages/core-test-framework/src";
-import { Managers } from "@packages/crypto/src";
 
 export const mockLastBlock = {
     data: { height: 3, timestamp: 16 },
 };
 
-export const setup = async (activeDelegates) => {
-    const sandbox = new Sandbox();
+export const setup = async (activeDelegates, cryptoSuite: CryptoSuite.CryptoSuite) => {
+    const sandbox = new Sandbox(cryptoSuite);
 
     const error: jest.SpyInstance = jest.fn();
     const debug: jest.SpyInstance = jest.fn();
@@ -64,11 +64,6 @@ export const setup = async (activeDelegates) => {
     const delegateTracker = sandbox.app.resolve(DelegateTracker);
 
     await sandbox.boot();
-
-    // todo: get rid of the need for this, requires an instance based crypto package
-    Managers.configManager.setConfig(
-        sandbox.app.get<Services.Config.ConfigRepository>(Container.Identifiers.ConfigRepository).get("crypto"),
-    );
 
     return {
         sandbox,

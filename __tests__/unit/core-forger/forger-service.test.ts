@@ -1,17 +1,14 @@
 import "jest-extended";
 
-import { ForgeNewBlockAction, IsForgingAllowedAction } from "@arkecosystem/core-forger/src/actions";
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Sandbox } from "@arkecosystem/core-test-framework";
-import { Interfaces } from "@arkecosystem/crypto";
+import { CryptoSuite, Interfaces } from "@packages/core-crypto";
 import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
+import { ForgeNewBlockAction, IsForgingAllowedAction } from "@packages/core-forger/src/actions";
 import { HostNoResponseError, RelayCommunicationError } from "@packages/core-forger/src/errors";
 import { ForgerService } from "@packages/core-forger/src/forger-service";
+import { Contracts } from "@packages/core-kernel";
 import { Container, Enums, Services, Utils } from "@packages/core-kernel";
 import { NetworkStateStatus } from "@packages/core-p2p";
-import { Crypto, Managers } from "@packages/crypto";
-import { Address } from "@packages/crypto/src/identities";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 import { calculateActiveDelegates } from "./__utils__/calculate-active-delegates";
 
@@ -34,8 +31,12 @@ const client = {
     selectHost: jest.fn(),
 };
 
+let crypto: CryptoSuite.CryptoSuite;
+
 beforeEach(() => {
-    sandbox = new Sandbox();
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+
+    sandbox = new Sandbox(crypto);
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
     sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
@@ -83,10 +84,10 @@ describe("ForgerService", () => {
 
         jest.spyOn(sandbox.app, "resolve").mockReturnValueOnce(client); // forger-service only resolves Client
 
-        const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+        const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTimeInMsUntilNextSlot");
         slotSpy.mockReturnValue(0);
 
-        delegates = calculateActiveDelegates();
+        delegates = calculateActiveDelegates(crypto.CryptoManager);
 
         round = { data: { delegates, timestamp: 50, reward: 0 }, canForge: false };
 
@@ -99,8 +100,8 @@ describe("ForgerService", () => {
             lastBlockId: "11111111",
         };
 
-        const recipientAddress = Address.fromPassphrase("recipient's secret");
-        transaction = BuilderFactory.transfer()
+        const recipientAddress = crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret");
+        transaction = crypto.TransactionManager.BuilderFactory.transfer()
             .version(1)
             .amount("100")
             .recipientId(recipientAddress)
@@ -139,7 +140,7 @@ describe("ForgerService", () => {
         });
     });
 
-  describe("GetLastForgedBlock", () => {
+    describe("GetLastForgedBlock", () => {
         it("should return undefined", async () => {
             forgerService.register({ hosts: [mockHost] });
 
@@ -238,7 +239,7 @@ describe("ForgerService", () => {
 
         it("should set correct timeout to check slots", async () => {
             const timeout = 500;
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(timeout);
 
             jest.useFakeTimers();
@@ -271,8 +272,8 @@ describe("ForgerService", () => {
             // @ts-ignore
             const spyGetTransactions = jest.spyOn(forgerService.client, "getTransactions");
 
-            const recipientAddress = Address.fromPassphrase("recipient's secret");
-            const transaction = BuilderFactory.transfer()
+            const recipientAddress = crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret");
+            const transaction = crypto.TransactionManager.BuilderFactory.transfer()
                 .version(1)
                 .amount("100")
                 .recipientId(recipientAddress)
@@ -450,7 +451,7 @@ describe("ForgerService", () => {
         });
 
         it("should set timer and log nextForger which is active on node", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
             const round = {
@@ -494,7 +495,7 @@ describe("ForgerService", () => {
         });
 
         it("should set timer and not log message if nextForger is not active", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
             const round = {
@@ -540,7 +541,7 @@ describe("ForgerService", () => {
         });
 
         it("should forge valid blocks when forging is allowed", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
             const mockBlock = { data: {} } as Interfaces.IBlock;
@@ -605,7 +606,7 @@ describe("ForgerService", () => {
         });
 
         it("should not log warning message when nodeHeight does not equal last block height", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
             const mockBlock = { data: {} } as Interfaces.IBlock;
@@ -669,7 +670,7 @@ describe("ForgerService", () => {
         });
 
         it("should not allow forging when blocked by network status", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
             const mockBlock = { data: {} } as Interfaces.IBlock;
@@ -723,7 +724,7 @@ describe("ForgerService", () => {
         });
 
         it("should catch network errors and set timeout to check slot later", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
             const mockBlock = { data: {} } as Interfaces.IBlock;
@@ -784,7 +785,7 @@ describe("ForgerService", () => {
         });
 
         it("should log warning when error isn't a network error", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
             const mockBlock = { data: {} } as Interfaces.IBlock;
@@ -849,7 +850,7 @@ describe("ForgerService", () => {
         });
 
         it("should log error when error thrown during attempted forge isn't a network error", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
             const mockBlock = { data: {} } as Interfaces.IBlock;
@@ -919,7 +920,7 @@ describe("ForgerService", () => {
         });
 
         it("should not error when there is no round info", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getTimeInMsUntilNextSlot");
             slotSpy.mockReturnValue(0);
 
             const mockBlock = { data: {} } as Interfaces.IBlock;
@@ -995,7 +996,10 @@ describe("ForgerService", () => {
         it("should fail to forge when there is not enough time left in slot", async () => {
             client.getRound.mockReturnValueOnce({ delegates });
             const timeLeftInMs = 1000;
-            const spyTimeTillNextSlot = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const spyTimeTillNextSlot = jest.spyOn(
+                crypto.CryptoManager.LibraryManager.Crypto.Slots,
+                "getTimeInMsUntilNextSlot",
+            );
             spyTimeTillNextSlot.mockReturnValue(timeLeftInMs);
 
             forgerService.register({ hosts: [mockHost] });
@@ -1012,7 +1016,7 @@ describe("ForgerService", () => {
                 forge: jest.fn().mockReturnValue(mockBlock),
             };
 
-            const spyNextSlot = jest.spyOn(Crypto.Slots, "getSlotNumber");
+            const spyNextSlot = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getSlotNumber");
             spyNextSlot.mockReturnValue(0);
 
             // @ts-ignore
@@ -1030,7 +1034,10 @@ describe("ForgerService", () => {
         it("should forge valid new blocks", async () => {
             client.getRound.mockReturnValueOnce({ delegates });
             const timeLeftInMs = 3000;
-            const spyTimeTillNextSlot = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const spyTimeTillNextSlot = jest.spyOn(
+                crypto.CryptoManager.LibraryManager.Crypto.Slots,
+                "getTimeInMsUntilNextSlot",
+            );
             spyTimeTillNextSlot.mockReturnValue(timeLeftInMs);
 
             forgerService.register({ hosts: [mockHost] });
@@ -1047,7 +1054,7 @@ describe("ForgerService", () => {
                 forge: jest.fn().mockReturnValue(mockBlock),
             };
 
-            const spyNextSlot = jest.spyOn(Crypto.Slots, "getSlotNumber");
+            const spyNextSlot = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getSlotNumber");
             spyNextSlot.mockReturnValue(0);
 
             client.emitEvent.mockReset();
@@ -1071,11 +1078,14 @@ describe("ForgerService", () => {
 
         it("should forge valid new blocks when passed specific milestones", async () => {
             client.getRound.mockReturnValueOnce({ delegates });
-            const spyMilestone = jest.spyOn(Managers.configManager, "getMilestone");
+            const spyMilestone = jest.spyOn(crypto.CryptoManager.MilestoneManager, "getMilestone");
             spyMilestone.mockReturnValueOnce({ block: { idFullSha256: true, version: 0 }, reward: 0 });
 
             const timeLeftInMs = 3000;
-            const spyTimeTillNextSlot = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
+            const spyTimeTillNextSlot = jest.spyOn(
+                crypto.CryptoManager.LibraryManager.Crypto.Slots,
+                "getTimeInMsUntilNextSlot",
+            );
             spyTimeTillNextSlot.mockReturnValueOnce(timeLeftInMs).mockReturnValueOnce(timeLeftInMs);
 
             forgerService.register({ hosts: [mockHost] });
@@ -1095,7 +1105,7 @@ describe("ForgerService", () => {
                 forge: jest.fn().mockReturnValue(mockBlock),
             };
 
-            const spyNextSlot = jest.spyOn(Crypto.Slots, "getSlotNumber");
+            const spyNextSlot = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getSlotNumber");
             spyNextSlot.mockReturnValueOnce(0).mockReturnValueOnce(0);
 
             client.emitEvent.mockReset();

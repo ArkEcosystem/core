@@ -1,11 +1,11 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { Client } from "@packages/core-forger/src/client";
 import { Application, Container } from "@packages/core-kernel";
 import { NetworkStateStatus } from "@packages/core-p2p";
 
-import { forgedBlockWithTransactions } from "./__utils__/create-block-with-transactions";
-
+import { makeForgedBlockWithTransactions } from "./__utils__/create-block-with-transactions";
 import Nes, { nesClient } from "./mocks/nes";
 
 jest.mock("@hapi/nes", () => require("./mocks/nes"));
@@ -15,14 +15,14 @@ const logger = {
     error: jest.fn(),
     debug: jest.fn(),
 };
+let crypto: CryptoSuite.CryptoSuite;
 
 beforeEach(() => {
-    app = new Application(new Container.Container());
-    app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-});
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+    crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = false;
 
-afterEach(() => {
-    //jest.resetAllMocks();
+    app = new Application(new Container.Container(), crypto);
+    app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 });
 
 describe("Client", () => {
@@ -68,12 +68,13 @@ describe("Client", () => {
     describe("broadcastBlock", () => {
         it("should log broadcast as debug message", async () => {
             client.register(hosts);
+            const forgedBlock = makeForgedBlockWithTransactions(crypto);
 
-            await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
+            await expect(client.broadcastBlock(forgedBlock)).toResolve();
             expect(logger.debug).toHaveBeenCalledWith(
-                `Broadcasting block ${forgedBlockWithTransactions.data.height.toLocaleString()} (${
-                    forgedBlockWithTransactions.data.id
-                }) with ${forgedBlockWithTransactions.data.numberOfTransactions} transactions to ${host.hostname}`,
+                `Broadcasting block ${forgedBlock.data.height.toLocaleString()} (${forgedBlock.data.id}) with ${
+                    forgedBlock.data.numberOfTransactions
+                } transactions to ${host.hostname}`,
             );
         });
 
@@ -81,7 +82,7 @@ describe("Client", () => {
             client.register(hosts);
 
             host.socket = {};
-            await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
+            await expect(client.broadcastBlock(makeForgedBlockWithTransactions(crypto))).toResolve();
 
             expect(logger.error).toHaveBeenCalledWith(
                 `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.peer.postBlock> failed, because of 'this.host.socket.request is not a function'.`,
@@ -91,7 +92,7 @@ describe("Client", () => {
         it("should broadcast valid blocks without error", async () => {
             client.register([host]);
 
-            await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
+            await expect(client.broadcastBlock(makeForgedBlockWithTransactions(crypto))).toResolve();
             expect(nesClient.request).toHaveBeenCalledWith({
                 path: "p2p.peer.postBlock",
                 headers: {},
@@ -106,7 +107,7 @@ describe("Client", () => {
 
             nesClient.request.mockRejectedValueOnce(new Error("oops"));
 
-            await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
+            await expect(client.broadcastBlock(makeForgedBlockWithTransactions(crypto))).toResolve();
             expect(logger.error).toHaveBeenCalledWith(
                 `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.peer.postBlock> failed, because of 'oops'.`,
             );

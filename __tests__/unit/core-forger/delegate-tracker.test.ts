@@ -1,10 +1,10 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
 import { Utils } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
-import { Crypto, Managers } from "@packages/crypto";
 
 import { calculateActiveDelegates } from "./__utils__/calculate-active-delegates";
 import { dummy } from "./__utils__/create-block-with-transactions";
@@ -15,9 +15,11 @@ let loggerDebug: jest.SpyInstance;
 let loggerWarning: jest.SpyInstance;
 let activeDelegates;
 
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+
 beforeEach(async () => {
-    activeDelegates = calculateActiveDelegates();
-    const initialEnv = await setup(activeDelegates);
+    activeDelegates = calculateActiveDelegates(crypto.CryptoManager);
+    const initialEnv = await setup(activeDelegates, crypto);
     delegateTracker = initialEnv.sandbox.app.resolve<DelegateTracker>(DelegateTracker);
     loggerDebug = initialEnv.spies.logger.debug;
     loggerWarning = initialEnv.spies.logger.warning;
@@ -32,7 +34,7 @@ beforeEach(() => {
 describe("DelegateTracker", () => {
     describe("initialise", () => {
         it("should set-up delegates", async () => {
-            const delegate = new BIP39(dummy.plainPassphrase);
+            const delegate = new BIP39(crypto.CryptoManager, crypto.BlockFactory, dummy.plainPassphrase);
 
             delegateTracker.initialize([delegate]);
             expect((delegateTracker as any).delegates).toEqual([delegate]);
@@ -48,13 +50,13 @@ describe("DelegateTracker", () => {
         it("should log the next forgers and time to next round", async () => {
             delegateTracker.initialize([activeDelegates[0]]);
 
-            const slotSpy = jest.spyOn(Crypto.Slots, "getSlotNumber");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getSlotNumber");
             slotSpy.mockReturnValue(0);
             await delegateTracker.handle();
 
             const height = mockLastBlock.data.height;
-            const delegatesCount = Managers.configManager.getMilestone(height).activeDelegates;
-            const blockTime: number = Managers.configManager.getMilestone(height).blocktime;
+            const delegatesCount = crypto.CryptoManager.MilestoneManager.getMilestone(height).activeDelegates;
+            const blockTime: number = crypto.CryptoManager.MilestoneManager.getMilestone(height).blocktime;
 
             const secondsToNextRound = (delegatesCount - (height % delegatesCount)) * blockTime;
 
@@ -70,13 +72,13 @@ describe("DelegateTracker", () => {
         });
 
         it("should log the next forger when it's time to forge", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getSlotNumber");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getSlotNumber");
             slotSpy.mockReturnValue(0);
             const mockMileStoneData = {
                 blocktime: 0,
                 activeDelegates: 51,
             };
-            const milestoneSpy = jest.spyOn(Managers.configManager, "getMilestone");
+            const milestoneSpy = jest.spyOn(crypto.CryptoManager.MilestoneManager, "getMilestone");
             milestoneSpy.mockReturnValue(mockMileStoneData);
 
             delegateTracker.initialize(activeDelegates);
@@ -91,7 +93,7 @@ describe("DelegateTracker", () => {
         });
 
         it("should log the next forger and the time when it will forge", async () => {
-            const slotSpy = jest.spyOn(Crypto.Slots, "getSlotNumber");
+            const slotSpy = jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getSlotNumber");
             slotSpy.mockReturnValue(0);
 
             const blockTime = 8;
@@ -122,7 +124,7 @@ describe("DelegateTracker", () => {
                 blocktime: 2,
                 activeDelegates: 80,
             };
-            const milestoneSpy = jest.spyOn(Managers.configManager, "getMilestone");
+            const milestoneSpy = jest.spyOn(crypto.CryptoManager.MilestoneManager, "getMilestone");
             milestoneSpy.mockReturnValue(mockMileStoneData);
 
             delegateTracker.initialize(activeDelegates);

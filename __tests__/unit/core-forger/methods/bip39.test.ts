@@ -1,23 +1,32 @@
+import { CryptoSuite } from "@packages/core-crypto";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
-import { Identities } from "@packages/crypto";
 
-import { dummy, getTimeStampForBlock, optionsDefault, transactions } from "../__utils__/create-block-with-transactions";
+import {
+    dummy,
+    getTimeStampForBlock,
+    makeOptionsDefault,
+    makeTransactions,
+} from "../__utils__/create-block-with-transactions";
 
 const passphrase: string = "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire";
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = false;
 
 describe("Methods -> BIP39", () => {
     it("should be ok with a plain text passphrase", () => {
-        const delegate = new BIP39(passphrase);
+        const delegate = new BIP39(crypto.CryptoManager, crypto.BlockFactory, passphrase);
 
-        expect(delegate.publicKey).toBe(Identities.PublicKey.fromPassphrase(passphrase));
-        expect(delegate.address).toBe(Identities.Address.fromPassphrase(passphrase));
+        expect(delegate.publicKey).toBe(crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrase));
+        expect(delegate.address).toBe(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrase));
     });
 
     describe("forge", () => {
         it("should forge a block", () => {
-            const delegate: BIP39 = new BIP39(dummy.plainPassphrase);
+            const delegate: BIP39 = new BIP39(crypto.CryptoManager, crypto.BlockFactory, dummy.plainPassphrase);
 
-            const block = delegate.forge(transactions, optionsDefault, getTimeStampForBlock);
+            const transactions = makeTransactions(crypto);
+
+            const block = delegate.forge(transactions, makeOptionsDefault(crypto), getTimeStampForBlock);
 
             expect(block.verification).toEqual({
                 containsMultiSignatures: false,
