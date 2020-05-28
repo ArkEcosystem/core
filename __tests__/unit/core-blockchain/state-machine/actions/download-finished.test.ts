@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { DownloadFinished } from "../../../../../packages/core-blockchain/src/state-machine/actions/download-finished";
+import { DownloadFinished } from "@packages/core-blockchain/src/state-machine/actions/download-finished";
 
 describe("DownloadFinished", () => {
     const container = new Container.Container();

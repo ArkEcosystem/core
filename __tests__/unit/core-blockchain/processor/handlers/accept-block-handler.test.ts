@@ -1,7 +1,7 @@
+import { Interfaces } from "@arkecosystem/core-crypto";
 import { Container } from "@arkecosystem/core-kernel";
-import { AcceptBlockHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/accept-block-handler";
-import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
-import { Interfaces } from "@arkecosystem/crypto";
+import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
+import { AcceptBlockHandler } from "@packages/core-blockchain/src/processor/handlers/accept-block-handler";
 
 describe("AcceptBlockHandler", () => {
     const container = new Container.Container();

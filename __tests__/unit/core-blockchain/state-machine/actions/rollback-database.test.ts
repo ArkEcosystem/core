@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { RollbackDatabase } from "../../../../../packages/core-blockchain/src/state-machine/actions/rollback-database";
+import { RollbackDatabase } from "@packages/core-blockchain/src/state-machine/actions/rollback-database";
 
 describe("RollbackDatabase", () => {
     const container = new Container.Container();

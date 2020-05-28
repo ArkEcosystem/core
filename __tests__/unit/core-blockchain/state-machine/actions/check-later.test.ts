@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { CheckLater } from "../../../../../packages/core-blockchain/src/state-machine/actions/check-later";
+import { CheckLater } from "@packages/core-blockchain/src/state-machine/actions/check-later";
 
 describe("CheckLater", () => {
     const container = new Container.Container();

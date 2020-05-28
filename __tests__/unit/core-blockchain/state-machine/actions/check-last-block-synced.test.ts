@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { CheckLastBlockSynced } from "../../../../../packages/core-blockchain/src/state-machine/actions/check-last-block-synced";
+import { CheckLastBlockSynced } from "@packages/core-blockchain/src/state-machine/actions/check-last-block-synced";
 
 describe("CheckLastBlockSynced", () => {
     const container = new Container.Container();

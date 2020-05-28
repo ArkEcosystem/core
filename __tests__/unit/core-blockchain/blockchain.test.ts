@@ -3,11 +3,14 @@ import "jest-extended";
 import { ProcessBlockAction } from "@packages/core-blockchain/src/actions";
 import { Blockchain } from "@packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor/block-processor";
+import { CryptoSuite, Interfaces as BlockInterfaces } from "@packages/core-crypto";
 import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 import { Container, Enums, Services, Utils as AppUtils } from "@packages/core-kernel";
-import { Sandbox } from "@packages/core-test-framework";
-import { Crypto, Interfaces, Managers, Networks, Utils } from "@packages/crypto";
+import { Sandbox } from "@packages/core-test-framework/src";
+import { Networks } from "@packages/crypto";
 import delay from "delay";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 describe("Blockchain", () => {
     let sandbox: Sandbox;
@@ -24,7 +27,7 @@ describe("Blockchain", () => {
     const blockProcessor: any = {};
 
     beforeAll(() => {
-        sandbox = new Sandbox();
+        sandbox = new Sandbox(crypto);
 
         sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logService);
         sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
@@ -48,8 +51,6 @@ describe("Blockchain", () => {
         sandbox.app
             .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
             .bind("getActiveDelegates", new GetActiveDelegatesAction(sandbox.app));
-
-        Managers.configManager.setFromPreset("testnet");
     });
 
     beforeEach(() => {
@@ -296,10 +297,10 @@ describe("Blockchain", () => {
     });
 
     describe("handleIncomingBlock", () => {
-        const blockData = { height: 30122 } as Interfaces.IBlockData;
+        const blockData = { height: 30122 } as BlockInterfaces.IBlockData;
 
         beforeEach(() => {
-            jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValue(1);
+            jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getSlotNumber").mockReturnValue(1);
 
             const getTimeStampForBlock = (height: number) => {
                 switch (height) {
@@ -359,7 +360,9 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
 
-            jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(2);
+            jest.spyOn(crypto.CryptoManager.LibraryManager.Crypto.Slots, "getSlotNumber")
+                .mockReturnValueOnce(1)
+                .mockReturnValueOnce(2);
 
             blockchain.handleIncomingBlock(blockData);
 
@@ -369,7 +372,7 @@ describe("Blockchain", () => {
     });
 
     describe("enqueueBlocks", () => {
-        const blockData = { height: 30122, numberOfTransactions: 0 } as Interfaces.IBlockData;
+        const blockData = { height: 30122, numberOfTransactions: 0 } as BlockInterfaces.IBlockData;
 
         it("should just return if blocks provided are an empty array", async () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
@@ -402,7 +405,7 @@ describe("Blockchain", () => {
             const blockWith150Txs = {
                 height: blockData.height + 1,
                 numberOfTransactions: 150,
-            } as Interfaces.IBlockData;
+            } as BlockInterfaces.IBlockData;
 
             blockchain.enqueueBlocks([blockWith150Txs, blockData]);
 
@@ -437,8 +440,8 @@ describe("Blockchain", () => {
 
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
-            const blockMilestone = { id: "123", height: 75600 } as Interfaces.IBlockData;
-            const blockAfterMilestone = { id: "456", height: 75601 } as Interfaces.IBlockData;
+            const blockMilestone = { id: "123", height: 75600 } as BlockInterfaces.IBlockData;
+            const blockAfterMilestone = { id: "456", height: 75601 } as BlockInterfaces.IBlockData;
             blockchain.enqueueBlocks([blockMilestone, blockAfterMilestone]);
 
             expect(spyQueuePush).toHaveBeenCalledTimes(2);
@@ -453,11 +456,11 @@ describe("Blockchain", () => {
             version: 0,
             timestamp: 46583330,
             height: 2,
-            reward: Utils.BigNumber.make("0"),
+            reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
             previousBlock: "17184958558311101492",
             numberOfTransactions: 0,
-            totalAmount: Utils.BigNumber.make("0"),
-            totalFee: Utils.BigNumber.make("0"),
+            totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
+            totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
             payloadLength: 0,
             payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             generatorPublicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
@@ -473,11 +476,11 @@ describe("Blockchain", () => {
             version: 0,
             timestamp: 46583338,
             height: 3,
-            reward: Utils.BigNumber.make("0"),
+            reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
             previousBlock: "17882607875259085966",
             numberOfTransactions: 0,
-            totalAmount: Utils.BigNumber.make("0"),
-            totalFee: Utils.BigNumber.make("0"),
+            totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
+            totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
             payloadLength: 0,
             payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             generatorPublicKey: "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
@@ -632,7 +635,7 @@ describe("Blockchain", () => {
             expect(databaseService.revertBlock).toBeCalledTimes(1);
         });
 
-        it("should broadcast a block if (Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
+        it("should broadcast a block if (crypto.CryptoManager.LibraryManager.Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
 
@@ -645,11 +648,11 @@ describe("Blockchain", () => {
                 }
             };
 
-            let slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock);
+            let slotInfo = crypto.CryptoManager.LibraryManager.Crypto.Slots.getSlotInfo(getTimeStampForBlock);
 
             // Wait until we get a timestamp at the first half of a slot (allows for computation time)
             while (!slotInfo.forgingStatus) {
-                slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock);
+                slotInfo = crypto.CryptoManager.LibraryManager.Crypto.Slots.getSlotInfo(getTimeStampForBlock);
             }
 
             const block = {
@@ -751,7 +754,7 @@ describe("Blockchain", () => {
             const mockBlock = { data: { id: "123", height: 444 } };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
 
-            blockchain.forkBlock(forkedBlock as Interfaces.IBlock, numberOfBlocksToRollback);
+            blockchain.forkBlock(forkedBlock as BlockInterfaces.IBlock, numberOfBlocksToRollback);
 
             expect(stateStore.forkedBlock).toEqual(forkedBlock);
             expect(stateStore.numberOfBlocksToRollback).toEqual(numberOfBlocksToRollback);
@@ -774,7 +777,13 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             peerStorage.hasPeers = jest.fn().mockReturnValue(true);
-            const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 16 } };
+            const mockBlock = {
+                data: {
+                    id: "123",
+                    height: 444,
+                    timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime() - 16,
+                },
+            };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
 
             expect(blockchain.isSynced()).toBeTrue();
@@ -784,7 +793,13 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             peerStorage.hasPeers = jest.fn().mockReturnValue(true);
-            const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 25 } };
+            const mockBlock = {
+                data: {
+                    id: "123",
+                    height: 444,
+                    timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime() - 25,
+                },
+            };
             stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
 
             expect(blockchain.isSynced()).toBeFalse();
@@ -859,7 +874,7 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             const incomingBlock = { id: "123", height: 444 };
-            blockchain.pingBlock(incomingBlock as Interfaces.IBlockData);
+            blockchain.pingBlock(incomingBlock as BlockInterfaces.IBlockData);
 
             expect(stateStore.pingBlock).toBeCalledTimes(1);
             expect(stateStore.pingBlock).toHaveBeenLastCalledWith(incomingBlock);
@@ -872,7 +887,7 @@ describe("Blockchain", () => {
 
             const incomingBlock = { id: "123", height: 444 };
             const fromForger = true;
-            blockchain.pushPingBlock(incomingBlock as Interfaces.IBlockData, fromForger);
+            blockchain.pushPingBlock(incomingBlock as BlockInterfaces.IBlockData, fromForger);
 
             expect(stateStore.pushPingBlock).toBeCalledTimes(1);
             expect(stateStore.pushPingBlock).toHaveBeenLastCalledWith(incomingBlock, fromForger);
@@ -882,7 +897,7 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             const incomingBlock = { id: "123", height: 444 };
-            blockchain.pushPingBlock(incomingBlock as Interfaces.IBlockData);
+            blockchain.pushPingBlock(incomingBlock as BlockInterfaces.IBlockData);
 
             expect(stateStore.pushPingBlock).toBeCalledTimes(1);
             expect(stateStore.pushPingBlock).toHaveBeenLastCalledWith(incomingBlock, false);
@@ -890,7 +905,7 @@ describe("Blockchain", () => {
     });
 
     describe("checkMissingBlocks", () => {
-        const threshold = Managers.configManager.getMilestone().activeDelegates / 3 - 1;
+        const threshold = crypto.CryptoManager.MilestoneManager.getMilestone().activeDelegates / 3 - 1;
 
         it("when missedBlocks passes the threshold and Math.random()<=0.8, should checkNetworkHealth", async () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);

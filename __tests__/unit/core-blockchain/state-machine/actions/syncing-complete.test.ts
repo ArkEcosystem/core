@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { SyncingComplete } from "../../../../../packages/core-blockchain/src/state-machine/actions/syncing-complete";
+import { SyncingComplete } from "@packages/core-blockchain/src/state-machine/actions/syncing-complete";
 
 describe("Stopped", () => {
     const container = new Container.Container();

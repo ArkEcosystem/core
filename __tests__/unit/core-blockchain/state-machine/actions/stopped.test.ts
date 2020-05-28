@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Stopped } from "../../../../../packages/core-blockchain/src/state-machine/actions/stopped";
+import { Stopped } from "@packages/core-blockchain/src/state-machine/actions/stopped";
 
 describe("Stopped", () => {
     const container = new Container.Container();

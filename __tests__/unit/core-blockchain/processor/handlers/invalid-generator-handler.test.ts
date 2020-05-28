@@ -1,7 +1,7 @@
+import { Interfaces } from "@arkecosystem/core-crypto";
 import { Container } from "@arkecosystem/core-kernel";
-import { InvalidGeneratorHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/invalid-generator-handler";
-import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
-import { Interfaces } from "@arkecosystem/crypto";
+import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
+import { InvalidGeneratorHandler } from "@packages/core-blockchain/src/processor/handlers/invalid-generator-handler";
 
 describe("InvalidGeneratorHandler", () => {
     const container = new Container.Container();

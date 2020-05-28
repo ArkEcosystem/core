@@ -1,7 +1,7 @@
-import delay from "delay";
 import { Container } from "@arkecosystem/core-kernel";
-import { StateMachine } from "../../../../packages/core-blockchain/src/state-machine/state-machine";
-import { blockchainMachine } from "../../../../packages/core-blockchain/src/state-machine/machine";
+import { blockchainMachine } from "@packages/core-blockchain/src/state-machine/machine";
+import { StateMachine } from "@packages/core-blockchain/src/state-machine/state-machine";
+import delay from "delay";
 
 describe("State machine", () => {
     const container = new Container.Container();

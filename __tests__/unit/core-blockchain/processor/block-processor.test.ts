@@ -1,3 +1,5 @@
+import { CryptoSuite } from "@arkecosystem/core-crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { BlockProcessor } from "@packages/core-blockchain/src/processor/block-processor";
 import {
     AcceptBlockHandler,
@@ -11,8 +13,9 @@ import {
 } from "@packages/core-blockchain/src/processor/handlers";
 import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 import { Container, Services } from "@packages/core-kernel";
-import { Sandbox } from "@packages/core-test-framework";
-import { Interfaces, Managers, Utils } from "@packages/crypto";
+import { Sandbox } from "@packages/core-test-framework/src";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 describe("BlockProcessor", () => {
     AcceptBlockHandler.prototype.execute = jest.fn();
@@ -25,7 +28,7 @@ describe("BlockProcessor", () => {
     UnchainedHandler.prototype.execute = jest.fn();
     VerificationFailedHandler.prototype.execute = jest.fn();
 
-    const sandbox = new Sandbox();
+    const sandbox = new Sandbox(crypto);
 
     const logService = { warning: jest.fn(), info: jest.fn(), error: jest.fn(), debug: jest.fn() };
     const blockchain = { getLastBlock: jest.fn() };
@@ -70,11 +73,11 @@ describe("BlockProcessor", () => {
             version: 0,
             timestamp: 46583330,
             height: 2,
-            reward: Utils.BigNumber.make("0"),
+            reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
             previousBlock: "17184958558311101492",
             numberOfTransactions: 0,
-            totalAmount: Utils.BigNumber.make("0"),
-            totalFee: Utils.BigNumber.make("0"),
+            totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
+            totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
             payloadLength: 0,
             payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             generatorPublicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
@@ -91,8 +94,6 @@ describe("BlockProcessor", () => {
         transactions: [],
     };
     it("should execute ExceptionHandler when block is an exception", async () => {
-        Managers.configManager.setFromPreset("devnet");
-
         const block = { ...baseBlock, data: { ...baseBlock.data, id: "15895730198424359628" } };
 
         const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
@@ -124,8 +125,8 @@ describe("BlockProcessor", () => {
                             type: 0,
                             typeGroup: 1,
                             version: 1,
-                            amount: Utils.BigNumber.make("12500000000000000"),
-                            fee: Utils.BigNumber.ZERO,
+                            amount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("12500000000000000"),
+                            fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
                             recipientId: "D6Z26L69gdk9qYmTv5uzk3uGepigtHY4ax",
                             timestamp: 0,
                             asset: {},
@@ -185,19 +186,25 @@ describe("BlockProcessor", () => {
                 id: "1",
                 version: 2,
                 senderPublicKey: "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
-                nonce: Utils.BigNumber.make(2),
+                nonce: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(2),
             } as Interfaces.ITransactionData;
             const block = {
                 ...baseBlock,
                 transactions: [
                     { data: { ...baseTransactionData } } as Interfaces.ITransaction,
                     {
-                        data: { ...baseTransactionData, id: "2", nonce: Utils.BigNumber.make(4) },
+                        data: {
+                            ...baseTransactionData,
+                            id: "2",
+                            nonce: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(4),
+                        },
                     } as Interfaces.ITransaction,
                 ],
             };
 
-            databaseService.walletRepository.getNonce = jest.fn().mockReturnValueOnce(Utils.BigNumber.ONE);
+            databaseService.walletRepository.getNonce = jest
+                .fn()
+                .mockReturnValueOnce(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ONE);
 
             const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
@@ -220,7 +227,9 @@ describe("BlockProcessor", () => {
                 ],
             };
 
-            databaseService.walletRepository.getNonce = jest.fn().mockReturnValueOnce(Utils.BigNumber.ONE);
+            databaseService.walletRepository.getNonce = jest
+                .fn()
+                .mockReturnValueOnce(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ONE);
             databaseService.getActiveDelegates = jest.fn().mockReturnValueOnce([]);
             blockchain.getLastBlock = jest.fn().mockReturnValueOnce(baseBlock);
             const generatorWallet = {
@@ -262,11 +271,11 @@ describe("BlockProcessor", () => {
             version: 0,
             timestamp: 46583338,
             height: 3,
-            reward: Utils.BigNumber.make("0"),
+            reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
             previousBlock: "17882607875259085966",
             numberOfTransactions: 0,
-            totalAmount: Utils.BigNumber.make("0"),
-            totalFee: Utils.BigNumber.make("0"),
+            totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
+            totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
             payloadLength: 0,
             payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             generatorPublicKey: "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
@@ -345,7 +354,7 @@ describe("BlockProcessor", () => {
             id: "34821dfa9cbe59aad663b972326ff19265d788c4d4142747606aa29b19d6b1dab",
             version: 2,
             senderPublicKey: "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
-            nonce: Utils.BigNumber.make(2),
+            nonce: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(2),
         } as Interfaces.ITransactionData;
         const block = {
             ...chainedBlock,
@@ -354,7 +363,9 @@ describe("BlockProcessor", () => {
         databaseService.getActiveDelegates = jest.fn().mockReturnValueOnce([]);
         blockchain.getLastBlock = jest.fn().mockReturnValueOnce(baseBlock);
         transactionRepository.getForgedTransactionsIds = jest.fn().mockReturnValueOnce([transactionData.id]);
-        databaseService.walletRepository.getNonce = jest.fn().mockReturnValueOnce(Utils.BigNumber.ONE);
+        databaseService.walletRepository.getNonce = jest
+            .fn()
+            .mockReturnValueOnce(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ONE);
         const generatorWallet = {
             getAttribute: jest.fn().mockReturnValue("generatorusername"),
         };

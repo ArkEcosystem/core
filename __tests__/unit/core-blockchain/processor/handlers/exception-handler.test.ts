@@ -1,8 +1,8 @@
+import { Interfaces } from "@arkecosystem/core-crypto";
 import { Container } from "@arkecosystem/core-kernel";
-import { ExceptionHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/exception-handler";
-import { AcceptBlockHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/accept-block-handler";
-import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
-import { Interfaces } from "@arkecosystem/crypto";
+import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
+import { AcceptBlockHandler } from "@packages/core-blockchain/src/processor/handlers/accept-block-handler";
+import { ExceptionHandler } from "@packages/core-blockchain/src/processor/handlers/exception-handler";
 
 describe("ExceptionHandler", () => {
     const container = new Container.Container();

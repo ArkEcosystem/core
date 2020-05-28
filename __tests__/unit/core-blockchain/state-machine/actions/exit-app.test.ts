@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { ExitApp } from "../../../../../packages/core-blockchain/src/state-machine/actions/exit-app";
+import { ExitApp } from "@packages/core-blockchain/src/state-machine/actions/exit-app";
 
 describe("ExitApp", () => {
     const container = new Container.Container();

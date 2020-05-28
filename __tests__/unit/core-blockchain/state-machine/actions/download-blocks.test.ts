@@ -1,7 +1,9 @@
 import { Container, Utils } from "@arkecosystem/core-kernel";
+import { DownloadBlocks } from "@packages/core-blockchain/src/state-machine/actions/download-blocks";
+import { CryptoSuite } from "@packages/core-crypto";
 import delay from "delay";
 
-import { DownloadBlocks } from "../../../../../packages/core-blockchain/src/state-machine/actions/download-blocks";
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 describe("DownloadBlocks", () => {
     const container = new Container.Container();
@@ -25,6 +27,9 @@ describe("DownloadBlocks", () => {
 
     beforeAll(() => {
         container.unbindAll();
+        container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+        container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+        container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
         container.bind(Container.Identifiers.Application).toConstantValue(application);
         container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
         container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);

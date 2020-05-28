@@ -1,7 +1,8 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Managers } from "@arkecosystem/crypto";
+import { Initialize } from "@packages/core-blockchain/src/state-machine/actions/initialize";
+import { CryptoSuite } from "@packages/core-crypto";
 
-import { Initialize } from "../../../../../packages/core-blockchain/src/state-machine/actions/initialize";
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 describe("Initialize", () => {
     const container = new Container.Container();
@@ -27,6 +28,11 @@ describe("Initialize", () => {
 
     beforeAll(() => {
         container.unbindAll();
+
+        container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+        container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+        container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
+
         container.bind(Container.Identifiers.Application).toConstantValue(application);
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
@@ -129,7 +135,7 @@ describe("Initialize", () => {
                     data: {
                         id: "345",
                         height: 1,
-                        payloadHash: Managers.configManager.get("network.nethash"),
+                        payloadHash: crypto.CryptoManager.NetworkConfigManager.get("network.nethash"),
                     },
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
@@ -150,7 +156,7 @@ describe("Initialize", () => {
                     data: {
                         id: "345",
                         height: 334,
-                        payloadHash: Managers.configManager.get("network.nethash"),
+                        payloadHash: crypto.CryptoManager.NetworkConfigManager.get("network.nethash"),
                     },
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
@@ -171,7 +177,7 @@ describe("Initialize", () => {
                     data: {
                         id: "345",
                         height: 334,
-                        payloadHash: Managers.configManager.get("network.nethash"),
+                        payloadHash: crypto.CryptoManager.NetworkConfigManager.get("network.nethash"),
                     },
                 };
                 stateStore.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
