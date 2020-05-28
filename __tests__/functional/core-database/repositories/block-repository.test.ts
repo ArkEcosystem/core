@@ -228,30 +228,6 @@ describe("BlockRepository.deleteBlocks", () => {
     });
 });
 
-describe("BlockRepository.findOneByExpression", () => {
-    it("should return single entity by id equal expression", async () => {
-        const blockRepository = getCustomRepository(BlockRepository);
-        await blockRepository.saveBlocks([block1, block2, block3]);
-        const block1ById = await blockRepository.findOneByExpression({
-            property: "id",
-            op: "equal",
-            value: block1.data.id,
-        });
-        expect(block1ById).toStrictEqual(toBlockModel(block1));
-    });
-
-    it("should return single entity by previousBlock equal expression", async () => {
-        const blockRepository = getCustomRepository(BlockRepository);
-        await blockRepository.saveBlocks([block1, block2, block3]);
-        const block2ByPreviousBlock = await blockRepository.findOneByExpression({
-            property: "previousBlock",
-            op: "equal",
-            value: block1.data.id,
-        });
-        expect(block2ByPreviousBlock).toStrictEqual(toBlockModel(block2));
-    });
-});
-
 describe("BlockRepository.findManyByExpression", () => {
     it("should return many entities by height greaterThanEqual expression", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
