@@ -84,9 +84,9 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
         page: Contracts.Search.ListPage,
         options?: Contracts.Search.ListOptions,
     ): Promise<Contracts.Search.ListResult<Contracts.Shared.BlockDataWithTransactionData>> {
-        const expression = await this.blockFilter.getExpression(blockCriteria);
-        const modelListResult = await this.blockRepository.listByExpression(expression, order, page, options);
-        const blockModels = modelListResult.rows;
+        const blockExpression = await this.blockFilter.getExpression(blockCriteria);
+        const blockModelListResult = await this.blockRepository.listByExpression(blockExpression, order, page, options);
+        const blockModels = blockModelListResult.rows;
 
         const transactionBlockCriteria = blockModels.map((b) => ({ blockId: b.id }));
         const transactionExpression = await this.transactionFilter.getExpression(
@@ -99,6 +99,6 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
             transactionModels,
         );
 
-        return { ...modelListResult, rows: blockDataWithTransactionData };
+        return { ...blockModelListResult, rows: blockDataWithTransactionData };
     }
 }

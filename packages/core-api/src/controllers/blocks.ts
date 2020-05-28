@@ -106,9 +106,9 @@ export class BlocksController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        if (request.transform) {
+        if (request.query.transform) {
             const blockWithSomeTransactionsListResult = await this.blockHistoryService.listByCriteriaJoinTransactions(
-                request.query,
+                request.payload,
                 { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
                 this.getListingOrder(request),
                 this.getListingPage(request),

@@ -50,7 +50,7 @@ export class DelegatesController extends Controller {
             return delegate;
         }
 
-        if (request.transform) {
+        if (request.query.transform) {
             const blockCriteria = { generatorPublicKey: delegate.publicKey };
             const blockWithSomeTransactionsListResult = await this.blockHistoryService.listByCriteriaJoinTransactions(
                 blockCriteria,
