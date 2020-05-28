@@ -7,15 +7,26 @@ export class SnapshotsManager {
 
     private processInAction?: string;
 
-    // TODO: Contracts.Snapshot.DumpOptions
-    public async start(name: string, options: any): Promise<void> {
+    public async dump(options: Contracts.Snapshot.DumpOptions): Promise<void> {
         if (this.processInAction) {
             throw new Error(`Process ${this.processInAction} is executing`);
         }
 
-        this.processInAction = name;
+        this.processInAction = "create";
 
         this.snapshotService.dump(options).finally(() => {
+            this.processInAction = undefined;
+        });
+    }
+
+    public async restore(options: Contracts.Snapshot.RestoreOptions): Promise<void> {
+        if (this.processInAction) {
+            throw new Error(`Process ${this.processInAction} is executing`);
+        }
+
+        this.processInAction = "restore";
+
+        this.snapshotService.restore(options).finally(() => {
             this.processInAction = undefined;
         });
     }

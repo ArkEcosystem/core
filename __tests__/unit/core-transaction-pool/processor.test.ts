@@ -1,7 +1,7 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
-
-import { Processor } from "../../../packages/core-transaction-pool/src/processor";
+import { Container, Contracts } from "@packages/core-kernel";
+import { TransactionFeeToLowError } from "@packages/core-transaction-pool/src/errors";
+import { Processor } from "@packages/core-transaction-pool/src/processor";
+import { Identities, Managers, Transactions } from "@packages/crypto";
 
 Managers.configManager.getMilestone().aip11 = true;
 const transaction1 = Transactions.BuilderFactory.transfer()
@@ -21,7 +21,7 @@ const transaction2 = Transactions.BuilderFactory.transfer()
 
 const logger = { warning: jest.fn(), error: jest.fn() };
 const pool = { addTransaction: jest.fn() };
-const dynamicFeeMatcher = { canEnterPool: jest.fn(), canBroadcast: jest.fn() };
+const dynamicFeeMatcher = { throwIfCannotEnterPool: jest.fn(), throwIfCannotBroadcast: jest.fn() };
 const transactionBroadcaster = { broadcastTransactions: jest.fn() };
 const workerPool = { isTypeGroupSupported: jest.fn(), getTransactionFromData: jest.fn() };
 
@@ -35,8 +35,8 @@ container.bind(Container.Identifiers.TransactionPoolWorkerPool).toConstantValue(
 beforeEach(() => {
     logger.warning.mockReset();
     pool.addTransaction.mockReset();
-    dynamicFeeMatcher.canEnterPool.mockReset();
-    dynamicFeeMatcher.canBroadcast.mockReset();
+    dynamicFeeMatcher.throwIfCannotEnterPool.mockReset();
+    dynamicFeeMatcher.throwIfCannotBroadcast.mockReset();
     transactionBroadcaster.broadcastTransactions.mockReset();
     workerPool.isTypeGroupSupported.mockReset();
     workerPool.getTransactionFromData.mockReset();
@@ -46,15 +46,23 @@ describe("Processor.process", () => {
     it("should parse transactions through factory pool", async () => {
         workerPool.isTypeGroupSupported.mockReturnValue(true);
         workerPool.getTransactionFromData.mockResolvedValueOnce(transaction1).mockResolvedValueOnce(transaction2);
-        dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true).mockReturnValueOnce(true);
-        dynamicFeeMatcher.canBroadcast.mockReturnValueOnce(false).mockReturnValueOnce(false);
+        dynamicFeeMatcher.throwIfCannotEnterPool
+            .mockImplementationOnce(async (transaction) => {})
+            .mockImplementationOnce(async (transaction) => {});
+        dynamicFeeMatcher.throwIfCannotBroadcast
+            .mockImplementationOnce(async (transaction) => {
+                throw new TransactionFeeToLowError(transaction);
+            })
+            .mockImplementationOnce(async (transaction) => {
+                throw new TransactionFeeToLowError(transaction);
+            });
 
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data, transaction2.data]);
 
-        expect(dynamicFeeMatcher.canEnterPool).toBeCalledTimes(2);
+        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(2);
         expect(pool.addTransaction).toBeCalledTimes(2);
-        expect(dynamicFeeMatcher.canBroadcast).toBeCalledTimes(2);
+        expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(2);
         expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
 
         expect(processor.accept).toEqual([transaction1.id, transaction2.id]);
@@ -66,18 +74,23 @@ describe("Processor.process", () => {
 
     it("should add eligible transactions to pool", async () => {
         workerPool.isTypeGroupSupported.mockReturnValue(false);
-        dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true).mockReturnValueOnce(false);
+
+        dynamicFeeMatcher.throwIfCannotEnterPool
+            .mockImplementationOnce(async (transaction) => {})
+            .mockImplementationOnce(async (transaction) => {
+                throw new TransactionFeeToLowError(transaction);
+            });
 
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data, transaction2.data]);
 
-        expect(dynamicFeeMatcher.canEnterPool).toBeCalledTimes(2);
+        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(2);
         expect(pool.addTransaction).toBeCalledTimes(1);
-        expect(dynamicFeeMatcher.canBroadcast).toBeCalledTimes(1);
-        expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
+        expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(1);
+        expect(transactionBroadcaster.broadcastTransactions).toBeCalledTimes(1);
 
         expect(processor.accept).toEqual([transaction1.id]);
-        expect(processor.broadcast).toEqual([]);
+        expect(processor.broadcast).toEqual([transaction1.id]);
         expect(processor.invalid).toEqual([transaction2.id]);
         expect(processor.excess).toEqual([]);
         expect(processor.errors[transaction2.id]).toBeTruthy();
@@ -86,15 +99,19 @@ describe("Processor.process", () => {
 
     it("should add broadcast eligible transaction", async () => {
         workerPool.isTypeGroupSupported.mockReturnValue(false);
-        dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true).mockReturnValueOnce(true);
-        dynamicFeeMatcher.canBroadcast.mockReturnValueOnce(true).mockReturnValueOnce(false);
+
+        dynamicFeeMatcher.throwIfCannotBroadcast
+            .mockImplementationOnce(async (transaction) => {})
+            .mockImplementationOnce(async (transaction) => {
+                throw new TransactionFeeToLowError(transaction);
+            });
 
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data, transaction2.data]);
 
-        expect(dynamicFeeMatcher.canEnterPool).toBeCalledTimes(2);
+        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(2);
         expect(pool.addTransaction).toBeCalledTimes(2);
-        expect(dynamicFeeMatcher.canBroadcast).toBeCalledTimes(2);
+        expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(2);
         expect(transactionBroadcaster.broadcastTransactions).toBeCalled();
 
         expect(processor.accept).toEqual([transaction1.id, transaction2.id]);
@@ -106,7 +123,6 @@ describe("Processor.process", () => {
 
     it("should rethrow unexpected error", async () => {
         workerPool.isTypeGroupSupported.mockReturnValue(false);
-        dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true);
         pool.addTransaction.mockRejectedValueOnce(new Error("Unexpected error"));
 
         const processor = container.resolve(Processor);
@@ -114,9 +130,9 @@ describe("Processor.process", () => {
 
         await expect(promise).rejects.toThrow();
 
-        expect(dynamicFeeMatcher.canEnterPool).toBeCalledTimes(1);
+        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(1);
         expect(pool.addTransaction).toBeCalledTimes(1);
-        expect(dynamicFeeMatcher.canBroadcast).toBeCalledTimes(0);
+        expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(0);
         expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
 
         expect(processor.accept).toEqual([]);
@@ -130,15 +146,14 @@ describe("Processor.process", () => {
         const exceedsError = new Contracts.TransactionPool.PoolError("Exceeds", "ERR_EXCEEDS_MAX_COUNT", transaction1);
 
         workerPool.isTypeGroupSupported.mockReturnValue(false);
-        dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true);
         pool.addTransaction.mockRejectedValueOnce(exceedsError);
 
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data]);
 
-        expect(dynamicFeeMatcher.canEnterPool).toBeCalledTimes(1);
+        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(1);
         expect(pool.addTransaction).toBeCalledTimes(1);
-        expect(dynamicFeeMatcher.canBroadcast).toBeCalledTimes(0);
+        expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(0);
         expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
 
         expect(processor.accept).toEqual([]);

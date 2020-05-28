@@ -1,8 +1,6 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
-import { TransactionFeeToLowError } from "./errors";
-
 @Container.injectable()
 export class Processor implements Contracts.TransactionPool.Processor {
     public accept: string[] = [];
@@ -37,15 +35,14 @@ export class Processor implements Contracts.TransactionPool.Processor {
                 AppUtils.assert.defined<string>(transaction.id);
 
                 try {
-                    if (await this.dynamicFeeMatcher.canEnterPool(transaction)) {
-                        await this.pool.addTransaction(transaction);
-                        this.accept.push(transaction.id);
-                        if (await this.dynamicFeeMatcher.canBroadcast(transaction)) {
-                            broadcastableTransactions.push(transaction);
-                        }
-                    } else {
-                        throw new TransactionFeeToLowError(transaction);
-                    }
+                    await this.dynamicFeeMatcher.throwIfCannotEnterPool(transaction);
+                    await this.pool.addTransaction(transaction);
+                    this.accept.push(transaction.id);
+
+                    try {
+                        await this.dynamicFeeMatcher.throwIfCannotBroadcast(transaction);
+                        broadcastableTransactions.push(transaction);
+                    } catch {}
                 } catch (error) {
                     this.invalid.push(transaction.id);
 
