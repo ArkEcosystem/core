@@ -5,6 +5,7 @@ import { defaults } from "@packages/core-manager/src/defaults";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import { ServiceProvider } from "@packages/core-manager/src/service-provider";
 import path from "path";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 let app: Application;
 
@@ -12,6 +13,10 @@ const logger = {
     info: jest.fn(),
     debug: jest.fn(),
     error: jest.fn(),
+};
+
+const mockEventDispatcher = {
+    listen: jest.fn(),
 };
 
 const setPluginConfiguration = (app: Application, serviceProvider: ServiceProvider, configuration: any) => {
@@ -27,9 +32,15 @@ beforeEach(() => {
     app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
     app.bind(Container.Identifiers.FilesystemService).toConstantValue({});
+    app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(mockEventDispatcher);
 
+    defaults.storage = dirSync().name + "/events.sqlite";
     defaults.server.https.tls.key = path.resolve(__dirname, "./__fixtures__/key.pem");
     defaults.server.https.tls.cert = path.resolve(__dirname, "./__fixtures__/server.crt");
+});
+
+afterEach(() => {
+    setGracefulCleanup();
 });
 
 describe("ServiceProvider", () => {

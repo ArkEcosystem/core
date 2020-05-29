@@ -7,4 +7,7 @@ export const Identifiers = {
     BasicCredentialsValidator: Symbol.for("Validator<BasicCreadentials>"),
     TokenValidator: Symbol.for("Validator<Token>"),
     SnapshotsManager: Symbol.for("Manager<Snapshots>"),
+
+    WatcherDatabaseService: Symbol.for("Watcher<DatabaseService>"),
+    EventsListener: Symbol.for("Listener<Events>"),
 };

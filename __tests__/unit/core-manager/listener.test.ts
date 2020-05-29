@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { Container } from "@arkecosystem/core-kernel";
+import { Listener } from "@arkecosystem/core-manager/src/listener";
 import { Sandbox } from "@packages/core-test-framework";
-import { Listener } from "@packages/core-watcher/src/listener";
 
 let sandbox: Sandbox;
 let listener: Listener;

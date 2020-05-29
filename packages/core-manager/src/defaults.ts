@@ -1,4 +1,5 @@
 export const defaults = {
+    storage: `${process.env.CORE_PATH_DATA}/events.sqlite`,
     server: {
         http: {
             enabled: !process.env.CORE_MONITOR_DISABLED,

@@ -5,7 +5,7 @@ import { ensureFileSync } from "fs-extra";
 @Container.injectable()
 export class DatabaseService {
     @Container.inject(Container.Identifiers.PluginConfiguration)
-    @Container.tagged("plugin", "@arkecosystem/core-watcher")
+    @Container.tagged("plugin", "@arkecosystem/core-manager")
     private readonly configuration!: Providers.PluginConfiguration;
 
     private database!: BetterSqlite3.Database;
