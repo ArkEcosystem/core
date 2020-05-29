@@ -1,3 +1,4 @@
+import { CryptoSuite } from "@packages/core-crypto";
 import { Application, Container, Contracts, Providers, Services } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import {
@@ -17,12 +18,11 @@ import {
     publicKeysIndexer,
     usernamesIndexer,
 } from "@packages/core-state/src/wallets/indexers/indexers";
-import { Mocks } from "@packages/core-test-framework";
+import { Mocks } from "@packages/core-test-framework/src";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { One, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Utils } from "@packages/crypto";
 
 export type PaginatedResponse = {
     totalCount: number;
@@ -38,21 +38,29 @@ export const parseObjectWithBigInt = (item) => {
     return JSON.parse(JSON.stringify(item, (key, value) => (typeof value === "bigint" ? value.toString() : value)));
 };
 
-export const buildSenderWallet = (app: Application, passphrase: string | null = null): Contracts.State.Wallet => {
+export const buildSenderWallet = (
+    app: Application,
+    crypto: CryptoSuite.CryptoSuite,
+    passphrase: string | null = null,
+): Contracts.State.Wallet => {
     const walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
     const wallet: Contracts.State.Wallet = walletRepository.createWallet(
-        Identities.Address.fromPassphrase(passphrase ? passphrase : passphrases[0]),
+        crypto.CryptoManager.Identities.Address.fromPassphrase(passphrase ? passphrase : passphrases[0]),
     );
 
-    wallet.publicKey = Identities.PublicKey.fromPassphrase(passphrase ? passphrase : passphrases[0]);
-    wallet.balance = Utils.BigNumber.make(7527654310);
+    wallet.publicKey = crypto.CryptoManager.Identities.PublicKey.fromPassphrase(
+        passphrase ? passphrase : passphrases[0],
+    );
+    wallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(7527654310);
 
     return wallet;
 };
 
-export const initApp = (): Application => {
-    const app = new Application(new Container.Container());
+export const initApp = (
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet")),
+): Application => {
+    const app = new Application(new Container.Container(), crypto);
 
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 
@@ -145,6 +153,7 @@ export const initApp = (): Application => {
     app.bind(Identifiers.WalletFactory).toFactory<Contracts.State.Wallet>(
         (context: Container.interfaces.Context) => (address: string) =>
             new Wallets.Wallet(
+                crypto.CryptoManager,
                 address,
                 new Services.Attributes.AttributeMap(
                     context.container.get<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes),

@@ -1,11 +1,10 @@
 import "jest-extended";
 
-import { BlockchainController } from "@packages/core-api/src/controllers/blockchain";
-import { Application } from "@packages/core-kernel";
-import { Mocks } from "@packages/core-test-framework";
-import { Interfaces } from "@packages/crypto";
-
 import { initApp, ItemResponse } from "../__support__";
+import { BlockchainController } from "../../../../packages/core-api/src/controllers/blockchain";
+import { Interfaces } from "../../../../packages/core-crypto";
+import { Application } from "../../../../packages/core-kernel";
+import { Mocks } from "../../../../packages/core-test-framework/src";
 
 let app: Application;
 let controller: BlockchainController;

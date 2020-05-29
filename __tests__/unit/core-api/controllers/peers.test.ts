@@ -1,15 +1,13 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { PeersController } from "@packages/core-api/src/controllers/peers";
-import { Application, Contracts } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Mocks } from "@packages/core-test-framework";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Transactions } from "@packages/crypto";
 
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
+import { PeersController } from "../../../../packages/core-api/src/controllers/peers";
+import { Application, Contracts } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Mocks } from "../../../../packages/core-test-framework/src";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
 
 let app: Application;
 let controller: PeersController;
@@ -23,17 +21,6 @@ beforeEach(() => {
     controller = app.resolve<PeersController>(PeersController);
 
     Mocks.PeerStorage.setPeers([]);
-});
-
-afterEach(() => {
-    try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.BusinessRegistrationTransaction,
-        );
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.BridgechainRegistrationTransaction,
-        );
-    } catch {}
 });
 
 describe("PeersController", () => {

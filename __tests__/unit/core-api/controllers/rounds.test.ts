@@ -1,22 +1,24 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { RoundsController } from "@packages/core-api/src/controllers/rounds";
-import { Application } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Mocks } from "@packages/core-test-framework";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Transactions, Utils } from "@packages/crypto";
 
 import { initApp, ItemResponse } from "../__support__";
+import { RoundsController } from "../../../../packages/core-api/src/controllers/rounds";
+import { CryptoSuite } from "../../../../packages/core-crypto";
+import { Application } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Mocks } from "../../../../packages/core-test-framework/src";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 let app: Application;
 let controller: RoundsController;
 
-beforeEach(() => {
-    app = initApp();
+beforeAll(() => {
+    app = initApp(crypto);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
@@ -28,10 +30,10 @@ beforeEach(() => {
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
@@ -41,9 +43,9 @@ describe("RoundsController", () => {
     describe("delegates", () => {
         it("should return list of delegates", async () => {
             const round = {
-                publicKey: Identities.PublicKey.fromPassphrase(passphrases[1]),
-                round: Utils.BigNumber.make("12"),
-                balance: Utils.BigNumber.make("555"),
+                publicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
+                round: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("12"),
+                balance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("555"),
             };
 
             Mocks.RoundRepository.setRounds([round]);

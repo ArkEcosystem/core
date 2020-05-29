@@ -1,58 +1,62 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { WalletsController } from "@packages/core-api/src/controllers/wallets";
-import { Application, Contracts } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Wallets } from "@packages/core-state";
-import { Mocks } from "@packages/core-test-framework";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
-import { Managers } from "@packages/crypto/src";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
+import { WalletsController } from "../../../../packages/core-api/src/controllers/wallets";
+import { CryptoSuite, Interfaces as BlockInterfaces } from "../../../../packages/core-crypto";
+import { Application, Contracts } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
+import { Wallets } from "../../../../packages/core-state";
+import { Mocks } from "../../../../packages/core-test-framework/src";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
+import { Enums, Interfaces } from "../../../../packages/crypto";
 import { htlcSecretHashHex } from "../../core-transactions/handlers/__fixtures__/htlc-secrets";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 let app: Application;
 let controller: WalletsController;
 let walletRepository: Wallets.WalletRepository;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-
 const { EpochTimestamp } = Enums.HtlcLockExpirationType;
+let mockLastBlockData;
 
-const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
-    mockLastBlockData.height! + heightRelativeToLastBlock;
-const makeNotExpiredTimestamp = (type) =>
-    type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
+let makeBlockHeightTimestamp;
+let makeNotExpiredTimestamp;
 
 const transactionHistoryService = {
     listByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
-    app = initApp();
+    app = initApp(crypto);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
+
+    makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) => mockLastBlockData.height! + heightRelativeToLastBlock;
+    makeNotExpiredTimestamp = (type) =>
+        type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
+
     controller = app.resolve<WalletsController>(WalletsController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
+    Mocks.StateStore.setBlock({ data: mockLastBlockData } as BlockInterfaces.IBlock);
     transactionHistoryService.listByCriteria.mockReset();
 });
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
@@ -63,14 +67,14 @@ describe("WalletsController", () => {
     let transferTransaction: Interfaces.ITransaction;
 
     beforeEach(() => {
-        senderWallet = buildSenderWallet(app);
+        senderWallet = buildSenderWallet(app, crypto);
 
         walletRepository.index(senderWallet);
 
-        Managers.configManager.getMilestone().aip11 = true;
+        crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
 
-        transferTransaction = BuilderFactory.transfer()
-            .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
+        transferTransaction = crypto.TransactionManager.BuilderFactory.transfer()
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrases[1]))
             .amount("1")
             .sign(passphrases[0])
             .nonce("1")
@@ -354,18 +358,21 @@ describe("WalletsController", () => {
                 value: makeNotExpiredTimestamp(EpochTimestamp),
             };
 
-            const htlcLockTransaction = BuilderFactory.htlcLock()
+            const htlcLockTransaction = crypto.TransactionManager.BuilderFactory.htlcLock()
                 .htlcLockAsset({
                     secretHash: htlcSecretHashHex,
                     expiration: expiration,
                 })
-                .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
+                .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrases[1]))
                 .amount("1")
                 .nonce("1")
                 .sign(passphrases[0])
                 .build();
 
-            senderWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make("1"));
+            senderWallet.setAttribute(
+                "htlc.lockedBalance",
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1"),
+            );
 
             senderWallet.setAttribute("htlc.locks", {
                 [htlcLockTransaction.id!]: {

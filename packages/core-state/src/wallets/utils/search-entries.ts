@@ -1,3 +1,4 @@
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import filterWallets from "./filter-rows";
@@ -47,11 +48,11 @@ export const searchEntries = <T extends Record<string, any>>(
     query: Record<string, string[]>,
     wallets: ReadonlyArray<T>,
     defaultOrder: string[],
+    cryptoManager: CryptoSuite.CryptoManager,
 ): Contracts.Search.ListResult<T> => {
     if (params.addresses) {
         // Use the `in` filter instead of `exact` for the `address` field
         if (!params.address) {
-            // @ts-ignore
             params.address = params.addresses;
             query.exact.shift();
             query.in = ["address"];
@@ -63,7 +64,7 @@ export const searchEntries = <T extends Record<string, any>>(
     const order = calculateOrder(params, defaultOrder);
 
     // @ts-ignore
-    wallets = sortWallets(order, filterWallets(wallets, params, query));
+    wallets = sortWallets(order, filterWallets(wallets, params, query), cryptoManager);
 
     return {
         rows: limitRows(wallets, params),

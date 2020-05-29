@@ -1,25 +1,23 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { NodeController } from "@packages/core-api/src/controllers/node";
-import { Application, Container, Providers } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Mocks } from "@packages/core-test-framework";
-import { Generators } from "@packages/core-test-framework/src";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Interfaces, Managers, Transactions } from "@packages/crypto";
 
 import { initApp, ItemResponse } from "../__support__";
+import { NodeController } from "../../../../packages/core-api/src/controllers/node";
+import { CryptoSuite, Interfaces } from "../../../../packages/core-crypto";
+import { Application, Container, Providers } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
+import { Generators, Mocks } from "../../../../packages/core-test-framework/src";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
+
+const crypto = new CryptoSuite.CryptoSuite(Generators.generateCryptoConfigRaw());
 
 let app: Application;
 let controller: NodeController;
 
 beforeEach(() => {
-    const config = Generators.generateCryptoConfigRaw();
-    Managers.configManager.setConfig(config);
-
-    app = initApp();
+    app = initApp(crypto);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
@@ -29,10 +27,10 @@ beforeEach(() => {
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}

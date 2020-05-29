@@ -1,19 +1,20 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { BlocksController } from "@packages/core-api/src/controllers/blocks";
-import { Block } from "@packages/core-database/src/models";
-import { Application } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Wallets } from "@packages/core-state";
-import { Mocks } from "@packages/core-test-framework";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
+import { BlocksController } from "../../../../packages/core-api/src/controllers/blocks";
+import { CryptoSuite, Interfaces } from "../../../../packages/core-crypto";
+import { Block } from "../../../../packages/core-database/src/models";
+import { Application } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
+import { Wallets } from "../../../../packages/core-state";
+import { Mocks } from "../../../../packages/core-test-framework/src";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 let app: Application;
 let controller: BlocksController;
@@ -28,7 +29,7 @@ const transactionHistoryService = {
 };
 
 beforeEach(() => {
-    app = initApp();
+    app = initApp(crypto);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
@@ -50,10 +51,10 @@ afterEach(() => {
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
@@ -69,10 +70,10 @@ describe("BlocksController", () => {
             version: 2,
             height: 2,
             timestamp: 2,
-            reward: Utils.BigNumber.make("100"),
-            totalFee: Utils.BigNumber.make("200"),
-            totalAmount: Utils.BigNumber.make("300"),
-            generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+            reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
+            totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("200"),
+            totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("300"),
+            generatorPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
         };
 
         mockBlockJson = {
@@ -82,16 +83,16 @@ describe("BlocksController", () => {
             totalAmount: mockBlock.totalAmount.toFixed(),
         };
 
-        const delegateWallet = buildSenderWallet(app);
+        const delegateWallet = buildSenderWallet(app, crypto);
 
         const delegateAttributes = {
             username: "delegate",
-            voteBalance: Utils.BigNumber.make("200"),
+            voteBalance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("200"),
             rank: 1,
             resigned: false,
             producedBlocks: 0,
-            forgedFees: Utils.BigNumber.make("2"),
-            forgedRewards: Utils.BigNumber.make("200"),
+            forgedFees: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("2"),
+            forgedRewards: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("200"),
         };
 
         delegateWallet.setAttribute("delegate", delegateAttributes);
@@ -160,8 +161,8 @@ describe("BlocksController", () => {
                 },
                 generator: {
                     username: "delegate",
-                    address: Identities.Address.fromPassphrase(passphrases[0]),
-                    publicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    address: crypto.CryptoManager.Identities.Address.fromPassphrase(passphrases[0]),
+                    publicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
                 },
                 signature: mockBlock.blockSignature,
                 confirmations: 0,
@@ -248,8 +249,8 @@ describe("BlocksController", () => {
 
     describe("transactions", () => {
         it("should return found transactions", async () => {
-            const transaction = BuilderFactory.transfer()
-                .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
+            const transaction = crypto.TransactionManager.BuilderFactory.transfer()
+                .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrases[1]))
                 .amount("10000000")
                 .sign(passphrases[0])
                 .nonce("1")

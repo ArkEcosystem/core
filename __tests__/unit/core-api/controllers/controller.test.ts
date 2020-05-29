@@ -1,15 +1,14 @@
 import "jest-extended";
 
-import { Controller } from "@packages/core-api/src/controllers/controller";
-import { BlockResource } from "@packages/core-api/src/resources";
-import { Application } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Transactions, Utils } from "@packages/crypto";
-
 import { initApp } from "../__support__";
+import { Controller } from "../../../../packages/core-api/src/controllers/controller";
+import { BlockResource } from "../../../../packages/core-api/src/resources";
+import { CryptoSuite } from "../../../../packages/core-crypto";
+import { Application } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
 
 class TestController extends Controller {
     public runRespondWithResource(data: any, transformer: any): any {
@@ -24,8 +23,10 @@ class TestController extends Controller {
 let app: Application;
 let controller: TestController;
 
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+
 beforeEach(() => {
-    app = initApp();
+    app = initApp(crypto);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
@@ -35,10 +36,10 @@ beforeEach(() => {
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
@@ -59,10 +60,10 @@ describe("Controller", () => {
                     version: 2,
                     height: 2,
                     timestamp: 2,
-                    reward: Utils.BigNumber.make("100"),
-                    totalFee: Utils.BigNumber.make("200"),
-                    totalAmount: Utils.BigNumber.make("300"),
-                    generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
+                    totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("200"),
+                    totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("300"),
+                    generatorPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
                 },
             ];
 
@@ -84,10 +85,10 @@ describe("Controller", () => {
                     version: 2,
                     height: 2,
                     timestamp: 2,
-                    reward: Utils.BigNumber.make("100"),
-                    totalFee: Utils.BigNumber.make("200"),
-                    totalAmount: Utils.BigNumber.make("300"),
-                    generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
+                    totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("200"),
+                    totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("300"),
+                    generatorPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
                 },
             ];
 

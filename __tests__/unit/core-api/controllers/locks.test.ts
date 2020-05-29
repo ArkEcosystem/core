@@ -1,39 +1,37 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { LocksController } from "@packages/core-api/src/controllers/locks";
-import { Application, Contracts } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Wallets } from "@packages/core-state";
-import { Mocks } from "@packages/core-test-framework";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Enums, Interfaces as TransactionInterfaces } from "@packages/crypto";
 
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
+import { LocksController } from "../../../../packages/core-api/src/controllers/locks";
+import { CryptoSuite, Interfaces } from "../../../../packages/core-crypto";
+import { Application, Contracts } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
+import { Wallets } from "../../../../packages/core-state";
+import { Mocks } from "../../../../packages/core-test-framework/src";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
 import { htlcSecretHashHex } from "../../core-transactions/handlers/__fixtures__/htlc-secrets";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 let app: Application;
 let controller: LocksController;
 let walletRepository: Wallets.WalletRepository;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-
+let mockLastBlockData: Partial<Interfaces.IBlockData>;
 const { EpochTimestamp } = Enums.HtlcLockExpirationType;
-
-const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
-    mockLastBlockData.height! + heightRelativeToLastBlock;
-const makeNotExpiredTimestamp = (type) =>
-    type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
+let makeBlockHeightTimestamp;
+let makeNotExpiredTimestamp;
 
 const transactionHistoryService = {
     listByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
-    app = initApp();
+    app = initApp(crypto);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
@@ -42,16 +40,22 @@ beforeEach(() => {
     controller = app.resolve<LocksController>(LocksController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
+    mockLastBlockData = { timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(), height: 4 };
+
+    makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) => mockLastBlockData.height! + heightRelativeToLastBlock;
+    makeNotExpiredTimestamp = (type) =>
+        type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
+
     Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
     transactionHistoryService.listByCriteria.mockReset();
 });
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
@@ -59,28 +63,31 @@ afterEach(() => {
 
 describe("LocksController", () => {
     let lockWallet: Contracts.State.Wallet;
-    let htlcLockTransaction: Interfaces.ITransaction;
+    let htlcLockTransaction: TransactionInterfaces.ITransaction;
 
     beforeEach(() => {
-        lockWallet = buildSenderWallet(app);
+        lockWallet = buildSenderWallet(app, crypto);
 
         const expiration = {
             type: EpochTimestamp,
             value: makeNotExpiredTimestamp(EpochTimestamp),
         };
 
-        htlcLockTransaction = BuilderFactory.htlcLock()
+        htlcLockTransaction = crypto.TransactionManager.BuilderFactory.htlcLock()
             .htlcLockAsset({
                 secretHash: htlcSecretHashHex,
                 expiration: expiration,
             })
-            .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrases[1]))
             .amount("1")
             .nonce("1")
             .sign(passphrases[0])
             .build();
 
-        lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make("1"));
+        lockWallet.setAttribute(
+            "htlc.lockedBalance",
+            crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1"),
+        );
 
         lockWallet.setAttribute("htlc.locks", {
             [htlcLockTransaction.id!]: {
@@ -174,7 +181,11 @@ describe("LocksController", () => {
     describe("unlocked", () => {
         it("should return list of locks", async () => {
             transactionHistoryService.listByCriteria.mockResolvedValueOnce({
-                rows: [Object.assign({}, htlcLockTransaction.data, { nonce: Utils.BigNumber.make("1") })],
+                rows: [
+                    Object.assign({}, htlcLockTransaction.data, {
+                        nonce: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1"),
+                    }),
+                ],
                 count: 1,
                 countIsEstimate: false,
             });

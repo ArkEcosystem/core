@@ -200,7 +200,13 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             }
         }
 
-        return searchEntries(params, searchContext.query, searchContext.entries, searchContext.defaultOrder);
+        return searchEntries(
+            params,
+            searchContext.query,
+            searchContext.entries,
+            searchContext.defaultOrder,
+            this.cryptoManager,
+        );
     }
 
     public findByScope(scope: Contracts.State.SearchScope, id: string): Contracts.State.Wallet {
@@ -258,7 +264,6 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         if (params.addresses) {
             // Use the `in` filter instead of `exact` for the `address` field
             if (!params.address) {
-                // @ts-ignore
                 params.address = params.addresses;
                 query.exact.shift();
                 query.in = ["address"];

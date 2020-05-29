@@ -1,17 +1,19 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { VotesController } from "@packages/core-api/src/controllers/votes";
-import { Application } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Mocks } from "@packages/core-test-framework";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Interfaces, Transactions } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
+import { VotesController } from "../../../../packages/core-api/src/controllers/votes";
+import { CryptoSuite } from "../../../../packages/core-crypto";
+import { Application } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
+import { Mocks } from "../../../../packages/core-test-framework/src";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
+import { Interfaces } from "../../../../packages/crypto";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 let app: Application;
 let controller: VotesController;
@@ -22,7 +24,7 @@ const transactionHistoryService = {
 };
 
 beforeEach(() => {
-    app = initApp();
+    app = initApp(crypto);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
@@ -35,10 +37,10 @@ beforeEach(() => {
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
@@ -48,8 +50,8 @@ describe("VotesController", () => {
     let voteTransaction: Interfaces.ITransaction;
 
     beforeEach(() => {
-        voteTransaction = BuilderFactory.vote()
-            .votesAsset(["+" + Identities.PublicKey.fromPassphrase(passphrases[1])])
+        voteTransaction = crypto.TransactionManager.BuilderFactory.vote()
+            .votesAsset(["+" + crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1])])
             .nonce("1")
             .sign(passphrases[0])
             .build();

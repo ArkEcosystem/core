@@ -1,17 +1,19 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { DelegatesController } from "@packages/core-api/src/controllers/delegates";
-import { Block } from "@packages/core-database/src/models";
-import { Application, Contracts } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Wallets } from "@packages/core-state";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Transactions, Utils } from "@packages/crypto";
 
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
+import { DelegatesController } from "../../../../packages/core-api/src/controllers/delegates";
+import { CryptoSuite } from "../../../../packages/core-crypto";
+import { Block } from "../../../../packages/core-database/src/models";
+import { Application, Contracts } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
+import { Wallets } from "../../../../packages/core-state";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 let app: Application;
 let controller: DelegatesController;
@@ -22,7 +24,7 @@ const blockHistoryService = {
 };
 
 beforeEach(() => {
-    app = initApp();
+    app = initApp(crypto);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
@@ -35,10 +37,10 @@ beforeEach(() => {
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
@@ -49,16 +51,16 @@ describe("DelegatesController", () => {
     let delegateAttributes: any;
 
     beforeEach(() => {
-        delegateWallet = buildSenderWallet(app);
+        delegateWallet = buildSenderWallet(app, crypto);
 
         delegateAttributes = {
             username: "delegate",
-            voteBalance: Utils.BigNumber.make("200"),
+            voteBalance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("200"),
             rank: 1,
             resigned: false,
             producedBlocks: 0,
-            forgedFees: Utils.BigNumber.make("2"),
-            forgedRewards: Utils.BigNumber.make("200"),
+            forgedFees: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("2"),
+            forgedRewards: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("200"),
             lastBlock: {
                 id: "123",
                 height: 2,
@@ -114,7 +116,7 @@ describe("DelegatesController", () => {
         it("should return error if delegate does not exist", async () => {
             const request: Hapi.Request = {
                 params: {
-                    id: Identities.PublicKey.fromPassphrase(passphrases[1]),
+                    id: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
                 },
             };
 
@@ -164,9 +166,9 @@ describe("DelegatesController", () => {
         it("should return list of blocks", async () => {
             const mockBlock: Partial<Block> = {
                 id: "17184958558311101492",
-                reward: Utils.BigNumber.make("100"),
-                totalFee: Utils.BigNumber.make("200"),
-                totalAmount: Utils.BigNumber.make("300"),
+                reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
+                totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("200"),
+                totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("300"),
             };
 
             blockHistoryService.listByCriteria.mockResolvedValue({
@@ -202,10 +204,10 @@ describe("DelegatesController", () => {
         it("should return list of transformed blocks", async () => {
             const mockBlock: Partial<Block> = {
                 id: "17184958558311101492",
-                reward: Utils.BigNumber.make("100"),
-                totalFee: Utils.BigNumber.make("200"),
-                totalAmount: Utils.BigNumber.make("300"),
-                generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
+                totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("200"),
+                totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("300"),
+                generatorPublicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
                 timestamp: 2,
             };
 
@@ -241,7 +243,7 @@ describe("DelegatesController", () => {
         it("should return error if delegate does not exists", async () => {
             const request: Hapi.Request = {
                 params: {
-                    id: Identities.PublicKey.fromPassphrase(passphrases[1]),
+                    id: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
                 },
                 query: {
                     page: 1,
@@ -256,7 +258,7 @@ describe("DelegatesController", () => {
 
     describe("voters", () => {
         it("should return list of voting wallets", async () => {
-            const voteWallet = buildSenderWallet(app, passphrases[1]);
+            const voteWallet = buildSenderWallet(app, crypto, passphrases[1]);
 
             voteWallet.setAttribute("vote", delegateWallet.publicKey);
 
@@ -289,7 +291,7 @@ describe("DelegatesController", () => {
         it("should return error if delegate does not exists", async () => {
             const request: Hapi.Request = {
                 params: {
-                    id: Identities.PublicKey.fromPassphrase(passphrases[1]),
+                    id: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
                 },
                 query: {
                     page: 1,

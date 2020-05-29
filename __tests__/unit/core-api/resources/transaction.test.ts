@@ -1,18 +1,19 @@
 import "jest-extended";
 
-import { TransactionResource } from "@packages/core-api/src/resources";
-import { Application } from "@packages/core-kernel";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { Identities, Interfaces, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-
 import { initApp, parseObjectWithBigInt } from "../__support__";
+import { TransactionResource } from "../../../../packages/core-api/src/resources";
+import { CryptoSuite } from "../../../../packages/core-crypto";
+import { Application } from "../../../../packages/core-kernel";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { Interfaces } from "../../../../packages/crypto";
 
 let app: Application;
 let resource: TransactionResource;
 
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+
 beforeEach(() => {
-    app = initApp();
+    app = initApp(crypto);
 
     resource = app.resolve<TransactionResource>(TransactionResource);
 });
@@ -21,14 +22,14 @@ describe("TransactionResource", () => {
     let transferTransaction: Interfaces.ITransaction;
 
     beforeEach(() => {
-        transferTransaction = BuilderFactory.transfer()
-            .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
+        transferTransaction = crypto.TransactionManager.BuilderFactory.transfer()
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrases[1]))
             .amount("1")
             .nonce("1")
             .sign(passphrases[0])
             .build();
 
-        transferTransaction.data.nonce = Utils.BigNumber.make("1");
+        transferTransaction.data.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1");
     });
 
     describe("raw", () => {

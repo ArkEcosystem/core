@@ -1,20 +1,19 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
-import { Application } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Mocks } from "@packages/core-test-framework";
-import { Generators } from "@packages/core-test-framework/src";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Interfaces, Managers, Transactions } from "@packages/crypto";
-import { TransactionType } from "@packages/crypto/src/enums";
-import { configManager } from "@packages/crypto/src/managers";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
+import { TransactionsController } from "../../../../packages/core-api/src/controllers/transactions";
+import { CryptoSuite } from "../../../../packages/core-crypto";
+import { Application } from "../../../../packages/core-kernel";
+import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
+import { Mocks } from "../../../../packages/core-test-framework/src";
+import { Generators } from "../../../../packages/core-test-framework/src";
+import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
+import { Interfaces } from "../../../../packages/crypto";
+import { TransactionType } from "../../../../packages/crypto/src/enums";
 
 let app: Application;
 let controller: TransactionsController;
@@ -24,12 +23,10 @@ const transactionHistoryService = {
     listByCriteria: jest.fn(),
 };
 
-beforeEach(() => {
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
-    Managers.configManager.setConfig(config);
+const crypto = new CryptoSuite.CryptoSuite(Generators.generateCryptoConfigRaw());
 
-    app = initApp();
+beforeEach(() => {
+    app = initApp(crypto);
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     // Triggers registration of indexes
@@ -42,14 +39,16 @@ beforeEach(() => {
     Mocks.TransactionPoolQuery.setTransactions([]);
     transactionHistoryService.findOneByCriteria.mockReset();
     transactionHistoryService.listByCriteria.mockReset();
+
+    crypto.TransactionManager.TransactionTools.TransactionTypeFactory.get(0); // Make sure registry is loaded, since it adds the "transactions" schema.
 });
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
@@ -59,8 +58,8 @@ describe("TransactionsController", () => {
     let transferTransaction: Interfaces.ITransaction;
 
     beforeEach(() => {
-        transferTransaction = BuilderFactory.transfer()
-            .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
+        transferTransaction = crypto.TransactionManager.BuilderFactory.transfer()
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrases[1]))
             .amount("1")
             .nonce("1")
             .sign(passphrases[0])
