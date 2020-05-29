@@ -23,12 +23,14 @@ const logger = { warning: jest.fn(), error: jest.fn() };
 const pool = { addTransaction: jest.fn() };
 const dynamicFeeMatcher = { throwIfCannotEnterPool: jest.fn(), throwIfCannotBroadcast: jest.fn() };
 const transactionBroadcaster = { broadcastTransactions: jest.fn() };
+const workerPool = { isTypeGroupSupported: jest.fn(), getTransactionFromData: jest.fn() };
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(pool);
 container.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).toConstantValue(dynamicFeeMatcher);
 container.bind(Container.Identifiers.PeerTransactionBroadcaster).toConstantValue(transactionBroadcaster);
+container.bind(Container.Identifiers.TransactionPoolWorkerPool).toConstantValue(workerPool);
 
 beforeEach(() => {
     logger.warning.mockReset();
@@ -36,10 +38,43 @@ beforeEach(() => {
     dynamicFeeMatcher.throwIfCannotEnterPool.mockReset();
     dynamicFeeMatcher.throwIfCannotBroadcast.mockReset();
     transactionBroadcaster.broadcastTransactions.mockReset();
+    workerPool.isTypeGroupSupported.mockReset();
+    workerPool.getTransactionFromData.mockReset();
 });
 
 describe("Processor.process", () => {
+    it("should parse transactions through factory pool", async () => {
+        workerPool.isTypeGroupSupported.mockReturnValue(true);
+        workerPool.getTransactionFromData.mockResolvedValueOnce(transaction1).mockResolvedValueOnce(transaction2);
+        dynamicFeeMatcher.throwIfCannotEnterPool
+            .mockImplementationOnce(async (transaction) => {})
+            .mockImplementationOnce(async (transaction) => {});
+        dynamicFeeMatcher.throwIfCannotBroadcast
+            .mockImplementationOnce(async (transaction) => {
+                throw new TransactionFeeToLowError(transaction);
+            })
+            .mockImplementationOnce(async (transaction) => {
+                throw new TransactionFeeToLowError(transaction);
+            });
+
+        const processor = container.resolve(Processor);
+        await processor.process([transaction1.data, transaction2.data]);
+
+        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(2);
+        expect(pool.addTransaction).toBeCalledTimes(2);
+        expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(2);
+        expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
+
+        expect(processor.accept).toEqual([transaction1.id, transaction2.id]);
+        expect(processor.broadcast).toEqual([]);
+        expect(processor.invalid).toEqual([]);
+        expect(processor.excess).toEqual([]);
+        expect(processor.errors).toBeUndefined();
+    });
+
     it("should add eligible transactions to pool", async () => {
+        workerPool.isTypeGroupSupported.mockReturnValue(false);
+
         dynamicFeeMatcher.throwIfCannotEnterPool
             .mockImplementationOnce(async (transaction) => {})
             .mockImplementationOnce(async (transaction) => {
@@ -63,6 +98,8 @@ describe("Processor.process", () => {
     });
 
     it("should add broadcast eligible transaction", async () => {
+        workerPool.isTypeGroupSupported.mockReturnValue(false);
+
         dynamicFeeMatcher.throwIfCannotBroadcast
             .mockImplementationOnce(async (transaction) => {})
             .mockImplementationOnce(async (transaction) => {
@@ -85,6 +122,7 @@ describe("Processor.process", () => {
     });
 
     it("should rethrow unexpected error", async () => {
+        workerPool.isTypeGroupSupported.mockReturnValue(false);
         pool.addTransaction.mockRejectedValueOnce(new Error("Unexpected error"));
 
         const processor = container.resolve(Processor);
@@ -107,6 +145,7 @@ describe("Processor.process", () => {
     it("should track excess transactions", async () => {
         const exceedsError = new Contracts.TransactionPool.PoolError("Exceeds", "ERR_EXCEEDS_MAX_COUNT", transaction1);
 
+        workerPool.isTypeGroupSupported.mockReturnValue(false);
         pool.addTransaction.mockRejectedValueOnce(exceedsError);
 
         const processor = container.resolve(Processor);
