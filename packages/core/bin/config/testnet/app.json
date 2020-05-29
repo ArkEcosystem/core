@@ -36,6 +36,9 @@
             },
             {
                 "package": "@arkecosystem/core-forger"
+            },
+            {
+                "package": "@arkecosystem/core-watcher"
             }
         ]
     },
