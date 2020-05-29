@@ -47,13 +47,13 @@ export class DatabaseService {
             });
     }
 
-    public getTotal(conditions: any): number {
+    public getTotal(conditions?: any): number {
         return this.database.prepare(`SELECT COUNT(*) FROM events ${this.prepareWhere(conditions)}`).get()[
             "COUNT(*)"
         ] as number;
     }
 
-    public queryEvents(conditions: any): any {
+    public queryEvents(conditions?: any): any {
         const limit = this.prepareLimit(conditions);
         const offset = this.prepareOffset(conditions);
 
@@ -72,15 +72,15 @@ export class DatabaseService {
         };
     }
 
-    private prepareLimit(conditions: any): number {
-        if (conditions?.limit && typeof conditions.limit === "number" && conditions.limit < 1000) {
+    private prepareLimit(conditions?: any): number {
+        if (conditions?.limit && typeof conditions.limit === "number" && conditions.limit <= 1000) {
             return conditions.limit;
         }
 
         return 10;
     }
 
-    private prepareOffset(conditions: any): number {
+    private prepareOffset(conditions?: any): number {
         if (conditions?.offset && typeof conditions.offset === "number") {
             return conditions.offset;
         }
@@ -88,8 +88,12 @@ export class DatabaseService {
         return 0;
     }
 
-    private prepareWhere(conditions: any): string {
+    private prepareWhere(conditions?: any): string {
         let query = "";
+
+        if (!conditions) {
+            return query;
+        }
 
         for (const key of Object.keys(conditions)) {
             if (key === "event") {
