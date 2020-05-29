@@ -99,7 +99,7 @@
         "ts-jest": "^26.0.0",
         "typedoc": "^0.17.3",
         "typescript": "^3.8.3",
-        "typesync": "^0.6.1",
+        "typesync": "^0.7.0",
         "uuid": "^8.0.0"
     },
     "workspaces": [
