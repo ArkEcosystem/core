@@ -1,21 +1,23 @@
 import "jest-extended";
 
-import { Transactions } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
 import { PortsResource } from "@packages/core-api/src/resources";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Mocks } from "@packages/core-test-framework";
+import { Mocks } from "@packages/core-test-framework/src";
 
 import { initApp } from "../__support__";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 let resource: PortsResource;
 let app: Application;
 
 beforeEach(() => {
-    app = initApp();
+    app = initApp(crypto);
 
     app.unbind(Identifiers.ServiceProviderRepository);
     app.bind(Identifiers.BlockHistoryService).toConstantValue({});
@@ -25,10 +27,10 @@ beforeEach(() => {
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}

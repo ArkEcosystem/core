@@ -1,4 +1,5 @@
 import { Blocks } from "@arkecosystem/core-crypto";
+import { Container } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -8,10 +9,11 @@ const name = "hapi-ajv";
 export const hapiAjv = {
     name,
     version: "1.0.0",
-    register: async (server: Hapi.Server, options: any, blockFactory: Blocks.BlockFactory): Promise<void> => {
+    register: async (server: Hapi.Server, options: any): Promise<void> => {
         const createErrorResponse = (request, h, errors) => {
             return Boom.badData(errors.map((error) => error.message).join(","));
         };
+        const blockFactory: Blocks.BlockFactory = server.app.app.get(Container.Identifiers.BlockFactory);
 
         server.ext({
             type: "onPreHandler",

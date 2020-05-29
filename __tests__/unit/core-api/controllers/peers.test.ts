@@ -1,13 +1,13 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
+import { PeersController } from "@packages/core-api/src/controllers/peers";
+import { Application, Contracts } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Mocks } from "@packages/core-test-framework/src";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
-import { PeersController } from "../../../../packages/core-api/src/controllers/peers";
-import { Application, Contracts } from "../../../../packages/core-kernel";
-import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
-import { Mocks } from "../../../../packages/core-test-framework/src";
-import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
 
 let app: Application;
 let controller: PeersController;

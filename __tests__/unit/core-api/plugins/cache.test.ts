@@ -1,16 +1,19 @@
 import "jest-extended";
 
 import Boom from "@hapi/boom";
+import { CryptoSuite } from "@packages/core-crypto";
 import { Application } from "@packages/core-kernel";
 import NodeCache from "node-cache";
 
 import { initApp } from "../__support__";
 import { initServer } from "./__support__";
 
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+
 let app: Application;
 
 beforeEach(() => {
-    app = initApp();
+    app = initApp(crypto);
 });
 
 describe("Cache", () => {

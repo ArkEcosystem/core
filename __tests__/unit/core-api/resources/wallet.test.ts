@@ -1,32 +1,36 @@
 import "jest-extended";
 
 import { WalletResource } from "@packages/core-api/src/resources";
+import { CryptoSuite } from "@packages/core-crypto";
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Transactions, Utils } from "@packages/crypto";
 
 import { buildSenderWallet, initApp, parseObjectWithBigInt } from "../__support__";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 let app: Application;
 let resource: WalletResource;
 
 beforeEach(() => {
-    app = initApp();
+    app = initApp(crypto);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
     resource = new WalletResource();
+    // @ts-ignore
+    resource.cryptoManager = crypto.CryptoManager;
 });
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
+        crypto.TransactionManager.TransactionTools.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
@@ -36,7 +40,7 @@ describe("WalletResource", () => {
     let senderWallet: Contracts.State.Wallet;
 
     beforeEach(() => {
-        senderWallet = buildSenderWallet(app);
+        senderWallet = buildSenderWallet(app, crypto);
     });
 
     describe("raw", () => {
@@ -50,12 +54,12 @@ describe("WalletResource", () => {
 
         beforeEach(() => {
             expectedResult = expectedResult = {
-                address: Identities.Address.fromPassphrase(passphrases[0]),
+                address: crypto.CryptoManager.Identities.Address.fromPassphrase(passphrases[0]),
                 balance: "7527654310",
                 isDelegate: false,
                 isResigned: false,
                 nonce: "0",
-                publicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                publicKey: crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
             };
         });
 
@@ -64,7 +68,10 @@ describe("WalletResource", () => {
         });
 
         it("should return transformed object when contains additional attributes", async () => {
-            senderWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(100));
+            senderWallet.setAttribute(
+                "htlc.lockedBalance",
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(100),
+            );
             expectedResult.lockedBalance = "100";
 
             senderWallet.setAttribute("delegate.username", "Dummy");
@@ -74,14 +81,20 @@ describe("WalletResource", () => {
             senderWallet.setAttribute("delegate.resigned", true);
             expectedResult.isResigned = true;
 
-            senderWallet.setAttribute("vote", "+" + Identities.PublicKey.fromPassphrase(passphrases[1]));
-            expectedResult.vote = "+" + Identities.PublicKey.fromPassphrase(passphrases[1]);
+            senderWallet.setAttribute(
+                "vote",
+                "+" + crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
+            );
+            expectedResult.vote = "+" + crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]);
 
             senderWallet.setAttribute("multiSignature", "dummy multiSignature");
             expectedResult.multiSignature = "dummy multiSignature";
 
-            senderWallet.setAttribute("secondPublicKey", Identities.PublicKey.fromPassphrase(passphrases[2]));
-            expectedResult.secondPublicKey = Identities.PublicKey.fromPassphrase(passphrases[2]);
+            senderWallet.setAttribute(
+                "secondPublicKey",
+                crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[2]),
+            );
+            expectedResult.secondPublicKey = crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[2]);
 
             const result = parseObjectWithBigInt(resource.transform(senderWallet));
 

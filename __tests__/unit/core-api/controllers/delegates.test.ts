@@ -1,17 +1,17 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
+import { DelegatesController } from "@packages/core-api/src/controllers/delegates";
+import { CryptoSuite } from "@packages/core-crypto";
+import { Block } from "@packages/core-database/src/models";
+import { Application, Contracts } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { Wallets } from "@packages/core-state";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
-import { DelegatesController } from "../../../../packages/core-api/src/controllers/delegates";
-import { CryptoSuite } from "../../../../packages/core-crypto";
-import { Block } from "../../../../packages/core-database/src/models";
-import { Application, Contracts } from "../../../../packages/core-kernel";
-import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
-import { Wallets } from "../../../../packages/core-state";
-import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
 
 const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 

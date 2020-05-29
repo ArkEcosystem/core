@@ -1,12 +1,16 @@
 import "jest-extended";
 
 import { LockResource } from "@packages/core-api/src/resources";
-import { Utils } from "@packages/crypto/src";
+import { CryptoSuite } from "@packages/core-crypto";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 let resource: LockResource;
 
 beforeEach(() => {
     resource = new LockResource();
+    // @ts-ignore
+    resource.cryptoManager = crypto.CryptoManager;
 });
 
 describe("DelegateResource", () => {
@@ -14,7 +18,7 @@ describe("DelegateResource", () => {
 
     beforeEach(() => {
         lock = {
-            amount: Utils.BigNumber.make("100"),
+            amount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
             timestamp: 2,
         };
     });

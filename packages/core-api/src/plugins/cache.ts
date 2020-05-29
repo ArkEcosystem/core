@@ -1,4 +1,5 @@
 import { CryptoSuite } from "@arkecosystem/core-crypto";
+import { Container } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 import NodeCache from "node-cache";
 
@@ -19,7 +20,6 @@ export = {
     async register(
         server: Hapi.Server,
         options: { enabled: boolean; stdTTL: number; checkperiod: number },
-        cryptoManager: CryptoSuite.CryptoManager,
     ): Promise<void> {
         if (options.enabled === false) {
             return;
@@ -27,6 +27,7 @@ export = {
 
         const cache: NodeCache = new NodeCache({ stdTTL: options.stdTTL, checkperiod: options.checkperiod });
 
+        const cryptoManager: CryptoSuite.CryptoManager = server.app.app.get(Container.Identifiers.CryptoManager);
         // const lastModified = cached ? new Date(cached.stored) : new Date();
         // return h.response(arg).header("Last-modified", lastModified.toUTCString());
 

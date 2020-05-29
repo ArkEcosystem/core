@@ -1,15 +1,15 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
+import { NodeController } from "@packages/core-api/src/controllers/node";
+import { CryptoSuite, Interfaces } from "@packages/core-crypto";
+import { Application, Container, Providers } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { Generators, Mocks } from "@packages/core-test-framework/src";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 
 import { initApp, ItemResponse } from "../__support__";
-import { NodeController } from "../../../../packages/core-api/src/controllers/node";
-import { CryptoSuite, Interfaces } from "../../../../packages/core-crypto";
-import { Application, Container, Providers } from "../../../../packages/core-kernel";
-import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
-import { Generators, Mocks } from "../../../../packages/core-test-framework/src";
-import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
 
 const crypto = new CryptoSuite.CryptoSuite(Generators.generateCryptoConfigRaw());
 

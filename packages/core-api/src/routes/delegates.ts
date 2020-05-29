@@ -1,12 +1,13 @@
 import { CryptoSuite } from "@arkecosystem/core-crypto";
+import { Container } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { DelegatesController } from "../controllers/delegates";
 
-export const register = (server: Hapi.Server, cryptoManager: CryptoSuite.CryptoManager): void => {
+export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(DelegatesController);
-    server.bind(controller);
+    const cryptoManager: CryptoSuite.CryptoManager = server.app.app.get(Container.Identifiers.CryptoManager);
 
     server.route({
         method: "GET",

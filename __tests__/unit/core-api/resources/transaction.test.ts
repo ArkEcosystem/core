@@ -1,11 +1,12 @@
 import "jest-extended";
 
+import { TransactionResource } from "@packages/core-api/src/resources";
+import { CryptoSuite } from "@packages/core-crypto";
+import { Application } from "@packages/core-kernel";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { Interfaces } from "@packages/crypto";
+
 import { initApp, parseObjectWithBigInt } from "../__support__";
-import { TransactionResource } from "../../../../packages/core-api/src/resources";
-import { CryptoSuite } from "../../../../packages/core-crypto";
-import { Application } from "../../../../packages/core-kernel";
-import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
-import { Interfaces } from "../../../../packages/crypto";
 
 let app: Application;
 let resource: TransactionResource;

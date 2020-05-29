@@ -1,14 +1,15 @@
 import "jest-extended";
 
+import { Controller } from "@packages/core-api/src/controllers/controller";
+import { BlockResource } from "@packages/core-api/src/resources";
+import { CryptoSuite } from "@packages/core-crypto";
+import { Application } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
+
 import { initApp } from "../__support__";
-import { Controller } from "../../../../packages/core-api/src/controllers/controller";
-import { BlockResource } from "../../../../packages/core-api/src/resources";
-import { CryptoSuite } from "../../../../packages/core-crypto";
-import { Application } from "../../../../packages/core-kernel";
-import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
-import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
 
 class TestController extends Controller {
     public runRespondWithResource(data: any, transformer: any): any {

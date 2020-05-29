@@ -1,15 +1,18 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { Application } from "@packages/core-kernel";
 import { RLWrapperBlackAndWhite } from "rate-limiter-flexible";
 
 import { initApp } from "../__support__";
 import { initServer } from "./__support__";
 
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+
 let app: Application;
 
 beforeEach(() => {
-    app = initApp();
+    app = initApp(crypto);
 });
 
 describe("Rate limit", () => {
