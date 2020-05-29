@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { Enums, Interfaces as TransactionInterfaces } from "@packages/crypto";
 
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 import { LocksController } from "../../../../packages/core-api/src/controllers/locks";
@@ -13,6 +12,7 @@ import { Wallets } from "../../../../packages/core-state";
 import { Mocks } from "../../../../packages/core-test-framework/src";
 import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
+import { Enums, Interfaces as TransactionInterfaces } from "../../../../packages/crypto";
 import { htlcSecretHashHex } from "../../core-transactions/handlers/__fixtures__/htlc-secrets";
 
 const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));

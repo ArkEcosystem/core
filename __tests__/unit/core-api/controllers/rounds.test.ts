@@ -1,23 +1,25 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 
 import { initApp, ItemResponse } from "../__support__";
 import { RoundsController } from "../../../../packages/core-api/src/controllers/rounds";
 import { CryptoSuite } from "../../../../packages/core-crypto";
 import { Application } from "../../../../packages/core-kernel";
 import { Identifiers } from "../../../../packages/core-kernel/src/ioc";
+import { Transactions as MagistrateTransactions } from "../../../../packages/core-magistrate-crypto";
 import { Mocks } from "../../../../packages/core-test-framework/src";
 import passphrases from "../../../../packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionHandlerRegistry } from "../../../../packages/core-transactions/src/handlers/handler-registry";
 
 const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
+crypto.CryptoManager.MilestoneManager.getMilestone().htlcEnabled = true;
 
 let app: Application;
 let controller: RoundsController;
 
-beforeAll(() => {
+beforeEach(() => {
     app = initApp(crypto);
 
     // Triggers registration of indexes

@@ -24,6 +24,8 @@ const transactionHistoryService = {
 };
 
 const crypto = new CryptoSuite.CryptoSuite(Generators.generateCryptoConfigRaw());
+crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
+crypto.CryptoManager.MilestoneManager.getMilestone().htlcEnabled = true;
 
 beforeEach(() => {
     app = initApp(crypto);
