@@ -19,7 +19,6 @@ export class Listener {
     }
 
     private handleEvents(data: { name: Contracts.Kernel.EventName; data: any }) {
-        // console.log("Event *", data);
         this.databaseService.addEvent(data.name.toString(), data.data);
     }
 }
