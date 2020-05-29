@@ -1,9 +1,11 @@
 import "jest-extended";
 
-import { Enums } from "@packages/core-kernel/src";
-import { Application } from "@packages/core-kernel/src/application";
-import { Server } from "@packages/core-webhooks/src/server";
 import { setGracefulCleanup } from "tmp";
+
+import { CryptoSuite } from "../../../../packages/core-crypto";
+import { Enums } from "../../../../packages/core-kernel/src";
+import { Application } from "../../../../packages/core-kernel/src/application";
+import { Server } from "../../../../packages/core-webhooks/src/server";
 import { initApp, initServer, request } from "./__support__";
 
 const postData = {
@@ -27,13 +29,15 @@ const postData = {
 const createWebhook = (server, data?: any) => request(server, "POST", "webhooks", data || postData);
 
 let server: Server;
-let serverOptions = {
+const serverOptions = {
     host: "0.0.0.0",
     port: 4004,
 };
 
 beforeEach(async () => {
-    const app: Application = initApp();
+    const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
+    const app: Application = initApp(crypto);
 
     server = await initServer(app, serverOptions);
 });
@@ -89,7 +93,7 @@ describe("Webhooks", () => {
 
     it("should GET a webhook by the given id", async () => {
         const { body } = await createWebhook(server);
-
+        console.log(body);
         const response = await request(server, "GET", `webhooks/${body.data.id}`);
         expect(response.status).toBe(200);
         expect(response.body.data).toBeObject();

@@ -1,15 +1,16 @@
 import "jest-extended";
 
-import { Application } from "@packages/core-kernel/src/application";
-import { Container, Utils } from "@packages/core-kernel";
-import { Database } from "@packages/core-webhooks/src/database";
-import { Identifiers } from "@packages/core-webhooks/src/identifiers";
-import { Listener } from "@packages/core-webhooks/src/listener";
-import { Webhook } from "@packages/core-webhooks/src/interfaces";
 import { dirSync, setGracefulCleanup } from "tmp";
-import { HttpOptions, HttpResponse } from "@packages/core-kernel/src/utils";
+
+import { CryptoSuite } from "../../../packages/core-crypto";
+import { Container, Utils } from "../../../packages/core-kernel";
+import { Application } from "../../../packages/core-kernel/src/application";
+import { HttpOptions, HttpResponse } from "../../../packages/core-kernel/src/utils";
+import { Database } from "../../../packages/core-webhooks/src/database";
+import { Identifiers } from "../../../packages/core-webhooks/src/identifiers";
+import { Webhook } from "../../../packages/core-webhooks/src/interfaces";
+import { Listener } from "../../../packages/core-webhooks/src/listener";
 import { dummyWebhook } from "./__fixtures__/assets";
-import * as coditions from "@packages/core-webhooks/src/conditions";
 
 let app: Application;
 let database: Database;
@@ -22,9 +23,10 @@ const logger = {
 };
 
 let spyOnPost: jest.SpyInstance;
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 beforeEach(() => {
-    app = new Application(new Container.Container());
+    app = new Application(new Container.Container(), crypto);
     app.bind("path.cache").toConstantValue(dirSync().name);
 
     app.bind<Database>(Identifiers.Database).to(Database).inSingletonScope();
@@ -121,7 +123,8 @@ describe("Listener", () => {
         });
 
         it("should not broadcast if webhook condition throws error", async () => {
-            let spyOnEq = jest.spyOn(coditions, "eq").mockImplementation((actual, expected) => {
+            //@ts-ignore
+            const spyOnEq = jest.spyOn(listener.conditions, "eq").mockImplementation((actual, expected) => {
                 throw new Error();
             });
 

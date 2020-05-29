@@ -1,3 +1,4 @@
+import { CryptoSuite } from "@packages/core-crypto";
 import { Application } from "@packages/core-kernel/src";
 import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
@@ -6,8 +7,8 @@ import { Identifiers as WebhookIdentifiers } from "@packages/core-webhooks/src/i
 import { Server } from "@packages/core-webhooks/src/server";
 import { dirSync } from "tmp";
 
-export const initApp = (): Application => {
-    const app: Application = new Application(new Container());
+export const initApp = (cryptoSuite: CryptoSuite.CryptoSuite): Application => {
+    const app: Application = new Application(new Container(), cryptoSuite);
 
     app.bind(Identifiers.EventDispatcherService).to(MemoryEventDispatcher).inSingletonScope();
 
@@ -26,7 +27,7 @@ export const initApp = (): Application => {
 };
 
 export const initServer = async (app: Application, serverOptions: any): Promise<Server> => {
-    let server = app.get<Server>(WebhookIdentifiers.Server);
+    const server = app.get<Server>(WebhookIdentifiers.Server);
 
     server.register(serverOptions);
 

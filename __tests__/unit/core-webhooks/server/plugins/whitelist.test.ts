@@ -1,8 +1,10 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { Application } from "@packages/core-kernel/src/application";
 import { Server } from "@packages/core-webhooks/src/server";
 import { setGracefulCleanup } from "tmp";
+
 import { initApp, initServer, request } from "../__support__";
 
 let app: Application;
@@ -10,7 +12,9 @@ let server: Server;
 let serverOptions: any;
 
 beforeEach(async () => {
-    app = initApp();
+    const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
+    app = initApp(crypto);
 
     serverOptions = {
         host: "0.0.0.0",
