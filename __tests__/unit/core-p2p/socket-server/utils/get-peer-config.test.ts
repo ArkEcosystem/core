@@ -1,5 +1,6 @@
 import { Managers } from "@arkecosystem/crypto";
 import { getPeerConfig } from "@arkecosystem/core-p2p/src/socket-server/utils/get-peer-config";
+import { Container } from "@arkecosystem/core-kernel";
 
 describe("getPeerConfig", () => {
     const mockConfig = {
@@ -13,7 +14,56 @@ describe("getPeerConfig", () => {
     jest.spyOn(Managers.configManager, "get").mockImplementation((key) => mockConfig[key]);
 
     const version = "3.0.9";
-    const app = { version: () => version };
+    const appPlugins = [
+        { package: "@arkecosystem/core-api", options: {} },
+        { package: "@arkecosystem/core-webhooks" },
+    ];
+    const coreApiServiceProvider = {
+        name: () => "core-api",
+        configDefaults: () => ({
+            server: { http: { port: 4003 } }
+        }),
+    };
+    const coreWebhooksServiceProvider = {
+        name: () => "core-webhooks",
+        configDefaults: () => ({}),
+    };
+    const serviceProviders = {
+        "@arkecosystem/core-api": coreApiServiceProvider,
+        "@arkecosystem/core-webhooks": coreWebhooksServiceProvider,
+    }
+    const configRepository = { get: () => appPlugins }; // get("app.plugins")
+    const serviceProviderRepository = { get: (plugin) => serviceProviders[plugin] };
+    const appGet = {
+        [Container.Identifiers.ConfigRepository]: configRepository,
+        [Container.Identifiers.ServiceProviderRepository]: serviceProviderRepository,
+    }
+    const app = {
+        version: () => version,
+        get: (key) => appGet[key],
+        resolve: () => ({
+            from: () => ({
+                merge: () => ({
+                    all: () => ({
+                        server: {
+                            http: {
+                                port: "4003"
+                            }
+                        }
+                    })
+                })
+            }),
+            discover: () => ({
+                merge: () => ({
+                    all: () => ({
+                        server: {
+                            port: "4004"
+                        }
+                    })
+                })
+            })
+        })
+    };
 
     it("should return own config from config manager", () => {
         expect(getPeerConfig(app as any)).toEqual({
@@ -28,7 +78,16 @@ describe("getPeerConfig", () => {
                     symbol: mockConfig["network.client.symbol"],
                 },
             },
-            plugins: {},
+            plugins: {
+                "@arkecosystem/core-api": {
+                    enabled: true,
+                    port: 4003
+                },
+                "@arkecosystem/core-webhooks": {
+                    enabled: true,
+                    port: 4004
+                }
+            },
         });
     });
 });
