@@ -2,6 +2,7 @@
 /* eslint-disable jest/expect-expect */
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { Services } from "@packages/core-kernel";
 import { Container, Contracts } from "@packages/core-kernel/src";
 import {
@@ -19,10 +20,11 @@ import {
     resignationsIndexer,
     usernamesIndexer,
 } from "@packages/core-state/src/wallets/indexers/indexers";
-import { Utils } from "@packages/crypto/src";
 
 import { FixtureGenerator } from "../__utils__/fixture-generator";
 import { setUp } from "../setup";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 let walletRepo: WalletRepository;
 let genesisBlock;
@@ -31,7 +33,7 @@ let fixtureGenerator: FixtureGenerator;
 let attributeSet: Services.Attributes.AttributeSet;
 
 beforeAll(async () => {
-    const initialEnv = await setUp();
+    const initialEnv = await setUp(crypto);
 
     initialEnv.sandbox.app
         .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
@@ -61,7 +63,7 @@ beforeAll(async () => {
     attributeSet = initialEnv.sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes);
 
     // TODO: pass attribute set from sandbox
-    fixtureGenerator = new FixtureGenerator(genesisBlock, attributeSet);
+    fixtureGenerator = new FixtureGenerator(genesisBlock, attributeSet, crypto.CryptoManager);
 });
 
 beforeEach(() => {
@@ -336,16 +338,18 @@ describe("Wallet Repository", () => {
 
     it("should get the nonce of a wallet", () => {
         const wallet1 = walletRepo.createWallet("wallet1");
-        wallet1.nonce = Utils.BigNumber.make(100);
+        wallet1.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(100);
         wallet1.publicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
         walletRepo.index(wallet1);
 
-        expect(walletRepo.getNonce(wallet1.publicKey)).toEqual(Utils.BigNumber.make(100));
+        expect(walletRepo.getNonce(wallet1.publicKey)).toEqual(
+            crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(100),
+        );
     });
 
     it("should return 0 nonce if there is no wallet", () => {
         const publicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
-        expect(walletRepo.getNonce(publicKey)).toEqual(Utils.BigNumber.ZERO);
+        expect(walletRepo.getNonce(publicKey)).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO);
     });
 
     it("should throw when looking up a username which doesn't exist", () => {
@@ -493,9 +497,9 @@ describe("Search", () => {
             for (let i = 0; i < wallets.length; i++) {
                 const wallet = wallets[i];
                 if (i < 13) {
-                    wallet.balance = Utils.BigNumber.make(53);
+                    wallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(53);
                 } else if (i < 36) {
-                    wallet.balance = Utils.BigNumber.make(99);
+                    wallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(99);
                 }
             }
             walletRepo.index(wallets);
@@ -517,9 +521,15 @@ describe("Search", () => {
             for (let i = 0; i < wallets.length; i++) {
                 const wallet = wallets[i];
                 if (i < 17) {
-                    wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(12));
+                    wallet.setAttribute(
+                        "delegate.voteBalance",
+                        crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(12),
+                    );
                 } else if (i < 29) {
-                    wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(17));
+                    wallet.setAttribute(
+                        "delegate.voteBalance",
+                        crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(17),
+                    );
                 }
             }
             walletRepo.index(wallets);
@@ -591,21 +601,25 @@ describe("Search", () => {
             const wallets = fixtureGenerator.generateFullWallets();
             wallets[0].setAttribute("delegate", {
                 username: `username-${wallets[0].address}`,
-                voteBalance: Utils.BigNumber.make(200),
-                forgedRewards: Utils.BigNumber.make(50),
-                forgedFees: Utils.BigNumber.make(50),
-                forgedTotal: Utils.BigNumber.make(50),
+                voteBalance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(200),
+                forgedRewards: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(50),
+                forgedFees: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(50),
+                forgedTotal: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(50),
             });
-            expect(wallets[0].getAttribute("delegate.forgedTotal")).not.toEqual(Utils.BigNumber.make(100));
+            expect(wallets[0].getAttribute("delegate.forgedTotal")).not.toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(100),
+            );
 
             walletRepo.index(wallets);
             const searchResult = walletRepo.search(Contracts.State.SearchScope.Delegates, {
                 forgedTotal: {
-                    from: Utils.BigNumber.make(100),
+                    from: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(100),
                 },
             });
 
-            expect(wallets[0].getAttribute("delegate.forgedTotal")).not.toEqual(Utils.BigNumber.make(100));
+            expect(wallets[0].getAttribute("delegate.forgedTotal")).not.toEqual(
+                crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(100),
+            );
             expect(searchResult.rows).toEqual([wallets[0]]);
         });
     });
@@ -761,7 +775,7 @@ describe("Search", () => {
                     wallet.setAttribute("vote", vote);
                 }
 
-                wallet.balance = Utils.BigNumber.make(0);
+                wallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0);
             }
             walletRepo.index(wallets);
         });
@@ -819,11 +833,15 @@ describe("Search", () => {
 
         beforeEach(() => {
             for (const o of [
-                { address: "dummy-1", balance: Utils.BigNumber.make(1000) },
-                { address: "dummy-2", balance: Utils.BigNumber.make(2000) },
-                { address: "dummy-3", balance: Utils.BigNumber.make(3000) },
+                { address: "dummy-1", balance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1000) },
+                { address: "dummy-2", balance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(2000) },
+                { address: "dummy-3", balance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(3000) },
             ]) {
-                const wallet = new Wallet(o.address, new Services.Attributes.AttributeMap(attributeSet));
+                const wallet = new Wallet(
+                    crypto.CryptoManager,
+                    o.address,
+                    new Services.Attributes.AttributeMap(attributeSet),
+                );
                 wallet.balance = o.balance;
                 walletRepo.index(wallet);
             }
@@ -834,9 +852,9 @@ describe("Search", () => {
 
             expect(count).toBe(3);
             expect(rows.length).toBe(3);
-            expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
-            expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
-            expect(rows[2].balance).toEqual(Utils.BigNumber.make(1000));
+            expect(rows[0].balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(3000));
+            expect(rows[1].balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(2000));
+            expect(rows[2].balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1000));
         });
 
         it("should be ok with params", () => {
@@ -844,8 +862,8 @@ describe("Search", () => {
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
-            expect(rows[0].balance).toEqual(Utils.BigNumber.make(2000));
-            expect(rows[1].balance).toEqual(Utils.BigNumber.make(1000));
+            expect(rows[0].balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(2000));
+            expect(rows[1].balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1000));
         });
 
         it("should be ok with params (offset = 0)", () => {
@@ -853,8 +871,8 @@ describe("Search", () => {
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
-            expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
-            expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
+            expect(rows[0].balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(3000));
+            expect(rows[1].balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(2000));
         });
 
         it("should be ok with params (no offset)", () => {
@@ -862,8 +880,8 @@ describe("Search", () => {
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
-            expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
-            expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
+            expect(rows[0].balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(3000));
+            expect(rows[1].balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(2000));
         });
 
         it("should be ok with params (no limit)", () => {
@@ -871,8 +889,8 @@ describe("Search", () => {
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
-            expect(rows[0].balance).toEqual(Utils.BigNumber.make(2000));
-            expect(rows[1].balance).toEqual(Utils.BigNumber.make(1000));
+            expect(rows[0].balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(2000));
+            expect(rows[1].balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1000));
         });
     });
 });
@@ -880,13 +898,25 @@ describe("Search", () => {
 describe("Delegate Wallets", () => {
     describe("search", () => {
         const delegates = [
-            { username: "delegate-0", forgedFees: Utils.BigNumber.make(10), forgedRewards: Utils.BigNumber.make(10) },
-            { username: "delegate-1", forgedFees: Utils.BigNumber.make(20), forgedRewards: Utils.BigNumber.make(20) },
-            { username: "delegate-2", forgedFees: Utils.BigNumber.make(30), forgedRewards: Utils.BigNumber.make(30) },
+            {
+                username: "delegate-0",
+                forgedFees: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(10),
+                forgedRewards: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(10),
+            },
+            {
+                username: "delegate-1",
+                forgedFees: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(20),
+                forgedRewards: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(20),
+            },
+            {
+                username: "delegate-2",
+                forgedFees: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(30),
+                forgedRewards: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(30),
+            },
         ];
 
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map((delegate) => {
-            const wallet = new Wallet("", new Services.Attributes.AttributeMap(attributeSet));
+            const wallet = new Wallet(crypto.CryptoManager, "", new Services.Attributes.AttributeMap(attributeSet));
             return Object.assign(wallet, { attributes: { delegate } });
         });
 

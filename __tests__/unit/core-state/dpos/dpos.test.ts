@@ -1,21 +1,24 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { Utils } from "@packages/core-kernel/src";
 import { RoundInfo } from "@packages/core-kernel/src/contracts/shared";
 import { DposState } from "@packages/core-state/src/dpos/dpos";
 import { WalletRepository } from "@packages/core-state/src/wallets";
-import { Utils as CryptoUtils } from "@packages/crypto/src";
+import { Types } from "@packages/crypto";
 import { SATOSHI } from "@packages/crypto/src/constants";
 
 import { buildDelegateAndVoteWallets } from "../__utils__/build-delegate-and-vote-balances";
 import { setUp } from "../setup";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 let dposState: DposState;
 let walletRepo: WalletRepository;
 let debugLogger: jest.SpyInstance;
 
 beforeAll(async () => {
-    const initialEnv = await setUp();
+    const initialEnv = await setUp(crypto);
     dposState = initialEnv.dPosState;
     walletRepo = initialEnv.walletRepo;
     debugLogger = initialEnv.spies.logger.debug;
@@ -25,7 +28,7 @@ describe("dpos", () => {
     beforeEach(() => {
         walletRepo.reset();
 
-        buildDelegateAndVoteWallets(5, walletRepo);
+        buildDelegateAndVoteWallets(5, walletRepo, crypto.CryptoManager);
     });
 
     describe("buildVoteBalances", () => {
@@ -35,8 +38,8 @@ describe("dpos", () => {
             const delegates = walletRepo.allByUsername();
             for (let i = 0; i < 5; i++) {
                 const delegate = delegates[4 - i];
-                expect(delegate.getAttribute<CryptoUtils.BigNumber>("delegate.voteBalance")).toEqual(
-                    CryptoUtils.BigNumber.make(5 - i)
+                expect(delegate.getAttribute<Types.BigNumber>("delegate.voteBalance")).toEqual(
+                    crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(5 - i)
                         .times(1000)
                         .times(SATOSHI),
                 );
@@ -54,14 +57,14 @@ describe("dpos", () => {
             for (let i = 0; i < 5; i++) {
                 const delegate = delegates[i];
                 expect(delegate.getAttribute<number>("delegate.rank")).toEqual(i + 1);
-                expect(delegate.getAttribute<CryptoUtils.BigNumber>("delegate.voteBalance")).toEqual(
-                    CryptoUtils.BigNumber.make((5 - i) * 1000 * SATOSHI),
+                expect(delegate.getAttribute<Types.BigNumber>("delegate.voteBalance")).toEqual(
+                    crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make((5 - i) * 1000 * SATOSHI),
                 );
             }
         });
 
         it("should throw if two wallets have the same public key", () => {
-            const delegates = buildDelegateAndVoteWallets(5, walletRepo);
+            const delegates = buildDelegateAndVoteWallets(5, walletRepo, crypto.CryptoManager);
             delegates[0].setAttribute("delegate.resigned", true);
 
             delegates[1].setAttribute("delegate.voteBalance", Utils.BigNumber.make(5467));
@@ -76,7 +79,7 @@ describe("dpos", () => {
         });
 
         it("should not throw if public keys are different and balances are the same", () => {
-            const delegates = buildDelegateAndVoteWallets(5, walletRepo);
+            const delegates = buildDelegateAndVoteWallets(5, walletRepo, crypto.CryptoManager);
 
             delegates[1].setAttribute("delegate.voteBalance", Utils.BigNumber.make(5467));
             delegates[2].setAttribute("delegate.voteBalance", Utils.BigNumber.make(5467));
@@ -92,7 +95,10 @@ describe("dpos", () => {
         it("should throw if there are not enough delegates", () => {
             dposState.buildVoteBalances();
             dposState.buildDelegateRanking();
-            const round = Utils.roundCalculator.calculateRound(1);
+            const round = Utils.roundCalculator.calculateRound(
+                1,
+                crypto.CryptoManager.MilestoneManager.getMilestones(),
+            );
             const errorMessage = `Expected to find 51 delegates but only found 5.This indicates an issue with the genesis block & delegates`;
             expect(() => dposState.setDelegatesRound(round)).toThrowError(errorMessage);
         });
@@ -100,7 +106,10 @@ describe("dpos", () => {
         it("should set the delegates of a round", () => {
             dposState.buildVoteBalances();
             dposState.buildDelegateRanking();
-            const round = Utils.roundCalculator.calculateRound(1);
+            const round = Utils.roundCalculator.calculateRound(
+                1,
+                crypto.CryptoManager.MilestoneManager.getMilestones(),
+            );
             round.maxDelegates = 4;
             dposState.setDelegatesRound(round);
             const delegates = dposState.getActiveDelegates();
@@ -126,7 +135,7 @@ describe("dpos", () => {
         beforeEach(() => {
             dposState.buildVoteBalances();
             dposState.buildDelegateRanking();
-            round = Utils.roundCalculator.calculateRound(1);
+            round = Utils.roundCalculator.calculateRound(1, crypto.CryptoManager.MilestoneManager.getMilestones());
             round.maxDelegates = 5;
             dposState.setDelegatesRound(round);
         });

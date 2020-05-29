@@ -1,10 +1,10 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { Enums, Utils } from "@packages/core-kernel";
 import { StateBuilder } from "@packages/core-state/src/state-builder";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { Sandbox } from "@packages/core-test-framework/src";
-import { Managers } from "@packages/crypto";
 
 import { setUp, setUpDefaults } from "./setup";
 
@@ -21,6 +21,7 @@ const generatorKey = getBlockRewardsDefault.generatorPublicKey;
 const senderKey = getSentTransactionDefault.senderPublicKey;
 
 let sandbox: Sandbox;
+let crypto;
 
 let loggerWarningSpy: jest.SpyInstance;
 let loggerInfoSpy: jest.SpyInstance;
@@ -28,13 +29,18 @@ let loggerInfoSpy: jest.SpyInstance;
 let walletRepo: WalletRepository;
 let restoreDefaultSentTransactions: () => void;
 
-const saveDefaultTransactions = (): (() => void) => {
-    const saveTransaction = setUpDefaults.getSentTransaction;
-    return () => (setUpDefaults.getSentTransaction = saveTransaction);
-};
+let saveDefaultTransactions;
 
-beforeAll(async () => {
-    const initialEnv = await setUp();
+beforeEach(async () => {
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+    crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
+
+    saveDefaultTransactions = (): (() => void) => {
+        const saveTransaction = setUpDefaults.getSentTransaction;
+        return () => (setUpDefaults.getSentTransaction = saveTransaction);
+    };
+
+    const initialEnv = await setUp(crypto);
 
     walletRepo = initialEnv.walletRepo;
     stateBuilder = initialEnv.stateBuilder;
@@ -50,7 +56,7 @@ beforeAll(async () => {
     restoreDefaultSentTransactions = saveDefaultTransactions();
 });
 
-afterAll(() => jest.clearAllMocks());
+afterEach(() => jest.clearAllMocks());
 
 describe("StateBuilder", () => {
     beforeEach(() => {
@@ -126,9 +132,9 @@ describe("StateBuilder", () => {
     });
 
     it("should not fail for negative genesis wallet balances", async () => {
-        const genesisPublicKeys: string[] = Managers.configManager
-            .get("genesisBlock.transactions")
-            .reduce((acc, curr) => [...acc, curr.senderPublicKey], []);
+        const genesisPublicKeys: string[] = crypto.CryptoManager.NetworkConfigManager.get(
+            "genesisBlock.transactions",
+        ).reduce((acc, curr) => [...acc, curr.senderPublicKey], []);
 
         const wallet = walletRepo.findByPublicKey(genesisPublicKeys[0]);
         wallet.balance = Utils.BigNumber.make(-80000);

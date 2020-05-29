@@ -1,13 +1,16 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { Services } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 
 import { setUp } from "../setup";
 
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
 beforeAll(() => {
-    setUp();
+    setUp(crypto);
 });
 
 describe("Models - Wallet", () => {
@@ -19,7 +22,7 @@ describe("Models - Wallet", () => {
 
     it("returns the address", () => {
         const address = "Abcde";
-        const wallet = new Wallet(address, attributeMap);
+        const wallet = new Wallet(crypto.CryptoManager, address, attributeMap);
         expect(wallet.address).toBe(address);
     });
 
@@ -29,7 +32,7 @@ describe("Models - Wallet", () => {
         const custromAttributeMap = new Services.Attributes.AttributeMap(customAttributeSet);
 
         const address = "Abcde";
-        const wallet = new Wallet(address, custromAttributeMap);
+        const wallet = new Wallet(crypto.CryptoManager, address, custromAttributeMap);
         const testAttribute = { test: true };
         wallet.setAttribute("customAttribute", testAttribute);
         expect(wallet.hasAttribute("customAttribute")).toBe(true);
@@ -47,7 +50,7 @@ describe("Models - Wallet", () => {
 
     it("should get all attributes", () => {
         const address = "Abcde";
-        const wallet = new Wallet(address, attributeMap);
+        const wallet = new Wallet(crypto.CryptoManager, address, attributeMap);
 
         wallet.setAttribute("delegate", {});
         wallet.setAttribute("vote", {});
@@ -57,7 +60,7 @@ describe("Models - Wallet", () => {
 
     it("should return whether wallet is delegate", () => {
         const address = "Abcde";
-        const wallet = new Wallet(address, attributeMap);
+        const wallet = new Wallet(crypto.CryptoManager, address, attributeMap);
 
         expect(wallet.isDelegate()).toBe(false);
         wallet.setAttribute("delegate", {});
@@ -66,7 +69,7 @@ describe("Models - Wallet", () => {
 
     it("should return whether wallet has voted", () => {
         const address = "Abcde";
-        const wallet = new Wallet(address, attributeMap);
+        const wallet = new Wallet(crypto.CryptoManager, address, attributeMap);
 
         expect(wallet.hasVoted()).toBe(false);
         wallet.setAttribute("vote", {});
@@ -75,7 +78,7 @@ describe("Models - Wallet", () => {
 
     it("should return whether the wallet has a second signature", () => {
         const address = "Abcde";
-        const wallet = new Wallet(address, attributeMap);
+        const wallet = new Wallet(crypto.CryptoManager, address, attributeMap);
 
         expect(wallet.hasSecondSignature()).toBe(false);
         wallet.setAttribute("secondPublicKey", {});
@@ -84,7 +87,7 @@ describe("Models - Wallet", () => {
 
     it("should return whether the wallet has multisignature", () => {
         const address = "Abcde";
-        const wallet = new Wallet(address, attributeMap);
+        const wallet = new Wallet(crypto.CryptoManager, address, attributeMap);
 
         expect(wallet.hasMultiSignature()).toBe(false);
         wallet.setAttribute("multiSignature", {});
@@ -93,7 +96,7 @@ describe("Models - Wallet", () => {
 
     it("should be cloneable", () => {
         const address = "Abcde";
-        const wallet = new Wallet(address, attributeMap);
+        const wallet = new Wallet(crypto.CryptoManager, address, attributeMap);
 
         expect(wallet.clone()).toEqual(wallet);
     });

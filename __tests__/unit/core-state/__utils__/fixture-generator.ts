@@ -1,7 +1,6 @@
+import { CryptoSuite } from "@packages/core-crypto";
 import { Services } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
-import { Identities } from "@packages/crypto";
-import { Utils } from "@packages/crypto/src";
 
 import compact from "./compact";
 import unique from "./unique";
@@ -9,23 +8,31 @@ import unique from "./unique";
 export class FixtureGenerator {
     private genesisSenders;
 
-    public constructor(private genesisBlock, private attributeSet: Services.Attributes.AttributeSet) {
+    public constructor(
+        private genesisBlock,
+        private attributeSet: Services.Attributes.AttributeSet,
+        private cryptoManager: CryptoSuite.CryptoManager,
+    ) {
         this.genesisSenders = unique(compact(genesisBlock.transactions.map((tx) => tx.senderPublicKey)));
     }
 
     public generateFullWallets(): Wallet[] {
         return this.genesisSenders.map((senderPublicKey) => {
-            const address = Identities.Address.fromPublicKey(senderPublicKey);
-            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
+            const address = this.cryptoManager.Identities.Address.fromPublicKey(senderPublicKey);
+            const wallet = new Wallet(
+                this.cryptoManager,
+                address,
+                new Services.Attributes.AttributeMap(this.attributeSet),
+            );
             wallet.publicKey = `${address}`;
             wallet.setAttribute("delegate.username", `username-${address}`);
 
-            wallet.balance = Utils.BigNumber.make(100);
+            wallet.balance = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(100);
             wallet.setAttribute("delegate", {
                 username: `username-${address}`,
-                voteBalance: Utils.BigNumber.make(200),
-                forgedRewards: Utils.BigNumber.ZERO,
-                forgedFees: Utils.BigNumber.ZERO,
+                voteBalance: this.cryptoManager.LibraryManager.Libraries.BigNumber.make(200),
+                forgedRewards: this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+                forgedFees: this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
             });
             wallet.setAttribute("secondPublicKey", `secondPublicKey-${address}`);
             wallet.setAttribute("vote", `vote-${address}`);
@@ -37,12 +44,16 @@ export class FixtureGenerator {
         return this.genesisBlock.transactions
             .filter((transaction) => transaction.recipientId)
             .map((transaction, i) => {
-                const address = Identities.Address.fromPublicKey(transaction.senderPublicKey);
-                const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
+                const address = this.cryptoManager.Identities.Address.fromPublicKey(transaction.senderPublicKey);
+                const wallet = new Wallet(
+                    this.cryptoManager,
+                    address,
+                    new Services.Attributes.AttributeMap(this.attributeSet),
+                );
                 wallet.publicKey = transaction.senderPublicKey;
                 wallet.setAttribute("htlc.locks", {
                     [transaction.id]: {
-                        amount: Utils.BigNumber.make(10),
+                        amount: this.cryptoManager.LibraryManager.Libraries.BigNumber.make(10),
                         recipientId: transaction.recipientId,
                         secretHash: transaction.id,
                         expiration: {
@@ -57,9 +68,13 @@ export class FixtureGenerator {
 
     public generateBridgeChainWallets(): Wallet[] {
         return this.genesisSenders.map((senderPublicKey, i) => {
-            const address = Identities.Address.fromPublicKey(senderPublicKey);
+            const address = this.cryptoManager.Identities.Address.fromPublicKey(senderPublicKey);
 
-            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
+            const wallet = new Wallet(
+                this.cryptoManager,
+                address,
+                new Services.Attributes.AttributeMap(this.attributeSet),
+            );
             wallet.publicKey = senderPublicKey;
 
             wallet.setAttribute("business", {
@@ -82,9 +97,13 @@ export class FixtureGenerator {
 
     public generateBusinesses(): Wallet[] {
         return this.genesisSenders.map((senderPublicKey, i) => {
-            const address = Identities.Address.fromPublicKey(senderPublicKey);
+            const address = this.cryptoManager.Identities.Address.fromPublicKey(senderPublicKey);
 
-            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
+            const wallet = new Wallet(
+                this.cryptoManager,
+                address,
+                new Services.Attributes.AttributeMap(this.attributeSet),
+            );
             wallet.publicKey = senderPublicKey;
 
             const businessRegistrationAsset = {
@@ -107,8 +126,12 @@ export class FixtureGenerator {
 
     public generateVotes(): Wallet[] {
         return this.genesisSenders.map((senderPublicKey) => {
-            const address = Identities.Address.fromPublicKey(senderPublicKey);
-            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
+            const address = this.cryptoManager.Identities.Address.fromPublicKey(senderPublicKey);
+            const wallet = new Wallet(
+                this.cryptoManager,
+                address,
+                new Services.Attributes.AttributeMap(this.attributeSet),
+            );
             wallet.setAttribute("vote", wallet.publicKey);
             return wallet;
         });

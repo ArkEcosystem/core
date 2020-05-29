@@ -1,4 +1,4 @@
-import { IBlock } from "@packages/crypto/src/interfaces";
+import { IBlock } from "@packages/core-crypto/src/interfaces";
 
 export const makeChainedBlocks = (length: number, blockFactory): IBlock[] => {
     const entitites: IBlock[] = [];

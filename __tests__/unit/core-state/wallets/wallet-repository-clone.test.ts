@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { Contracts } from "@packages/core-kernel/src";
 import { Wallet, WalletRepository, WalletRepositoryClone } from "@packages/core-state/src/wallets";
 import {
@@ -10,15 +11,16 @@ import {
     resignationsIndexer,
     usernamesIndexer,
 } from "@packages/core-state/src/wallets/indexers/indexers";
-import { Utils } from "@packages/crypto/src";
 
 import { setUp } from "../setup";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 let walletRepoClone: WalletRepositoryClone;
 let walletRepo: WalletRepository;
 
 beforeAll(async () => {
-    const initialEnv = await setUp();
+    const initialEnv = await setUp(crypto);
     walletRepoClone = initialEnv.walletRepoClone;
     walletRepo = initialEnv.walletRepo;
 });
@@ -196,7 +198,7 @@ describe("Wallet Repository Clone", () => {
             walletRepo.index(wallet);
 
             const tempWallet = walletRepoClone.findByAddress(wallet.address);
-            tempWallet.balance = Utils.BigNumber.ONE;
+            tempWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ONE;
 
             expect(wallet.balance).not.toEqual(tempWallet.balance);
         });
@@ -206,14 +208,14 @@ describe("Wallet Repository Clone", () => {
         it("should return a copy", () => {
             const wallet = walletRepo.createWallet("ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp");
             wallet.publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
-            wallet.balance = Utils.BigNumber.SATOSHI;
+            wallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.SATOSHI;
             walletRepo.index(wallet);
 
             const tempWallet = walletRepoClone.findByPublicKey(wallet.publicKey);
-            tempWallet.balance = Utils.BigNumber.ZERO;
+            tempWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
 
-            expect(wallet.balance).toEqual(Utils.BigNumber.SATOSHI);
-            expect(tempWallet.balance).toEqual(Utils.BigNumber.ZERO);
+            expect(wallet.balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.SATOSHI);
+            expect(tempWallet.balance).toEqual(crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO);
         });
     });
 
@@ -225,7 +227,7 @@ describe("Wallet Repository Clone", () => {
             walletRepo.index(wallet);
 
             const tempWallet = walletRepoClone.findByUsername(wallet.getAttribute("delegate.username"));
-            tempWallet.balance = Utils.BigNumber.ONE;
+            tempWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ONE;
 
             expect(wallet.balance).not.toEqual(tempWallet.balance);
         });

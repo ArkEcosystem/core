@@ -1,11 +1,14 @@
+import { CryptoSuite } from "@packages/core-crypto";
 import { TransactionStore } from "@packages/core-state/src/stores/transactions";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { ITransaction } from "@packages/crypto/src/interfaces";
 
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+
 let factory: FactoryBuilder;
 
 beforeEach(() => {
-    factory = new FactoryBuilder();
+    factory = new FactoryBuilder(crypto);
     Factories.registerTransactionFactory(factory);
 });
 

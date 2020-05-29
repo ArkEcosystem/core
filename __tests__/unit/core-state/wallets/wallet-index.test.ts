@@ -1,3 +1,4 @@
+import { CryptoSuite } from "@packages/core-crypto";
 import { Wallets } from "@packages/core-state/src";
 import { WalletIndex } from "@packages/core-state/src/wallets/wallet-index";
 import { Factory } from "@packages/core-test-framework/src/factories/factory";
@@ -5,9 +6,10 @@ import { Factory } from "@packages/core-test-framework/src/factories/factory";
 import { setUp } from "../setup";
 
 let factory: Factory;
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 beforeAll(async () => {
-    const initialEnv = await setUp();
+    const initialEnv = await setUp(crypto);
     factory = initialEnv.factory.get("Wallet");
 });
 

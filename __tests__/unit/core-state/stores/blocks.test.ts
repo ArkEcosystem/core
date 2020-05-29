@@ -1,4 +1,4 @@
-import { Interfaces } from "@packages/crypto/src";
+import { Interfaces } from "@packages/core-crypto/src";
 import { BlockStore } from "@packages/core-state/src/stores/blocks";
 
 describe("BlockStore", () => {

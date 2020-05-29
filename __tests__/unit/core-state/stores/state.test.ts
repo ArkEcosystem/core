@@ -1,13 +1,17 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
+import { IBlock, IBlockData } from "@packages/core-crypto/src/interfaces";
 import { Container } from "@packages/core-kernel/src";
 import { StateStore } from "@packages/core-state/src/stores/state";
 import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { IBlock, IBlockData, ITransactionData } from "@packages/crypto/src/interfaces";
+import { ITransactionData } from "@packages/crypto/src/interfaces";
 import delay from "delay";
 
 import { makeChainedBlocks } from "../__utils__/make-chained-block";
 import { setUp } from "../setup";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
 
 let blocks: IBlock[];
 let stateStorage: StateStore;
@@ -16,7 +20,7 @@ let logger: jest.SpyInstance;
 let dispatchSpy: jest.SpyInstance;
 
 beforeAll(async () => {
-    const initalEnv = await setUp();
+    const initalEnv = await setUp(crypto);
     factory = initalEnv.factory;
     logger = initalEnv.spies.logger.info;
     dispatchSpy = initalEnv.spies.dispatchSpy;

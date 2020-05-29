@@ -1,6 +1,8 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { Container, Providers, Services } from "@packages/core-kernel";
+import { Utils } from "@packages/core-kernel";
 import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
 import { PluginConfiguration } from "@packages/core-kernel/src/providers";
 import { dposPreviousRoundStateProvider } from "@packages/core-state/src";
@@ -15,7 +17,6 @@ import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } 
 import { registerFactories, registerIndexers } from "@packages/core-state/src/wallets/indexers";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { Managers, Utils } from "@packages/crypto/src";
 
 export interface Spies {
     applySpy: jest.SpyInstance;
@@ -65,8 +66,12 @@ export const setUpDefaults = {
     getRegisteredHandlers: [],
 };
 
-export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Promise<Setup> => {
-    const sandbox = new Sandbox();
+export const setUp = async (
+    crypto: CryptoSuite.CryptoSuite,
+    setUpOptions = setUpDefaults,
+    skipBoot = false,
+): Promise<Setup> => {
+    const sandbox = new Sandbox(crypto);
 
     sandbox.app.bind(Container.Identifiers.WalletAttributes).to(Services.Attributes.AttributeSet).inSingletonScope();
 
@@ -292,14 +297,9 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
 
     if (!skipBoot) {
         await sandbox.boot();
-
-        // todo: get rid of the need for this, requires an instance based crypto package
-        Managers.configManager.setConfig(
-            sandbox.app.get<Services.Config.ConfigRepository>(Container.Identifiers.ConfigRepository).get("crypto"),
-        );
     }
 
-    const factory = new FactoryBuilder();
+    const factory = new FactoryBuilder(crypto);
 
     Factories.registerBlockFactory(factory);
     Factories.registerTransactionFactory(factory);

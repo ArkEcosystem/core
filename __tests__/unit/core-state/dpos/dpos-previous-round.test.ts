@@ -1,17 +1,20 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
+import { IBlock } from "@packages/core-crypto/src/interfaces";
 import { Container, Utils } from "@packages/core-kernel/src";
 import { RoundInfo } from "@packages/core-kernel/src/contracts/shared";
 import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
 import { DposState } from "@packages/core-state/src/dpos/dpos";
 import { WalletRepository } from "@packages/core-state/src/wallets";
-import { IBlock } from "@packages/crypto/src/interfaces";
 
 import { buildDelegateAndVoteWallets } from "../__utils__/build-delegate-and-vote-balances";
 import { makeChainedBlocks } from "../__utils__/make-chained-block";
 import { makeVoteTransactions } from "../__utils__/make-vote-transactions";
 import { addTransactionsToBlock } from "../__utils__/transactions";
 import { setUp } from "../setup";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 let dposState: DposState;
 let dposPreviousRoundStateProv: DposPreviousRoundStateProvider;
@@ -22,7 +25,7 @@ let blockState;
 let initialEnv;
 
 beforeAll(async () => {
-    initialEnv = await setUp();
+    initialEnv = await setUp(crypto);
     dposState = initialEnv.dPosState;
     dposPreviousRoundStateProv = initialEnv.dposPreviousRound;
     walletRepo = initialEnv.walletRepo;
@@ -39,9 +42,9 @@ describe("dposPreviousRound", () => {
     beforeEach(async () => {
         walletRepo.reset();
 
-        round = Utils.roundCalculator.calculateRound(1);
+        round = Utils.roundCalculator.calculateRound(1, crypto.CryptoManager.MilestoneManager.getMilestones());
 
-        buildDelegateAndVoteWallets(5, walletRepo);
+        buildDelegateAndVoteWallets(5, walletRepo, crypto.CryptoManager);
 
         dposState.buildVoteBalances();
         dposState.buildDelegateRanking();
@@ -97,7 +100,11 @@ describe("dposPreviousRound", () => {
             walletRepo.index(generatorWallet);
 
             addTransactionsToBlock(
-                makeVoteTransactions(3, [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]),
+                makeVoteTransactions(
+                    3,
+                    [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`],
+                    crypto,
+                ),
                 blocks[0],
             );
             blocks[0].data.height = 2;

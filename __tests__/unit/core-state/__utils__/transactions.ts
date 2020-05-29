@@ -1,4 +1,5 @@
-import { IBlock, ITransaction } from "@packages/crypto/src/interfaces";
+import { IBlock } from "@packages/core-crypto/src/interfaces";
+import { ITransaction } from "@packages/crypto/src/interfaces";
 
 export const addTransactionsToBlock = (txs: ITransaction[], block: IBlock) => {
     const { data } = block;

@@ -1,20 +1,24 @@
+import { CryptoSuite } from "@packages/core-crypto";
 import { Wallet, WalletRepository } from "@packages/core-state/src/wallets";
-import { Identities, Utils as CryptoUtils } from "@packages/crypto/src";
 import { SATOSHI } from "@packages/crypto/src/constants";
 
-export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo: WalletRepository): Wallet[] => {
+export const buildDelegateAndVoteWallets = (
+    numberDelegates: number,
+    walletRepo: WalletRepository,
+    cryptoManager: CryptoSuite.CryptoManager,
+): Wallet[] => {
     const delegates: Wallet[] = [];
     for (let i = 0; i < numberDelegates; i++) {
         const delegateKey = i.toString().repeat(66);
-        const delegate = walletRepo.createWallet(Identities.Address.fromPublicKey(delegateKey));
+        const delegate = walletRepo.createWallet(cryptoManager.Identities.Address.fromPublicKey(delegateKey));
         delegate.publicKey = delegateKey;
         delegate.setAttribute("delegate.username", `delegate${i}`);
-        delegate.setAttribute("delegate.voteBalance", CryptoUtils.BigNumber.ZERO);
+        delegate.setAttribute("delegate.voteBalance", cryptoManager.LibraryManager.Libraries.BigNumber.ZERO);
 
         const voter = walletRepo.createWallet(
-            Identities.Address.fromPublicKey((i + numberDelegates).toString().repeat(66)),
+            cryptoManager.Identities.Address.fromPublicKey((i + numberDelegates).toString().repeat(66)),
         );
-        const totalBalance = CryptoUtils.BigNumber.make(i + 1)
+        const totalBalance = cryptoManager.LibraryManager.Libraries.BigNumber.make(i + 1)
             .times(1000)
             .times(SATOSHI);
         voter.balance = totalBalance.div(2);
