@@ -8,7 +8,6 @@ import { isWhitelisted } from "./is-whitelisted";
 import { calculateRound, isNewRound } from "./round-calculator";
 export * as Search from "./search";
 import { calculate } from "./supply-calculator";
-export * as Plugins from "./transform-plugins";
 
 export * from "@arkecosystem/utils";
 export * from "./expiration-calculator";
