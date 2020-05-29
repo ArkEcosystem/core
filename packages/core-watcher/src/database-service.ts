@@ -46,4 +46,57 @@ export class DatabaseService {
                 return x;
             });
     }
+
+    public getTotal(conditions: any): number {
+        return this.database.prepare(`SELECT COUNT(*) FROM events ${this.prepareWhere(conditions)}`).get()[
+            "COUNT(*)"
+        ] as number;
+    }
+
+    public queryEvents(conditions: any): any {
+        const limit = this.prepareLimit(conditions);
+        const offset = this.prepareOffset(conditions);
+
+        return {
+            total: this.getTotal(conditions),
+            limit,
+            offset,
+            data: this.database
+                .prepare(`SELECT * FROM events ${this.prepareWhere(conditions)} LIMIT ${limit} OFFSET ${offset}`)
+                .pluck(false)
+                .all()
+                .map((x) => {
+                    x.data = JSON.parse(x.data);
+                    return x;
+                }),
+        };
+    }
+
+    private prepareLimit(conditions: any): number {
+        if (conditions?.limit && typeof conditions.limit === "number" && conditions.limit < 1000) {
+            return conditions.limit;
+        }
+
+        return 10;
+    }
+
+    private prepareOffset(conditions: any): number {
+        if (conditions?.offset && typeof conditions.offset === "number") {
+            return conditions.offset;
+        }
+
+        return 0;
+    }
+
+    private prepareWhere(conditions: any): string {
+        let query = "";
+
+        for (const key of Object.keys(conditions)) {
+            if (key === "event") {
+                query += `WHERE event LIKE '${conditions[key]}%'`;
+            }
+        }
+
+        return query;
+    }
 }

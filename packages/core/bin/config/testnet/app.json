@@ -108,6 +108,9 @@
                 "package": "@arkecosystem/core-snapshots"
             },
             {
+                "package": "@arkecosystem/core-watcher"
+            },
+            {
                 "package": "@arkecosystem/core-manager"
             }
         ]
