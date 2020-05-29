@@ -1,15 +1,14 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 
-// import { DatabaseService } from "./database";
-// import { Identifiers } from "./";
+import { DatabaseService } from "./database-service";
 
 @Container.injectable()
 export class Listener {
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly eventDispatcher!: Contracts.Kernel.EventDispatcher;
 
-    // @Container.inject(Identifiers.EventsDatabaseService)
-    // private readonly databaseService!: DatabaseService;
+    @Container.inject(Container.Identifiers.WatcherDatabaseService)
+    private readonly databaseService!: DatabaseService;
 
     public boot() {
         this.eventDispatcher.listen("*", {
@@ -19,7 +18,8 @@ export class Listener {
         });
     }
 
-    private handleEvents(data: any) {
-        console.log("Event *", data);
+    private handleEvents(data: { name: Contracts.Kernel.EventName; data: any }) {
+        // console.log("Event *", data);
+        this.databaseService.addEvent(data.name.toString(), data.data);
     }
 }
