@@ -1,6 +1,6 @@
 export const Identifiers = {
-    HTTP: Symbol.for("API<HTTP>"),
-    HTTPS: Symbol.for("API<HTTPS>"),
+    HTTP: Symbol.for("ManagerAPI<HTTP>"),
+    HTTPS: Symbol.for("ManagerAPI<HTTPS>"),
     CLI: Symbol.for("Application<Cli>"),
     ActionReader: Symbol.for("Discover<Action>"),
     PluginFactory: Symbol.for("Factory<Plugin>"),
