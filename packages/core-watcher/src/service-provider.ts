@@ -18,7 +18,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.get<Listener>(Container.Identifiers.WatcherEventListener).boot();
     }
 
-    public async dispose(): Promise<void> {}
+    public async dispose(): Promise<void> {
+        this.app.get<DatabaseService>(Container.Identifiers.WatcherDatabaseService).dispose();
+    }
 
     public async required(): Promise<boolean> {
         return false;
