@@ -38,6 +38,5 @@ export const initServer = async (app: Application, serverOptions: any): Promise<
 
 export const request = async (server: Server, method, path, payload = {}) => {
     const response = await server.inject({ method, url: `http://localhost:4004/api/${path}`, payload });
-
     return { body: response.result as any, status: response.statusCode };
 };
