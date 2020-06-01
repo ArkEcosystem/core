@@ -23,6 +23,7 @@ export class TransactionWithBlockResource implements Resource {
 
         const sender: string = this.walletRepository.findByPublicKey(transactionData.senderPublicKey).address;
         const confirmations: number = this.stateStore.getLastHeight() - blockData.height + 1;
+        const timestamp: number = transactionData.timestamp ? transactionData.timestamp : blockData.timestamp;
 
         return {
             id: transactionData.id,
@@ -41,10 +42,7 @@ export class TransactionWithBlockResource implements Resource {
             vendorField: transactionData.vendorField,
             asset: transactionData.asset,
             confirmations,
-            timestamp:
-                typeof transactionData.timestamp !== "undefined"
-                    ? AppUtils.formatTimestamp(transactionData.timestamp)
-                    : undefined,
+            timestamp: AppUtils.formatTimestamp(timestamp),
             nonce: transactionData.nonce!.toFixed(),
         };
     }
