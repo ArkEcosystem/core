@@ -24,15 +24,34 @@ describe("PeerController", () => {
         getLastDownloadedBlock: jest.fn(),
     };
     const createProcessor = jest.fn();
+    const appPlugins = [ { package: "@arkecosystem/core-api", options: {} } ];
+    const coreApiServiceProvider = {
+        name: () => "core-api",
+        configDefaults: () => ({
+            server: { http: { port: 4003 } }
+        }),
+    };
+    const serviceProviders = { "@arkecosystem/core-api": coreApiServiceProvider, };
+    const configRepository = { get: () => appPlugins }; // get("app.plugins")
+    const serviceProviderRepository = { get: (plugin) => serviceProviders[plugin] };
     const appGet = {
         [Container.Identifiers.BlockchainService]: blockchain,
         [Container.Identifiers.TransactionPoolProcessorFactory]: createProcessor,
+        [Container.Identifiers.ConfigRepository]: configRepository,
+        [Container.Identifiers.ServiceProviderRepository]: serviceProviderRepository,
     };
     const config = { getOptional: jest.fn().mockReturnValue(["127.0.0.1"]) }; // remoteAccess
     const app = {
         get: (key) => appGet[key],
         getTagged: () => config,
         version: () => "3.0.9",
+        resolve: () => ({
+            from: () => ({
+                merge: () => ({
+                    all: () => ({ server: { http: { port: "4003" } } })
+                })
+            })
+        })
     };
 
     beforeAll(() => {

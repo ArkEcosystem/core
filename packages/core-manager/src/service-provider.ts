@@ -2,7 +2,9 @@ import { ApplicationFactory } from "@arkecosystem/core-cli";
 import { Container, Providers, Types } from "@arkecosystem/core-kernel";
 
 import { ActionReader } from "./action-reader";
+import { DatabaseService } from "./database-service";
 import { Identifiers } from "./ioc";
+import { Listener } from "./listener";
 import Handlers from "./server/handlers";
 import { PluginFactory } from "./server/plugins";
 import { Server } from "./server/server";
@@ -16,6 +18,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Identifiers.BasicCredentialsValidator).to(Argon2id).inSingletonScope();
         this.app.bind(Identifiers.TokenValidator).to(SimpleTokenValidator).inSingletonScope();
         this.app.bind(Identifiers.SnapshotsManager).to(SnapshotsManager).inSingletonScope();
+        this.app.bind(Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
+        this.app.bind(Identifiers.EventsListener).to(Listener).inSingletonScope();
 
         const pkg: Types.PackageJson = require("../package.json");
         this.app.bind(Identifiers.CLI).toConstantValue(ApplicationFactory.make(new Container.Container(), pkg));
@@ -41,6 +45,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
         if (this.config().get("server.https.enabled")) {
             await this.app.get<Server>(Identifiers.HTTPS).boot();
         }
+
+        this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService).boot();
+        this.app.get<Listener>(Identifiers.EventsListener).boot();
     }
 
     public async dispose(): Promise<void> {
@@ -51,6 +58,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         if (this.config().get("server.https.enabled")) {
             await this.app.get<Server>(Identifiers.HTTPS).dispose();
         }
+
+        this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService).dispose();
     }
 
     public async required(): Promise<boolean> {

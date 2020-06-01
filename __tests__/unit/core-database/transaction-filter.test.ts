@@ -199,7 +199,7 @@ describe("TransactionFilter.getExpression", () => {
     });
 
     describe("TransactionCriteria.recipientId", () => {
-        it("should compare using equal expression and include delegate registration transaction", async () => {
+        it("should compare using equal expression and include multipayment and include delegate registration transaction", async () => {
             walletRepository.findByAddress.mockReturnValueOnce({
                 publicKey: "456",
             });
@@ -216,6 +216,14 @@ describe("TransactionFilter.getExpression", () => {
                         op: "and",
                         expressions: [
                             { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
+                            { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
+                            { property: "asset", op: "contains", value: { payment: [{ recipientId: "123" }] } },
+                        ],
+                    },
+                    {
+                        op: "and",
+                        expressions: [
+                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
                             { property: "type", op: "equal", value: Enums.TransactionType.DelegateRegistration },
                             { property: "senderPublicKey", op: "equal", value: "456" },
                         ],
@@ -224,12 +232,25 @@ describe("TransactionFilter.getExpression", () => {
             });
         });
 
-        it("should compare using only equal expression when wallet not found", async () => {
+        it("should compare using equal expression and include multipayment when wallet not found", async () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ recipientId: "123" });
 
             expect(walletRepository.findByAddress).toBeCalledWith("123");
-            expect(expression).toEqual({ property: "recipientId", op: "equal", value: "123" });
+            expect(expression).toEqual({
+                op: "or",
+                expressions: [
+                    { property: "recipientId", op: "equal", value: "123" },
+                    {
+                        op: "and",
+                        expressions: [
+                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
+                            { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
+                            { property: "asset", op: "contains", value: { payment: [{ recipientId: "123" }] } },
+                        ],
+                    },
+                ],
+            });
         });
     });
 

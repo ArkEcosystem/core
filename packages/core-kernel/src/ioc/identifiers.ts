@@ -114,4 +114,8 @@ export const Identifiers = {
     // Registries
     TransactionHandlerRegistry: Symbol.for("Registry<TransactionHandler>"),
     TransactionHandlerProvider: Symbol.for("Provider<TransactionHandler>"),
+
+    // Watcher
+    WatcherEventListener: Symbol.for("Watcher<EventListener>"),
+    WatcherDatabaseService: Symbol.for("Watcher<DatabaseService>"),
 };
