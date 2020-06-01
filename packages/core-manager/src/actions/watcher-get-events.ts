@@ -12,8 +12,22 @@ export class Action implements Actions.Action {
         properties: {
             query: {
                 type: "object",
+                properties: {
+                    limit: {
+                        type: "number",
+                        minimum: 0
+                    },
+                    offset: {
+                        type: "number",
+                        minimum: 0
+                    },
+                    event: {
+                        type: "string",
+                    }
+                }
             },
         },
+        required: ["query"],
     };
 
     @Container.inject(Container.Identifiers.WatcherDatabaseService)
