@@ -1,15 +1,15 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
+import { Container, Utils } from "@packages/core-kernel";
+import { Application } from "@packages/core-kernel/src/application";
+import { HttpOptions, HttpResponse } from "@packages/core-kernel/src/utils";
+import { Database } from "@packages/core-webhooks/src/database";
+import { Identifiers } from "@packages/core-webhooks/src/identifiers";
+import { Webhook } from "@packages/core-webhooks/src/interfaces";
+import { Listener } from "@packages/core-webhooks/src/listener";
 import { dirSync, setGracefulCleanup } from "tmp";
 
-import { CryptoSuite } from "../../../packages/core-crypto";
-import { Container, Utils } from "../../../packages/core-kernel";
-import { Application } from "../../../packages/core-kernel/src/application";
-import { HttpOptions, HttpResponse } from "../../../packages/core-kernel/src/utils";
-import { Database } from "../../../packages/core-webhooks/src/database";
-import { Identifiers } from "../../../packages/core-webhooks/src/identifiers";
-import { Webhook } from "../../../packages/core-webhooks/src/interfaces";
-import { Listener } from "../../../packages/core-webhooks/src/listener";
 import { dummyWebhook } from "./__fixtures__/assets";
 
 let app: Application;

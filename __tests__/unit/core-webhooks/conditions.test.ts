@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { CryptoSuite } from "../../../packages/core-crypto";
-import { Conditions } from "../../../packages/core-webhooks/src/conditions";
+import { CryptoSuite } from "@packages/core-crypto";
+import { Conditions } from "@packages/core-webhooks/src/conditions";
 
 let conditionsInstance;
 beforeAll(() => {
