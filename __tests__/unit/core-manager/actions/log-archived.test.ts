@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Container } from "@packages/core-kernel";
 import { Action } from "@packages/core-manager/src/actions/log-archived";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 let action: Action;

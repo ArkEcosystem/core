@@ -1,26 +1,28 @@
 import "jest-extended";
 
-import { Server as HapiServer } from "@hapi/hapi";
 import * as Boom from "@hapi/boom";
+import { Server as HapiServer } from "@hapi/hapi";
 import * as rpc from "@hapist/json-rpc";
-
+import { CryptoSuite } from "@packages/core-crypto";
 import { Container } from "@packages/core-kernel";
-import { Validation } from "@packages/crypto";
-import { Sandbox } from "@packages/core-test-framework";
-import { Identifiers } from "@packages/core-manager/src/ioc";
-import { Server } from "@packages/core-manager/src/server/server";
 import { ActionReader } from "@packages/core-manager/src/action-reader";
 import { Actions, Plugins } from "@packages/core-manager/src/contracts";
+import { Identifiers } from "@packages/core-manager/src/ioc";
 import { rpcResponseHandler } from "@packages/core-manager/src/server/plugins/rpc-response-handler";
+import { Server } from "@packages/core-manager/src/server/server";
+import { Sandbox } from "@packages/core-test-framework/src";
+
 import { Assets } from "../../__fixtures__";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 let sandbox: Sandbox;
 let server: Server;
 
-let mockOnRequest = jest.fn();
+const mockOnRequest = jest.fn();
 
 // @ts-ignore
-let dummyPlugin = {
+const dummyPlugin = {
     name: "dummy",
     version: "0.0.1",
     register: (server: HapiServer) => {
@@ -31,7 +33,7 @@ let dummyPlugin = {
     },
 };
 
-let mockPluginFactory: Plugins.PluginFactory = {
+const mockPluginFactory: Plugins.PluginFactory = {
     preparePlugins() {
         return [
             {
@@ -63,7 +65,7 @@ let mockPluginFactory: Plugins.PluginFactory = {
                         },
                         validate(data: object, schema: object) {
                             try {
-                                const { error } = Validation.validator.validate(schema, data);
+                                const { error } = crypto.Validator.validate(schema, data);
                                 return { value: data, error: error ? error : null };
                             } catch (error) {
                                 return { value: null, error: error.stack };
@@ -79,20 +81,20 @@ let mockPluginFactory: Plugins.PluginFactory = {
     },
 };
 
-let logger = {
+const logger = {
     info: jest.fn(),
     notice: jest.fn(),
     error: jest.fn(),
 };
 
 beforeEach(() => {
-    let actionReader: Partial<ActionReader> = {
+    const actionReader: Partial<ActionReader> = {
         discoverActions(): Actions.Method[] {
             return [Assets.dummyMethod];
         },
     };
 
-    sandbox = new Sandbox();
+    sandbox = new Sandbox(crypto);
 
     sandbox.app.bind(Identifiers.HTTP).to(Server).inSingletonScope();
     sandbox.app.bind(Identifiers.ActionReader).toConstantValue(actionReader);

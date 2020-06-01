@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { Sandbox } from "@packages/core-test-framework";
 import { Container } from "@packages/core-kernel";
 import { Action } from "@packages/core-manager/src/actions/info-core-version";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 let action: Action;
@@ -21,11 +21,11 @@ describe("Info:CoreVersion", () => {
     });
 
     it("should return current and latest version", async () => {
-        let promise = action.execute({});
+        const promise = action.execute({});
 
         await expect(promise).toResolve();
 
-        let result = await promise;
+        const result = await promise;
 
         await expect(result.currentVersion).toBe("dummyVersion");
         await expect(result.latestVersion).toBeString();

@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
 import { Container } from "@packages/core-kernel";
 import { ActionReader } from "@packages/core-manager/src/action-reader";
 import { Actions } from "@packages/core-manager/src/contracts";
@@ -9,7 +10,7 @@ import Handlers from "@packages/core-manager/src/server/handlers";
 import { PluginFactory } from "@packages/core-manager/src/server/plugins/plugin-factory";
 import { Server } from "@packages/core-manager/src/server/server";
 import { Argon2id, SimpleTokenValidator } from "@packages/core-manager/src/server/validators";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 let server: Server;
@@ -26,6 +27,8 @@ const mockFilesystem = {
     get: jest.fn().mockResolvedValue(Buffer.from("file_content")),
 };
 
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
 beforeEach(() => {
     const actionReader: Partial<ActionReader> = {
         discoverActions(): Actions.Method[] {
@@ -38,7 +41,7 @@ beforeEach(() => {
     pluginsConfiguration.basicAuthentication.enabled = false;
     pluginsConfiguration.tokenAuthentication.enabled = false;
 
-    sandbox = new Sandbox();
+    sandbox = new Sandbox(crypto);
 
     sandbox.app.bind(Identifiers.HTTP).to(Server).inSingletonScope();
     sandbox.app.bind(Identifiers.ActionReader).toConstantValue(actionReader);

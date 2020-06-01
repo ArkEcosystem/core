@@ -1,18 +1,18 @@
 import "jest-extended";
 
 import { Container } from "@packages/core-kernel";
-import { Sandbox } from "@packages/core-test-framework";
-import { Identifiers } from "@packages/core-manager/src/ioc";
-import { Server } from "@packages/core-manager/src/server/server";
 import { ActionReader } from "@packages/core-manager/src/action-reader";
-import { PluginFactory } from "@packages/core-manager/src/server/plugins/plugin-factory";
 import { defaults } from "@packages/core-manager/src/defaults";
+import { Identifiers } from "@packages/core-manager/src/ioc";
+import { PluginFactory } from "@packages/core-manager/src/server/plugins/plugin-factory";
+import { Server } from "@packages/core-manager/src/server/server";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 let server: Server;
-let pluginsConfiguration = defaults.plugins;
+const pluginsConfiguration = defaults.plugins;
 
-let logger = {
+const logger = {
     info: jest.fn(),
     notice: jest.fn(),
     error: jest.fn(),

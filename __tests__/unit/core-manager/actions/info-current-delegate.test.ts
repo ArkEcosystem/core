@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Action } from "@packages/core-manager/src/actions/info-current-delegate";
 import { Identifiers } from "@packages/core-manager/src/ioc";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 import { TriggerResponses } from "../__fixtures__";
 

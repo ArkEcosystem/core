@@ -1,22 +1,24 @@
 import "jest-extended";
 
-import { Validation } from "@packages/crypto";
-import { Container } from "@packages/core-kernel";
-import { Sandbox } from "@packages/core-test-framework";
-import { Identifiers } from "@packages/core-manager/src/ioc";
-import { Actions } from "@packages/core-manager/src/contracts";
-import { Server } from "@packages/core-manager/src/server/server";
-import { ActionReader } from "@packages/core-manager/src/action-reader";
-import { PluginFactory } from "@packages/core-manager/src/server/plugins/plugin-factory";
-import { Argon2id, SimpleTokenValidator } from "@packages/core-manager/src/server/validators";
-import { defaults } from "@packages/core-manager/src/defaults";
 import { Assets } from "../__fixtures__";
+import { CryptoSuite } from "../../../../packages/core-crypto";
+import { Container } from "../../../../packages/core-kernel";
+import { ActionReader } from "../../../../packages/core-manager/src/action-reader";
+import { Actions } from "../../../../packages/core-manager/src/contracts";
+import { defaults } from "../../../../packages/core-manager/src/defaults";
+import { Identifiers } from "../../../../packages/core-manager/src/ioc";
+import { PluginFactory } from "../../../../packages/core-manager/src/server/plugins/plugin-factory";
+import { Server } from "../../../../packages/core-manager/src/server/server";
+import { Argon2id, SimpleTokenValidator } from "../../../../packages/core-manager/src/server/validators";
+import { Sandbox } from "../../../../packages/core-test-framework/src";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 let sandbox: Sandbox;
 let server: Server;
 let spyOnMethod: jest.SpyInstance;
 
-let logger = {
+const logger = {
     info: jest.fn(),
     notice: jest.fn(),
     error: jest.fn(),
@@ -25,11 +27,11 @@ let logger = {
 let pluginsConfiguration;
 
 beforeEach(() => {
-    let dummyMethod = { ...Assets.dummyMethod };
+    const dummyMethod = { ...Assets.dummyMethod };
     // @ts-ignore
     spyOnMethod = jest.spyOn(dummyMethod, "method");
 
-    let actionReader: Partial<ActionReader> = {
+    const actionReader: Partial<ActionReader> = {
         discoverActions(): Actions.Method[] {
             return [dummyMethod];
         },
@@ -40,7 +42,7 @@ beforeEach(() => {
     pluginsConfiguration.basicAuthentication.enabled = false;
     pluginsConfiguration.tokenAuthentication.enabled = false;
 
-    sandbox = new Sandbox();
+    sandbox = new Sandbox(crypto);
 
     sandbox.app.bind(Identifiers.HTTP).to(Server).inSingletonScope();
     sandbox.app.bind(Identifiers.ActionReader).toConstantValue(actionReader);
@@ -188,7 +190,7 @@ describe("Server", () => {
                 },
             };
 
-            jest.spyOn(Validation.validator, "validate").mockImplementation(() => {
+            jest.spyOn(crypto.Validator, "validate").mockImplementation(() => {
                 throw new Error();
             });
 

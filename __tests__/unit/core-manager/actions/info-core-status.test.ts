@@ -4,7 +4,7 @@ import { ProcessState } from "@packages/core-cli/src/contracts";
 import { Action } from "@packages/core-manager/src/actions/info-core-status";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import { HttpClient } from "@packages/core-manager/src/utils";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 let action: Action;

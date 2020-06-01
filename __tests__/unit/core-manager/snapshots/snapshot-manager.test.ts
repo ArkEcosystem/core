@@ -3,7 +3,7 @@ import "jest-extended";
 import { Container } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import { SnapshotsManager } from "@packages/core-manager/src/snapshots/snapshots-manager";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 let snapshotsManager: SnapshotsManager;

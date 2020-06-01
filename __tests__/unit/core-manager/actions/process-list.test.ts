@@ -3,7 +3,7 @@ import "jest-extended";
 import { ProcessState } from "@packages/core-cli/src/contracts";
 import { Action } from "@packages/core-manager/src/actions/process-list";
 import { Identifiers } from "@packages/core-manager/src/ioc";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 let action: Action;

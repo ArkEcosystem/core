@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Action } from "@packages/core-manager/src/actions/info-blockchain-height";
 import { HttpClient } from "@packages/core-manager/src/utils";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 let action: Action;

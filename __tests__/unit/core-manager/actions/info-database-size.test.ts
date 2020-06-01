@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Action } from "@packages/core-manager/src/actions/info-database-size";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 import * as typeorm from "typeorm";
 
 let sandbox: Sandbox;
