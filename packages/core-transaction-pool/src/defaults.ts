@@ -39,4 +39,8 @@ export const defaults = {
         },
     },
     maxTransactionBytes: 2000000, // TODO think of a value that makes sense ?
+    workerPool: {
+        workerCount: 3,
+        cryptoPackages: [{ typeGroup: 2, packageName: "@arkecosystem/core-magistrate-crypto" }],
+    },
 };
