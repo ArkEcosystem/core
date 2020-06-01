@@ -17,10 +17,8 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
     public async findOneByCriteria(
         criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData | undefined> {
-        const expression = await this.transactionFilter.getExpression(criteria);
-        const model = await this.transactionRepository.findOneByExpression(expression);
-        const data = model ? this.transactionModelConverter.getTransactionData(model) : undefined;
-        return data;
+        const data = await this.findManyByCriteria(criteria);
+        return data[0];
     }
 
     public async findManyByCriteria(
@@ -28,7 +26,7 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
     ): Promise<Interfaces.ITransactionData[]> {
         const expression = await this.transactionFilter.getExpression(criteria);
         const models = await this.transactionRepository.findManyByExpression(expression);
-        const data = models.map((m) => this.transactionModelConverter.getTransactionData(m));
+        const data = this.transactionModelConverter.getTransactionData(models);
         return data;
     }
 
@@ -39,8 +37,9 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
         options?: Contracts.Search.ListOptions,
     ): Promise<Contracts.Search.ListResult<Interfaces.ITransactionData>> {
         const expression = await this.transactionFilter.getExpression(criteria);
-        const listResult = await this.transactionRepository.listByExpression(expression, order, page, options);
-        const rows = listResult.rows.map((m) => this.transactionModelConverter.getTransactionData(m));
-        return { ...listResult, rows };
+        const modelListResult = await this.transactionRepository.listByExpression(expression, order, page, options);
+        const models = modelListResult.rows;
+        const data = this.transactionModelConverter.getTransactionData(models);
+        return { ...modelListResult, rows: data };
     }
 }

@@ -9,6 +9,7 @@ import {
     OrEqualCriteria,
     OrNumericCriteria,
 } from "../search";
+import { OrTransactionCriteria } from "./transaction-history-service";
 
 export type BlockCriteria = {
     id?: OrEqualCriteria<string>;
@@ -28,6 +29,11 @@ export type BlockCriteria = {
 
 export type OrBlockCriteria = OrCriteria<BlockCriteria>;
 
+export type BlockDataWithTransactionData = {
+    data: Interfaces.IBlockData;
+    transactions: Interfaces.ITransactionData[];
+};
+
 export interface BlockHistoryService {
     findOneByCriteria(criteria: OrBlockCriteria): Promise<Interfaces.IBlockData | undefined>;
     findManyByCriteria(criteria: OrBlockCriteria): Promise<Interfaces.IBlockData[]>;
@@ -37,4 +43,22 @@ export interface BlockHistoryService {
         page: ListPage,
         options?: ListOptions,
     ): Promise<ListResult<Interfaces.IBlockData>>;
+
+    findOneByCriteriaJoinTransactions(
+        blockCriteria: OrBlockCriteria,
+        transactionCriteria: OrTransactionCriteria,
+    ): Promise<BlockDataWithTransactionData | undefined>;
+
+    findManyByCriteriaJoinTransactions(
+        blockCriteria: OrBlockCriteria,
+        transactionCriteria: OrTransactionCriteria,
+    ): Promise<BlockDataWithTransactionData[]>;
+
+    listByCriteriaJoinTransactions(
+        blockCriteria: OrBlockCriteria,
+        transactionCriteria: OrTransactionCriteria,
+        order: ListOrder,
+        page: ListPage,
+        options?: ListOptions,
+    ): Promise<ListResult<BlockDataWithTransactionData>>;
 }

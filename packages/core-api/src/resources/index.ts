@@ -1,3 +1,4 @@
+export * from "./block-with-transactions";
 export * from "./block";
 export * from "./delegate";
 export * from "./fee-statistics";
