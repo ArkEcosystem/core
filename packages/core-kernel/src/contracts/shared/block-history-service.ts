@@ -36,7 +36,9 @@ export type BlockDataWithTransactionData = {
 
 export interface BlockHistoryService {
     findOneByCriteria(criteria: OrBlockCriteria): Promise<Interfaces.IBlockData | undefined>;
+
     findManyByCriteria(criteria: OrBlockCriteria): Promise<Interfaces.IBlockData[]>;
+
     listByCriteria(
         criteria: OrBlockCriteria,
         order: ListOrder,

@@ -6,5 +6,6 @@ export * from "./lock";
 export * from "./peer";
 export * from "./ports";
 export * from "./round";
+export * from "./transaction-with-block";
 export * from "./transaction";
 export * from "./wallet";

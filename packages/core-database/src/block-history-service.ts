@@ -18,8 +18,8 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
     @Container.inject(Container.Identifiers.DatabaseTransactionFilter)
     private readonly transactionFilter!: Contracts.Database.TransactionFilter;
 
-    @Container.inject(Container.Identifiers.DatabaseBlockModelConverter)
-    private readonly blockModelConverter!: Contracts.Database.BlockModelConverter;
+    @Container.inject(Container.Identifiers.DatabaseModelConverter)
+    private readonly modelConverter!: Contracts.Database.ModelConverter;
 
     public async findOneByCriteria(
         criteria: Contracts.Shared.OrBlockCriteria,
@@ -31,7 +31,7 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
     public async findManyByCriteria(criteria: Contracts.Shared.OrBlockCriteria): Promise<Interfaces.IBlockData[]> {
         const expression = await this.blockFilter.getExpression(criteria);
         const models = await this.blockRepository.findManyByExpression(expression);
-        const data = this.blockModelConverter.getBlockData(models);
+        const data = this.modelConverter.getBlockData(models);
         return data;
     }
 
@@ -44,7 +44,7 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
         const expression = await this.blockFilter.getExpression(criteria);
         const modelListResult = await this.blockRepository.listByExpression(expression, order, page, options);
         const models = modelListResult.rows;
-        const data = this.blockModelConverter.getBlockData(models);
+        const data = this.modelConverter.getBlockData(models);
         return { ...modelListResult, rows: data };
     }
 
@@ -69,7 +69,7 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
             transactionBlockCriteria,
         );
         const transactionModels = await this.transactionRepository.findManyByExpression(transactionExpression);
-        const blockDataWithTransactionData = this.blockModelConverter.getBlockDataWithTransactionData(
+        const blockDataWithTransactionData = this.modelConverter.getBlockDataWithTransactionData(
             blockModels,
             transactionModels,
         );
@@ -85,8 +85,8 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
         options?: Contracts.Search.ListOptions,
     ): Promise<Contracts.Search.ListResult<Contracts.Shared.BlockDataWithTransactionData>> {
         const blockExpression = await this.blockFilter.getExpression(blockCriteria);
-        const blockModelListResult = await this.blockRepository.listByExpression(blockExpression, order, page, options);
-        const blockModels = blockModelListResult.rows;
+        const blockListResult = await this.blockRepository.listByExpression(blockExpression, order, page, options);
+        const blockModels = blockListResult.rows;
 
         const transactionBlockCriteria = blockModels.map((b) => ({ blockId: b.id }));
         const transactionExpression = await this.transactionFilter.getExpression(
@@ -94,11 +94,11 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
             transactionBlockCriteria,
         );
         const transactionModels = await this.transactionRepository.findManyByExpression(transactionExpression);
-        const blockDataWithTransactionData = this.blockModelConverter.getBlockDataWithTransactionData(
+        const blockDataWithTransactionData = this.modelConverter.getBlockDataWithTransactionData(
             blockModels,
             transactionModels,
         );
 
-        return { ...blockModelListResult, rows: blockDataWithTransactionData };
+        return { ...blockListResult, rows: blockDataWithTransactionData };
     }
 }

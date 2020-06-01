@@ -3,7 +3,7 @@ import { Enums } from "@arkecosystem/crypto";
 import { notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { LockResource, TransactionResource, WalletResource } from "../resources";
+import { LockResource, TransactionResource, TransactionWithBlockResource, WalletResource } from "../resources";
 import { Controller } from "./controller";
 
 @Container.injectable()
@@ -47,23 +47,25 @@ export class WalletsController extends Controller {
             return notFound("Wallet not found");
         }
 
-        const criteria = [
-            { ...request.query, recipientId: wallet.address },
-            { ...request.query, asset: { payment: [{ recipientId: wallet.address }] } },
-        ];
+        if (request.query.transform) {
+            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
+                { ...request.query, address: wallet.address },
+                this.getListingOrder(request),
+                this.getListingPage(request),
+                this.getListingOptions(),
+            );
 
-        if (wallet.publicKey) {
-            criteria.push({ ...request.query, senderPublicKey: wallet.publicKey });
+            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
+        } else {
+            const transactionListResult = await this.transactionHistoryService.listByCriteria(
+                { ...request.query, address: wallet.address },
+                this.getListingOrder(request),
+                this.getListingPage(request),
+                this.getListingOptions(),
+            );
+
+            return this.toPagination(transactionListResult, TransactionResource, false);
         }
-
-        const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            criteria,
-            this.getListingOrder(request),
-            this.getListingPage(request),
-            this.getListingOptions(),
-        );
-
-        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
     public async transactionsSent(request: Hapi.Request, h: Hapi.ResponseToolkit) {

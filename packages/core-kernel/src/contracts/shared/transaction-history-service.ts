@@ -33,13 +33,31 @@ export type TransactionCriteria = {
 
 export type OrTransactionCriteria = OrCriteria<TransactionCriteria>;
 
+export type TransactionDataWithBlockData = {
+    data: Interfaces.ITransactionData;
+    block: Interfaces.IBlockData;
+};
+
 export interface TransactionHistoryService {
     findOneByCriteria(criteria: OrTransactionCriteria): Promise<Interfaces.ITransactionData | undefined>;
+
     findManyByCriteria(criteria: OrTransactionCriteria): Promise<Interfaces.ITransactionData[]>;
+
     listByCriteria(
         criteria: OrTransactionCriteria,
         order: ListOrder,
         page: ListPage,
         options?: ListOptions,
     ): Promise<ListResult<Interfaces.ITransactionData>>;
+
+    findOneByCriteriaJoinBlock(criteria: OrTransactionCriteria): Promise<TransactionDataWithBlockData | undefined>;
+
+    findManyByCriteriaJoinBlock(criteria: OrTransactionCriteria): Promise<TransactionDataWithBlockData[]>;
+
+    listByCriteriaJoinBlock(
+        criteria: OrTransactionCriteria,
+        order: ListOrder,
+        page: ListPage,
+        options?: ListOptions,
+    ): Promise<ListResult<TransactionDataWithBlockData>>;
 }
