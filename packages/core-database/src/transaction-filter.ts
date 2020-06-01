@@ -41,7 +41,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
                         return this.handleSenderIdCriteria(c);
                     });
                 case "recipientId":
-                    return handleOrCriteria(criteria.recipientId!, (c) => {
+                    return handleOrCriteria(criteria.recipientId!, async (c) => {
                         return this.handleRecipientIdCriteria(c);
                     });
                 case "id":
