@@ -14,15 +14,20 @@ import { SnapshotsManager } from "./snapshots/snapshots-manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind(Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
-        this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService).boot();
+        if (this.config().getRequired<{ enabled: boolean }>("watcher").enabled) {
+            this.app.bind(Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
+            this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService).boot();
 
-        const logService = this.app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService);
-        this.app
-            .rebind(Container.Identifiers.LogService)
-            .toConstantValue(
-                new LogServiceWrapper(logService, this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService)),
-            );
+            const logService = this.app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService);
+            this.app
+                .rebind(Container.Identifiers.LogService)
+                .toConstantValue(
+                    new LogServiceWrapper(
+                        logService,
+                        this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService),
+                    ),
+                );
+        }
 
         this.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
         this.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
@@ -50,7 +55,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
             await this.app.get<Server>(Identifiers.HTTPS).boot();
         }
 
-        this.app.get<Listener>(Identifiers.EventsListener).boot();
+        if (this.config().getRequired<{ enabled: boolean }>("watcher").enabled) {
+            this.app.get<Listener>(Identifiers.EventsListener).boot();
+        }
     }
 
     public async dispose(): Promise<void> {
