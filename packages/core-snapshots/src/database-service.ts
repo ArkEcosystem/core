@@ -1,4 +1,4 @@
-import { CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Types } from "@arkecosystem/crypto";
@@ -34,8 +34,11 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
     @Container.inject(Identifiers.SnapshotTransactionRepository)
     private readonly transactionRepository!: TransactionRepository;
 
-    @Container.inject(Identifiers.CryptoSuite)
-    private readonly cryptoSuite!: CryptoSuite.CryptoSuite;
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
+
+    @Container.inject(Container.Identifiers.BlockFactory)
+    private readonly blockFactory!: Blocks.BlockFactory;
 
     private codec: string = "default";
     private skipCompression: boolean = false;
@@ -129,7 +132,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
         Utils.assert.defined<Interfaces.IBlockData>(block);
 
         /* istanbul ignore next */
-        const lastBlock: Interfaces.IBlock = this.cryptoSuite.BlockFactory.fromData(block, () => {
+        const lastBlock: Interfaces.IBlock = this.blockFactory.fromData(block, () => {
             return block.timestamp;
         })!;
 
@@ -162,9 +165,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             await transactionsWorker.start();
             await roundsWorker.start();
 
-            const milestoneHeights = this.cryptoSuite.CryptoManager.MilestoneManager.getMilestones().map(
-                (x) => x.height,
-            );
+            const milestoneHeights = this.cryptoManager.MilestoneManager.getMilestones().map((x) => x.height);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
             milestoneHeights.push(Number.POSITIVE_INFINITY);
 
@@ -186,7 +187,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                         roundsWorker.sync({
                             nextValue: Utils.roundCalculator.calculateRound(
                                 result.height,
-                                this.cryptoSuite.CryptoManager.MilestoneManager.getMilestones(),
+                                this.cryptoManager.MilestoneManager.getMilestones(),
                             ).round,
                             nextField: "round",
                         }),
@@ -226,11 +227,11 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
         const firstRound = Utils.roundCalculator.calculateRound(
             firstHeight,
-            this.cryptoSuite.CryptoManager.MilestoneManager.getMilestones(),
+            this.cryptoManager.MilestoneManager.getMilestones(),
         );
         const lastRound = Utils.roundCalculator.calculateRound(
             lastHeight,
-            this.cryptoSuite.CryptoManager.MilestoneManager.getMilestones(),
+            this.cryptoManager.MilestoneManager.getMilestones(),
         );
 
         if (firstRound.roundHeight >= lastRound.roundHeight) {
@@ -299,7 +300,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
                 skipCompression: this.skipCompression,
                 verify: this.verifyData,
                 filePath: `${this.filesystem.getSnapshotPath()}${table}`,
-                genesisBlockId: this.cryptoSuite.CryptoManager.NetworkConfigManager.get("genesisBlock").id,
+                genesisBlockId: this.cryptoManager.NetworkConfigManager.get("genesisBlock").id,
                 updateStep: this.configuration.getOptional("updateStep", 1000),
             },
             connection: this.configuration.get("connection"),

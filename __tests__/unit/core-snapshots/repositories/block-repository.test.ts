@@ -1,7 +1,12 @@
 import "jest-extended";
-import { BlockRepository } from "@packages/core-snapshots/src/repositories";
-import { Assets } from "../__fixtures__";
+
+import { CryptoSuite } from "@packages/core-crypto";
 import { Utils } from "@packages/core-kernel";
+import { BlockRepository } from "@packages/core-snapshots/src/repositories";
+
+import { Assets } from "../__fixtures__";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 class MockQueryBuilder {
     public where(...data) {
@@ -76,7 +81,7 @@ describe("BlockRepository", () => {
         repository.findByHeight = jest.fn().mockResolvedValue(Assets.blocks[0]);
 
         mockQueryBuilder.execute = jest.fn();
-        let mockManager = {
+        const mockManager = {
             createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
         };
 
@@ -89,7 +94,7 @@ describe("BlockRepository", () => {
             writable: true,
         });
 
-        let round = Utils.roundCalculator.calculateRound(1);
+        const round = Utils.roundCalculator.calculateRound(1, crypto.CryptoManager.MilestoneManager.getMilestones());
         await expect(repository.rollback(round)).toResolve();
 
         expect(repository.findByHeight).toHaveBeenCalled();
@@ -99,7 +104,7 @@ describe("BlockRepository", () => {
     it("rollback should throw if cannot find block", async () => {
         repository.findByHeight = jest.fn().mockResolvedValue(undefined);
 
-        let round = Utils.roundCalculator.calculateRound(1);
+        const round = Utils.roundCalculator.calculateRound(1, crypto.CryptoManager.MilestoneManager.getMilestones());
         await expect(repository.rollback(round)).rejects.toThrow();
 
         expect(repository.findByHeight).toHaveBeenCalled();

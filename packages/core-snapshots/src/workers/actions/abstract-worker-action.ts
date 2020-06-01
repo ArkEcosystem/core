@@ -1,3 +1,4 @@
+import { Blocks, CryptoSuite } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import pluralize from "pluralize";
@@ -22,6 +23,8 @@ export abstract class AbstractWorkerAction implements WorkerAction {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    private verifier!: Verifier;
+
     public init(options: Worker.ActionOptions) {
         this.table = options.table;
         this.codec = options.codec;
@@ -31,6 +34,14 @@ export abstract class AbstractWorkerAction implements WorkerAction {
         this.updateStep = options.updateStep;
 
         this.options = options;
+
+        const cryptoManager: CryptoSuite.CryptoManager = this.app.get(Container.Identifiers.CryptoManager);
+        const transactionManager: CryptoSuite.TransactionManager = this.app.get(
+            Container.Identifiers.TransactionManager,
+        );
+        const blockFactory: Blocks.BlockFactory = this.app.get(Container.Identifiers.BlockFactory);
+
+        this.verifier = new Verifier(cryptoManager, transactionManager, blockFactory);
     }
 
     protected getRepository(): Repository {
@@ -50,7 +61,7 @@ export abstract class AbstractWorkerAction implements WorkerAction {
         return streamReaderFactory(
             this.filePath!,
             !this.skipCompression!,
-            this.getCodec()[`decode${this.getSingularCapitalizedTableName()}`],
+            this.getCodec()[`decode${this.getSingularCapitalizedTableName()}`].bind(this.getCodec()), // TODO:
         );
     }
 
@@ -62,7 +73,7 @@ export abstract class AbstractWorkerAction implements WorkerAction {
             dbStream,
             this.filePath!,
             !this.skipCompression!,
-            this.getCodec()[`encode${this.getSingularCapitalizedTableName()}`],
+            this.getCodec()[`encode${this.getSingularCapitalizedTableName()}`].bind(this.getCodec()), // TODO:,
         );
     }
 
@@ -72,7 +83,7 @@ export abstract class AbstractWorkerAction implements WorkerAction {
 
     protected getVerifyFunction(): Function {
         // passing a codec method as last parameter. Example: Verifier.verifyBlock
-        return Verifier[`verify${this.getSingularCapitalizedTableName()}`];
+        return this.verifier[`verify${this.getSingularCapitalizedTableName()}`];
     }
 
     protected applyGenesisBlockFix(block: Models.Block): void {

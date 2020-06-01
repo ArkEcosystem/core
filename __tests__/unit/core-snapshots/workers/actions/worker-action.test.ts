@@ -2,17 +2,19 @@ import "jest-extended";
 
 import { dirSync, setGracefulCleanup } from "tmp";
 import { Connection } from "typeorm";
-import { Assets } from "../../__fixtures__";
-import { Types } from "@packages/crypto";
-import { Container } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-snapshots/src/ioc";
-import { Sandbox } from "@packages/core-test-framework";
-import * as Codecs from "@packages/core-snapshots/src/codecs";
-import * as Actions from "@packages/core-snapshots/src/workers/actions";
-import { StreamReader, StreamWriter } from "@packages/core-snapshots/src/codecs";
-import { ReadableStream, waitForMessage } from "./__support__";
 // @ts-ignore
 import * as WorkerThreads from "worker_threads";
+
+import { Assets } from "../../__fixtures__";
+import { CryptoSuite } from "../../../../../packages/core-crypto";
+import { Container } from "../../../../../packages/core-kernel";
+import * as Codecs from "../../../../../packages/core-snapshots/src/codecs";
+import { StreamReader, StreamWriter } from "../../../../../packages/core-snapshots/src/codecs";
+import { Identifiers } from "../../../../../packages/core-snapshots/src/ioc";
+import * as Actions from "../../../../../packages/core-snapshots/src/workers/actions";
+import { Sandbox } from "../../../../../packages/core-test-framework/src";
+import { Types } from "../../../../../packages/crypto";
+import { ReadableStream, waitForMessage } from "./__support__";
 
 jest.mock("worker_threads", () => {
     const { EventEmitter } = require("events");
@@ -42,12 +44,14 @@ let blockRepository: any;
 let transactionRepository: any;
 let roundRepository: any;
 
-let stream = new ReadableStream("Block_", "blocks");
+const stream = new ReadableStream("Block_", "blocks");
 
 class Repository {
     getReadStream = jest.fn().mockResolvedValue(stream);
     async save(val) {}
 }
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 beforeEach(() => {
     connection = {
@@ -60,7 +64,7 @@ beforeEach(() => {
 
     roundRepository = new Repository();
 
-    sandbox = new Sandbox();
+    sandbox = new Sandbox(crypto);
 
     sandbox.app.bind(Container.Identifiers.DatabaseConnection).toConstantValue(connection);
 
@@ -161,12 +165,12 @@ describe("WorkerAction", () => {
 
     describe.each(cases)("Blocks with [%s] codec and compression: [%s]", (table, codec, skipCompression) => {
         let dir: string;
-        let genesisBlockId = Assets.blocks[1].previousBlock;
+        const genesisBlockId = Assets.blocks[1].previousBlock;
 
         it(`should DUMP with [${codec}] codec`, async () => {
             dir = dirSync({ mode: 0o777 }).name;
 
-            let options = {
+            const options = {
                 action: "dump",
                 table: table as string,
                 codec: codec as string,
@@ -186,7 +190,7 @@ describe("WorkerAction", () => {
         });
 
         it(`should VERIFY with [${codec}] codec`, async () => {
-            let options = {
+            const options = {
                 action: "dump",
                 table: table as string,
                 codec: codec as string,
@@ -218,7 +222,7 @@ describe("WorkerAction", () => {
         });
 
         it(`should RESTORE with [${codec}] codec`, async () => {
-            let options = {
+            const options = {
                 action: "dump",
                 table: table as string,
                 codec: codec as string,

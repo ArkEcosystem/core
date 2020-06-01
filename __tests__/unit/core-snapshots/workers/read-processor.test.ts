@@ -1,11 +1,15 @@
 import "jest-extended";
-import { join } from "path";
+
+import { CryptoSuite } from "@packages/core-crypto";
+import { JSONCodec } from "@packages/core-snapshots/src/codecs";
 import { StreamReader } from "@packages/core-snapshots/src/filesystem";
 import { ReadProcessor } from "@packages/core-snapshots/src/workers/actions/read-processor";
-import { JSONCodec } from "@packages/core-snapshots/src/codecs";
+import { EventEmitter } from "events";
+import { join } from "path";
 // @ts-ignore
 import { parentPort } from "worker_threads";
-import { EventEmitter } from "events";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 class MockParentPort extends EventEmitter {
     constructor() {
@@ -18,7 +22,7 @@ class MockParentPort extends EventEmitter {
     }
 }
 
-let mockParentPort = new MockParentPort();
+const mockParentPort = new MockParentPort();
 
 jest.mock("worker_threads", () => {
     return {
@@ -32,7 +36,7 @@ jest.mock("worker_threads", () => {
 
 const waitUntilStarted = (): Promise<void> => {
     return new Promise<void>((resolve) => {
-        let onStarted = (data) => {
+        const onStarted = (data) => {
             resolve();
         };
 
@@ -42,7 +46,7 @@ const waitUntilStarted = (): Promise<void> => {
 
 const waitUntilSynchronized = (): Promise<void> => {
     return new Promise<void>((resolve) => {
-        let onSynced = (data) => {
+        const onSynced = (data) => {
             resolve(data);
         };
 
@@ -52,17 +56,17 @@ const waitUntilSynchronized = (): Promise<void> => {
 
 describe("ReadProcessor", () => {
     it("should read all blocks", async () => {
-        let path = join(__dirname, "../__fixtures__/1-52/blocks");
+        const path = join(__dirname, "../__fixtures__/1-52/blocks");
 
-        let streamReader = new StreamReader(path, false, new JSONCodec().decodeBlock);
+        const streamReader = new StreamReader(path, false, new JSONCodec().decodeBlock);
 
         await streamReader.open();
 
-        let readProcessor = new ReadProcessor(true, streamReader, async (item) => {
+        const readProcessor = new ReadProcessor(crypto.CryptoManager, true, streamReader, async (item) => {
             // console.log(item)
         });
 
-        let wait = waitUntilStarted();
+        const wait = waitUntilStarted();
 
         readProcessor.start();
 

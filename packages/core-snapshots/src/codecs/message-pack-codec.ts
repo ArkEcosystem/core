@@ -1,4 +1,4 @@
-import { CryptoSuite } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 import { Container } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
@@ -7,12 +7,17 @@ import { camelizeKeys } from "xcase";
 
 import { Codec } from "../contracts";
 import { Codec as CodecException } from "../exceptions";
-import { Identifiers } from "../ioc";
 
 @Container.injectable()
 export class MessagePackCodec implements Codec {
-    @Container.inject(Identifiers.CryptoSuite)
-    private readonly cryptoSuite!: CryptoSuite.CryptoSuite;
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
+
+    @Container.inject(Container.Identifiers.TransactionManager)
+    private readonly transactionsManager!: CryptoSuite.TransactionManager;
+
+    @Container.inject(Container.Identifiers.BlockFactory)
+    private readonly blockFactory!: Blocks.BlockFactory;
 
     private static removePrefix(item: Record<string, any>, prefix: string): Record<string, any> {
         const itemToReturn = {};
@@ -27,8 +32,7 @@ export class MessagePackCodec implements Codec {
     public encodeBlock(block: any): Buffer {
         try {
             const blockCamelized = camelizeKeys(MessagePackCodec.removePrefix(block, "Block_"));
-
-            return this.cryptoSuite.BlockFactory.serializer.serialize(blockCamelized, true);
+            return this.blockFactory.serializer.serialize(blockCamelized, true);
         } catch (err) {
             throw new CodecException.BlockEncodeException(block.Block_id, err.message);
         }
@@ -36,8 +40,7 @@ export class MessagePackCodec implements Codec {
 
     public decodeBlock(buffer: Buffer): Models.Block {
         try {
-            return this.cryptoSuite.BlockFactory.deserializer.deserialize(buffer.toString("hex"), false)
-                .data as Models.Block;
+            return this.blockFactory.deserializer.deserialize(buffer.toString("hex"), false).data as Models.Block;
         } catch (err) {
             throw new CodecException.BlockDecodeException(undefined, err.message);
         }
@@ -63,7 +66,7 @@ export class MessagePackCodec implements Codec {
             const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
             transactionId = id;
 
-            const transaction: Interfaces.ITransaction = this.cryptoSuite.TransactionManager.TransactionFactory.fromBytesUnsafe(
+            const transaction: Interfaces.ITransaction = this.transactionsManager.TransactionFactory.fromBytesUnsafe(
                 serialized,
                 id,
             );
@@ -84,9 +87,7 @@ export class MessagePackCodec implements Codec {
                 fee: transaction.data.fee,
                 serialized: serialized,
                 typeGroup: transaction.data.typeGroup || 1,
-                nonce: this.cryptoSuite.CryptoManager.LibraryManager.Libraries.BigNumber.make(
-                    transaction.data.nonce || 0,
-                ),
+                nonce: this.cryptoManager.LibraryManager.Libraries.BigNumber.make(transaction.data.nonce || 0),
                 // @ts-ignore
                 asset: transaction.data.asset,
             };

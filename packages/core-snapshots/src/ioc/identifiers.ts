@@ -12,5 +12,4 @@ export const Identifiers = {
     SnapshotTransactionRepository: Symbol.for("Snapshot<TransactionRepository>"),
     SnapshotFilesystem: Symbol.for("Snapshot<Filesystem>"),
     ProgressDispatcher: Symbol.for("Snapshot<ProgressDispatcher>"),
-    CryptoSuite: Symbol.for("CryptoSuite<CryptoSuite>"),
 };

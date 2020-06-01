@@ -1,14 +1,13 @@
 import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container } from "@arkecosystem/core-kernel";
 
-import { Identifiers } from "../../ioc";
 import { AbstractWorkerAction } from "./abstract-worker-action";
 import { ReadProcessor } from "./read-processor";
 
 @Container.injectable()
 export class VerifyWorkerAction extends AbstractWorkerAction {
-    @Container.inject(Identifiers.CryptoSuite)
-    private readonly cryptoSuite!: CryptoSuite.CryptoSuite;
+    @Container.inject(Container.Identifiers.CryptoManager)
+    private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
     private readProcessor: ReadProcessor | undefined = undefined;
 
@@ -22,7 +21,7 @@ export class VerifyWorkerAction extends AbstractWorkerAction {
         const verify = this.getVerifyFunction();
 
         this.readProcessor = new ReadProcessor(
-            this.cryptoSuite.CryptoManager,
+            this.cryptoManager,
             isBlock,
             streamReader,
             async (entity: any, previousEntity: any) => {

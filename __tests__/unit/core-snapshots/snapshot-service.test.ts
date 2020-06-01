@@ -1,11 +1,12 @@
 import "jest-extended";
 
 import { Container } from "@packages/core-kernel";
-import { Sandbox } from "@packages/core-test-framework";
-import { SnapshotService } from "@packages/core-snapshots/src/snapshot-service";
-import { Identifiers } from "@packages/core-snapshots/src/ioc";
 import { SnapshotDatabaseService } from "@packages/core-snapshots/src/database-service";
 import { Filesystem } from "@packages/core-snapshots/src/filesystem/filesystem";
+import { Identifiers } from "@packages/core-snapshots/src/ioc";
+import { SnapshotService } from "@packages/core-snapshots/src/snapshot-service";
+import { Sandbox } from "@packages/core-test-framework/src";
+
 import { Assets } from "./__fixtures__";
 
 let sandbox: Sandbox;
@@ -60,7 +61,7 @@ afterEach(() => {
 describe("SnapshotService", () => {
     describe("dump", () => {
         it("should be ok", async () => {
-            let options = {
+            const options = {
                 network: "testnet",
             };
 
@@ -75,7 +76,7 @@ describe("SnapshotService", () => {
         it("should log error if error in dump", async () => {
             database.dump = jest.fn().mockRejectedValue(new Error());
 
-            let options = {
+            const options = {
                 network: "testnet",
             };
 
@@ -90,7 +91,7 @@ describe("SnapshotService", () => {
 
     describe("restore", () => {
         it("should be ok", async () => {
-            let options = {
+            const options = {
                 network: "testnet",
                 blocks: "1-99",
             };
@@ -106,7 +107,7 @@ describe("SnapshotService", () => {
         it("should log error if error in restore", async () => {
             database.restore = jest.fn().mockRejectedValue(new Error());
 
-            let options = {
+            const options = {
                 network: "testnet",
                 blocks: "1-99",
             };
@@ -122,7 +123,7 @@ describe("SnapshotService", () => {
         it("should log error if snapshot does not exist", async () => {
             filesystem.snapshotExists = jest.fn().mockResolvedValue(false);
 
-            let options = {
+            const options = {
                 network: "testnet",
                 blocks: "1-99",
             };
@@ -138,7 +139,7 @@ describe("SnapshotService", () => {
         it("should log error if meta data cannot be read", async () => {
             filesystem.readMetaData = jest.fn().mockRejectedValue(new Error());
 
-            let options = {
+            const options = {
                 network: "testnet",
                 blocks: "1-99",
             };
@@ -154,7 +155,7 @@ describe("SnapshotService", () => {
 
     describe("verify", () => {
         it("should be ok", async () => {
-            let options = {
+            const options = {
                 network: "testnet",
                 blocks: "1-99",
             };
@@ -170,7 +171,7 @@ describe("SnapshotService", () => {
         it("should log error if snapshot does not exist", async () => {
             filesystem.snapshotExists = jest.fn().mockResolvedValue(false);
 
-            let options = {
+            const options = {
                 network: "testnet",
                 blocks: "1-99",
             };
@@ -186,7 +187,7 @@ describe("SnapshotService", () => {
         it("should log error if meta cannot be read", async () => {
             filesystem.readMetaData = jest.fn().mockRejectedValue(new Error());
 
-            let options = {
+            const options = {
                 network: "testnet",
                 blocks: "1-99",
             };
@@ -202,7 +203,7 @@ describe("SnapshotService", () => {
         it("should log error if error on verify", async () => {
             database.verify = jest.fn().mockRejectedValue(new Error());
 
-            let options = {
+            const options = {
                 network: "testnet",
                 blocks: "1-99",
             };

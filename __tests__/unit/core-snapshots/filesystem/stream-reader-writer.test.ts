@@ -1,20 +1,21 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@packages/core-crypto";
+import { Container } from "@packages/core-kernel";
+import { JSONCodec, MessagePackCodec } from "@packages/core-snapshots/src/codecs";
+import * as Contracts from "@packages/core-snapshots/src/contracts";
+import * as Exceptions from "@packages/core-snapshots/src/exceptions";
+import { StreamReader, StreamWriter } from "@packages/core-snapshots/src/filesystem";
+import { Identifiers } from "@packages/core-snapshots/src/ioc";
+import { Sandbox } from "@packages/core-test-framework/src";
 import pluralize from "pluralize";
 import { Readable } from "stream";
 import { dirSync, setGracefulCleanup } from "tmp";
-import { pascalize, decamelize } from "xcase";
-
-import { Container } from "@packages/core-kernel";
-import { Sandbox } from "@packages/core-test-framework/src";
-
-import { StreamReader, StreamWriter } from "@packages/core-snapshots/src/filesystem";
-import { Identifiers } from "@packages/core-snapshots/src/ioc";
-import * as Contracts from "@packages/core-snapshots/src/contracts";
-import { JSONCodec, MessagePackCodec } from "@packages/core-snapshots/src/codecs";
-import * as Exceptions from "@packages/core-snapshots/src/exceptions";
+import { decamelize, pascalize } from "xcase";
 
 import { Assets } from "../__fixtures__";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 class DbStream extends Readable {
     private count = 0;
@@ -36,11 +37,11 @@ class DbStream extends Readable {
     }
 
     private appendPrefix(entity: any) {
-        let itemToReturn = {};
+        const itemToReturn = {};
 
-        let item = entity;
+        const item = entity;
 
-        for (let key of Object.keys(item)) {
+        for (const key of Object.keys(item)) {
             itemToReturn[this.prefix + decamelize(key)] = item[key];
         }
 
@@ -56,14 +57,30 @@ const getEncode = (table, codec) => {
     if (codec === "json") {
         return new JSONCodec()[`encode${getSingularCapitalizedTableName(table)}`];
     }
-    return new MessagePackCodec()[`encode${getSingularCapitalizedTableName(table)}`];
+    const codecInstance = new MessagePackCodec();
+    // @ts-ignore
+    codecInstance.cryptoManager = crypto.CryptoManager;
+    // @ts-ignore
+    codecInstance.transactionsManager = crypto.TransactionManager;
+    // @ts-ignore
+    codecInstance.blockFactory = crypto.BlockFactory;
+    const encoder = codecInstance[`encode${getSingularCapitalizedTableName(table)}`].bind(codecInstance);
+    return encoder;
 };
 
 const getDecode = (table, codec) => {
     if (codec === "json") {
         return new JSONCodec()[`decode${getSingularCapitalizedTableName(table)}`];
     }
-    return new MessagePackCodec()[`decode${getSingularCapitalizedTableName(table)}`];
+    const codecInstance = new MessagePackCodec();
+    // @ts-ignore
+    codecInstance.cryptoManager = crypto.CryptoManager;
+    // @ts-ignore
+    codecInstance.transactionsManager = crypto.TransactionManager;
+    // @ts-ignore
+    codecInstance.blockFactory = crypto.BlockFactory;
+    const decoder = codecInstance[`decode${getSingularCapitalizedTableName(table)}`].bind(codecInstance);
+    return decoder;
 };
 
 let sandbox: Sandbox;
@@ -71,7 +88,7 @@ let streamWriterFactory: Contracts.Stream.StreamWriterFactory;
 let streamReaderFactory: Contracts.Stream.StreamReaderFactory;
 
 beforeEach(() => {
-    sandbox = new Sandbox();
+    sandbox = new Sandbox(crypto);
 
     sandbox.app
         .bind<StreamWriter>(Identifiers.StreamWriterFactory)
@@ -122,8 +139,13 @@ describe("StreamReader and StreamWriter", () => {
         it(`Should throw error if stream not open`, async () => {
             file = dirSync({ mode: 0o777 }).name + "/" + table;
 
-            let dbStream = new DbStream(table as string);
-            let streamWriter = streamWriterFactory(dbStream, file, useCompression as boolean, getEncode(table, codec));
+            const dbStream = new DbStream(table as string);
+            const streamWriter = streamWriterFactory(
+                dbStream,
+                file,
+                useCompression as boolean,
+                getEncode(table, codec),
+            );
 
             await expect(streamWriter.write()).rejects.toThrow(Exceptions.Stream.StreamNotOpen);
         });
@@ -131,8 +153,13 @@ describe("StreamReader and StreamWriter", () => {
         it(`Should write all entities`, async () => {
             file = dirSync({ mode: 0o777 }).name + "/" + table;
 
-            let dbStream = new DbStream(table as string);
-            let streamWriter = streamWriterFactory(dbStream, file, useCompression as boolean, getEncode(table, codec));
+            const dbStream = new DbStream(table as string);
+            const streamWriter = streamWriterFactory(
+                dbStream,
+                file,
+                useCompression as boolean,
+                getEncode(table, codec),
+            );
 
             await expect(streamWriter.open()).toResolve();
 
@@ -140,12 +167,12 @@ describe("StreamReader and StreamWriter", () => {
         });
 
         it(`Should read all entities`, async () => {
-            let streamReader = streamReaderFactory(file, useCompression as boolean, getDecode(table, codec));
-
+            // failing, because this is calling getDecode() whic uses [] notation to go into a function... but during that call, the this object is wrong...
+            const streamReader = streamReaderFactory(file, useCompression as boolean, getDecode(table, codec));
             await expect(streamReader.open()).toResolve();
 
             // @ts-ignore
-            for (let item of Assets[table]) {
+            for (const item of Assets[table]) {
                 // await expect(streamWriter.readNext()).resolves.toEqual(item);
                 await expect(streamReader.readNext()).toResolve();
             }
@@ -153,14 +180,14 @@ describe("StreamReader and StreamWriter", () => {
             await expect(streamReader.readNext()).resolves.toBeNull();
         });
 
-        it(`Should throw error if stream not open`, async () => {
-            let streamReader = streamReaderFactory(file, useCompression as boolean, getDecode(table, codec));
+        it(`Should throw error when decoding if stream not open`, async () => {
+            const streamReader = streamReaderFactory(file, useCompression as boolean, getDecode(table, codec));
 
             await expect(streamReader.readNext()).rejects.toThrow(Exceptions.Stream.StreamNotOpen);
         });
 
         it(`Should throw error if file is not valid`, async () => {
-            let streamReader = streamReaderFactory(
+            const streamReader = streamReaderFactory(
                 file + "invalid_file",
                 useCompression as boolean,
                 getDecode(table, codec),
@@ -170,7 +197,7 @@ describe("StreamReader and StreamWriter", () => {
         });
 
         it(`Should throw error if error in codec`, async () => {
-            let streamReader = streamReaderFactory(file, useCompression as boolean, () => {
+            const streamReader = streamReaderFactory(file, useCompression as boolean, () => {
                 throw new Error();
             });
 

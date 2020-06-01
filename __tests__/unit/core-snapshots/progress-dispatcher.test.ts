@@ -1,14 +1,14 @@
 import "jest-extended";
 
 import { Container, Contracts } from "@packages/core-kernel";
-import { Sandbox } from "@packages/core-test-framework";
+import { SnapshotApplicationEvents } from "@packages/core-snapshots/src";
 import { Identifiers } from "@packages/core-snapshots/src/ioc";
 import { ProgressDispatcher } from "@packages/core-snapshots/src/progress-dispatcher";
-import { SnapshotApplicationEvents } from "@packages/core-snapshots/src";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 let progressDispatcher: ProgressDispatcher;
-let eventDispatcher: Partial<Contracts.Kernel.EventDispatcher> = {
+const eventDispatcher: Partial<Contracts.Kernel.EventDispatcher> = {
     dispatch: jest.fn(),
 };
 
@@ -24,8 +24,8 @@ beforeEach(() => {
 
 describe("ProgressDispatcher", () => {
     it("should dispatch start, end and update events", async () => {
-        let table = "blocks";
-        let count = 3;
+        const table = "blocks";
+        const count = 3;
 
         await progressDispatcher.start(table, count);
         expect(eventDispatcher.dispatch).toHaveBeenCalledWith(SnapshotApplicationEvents.SnapshotStart, {

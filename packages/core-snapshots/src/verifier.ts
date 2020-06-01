@@ -1,10 +1,14 @@
-import { CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
+import { Blocks, CryptoSuite, Interfaces } from "@arkecosystem/core-crypto";
 import { Models } from "@arkecosystem/core-database";
 
 import * as Exceptions from "./exceptions/verifier";
 
 export class Verifier {
-    public constructor(private cryptoSuite: CryptoSuite.CryptoSuite) {}
+    public constructor(
+        private cryptoManager: CryptoSuite.CryptoManager,
+        private transactionManager: CryptoSuite.TransactionManager,
+        private blockFactory: Blocks.BlockFactory,
+    ) {}
     public verifyBlock(block: Models.Block, previousBlock: Models.Block | undefined): void {
         this.isBlockChained(block, previousBlock);
         this.verifyBlockSignature(block);
@@ -37,14 +41,14 @@ export class Verifier {
 
         try {
             /* istanbul ignore next */
-            const block = this.cryptoSuite.BlockFactory.fromData(blockEntity as Interfaces.IBlockData, () => {
+            const block = this.blockFactory.fromData(blockEntity as Interfaces.IBlockData, () => {
                 return blockEntity.timestamp;
             })!;
 
-            const bytes = this.cryptoSuite.BlockFactory.serializer.serialize(block.data, false);
-            const hash = this.cryptoSuite.CryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(bytes);
+            const bytes = this.blockFactory.serializer.serialize(block.data, false);
+            const hash = this.cryptoManager.LibraryManager.Crypto.HashAlgorithms.sha256(bytes);
 
-            isVerified = this.cryptoSuite.CryptoManager.LibraryManager.Crypto.Hash.verifyECDSA(
+            isVerified = this.cryptoManager.LibraryManager.Crypto.Hash.verifyECDSA(
                 hash,
                 blockEntity.blockSignature,
                 blockEntity.generatorPublicKey,
@@ -65,8 +69,7 @@ export class Verifier {
 
         let isVerified = false;
         try {
-            isVerified = this.cryptoSuite.TransactionManager.TransactionFactory.fromBytes(transaction.serialized)
-                .isVerified;
+            isVerified = this.transactionManager.TransactionFactory.fromBytes(transaction.serialized).isVerified;
         } catch (err) {
             throw new Exceptions.TransactionVerifyException(transaction.id, err.message);
         }

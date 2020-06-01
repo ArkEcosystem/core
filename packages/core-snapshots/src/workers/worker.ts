@@ -26,10 +26,11 @@ const connect = async (options: any): Promise<Connection> => {
     });
 };
 
-export const init = async () => {
-    const cryptoSuite: CryptoSuite.CryptoSuite = new CryptoSuite.CryptoSuite(workerData.actionOptions.network);
-
-    const transactionManager = cryptoSuite.TransactionManager;
+export const init = async (cryptoSuite?: CryptoSuite.CryptoSuite) => {
+    const crypto = cryptoSuite
+        ? cryptoSuite
+        : new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName(workerData.actionOptions.network));
+    const transactionManager = crypto.TransactionManager;
 
     transactionManager.TransactionTools.TransactionRegistry.registerTransactionType(
         MagistrateTransactions.BridgechainRegistrationTransaction,
@@ -51,8 +52,9 @@ export const init = async () => {
     );
 
     app = new Application(new Container.Container());
-
-    app.bind<CryptoSuite.CryptoSuite>(Identifiers.CryptoSuite).toConstantValue(cryptoSuite);
+    app.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+    app.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
+    app.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
 
     if (_workerData.connection) {
         /* istanbul ignore next */

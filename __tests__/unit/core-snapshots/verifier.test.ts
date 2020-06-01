@@ -1,7 +1,16 @@
 import "jest-extended";
-import { Crypto, Transactions } from "@arkecosystem/crypto";
-import { Verifier } from "@arkecosystem/core-snapshots/src/verifier";
+
+import { CryptoSuite } from "@packages/core-crypto";
+import { Verifier } from "@packages/core-snapshots/src/verifier";
+
 import { Assets } from "./__fixtures__";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
+let verifierInstance: Verifier;
+beforeEach(() => {
+    verifierInstance = new Verifier(crypto.CryptoManager, crypto.TransactionManager, crypto.BlockFactory);
+});
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -10,95 +19,95 @@ afterEach(() => {
 describe("Verifier", () => {
     describe("verifyBlock", () => {
         it("should pass", async () => {
-            Verifier.verifyBlock(Assets.blocksBigNumber[0], undefined);
+            verifierInstance.verifyBlock(Assets.blocksBigNumber[0], undefined);
         });
 
         it("should be true if chained", async () => {
-            let firstBlock = { ...Assets.blocksBigNumber[0] };
-            let secondBlock = { ...Assets.blocksBigNumber[1] };
+            const firstBlock = { ...Assets.blocksBigNumber[0] };
+            const secondBlock = { ...Assets.blocksBigNumber[1] };
 
             firstBlock.id = secondBlock.previousBlock; // Genesis block fix
 
-            Verifier.verifyBlock(secondBlock, firstBlock);
+            verifierInstance.verifyBlock(secondBlock, firstBlock);
         });
 
         it("should throw if block is not chained", async () => {
-            let firstBlock = { ...Assets.blocksBigNumber[0] };
-            let secondBlock = { ...Assets.blocksBigNumber[1] };
+            const firstBlock = { ...Assets.blocksBigNumber[0] };
+            const secondBlock = { ...Assets.blocksBigNumber[1] };
 
             firstBlock.id = "123";
 
             expect(() => {
-                Verifier.verifyBlock(secondBlock, firstBlock);
+                verifierInstance.verifyBlock(secondBlock, firstBlock);
             }).toThrow();
         });
 
         it("should throw", async () => {
-            let block = { ...Assets.blocksBigNumber[0] };
+            const block = { ...Assets.blocksBigNumber[0] };
 
             block.payloadLength = 123;
 
             expect(() => {
-                Verifier.verifyBlock(block, undefined);
+                verifierInstance.verifyBlock(block, undefined);
             }).toThrow();
         });
 
         it("should throw if verifyECDSA throws error", async () => {
-            Crypto.Hash.verifyECDSA = jest.fn().mockImplementation(() => {
+            crypto.CryptoManager.LibraryManager.Crypto.Hash.verifyECDSA = jest.fn().mockImplementation(() => {
                 throw new Error();
             });
 
-            let block = { ...Assets.blocksBigNumber[0] };
+            const block = { ...Assets.blocksBigNumber[0] };
 
             expect(() => {
-                Verifier.verifyBlock(block, undefined);
+                verifierInstance.verifyBlock(block, undefined);
             }).toThrow();
         });
     });
 
     describe("verifyTransaction", () => {
         it("should be ok", async () => {
-            Verifier.verifyTransaction(Assets.transactions[0]);
+            verifierInstance.verifyTransaction(Assets.transactions[0]);
         });
 
         it("should throw if transaction is not valid", async () => {
-            Transactions.TransactionFactory.fromBytes = jest.fn().mockReturnValue(false);
-            let transaction = { ...Assets.transactions[0] };
+            crypto.TransactionManager.TransactionFactory.fromBytes = jest.fn().mockReturnValue(false);
+            const transaction = { ...Assets.transactions[0] };
 
             transaction.timestamp = 100;
 
             expect(() => {
-                Verifier.verifyTransaction(transaction);
+                verifierInstance.verifyTransaction(transaction);
             }).toThrow();
         });
 
         it("should throw if fromBytes throws error", async () => {
-            Transactions.TransactionFactory.fromBytes = jest.fn().mockImplementation(() => {
+            crypto.TransactionManager.TransactionFactory.fromBytes = jest.fn().mockImplementation(() => {
                 throw new Error();
             });
 
-            let transaction = { ...Assets.transactions[0] };
+            const transaction = { ...Assets.transactions[0] };
 
             transaction.timestamp = 100;
 
             expect(() => {
-                Verifier.verifyTransaction(transaction);
+                verifierInstance.verifyTransaction(transaction);
             }).toThrow();
         });
     });
 
     describe("verifyRound", () => {
         it("should be ok", async () => {
-            Verifier.verifyRound(Assets.rounds[0]);
+            verifierInstance.verifyRound(Assets.rounds[0]);
         });
 
         it("should throw", async () => {
-            let round = { ...Assets.rounds[0] };
+            const round = { ...Assets.rounds[0] };
 
             round.publicKey = "123123";
 
             expect(() => {
-                Verifier.verifyRound(round);
+                verifierInstance.verifyRound(round);
             }).toThrow();
         });
     });
