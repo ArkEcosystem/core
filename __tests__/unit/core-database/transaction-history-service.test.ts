@@ -2,9 +2,18 @@ import { Container } from "@arkecosystem/core-kernel";
 
 import { TransactionHistoryService } from "../../../packages/core-database/src/transaction-history-service";
 
+const blockRepository = {
+    findManyByExpression: jest.fn(),
+    listByExpression: jest.fn(),
+};
+
 const transactionRepository = {
     findManyByExpression: jest.fn(),
     listByExpression: jest.fn(),
+};
+
+const blockFilter = {
+    getExpression: jest.fn(),
 };
 
 const transactionFilter = {
@@ -16,8 +25,13 @@ const modelConverter = {
 };
 
 beforeEach(() => {
+    blockRepository.findManyByExpression.mockReset();
+    blockRepository.listByExpression.mockReset();
+
     transactionRepository.findManyByExpression.mockReset();
     transactionRepository.listByExpression.mockReset();
+
+    blockFilter.getExpression.mockReset();
 
     transactionFilter.getExpression.mockReset();
 
@@ -25,7 +39,9 @@ beforeEach(() => {
 });
 
 const container = new Container.Container();
+container.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(blockRepository);
 container.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue(transactionRepository);
+container.bind(Container.Identifiers.DatabaseBlockFilter).toConstantValue(blockFilter);
 container.bind(Container.Identifiers.DatabaseTransactionFilter).toConstantValue(transactionFilter);
 container.bind(Container.Identifiers.DatabaseModelConverter).toConstantValue(modelConverter);
 
