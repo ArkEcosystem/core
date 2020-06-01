@@ -1,7 +1,3 @@
-export type VoidExpression = {
-    op: "void";
-};
-
 export type TrueExpression = {
     op: "true";
 };
@@ -58,7 +54,6 @@ export type OrExpression<TEntity> = {
 };
 
 export type Expression<TEntity> =
-    | VoidExpression
     | TrueExpression
     | FalseExpression
     | EqualExpression<TEntity>

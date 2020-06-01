@@ -74,7 +74,7 @@ export class BlockFilter implements Contracts.Database.BlockFilter {
                         return { property: "blockSignature", op: "equal", value: c };
                     });
                 default:
-                    return { op: "void" };
+                    return { op: "true" };
             }
         });
     }
