@@ -22,8 +22,9 @@ export class TransactionWithBlockResource implements Resource {
         AppUtils.assert.defined<string>(transactionData.senderPublicKey);
 
         const sender: string = this.walletRepository.findByPublicKey(transactionData.senderPublicKey).address;
+        const recipient: string = transactionData.recipientId ?? sender;
+        const signSignature: string | undefined = transactionData.signSignature ?? transactionData.secondSignature;
         const confirmations: number = this.stateStore.getLastHeight() - blockData.height + 1;
-        const timestamp: number = transactionData.timestamp ? transactionData.timestamp : blockData.timestamp;
 
         return {
             id: transactionData.id,
@@ -35,14 +36,14 @@ export class TransactionWithBlockResource implements Resource {
             fee: transactionData.fee.toFixed(),
             sender,
             senderPublicKey: transactionData.senderPublicKey,
-            recipient: transactionData.recipientId || sender,
+            recipient,
             signature: transactionData.signature,
-            signSignature: transactionData.signSignature || transactionData.secondSignature,
+            signSignature,
             signatures: transactionData.signatures,
             vendorField: transactionData.vendorField,
             asset: transactionData.asset,
             confirmations,
-            timestamp: AppUtils.formatTimestamp(timestamp),
+            timestamp: AppUtils.formatTimestamp(blockData.timestamp),
             nonce: transactionData.nonce!.toFixed(),
         };
     }
