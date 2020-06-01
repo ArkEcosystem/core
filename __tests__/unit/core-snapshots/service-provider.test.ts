@@ -1,20 +1,21 @@
 import "jest-extended";
-import * as typeorm from "typeorm";
+
 import { Container } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-snapshots/src";
 import { Sandbox } from "@packages/core-test-framework";
+import * as typeorm from "typeorm";
 
 let sandbox: Sandbox;
 
-let spyOnGetCustomRepository = jest.spyOn(typeorm, "getCustomRepository").mockReturnValue(undefined);
-let spyOnCreateConnection = jest.spyOn(typeorm, "createConnection").mockResolvedValue({
+const spyOnGetCustomRepository = jest.spyOn(typeorm, "getCustomRepository").mockReturnValue(undefined);
+const spyOnCreateConnection = jest.spyOn(typeorm, "createConnection").mockResolvedValue({
     close: jest.fn(),
 } as any);
 
 ServiceProvider.prototype.config = jest.fn().mockReturnValue({
-    all() {
-        return {};
-    },
+    all: jest.fn().mockReturnValue({
+        connection: {},
+    }),
 });
 
 beforeEach(() => {

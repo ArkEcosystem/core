@@ -21,21 +21,21 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "argon2": "^0.26.2",
-        "@arkecosystem/core-kernel": "^3.0.0-next.0",
-        "@arkecosystem/core-database": "^3.0.0-next.0",
         "@arkecosystem/core-cli": "^3.0.0-next.0",
+        "@arkecosystem/core-database": "^3.0.0-next.0",
+        "@arkecosystem/core-kernel": "^3.0.0-next.0",
         "@hapi/basic": "^6.0.0",
         "@hapi/boom": "^9.0.0",
         "@hapi/hapi": "^19.0.0",
         "@hapist/json-rpc": "^0.2.0",
         "@hapist/whitelist": "^0.1.0",
         "@sindresorhus/df": "^3.1.1",
+        "argon2": "^0.26.2",
+        "better-sqlite3": "^7.0.0",
         "got": "^11.1.3",
         "hapi-auth-bearer-token": "^6.1.6",
         "latest-version": "^5.1.0",
-        "require-from-string": "^2.0.2",
-        "typeorm": "^0.2.21"
+        "require-from-string": "^2.0.2"
     },
     "devDependencies": {
         "nock": "^12.0.3"

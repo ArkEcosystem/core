@@ -102,6 +102,10 @@ export const Identifiers = {
     TransactionPoolSenderMempoolFactory: Symbol.for("TransactionPool<SenderMempoolFactory>"),
     TransactionPoolSenderState: Symbol.for("TransactionPool<SenderState>"),
     TransactionPoolExpirationService: Symbol.for("TransactionPool<ExpirationService>"),
+    TransactionPoolWorkerPool: Symbol.for("TransactionPool<WorkerPool>"),
+    TransactionPoolWorker: Symbol.for("TransactionPool<Worker>"),
+    TransactionPoolWorkerFactory: Symbol.for("TransactionPool<WorkerFactory>"),
+    TransactionPoolWorkerIpcSubprocessFactory: Symbol.for("TransactionPool<WorkerIpcSubprocessFactory>"),
 
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),
@@ -110,4 +114,8 @@ export const Identifiers = {
     // Registries
     TransactionHandlerRegistry: Symbol.for("Registry<TransactionHandler>"),
     TransactionHandlerProvider: Symbol.for("Provider<TransactionHandler>"),
+
+    // Watcher
+    WatcherEventListener: Symbol.for("Watcher<EventListener>"),
+    WatcherDatabaseService: Symbol.for("Watcher<DatabaseService>"),
 };

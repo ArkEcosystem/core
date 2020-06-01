@@ -45,6 +45,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
     private async connect(): Promise<Connection> {
         const options: Record<string, any> = this.config().all();
 
+        if (this.app.isBound(Container.Identifiers.DatabaseConnection)) {
+            options.connection.name = "snapshots_connection";
+        }
+
         return createConnection({
             ...options.connection,
             namingStrategy: new Utils.SnakeNamingStrategy(),
