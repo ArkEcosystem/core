@@ -1,8 +1,9 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Enums } from "@arkecosystem/crypto";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { BlockResource, DelegateResource, WalletResource } from "../resources";
+import { BlockResource, BlockWithTransactionsResource, DelegateResource, WalletResource } from "../resources";
 import { Controller } from "./controller";
 
 @Container.injectable()
@@ -49,15 +50,28 @@ export class DelegatesController extends Controller {
             return delegate;
         }
 
-        const criteria = { generatorPublicKey: delegate.publicKey };
-        const blockListResult = await this.blockHistoryService.listByCriteria(
-            criteria,
-            this.getListingOrder(request),
-            this.getListingPage(request),
-            this.getListingOptions(),
-        );
+        if (request.query.transform) {
+            const blockCriteria = { generatorPublicKey: delegate.publicKey };
+            const blockWithSomeTransactionsListResult = await this.blockHistoryService.listByCriteriaJoinTransactions(
+                blockCriteria,
+                { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
+                this.getListingOrder(request),
+                this.getListingPage(request),
+                this.getListingOptions(),
+            );
 
-        return this.toPagination(blockListResult, BlockResource, request.query.transform);
+            return this.toPagination(blockWithSomeTransactionsListResult, BlockWithTransactionsResource, true);
+        } else {
+            const blockCriteria = { generatorPublicKey: delegate.publicKey };
+            const blockListResult = await this.blockHistoryService.listByCriteria(
+                blockCriteria,
+                this.getListingOrder(request),
+                this.getListingPage(request),
+                this.getListingOptions(),
+            );
+
+            return this.toPagination(blockListResult, BlockResource, false);
+        }
     }
 
     public async voters(request: Hapi.Request, h: Hapi.ResponseToolkit) {

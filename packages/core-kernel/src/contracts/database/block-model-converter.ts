@@ -1,8 +1,13 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { BlockModel } from "./models";
+import { BlockDataWithTransactionData } from "../shared";
+import { BlockModel, TransactionModel } from "./models";
 
 export interface BlockModelConverter {
-    getBlockModel(block: Interfaces.IBlock): BlockModel;
-    getBlockData(model: BlockModel): Interfaces.IBlockData;
+    getBlockModels(blocks: Interfaces.IBlock[]): BlockModel[];
+    getBlockData(models: BlockModel[]): Interfaces.IBlockData[];
+    getBlockDataWithTransactionData(
+        blockModels: BlockModel[],
+        transactionModels: TransactionModel[],
+    ): BlockDataWithTransactionData[];
 }

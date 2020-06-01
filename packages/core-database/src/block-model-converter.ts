@@ -5,11 +5,29 @@ import { Block } from "./models/block";
 
 @Container.injectable()
 export class BlockModelConverter implements Contracts.Database.BlockModelConverter {
-    public getBlockModel(block: Interfaces.IBlock): Contracts.Database.BlockModel {
-        return Object.assign(new Block(), block.data);
+    @Container.inject(Container.Identifiers.DatabaseTransactionModelConverter)
+    private readonly transactionModelConverter!: Contracts.Database.TransactionModelConverter;
+
+    public getBlockModels(blocks: Interfaces.IBlock[]): Contracts.Database.BlockModel[] {
+        return blocks.map((b) => Object.assign(new Block(), b.data));
     }
 
-    public getBlockData(model: Contracts.Database.BlockModel): Interfaces.IBlockData {
-        return model;
+    public getBlockData(models: Contracts.Database.BlockModel[]): Interfaces.IBlockData[] {
+        return models;
+    }
+
+    public getBlockDataWithTransactionData(
+        blockModels: Contracts.Database.BlockModel[],
+        transactionModels: Contracts.Database.TransactionModel[],
+    ): Contracts.Shared.BlockDataWithTransactionData[] {
+        const blockData = this.getBlockData(blockModels);
+        const transactionData = this.transactionModelConverter.getTransactionData(transactionModels);
+
+        const blockDataWithTransactions = blockData.map((data) => {
+            const transactions = transactionData.filter((t) => t.blockId === data.id);
+            return { data, transactions };
+        });
+
+        return blockDataWithTransactions;
     }
 }
