@@ -1,7 +1,7 @@
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
+import { Enums, Interfaces } from "@arkecosystem/core-magistrate-crypto/src";
 import { validAssetData, invalidAssetData } from "./utils";
 
-export const validResigns = [
+export const validResigns: Interfaces.IEntityAsset[] = [
     {
         type: Enums.EntityType.Plugin,
         subType: Enums.EntitySubType.PluginDesktop,
@@ -11,7 +11,7 @@ export const validResigns = [
     }
 ];
 
-export const invalidResigns = [
+export const invalidResigns: Interfaces.IEntityAsset[] = [
     {
         type: Enums.EntityType.Plugin,
         subType: Enums.EntitySubType.PluginDesktop,

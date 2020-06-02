@@ -9,7 +9,7 @@ export const validUpdates = [
         registrationId: "521e69c181e53ec1e4efbe5b67509b70548debf23df150bb7ca97e233be9dc6b",
         data: {
             description: "business updated",
-            website: "www.mybizupdated.com",
+            website: "http://www.mybizupdated.com",
             socialMedia: {
                 twitter: "https://twitter.com/mybizupdated",
                 facebook: "https://facebook.com/mybizupdated",
@@ -18,7 +18,7 @@ export const validUpdates = [
             sourceControl: {
                 github: "https://github.com/mybizupdatedorg",
                 gitlab: "https://gitlab.com/mybizupdatedorg",
-                bitbucket: "https://bitbucket.com/mybizupdatedorg",
+                bitbucket: "https://bitbucket.org/mybizupdatedorg",
                 npmjs: "https://npmjs.com/mybizupdatedorg",
             },
             images: ["https://flickr.com/dummyupdated.png"],

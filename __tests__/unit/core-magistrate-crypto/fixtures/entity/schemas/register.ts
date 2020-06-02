@@ -1,7 +1,7 @@
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
+import { Enums, Interfaces } from "@arkecosystem/core-magistrate-crypto/src";
 import { validAssetData, invalidAssetData } from "./utils";
 
-export const validRegisters = [
+export const validRegisters: Interfaces.IEntityAsset[] = [
     {
         type: Enums.EntityType.Plugin,
         subType: Enums.EntitySubType.PluginDesktop,
@@ -13,12 +13,15 @@ export const validRegisters = [
     ...validAssetData.map(data => ({
         type: Enums.EntityType.Developer,
         subType: Enums.EntitySubType.None,
-        action: Enums.EntityAction.Update,
-        data
+        action: Enums.EntityAction.Register,
+        data: {
+            name: "my developer",
+            ...data
+        }
     }))
 ];
 
-export const invalidRegisters = [
+export const invalidRegisters: Interfaces.IEntityAsset[] = [
     {
         type: Enums.EntityType.Plugin,
         subType: Enums.EntitySubType.PluginDesktop,
@@ -45,6 +48,9 @@ export const invalidRegisters = [
         type: Enums.EntityType.Developer,
         subType: Enums.EntitySubType.None,
         action: Enums.EntityAction.Update,
-        data
+        data: {
+            name: "my developer",
+            ...data
+        }
     }))
 ];

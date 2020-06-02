@@ -1,13 +1,14 @@
 // export valid and invalid asset data for registration and update
 // excluding `name` property as it is not allowed for update
 
-export const validAssetData = [
-    {  description: "my updated description as developer" },
+import { Interfaces } from "@arkecosystem/core-magistrate-crypto/src";
+
+export const validAssetData: Interfaces.IEntityAssetData[] = [
+    { description: "my updated description as developer" },
     { website: "http://randomwebsite.co" },
     { website: "http://subdomain.randomwebsite.co" },
     { website: "http://randomwebsite.co/about" },
     { website: "https://randomwebsite.co/about" },
-    { website: "www.randomwebsite.co" },
     { images: ["https://flickr.com/something"] },
     { videos: ["https://youtube.com/something"] },
     { videos: ["https://vimeo.com/something"] },
@@ -19,7 +20,7 @@ export const validAssetData = [
     { sourceControl: {
         github: "https://github.com/anyrepo",
         gitlab: "https://gitlab.com/anyrepo",
-        bitbucket: "https://bitbucket.com/anyrepo",
+        bitbucket: "https://bitbucket.org/anyrepo",
         npmjs: "https://npmjs.com/anyrepo",
     } },
     { socialMedia: { facebook: "https://facebook.com/random" } },
@@ -33,9 +34,10 @@ export const validAssetData = [
 
 ];
 
-export const invalidAssetData = [
+export const invalidAssetData: Interfaces.IEntityAssetData[] = [
     { description: "description that is too long because it exceeds the max length of 140 characters. description that is too long because it exceeds the max length of 140 characters." },
     { description: "description with invalid \u0000 char" },
+    { website: "www.randomwebsite.co" },
     { website: "nothttp://randomwebsite.com" },
     { images: ["https://notflickr.com/something"] },
     { videos: ["https://notyoutube.com/something"] },
@@ -55,5 +57,5 @@ export const invalidAssetData = [
     { socialMedia: { facebook: "http://facebook.com/random" } }, // http
     { socialMedia: { twitter: "http://twitter.com/random" } },
     { socialMedia: { linkedin: "http://linkedin.com/random" } },
-    { unknownProperty: "what am I doing here" },
+    { unknownProperty: "what am I doing here" } as any,
 ];

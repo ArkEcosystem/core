@@ -9,7 +9,7 @@ export const validRegisters = [
         data: {
             name: "my business 1",
             description: "this is my business",
-            website: "www.mybiz.com",
+            website: "http://www.mybiz.com",
             socialMedia: {
                 twitter: "https://twitter.com/mybiz",
                 facebook: "https://facebook.com/mybiz",
@@ -18,7 +18,7 @@ export const validRegisters = [
             sourceControl: {
                 github: "https://github.com/mybizorg",
                 gitlab: "https://gitlab.com/mybizorg",
-                bitbucket: "https://bitbucket.com/mybizorg",
+                bitbucket: "https://bitbucket.org/mybizorg",
                 npmjs: "https://npmjs.com/mybizorg",
             },
             images: ["https://flickr.com/dummy.png", "https://flickr.com/dummy2.png"],

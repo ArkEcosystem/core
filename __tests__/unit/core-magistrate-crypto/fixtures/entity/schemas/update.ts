@@ -1,11 +1,12 @@
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
+import { Enums, Interfaces } from "@arkecosystem/core-magistrate-crypto/src";
 import { validAssetData, invalidAssetData } from "./utils";
 
-export const validUpdates = [
+export const validUpdates: Interfaces.IEntityAsset[] = [
     {
         type: Enums.EntityType.Developer,
         subType: Enums.EntitySubType.PluginDesktop, // this should be valid for schema (only invalid for handler)
         action: Enums.EntityAction.Update,
+        registrationId: "e77a1d1d080ebce113dd27e1cb0a242ec8600fb72cd62ace4e46148bee1d3acc",
         data: {
             images: ["https://flickr.com/something"]
         }
@@ -14,11 +15,12 @@ export const validUpdates = [
         type: Enums.EntityType.Developer,
         subType: Enums.EntitySubType.None,
         action: Enums.EntityAction.Update,
+        registrationId: "e77a1d1d080ebce113dd27e1cb0a242ec8600fb72cd62ace4e46148bee1d3acc",
         data
     }))
 ];
 
-export const invalidUpdates = [
+export const invalidUpdates: Interfaces.IEntityAsset[] = [
     {
         type: Enums.EntityType.Developer,
         subType: Enums.EntitySubType.None,
