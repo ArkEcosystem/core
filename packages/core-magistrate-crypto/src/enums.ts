@@ -34,7 +34,7 @@ export enum EntitySubType {
 }
 
 export enum EntityAction {
-    Registration = 0,
+    Register = 0,
     Update = 1,
-    Resignation = 2,
+    Resign = 2,
 }

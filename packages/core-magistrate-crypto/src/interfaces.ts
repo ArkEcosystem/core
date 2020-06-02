@@ -57,7 +57,7 @@ export interface IEntityAssetData {
     description?: string;
     website?: string;
     sourceControl?: IEntityAssetSourceControl;
-    socialMedia?: IEntityAssetSourceControl;
+    socialMedia?: IEntityAssetSocialMedia;
     images?: string[];
     videos?: string[];
 }

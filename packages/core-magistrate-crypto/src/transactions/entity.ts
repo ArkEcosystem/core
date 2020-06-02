@@ -2,10 +2,17 @@ import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
-import { EntityType, EntitySubType, EntityAction } from "../enums";
+import {
+    EntityType,
+    EntitySubType,
+    EntityAction,
+    MagistrateTransactionGroup,
+    MagistrateTransactionStaticFees,
+    MagistrateTransactionType
+} from "../enums";
 import { IEntityAsset } from "../interfaces";
 
-import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
+import { register, update, resign } from "./utils/entity-schemas";
 
 const { schemas } = Transactions;
 
@@ -23,6 +30,14 @@ export class EntityTransaction extends Transactions.Transaction {
     );
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
+        const baseAssetDataProps = {
+            type: { enum: [ EntityType.Business, EntityType.Bridgechain, EntityType.Developer, EntityType.Plugin] },
+            subType: {
+                enum: [ EntitySubType.None, EntitySubType.PluginCore, EntitySubType.PluginDesktop ],
+            }, // subType depends on type but the type/subType check is in handler
+            registrationId: { $ref: "transactionId" },
+        };
+        
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "entity",
             required: ["asset", "typeGroup"],
@@ -32,18 +47,35 @@ export class EntityTransaction extends Transactions.Transaction {
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
                 asset: {
                     type: "object",
-                    required: ["type", "subType", "action", "data"],
-                    additionalProperties: false,
-                    properties: {
-                        type: { enum: [ EntityType.Business, EntityType.Bridgechain, EntityType.Developer, EntityType.Plugin] },
-                        subType: { enum: [ EntitySubType.None, EntitySubType.PluginCore, EntitySubType.PluginDesktop ] },
-                        action: { enum: [ EntityAction.Registration, EntityAction.Update, EntityAction.Resignation ] },
-                        registrationId: { $ref: "transactionId" },
-                        data: {
-                            type: "object",
-                            // TODO schemas to import for each (business, ...)
+                    anyOf: [
+                        {
+                            required: ["type", "subType", "action", "data"],
+                            additionalProperties: false,
+                            properties: {
+                                ...baseAssetDataProps,
+                                action: { const: EntityAction.Register },
+                                data: register,
+                            }
                         },
-                    },
+                        {
+                            required: ["type", "subType", "action", "data", "registrationId"],
+                            additionalProperties: false,
+                            properties: {
+                                ...baseAssetDataProps,
+                                action: { const: EntityAction.Resign },
+                                data: resign,
+                            }
+                        },
+                        {
+                            required: ["type", "subType", "action", "data", "registrationId"],
+                            additionalProperties: false,
+                            properties: {
+                                ...baseAssetDataProps,
+                                action: { const: EntityAction.Update },
+                                data: update,
+                            }
+                        }
+                    ],
                 },
             },
         });

@@ -9,6 +9,7 @@ import {
     BusinessUpdateTransactionHandler,
 } from "./handlers";
 import { bridgechainIndexer, businessIndexer, MagistrateIndex } from "./wallet-indexes";
+import { EntityTransactionHandler } from "./handlers/entity";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -20,6 +21,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(BridgechainResignationTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(BridgechainUpdateTransactionHandler);
+        this.app.bind(Container.Identifiers.TransactionHandler).to(EntityTransactionHandler);
     }
 
     private registerIndexers(): void {
