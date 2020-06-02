@@ -1,5 +1,4 @@
 import { Container, Contracts, Enums as AppEnums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { postConstruct } from "@arkecosystem/core-kernel/dist/ioc";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
@@ -28,14 +27,11 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(Container.Identifiers.TransactionPoolExpirationService)
     private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
 
-    @postConstruct()
-    public initialize() {
+    public async boot(): Promise<void> {
         this.emitter.listen(AppEnums.CryptoEvent.MilestoneChanged, {
             handle: () => this.readdTransactions(),
         });
-    }
 
-    public async boot(): Promise<void> {
         if (process.env.CORE_RESET_DATABASE) {
             this.flush();
         } else {
