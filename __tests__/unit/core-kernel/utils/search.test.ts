@@ -32,20 +32,36 @@ describe("optimizeExpression", () => {
         expect(expression).toEqual({ property: "id", op: "equal", value: 5 });
     });
 
-    it("should replace 'and' expression with 'void' expression when all expressions turn void", () => {
+    it("should replace 'and' expression with 'true' expression when all expressions are 'true'", () => {
         const expression = optimizeExpression<UserEntity>({
             op: "and",
-            expressions: [{ op: "void" }, { op: "void" }],
+            expressions: [{ op: "true" }, { op: "true" }],
         });
-        expect(expression).toEqual({ op: "void" });
+        expect(expression).toEqual({ op: "true" });
     });
 
-    it("should replace 'or' expression with 'void' expression when all expressions turn void", () => {
+    it("should replace 'and' expression with 'false' expression when any expression is 'false'", () => {
+        const expression = optimizeExpression<UserEntity>({
+            op: "and",
+            expressions: [{ op: "true" }, { op: "false" }],
+        });
+        expect(expression).toEqual({ op: "false" });
+    });
+
+    it("should replace 'or' expression with 'false' expression when all expressions are 'false'", () => {
         const expression = optimizeExpression<UserEntity>({
             op: "or",
-            expressions: [{ op: "void" }, { op: "void" }],
+            expressions: [{ op: "false" }, { op: "false" }],
         });
-        expect(expression).toEqual({ op: "void" });
+        expect(expression).toEqual({ op: "false" });
+    });
+
+    it("should replace 'or' expression with 'true' expression when any expression is 'true'", () => {
+        const expression = optimizeExpression<UserEntity>({
+            op: "or",
+            expressions: [{ op: "true" }, { op: "false" }],
+        });
+        expect(expression).toEqual({ op: "true" });
     });
 
     it("should merge 'and' expressions", () => {

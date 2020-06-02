@@ -11,22 +11,10 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         return (await this.findByIds([id]))[0];
     }
 
-    public async findOneByExpression(expression: Contracts.Search.Expression<TEntity>): Promise<TEntity | undefined> {
-        const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
-        if (expression.op !== "void") {
-            const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
-            queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
-        }
-        return queryBuilder.getOne();
-    }
-
     public async findManyByExpression(expression: Contracts.Search.Expression<TEntity>): Promise<TEntity[]> {
         const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
-        if (expression.op !== "void") {
-            const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
-            queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
-        }
-
+        const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
+        queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         return queryBuilder.getMany();
     }
 
@@ -38,10 +26,8 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
     ): Promise<Contracts.Search.ListResult<TEntity>> {
         const queryBuilder = this.createQueryBuilder().select().skip(page.offset).take(page.limit);
 
-        if (expression.op !== "void") {
-            const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
-            queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
-        }
+        const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
+        queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
 
         if (order.length) {
             const column = this.queryHelper.getColumnName(this.metadata, order[0].property);

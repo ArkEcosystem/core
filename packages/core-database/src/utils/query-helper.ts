@@ -84,7 +84,7 @@ export class QueryHelper<TEntity> {
                 return { query, parameters };
             }
             default:
-                throw new Error(`Unexpected expression ${expression.constructor.name}`);
+                throw new Error(`Unexpected expression`);
         }
     }
 }

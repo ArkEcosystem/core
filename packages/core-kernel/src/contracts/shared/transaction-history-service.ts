@@ -13,8 +13,9 @@ import {
 } from "../search";
 
 export type TransactionCriteria = {
+    address?: OrEqualCriteria<string>;
     senderId?: OrEqualCriteria<string>;
-
+    recipientId?: OrEqualCriteria<string>;
     id?: OrEqualCriteria<string>;
     version?: OrEqualCriteria<number>;
     blockId?: OrEqualCriteria<string>;
@@ -22,7 +23,6 @@ export type TransactionCriteria = {
     timestamp?: OrNumericCriteria<number>;
     nonce?: OrNumericCriteria<Utils.BigNumber>;
     senderPublicKey?: OrEqualCriteria<string>;
-    recipientId?: OrEqualCriteria<string>;
     type?: OrEqualCriteria<number>;
     typeGroup?: OrEqualCriteria<number>;
     vendorField?: OrLikeCriteria<string>;
@@ -33,13 +33,31 @@ export type TransactionCriteria = {
 
 export type OrTransactionCriteria = OrCriteria<TransactionCriteria>;
 
+export type TransactionDataWithBlockData = {
+    data: Interfaces.ITransactionData;
+    block: Interfaces.IBlockData;
+};
+
 export interface TransactionHistoryService {
     findOneByCriteria(criteria: OrTransactionCriteria): Promise<Interfaces.ITransactionData | undefined>;
+
     findManyByCriteria(criteria: OrTransactionCriteria): Promise<Interfaces.ITransactionData[]>;
+
     listByCriteria(
         criteria: OrTransactionCriteria,
         order: ListOrder,
         page: ListPage,
         options?: ListOptions,
     ): Promise<ListResult<Interfaces.ITransactionData>>;
+
+    findOneByCriteriaJoinBlock(criteria: OrTransactionCriteria): Promise<TransactionDataWithBlockData | undefined>;
+
+    findManyByCriteriaJoinBlock(criteria: OrTransactionCriteria): Promise<TransactionDataWithBlockData[]>;
+
+    listByCriteriaJoinBlock(
+        criteria: OrTransactionCriteria,
+        order: ListOrder,
+        page: ListPage,
+        options?: ListOptions,
+    ): Promise<ListResult<TransactionDataWithBlockData>>;
 }
