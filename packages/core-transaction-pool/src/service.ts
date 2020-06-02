@@ -49,8 +49,12 @@ export class Service implements Contracts.TransactionPool.Service {
         try {
             await this.addTransactionToMempool(transaction);
             this.logger.debug(`${transaction} added to pool`);
+
+            this.app.events.dispatch(Enums.TransactionEvent.AddedToPool, transaction.data);
         } catch (error) {
             this.storage.removeTransaction(transaction.id);
+
+            this.app.events.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
             throw error;
         }
     }
@@ -73,6 +77,8 @@ export class Service implements Contracts.TransactionPool.Service {
             this.storage.removeTransaction(transaction.id);
             this.logger.error(`${transaction} removed from pool (wasn't in mempool)`);
         }
+
+        this.app.events.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
     }
 
     public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
