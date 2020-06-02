@@ -19,14 +19,15 @@ export class DatabaseLogger implements Logger {
     public logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): any {
         this.databaseService.addEvent(`database.query.log`, {
             query: query,
-            parameter: parameters,
+            parameters: parameters,
         });
     }
 
     public logQueryError(error: string, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
         this.databaseService.addEvent(`database.query.error`, {
+            error: error,
             query: query,
-            parameter: parameters,
+            parameters: parameters,
         });
     }
 
@@ -34,7 +35,7 @@ export class DatabaseLogger implements Logger {
         this.databaseService.addEvent(`database.query.slow`, {
             time: time,
             query: query,
-            parameter: parameters,
+            parameters: parameters,
         });
     }
 
