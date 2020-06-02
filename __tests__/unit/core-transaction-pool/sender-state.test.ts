@@ -17,6 +17,7 @@ const configuration = { getRequired: jest.fn(), getOptional: jest.fn() };
 const handler = { verify: jest.fn(), throwIfCannotEnterPool: jest.fn(), apply: jest.fn(), revert: jest.fn() };
 const handlerRegistry = { getActivatedHandlerForData: jest.fn() };
 const expirationService = { isExpired: jest.fn(), getExpirationHeight: jest.fn() };
+const eventDispatcherService = { dispatch: jest.fn() };
 
 let sandbox: Sandbox;
 
@@ -26,6 +27,7 @@ beforeEach(() => {
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
     sandbox.app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue(handlerRegistry);
     sandbox.app.bind(Container.Identifiers.TransactionPoolExpirationService).toConstantValue(expirationService);
+    sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcherService);
     sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
     sandbox.app
@@ -112,6 +114,8 @@ describe("SenderState.apply", () => {
 
         await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
         await expect(promise).rejects.toHaveProperty("type", "ERR_EXPIRED");
+
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledTimes(1);
     });
 
     it("should throw when transaction fails to verify", async () => {
