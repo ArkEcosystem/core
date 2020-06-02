@@ -33,9 +33,9 @@ describe("QueryHelper.getColumnName", () => {
 });
 
 describe("QueryHelper.getWhereExpressionSql", () => {
-    it("should throw when VoidExpression is passed", () => {
+    it("should throw when unexpected expression is passed", () => {
         const queryHelper = new QueryHelper<UserEntity>();
-        const check = () => queryHelper.getWhereExpressionSql(userMetadata as any, { op: "void" });
+        const check = () => queryHelper.getWhereExpressionSql(userMetadata as any, { op: "nonsense" } as any);
 
         expect(check).toThrow();
     });

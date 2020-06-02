@@ -11,29 +11,40 @@ import {
 
 export const optimizeExpression = <TEntity>(expression: Expression<TEntity>): Expression<TEntity> => {
     switch (expression.op) {
-        case "and":
-        case "or": {
+        case "and": {
             const optimized = expression.expressions.map(optimizeExpression);
-            const collapsed = optimized.reduce((acc, e) => {
-                if (e.op === "void") {
-                    return acc;
-                }
-                if (e.op === expression.op) {
-                    return [...acc, ...e.expressions];
-                }
-
-                return [...acc, e];
+            const flattened = optimized.reduce((acc, e) => {
+                return e.op === "and" ? [...acc, ...e.expressions] : [...acc, e];
             }, [] as Expression<TEntity>[]);
 
-            if (collapsed.length === 0) {
-                return { op: "void" };
+            if (flattened.every((e) => e.op === "true")) {
+                return { op: "true" };
             }
-            if (collapsed.length === 1) {
-                return collapsed[0];
+            if (flattened.some((e) => e.op === "false")) {
+                return { op: "false" };
             }
 
-            return { op: expression.op, expressions: collapsed };
+            const expressions = flattened.filter((e) => e.op !== "true");
+            return expressions.length === 1 ? expressions[0] : { op: "and", expressions };
         }
+
+        case "or": {
+            const optimized = expression.expressions.map(optimizeExpression);
+            const flattened = optimized.reduce((acc, e) => {
+                return e.op === "or" ? [...acc, ...e.expressions] : [...acc, e];
+            }, [] as Expression<TEntity>[]);
+
+            if (flattened.every((e) => e.op === "false")) {
+                return { op: "false" };
+            }
+            if (flattened.some((e) => e.op === "true")) {
+                return { op: "true" };
+            }
+
+            const expressions = flattened.filter((e) => e.op !== "false");
+            return expressions.length === 1 ? expressions[0] : { op: "or", expressions };
+        }
+
         default:
             return expression;
     }

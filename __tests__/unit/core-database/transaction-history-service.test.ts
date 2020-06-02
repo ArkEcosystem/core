@@ -2,32 +2,48 @@ import { Container } from "@arkecosystem/core-kernel";
 
 import { TransactionHistoryService } from "../../../packages/core-database/src/transaction-history-service";
 
+const blockRepository = {
+    findManyByExpression: jest.fn(),
+    listByExpression: jest.fn(),
+};
+
 const transactionRepository = {
     findManyByExpression: jest.fn(),
     listByExpression: jest.fn(),
+};
+
+const blockFilter = {
+    getExpression: jest.fn(),
 };
 
 const transactionFilter = {
     getExpression: jest.fn(),
 };
 
-const transactionModelConverter = {
+const modelConverter = {
     getTransactionData: jest.fn(),
 };
 
 beforeEach(() => {
+    blockRepository.findManyByExpression.mockReset();
+    blockRepository.listByExpression.mockReset();
+
     transactionRepository.findManyByExpression.mockReset();
     transactionRepository.listByExpression.mockReset();
 
+    blockFilter.getExpression.mockReset();
+
     transactionFilter.getExpression.mockReset();
 
-    transactionModelConverter.getTransactionData.mockReset();
+    modelConverter.getTransactionData.mockReset();
 });
 
 const container = new Container.Container();
+container.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(blockRepository);
 container.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue(transactionRepository);
+container.bind(Container.Identifiers.DatabaseBlockFilter).toConstantValue(blockFilter);
 container.bind(Container.Identifiers.DatabaseTransactionFilter).toConstantValue(transactionFilter);
-container.bind(Container.Identifiers.DatabaseTransactionModelConverter).toConstantValue(transactionModelConverter);
+container.bind(Container.Identifiers.DatabaseModelConverter).toConstantValue(modelConverter);
 
 describe("TransactionHistoryService.findOneByCriteria", () => {
     it("should return undefined when model wasn't found in repository", async () => {
@@ -36,14 +52,14 @@ describe("TransactionHistoryService.findOneByCriteria", () => {
 
         transactionFilter.getExpression.mockResolvedValueOnce(expression);
         transactionRepository.findManyByExpression.mockResolvedValueOnce([]);
-        transactionModelConverter.getTransactionData.mockReturnValueOnce([]);
+        modelConverter.getTransactionData.mockReturnValueOnce([]);
 
         const blockHistoryService = container.resolve(TransactionHistoryService);
         const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
         expect(transactionRepository.findManyByExpression).toBeCalledWith(expression);
-        expect(transactionModelConverter.getTransactionData).toBeCalledWith([]);
+        expect(modelConverter.getTransactionData).toBeCalledWith([]);
         expect(result).toBeUndefined();
     });
 
@@ -55,14 +71,14 @@ describe("TransactionHistoryService.findOneByCriteria", () => {
 
         transactionFilter.getExpression.mockResolvedValueOnce(expression);
         transactionRepository.findManyByExpression.mockResolvedValueOnce([model]);
-        transactionModelConverter.getTransactionData.mockReturnValueOnce([data]);
+        modelConverter.getTransactionData.mockReturnValueOnce([data]);
 
         const blockHistoryService = container.resolve(TransactionHistoryService);
         const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
         expect(transactionRepository.findManyByExpression).toBeCalledWith(expression);
-        expect(transactionModelConverter.getTransactionData).toBeCalledWith([model]);
+        expect(modelConverter.getTransactionData).toBeCalledWith([model]);
 
         expect(result).toBe(data);
     });
@@ -79,14 +95,14 @@ describe("TransactionHistoryService.findManyByCriteria", () => {
 
         transactionFilter.getExpression.mockResolvedValueOnce(expression);
         transactionRepository.findManyByExpression.mockResolvedValueOnce([model1, model2]);
-        transactionModelConverter.getTransactionData.mockReturnValueOnce([data1, data2]);
+        modelConverter.getTransactionData.mockReturnValueOnce([data1, data2]);
 
         const blockHistoryService = container.resolve(TransactionHistoryService);
         const result = await blockHistoryService.findManyByCriteria(criteria);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
         expect(transactionRepository.findManyByExpression).toBeCalledWith(expression);
-        expect(transactionModelConverter.getTransactionData).toBeCalledWith([model1, model2]);
+        expect(modelConverter.getTransactionData).toBeCalledWith([model1, model2]);
 
         expect(result.length).toBe(2);
         expect(result[0]).toBe(data1);
@@ -111,14 +127,14 @@ describe("TransactionHistoryService.listByCriteria", () => {
             count: 2,
             countIsEstimate: false,
         });
-        transactionModelConverter.getTransactionData.mockReturnValueOnce([data1, data2]);
+        modelConverter.getTransactionData.mockReturnValueOnce([data1, data2]);
 
         const blockHistoryService = container.resolve(TransactionHistoryService);
         const result = await blockHistoryService.listByCriteria(criteria, order, page);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
         expect(transactionRepository.listByExpression).toBeCalledWith(expression, order, page, undefined);
-        expect(transactionModelConverter.getTransactionData).toBeCalledWith([model1, model2]);
+        expect(modelConverter.getTransactionData).toBeCalledWith([model1, model2]);
         expect(result).toEqual({
             rows: [data1, data2],
             count: 2,
