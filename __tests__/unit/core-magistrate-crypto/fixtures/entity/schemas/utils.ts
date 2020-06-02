@@ -35,7 +35,7 @@ export const validAssetData: Interfaces.IEntityAssetData[] = [
 ];
 
 export const invalidAssetData: Interfaces.IEntityAssetData[] = [
-    { description: "description that is too long because it exceeds the max length of 140 characters. description that is too long because it exceeds the max length of 140 characters." },
+    { description: "description that is too long because it exceeds the max length of 250 characters. description that is too long because it exceeds the max length of 250 characters. description that is too long because it exceeds the max length of 250 characters. description that is too long" },
     { description: "description with invalid \u0000 char" },
     { website: "www.randomwebsite.co" },
     { website: "nothttp://randomwebsite.com" },
