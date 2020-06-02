@@ -55,13 +55,12 @@ describe("ServiceProvider.register", () => {
         expect(app.isBound(Container.Identifiers.DatabaseConnection)).toBe(true);
         expect(app.isBound(Container.Identifiers.DatabaseRoundRepository)).toBe(true);
         expect(app.isBound(Container.Identifiers.DatabaseBlockRepository)).toBe(true);
-        expect(app.isBound(Container.Identifiers.DatabaseBlockModelConverter)).toBe(true);
         expect(app.isBound(Container.Identifiers.DatabaseBlockFilter)).toBe(true);
         expect(app.isBound(Container.Identifiers.BlockHistoryService)).toBe(true);
         expect(app.isBound(Container.Identifiers.DatabaseTransactionRepository)).toBe(true);
-        expect(app.isBound(Container.Identifiers.DatabaseTransactionModelConverter)).toBe(true);
         expect(app.isBound(Container.Identifiers.DatabaseTransactionFilter)).toBe(true);
         expect(app.isBound(Container.Identifiers.TransactionHistoryService)).toBe(true);
+        expect(app.isBound(Container.Identifiers.DatabaseModelConverter)).toBe(true);
         expect(app.isBound(Container.Identifiers.DatabaseService)).toBe(true);
     });
 });
