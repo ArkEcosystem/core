@@ -31,7 +31,7 @@
         "@arkecosystem/utils": "^1.1.7",
         "ajv": "^6.10.2",
         "ajv-keywords": "^3.4.1",
-        "bcrypto": "^4.2.9",
+        "bcrypto": "^5.1.0",
         "bip32": "^2.0.4",
         "bip39": "^3.0.2",
         "browserify-aes": "^1.2.0",

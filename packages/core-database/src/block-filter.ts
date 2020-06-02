@@ -7,13 +7,13 @@ const { handleAndCriteria, handleOrCriteria, handleNumericCriteria, optimizeExpr
 @Container.injectable()
 export class BlockFilter implements Contracts.Database.BlockFilter {
     public async getExpression(
-        criteria: Contracts.Shared.OrBlockCriteria,
+        ...criteria: Contracts.Shared.OrBlockCriteria[]
     ): Promise<Contracts.Search.Expression<Block>> {
-        const expression = await handleOrCriteria(criteria, (c) => {
-            return this.handleBlockCriteria(c);
-        });
+        const expressions = await Promise.all(
+            criteria.map((c) => handleOrCriteria(c, (c) => this.handleBlockCriteria(c))),
+        );
 
-        return optimizeExpression(expression);
+        return optimizeExpression({ op: "and", expressions });
     }
 
     private async handleBlockCriteria(
@@ -74,7 +74,7 @@ export class BlockFilter implements Contracts.Database.BlockFilter {
                         return { property: "blockSignature", op: "equal", value: c };
                     });
                 default:
-                    return { op: "void" };
+                    return { op: "true" };
             }
         });
     }

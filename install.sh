@@ -98,7 +98,7 @@ if [[ ! -z $DEB ]]; then
     sudo apt-get install -y git curl apt-transport-https update-notifier
 elif [[ ! -z $RPM ]]; then
     sudo yum update -y
-    sudo yum install git curl epel-release -y
+    sudo yum install git curl epel-release --skip-broken -y
 fi
 
 success "Installed system dependencies!"
@@ -149,10 +149,10 @@ success "Installed PM2!"
 heading "Installing program dependencies..."
 
 if [[ ! -z $DEB ]]; then
-    sudo apt-get install build-essential libcairo2-dev pkg-config libtool autoconf automake python libpq-dev jq -y
+    sudo apt-get install build-essential libcairo2-dev pkg-config libtool autoconf automake python libpq-dev jq libjemalloc-dev -y
 elif [[ ! -z $RPM ]]; then
     sudo yum groupinstall "Development Tools" -y -q
-    sudo yum install postgresql-devel jq -y -q
+    sudo yum install postgresql-devel jq jemalloc-devel -y -q
 fi
 
 success "Installed program dependencies!"
@@ -169,7 +169,8 @@ elif [[ ! -z $RPM ]]; then
         sudo service postgresql initdb
         sudo service postgresql start
     else
-        sudo postgresql-setup initdb
+        sudo postgresql-setup initdb || true 
+        sudo sed -i  '/^host    all             all             127.0.0.1\/32            ident/ s/ident/md5/' /var/lib/pgsql/data/pg_hba.conf > /dev/null 2>&1 || true
         sudo systemctl start postgresql
     fi
 fi
@@ -182,12 +183,16 @@ sudo timedatectl set-ntp off > /dev/null 2>&1 || true # disable the default syst
 
 if [[ ! -z $DEB ]]; then
     sudo apt-get install ntp -yyq
-elif [[ ! -z $RPM ]]; then
-    sudo yum install ntp -y -q
-fi
+    if [ -z "$(sudo service ntp status |grep running)" ] ; then
+       sudo ntpd -gq 
+    fi
 
-if [ -z "$(sudo service ntp status |grep running)" ] ; then
-    sudo ntpd -gq
+elif [[ ! -z $RPM ]]; then
+    sudo yum install chrony -y -q  
+
+    if [ -z "$(sudo service chronyd status |grep running)" ] ; then
+       sudo chronyd -q
+    fi
 fi
 
 success "Installed NTP!"
@@ -202,7 +207,7 @@ if [[ ! -z $DEB ]]; then
     sudo apt-get autoclean -yq
 elif [[ ! -z $RPM ]]; then
     sudo yum update
-    sudo yum clean
+    sudo yum clean all
 fi
 
 success "Installed system updates!"

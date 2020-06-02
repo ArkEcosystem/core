@@ -119,6 +119,34 @@ describe("ForgerService", () => {
         };
     });
 
+    describe("GetRound", () => {
+        it("should return undefined", async () => {
+            forgerService.register({ hosts: [mockHost] });
+
+            expect(forgerService.getRound()).toBeUndefined();
+        });
+    });
+
+    describe("GetRemainingSlotTime", () => {
+        it("should return undefined", async () => {
+            forgerService.register({ hosts: [mockHost] });
+
+            // @ts-ignore
+            const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
+            spyGetNetworkState.mockResolvedValue(mockNetworkState);
+
+            await expect(forgerService.getRemainingSlotTime()).resolves.toBeNumber();
+        });
+    });
+
+  describe("GetLastForgedBlock", () => {
+        it("should return undefined", async () => {
+            forgerService.register({ hosts: [mockHost] });
+
+            expect(forgerService.getLastForgedBlock()).toBeUndefined();
+        });
+    });
+
     describe("Register", () => {
         it("should register an associated client", async () => {
             forgerService.register({ hosts: [mockHost] });

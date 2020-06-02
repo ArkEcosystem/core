@@ -36,6 +36,12 @@
             },
             {
                 "package": "@arkecosystem/core-forger"
+            },
+            {
+                "package": "@arkecosystem/core-snapshots"
+            },
+            {
+                "package": "@arkecosystem/core-manager"
             }
         ]
     },
@@ -100,6 +106,9 @@
         "plugins": [
             {
                 "package": "@arkecosystem/core-logger-pino"
+            },
+            {
+                "package": "@arkecosystem/core-snapshots"
             },
             {
                 "package": "@arkecosystem/core-manager"

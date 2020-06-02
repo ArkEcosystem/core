@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Controller } from "@packages/core-api/src/controllers/controller";
-import { BlockResource } from "@packages/core-api/src/resources";
+import { BlockResource, BlockWithTransactionsResource } from "@packages/core-api/src/resources";
 import { Application } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
@@ -53,7 +53,7 @@ describe("Controller", () => {
 
     describe("toCollection", () => {
         it("should return raw data", async () => {
-            const data = [
+            const resources = [
                 {
                     id: "17184958558311101492",
                     version: 2,
@@ -66,7 +66,7 @@ describe("Controller", () => {
                 },
             ];
 
-            const expected = data.map((d) =>
+            const expected = resources.map((d) =>
                 Object.assign({}, d, {
                     reward: d.reward.toFixed(),
                     totalFee: d.totalFee.toFixed(),
@@ -74,24 +74,27 @@ describe("Controller", () => {
                 }),
             );
 
-            expect(controller.runToCollection(data, BlockResource, false)).toStrictEqual(expected);
+            expect(controller.runToCollection(resources, BlockResource, false)).toStrictEqual(expected);
         });
 
         it("should return transformed data", async () => {
-            const data = [
+            const resources = [
                 {
-                    id: "17184958558311101492",
-                    version: 2,
-                    height: 2,
-                    timestamp: 2,
-                    reward: Utils.BigNumber.make("100"),
-                    totalFee: Utils.BigNumber.make("200"),
-                    totalAmount: Utils.BigNumber.make("300"),
-                    generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    data: {
+                        id: "17184958558311101492",
+                        version: 2,
+                        height: 2,
+                        timestamp: 2,
+                        reward: Utils.BigNumber.make("100"),
+                        totalFee: Utils.BigNumber.make("200"),
+                        totalAmount: Utils.BigNumber.make("300"),
+                        generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                    },
+                    transactions: [],
                 },
             ];
 
-            expect(controller.runToCollection(data, BlockResource, true)[0]).toEqual(
+            expect(controller.runToCollection(resources, BlockWithTransactionsResource, true)[0]).toEqual(
                 expect.objectContaining({
                     height: 2,
                     id: "17184958558311101492",

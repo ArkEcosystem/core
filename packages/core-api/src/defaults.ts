@@ -38,4 +38,7 @@ export const defaults = {
         },
         whitelist: ["*"],
     },
+    options: {
+        estimateTotalCount: !process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT,
+    },
 };

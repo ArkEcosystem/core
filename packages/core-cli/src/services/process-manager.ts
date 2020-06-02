@@ -165,6 +165,14 @@ export class ProcessManager {
     }
 
     /**
+     * @returns {ExecaSyncReturnValue}
+     * @memberof ProcessManager
+     */
+    public trigger(id: ProcessIdentifier, processActionName: string, param?: string): ExecaSyncReturnValue {
+        return this.shellSync(`pm2 trigger ${id} ${processActionName} ${param}`);
+    }
+
+    /**
      * @param {ProcessIdentifier} id
      * @returns {(ProcessState | undefined)}
      * @memberof ProcessManager

@@ -403,21 +403,6 @@ describe("TransactionRepository.getRefundedHtlcLockBalances", () => {
     });
 });
 
-describe("TransactionRepository.findOneByExpression", () => {
-    it("should return single entity by id equal expression", async () => {
-        const blockRepository = getCustomRepository(BlockRepository);
-        const transactionRepository = getCustomRepository(TransactionRepository);
-        await blockRepository.saveBlocks([block1, block2, block3]);
-        const transaction1ById = await transactionRepository.findOneByExpression({
-            property: "id",
-            op: "equal",
-            value: transaction1.id,
-        });
-        expect(transaction1ById.id).toEqual(transaction1.id);
-        expect(transaction1ById.serialized).toEqual(transaction1.serialized);
-    });
-});
-
 describe("TransactionRepository.findManyByExpression", () => {
     it("should return single entity by id equal expression", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
@@ -453,7 +438,7 @@ describe("TransactionRepository.listByExpression", () => {
             },
             [],
             { offset: 0, limit: 2 },
-            { estimateCount: false },
+            { estimateTotalCount: false },
         );
         expect(listResult.count).toBe(3);
         expect(listResult.countIsEstimate).toBe(false);
@@ -477,7 +462,7 @@ describe("TransactionRepository.listByExpression", () => {
             },
             [],
             { offset: 0, limit: 2 },
-            { estimateCount: true },
+            { estimateTotalCount: true },
         );
         expect(listResult.countIsEstimate).toBe(true);
         expect(listResult.rows.length).toBe(2);
