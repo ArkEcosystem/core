@@ -51,6 +51,7 @@ export const Identifiers = {
     QueueFactory: Symbol.for("Factory<Queue>"),
 
     // Database
+    DatabaseLogger: Symbol.for("Database<Logger>"),
     DatabaseConnection: Symbol.for("Database<Connection>"),
     DatabaseRoundRepository: Symbol.for("Database<RoundRepository>"),
     DatabaseBlockRepository: Symbol.for("Database<BlockRepository>"),
