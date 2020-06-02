@@ -12,11 +12,11 @@ container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockF
 
 describe("BlockFilter.getExpression", () => {
     describe("BlockCriteria.unknown", () => {
-        it("should return void expression", async () => {
+        it("should return true expression", async () => {
             const blockFilter = container.resolve(BlockFilter);
             const expression = await blockFilter.getExpression({ unknown: "123" } as any);
 
-            expect(expression).toEqual({ op: "void" });
+            expect(expression).toEqual({ op: "true" });
         });
     });
 

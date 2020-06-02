@@ -18,13 +18,13 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async getExpression(
-        criteria: Contracts.Shared.OrTransactionCriteria,
+        ...criteria: Contracts.Shared.OrTransactionCriteria[]
     ): Promise<Contracts.Search.Expression<Transaction>> {
-        const expression = await handleOrCriteria(criteria, (c) => {
-            return this.handleTransactionCriteria(c);
-        });
+        const expressions = await Promise.all(
+            criteria.map((c) => handleOrCriteria(c, (c) => this.handleTransactionCriteria(c))),
+        );
 
-        return optimizeExpression(expression);
+        return optimizeExpression({ op: "and", expressions });
     }
 
     private async handleTransactionCriteria(
@@ -32,8 +32,18 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     ): Promise<Contracts.Search.Expression<Transaction>> {
         const expression: Contracts.Search.Expression<Transaction> = await handleAndCriteria(criteria, async (key) => {
             switch (key) {
+                case "address":
+                    return handleOrCriteria(criteria.address!, async (c) => {
+                        return this.handleAddressCriteria(c);
+                    });
                 case "senderId":
-                    return handleOrCriteria(criteria.senderId!, (c) => this.handleSenderIdCriteria(c));
+                    return handleOrCriteria(criteria.senderId!, async (c) => {
+                        return this.handleSenderIdCriteria(c);
+                    });
+                case "recipientId":
+                    return handleOrCriteria(criteria.recipientId!, async (c) => {
+                        return this.handleRecipientIdCriteria(c);
+                    });
                 case "id":
                     return handleOrCriteria(criteria.id!, async (c) => {
                         return { property: "id", op: "equal", value: c };
@@ -62,10 +72,6 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
                     return handleOrCriteria(criteria.senderPublicKey!, async (c) => {
                         return { property: "senderPublicKey", op: "equal", value: c };
                     });
-                case "recipientId":
-                    return handleOrCriteria(criteria.recipientId!, (c) => {
-                        return this.handleRecipientIdCriteria(c);
-                    });
                 case "type":
                     return handleOrCriteria(criteria.type!, async (c) => {
                         return { property: "type", op: "equal", value: c };
@@ -91,11 +97,22 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
                         return { property: "asset", op: "contains", value: c };
                     });
                 default:
-                    return { op: "void" };
+                    return { op: "true" };
             }
         });
 
         return { op: "and", expressions: [expression, await this.getAutoTypeGroupExpression(criteria)] };
+    }
+
+    private async handleAddressCriteria(
+        criteria: Contracts.Search.EqualCriteria<string>,
+    ): Promise<Contracts.Search.Expression<Transaction>> {
+        const expressions: Contracts.Search.Expression<Transaction>[] = await Promise.all([
+            this.handleSenderIdCriteria(criteria),
+            this.handleRecipientIdCriteria(criteria),
+        ]);
+
+        return { op: "or", expressions };
     }
 
     private async handleSenderIdCriteria(
@@ -119,9 +136,18 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
             value: criteria,
         };
 
+        const multipaymentRecipientIdExpression: Contracts.Search.AndExpression<Transaction> = {
+            op: "and",
+            expressions: [
+                { op: "equal", property: "typeGroup", value: Enums.TransactionTypeGroup.Core },
+                { op: "equal", property: "type", value: Enums.TransactionType.MultiPayment },
+                { op: "contains", property: "asset", value: { payment: [{ recipientId: criteria }] } },
+            ],
+        };
+
         const recipientWallet = this.walletRepository.findByAddress(criteria);
         if (recipientWallet && recipientWallet.publicKey) {
-            const senderPublicKeyExpression: Contracts.Search.AndExpression<Transaction> = {
+            const delegateRegistrationExpression: Contracts.Search.AndExpression<Transaction> = {
                 op: "and",
                 expressions: [
                     { op: "equal", property: "typeGroup", value: Enums.TransactionTypeGroup.Core },
@@ -130,9 +156,15 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
                 ],
             };
 
-            return { op: "or", expressions: [recipientIdExpression, senderPublicKeyExpression] };
+            return {
+                op: "or",
+                expressions: [recipientIdExpression, multipaymentRecipientIdExpression, delegateRegistrationExpression],
+            };
         } else {
-            return recipientIdExpression;
+            return {
+                op: "or",
+                expressions: [recipientIdExpression, multipaymentRecipientIdExpression],
+            };
         }
     }
 
@@ -142,7 +174,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
         if (hasOrCriteria(criteria.type) && hasOrCriteria(criteria.typeGroup) === false) {
             return { op: "equal", property: "typeGroup", value: Enums.TransactionTypeGroup.Core };
         } else {
-            return { op: "void" };
+            return { op: "true" };
         }
     }
 }

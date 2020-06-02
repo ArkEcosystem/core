@@ -21,6 +21,7 @@ let walletRepository: Wallets.WalletRepository;
 
 const blockHistoryService = {
     listByCriteria: jest.fn(),
+    listByCriteriaJoinTransactions: jest.fn(),
 };
 
 beforeEach(() => {
@@ -32,7 +33,9 @@ beforeEach(() => {
 
     controller = app.resolve<DelegatesController>(DelegatesController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+
     blockHistoryService.listByCriteria.mockReset();
+    blockHistoryService.listByCriteriaJoinTransactions.mockReset();
 });
 
 afterEach(() => {
@@ -211,8 +214,8 @@ describe("DelegatesController", () => {
                 timestamp: 2,
             };
 
-            blockHistoryService.listByCriteria.mockResolvedValue({
-                rows: [mockBlock],
+            blockHistoryService.listByCriteriaJoinTransactions.mockResolvedValue({
+                rows: [{ data: mockBlock, transactions: [] }],
                 count: 1,
                 countIsEstimate: false,
             });

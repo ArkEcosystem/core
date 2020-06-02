@@ -23,6 +23,7 @@ let walletRepository: Wallets.WalletRepository;
 const blockHistoryService = {
     findOneByCriteria: jest.fn(),
     listByCriteria: jest.fn(),
+    listByCriteriaJoinTransactions: jest.fn(),
 };
 const transactionHistoryService = {
     listByCriteria: jest.fn(),
@@ -125,8 +126,8 @@ describe("BlocksController", () => {
         });
 
         it("should return last block from store - transformed", async () => {
-            blockHistoryService.listByCriteria.mockResolvedValue({
-                rows: [mockBlock],
+            blockHistoryService.listByCriteriaJoinTransactions.mockResolvedValue({
+                rows: [{ data: mockBlock, transactions: [] }],
                 count: 1,
                 countIsEstimate: false,
             });

@@ -1,7 +1,11 @@
 import "jest-extended";
 
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Application, Container, Services } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-transaction-pool/src";
+import { fork } from "child_process";
+
+jest.mock("child_process");
 
 let app: Application;
 
@@ -33,5 +37,15 @@ describe("ServiceProvider", () => {
 
     it("should be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeTrue();
+    });
+
+    it("should provide TransactionPoolWorkerIpcSubprocessFactory", async () => {
+        await expect(serviceProvider.register()).toResolve();
+        const subprocessFactory = app.get<Contracts.TransactionPool.WorkerIpcSubprocessFactory>(
+            Container.Identifiers.TransactionPoolWorkerIpcSubprocessFactory,
+        );
+        (fork as jest.Mock).mockReturnValueOnce({ on: jest.fn() });
+        subprocessFactory();
+        expect(fork).toBeCalled();
     });
 });

@@ -22,13 +22,17 @@ export class Processor implements Contracts.TransactionPool.Processor {
     @Container.inject(Container.Identifiers.TransactionPoolDynamicFeeMatcher)
     private readonly dynamicFeeMatcher!: Contracts.TransactionPool.DynamicFeeMatcher;
 
+    @Container.inject(Container.Identifiers.TransactionPoolWorkerPool)
+    private readonly workerPool!: Contracts.TransactionPool.WorkerPool;
+
     @Container.inject(Container.Identifiers.PeerTransactionBroadcaster)
     @Container.optional()
     private readonly transactionBroadcaster!: Contracts.P2P.TransactionBroadcaster | undefined;
 
     public async process(data: Interfaces.ITransactionData[]): Promise<void> {
         const broadcastableTransactions: Interfaces.ITransaction[] = [];
-        const transactions = data.map((d) => this.transactionsManager.TransactionFactory.fromData(d));
+        const promises = data.map((d) => this.getTransactionFromData(d));
+        const transactions = await Promise.all(promises);
 
         try {
             for (const transaction of transactions) {
@@ -72,6 +76,16 @@ export class Processor implements Contracts.TransactionPool.Processor {
                     this.broadcast.push(transaction.id);
                 }
             }
+        }
+    }
+
+    private async getTransactionFromData(
+        transactionData: Interfaces.ITransactionData,
+    ): Promise<Interfaces.ITransaction> {
+        if (this.workerPool.isTypeGroupSupported(transactionData.typeGroup!)) {
+            return this.workerPool.getTransactionFromData(transactionData);
+        } else {
+            return this.transactionsManager.TransactionFactory.fromData(transactionData);
         }
     }
 }

@@ -13,9 +13,9 @@ const spyOnCreateConnection = jest.spyOn(typeorm, "createConnection").mockResolv
 } as any);
 
 ServiceProvider.prototype.config = jest.fn().mockReturnValue({
-    all() {
-        return {};
-    },
+    all: jest.fn().mockReturnValue({
+        connection: {},
+    }),
 });
 
 beforeEach(() => {

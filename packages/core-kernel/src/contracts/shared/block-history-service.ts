@@ -1,4 +1,5 @@
-import { Interfaces } from "@arkecosystem/core-crypto";
+import { Interfaces as BlockInterfaces } from "@arkecosystem/core-crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { Types } from "@arkecosystem/crypto";
 
 import {
@@ -10,6 +11,7 @@ import {
     OrEqualCriteria,
     OrNumericCriteria,
 } from "../search";
+import { OrTransactionCriteria } from "./transaction-history-service";
 
 export type BlockCriteria = {
     id?: OrEqualCriteria<string>;
@@ -29,13 +31,38 @@ export type BlockCriteria = {
 
 export type OrBlockCriteria = OrCriteria<BlockCriteria>;
 
+export type BlockDataWithTransactionData = {
+    data: BlockInterfaces.IBlockData;
+    transactions: Interfaces.ITransactionData[];
+};
+
 export interface BlockHistoryService {
-    findOneByCriteria(criteria: OrBlockCriteria): Promise<Interfaces.IBlockData | undefined>;
-    findManyByCriteria(criteria: OrBlockCriteria): Promise<Interfaces.IBlockData[]>;
+    findOneByCriteria(criteria: OrBlockCriteria): Promise<BlockInterfaces.IBlockData | undefined>;
+
+    findManyByCriteria(criteria: OrBlockCriteria): Promise<BlockInterfaces.IBlockData[]>;
+
     listByCriteria(
         criteria: OrBlockCriteria,
         order: ListOrder,
         page: ListPage,
         options?: ListOptions,
-    ): Promise<ListResult<Interfaces.IBlockData>>;
+    ): Promise<ListResult<BlockInterfaces.IBlockData>>;
+
+    findOneByCriteriaJoinTransactions(
+        blockCriteria: OrBlockCriteria,
+        transactionCriteria: OrTransactionCriteria,
+    ): Promise<BlockDataWithTransactionData | undefined>;
+
+    findManyByCriteriaJoinTransactions(
+        blockCriteria: OrBlockCriteria,
+        transactionCriteria: OrTransactionCriteria,
+    ): Promise<BlockDataWithTransactionData[]>;
+
+    listByCriteriaJoinTransactions(
+        blockCriteria: OrBlockCriteria,
+        transactionCriteria: OrTransactionCriteria,
+        order: ListOrder,
+        page: ListPage,
+        options?: ListOptions,
+    ): Promise<ListResult<BlockDataWithTransactionData>>;
 }

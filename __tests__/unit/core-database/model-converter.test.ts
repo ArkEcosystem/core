@@ -1,11 +1,12 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { CryptoSuite } from "@packages/core-crypto";
 
-import { TransactionModelConverter } from "../../../packages/core-database/src/transaction-model-converter";
+import { ModelConverter } from "../../../packages/core-database/src/model-converter";
 import { makeMockBlock } from "./__fixtures__/block1760000";
 
-const container = new Container.Container();
 const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("devnet"));
+
+const container = new Container.Container();
 
 container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
 container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
@@ -20,19 +21,30 @@ const getTimeStampForBlock = (height: number): number => {
     }
 };
 
-describe("TransactionModelConverter", () => {
+describe("ModelConverter.getTransactionData", () => {
     it("should convert transaction to model and back to data", () => {
-        const transactionModelConverter = container.resolve(TransactionModelConverter);
+        const modelConverter = container.resolve(ModelConverter);
         const transaction = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock)
             .transactions[0];
-        const model = transactionModelConverter.getTransactionModel(transaction);
-        model.nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1"); // set_row_nonce trigger
-        const data = transactionModelConverter.getTransactionData(model);
+        const models = modelConverter.getTransactionModels([transaction]);
+        models[0].nonce = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1"); // set_row_nonce trigger
+        const data = modelConverter.getTransactionData(models);
 
-        expect(data).toEqual(
+        expect(data).toEqual([
             Object.assign({}, transaction.data, {
                 nonce: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("1"),
             }),
-        );
+        ]);
+    });
+});
+
+describe("ModelConverter.getBlockData", () => {
+    it("should convert block to model and back to data", () => {
+        const modelConverter = container.resolve(ModelConverter);
+        const block = crypto.BlockFactory.fromData(makeMockBlock(crypto.CryptoManager), getTimeStampForBlock);
+        const models = modelConverter.getBlockModels([block]);
+        const data = modelConverter.getBlockData(models);
+
+        expect(data).toEqual([block.data]);
     });
 });
