@@ -1,10 +1,13 @@
-import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
 
 @Container.injectable()
 export class Service implements Contracts.TransactionPool.Service {
+    @Container.inject(Container.Identifiers.Application)
+    public readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -160,6 +163,8 @@ export class Service implements Contracts.TransactionPool.Service {
             if (await this.expirationService.isExpired(transaction)) {
                 this.logger.warning(`${transaction} expired`);
                 await this.removeTransaction(transaction);
+
+                this.app.events.dispatch(Enums.TransactionEvent.Expired, transaction.data);
             }
         }
     }
