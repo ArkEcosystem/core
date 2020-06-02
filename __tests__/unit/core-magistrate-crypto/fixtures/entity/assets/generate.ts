@@ -3,6 +3,7 @@ import {
     EntitySubType,
     EntityAction
 } from "@arkecosystem/core-magistrate-crypto/src/enums";
+import { IEntityAsset } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
 
 const allTypes = [
     EntityType.Business,
@@ -16,9 +17,9 @@ const allSubTypes = [
     EntitySubType.PluginDesktop,
 ];
 const allActions = [
-    EntityAction.Registration,
+    EntityAction.Register,
     EntityAction.Update,
-    EntityAction.Resignation,
+    EntityAction.Resign,
 ];
 const registrationIds = [
     undefined,
@@ -83,7 +84,7 @@ const baseAssets = [
     {
         type: EntityType.Plugin,
         subType: EntitySubType.PluginDesktop,
-        action: EntityAction.Registration,
+        action: EntityAction.Register,
         registrationId: undefined
     }
 ];
@@ -91,7 +92,7 @@ const baseAssets = [
 export const generateAssets = () => {
     // generate all combinations of { type, subType, action, registrationId}
     // with the same { data }
-    const assets: any[] = []; // TODO any => real interface
+    const assets: IEntityAsset[] = [];
     for (const type of allTypes) {
         for (const subType of allSubTypes) {
             for (const action of allActions) {

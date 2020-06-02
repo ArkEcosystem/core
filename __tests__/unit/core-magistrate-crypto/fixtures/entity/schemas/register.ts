@@ -1,0 +1,50 @@
+import { Enums } from "@arkecosystem/core-magistrate-crypto";
+import { validAssetData, invalidAssetData } from "./utils";
+
+export const validRegisters = [
+    {
+        type: Enums.EntityType.Plugin,
+        subType: Enums.EntitySubType.PluginDesktop,
+        action: Enums.EntityAction.Register,
+        data: {
+            name: "my plugin for desktop wallet"
+        }
+    },
+    ...validAssetData.map(data => ({
+        type: Enums.EntityType.Developer,
+        subType: Enums.EntitySubType.None,
+        action: Enums.EntityAction.Update,
+        data
+    }))
+];
+
+export const invalidRegisters = [
+    {
+        type: Enums.EntityType.Plugin,
+        subType: Enums.EntitySubType.PluginDesktop,
+        action: Enums.EntityAction.Register,
+        data: {} // should have at least a name
+    },
+    {
+        type: Enums.EntityType.Plugin,
+        subType: Enums.EntitySubType.PluginDesktop,
+        action: Enums.EntityAction.Register,
+        data: {
+            name: "my plugin for desktop wallet that has a name too loong" // name max 40 characters
+        }
+    },
+    {
+        type: Enums.EntityType.Plugin,
+        subType: Enums.EntitySubType.PluginDesktop,
+        action: Enums.EntityAction.Register,
+        data: {
+            name: "invalid \u0000 char"
+        }
+    },
+    ...invalidAssetData.map(data => ({
+        type: Enums.EntityType.Developer,
+        subType: Enums.EntitySubType.None,
+        action: Enums.EntityAction.Update,
+        data
+    }))
+];
