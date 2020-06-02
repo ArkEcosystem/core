@@ -1,4 +1,5 @@
-import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums as AppEnums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { postConstruct } from "@arkecosystem/core-kernel/dist/ioc";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
@@ -7,6 +8,9 @@ import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./error
 export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
+
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
@@ -23,6 +27,13 @@ export class Service implements Contracts.TransactionPool.Service {
 
     @Container.inject(Container.Identifiers.TransactionPoolExpirationService)
     private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
+
+    @postConstruct()
+    public initialize() {
+        this.emitter.listen(AppEnums.CryptoEvent.MilestoneChanged, {
+            handle: () => this.readdTransactions(),
+        });
+    }
 
     public async boot(): Promise<void> {
         if (process.env.CORE_RESET_DATABASE) {
