@@ -58,4 +58,5 @@ export const register = {
 export const resign = {
     type: "object",
     additionalProperties: false,
+    maxProperties: 0,
 }
