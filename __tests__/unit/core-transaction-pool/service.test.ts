@@ -1,4 +1,4 @@
-import { Container, Contracts } from "@packages/core-kernel";
+import { Container, Contracts, Enums } from "@packages/core-kernel";
 import { Sandbox } from "@packages/core-test-framework";
 import { Service } from "@packages/core-transaction-pool/src/service";
 import { Identities, Managers, Transactions } from "@packages/crypto";
@@ -149,6 +149,12 @@ describe("Service.addTransaction", () => {
 
         expect(storage.addTransaction).toBeCalledWith(transaction1);
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
+
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledTimes(1);
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledWith(
+            Enums.TransactionEvent.AddedToPool,
+            expect.anything(),
+        );
     });
 
     it("should remove transaction from storage that failed adding to mempool", async () => {
@@ -162,6 +168,11 @@ describe("Service.addTransaction", () => {
         await expect(promise).rejects.toBeInstanceOf(Error);
         expect(storage.addTransaction).toBeCalledWith(transaction1);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledWith(
+            Enums.TransactionEvent.RejectedByPool,
+            expect.anything(),
+        );
     });
 
     it("should remove expired transactions when pool is full", async () => {
@@ -178,6 +189,11 @@ describe("Service.addTransaction", () => {
         expect(expirationService.isExpired).toBeCalledWith(transaction2);
         expect(mempool.removeTransaction).toBeCalledWith(transaction2);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledWith(
+            Enums.TransactionEvent.RemovedFromPool,
+            expect.anything(),
+        );
     });
 
     it("should throw if fee isn't higher than lowest priority transaction when pool is full", async () => {
@@ -192,6 +208,11 @@ describe("Service.addTransaction", () => {
 
         await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
         await expect(promise).rejects.toHaveProperty("type", "ERR_POOL_FULL");
+
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledWith(
+            Enums.TransactionEvent.RejectedByPool,
+            expect.anything(),
+        );
     });
 
     it("should remove low priority transactions when pool is full", async () => {
@@ -219,6 +240,11 @@ describe("Service.addTransaction", () => {
 
         expect(mempool.removeTransaction).toBeCalledWith(transaction2);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledWith(
+            Enums.TransactionEvent.RemovedFromPool,
+            expect.anything(),
+        );
     });
 });
 
@@ -242,6 +268,11 @@ describe("Service.removeTransaction", () => {
         expect(mempool.removeTransaction).toBeCalledWith(transaction1);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledWith(
+            Enums.TransactionEvent.RemovedFromPool,
+            expect.anything(),
+        );
     });
 
     it("should log error if transaction wasn't found in mempool", async () => {
@@ -359,7 +390,8 @@ describe("Service.cleanUp", () => {
 
         expect(mempool.removeTransaction).toBeCalledWith(transaction2);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
-        expect(eventDispatcherService.dispatch).toHaveBeenCalledTimes(1);
+
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.Expired, expect.anything());
     });
 
     it("should remove lowest priority transactions", async () => {

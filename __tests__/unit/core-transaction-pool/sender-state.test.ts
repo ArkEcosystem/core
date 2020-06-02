@@ -1,15 +1,14 @@
-import { Container, Contracts } from "@packages/core-kernel";
-import { Crypto, Interfaces, Managers } from "@packages/crypto";
-
-import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
-import { Sandbox } from "@packages/core-test-framework";
+import { Container, Contracts, Enums } from "@packages/core-kernel";
 import { Services } from "@packages/core-kernel/dist";
+import { Sandbox } from "@packages/core-test-framework";
 import {
     ApplyTransactionAction,
     RevertTransactionAction,
     ThrowIfCannotEnterPoolAction,
     VerifyTransactionAction,
 } from "@packages/core-transaction-pool/src/actions";
+import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
+import { Crypto, Interfaces, Managers } from "@packages/crypto";
 
 jest.mock("@packages/crypto");
 
@@ -116,6 +115,7 @@ describe("SenderState.apply", () => {
         await expect(promise).rejects.toHaveProperty("type", "ERR_EXPIRED");
 
         expect(eventDispatcherService.dispatch).toHaveBeenCalledTimes(1);
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.Expired, expect.anything());
     });
 
     it("should throw when transaction fails to verify", async () => {
