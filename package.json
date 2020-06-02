@@ -57,7 +57,6 @@
         "@faustbrian/benchmarker": "^0.1.2",
         "@oclif/dev-cli": "^1.22.2",
         "@types/babel__core": "^7.1.6",
-        "@types/bytebuffer": "^5.0.1",
         "@types/create-hash": "^1.2.2",
         "@types/depcheck": "^0.9.1",
         "@types/jest": "^25.1.4",
