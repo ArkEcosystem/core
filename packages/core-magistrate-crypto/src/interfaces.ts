@@ -39,27 +39,9 @@ export interface IBridgechainResignationAsset {
     bridgechainId: string;
 }
 
-export interface IEntityAssetSourceControl {
-    github?: string;
-    gitlab?: string;
-    bitbucket?: string;
-    npmjs?: string;
-}
-
-export interface IEntityAssetSocialMedia {
-    twitter?: string;
-    facebook?: string;
-    linkedin?: string;
-}
-
 export interface IEntityAssetData {
     name?: string;
-    description?: string;
-    website?: string;
-    sourceControl?: IEntityAssetSourceControl;
-    socialMedia?: IEntityAssetSocialMedia;
-    images?: string[];
-    videos?: string[];
+    ipfsData?: string;
 }
 
 export interface IEntityAsset {

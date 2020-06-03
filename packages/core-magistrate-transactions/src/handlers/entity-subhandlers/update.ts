@@ -155,38 +155,9 @@ export class EntityUpdateSubHandler {
     ): Promise<void> {}
 
     private mergeAssetData(baseData: IEntityAssetData, dataToMerge: IEntityAssetData): IEntityAssetData {
-        const stringProperties = ["name", "description", "website"];
-        const arrayProperties = ["images", "videos"];
-        const objectProperties = ["socialMedia", "sourceControl"]; // only nested one level
-
-        const merged = {};
-        for (const prop of stringProperties) {
-            if (baseData[prop] !== undefined) {
-                merged[prop] = baseData[prop];
-            }
-            if (dataToMerge[prop] !== undefined) {
-                merged[prop] = dataToMerge[prop];
-            }
-        }
-
-        for (const prop of arrayProperties) {
-            if (baseData[prop] !== undefined) {
-                merged[prop] = [...baseData[prop]];
-            }
-            if (dataToMerge[prop] !== undefined) {
-                merged[prop] = [...dataToMerge[prop]];
-            }
-        }
-
-        for (const prop of objectProperties) {
-            if (baseData[prop] !== undefined) {
-                merged[prop] = {...baseData[prop]};
-            }
-            if (dataToMerge[prop] !== undefined) {
-                merged[prop] = {...dataToMerge[prop]};
-            }
-        }
-
-        return merged;
+        return {
+            ...baseData,
+            ...dataToMerge,
+        };
     }
 }
