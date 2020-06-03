@@ -51,13 +51,18 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public async connect(): Promise<Connection> {
-        const options: Record<string, any> = this.config().all();
+        const connection: Record<string, any> = this.config().all().connection as any;
         this.app
             .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
             .dispatch(DatabaseEvent.PRE_CONNECT);
 
+        if (this.app.isBound(Container.Identifiers.DatabaseLogger)) {
+            connection.logging = "all";
+            connection.logger = this.app.get(Container.Identifiers.DatabaseLogger);
+        }
+
         return createConnection({
-            ...options.connection,
+            ...(connection as any),
             namingStrategy: new SnakeNamingStrategy(),
             migrations: [__dirname + "/migrations/*.js"],
             migrationsRun: true,

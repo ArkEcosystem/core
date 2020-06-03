@@ -1,4 +1,4 @@
-import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Services } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
@@ -48,6 +48,8 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         }
 
         if (await this.expirationService.isExpired(transaction)) {
+            this.app.events.dispatch(Enums.TransactionEvent.Expired, transaction.data);
+
             const expirationHeight: number = await this.expirationService.getExpirationHeight(transaction);
             throw new TransactionHasExpiredError(transaction, expirationHeight);
         }

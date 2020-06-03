@@ -34,7 +34,7 @@ beforeEach(() => {
     app.bind(Container.Identifiers.FilesystemService).toConstantValue({});
     app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(mockEventDispatcher);
 
-    defaults.storage = dirSync().name + "/events.sqlite";
+    defaults.watcher.storage = dirSync().name + "/events.sqlite";
     defaults.server.https.tls.key = path.resolve(__dirname, "./__fixtures__/key.pem");
     defaults.server.https.tls.cert = path.resolve(__dirname, "./__fixtures__/server.crt");
 });
