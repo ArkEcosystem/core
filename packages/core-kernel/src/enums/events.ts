@@ -108,3 +108,12 @@ export enum TransactionEvent {
     RemovedFromPool = "transaction.pool.removed",
     Reverted = "transaction.reverted",
 }
+
+/**
+ * @export
+ * @enum {number}
+ */
+export enum QueueEvent {
+    Finished = "queue.finished",
+    Failed = "queue.finished",
+}
