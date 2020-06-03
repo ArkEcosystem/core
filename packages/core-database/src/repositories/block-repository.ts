@@ -182,11 +182,11 @@ export class BlockRepository extends AbstractRepository<Block> {
 
     public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
         return this.manager.transaction(async (manager) => {
-            // Delete all rounds after the current round if there are still
-            // any left.
             const lastBlockHeight: number = blocks[blocks.length - 1].height;
-            const { round } = Utils.roundCalculator.calculateRound(lastBlockHeight);
-            const blockIds = { blockIds: blocks.map((b) => b.id) };
+            const targetBlockHeight: number = blocks[0].height - 1;
+            const roundInfo = Utils.roundCalculator.calculateRound(targetBlockHeight);
+            const targetRound = roundInfo.round;
+            const blockIds = blocks.map((b) => b.id);
 
             const afterLastBlockCount = await manager
                 .createQueryBuilder()
@@ -203,16 +203,21 @@ export class BlockRepository extends AbstractRepository<Block> {
                 .createQueryBuilder()
                 .delete()
                 .from(Transaction)
-                .where("block_id IN (:...blockIds)", blockIds)
+                .where("block_id IN (:...blockIds)", { blockIds })
                 .execute();
 
-            await manager.createQueryBuilder().delete().from(Block).where("id IN (:...blockIds)", blockIds).execute();
+            await manager
+                .createQueryBuilder()
+                .delete()
+                .from(Block)
+                .where("id IN (:...blockIds)", { blockIds })
+                .execute();
 
             await manager
                 .createQueryBuilder()
                 .delete()
                 .from(Round)
-                .where("round >= :round", { round: round + 1 })
+                .where("round > :targetRound", { targetRound })
                 .execute();
         });
     }
