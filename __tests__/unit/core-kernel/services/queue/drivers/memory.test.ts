@@ -1,6 +1,7 @@
 import { sleep } from "@arkecosystem/utils";
-import { Contracts } from "@packages/core-kernel/src";
+import { Container, Contracts, Enums } from "@packages/core-kernel/src";
 import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
+import { Sandbox } from "@packages/core-test-framework";
 
 class DummyClass implements Contracts.Kernel.QueueJob {
     public constructor(private readonly method?) {}
@@ -10,8 +11,38 @@ class DummyClass implements Contracts.Kernel.QueueJob {
     }
 }
 
+let sanbox: Sandbox;
 let driver: MemoryQueue;
-beforeEach(() => (driver = new MemoryQueue()));
+
+const mockEventDispatcher = {
+    dispatch: jest.fn(),
+};
+
+beforeEach(() => {
+    sanbox = new Sandbox();
+
+    sanbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(mockEventDispatcher);
+    driver = sanbox.app.resolve<MemoryQueue>(MemoryQueue);
+});
+
+afterEach(() => {
+    jest.clearAllMocks();
+});
+
+const expectEventData = () => {
+    return expect.objectContaining({
+        time: expect.toBeNumber(),
+        driver: "memory",
+    });
+};
+
+const delay = async (timeout) => {
+    await new Promise((resolve) => {
+        setTimeout(() => {
+            resolve();
+        }, timeout);
+    });
+};
 
 describe("MemoryQueue", () => {
     it("should start queue and process jobs", async () => {
@@ -24,6 +55,9 @@ describe("MemoryQueue", () => {
         await driver.start();
 
         expect(dummy).toHaveBeenCalled();
+
+        expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(1);
+        expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Finished, expectEventData());
     });
 
     it("should stop queue and not process new jobs", async () => {
@@ -40,6 +74,9 @@ describe("MemoryQueue", () => {
         await driver.push(new DummyClass(dummy));
 
         expect(dummy).toHaveBeenCalled();
+
+        expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(1);
+        expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Finished, expectEventData());
     });
 
     it("should pause and resume queue", async () => {
@@ -51,6 +88,8 @@ describe("MemoryQueue", () => {
 
         await driver.start();
 
+        await delay(100);
+
         expect(dummy).toHaveBeenCalled();
 
         await driver.pause();
@@ -59,7 +98,29 @@ describe("MemoryQueue", () => {
 
         await driver.resume();
 
+        await delay(100);
+
         expect(dummy).toHaveBeenCalledTimes(3);
+
+        expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(3);
+        expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Finished, expectEventData());
+    });
+
+    it("should dipatch error if error in queue", async () => {
+        const dummy: jest.Mock = jest.fn().mockImplementation(() => {
+            throw new Error();
+        });
+
+        await driver.push(new DummyClass(dummy));
+
+        driver.start();
+
+        // @ts-ignore
+        await expect(driver.lastQueue).rejects.toThrowError();
+
+        expect(dummy).toHaveBeenCalled();
+        expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(1);
+        expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Failed, expectEventData());
     });
 
     it("should clear queue", async () => {
