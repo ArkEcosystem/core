@@ -4,58 +4,15 @@
 import { Interfaces } from "@arkecosystem/core-magistrate-crypto/src";
 
 export const validAssetData: Interfaces.IEntityAssetData[] = [
-    { description: "my updated description as developer" },
-    { website: "http://randomwebsite.co" },
-    { website: "http://subdomain.randomwebsite.co" },
-    { website: "http://randomwebsite.co/about" },
-    { website: "https://randomwebsite.co/about" },
-    { images: ["https://flickr.com/something"] },
-    { videos: ["https://youtube.com/something"] },
-    { videos: ["https://vimeo.com/something"] },
-    { videos: ["https://youtube.com/something", "https://vimeo.com/somethingelse"] },
-    { sourceControl: { github: "https://github.com/anyrepo" } },
-    { sourceControl: { gitlab: "https://gitlab.com/anyrepo" } },
-    { sourceControl: { bitbucket: "https://bitbucket.org/anyrepo" } },
-    { sourceControl: { npmjs: "https://npmjs.com/anyrepo" } },
-    { sourceControl: {
-        github: "https://github.com/anyrepo",
-        gitlab: "https://gitlab.com/anyrepo",
-        bitbucket: "https://bitbucket.org/anyrepo",
-        npmjs: "https://npmjs.com/anyrepo",
-    } },
-    { socialMedia: { facebook: "https://facebook.com/random" } },
-    { socialMedia: { twitter: "https://twitter.com/random" } },
-    { socialMedia: { linkedin: "https://linkedin.com/random" } },
-    { socialMedia: {
-        facebook: "https://facebook.com/random",
-        twitter: "https://twitter.com/random",
-        linkedin: "https://linkedin.com/random"
-    } },
-
+    { ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ" },
+    { ipfsData: "thisisbase58" },
+    { ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZamb345536" }, // any base58 string < 128 chars
+    { ipfsData: "tuZpyV6WyEsTmExkEG3rW4khattQmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZQidmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ" },
 ];
 
 export const invalidAssetData: Interfaces.IEntityAssetData[] = [
-    { description: "description that is too long because it exceeds the max length of 250 characters. description that is too long because it exceeds the max length of 250 characters. description that is too long because it exceeds the max length of 250 characters. description that is too long" },
-    { description: "description with invalid \u0000 char" },
-    { website: "www.randomwebsite.co" },
-    { website: "nothttp://randomwebsite.com" },
-    { images: ["https://notflickr.com/something"] },
-    { videos: ["https://notyoutube.com/something"] },
-    { videos: ["https://youtube.com/something", "https://notvimeo.com/somethingelse"] },
-    { sourceControl: { github: "https://gitlab.com/anyrepo" } },
-    { sourceControl: { gitlab: "https://github.com/anyrepo" } },
-    { sourceControl: { bitbucket: "https://github.com/anyrepo" } },
-    { sourceControl: { bitbucket: "https://bitbucket.com/anyrepo" } }, // .com instead of .org
-    { sourceControl: { npmjs: "https://gitlab.com/anyrepo" } },
-    { sourceControl: { github: "http://github.com/anyrepo" } }, // http
-    { sourceControl: { gitlab: "http://gitlab.com/anyrepo" } },
-    { sourceControl: { bitbucket: "http://bitbucket.org/anyrepo" } },
-    { sourceControl: { npmjs: "http://npmjs.com/anyrepo" } },
-    { socialMedia: { facebook: "https://twitter.com/random" } },
-    { socialMedia: { twitter: "https://facebook.com/random" } },
-    { socialMedia: { linkedin: "https://facebook.com/random" } },
-    { socialMedia: { facebook: "http://facebook.com/random" } }, // http
-    { socialMedia: { twitter: "http://twitter.com/random" } },
-    { socialMedia: { linkedin: "http://linkedin.com/random" } },
     { unknownProperty: "what am I doing here" } as any,
+    { ipfsData: "tuZpyV6WyEsTmExkEG3rW4khattQmbw6QmF6tuZpyV6WyV6WyEsTmExkEG3rW4kh6QmF6tuZpyV6W4khattQidPfbpmNZQidmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ" },
+    { ipfsData: "thisisNOTbase58" },
+    { ipfsData: "" }, // empty string is invalid, minLength=1
 ];

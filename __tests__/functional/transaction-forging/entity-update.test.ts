@@ -41,7 +41,7 @@ describe("Transaction Forging - Entity update", () => {
                     action: Enums.EntityAction.Update,
                     registrationId: entityRegistration.id,
                     data: {
-                        description: "the description for my plugin for desktop wallet"
+                        ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ"
                     }
                 })
                 .withPassphrase(secrets[0])
@@ -78,7 +78,7 @@ describe("Transaction Forging - Entity update", () => {
                     action: Enums.EntityAction.Update,
                     registrationId: entityRegistration.id,
                     data: {
-                        description: "trying to update another wallet entity"
+                        ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ"
                     }
                 })
                 .withPassphrase(secrets[1])
@@ -115,7 +115,7 @@ describe("Transaction Forging - Entity update", () => {
                     action: Enums.EntityAction.Update,
                     registrationId: entityRegistration.id,
                     data: {
-                        description: "trying to update using a different subtype"
+                        ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ"
                     }
                 })
                 .withPassphrase(secrets[0])
@@ -179,7 +179,7 @@ describe("Transaction Forging - Entity update", () => {
                     action: Enums.EntityAction.Update,
                     registrationId: entityRegistration.id,
                     data: {
-                        images: ["https://flickr.com/someimagepath"]
+                        ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ"
                     }
                 })
                 .withPassphrase(passphrase)
@@ -263,7 +263,7 @@ describe("Transaction Forging - Entity update", () => {
                     action: Enums.EntityAction.Update,
                     registrationId: entityRegistration.id,
                     data: {
-                        description: "iam not really a developer"
+                        ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ"
                     }
                 })
                 .withSenderPublicKey(multiSigPublicKey)

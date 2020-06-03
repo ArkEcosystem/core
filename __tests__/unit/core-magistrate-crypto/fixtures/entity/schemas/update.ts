@@ -8,7 +8,7 @@ export const validUpdates: Interfaces.IEntityAsset[] = [
         action: Enums.EntityAction.Update,
         registrationId: "e77a1d1d080ebce113dd27e1cb0a242ec8600fb72cd62ace4e46148bee1d3acc",
         data: {
-            images: ["https://flickr.com/something"]
+            ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ"
         }
     },
     ...validAssetData.map(data => ({

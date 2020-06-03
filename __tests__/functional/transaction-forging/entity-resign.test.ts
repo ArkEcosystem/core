@@ -75,9 +75,7 @@ describe("Transaction Forging - Entity resign", () => {
                     subType: Enums.EntitySubType.PluginDesktop,
                     action: Enums.EntityAction.Resign,
                     registrationId: entityRegistration.id,
-                    data: {
-                        description: "trying to resign another wallet entity"
-                    }
+                    data: {}
                 })
                 .withPassphrase(secrets[1])
                 .createOne();
