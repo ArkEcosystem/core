@@ -1,8 +1,17 @@
 import "jest-extended";
 
+import { Container, Enums } from "@packages/core-kernel";
 import { CronJob } from "@packages/core-kernel/src/services/schedule/cron-job";
+import { Sandbox } from "@packages/core-test-framework";
 import moment from "moment-timezone";
 import { useFakeTimers } from "sinon";
+
+let sandbox: Sandbox;
+let job: CronJob;
+let clock;
+const mockEventDispatcher = {
+    dispatch: jest.fn(),
+};
 
 const days: Record<string, string> = {
     monday: "2019-08-19 00:00:00",
@@ -31,6 +40,13 @@ const expectExecutionAfterDelay = (callback: CronJob, minutes: number): void => 
     }
 
     expect(fn).toHaveBeenCalledTimes(3);
+
+    expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(
+        Enums.ScheduleEvent.CronJobFinished,
+        expect.objectContaining({
+            time: expect.toBeNumber(),
+        }),
+    );
 };
 
 const expectExecutionOnDate = (callback: CronJob, day: string): void => {
@@ -49,11 +65,22 @@ const expectExecutionOnDate = (callback: CronJob, day: string): void => {
     }
 
     expect(fn).toHaveBeenCalledTimes(1);
+
+    expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(
+        Enums.ScheduleEvent.CronJobFinished,
+        expect.objectContaining({
+            time: expect.toBeNumber(),
+        }),
+    );
 };
 
-let job: CronJob;
-let clock;
-beforeEach(() => (job = new CronJob()));
+beforeEach(() => {
+    sandbox = new Sandbox();
+
+    sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(mockEventDispatcher);
+
+    job = sandbox.app.resolve<CronJob>(CronJob);
+});
 
 afterEach(() => clock.restore());
 

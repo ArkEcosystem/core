@@ -1,22 +1,42 @@
 import "jest-extended";
 
-import { BlockEvent } from "@packages/core-kernel/src/enums/events";
-import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
+import { BlockEvent, ScheduleEvent } from "@packages/core-kernel/src/enums/events";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 import { BlockJob } from "@packages/core-kernel/src/services/schedule/block-job";
+import { Sandbox } from "@packages/core-test-framework";
 
+let sandbox: Sandbox;
 let job: BlockJob;
 let eventDispatcher: MemoryEventDispatcher;
-beforeEach(() => {
-    const container: interfaces.Container = new Container();
-    eventDispatcher = container.resolve<MemoryEventDispatcher>(MemoryEventDispatcher);
-    container.bind(Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);
 
-    job = container.resolve(BlockJob);
+const delay = async (timeout) => {
+    await new Promise((resolve) => {
+        setTimeout(() => {
+            resolve();
+        }, timeout);
+    });
+};
+
+const expectFinishedEventData = () => {
+    return expect.objectContaining({
+        time: expect.toBeNumber(),
+    });
+};
+
+beforeEach(() => {
+    sandbox = new Sandbox();
+    eventDispatcher = sandbox.app.resolve<MemoryEventDispatcher>(MemoryEventDispatcher);
+
+    sandbox.app.bind(Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);
+
+    job = sandbox.app.resolve<BlockJob>(BlockJob);
 });
 
 describe("BlockJob", () => {
-    it("should execute on cron", () => {
+    it("should execute on cron", async () => {
+        const spyOnDispatch = jest.spyOn(eventDispatcher, "dispatch");
+
         const fn: Function = jest.fn();
 
         job.cron(3).execute(fn);
@@ -31,10 +51,17 @@ describe("BlockJob", () => {
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 9 });
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 10 });
 
+        await delay(100);
+
         expect(fn).toHaveBeenCalledTimes(3);
+
+        expect(spyOnDispatch).toHaveBeenCalledTimes(3);
+        expect(spyOnDispatch).toHaveBeenCalledWith(ScheduleEvent.BlockJobFinished, expectFinishedEventData());
     });
 
-    it("should execute every block", () => {
+    it("should execute every block", async () => {
+        const spyOnDispatch = jest.spyOn(eventDispatcher, "dispatch");
+
         const fn: Function = jest.fn();
 
         job.everyBlock().execute(fn);
@@ -45,10 +72,17 @@ describe("BlockJob", () => {
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 1 });
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 1 });
 
+        await delay(100);
+
         expect(fn).toHaveBeenCalledTimes(3);
+
+        expect(spyOnDispatch).toHaveBeenCalledTimes(3);
+        expect(spyOnDispatch).toHaveBeenCalledWith(ScheduleEvent.BlockJobFinished, expectFinishedEventData());
     });
 
-    it("should execute every five blocks", () => {
+    it("should execute every five blocks", async () => {
+        const spyOnDispatch = jest.spyOn(eventDispatcher, "dispatch");
+
         const fn: Function = jest.fn();
 
         job.everyFiveBlocks().execute(fn);
@@ -63,10 +97,17 @@ describe("BlockJob", () => {
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 15 });
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 16 });
 
+        await delay(100);
+
         expect(fn).toHaveBeenCalledTimes(3);
+
+        expect(spyOnDispatch).toHaveBeenCalledTimes(3);
+        expect(spyOnDispatch).toHaveBeenCalledWith(ScheduleEvent.BlockJobFinished, expectFinishedEventData());
     });
 
-    it("should execute every ten blocks", () => {
+    it("should execute every ten blocks", async () => {
+        const spyOnDispatch = jest.spyOn(eventDispatcher, "dispatch");
+
         const fn: Function = jest.fn();
 
         job.everyTenBlocks().execute(fn);
@@ -81,10 +122,17 @@ describe("BlockJob", () => {
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 30 });
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 31 });
 
+        await delay(100);
+
         expect(fn).toHaveBeenCalledTimes(3);
+
+        expect(spyOnDispatch).toHaveBeenCalledTimes(3);
+        expect(spyOnDispatch).toHaveBeenCalledWith(ScheduleEvent.BlockJobFinished, expectFinishedEventData());
     });
 
-    it("should execute every fifteen blocks", () => {
+    it("should execute every fifteen blocks", async () => {
+        const spyOnDispatch = jest.spyOn(eventDispatcher, "dispatch");
+
         const fn: Function = jest.fn();
 
         job.everyFifteenBlocks().execute(fn);
@@ -99,10 +147,17 @@ describe("BlockJob", () => {
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 45 });
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 46 });
 
+        await delay(100);
+
         expect(fn).toHaveBeenCalledTimes(3);
+
+        expect(spyOnDispatch).toHaveBeenCalledTimes(3);
+        expect(spyOnDispatch).toHaveBeenCalledWith(ScheduleEvent.BlockJobFinished, expectFinishedEventData());
     });
 
-    it("should execute every thirty blocks", () => {
+    it("should execute every thirty blocks", async () => {
+        const spyOnDispatch = jest.spyOn(eventDispatcher, "dispatch");
+
         const fn: Function = jest.fn();
 
         job.everyThirtyBlocks().execute(fn);
@@ -117,10 +172,17 @@ describe("BlockJob", () => {
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 90 });
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 91 });
 
+        await delay(100);
+
         expect(fn).toHaveBeenCalledTimes(3);
+
+        expect(spyOnDispatch).toHaveBeenCalledTimes(3);
+        expect(spyOnDispatch).toHaveBeenCalledWith(ScheduleEvent.BlockJobFinished, expectFinishedEventData());
     });
 
-    it("should execute every round", () => {
+    it("should execute every round", async () => {
+        const spyOnDispatch = jest.spyOn(eventDispatcher, "dispatch");
+
         const fn: Function = jest.fn();
 
         job.everyRound().execute(fn);
@@ -135,6 +197,11 @@ describe("BlockJob", () => {
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 153 });
         eventDispatcher.dispatchSync(BlockEvent.Received, { height: 154 });
 
+        await delay(100);
+
         expect(fn).toHaveBeenCalledTimes(3);
+
+        expect(spyOnDispatch).toHaveBeenCalledTimes(3);
+        expect(spyOnDispatch).toHaveBeenCalledWith(ScheduleEvent.BlockJobFinished, expectFinishedEventData());
     });
 });
