@@ -187,7 +187,7 @@ export class MemoryQueue implements Queue {
 
                     await this.app.events.dispatch(QueueEvent.Finished, {
                         driver: "memory",
-                        time: performance.now() - start,
+                        executionTime: performance.now() - start,
                     });
 
                     return this.processFromIndex(from + 1, lastResults, this.isRunning);
@@ -196,8 +196,8 @@ export class MemoryQueue implements Queue {
 
                     await this.app.events.dispatch(QueueEvent.Failed, {
                         driver: "memory",
-                        time: performance.now() - start,
-                        error: error.message,
+                        executionTime: performance.now() - start,
+                        error: error,
                     });
 
                     throw new Error(

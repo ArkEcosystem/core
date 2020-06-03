@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { sleep } from "@arkecosystem/utils";
 import { Container, Contracts, Enums } from "@packages/core-kernel/src";
 import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
@@ -31,16 +33,16 @@ afterEach(() => {
 
 const expectEventData = () => {
     return expect.objectContaining({
-        time: expect.toBeNumber(),
         driver: "memory",
+        executionTime: expect.toBeNumber(),
     });
 };
 
 const expectEventErrorData = () => {
     return expect.objectContaining({
-        time: expect.toBeNumber(),
         driver: "memory",
-        error: expect.toBeString(),
+        executionTime: expect.toBeNumber(),
+        error: expect.toBeObject(),
     });
 };
 
