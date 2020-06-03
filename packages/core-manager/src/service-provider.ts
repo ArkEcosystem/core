@@ -2,6 +2,7 @@ import { ApplicationFactory } from "@arkecosystem/core-cli";
 import { Container, Providers, Types } from "@arkecosystem/core-kernel";
 
 import { ActionReader } from "./action-reader";
+import { DatabaseLogger } from "./database-logger";
 import { DatabaseService } from "./database-service";
 import { Identifiers } from "./ioc";
 import { Listener } from "./listener";
@@ -20,6 +21,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Identifiers.SnapshotsManager).to(SnapshotsManager).inSingletonScope();
         this.app.bind(Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
         this.app.bind(Identifiers.EventsListener).to(Listener).inSingletonScope();
+        this.app.bind(Container.Identifiers.DatabaseLogger).to(DatabaseLogger).inSingletonScope();
 
         const pkg: Types.PackageJson = require("../package.json");
         this.app.bind(Identifiers.CLI).toConstantValue(ApplicationFactory.make(new Container.Container(), pkg));
