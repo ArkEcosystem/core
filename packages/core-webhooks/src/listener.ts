@@ -85,15 +85,15 @@ export class Listener {
                 executionTime: performance.now() - start,
                 webhook: webhook,
                 payload: payload,
-                errorMessage: err.message,
+                error: err,
+            });
+        } else {
+            this.app.events.dispatch(WebhookEvent.Broadcasted, {
+                executionTime: performance.now() - start,
+                webhook: webhook,
+                payload: payload,
             });
         }
-
-        this.app.events.dispatch(WebhookEvent.Broadcasted, {
-            executionTime: performance.now() - start,
-            webhook: webhook,
-            payload: payload,
-        });
     }
 
     /**
