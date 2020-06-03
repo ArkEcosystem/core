@@ -1,6 +1,10 @@
+import { Application } from "@packages/core-kernel/src/contracts/kernel";
+import { inject } from "@packages/core-kernel/src/ioc";
 import { CronCommand, CronJob as Cron } from "cron";
+import { performance } from "perf_hooks";
 
-import { injectable } from "../../ioc";
+import { ScheduleEvent } from "../../enums";
+import { Identifiers, injectable } from "../../ioc";
 import { Job } from "./interfaces";
 
 /**
@@ -14,6 +18,9 @@ import { Job } from "./interfaces";
  */
 @injectable()
 export class CronJob implements Job {
+    @inject(Identifiers.Application)
+    protected readonly app!: Application;
+
     /**
      * @private
      * @type {string}
@@ -26,7 +33,17 @@ export class CronJob implements Job {
      * @memberof CronJob
      */
     public execute(callback: CronCommand): void {
-        new Cron(this.expression, callback).start();
+        const onCallback: CronCommand = () => {
+            const start = performance.now();
+            // @ts-ignore
+            callback();
+
+            this.app.events.dispatch(ScheduleEvent.CronJobFinished, {
+                time: performance.now() - start,
+            });
+        };
+
+        new Cron(this.expression, onCallback).start();
     }
 
     /**
