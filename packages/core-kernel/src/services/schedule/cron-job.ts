@@ -1,10 +1,9 @@
-import { Application } from "@packages/core-kernel/src/contracts/kernel";
-import { inject } from "@packages/core-kernel/src/ioc";
 import { CronCommand, CronJob as Cron } from "cron";
 import { performance } from "perf_hooks";
 
+import { Application } from "../../contracts/kernel";
 import { ScheduleEvent } from "../../enums";
-import { Identifiers, injectable } from "../../ioc";
+import { Identifiers, inject, injectable } from "../../ioc";
 import { Job } from "./interfaces";
 
 /**
