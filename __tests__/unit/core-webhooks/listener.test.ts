@@ -5,9 +5,9 @@ import { HttpOptions, HttpResponse } from "@packages/core-kernel/src/utils";
 import { Sandbox } from "@packages/core-test-framework";
 import * as coditions from "@packages/core-webhooks/src/conditions";
 import { Database } from "@packages/core-webhooks/src/database";
+import { WebhookEvent } from "@packages/core-webhooks/src/events";
 import { Identifiers } from "@packages/core-webhooks/src/identifiers";
 import { Webhook } from "@packages/core-webhooks/src/interfaces";
-import { WebhookEvent } from "@packages/core-webhooks/src/events";
 import { Listener } from "@packages/core-webhooks/src/listener";
 import { dirSync, setGracefulCleanup } from "tmp";
 
@@ -89,7 +89,10 @@ describe("Listener", () => {
             expect(logger.debug).toHaveBeenCalled();
 
             expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(1);
-            expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(WebhookEvent.Broadcasted, expectFinishedEventData());
+            expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(
+                WebhookEvent.Broadcasted,
+                expectFinishedEventData(),
+            );
         });
 
         it("should log error if broadcast is not successful", async () => {
@@ -144,7 +147,10 @@ describe("Listener", () => {
             expect(spyOnPost).toHaveBeenCalledTimes(1);
 
             expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(1);
-            expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(WebhookEvent.Broadcasted, expectFinishedEventData());
+            expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(
+                WebhookEvent.Broadcasted,
+                expectFinishedEventData(),
+            );
         });
 
         it("should not broadcast if webhook condition is not satisfied", async () => {
