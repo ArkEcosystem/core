@@ -44,7 +44,8 @@ const expectExecutionAfterDelay = (callback: CronJob, minutes: number): void => 
     expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(
         Enums.ScheduleEvent.CronJobFinished,
         expect.objectContaining({
-            time: expect.toBeNumber(),
+            executionTime: expect.toBeNumber(),
+            expression: expect.toBeString(),
         }),
     );
 };
@@ -69,7 +70,8 @@ const expectExecutionOnDate = (callback: CronJob, day: string): void => {
     expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(
         Enums.ScheduleEvent.CronJobFinished,
         expect.objectContaining({
-            time: expect.toBeNumber(),
+            executionTime: expect.toBeNumber(),
+            expression: expect.toBeString(),
         }),
     );
 };

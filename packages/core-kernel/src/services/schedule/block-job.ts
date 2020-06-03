@@ -44,7 +44,8 @@ export class BlockJob implements Job {
             await callback();
 
             await this.app.events.dispatch(ScheduleEvent.BlockJobFinished, {
-                time: performance.now() - start,
+                executionTime: performance.now() - start,
+                blockCount: this.blockCount,
             });
         };
 

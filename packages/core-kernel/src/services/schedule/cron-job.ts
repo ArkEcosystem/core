@@ -38,7 +38,8 @@ export class CronJob implements Job {
             callback();
 
             this.app.events.dispatch(ScheduleEvent.CronJobFinished, {
-                time: performance.now() - start,
+                executionTime: performance.now() - start,
+                expression: this.expression,
             });
         };
 

@@ -20,7 +20,8 @@ const delay = async (timeout) => {
 
 const expectFinishedEventData = () => {
     return expect.objectContaining({
-        time: expect.toBeNumber(),
+        executionTime: expect.toBeNumber(),
+        blockCount: expect.toBeNumber(),
     });
 };
 
