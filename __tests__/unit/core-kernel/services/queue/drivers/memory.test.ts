@@ -36,6 +36,14 @@ const expectEventData = () => {
     });
 };
 
+const expectEventErrorData = () => {
+    return expect.objectContaining({
+        time: expect.toBeNumber(),
+        driver: "memory",
+        error: expect.toBeString(),
+    });
+};
+
 const delay = async (timeout) => {
     await new Promise((resolve) => {
         setTimeout(() => {
@@ -120,7 +128,7 @@ describe("MemoryQueue", () => {
 
         expect(dummy).toHaveBeenCalled();
         expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(1);
-        expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Failed, expectEventData());
+        expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Failed, expectEventErrorData());
     });
 
     it("should clear queue", async () => {

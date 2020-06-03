@@ -197,6 +197,7 @@ export class MemoryQueue implements Queue {
                     await this.app.events.dispatch(QueueEvent.Failed, {
                         driver: "memory",
                         time: performance.now() - start,
+                        error: error.message,
                     });
 
                     throw new Error(
