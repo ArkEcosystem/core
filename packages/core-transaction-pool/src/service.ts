@@ -32,7 +32,7 @@ export class Service implements Contracts.TransactionPool.Service {
             handle: () => this.readdTransactions(),
         });
 
-        if (process.env.CORE_RESET_DATABASE) {
+        if (process.env.CORE_RESET_DATABASE || process.env.CORE_RESET_POOL) {
             this.flush();
         } else {
             await this.readdTransactions();
