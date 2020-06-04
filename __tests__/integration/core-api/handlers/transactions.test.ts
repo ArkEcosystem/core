@@ -159,8 +159,11 @@ describe("API 2.0 - Transactions", () => {
             // the wallet already send 1 transaction before that so 1 + 1 = 2
             // todo: maybe reset the db/wallets between every tests to clear nonces?
             await api.createTransfer(undefined, 2);
+            console.log("after create");
 
             const response = await api.request("GET", "transactions/unconfirmed");
+            console.log("after get");
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).not.toBeEmpty();
