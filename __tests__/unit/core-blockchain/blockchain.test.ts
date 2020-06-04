@@ -78,6 +78,7 @@ describe("Blockchain", () => {
         databaseService.getActiveDelegates = jest.fn().mockReturnValue([]);
 
         blockRepository.deleteBlocks = jest.fn();
+        blockRepository.deleteTopBlocks = jest.fn();
         blockRepository.saveBlocks = jest.fn();
 
         stateMachine.transition = jest.fn();
@@ -540,34 +541,16 @@ describe("Blockchain", () => {
 
     describe("removeTopBlocks", () => {
         it.each([[1], [5], [1329]])(
-            "should get the top %i blocks from database and delete them with blockRepository",
+            "should call deleteTopBlocks with blockRepository and call loadBlocksFromCurrentRound",
             async (numberOfBlocks) => {
                 const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-                const mockTopBlocks = [];
-                for (let i = 0; i < numberOfBlocks; i++) {
-                    // @ts-ignore
-                    mockTopBlocks.push({ height: 1000 + i });
-                }
-                databaseService.getTopBlocks.mockReturnValueOnce(mockTopBlocks);
-
                 await blockchain.removeTopBlocks(numberOfBlocks);
 
-                expect(databaseService.getTopBlocks).toHaveBeenLastCalledWith(numberOfBlocks);
-                expect(blockRepository.deleteBlocks).toHaveBeenLastCalledWith(mockTopBlocks);
+                expect(blockRepository.deleteTopBlocks).toHaveBeenLastCalledWith(numberOfBlocks);
                 expect(databaseService.loadBlocksFromCurrentRound).toHaveBeenCalled();
             },
         );
-
-        it("should log an error if deleteBlocks throws", async () => {
-            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-            blockRepository.deleteBlocks.mockRejectedValueOnce(new Error("error deleteBlocks"));
-            databaseService.getTopBlocks.mockReturnValueOnce([{ height: 48990 }]);
-
-            await blockchain.removeTopBlocks(1);
-
-            expect(logService.error).toBeCalledTimes(1);
-        });
     });
 
     describe("processBlocks", () => {
