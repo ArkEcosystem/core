@@ -1,10 +1,13 @@
-import { Container, Contracts, Enums as AppEnums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
 
 @Container.injectable()
 export class Service implements Contracts.TransactionPool.Service {
+    @Container.inject(Container.Identifiers.Application)
+    public readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -28,7 +31,7 @@ export class Service implements Contracts.TransactionPool.Service {
     private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
 
     public async boot(): Promise<void> {
-        this.emitter.listen(AppEnums.CryptoEvent.MilestoneChanged, {
+        this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, {
             handle: () => this.readdTransactions(),
         });
 
@@ -53,8 +56,12 @@ export class Service implements Contracts.TransactionPool.Service {
         try {
             await this.addTransactionToMempool(transaction);
             this.logger.debug(`${transaction} added to pool`);
+
+            this.app.events.dispatch(Enums.TransactionEvent.AddedToPool, transaction.data);
         } catch (error) {
             this.storage.removeTransaction(transaction.id);
+
+            this.app.events.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
             throw error;
         }
     }
@@ -77,6 +84,8 @@ export class Service implements Contracts.TransactionPool.Service {
             this.storage.removeTransaction(transaction.id);
             this.logger.error(`${transaction} removed from pool (wasn't in mempool)`);
         }
+
+        this.app.events.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
     }
 
     public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
@@ -167,6 +176,8 @@ export class Service implements Contracts.TransactionPool.Service {
             if (await this.expirationService.isExpired(transaction)) {
                 this.logger.warning(`${transaction} expired`);
                 await this.removeTransaction(transaction);
+
+                this.app.events.dispatch(Enums.TransactionEvent.Expired, transaction.data);
             }
         }
     }

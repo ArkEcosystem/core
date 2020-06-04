@@ -11,7 +11,7 @@ export class DatabaseService {
     private database!: BetterSqlite3.Database;
 
     public boot(): void {
-        const filename = this.configuration.getRequired<string>("storage");
+        const filename = this.configuration.getRequired<{ storage: string }>("watcher").storage;
         ensureFileSync(filename);
 
         this.database = new BetterSqlite3(filename);
