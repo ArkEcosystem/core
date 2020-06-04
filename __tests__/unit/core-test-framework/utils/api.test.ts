@@ -2,7 +2,6 @@ import "jest-extended";
 import { Sandbox } from "@packages/core-test-framework";
 import { Identifiers } from "@packages/core-api";
 import { ApiHelpers } from "@packages/core-test-framework/src/utils/api";
-import { Utils } from "@packages/core-kernel";
 import {
     blockResponse,
     delegateResponse,
@@ -177,7 +176,7 @@ describe("ApiHelpers", () => {
     describe("createTransfer", () => {
         it("should create transfer transaction", async () => {
             // @ts-ignore
-            let spyOnPost = jest.spyOn(Utils.http, "post").mockImplementation(async (url: any, opts: any) => {});
+            let spyOnRequest = jest.spyOn(api, "request");
 
             let transaction = await api.createTransfer();
 
@@ -192,7 +191,7 @@ describe("ApiHelpers", () => {
             expect(transaction.nonce).toBeDefined();
             expect(transaction.recipientId).toBeDefined();
 
-            expect(spyOnPost).toHaveBeenCalled();
+            expect(spyOnRequest).toHaveBeenCalled();
         });
     });
 });
