@@ -161,7 +161,6 @@ describe("API 2.0 - Transactions", () => {
             await api.createTransfer(undefined, 2);
 
             const response = await api.request("GET", "transactions/unconfirmed");
-
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).not.toBeEmpty();
