@@ -344,22 +344,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public async removeTopBlocks(count: number): Promise<void> {
-        const blocks: Interfaces.IBlockData[] = await this.database.getTopBlocks(count);
+        this.app.log.info(`Removing top ${Utils.pluralize("block", count, true)}`);
 
-        this.app.log.info(
-            `Removing ${Utils.pluralize(
-                "block",
-                blocks.length,
-                true,
-            )} from height ${(blocks[0] as any).height.toLocaleString()}`,
-        );
-
-        try {
-            await this.blockRepository.deleteBlocks(blocks);
-            await this.database.loadBlocksFromCurrentRound();
-        } catch (error) {
-            this.app.log.error(`Encountered error while removing blocks: ${error.message}`);
-        }
+        await this.blockRepository.deleteTopBlocks(count);
+        await this.database.loadBlocksFromCurrentRound();
     }
 
     /**
