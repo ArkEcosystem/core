@@ -66,7 +66,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
             }
         } finally {
             if (this.transactionBroadcaster && broadcastableTransactions.length !== 0) {
-                await this.transactionBroadcaster.broadcastTransactions(broadcastableTransactions);
+                // await this.transactionBroadcaster.broadcastTransactions(broadcastableTransactions);
                 for (const transaction of broadcastableTransactions) {
                     AppUtils.assert.defined<string>(transaction.id);
                     this.broadcast.push(transaction.id);
