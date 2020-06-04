@@ -1,13 +1,10 @@
 import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
 
 @Container.injectable()
 export class Service implements Contracts.TransactionPool.Service {
-    @Container.inject(Container.Identifiers.Application)
-    public readonly app!: Contracts.Kernel.Application;
-
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -52,16 +49,14 @@ export class Service implements Contracts.TransactionPool.Service {
             throw new TransactionAlreadyInPoolError(transaction);
         }
 
-        this.storage.addTransaction(transaction);
+        this.storage.addTransaction(transaction.id, transaction.serialized);
         try {
             await this.addTransactionToMempool(transaction);
             this.logger.debug(`${transaction} added to pool`);
-
-            this.app.events.dispatch(Enums.TransactionEvent.AddedToPool, transaction.data);
+            this.emitter.dispatch(Enums.TransactionEvent.AddedToPool, transaction.data);
         } catch (error) {
             this.storage.removeTransaction(transaction.id);
-
-            this.app.events.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
+            this.emitter.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
             throw error;
         }
     }
@@ -85,7 +80,7 @@ export class Service implements Contracts.TransactionPool.Service {
             this.logger.error(`${transaction} removed from pool (wasn't in mempool)`);
         }
 
-        this.app.events.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
+        this.emitter.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
     }
 
     public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
@@ -119,20 +114,21 @@ export class Service implements Contracts.TransactionPool.Service {
             for (const transaction of prevTransactions) {
                 try {
                     await this.addTransactionToMempool(transaction);
-                    this.storage.addTransaction(transaction);
+                    AppUtils.assert.defined<string>(transaction.id);
+                    this.storage.addTransaction(transaction.id, transaction.serialized);
                     prevCount++;
                     count++;
                 } catch (error) {}
             }
         }
 
-        for (const transaction of this.storage.getAllTransactions()) {
+        for (const { id, serialized } of this.storage.getAllTransactions()) {
             try {
+                const transaction = Transactions.TransactionFactory.fromBytes(serialized);
                 await this.addTransactionToMempool(transaction);
                 count++;
             } catch (error) {
-                AppUtils.assert.defined<string>(transaction.id);
-                this.storage.removeTransaction(transaction.id);
+                this.storage.removeTransaction(id);
             }
         }
 
@@ -177,7 +173,7 @@ export class Service implements Contracts.TransactionPool.Service {
                 this.logger.warning(`${transaction} expired`);
                 await this.removeTransaction(transaction);
 
-                this.app.events.dispatch(Enums.TransactionEvent.Expired, transaction.data);
+                this.emitter.dispatch(Enums.TransactionEvent.Expired, transaction.data);
             }
         }
     }
