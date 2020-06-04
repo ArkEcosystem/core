@@ -86,6 +86,8 @@ export class EntityUpdateSubHandler {
         }
         
         wallet.setAttribute("entities", entities);
+
+        walletRepository.index(wallet);
     }
 
     public async revertForSender(

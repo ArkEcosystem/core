@@ -77,6 +77,8 @@ export class EntityResignSubHandler {
         }
         
         wallet.setAttribute("entities", entities);
+
+        walletRepository.index(wallet);
     }
 
     public async revertForSender(
@@ -95,6 +97,8 @@ export class EntityResignSubHandler {
         }
         
         wallet.setAttribute("entities", entities);
+
+        walletRepository.index(wallet);
     }
 
     public async applyToRecipient(

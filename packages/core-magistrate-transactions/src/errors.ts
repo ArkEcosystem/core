@@ -73,6 +73,12 @@ export class EntityAlreadyRegisteredError extends Errors.TransactionError {
     }
 }
 
+export class EntityNameAlreadyRegisteredError extends Errors.TransactionError {
+    public constructor() {
+        super("Failed to apply transaction, because the entity name is already registered.");
+    }
+}
+
 export class EntityNotRegisteredError extends Errors.TransactionError {
     public constructor() {
         super("Failed to apply transaction, because the entity is not registered for the wallet.");

@@ -2,10 +2,11 @@ import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import { IEntityAsset } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
 
-import { EntityAlreadyRegisteredError } from "../../errors";
+import { EntityAlreadyRegisteredError, EntityNameAlreadyRegisteredError } from "../../errors";
 import { TransactionReader } from "@arkecosystem/core-transactions";
 import { Models } from "@arkecosystem/core-database";
-import { IEntitiesWallet } from "../../interfaces";
+import { IEntitiesWallet, IEntityWallet } from "../../interfaces";
+import { MagistrateIndex } from "../../wallet-indexes";
 
 // Entity Register sub-handler : most of the sub-handler methods are implemented here
 // but it is extended by the bridgechain, business, developer, plugin... subhandlers
@@ -44,6 +45,20 @@ export class EntityRegisterSubHandler {
         if (walletEntities[transaction.id]) {
             throw new EntityAlreadyRegisteredError();
         }
+
+        for (const wallet of walletRepository.getIndex(MagistrateIndex.Entities).values()) {
+            if (wallet.hasAttribute("entities")) {
+                const entityValues: IEntityWallet[] = Object.values(wallet.getAttribute("entities"));
+
+                if (entityValues.some((entity) => (
+                    entity.data.name!.toLowerCase() === transaction.data.asset!.data.name.toLowerCase()
+                    && entity.type === transaction.data.asset!.type
+                    && entity.subType === transaction.data.asset!.subType
+                ))) {
+                    throw new EntityNameAlreadyRegisteredError();
+                }
+            }
+        }
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
@@ -67,6 +82,8 @@ export class EntityRegisterSubHandler {
         };
         
         wallet.setAttribute("entities", entities);
+
+        walletRepository.index(wallet);
     }
 
     public async revertForSender(
@@ -83,6 +100,8 @@ export class EntityRegisterSubHandler {
         delete entities[transaction.id];
         
         wallet.setAttribute("entities", entities);
+
+        walletRepository.index(wallet);
     }
 
     public async applyToRecipient(
