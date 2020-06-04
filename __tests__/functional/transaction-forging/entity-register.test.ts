@@ -23,7 +23,7 @@ describe("Transaction Forging - Entity registration", () => {
                     subType: Enums.EntitySubType.PluginDesktop,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "my plugin for desktop wallet"
+                        name: "my_plugin_for_desktop_wallet"
                     }
                 })
                 .withPassphrase(secrets[0])
@@ -32,6 +32,8 @@ describe("Transaction Forging - Entity registration", () => {
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).toBeForged();
+
+            await expect(entityRegistration).entityRegistered();
         });
 
         it("should reject entity registration, because entity name contains unicode control characters [Signed with 1 Passphrase]", async () => {
@@ -51,6 +53,7 @@ describe("Transaction Forging - Entity registration", () => {
             await expect(entityRegistration).toBeRejected();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).not.toBeForged();
+            await expect(entityRegistration).not.entityRegistered();
         });
     });
 
@@ -87,7 +90,7 @@ describe("Transaction Forging - Entity registration", () => {
                     subType: Enums.EntitySubType.None,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "by bridgechain"
+                        name: "my_bridgechain"
                     }
                 })
                 .withPassphrase(passphrase)
@@ -97,6 +100,7 @@ describe("Transaction Forging - Entity registration", () => {
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).toBeForged();
+            await expect(entityRegistration).entityRegistered();
         });
     });
 
@@ -152,7 +156,7 @@ describe("Transaction Forging - Entity registration", () => {
                     subType: Enums.EntitySubType.None,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "iam a developer"
+                        name: "iam_a_developer"
                     }
                 })
                 .withSenderPublicKey(multiSigPublicKey)
@@ -162,6 +166,7 @@ describe("Transaction Forging - Entity registration", () => {
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).toBeForged();
+            await expect(entityRegistration).entityRegistered();
         });
     });
 });

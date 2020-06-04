@@ -8,7 +8,7 @@ export const validRegisters: Interfaces.IEntityAsset[] = [
         subType: EntitySubType.None,
         action: EntityAction.Register,
         data: {
-            name: "my business 1",
+            name: "my_business_1",
             ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
         }
     }

@@ -23,7 +23,7 @@ describe("Transaction Forging - Entity resign", () => {
                     subType: Enums.EntitySubType.PluginDesktop,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "my plugin for desktop wallet"
+                        name: "my_plugin_for_desktop_wallet"
                     }
                 })
                 .withPassphrase(secrets[0])
@@ -32,8 +32,9 @@ describe("Transaction Forging - Entity resign", () => {
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).toBeForged();
+            await expect(entityRegistration).entityRegistered();
 
-            // Updating the desktop wallet plugin
+            // Resigning the entity
             const entityResign = TransactionFactory.initialize(app)
                 .entity({
                     type: Enums.EntityType.Plugin,
@@ -48,6 +49,7 @@ describe("Transaction Forging - Entity resign", () => {
             await expect(entityResign).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityResign.id).toBeForged();
+            await expect(entityRegistration.id).entityResigned();
         });
 
         it("should reject entity resign, because associated register belongs to another wallet [Signed with 1 Passphrase]", async () => {
@@ -58,7 +60,7 @@ describe("Transaction Forging - Entity resign", () => {
                     subType: Enums.EntitySubType.PluginDesktop,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "another name"
+                        name: "another_name"
                     }
                 })
                 .withPassphrase(secrets[0])
@@ -83,6 +85,7 @@ describe("Transaction Forging - Entity resign", () => {
             await expect(entityResign).toBeRejected();
             await snoozeForBlock(1);
             await expect(entityResign.id).not.toBeForged();
+            await expect(entityRegistration.id).not.entityResigned();
         });
 
         it("should reject entity resign, because associated register does not have same subtype [Signed with 1 Passphrase]", async () => {
@@ -93,7 +96,7 @@ describe("Transaction Forging - Entity resign", () => {
                     subType: Enums.EntitySubType.PluginDesktop,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "another name"
+                        name: "again_another_name"
                     }
                 })
                 .withPassphrase(secrets[0])
@@ -102,6 +105,7 @@ describe("Transaction Forging - Entity resign", () => {
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).toBeForged();
+            await expect(entityRegistration).entityRegistered();
 
             // Trying to resign the desktop wallet plugin using PluginCore subtype
             const entityResign = TransactionFactory.initialize(app)
@@ -118,6 +122,7 @@ describe("Transaction Forging - Entity resign", () => {
             await expect(entityResign).toBeRejected();
             await snoozeForBlock(1);
             await expect(entityResign.id).not.toBeForged();
+            await expect(entityRegistration.id).not.entityResigned();
         });
     });
 
@@ -154,7 +159,7 @@ describe("Transaction Forging - Entity resign", () => {
                     subType: Enums.EntitySubType.None,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "by bridgechain"
+                        name: "by_bridgechain"
                     }
                 })
                 .withPassphrase(passphrase)
@@ -236,7 +241,7 @@ describe("Transaction Forging - Entity resign", () => {
                     subType: Enums.EntitySubType.None,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "iam a developer"
+                        name: "iam_a_developer"
                     }
                 })
                 .withSenderPublicKey(multiSigPublicKey)

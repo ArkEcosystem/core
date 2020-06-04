@@ -23,7 +23,7 @@ describe("Transaction Forging - Entity update", () => {
                     subType: Enums.EntitySubType.PluginDesktop,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "my plugin for desktop wallet"
+                        name: "my_plugin_for_desktop_wallet"
                     }
                 })
                 .withPassphrase(secrets[0])
@@ -32,6 +32,7 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).toBeForged();
+            await expect(entityRegistration).entityRegistered();
 
             // Updating the desktop wallet plugin
             const entityUpdate = TransactionFactory.initialize(app)
@@ -50,6 +51,7 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityUpdate).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityUpdate.id).toBeForged();
+            await expect(entityUpdate).entityUpdated();
         });
 
         it("should reject entity update, because associated register belongs to another wallet [Signed with 1 Passphrase]", async () => {
@@ -60,7 +62,7 @@ describe("Transaction Forging - Entity update", () => {
                     subType: Enums.EntitySubType.PluginDesktop,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "another name"
+                        name: "another_name"
                     }
                 })
                 .withPassphrase(secrets[0])
@@ -69,6 +71,7 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).toBeForged();
+            await expect(entityRegistration).entityRegistered();
 
             // Trying to update the desktop wallet plugin of secrets[0] wallet using secrets[1]
             const entityUpdate = TransactionFactory.initialize(app)
@@ -87,6 +90,7 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityUpdate).toBeRejected();
             await snoozeForBlock(1);
             await expect(entityUpdate.id).not.toBeForged();
+            await expect(entityUpdate).not.entityUpdated();
         });
 
         it("should reject entity update, because associated register does not have same subtype [Signed with 1 Passphrase]", async () => {
@@ -97,7 +101,7 @@ describe("Transaction Forging - Entity update", () => {
                     subType: Enums.EntitySubType.PluginDesktop,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "another name"
+                        name: "again_another_name"
                     }
                 })
                 .withPassphrase(secrets[0])
@@ -106,6 +110,7 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).toBeForged();
+            await expect(entityRegistration).entityRegistered();
 
             // Trying to update the desktop wallet plugin using PluginCore subtype
             const entityUpdate = TransactionFactory.initialize(app)
@@ -124,6 +129,7 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityUpdate).toBeRejected();
             await snoozeForBlock(1);
             await expect(entityUpdate.id).not.toBeForged();
+            await expect(entityUpdate).not.entityUpdated();
         });
     });
 
@@ -160,7 +166,7 @@ describe("Transaction Forging - Entity update", () => {
                     subType: Enums.EntitySubType.None,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "by bridgechain"
+                        name: "b_bridgechain"
                     }
                 })
                 .withPassphrase(passphrase)
@@ -170,6 +176,7 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).toBeForged();
+            await expect(entityRegistration).entityRegistered();
 
             // Updating entity
             const entityUpdate = TransactionFactory.initialize(app)
@@ -189,6 +196,7 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityUpdate).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityUpdate.id).toBeForged();
+            await expect(entityUpdate).entityUpdated();
         });
     });
 
@@ -244,7 +252,7 @@ describe("Transaction Forging - Entity update", () => {
                     subType: Enums.EntitySubType.None,
                     action: Enums.EntityAction.Register,
                     data: {
-                        name: "iam a developer"
+                        name: "iam_a_developer"
                     }
                 })
                 .withSenderPublicKey(multiSigPublicKey)
@@ -254,6 +262,7 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).toBeForged();
+            await expect(entityRegistration).entityRegistered();
 
             // Updating entity
             const entityUpdate = TransactionFactory.initialize(app)
@@ -273,6 +282,7 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityUpdate).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityUpdate.id).toBeForged();
+            await expect(entityUpdate).entityUpdated();
         });
     });
 });

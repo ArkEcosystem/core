@@ -7,7 +7,7 @@ export const validRegisters: Interfaces.IEntityAsset[] = [
         subType: Enums.EntitySubType.PluginDesktop,
         action: Enums.EntityAction.Register,
         data: {
-            name: "my plugin for desktop wallet"
+            name: "my_plugin_for_desktop_wallet"
         }
     },
     ...validAssetData.map(data => ({
@@ -15,7 +15,7 @@ export const validRegisters: Interfaces.IEntityAsset[] = [
         subType: Enums.EntitySubType.None,
         action: Enums.EntityAction.Register,
         data: {
-            name: "my developer",
+            name: "my_developer",
             ...data
         }
     }))
