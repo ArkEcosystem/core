@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { Container } from "@arkecosystem/core-kernel";
-import { Sandbox } from "@packages/core-test-framework";
 import { DatabaseService } from "@arkecosystem/core-manager/src/database-service";
+import { Sandbox } from "@packages/core-test-framework";
 import { existsSync } from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";
 
@@ -18,7 +18,7 @@ beforeEach(() => {
     sandbox.app.bind(Container.Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
 
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
-        getRequired: jest.fn().mockReturnValue(storagePath),
+        getRequired: jest.fn().mockReturnValue({ storage: storagePath }),
     });
 
     database = sandbox.app.get(Container.Identifiers.WatcherDatabaseService);

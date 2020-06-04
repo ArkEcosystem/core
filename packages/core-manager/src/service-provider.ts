@@ -1,10 +1,12 @@
 import { ApplicationFactory } from "@arkecosystem/core-cli";
-import { Container, Providers, Types } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
 
 import { ActionReader } from "./action-reader";
+import { DatabaseLogger } from "./database-logger";
 import { DatabaseService } from "./database-service";
 import { Identifiers } from "./ioc";
 import { Listener } from "./listener";
+import { LogServiceWrapper } from "./log-service-wrapper";
 import Handlers from "./server/handlers";
 import { PluginFactory } from "./server/plugins";
 import { Server } from "./server/server";
@@ -13,24 +15,31 @@ import { SnapshotsManager } from "./snapshots/snapshots-manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
+        if (this.config().getRequired<{ enabled: boolean }>("watcher").enabled) {
+            this.app.bind(Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
+            this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService).boot();
+
+            const logService = this.app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService);
+            this.app
+                .rebind(Container.Identifiers.LogService)
+                .toConstantValue(
+                    new LogServiceWrapper(
+                        logService,
+                        this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService),
+                    ),
+                );
+        }
+
         this.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
         this.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
         this.app.bind(Identifiers.BasicCredentialsValidator).to(Argon2id).inSingletonScope();
         this.app.bind(Identifiers.TokenValidator).to(SimpleTokenValidator).inSingletonScope();
         this.app.bind(Identifiers.SnapshotsManager).to(SnapshotsManager).inSingletonScope();
-        this.app.bind(Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
         this.app.bind(Identifiers.EventsListener).to(Listener).inSingletonScope();
+        this.app.bind(Container.Identifiers.DatabaseLogger).to(DatabaseLogger).inSingletonScope();
 
         const pkg: Types.PackageJson = require("../package.json");
         this.app.bind(Identifiers.CLI).toConstantValue(ApplicationFactory.make(new Container.Container(), pkg));
-
-        if (this.config().get("server.http.enabled")) {
-            await this.buildServer("http", Identifiers.HTTP);
-        }
-
-        if (this.config().get("server.https.enabled")) {
-            await this.buildServer("https", Identifiers.HTTPS);
-        }
     }
 
     /**
@@ -39,15 +48,18 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async boot(): Promise<void> {
         if (this.config().get("server.http.enabled")) {
+            await this.buildServer("http", Identifiers.HTTP);
             await this.app.get<Server>(Identifiers.HTTP).boot();
         }
 
         if (this.config().get("server.https.enabled")) {
+            await this.buildServer("https", Identifiers.HTTPS);
             await this.app.get<Server>(Identifiers.HTTPS).boot();
         }
 
-        this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService).boot();
-        this.app.get<Listener>(Identifiers.EventsListener).boot();
+        if (this.config().getRequired<{ enabled: boolean }>("watcher").enabled) {
+            this.app.get<Listener>(Identifiers.EventsListener).boot();
+        }
     }
 
     public async dispose(): Promise<void> {
