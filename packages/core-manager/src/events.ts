@@ -1,6 +1,5 @@
 export enum WalletEvent {
-    BalanceUpdated = "wallet.balance.updated",
-    NonceUpdated = "wallet.nonce.updated",
+    PropertySet = "wallet.property.set",
     AttributeSet = "wallet.attribute.set",
     AttributeForget = "wallet.attribute.forget",
 }

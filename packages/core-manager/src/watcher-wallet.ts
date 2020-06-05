@@ -1,6 +1,5 @@
 import { Contracts, Services } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
-import { Utils } from "@arkecosystem/crypto";
 import { cloneDeep } from "@arkecosystem/utils";
 
 import { WalletEvent } from "./events";
@@ -12,28 +11,23 @@ export class WatcherWallet extends Wallets.Wallet {
         attributes: Services.Attributes.AttributeMap,
     ) {
         super(address, attributes);
-    }
 
-    public set balance(balance: Utils.BigNumber) {
-        this.app?.events.dispatchSync(WalletEvent.BalanceUpdated, {
-            publicKey: this.publicKey,
-            balance: balance,
-            previousBalance: super.balance,
-            wallet: this,
-        });
+        const handler: ProxyHandler<WatcherWallet> = {
+            set(target, key, value) {
+                target.app?.events.dispatchSync(WalletEvent.PropertySet, {
+                    publicKey: target.publicKey,
+                    key: key,
+                    value: value,
+                    previousValue: target[key],
+                    wallet: target,
+                });
 
-        super.balance = balance;
-    }
+                target[key] = value;
+                return true;
+            },
+        };
 
-    public set nonce(nonce: Utils.BigNumber) {
-        this.app?.events.dispatchSync(WalletEvent.NonceUpdated, {
-            publicKey: this.publicKey,
-            nonce: nonce,
-            previousNonce: super.nonce,
-            wallet: this,
-        });
-
-        super.nonce = nonce;
+        return new Proxy(this, handler);
     }
 
     public setAttribute<T = any>(key: string, value: T): boolean {
@@ -65,7 +59,7 @@ export class WatcherWallet extends Wallets.Wallet {
         return isForget;
     }
 
-    public clone(): Contracts.State.Wallet {
+    public clone(): WatcherWallet {
         const clone = new WatcherWallet(this.app, this.address, cloneDeep(this.attributes));
 
         clone.publicKey = this.publicKey;
