@@ -74,7 +74,7 @@ export class DatabaseService {
             offset,
             data: this.database
                 .prepare(
-                    `SELECT *, json_extract(data, '$.publicKey') FROM events, json_tree(data) ${this.prepareWhere(
+                    `SELECT events.id, events.event, events.data, events.timestamp FROM events ${this.prepareWhere(
                         conditions,
                     )} LIMIT ${limit} OFFSET ${offset}`,
                 )
@@ -116,11 +116,17 @@ export class DatabaseService {
             query += " AND " + extractedConditions[i];
         }
 
+        console.log(query);
+
         return query;
     }
 
     private extractWhereConditions(conditions?: any): string[] {
         let result: string[] = [];
+
+        if (!conditions) {
+            return [];
+        }
 
         for (const key of Object.keys(conditions)) {
             if (key === "event") {
