@@ -73,13 +73,12 @@ export class ReplayBlockchain extends Blockchain {
 
             const blocks: Interfaces.IBlockData[] = await this.fetchBatch(startHeight, batch, lastAcceptedHeight);
 
-            this.processBlocks(blocks, async (acceptedBlocks: Interfaces.IBlock[]) => {
-                if (acceptedBlocks.length !== blocks.length) {
-                    throw new FailedToReplayBlocksError();
-                }
+            const acceptedBlocks: Interfaces.IBlock[] = await this.processBlocks(blocks);
+            if (acceptedBlocks.length !== blocks.length) {
+                throw new FailedToReplayBlocksError();
+            }
 
-                await replayBatch(batch + 1, acceptedBlocks[acceptedBlocks.length - 1].data.height);
-            });
+            await replayBatch(batch + 1, acceptedBlocks[acceptedBlocks.length - 1].data.height);
         };
 
         await replayBatch(1);
