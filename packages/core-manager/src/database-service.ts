@@ -157,7 +157,9 @@ export class DatabaseService {
 
                 result = [
                     ...result,
-                    ...this.extractConditions(conditions[key], "$").map((x) => this.conditionLineToSQLCondition(x, key)),
+                    ...this.extractConditions(conditions[key], "$").map((x) =>
+                        this.conditionLineToSQLCondition(x, key),
+                    ),
                 ];
             }
         }
@@ -185,6 +187,16 @@ export class DatabaseService {
             return [];
         }
 
+        if (typeof data !== "object") {
+            result.push({
+                property: `${property}`,
+                condition: "$eq",
+                value: data.toString(),
+            });
+
+            return result;
+        }
+
         for (const key of Object.keys(data)) {
             if (key.startsWith("$")) {
                 result.push({
@@ -192,7 +204,7 @@ export class DatabaseService {
                     condition: key,
                     value: data[key].toString(),
                 });
-            } else if (typeof data[key] === "object") {
+            } else {
                 result = [...result, ...this.extractConditions(data[key], `${property}.${key}`)];
             }
         }
