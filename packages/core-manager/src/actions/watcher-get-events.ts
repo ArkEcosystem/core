@@ -13,11 +13,11 @@ export class Action implements Actions.Action {
             query: {
                 type: "object",
                 properties: {
-                    limit: {
+                    $limit: {
                         type: "number",
                         minimum: 0,
                     },
-                    offset: {
+                    $offset: {
                         type: "number",
                         minimum: 0,
                     },

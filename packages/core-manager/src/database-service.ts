@@ -88,16 +88,16 @@ export class DatabaseService {
     }
 
     private prepareLimit(conditions?: any): number {
-        if (conditions?.limit && typeof conditions.limit === "number" && conditions.limit <= 1000) {
-            return conditions.limit;
+        if (conditions?.$limit && typeof conditions.$limit === "number" && conditions.$limit <= 1000) {
+            return conditions.$limit;
         }
 
         return 10;
     }
 
     private prepareOffset(conditions?: any): number {
-        if (conditions?.offset && typeof conditions.offset === "number") {
-            return conditions.offset;
+        if (conditions?.$offset && typeof conditions.$offset === "number") {
+            return conditions.$offset;
         }
 
         return 0;
@@ -116,45 +116,20 @@ export class DatabaseService {
             query += " AND " + extractedConditions[i];
         }
 
-        // if (!conditions) {
-        //     return query;
-        // }
-        //
-        // for (const key of Object.keys(conditions)) {
-        //     if (key === "event") {
-        //         query += `WHERE event LIKE '${conditions[key]}%'`;
-        //     }
-        // }
-
-        // query += "AND json_extract(data, '$.publicKey') = '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'";
-        // query += "AND json_extract(data, '$.value.username') = 'genesis_9'";
-
-        console.log("WHERE QUERY: ", query);
-
         return query;
     }
 
     private extractWhereConditions(conditions?: any): string[] {
-        let conditionLines: ConditionLine[] = [];
         let result: string[] = [];
 
         for (const key of Object.keys(conditions)) {
-            // if (key === "event") {
-            //     result.push(`event LIKE '${conditions[key]}%'`);
-            // }
             if (key === "event") {
-                console.log(this.extractConditions(conditions[key], key));
-                conditionLines = [...conditionLines, ...this.extractConditions(conditions[key], key)];
-
                 result = [
                     ...result,
                     ...this.extractConditions(conditions[key], key).map((x) => this.conditionLineToSQLCondition(x)),
                 ];
             }
             if (key === "data") {
-                console.log(this.extractConditions(conditions[key], "$"));
-                conditionLines = [...conditionLines, ...this.extractConditions(conditions[key], "$")];
-
                 result = [
                     ...result,
                     ...this.extractConditions(conditions[key], "$").map((x) =>
@@ -163,8 +138,6 @@ export class DatabaseService {
                 ];
             }
         }
-
-        // console.log("RESULT", result)
 
         return result;
     }
