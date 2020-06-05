@@ -154,20 +154,28 @@ export class DatabaseService {
             if (key === "data") {
                 console.log(this.extractConditions(conditions[key], "$"));
                 conditionLines = [...conditionLines, ...this.extractConditions(conditions[key], "$")];
+
+                result = [
+                    ...result,
+                    ...this.extractConditions(conditions[key], "$").map((x) => this.conditionLineToSQLCondition(x, key)),
+                ];
             }
         }
 
-        console.log("RESULT", result)
+        // console.log("RESULT", result)
 
         return result;
     }
 
-    private conditionLineToSQLCondition(conditionLine: ConditionLine): string {
-        let result = conditionLine.property;
+    private conditionLineToSQLCondition(conditionLine: ConditionLine, jsonExtractProperty?: string): string {
+        if (jsonExtractProperty) {
+            // Example: json_extract(data, '$.publicKey') = '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
+            // prettier-ignore
+            return `json_extract(${jsonExtractProperty}, '${conditionLine.property}') ${conditions.get(conditionLine.condition)} '${conditionLine.value}'`;
+        }
 
-        result += ` ${conditions.get(conditionLine.condition)} '${conditionLine.value}'`;
-
-        return result;
+        // Example: event LIKE 'wallet'
+        return `${conditionLine.property} ${conditions.get(conditionLine.condition)} '${conditionLine.value}'`;
     }
 
     private extractConditions(data: any, property: string): ConditionLine[] {
@@ -191,11 +199,4 @@ export class DatabaseService {
 
         return result;
     }
-
-    // Root Operators
-    // $limit
-    // $offset
-    // Operators
-    // $eq
-    // $like
 }
