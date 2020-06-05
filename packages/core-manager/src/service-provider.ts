@@ -76,11 +76,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public async dispose(): Promise<void> {
-        if (this.config().get("server.http.enabled")) {
+        if (this.app.isBound(Identifiers.HTTP)) {
             await this.app.get<Server>(Identifiers.HTTP).dispose();
         }
 
-        if (this.config().get("server.https.enabled")) {
+        if (this.app.isBound(Identifiers.HTTPS)) {
             await this.app.get<Server>(Identifiers.HTTPS).dispose();
         }
 
