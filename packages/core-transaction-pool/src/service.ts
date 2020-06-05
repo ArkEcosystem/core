@@ -28,7 +28,7 @@ export class Service implements Contracts.TransactionPool.Service {
     private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
 
     public async boot(): Promise<void> {
-        if (process.env.CORE_RESET_DATABASE) {
+        if (process.env.CORE_RESET_DATABASE || process.env.CORE_RESET_POOL) {
             this.flush();
         } else {
             await this.readdTransactions();
