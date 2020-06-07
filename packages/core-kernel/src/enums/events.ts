@@ -113,6 +113,15 @@ export enum TransactionEvent {
  * @export
  * @enum {number}
  */
+export enum ScheduleEvent {
+    BlockJobFinished = "schedule.blockJob.finished",
+    CronJobFinished = "schedule.cronJob.finished",
+}
+
+/**
+ * @export
+ * @enum {number}
+ */
 export enum QueueEvent {
     Finished = "queue.finished",
     Failed = "queue.finished",
