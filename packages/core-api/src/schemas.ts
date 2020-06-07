@@ -65,6 +65,9 @@ export const createSchemas = (settings: SchemaSettings) => {
         "orderBy query parameter (<iteratee>:<direction>)",
     );
 
+    const blocksOrderBy = orderBy.default("height:desc");
+    const transactionsOrderBy = orderBy.default("timestamp:desc,sequence:desc");
+
     const equalCriteria = (value: any) => value;
     const numericCriteria = (value: any) =>
         Joi.alternatives().try(
@@ -127,6 +130,8 @@ export const createSchemas = (settings: SchemaSettings) => {
         numberFixedOrBetween,
         walletId,
         orderBy,
+        blocksOrderBy,
+        transactionsOrderBy,
         blockCriteriaSchemas,
         transactionCriteriaSchemas,
     };
