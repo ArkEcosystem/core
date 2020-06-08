@@ -35,7 +35,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core --coverageDirectory .coverage/unit/core --maxWorkers=2
+              run: yarn test __tests__/unit/core --coverageDirectory .coverage/unit/core --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -69,7 +69,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-api --coverageDirectory .coverage/unit/core-api --maxWorkers=2
+              run: yarn test __tests__/unit/core-api --coverageDirectory .coverage/unit/core-api --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -103,7 +103,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-blockchain --coverageDirectory .coverage/unit/core-blockchain --maxWorkers=2
+              run: yarn test __tests__/unit/core-blockchain --coverageDirectory .coverage/unit/core-blockchain --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -137,7 +137,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-cli --coverageDirectory .coverage/unit/core-cli --maxWorkers=2
+              run: yarn test __tests__/unit/core-cli --coverageDirectory .coverage/unit/core-cli --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -171,7 +171,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-database --coverageDirectory .coverage/unit/core-database --maxWorkers=2
+              run: yarn test __tests__/unit/core-database --coverageDirectory .coverage/unit/core-database --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -205,7 +205,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-forger --coverageDirectory .coverage/unit/core-forger --maxWorkers=2
+              run: yarn test __tests__/unit/core-forger --coverageDirectory .coverage/unit/core-forger --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -239,7 +239,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-kernel --coverageDirectory .coverage/unit/core-kernel --maxWorkers=2
+              run: yarn test __tests__/unit/core-kernel --coverageDirectory .coverage/unit/core-kernel --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -273,7 +273,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-logger-pino --coverageDirectory .coverage/unit/core-logger-pino --maxWorkers=2
+              run: yarn test __tests__/unit/core-logger-pino --coverageDirectory .coverage/unit/core-logger-pino --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -307,7 +307,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-magistrate-api --coverageDirectory .coverage/unit/core-magistrate-api --maxWorkers=2
+              run: yarn test __tests__/unit/core-magistrate-api --coverageDirectory .coverage/unit/core-magistrate-api --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -341,7 +341,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-magistrate-crypto --coverageDirectory .coverage/unit/core-magistrate-crypto --maxWorkers=2
+              run: yarn test __tests__/unit/core-magistrate-crypto --coverageDirectory .coverage/unit/core-magistrate-crypto --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -375,7 +375,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-magistrate-transactions --coverageDirectory .coverage/unit/core-magistrate-transactions --maxWorkers=2
+              run: yarn test __tests__/unit/core-magistrate-transactions --coverageDirectory .coverage/unit/core-magistrate-transactions --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -409,7 +409,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-manager --coverageDirectory .coverage/unit/core-manager --maxWorkers=2
+              run: yarn test __tests__/unit/core-manager --coverageDirectory .coverage/unit/core-manager --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -443,7 +443,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-p2p --coverageDirectory .coverage/unit/core-p2p --maxWorkers=2
+              run: yarn test __tests__/unit/core-p2p --coverageDirectory .coverage/unit/core-p2p --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -477,7 +477,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-snapshots --coverageDirectory .coverage/unit/core-snapshots --maxWorkers=2
+              run: yarn test __tests__/unit/core-snapshots --coverageDirectory .coverage/unit/core-snapshots --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -511,7 +511,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-state --coverageDirectory .coverage/unit/core-state --maxWorkers=2
+              run: yarn test __tests__/unit/core-state --coverageDirectory .coverage/unit/core-state --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -545,7 +545,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-test-framework --coverageDirectory .coverage/unit/core-test-framework --maxWorkers=2
+              run: yarn test __tests__/unit/core-test-framework --coverageDirectory .coverage/unit/core-test-framework --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -579,7 +579,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-transaction-pool --coverageDirectory .coverage/unit/core-transaction-pool --maxWorkers=2
+              run: yarn test __tests__/unit/core-transaction-pool --coverageDirectory .coverage/unit/core-transaction-pool --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -613,7 +613,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-transactions --coverageDirectory .coverage/unit/core-transactions --maxWorkers=2
+              run: yarn test __tests__/unit/core-transactions --coverageDirectory .coverage/unit/core-transactions --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -647,7 +647,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/core-webhooks --coverageDirectory .coverage/unit/core-webhooks --maxWorkers=2
+              run: yarn test __tests__/unit/core-webhooks --coverageDirectory .coverage/unit/core-webhooks --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -681,7 +681,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: jest __tests__/unit/crypto --coverageDirectory .coverage/unit/crypto --maxWorkers=2
+              run: yarn test __tests__/unit/crypto --coverageDirectory .coverage/unit/crypto --maxWorkers=2
 
             - name: Codecov
               uses: codecov/codecov-action@v1
