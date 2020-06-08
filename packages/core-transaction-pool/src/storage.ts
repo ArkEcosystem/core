@@ -1,5 +1,4 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
 
@@ -30,19 +29,17 @@ export class Storage implements Contracts.TransactionPool.Storage {
         return !!this.database.prepare("SELECT COUNT(*) FROM pool WHERE id = ?").pluck(true).get(id);
     }
 
-    public getAllTransactions(): Iterable<Interfaces.ITransaction> {
+    public getAllTransactions(): Iterable<{ id: string; serialized: Buffer }> {
         return this.database
-            .prepare("SELECT LOWER(HEX(serialized)) FROM pool")
-            .pluck(true)
+            .prepare("SELECT id, LOWER(HEX(serialized)) AS hex FROM pool")
             .all()
-            .map((hex) => Transactions.TransactionFactory.fromHex(hex));
+            .map(({ id, hex }) => {
+                return { id, serialized: Buffer.from(hex, "hex") };
+            });
     }
 
-    public addTransaction(transaction: Interfaces.ITransaction): void {
-        this.database.prepare("INSERT INTO pool (id, serialized) VALUES (:id, :serialized)").run({
-            id: transaction.id,
-            serialized: transaction.serialized,
-        });
+    public addTransaction(id: string, serialized: Buffer): void {
+        this.database.prepare("INSERT INTO pool (id, serialized) VALUES (:id, :serialized)").run({ id, serialized });
     }
 
     public removeTransaction(id: string): void {
