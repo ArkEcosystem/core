@@ -8,13 +8,6 @@ import { AbstractRepository } from "./abstract-repository";
 
 @EntityRepository(Block)
 export class BlockRepository extends AbstractRepository<Block> {
-    public constructor(
-        private cryptoManager: CryptoSuite.CryptoManager,
-        private transactionsManager: CryptoSuite.TransactionManager,
-    ) {
-        super();
-    }
-
     public async findLatest(): Promise<BlockInterfaces.IBlockData | undefined> {
         return (this.findOne({
             order: { height: "DESC" },
@@ -59,7 +52,11 @@ export class BlockRepository extends AbstractRepository<Block> {
             .getMany();
     }
 
-    public async findByHeightRangeWithTransactions(start: number, end: number): Promise<BlockInterfaces.IBlockData[]> {
+    public async findByHeightRangeWithTransactions(
+        start: number,
+        end: number,
+        transactionManager: CryptoSuite.TransactionManager,
+    ): Promise<BlockInterfaces.IBlockData[]> {
         const [query, parameters] = this.manager.connection.driver.escapeQueryWithParameters(
             `
                 SELECT *,
@@ -86,7 +83,7 @@ export class BlockRepository extends AbstractRepository<Block> {
                 (entity: Block & { transactions: Interfaces.ITransactionData[] }, _, value: Buffer[] | undefined) => {
                     if (value && value.length) {
                         entity.transactions = value.map(
-                            (buffer) => this.transactionsManager.TransactionFactory.fromBytesUnsafe(buffer).data,
+                            (buffer) => transactionManager.TransactionFactory.fromBytesUnsafe(buffer).data,
                         );
                     } else {
                         entity.transactions = [];
@@ -188,14 +185,17 @@ export class BlockRepository extends AbstractRepository<Block> {
         });
     }
 
-    public async deleteBlocks(blocks: BlockInterfaces.IBlockData[]): Promise<void> {
+    public async deleteBlocks(
+        blocks: BlockInterfaces.IBlockData[],
+        cryptoManager: CryptoSuite.CryptoManager,
+    ): Promise<void> {
         return this.manager.transaction(async (manager) => {
             // Delete all rounds after the current round if there are still
             // any left.
             const lastBlockHeight: number = blocks[blocks.length - 1].height;
             const { round } = Utils.roundCalculator.calculateRound(
                 lastBlockHeight,
-                this.cryptoManager.MilestoneManager.getMilestones(),
+                cryptoManager.MilestoneManager.getMilestones(),
             );
             const blockIds = { blockIds: blocks.map((b) => b.id) };
 

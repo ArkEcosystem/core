@@ -339,7 +339,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         await __removeBlocks(nblocks);
 
-        await this.blockRepository.deleteBlocks(removedBlocks);
+        await this.blockRepository.deleteBlocks(removedBlocks, this.cryptoManager);
 
         if (this.transactionPool) {
             this.transactionPool.readdTransactions(removedTransactions.reverse());
@@ -364,7 +364,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         );
 
         try {
-            await this.blockRepository.deleteBlocks(blocks);
+            await this.blockRepository.deleteBlocks(blocks, this.cryptoManager);
             await this.database.loadBlocksFromCurrentRound();
         } catch (error) {
             this.app.log.error(`Encountered error while removing blocks: ${error.message}`);

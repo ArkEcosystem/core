@@ -1,17 +1,17 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Utils } from "@arkecosystem/crypto";
-import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
+
+import secrets from "../../../../packages/core-test-framework/src/internal/passphrases.json";
 
 jest.setTimeout(1200000);
 
 import { DatabaseService } from "@arkecosystem/core-database";
-import { Sandbox } from "@packages/core-test-framework/src";
 
-const sandbox: Sandbox = new Sandbox();
+import { Sandbox } from "../../../../packages/core-test-framework/src";
 
-export const setUp = async (): Promise<Contracts.Kernel.Application> => {
+export const setUp = async (sandbox: Sandbox, crypto: CryptoSuite.CryptoSuite): Promise<Sandbox> => {
     process.env.CORE_RESET_DATABASE = "1";
 
     sandbox.withCoreOptions({
@@ -52,13 +52,13 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
             },
         });
 
-        Managers.configManager.getMilestone().aip11 = false;
-        Managers.configManager.getMilestone().htlcEnabled = false;
+        crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = false;
+        crypto.CryptoManager.MilestoneManager.getMilestone().htlcEnabled = false;
 
         await app.boot();
 
-        Managers.configManager.getMilestone().aip11 = true;
-        Managers.configManager.getMilestone().htlcEnabled = true;
+        crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
+        crypto.CryptoManager.MilestoneManager.getMilestone().htlcEnabled = true;
 
         const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
         const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
@@ -69,13 +69,15 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
 
         await databaseService.saveRound(
             secrets.map((secret, i) => {
-                const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase(secret));
+                const wallet = walletRepository.findByPublicKey(
+                    crypto.CryptoManager.Identities.PublicKey.fromPassphrase(secret),
+                );
 
                 wallet.setAttribute("delegate", {
                     username: `genesis_${i + 1}`,
-                    voteBalance: Utils.BigNumber.make("300000000000000"),
-                    forgedFees: Utils.BigNumber.ZERO,
-                    forgedRewards: Utils.BigNumber.ZERO,
+                    voteBalance: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("300000000000000"),
+                    forgedFees: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
+                    forgedRewards: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO,
                     producedBlocks: 0,
                     round: 1,
                     rank: undefined,
@@ -85,13 +87,14 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
             }),
         );
 
-        await (databaseService as any).initializeActiveDelegates(1);
+        // @ts-ignore
+        await databaseService.initializeActiveDelegates(1);
     });
 
-    return sandbox.app;
+    return sandbox;
 };
 
-export const tearDown = async (): Promise<void> => {
+export const tearDown = async (sandbox: Sandbox): Promise<void> => {
     // const databaseService = sandbox.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
     // await databaseService.reset();
 

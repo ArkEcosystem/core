@@ -1,7 +1,5 @@
 import { CryptoSuite } from "@arkecosystem/core-crypto";
 
-import { createDefaultTransactionManager } from "../../utils/transaction-manager";
-
 export {};
 
 declare global {
@@ -14,11 +12,7 @@ declare global {
 }
 
 expect.extend({
-    toHaveValidSecondSignature: (
-        actual,
-        expected,
-        transactionTools: CryptoSuite.TransactionTools = createDefaultTransactionManager(),
-    ) => {
+    toHaveValidSecondSignature: (actual, expected, transactionTools: CryptoSuite.TransactionTools) => {
         let verified: boolean = false;
         try {
             verified = transactionTools.Verifier.verifySecondSignature(actual, expected.publicKey);

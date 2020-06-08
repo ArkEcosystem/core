@@ -1,3 +1,4 @@
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Transaction } from "@arkecosystem/core-database/src/models";
 import { TransactionRepository } from "@arkecosystem/core-database/src/repositories";
 
@@ -69,7 +70,11 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
         });
     }
 
-    public async getFeeStatistics(days: number, minFee?: number): Promise<FeeStatistics[]> {
+    public async getFeeStatistics(
+        cryptoManager: CryptoSuite.CryptoManager,
+        days: number,
+        minFee?: number,
+    ): Promise<FeeStatistics[]> {
         return mockFeeStatistics;
     }
 }

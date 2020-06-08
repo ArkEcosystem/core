@@ -9,10 +9,6 @@ import { AbstractRepository } from "./abstract-repository";
 
 @EntityRepository(Transaction)
 export class TransactionRepository extends AbstractRepository<Transaction> {
-    public constructor(private cryptoManager: CryptoSuite.CryptoManager) {
-        super();
-    }
-
     public async findByBlockIds(
         blockIds: string[],
     ): Promise<
@@ -55,6 +51,7 @@ export class TransactionRepository extends AbstractRepository<Transaction> {
     }
 
     public async getFeeStatistics(
+        cryptoManager: CryptoSuite.CryptoManager,
         days: number,
         minFee?: number,
     ): Promise<
@@ -69,7 +66,7 @@ export class TransactionRepository extends AbstractRepository<Transaction> {
     > {
         minFee = minFee || 0;
 
-        const age = this.cryptoManager.LibraryManager.Crypto.Slots.getTime(dayjs().subtract(days, "day").valueOf());
+        const age = cryptoManager.LibraryManager.Crypto.Slots.getTime(dayjs().subtract(days, "day").valueOf());
 
         return this.createQueryBuilder()
             .select(['type_group AS "typeGroup"', "type"])

@@ -97,7 +97,7 @@ export class NodeController extends Controller {
 
     public async fees(request: Hapi.Request) {
         // @ts-ignore
-        const results = await this.transactionRepository.getFeeStatistics(request.query.days);
+        const results = await this.transactionRepository.getFeeStatistics(this.cryptoManager, request.query.days);
 
         const groupedByTypeGroup = {};
         for (const result of results) {

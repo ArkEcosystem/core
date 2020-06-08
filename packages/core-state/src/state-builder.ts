@@ -1,6 +1,6 @@
 import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Repositories } from "@arkecosystem/core-database";
-import { Application, Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Application, Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Types } from "@arkecosystem/crypto";
 
@@ -32,9 +32,6 @@ export class StateBuilder {
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private emitter!: Contracts.Kernel.EventDispatcher;
-
-    @Container.inject(Container.Identifiers.ConfigRepository)
-    private readonly configRepository!: Services.Config.ConfigRepository;
 
     public async run(): Promise<void> {
         this.logger = this.app.log;
@@ -119,7 +116,7 @@ export class StateBuilder {
                 //          Results in a negative balance (-2 ARK) from height 93478 to 187315
                 const negativeBalanceExceptions:
                     | Record<string, Record<string, string>>
-                    | undefined = this.configRepository.get("crypto.exceptions.negativeBalances");
+                    | undefined = this.cryptoManager.NetworkConfigManager.get("exceptions.negativeBalances");
 
                 AppUtils.assert.defined<Record<string, Record<string, string>>>(negativeBalanceExceptions);
 

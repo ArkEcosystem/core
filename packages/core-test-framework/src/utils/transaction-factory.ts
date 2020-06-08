@@ -1,4 +1,4 @@
-import { CryptoSuite, Validation } from "@arkecosystem/core-crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
     Builders as MagistrateBuilders,
@@ -35,24 +35,23 @@ export class TransactionFactory {
     private app: Contracts.Kernel.Application;
 
     private constructor(
-        cryptoManager?: CryptoSuite.CryptoManager,
+        cryptoSuite: CryptoSuite.CryptoSuite,
         app?: Contracts.Kernel.Application,
         schemaValidator?: Interfaces.Validator,
     ) {
         // @ts-ignore - this is only needed because of the "getNonce"
         // method so we don't care if it is undefined in certain scenarios
         this.app = app;
-        this.cryptoManager = cryptoManager ? cryptoManager : CryptoSuite.CryptoManager.createFromPreset("testnet");
-        const validator = schemaValidator ? schemaValidator : Validation.Validator.make(this.cryptoManager);
-        this.transactionsManager = new CryptoSuite.TransactionManager(this.cryptoManager, validator);
+        this.cryptoManager = cryptoSuite.CryptoManager;
+        this.transactionsManager = cryptoSuite.TransactionManager;
     }
 
     public static initialize(
-        cryptoManager?: CryptoSuite.CryptoManager,
+        cryptoSuite: CryptoSuite.CryptoSuite,
         app?: Contracts.Kernel.Application,
         schemaValidator?: Interfaces.Validator,
     ): TransactionFactory {
-        return new TransactionFactory(cryptoManager, app, schemaValidator);
+        return new TransactionFactory(cryptoSuite, app, schemaValidator);
     }
 
     public transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory {

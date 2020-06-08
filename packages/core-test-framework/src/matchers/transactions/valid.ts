@@ -1,7 +1,5 @@
 import { CryptoSuite } from "@arkecosystem/core-crypto";
 
-import { createDefaultTransactionManager } from "../../utils/transaction-manager";
-
 export {};
 
 declare global {
@@ -14,10 +12,7 @@ declare global {
 }
 
 expect.extend({
-    toBeValidTransaction: (
-        actual,
-        transactionTools: CryptoSuite.TransactionTools = createDefaultTransactionManager(),
-    ) => {
+    toBeValidTransaction: (actual, transactionTools: CryptoSuite.TransactionTools) => {
         let verified = false;
 
         try {

@@ -58,13 +58,13 @@ export class LoadCryptography implements Bootstrapper {
 
         this.blockFactory = new Blocks.BlockFactory(this.cryptoManager, this.transactionManager, validator);
 
-        this.app.bind<CryptoSuite.CryptoManager>(Identifiers.CryptoManager).toConstantValue(this.cryptoManager);
+        this.app.rebind<CryptoSuite.CryptoManager>(Identifiers.CryptoManager).toConstantValue(this.cryptoManager);
 
         this.app
-            .bind<CryptoSuite.TransactionManager>(Identifiers.TransactionManager)
+            .rebind<CryptoSuite.TransactionManager>(Identifiers.TransactionManager)
             .toConstantValue(this.transactionManager);
 
-        this.app.bind<Blocks.BlockFactory>(Identifiers.BlockFactory).toConstantValue(this.blockFactory);
+        this.app.rebind<Blocks.BlockFactory>(Identifiers.BlockFactory).toConstantValue(this.blockFactory);
     }
 
     /**

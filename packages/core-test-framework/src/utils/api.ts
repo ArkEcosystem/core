@@ -1,13 +1,17 @@
 import "jest-extended";
 
 import { Identifiers } from "@arkecosystem/core-api";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import secrets from "../internal/passphrases.json";
 import { TransactionFactory } from "./transaction-factory";
 
 export class ApiHelpers {
-    public constructor(private readonly app: Contracts.Kernel.Application) {}
+    public constructor(
+        private readonly crypto: CryptoSuite.CryptoSuite,
+        private readonly app: Contracts.Kernel.Application,
+    ) {}
 
     public async request(method, path, params = {}, headers = {}) {
         // Build URL params from _params_ object for GET / DELETE requests
@@ -174,7 +178,7 @@ export class ApiHelpers {
 
     // todo: fix the use of the factory
     public async createTransfer(passphrase?: string, nonce: number = 0) {
-        const transaction = TransactionFactory.initialize()
+        const transaction = TransactionFactory.initialize(this.crypto)
             .withVersion(2)
             .transfer("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1", 100000000, "test")
             .withPassphrase(passphrase || secrets[0])

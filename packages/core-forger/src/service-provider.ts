@@ -6,7 +6,7 @@ import { DelegateFactory } from "./delegate-factory";
 import { DelegateTracker } from "./delegate-tracker";
 import { ForgerService } from "./forger-service";
 import { Delegate } from "./interfaces";
-import { CurrentDelegateProcessAction, NextSlotProcessAction, LastForgedBlockRemoteAction } from "./process-actions";
+import { CurrentDelegateProcessAction, LastForgedBlockRemoteAction, NextSlotProcessAction } from "./process-actions";
 
 /**
  * @export

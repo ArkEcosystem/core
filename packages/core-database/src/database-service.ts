@@ -301,7 +301,7 @@ export class DatabaseService {
             // ! but querying database is unnecessary when later blocks are missing too (aren't forged yet)
             blocks = headersOnly
                 ? await this.blockRepository.findByHeightRange(start, end)
-                : await this.blockRepository.findByHeightRangeWithTransactions(start, end);
+                : await this.blockRepository.findByHeightRangeWithTransactions(start, end, this.transactionsManager);
         }
 
         return blocks;
@@ -325,6 +325,7 @@ export class DatabaseService {
         return (this.blockRepository.findByHeightRangeWithTransactions(
             offset,
             offset + limit - 1,
+            this.transactionsManager,
         ) as unknown) as Promise<Contracts.Shared.DownloadBlock[]>;
     }
 
@@ -665,7 +666,7 @@ export class DatabaseService {
 
                 if (tries > 0) {
                     const block: Interfaces.IBlockData = (await this.blockRepository.findLatest())!;
-                    await this.blockRepository.deleteBlocks([block]);
+                    await this.blockRepository.deleteBlocks([block], this.cryptoManager);
                     tries--;
                 } else {
                     this.app.terminate("Unable to deserialize last block from database.", error);
