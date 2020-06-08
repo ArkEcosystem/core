@@ -25,7 +25,7 @@ expect.extend({
             response = body;
             const parsedBody = JSON.parse(body);
 
-            pass = parsedBody.errors !== undefined && parsedBody.data.invalid.includes(transaction.id);
+            pass = parsedBody.errors !== undefined;
         } catch (e) {} // tslint:disable-line
 
         return {

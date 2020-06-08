@@ -11,7 +11,7 @@ export class TransformEncoder extends Transform {
 
         const buffer: ByteBuffer = new ByteBuffer(4 + encoded.length, true);
 
-        buffer.writeUInt32(encoded.length);
+        buffer.writeUint32(encoded.length);
         buffer.append(encoded);
 
         this.push(buffer.buffer);
