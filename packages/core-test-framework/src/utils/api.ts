@@ -185,14 +185,7 @@ export class ApiHelpers {
             .withNonce(Utils.BigNumber.make(nonce))
             .createOne();
 
-        // @ts-ignore
-        await Utils.http.post("http://127.0.0.1:4003/api/transactions", {
-            body: {
-                // @ts-ignore - object can't be assigned to primitive
-                transactions: [transaction],
-            },
-            headers: { "Content-Type": "application/json" },
-        });
+        await this.request("POST", "transactions", { transactions: [transaction] });
 
         return transaction;
     }

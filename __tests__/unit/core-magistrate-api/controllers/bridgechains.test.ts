@@ -54,6 +54,9 @@ afterEach(() => {
         Transactions.TransactionRegistry.deregisterTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
+        Transactions.TransactionRegistry.deregisterTransactionType(
+            MagistrateTransactions.EntityTransaction,
+        );
     } catch {}
 });
 

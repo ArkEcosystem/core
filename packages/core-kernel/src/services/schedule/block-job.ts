@@ -1,8 +1,10 @@
 import { Interfaces } from "@arkecosystem/core-crypto";
 import { CryptoManager } from "@arkecosystem/crypto";
+import { performance } from "perf_hooks";
 
+import { Application } from "../../contracts/kernel";
 import { EventDispatcher } from "../../contracts/kernel/events";
-import { BlockEvent } from "../../enums";
+import { BlockEvent, ScheduleEvent } from "../../enums";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { Job } from "./interfaces";
 import { ExecuteCallbackWhenReady } from "./listeners";
@@ -21,6 +23,9 @@ export class BlockJob implements Job {
      */
     protected blockCount: number = 1;
 
+    @inject(Identifiers.Application)
+    protected readonly app!: Application;
+
     /**
      * @private
      * @type {EventDispatcher}
@@ -37,7 +42,18 @@ export class BlockJob implements Job {
      * @memberof BlockJob
      */
     public execute(callback: Function): void {
-        this.events.listen(BlockEvent.Received, new ExecuteCallbackWhenReady(callback, this.blockCount));
+        const onCallback = async () => {
+            const start = performance.now();
+
+            await callback();
+
+            await this.app.events.dispatch(ScheduleEvent.BlockJobFinished, {
+                executionTime: performance.now() - start,
+                blockCount: this.blockCount,
+            });
+        };
+
+        this.events.listen(BlockEvent.Received, new ExecuteCallbackWhenReady(onCallback, this.blockCount));
     }
 
     /**

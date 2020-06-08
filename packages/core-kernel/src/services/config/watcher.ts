@@ -1,30 +1,7 @@
-import nsfw from "nsfw";
+import nsfw, { ActionType, NSFW } from "nsfw";
 
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
-
-/**
- * @interface FileEvent
- */
-interface FileEvent {
-    /**
-     * @type {number}
-     * @memberof FileEvent
-     */
-    action: number;
-
-    /**
-     * @type {string}
-     * @memberof FileEvent
-     */
-    directory: string;
-
-    /**
-     * @type {string}
-     * @memberof FileEvent
-     */
-    file: string;
-}
 
 /**
  * @export
@@ -44,10 +21,10 @@ export class Watcher {
 
     /**
      * @private
-     * @type {nsfw}
+     * @type {NSFW}
      * @memberof Watcher
      */
-    private watcher: nsfw;
+    private watcher!: NSFW;
 
     /**
      * @returns {Promise<void>}
@@ -56,9 +33,9 @@ export class Watcher {
     public async boot(): Promise<void> {
         const configFiles: string[] = [".env", "delegates.json", "peers.json", "plugins.js", "plugins.json"];
 
-        this.watcher = await nsfw(this.app.configPath(), (events: FileEvent[]) => {
+        this.watcher = await nsfw(this.app.configPath(), (events) => {
             for (const event of events) {
-                if (configFiles.includes(event.file) && event.action === nsfw.actions.MODIFIED) {
+                if (event.action === ActionType.MODIFIED && configFiles.includes(event.file)) {
                     this.app.reboot();
                 }
             }

@@ -291,3 +291,17 @@ describe("BlockRepository.listByExpression", () => {
         expect(listResult.rows).toStrictEqual([toBlockModel(block3), toBlockModel(block2)]);
     });
 });
+
+describe("BlockRepository.deleteTopBlocks", () => {
+    it("should delete blocks", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        await blockRepository.deleteTopBlocks(2);
+        const block1ById = await blockRepository.findById(block1.data.id);
+        const block2ById = await blockRepository.findById(block2.data.id);
+        const block3ById = await blockRepository.findById(block3.data.id);
+        expect(block1ById).toStrictEqual(toBlockModel(block1));
+        expect(block2ById).toBeUndefined();
+        expect(block3ById).toBeUndefined();
+    });
+});

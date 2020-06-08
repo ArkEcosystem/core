@@ -9504,11 +9504,6 @@ lodash.isfunction@^3.0.8, lodash.isfunction@~3.0.8:
   resolved "https://registry.yarnpkg.com/lodash.isfunction/-/lodash.isfunction-3.0.9.tgz#06de25df4db327ac931981d1bdb067e5af68d051"
   integrity sha512-AirXNj15uRIMMPihnkInB4i3NHeb4iBtNg9WRWuK2o31S+ePwwNmDPaTL3o7dTJ+VXNZim7rFs4rxN4YU1oUJw==
 
-lodash.isinteger@^4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/lodash.isinteger/-/lodash.isinteger-4.0.4.tgz#619c0af3d03f8b04c31f5882840b77b11cd68343"
-  integrity sha1-YZwK89A/iwTDH1iChAt3sRzWg0M=
-
 lodash.ismatch@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.ismatch/-/lodash.ismatch-4.4.0.tgz#756cb5150ca3ba6f11085a78849645f188f85f37"
@@ -9518,11 +9513,6 @@ lodash.isnumber@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/lodash.isnumber/-/lodash.isnumber-3.0.3.tgz#3ce76810c5928d03352301ac287317f11c0b1ffc"
   integrity sha1-POdoEMWSjQM1IwGsKHMX8RwLH/w=
-
-lodash.isundefined@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/lodash.isundefined/-/lodash.isundefined-3.0.1.tgz#23ef3d9535565203a66cefd5b830f848911afb48"
-  integrity sha1-I+89lTVWUgOmbO/VuDD4SJEa+0g=
 
 lodash.map@^4.6.0:
   version "4.6.0"
@@ -10284,7 +10274,7 @@ mz@^2.4.0, mz@^2.5.0, mz@^2.7.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-nan@^2.0.0, nan@^2.12.1, nan@^2.13.1, nan@^2.13.2:
+nan@^2.12.1, nan@^2.13.1, nan@^2.13.2:
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.0.tgz#7818f722027b2459a86f0295d434d1fc2336c52c"
   integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
@@ -10402,6 +10392,11 @@ node-abi@^2.7.0:
   integrity sha512-+sa0XNlWDA6T+bDLmkCUYn6W5k5W6BPRL6mqzSCs6H/xUgtl4D5x2fORKDzopKiU6wsyn/+wXlRXwXeSp+mtoA==
   dependencies:
     semver "^5.4.1"
+
+node-addon-api@*:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-3.0.0.tgz#812446a1001a54f71663bed188314bba07e09247"
+  integrity sha512-sSHCgWfJ+Lui/u+0msF3oyCgvdkhxDbkCS6Q8uiJquzOimkJBvX6hl5aSSA7DR1XbMpdM8r7phjcF63sF4rkKg==
 
 node-addon-api@^2.0.0:
   version "2.0.0"
@@ -10782,15 +10777,12 @@ npm-run-path@^4.0.0:
     gauge "~2.7.3"
     set-blocking "~2.0.0"
 
-nsfw@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/nsfw/-/nsfw-1.2.5.tgz#febe581af616f7b042f89df133abe62416c4c803"
-  integrity sha512-m3mwZUKXiCR69PDMLfAmKmiNzy0Oe9LhFE0DYZC5cc1htNj5Hyb1sAgglXhuaDkibFy22AVvPC5cCFB3A6mYIw==
+nsfw@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/nsfw/-/nsfw-2.0.0.tgz#b0e431dbccf7ea01fc31d9285325ad31f0aaf5a8"
+  integrity sha512-MO/+8Gjqnm8YviA0H4XZccz38wXhFNc4w7UCqsvge/cOyoN8tNzDUF257CyJzEUPmcJB0YRtMt9IKLE1eCOu+A==
   dependencies:
-    fs-extra "^7.0.0"
-    lodash.isinteger "^4.0.4"
-    lodash.isundefined "^3.0.1"
-    nan "^2.0.0"
+    node-addon-api "*"
 
 number-is-nan@^1.0.0:
   version "1.0.1"

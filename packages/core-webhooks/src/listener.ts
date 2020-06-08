@@ -1,8 +1,10 @@
 import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { performance } from "perf_hooks";
 
 import { Conditions } from "./conditions";
 import { Database } from "./database";
+import { WebhookEvent } from "./events";
 import { Identifiers } from "./identifiers";
 import { Webhook } from "./interfaces";
 
@@ -42,6 +44,11 @@ export class Listener {
      * @memberof Listener
      */
     public async handle({ name, data }): Promise<void> {
+        // Skip own events to prevent cycling
+        if (name.toString().includes("webhooks")) {
+            return;
+        }
+
         const webhooks: Webhook[] = this.getWebhooks(name, data);
 
         for (const webhook of webhooks) {
@@ -56,6 +63,8 @@ export class Listener {
      * @memberof Broadcaster
      */
     public async broadcast(webhook: Webhook, payload: object, timeout: number = 1500): Promise<void> {
+        const start = performance.now();
+
         try {
             const { statusCode } = await Utils.http.post(webhook.target, {
                 body: {
@@ -72,8 +81,29 @@ export class Listener {
             this.logger.debug(
                 `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${statusCode}].`,
             );
+
+            await this.dispatchWebhookEvent(start, webhook, payload);
         } catch (error) {
             this.logger.error(`Webhooks Job ${webhook.id} failed: ${error.message}`);
+
+            await this.dispatchWebhookEvent(start, webhook, payload, error);
+        }
+    }
+
+    private async dispatchWebhookEvent(start: number, webhook: Webhook, payload: object, err?: Error) {
+        if (err) {
+            this.app.events.dispatch(WebhookEvent.Failed, {
+                executionTime: performance.now() - start,
+                webhook: webhook,
+                payload: payload,
+                error: err,
+            });
+        } else {
+            this.app.events.dispatch(WebhookEvent.Broadcasted, {
+                executionTime: performance.now() - start,
+                webhook: webhook,
+                payload: payload,
+            });
         }
     }
 

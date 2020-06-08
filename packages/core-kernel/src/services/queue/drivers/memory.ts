@@ -1,5 +1,9 @@
+import { performance } from "perf_hooks";
+
+import { Application } from "../../../contracts/kernel/application";
 import { Queue, QueueJob } from "../../../contracts/kernel/queue";
-import { injectable } from "../../../ioc";
+import { QueueEvent } from "../../../enums";
+import { Identifiers, inject, injectable } from "../../../ioc";
 
 /**
  * @export
@@ -8,6 +12,9 @@ import { injectable } from "../../../ioc";
  */
 @injectable()
 export class MemoryQueue implements Queue {
+    @inject(Identifiers.Application)
+    protected readonly app!: Application;
+
     /**
      * @private
      * @type {(QueueJob[])}
@@ -93,7 +100,7 @@ export class MemoryQueue implements Queue {
      * @memberof MemoryQueue
      */
     public async resume(): Promise<void> {
-        this.lastQueue = this.processFromIndex(this.index, this.lastResults);
+        this.lastQueue = this.processFromIndex(this.index + 1, this.lastResults);
     }
 
     /**
@@ -174,12 +181,24 @@ export class MemoryQueue implements Queue {
             if (isRunning) {
                 this.isRunning = isRunning;
 
+                const start = performance.now();
                 try {
                     lastResults.push(await this.jobs[from].handle());
+
+                    await this.app.events.dispatch(QueueEvent.Finished, {
+                        driver: "memory",
+                        executionTime: performance.now() - start,
+                    });
 
                     return this.processFromIndex(from + 1, lastResults, this.isRunning);
                 } catch (error) {
                     this.isRunning = false;
+
+                    await this.app.events.dispatch(QueueEvent.Failed, {
+                        driver: "memory",
+                        executionTime: performance.now() - start,
+                        error: error,
+                    });
 
                     throw new Error(
                         `Queue halted at job #${from + 1} due to error in handler ${this.jobs[this.index]}.`,

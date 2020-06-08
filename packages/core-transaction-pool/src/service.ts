@@ -1,5 +1,5 @@
 import { CryptoSuite } from "@arkecosystem/core-crypto";
-import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
@@ -9,8 +9,14 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(Container.Identifiers.CryptoManager)
     private readonly cryptoManager!: CryptoSuite.CryptoManager;
 
+    @Container.inject(Container.Identifiers.TransactionManager)
+    private readonly transactionsManager!: CryptoSuite.TransactionManager;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
+
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
@@ -29,7 +35,11 @@ export class Service implements Contracts.TransactionPool.Service {
     private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
 
     public async boot(): Promise<void> {
-        if (process.env.CORE_RESET_DATABASE) {
+        this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, {
+            handle: () => this.readdTransactions(),
+        });
+
+        if (process.env.CORE_RESET_DATABASE || process.env.CORE_RESET_POOL) {
             this.flush();
         } else {
             await this.readdTransactions();
@@ -46,12 +56,14 @@ export class Service implements Contracts.TransactionPool.Service {
             throw new TransactionAlreadyInPoolError(transaction);
         }
 
-        this.storage.addTransaction(transaction);
+        this.storage.addTransaction(transaction.id, transaction.serialized);
         try {
             await this.addTransactionToMempool(transaction);
             this.logger.debug(`${transaction} added to pool`);
+            this.emitter.dispatch(Enums.TransactionEvent.AddedToPool, transaction.data);
         } catch (error) {
             this.storage.removeTransaction(transaction.id);
+            this.emitter.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
             throw error;
         }
     }
@@ -74,6 +86,8 @@ export class Service implements Contracts.TransactionPool.Service {
             this.storage.removeTransaction(transaction.id);
             this.logger.error(`${transaction} removed from pool (wasn't in mempool)`);
         }
+
+        this.emitter.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
     }
 
     public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
@@ -107,20 +121,21 @@ export class Service implements Contracts.TransactionPool.Service {
             for (const transaction of prevTransactions) {
                 try {
                     await this.addTransactionToMempool(transaction);
-                    this.storage.addTransaction(transaction);
+                    AppUtils.assert.defined<string>(transaction.id);
+                    this.storage.addTransaction(transaction.id, transaction.serialized);
                     prevCount++;
                     count++;
                 } catch (error) {}
             }
         }
 
-        for (const transaction of this.storage.getAllTransactions()) {
+        for (const { id, serialized } of this.storage.getAllTransactions()) {
             try {
+                const transaction = this.transactionsManager.TransactionFactory.fromBytes(serialized);
                 await this.addTransactionToMempool(transaction);
                 count++;
             } catch (error) {
-                AppUtils.assert.defined<string>(transaction.id);
-                this.storage.removeTransaction(transaction.id);
+                this.storage.removeTransaction(id);
             }
         }
 
@@ -164,6 +179,8 @@ export class Service implements Contracts.TransactionPool.Service {
             if (await this.expirationService.isExpired(transaction)) {
                 this.logger.warning(`${transaction} expired`);
                 await this.removeTransaction(transaction);
+
+                this.emitter.dispatch(Enums.TransactionEvent.Expired, transaction.data);
             }
         }
     }

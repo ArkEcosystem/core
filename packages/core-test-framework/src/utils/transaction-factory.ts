@@ -260,6 +260,15 @@ export class TransactionFactory {
         return this;
     }
 
+    public entity(entityAsset: MagistrateInterfaces.IEntityAsset): TransactionFactory {
+        const entityBuilder = new MagistrateBuilders.EntityBuilder();
+        entityBuilder.asset(entityAsset);
+
+        this.builder = entityBuilder;
+
+        return this;
+    }
+
     public withFee(fee: number): TransactionFactory {
         this.fee = this.cryptoManager.LibraryManager.Libraries.BigNumber.make(fee);
 

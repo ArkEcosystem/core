@@ -179,7 +179,7 @@ describe("ApiHelpers", () => {
     describe("createTransfer", () => {
         it("should create transfer transaction", async () => {
             // @ts-ignore
-            const spyOnPost = jest.spyOn(Utils.http, "post").mockImplementation(async (url: any, opts: any) => {});
+            const spyOnRequest = jest.spyOn(api, "request");
 
             const transaction = await api.createTransfer();
 
@@ -194,7 +194,7 @@ describe("ApiHelpers", () => {
             expect(transaction.nonce).toBeDefined();
             expect(transaction.recipientId).toBeDefined();
 
-            expect(spyOnPost).toHaveBeenCalled();
+            expect(spyOnRequest).toHaveBeenCalled();
         });
     });
 });
