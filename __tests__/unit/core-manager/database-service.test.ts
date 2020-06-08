@@ -103,7 +103,7 @@ describe("DatabaseService", () => {
         });
 
         it("should return limit 10 with offset", async () => {
-            const result = database.queryEvents({ offset: 10 });
+            const result = database.queryEvents({ $offset: 10 });
 
             expect(result.total).toBe(200);
             expect(result.limit).toBe(10);
@@ -113,7 +113,7 @@ describe("DatabaseService", () => {
         });
 
         it("should return limit 20", async () => {
-            const result = database.queryEvents({ limit: 20 });
+            const result = database.queryEvents({ $limit: 20 });
 
             expect(result.total).toBe(200);
             expect(result.limit).toBe(20);
@@ -123,7 +123,7 @@ describe("DatabaseService", () => {
         });
 
         it("should return events with name", async () => {
-            const result = database.queryEvents({ limit: 1000, event: "dummy_event" });
+            const result = database.queryEvents({ $limit: 1000, event: "dummy_event" });
 
             expect(result.total).toBe(100);
             expect(result.limit).toBe(1000);
