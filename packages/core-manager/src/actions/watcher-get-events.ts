@@ -1,7 +1,7 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { DatabaseService } from "../database-service";
 
 import { Actions } from "../contracts";
+import { DatabaseService } from "../database-service";
 
 @Container.injectable()
 export class Action implements Actions.Action {
@@ -13,18 +13,15 @@ export class Action implements Actions.Action {
             query: {
                 type: "object",
                 properties: {
-                    limit: {
+                    $limit: {
                         type: "number",
-                        minimum: 0
+                        minimum: 0,
                     },
-                    offset: {
+                    $offset: {
                         type: "number",
-                        minimum: 0
+                        minimum: 0,
                     },
-                    event: {
-                        type: "string",
-                    }
-                }
+                },
             },
         },
         required: ["query"],

@@ -2,6 +2,22 @@ import { Container, Providers } from "@arkecosystem/core-kernel";
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
 
+interface ConditionLine {
+    property: string;
+    condition: string;
+    value: string;
+}
+
+const conditions = new Map<string, string>([
+    ["$eq", "="],
+    ["$ne", "!="],
+    ["$lt", "<"],
+    ["$lte", "<="],
+    ["$gt", ">"],
+    ["$gte", ">="],
+    ["$like", "LIKE"],
+]);
+
 @Container.injectable()
 export class DatabaseService {
     @Container.inject(Container.Identifiers.PluginConfiguration)
@@ -62,7 +78,11 @@ export class DatabaseService {
             limit,
             offset,
             data: this.database
-                .prepare(`SELECT * FROM events ${this.prepareWhere(conditions)} LIMIT ${limit} OFFSET ${offset}`)
+                .prepare(
+                    `SELECT events.id, events.event, events.data, events.timestamp FROM events ${this.prepareWhere(
+                        conditions,
+                    )} LIMIT ${limit} OFFSET ${offset}`,
+                )
                 .pluck(false)
                 .all()
                 .map((x) => {
@@ -73,16 +93,16 @@ export class DatabaseService {
     }
 
     private prepareLimit(conditions?: any): number {
-        if (conditions?.limit && typeof conditions.limit === "number" && conditions.limit <= 1000) {
-            return conditions.limit;
+        if (conditions?.$limit && typeof conditions.$limit === "number" && conditions.$limit <= 1000) {
+            return conditions.$limit;
         }
 
         return 10;
     }
 
     private prepareOffset(conditions?: any): number {
-        if (conditions?.offset && typeof conditions.offset === "number") {
-            return conditions.offset;
+        if (conditions?.$offset && typeof conditions.$offset === "number") {
+            return conditions.$offset;
         }
 
         return 0;
@@ -91,16 +111,92 @@ export class DatabaseService {
     private prepareWhere(conditions?: any): string {
         let query = "";
 
+        const extractedConditions = this.extractWhereConditions(conditions);
+
+        if (extractedConditions.length > 0) {
+            query += "WHERE " + extractedConditions[0];
+        }
+
+        for (let i = 1; i < extractedConditions.length; i++) {
+            query += " AND " + extractedConditions[i];
+        }
+
+        console.log(query);
+
+        return query;
+    }
+
+    private extractWhereConditions(conditions?: any): string[] {
+        let result: string[] = [];
+
         if (!conditions) {
-            return query;
+            return [];
         }
 
         for (const key of Object.keys(conditions)) {
             if (key === "event") {
-                query += `WHERE event LIKE '${conditions[key]}%'`;
+                result = [
+                    ...result,
+                    ...this.extractConditions(conditions[key], key).map((x) => this.conditionLineToSQLCondition(x)),
+                ];
+            }
+            if (key === "data") {
+                result = [
+                    ...result,
+                    ...this.extractConditions(conditions[key], "$").map((x) =>
+                        this.conditionLineToSQLCondition(x, key),
+                    ),
+                ];
             }
         }
 
-        return query;
+        return result;
+    }
+
+    private conditionLineToSQLCondition(conditionLine: ConditionLine, jsonExtractProperty?: string): string {
+        const useQuote = typeof conditionLine.value !== "number";
+
+        if (jsonExtractProperty) {
+            // Example: json_extract(data, '$.publicKey') = '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
+            // prettier-ignore
+            return `json_extract(${jsonExtractProperty}, '${conditionLine.property}') ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
+        }
+
+        // Example: event LIKE 'wallet'
+        // prettier-ignore
+        return `${conditionLine.property} ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
+    }
+
+    private extractConditions(data: any, property: string): ConditionLine[] {
+        let result: ConditionLine[] = [];
+
+        if (!data) {
+            /* istanbul ignore next */
+            return [];
+        }
+
+        if (typeof data !== "object") {
+            result.push({
+                property: `${property}`,
+                condition: "$eq",
+                value: data,
+            });
+
+            return result;
+        }
+
+        for (const key of Object.keys(data)) {
+            if (key.startsWith("$")) {
+                result.push({
+                    property: property,
+                    condition: key,
+                    value: data[key],
+                });
+            } else {
+                result = [...result, ...this.extractConditions(data[key], `${property}.${key}`)];
+            }
+        }
+
+        return result;
     }
 }
