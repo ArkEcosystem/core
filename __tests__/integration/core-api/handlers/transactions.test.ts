@@ -217,6 +217,7 @@ describe("API 2.0 - Transactions", () => {
                     BridgechainRegistration: 3,
                     BridgechainResignation: 4,
                     BridgechainUpdate: 5,
+                    Entity: 6,
                 },
             });
         });
@@ -653,6 +654,7 @@ describe("API 2.0 - Transactions", () => {
                     businessRegistration: "5000000000",
                     businessResignation: "5000000000",
                     businessUpdate: "5000000000",
+                    entity: "5000000000",
                 },
             });
         });

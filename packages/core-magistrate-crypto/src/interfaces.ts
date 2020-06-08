@@ -1,3 +1,5 @@
+import { EntityType, EntitySubType, EntityAction } from "./enums";
+
 export interface IBridgechainPorts {
     [name: string]: number;
 }
@@ -35,4 +37,17 @@ export interface IBridgechainUpdateAsset {
 
 export interface IBridgechainResignationAsset {
     bridgechainId: string;
+}
+
+export interface IEntityAssetData {
+    name?: string;
+    ipfsData?: string;
+}
+
+export interface IEntityAsset {
+    type: EntityType;
+    subType: EntitySubType;
+    action: EntityAction;
+    registrationId?: string;
+    data: IEntityAssetData;
 }

@@ -194,6 +194,10 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                 searchContext = this.searchBusinesses(params);
                 break;
             }
+            case Contracts.State.SearchScope.Entities: {
+                searchContext = this.searchEntities(params);
+                break;
+            }
         }
 
         return searchEntries(params, searchContext.query, searchContext.entries, searchContext.defaultOrder);
@@ -434,6 +438,37 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                         address: wallet.address,
                         ...bridgechain.bridgechainAsset,
                         isResigned: !!bridgechain.resigned,
+                    });
+                }
+
+                return acc;
+            }, []);
+
+        return {
+            query,
+            entries,
+            defaultOrder: ["name", "asc"],
+        };
+    }
+
+    private searchEntities(params: Contracts.Database.QueryParameters): Contracts.State.SearchContext<any> {
+        const query: Record<string, string[]> = {
+            exact: ["id", "isResigned", "publicKey", "type", "subType"],
+            like: ["name"],
+        };
+
+        const entries: any[] = this.getIndex("entities")
+            .entries()
+            .reduce((acc: any, [id, wallet]) => {
+                const entities = wallet.getAttribute("entities", {});
+                if (entities && entities[id]) {
+                    const entity: any = entities[id];
+                    acc.push({
+                        id,
+                        publicKey: wallet.publicKey,
+                        address: wallet.address,
+                        ...entity,
+                        isResigned: !!entity.resigned,
                     });
                 }
 
