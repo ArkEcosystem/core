@@ -62,9 +62,13 @@ export class WatcherWallet extends Wallets.Wallet {
     public clone(): WatcherWallet {
         const clone = new WatcherWallet(this.app, this.address, cloneDeep(this.attributes));
 
-        clone.publicKey = this.publicKey;
-        clone.balance = this.balance;
-        clone.nonce = this.nonce;
+        for (const key of Object.keys(this)) {
+            if (key === "app") {
+                continue;
+            }
+
+            clone[key] = cloneDeep(this[key]);
+        }
 
         return clone;
     }
