@@ -35,7 +35,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage --coverageDirectory .coverage/unit/core
+              run: yarn test __tests__/unit/core --coverage --coverageDirectory .coverage/unit/core
 
             - name: Codecov
               uses: codecov/codecov-action@v1
