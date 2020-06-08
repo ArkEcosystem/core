@@ -1,4 +1,4 @@
-import { Blocks, Managers, Utils } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Connection } from "typeorm";
 import { getCustomRepository } from "typeorm";
 
@@ -10,6 +10,9 @@ import {
 } from "../__support__";
 import { BlockRepository } from "../../../../packages/core-database/src/repositories/block-repository";
 import { BIP39 } from "../../../../packages/core-forger/src/methods/bip39";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
 
 const getBlockTimeLookup = (height: number): number => {
     throw new Error("Mocked getBlockTimeLookup");
@@ -25,14 +28,17 @@ beforeEach(async () => {
     await clearCoreDatabase(connection);
 });
 
-const bip39 = new BIP39("generator's secret");
-const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"), getBlockTimeLookup);
+const bip39 = new BIP39(crypto.CryptoManager, crypto.BlockFactory, "generator's secret");
+const block1 = crypto.BlockFactory.fromJson(
+    crypto.CryptoManager.NetworkConfigManager.get("genesisBlock"),
+    getBlockTimeLookup,
+);
 const block2 = bip39.forge(
     [],
     {
         timestamp: block1.data.timestamp + 60,
         previousBlock: block1.data,
-        reward: new Utils.BigNumber("100"),
+        reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
     },
     getBlockTimeLookup,
 );
@@ -41,7 +47,7 @@ const block3 = bip39.forge(
     {
         timestamp: block2.data.timestamp + 120,
         previousBlock: block2.data,
-        reward: new Utils.BigNumber("100"),
+        reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
     },
     getBlockTimeLookup,
 );
@@ -115,11 +121,12 @@ describe("BlockRepository.findByHeightRangeWithTransactions", () => {
         const blockByHeightWithTransactions = await blockRepository.findByHeightRangeWithTransactions(
             block1.data.height,
             block3.data.height,
+            crypto.TransactionManager,
         );
         expect(blockByHeightWithTransactions).toStrictEqual([
-            toBlockModelWithTransactions(block1),
-            toBlockModelWithTransactions(block2),
-            toBlockModelWithTransactions(block3),
+            toBlockModelWithTransactions(block1, crypto.TransactionManager),
+            toBlockModelWithTransactions(block2, crypto.TransactionManager),
+            toBlockModelWithTransactions(block3, crypto.TransactionManager),
         ]);
     });
 });
@@ -211,7 +218,7 @@ describe("BlockRepository.deleteBlocks", () => {
     it("should delete blocks", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
-        await blockRepository.deleteBlocks([block2.data, block3.data]);
+        await blockRepository.deleteBlocks([block2.data, block3.data], crypto.CryptoManager);
         const block1ById = await blockRepository.findById(block1.data.id);
         const block2ById = await blockRepository.findById(block2.data.id);
         const block3ById = await blockRepository.findById(block3.data.id);
@@ -223,7 +230,7 @@ describe("BlockRepository.deleteBlocks", () => {
     it("should throw when deleting blocks from the middle", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
-        const promise = blockRepository.deleteBlocks([block2.data]);
+        const promise = blockRepository.deleteBlocks([block2.data], crypto.CryptoManager);
         await expect(promise).rejects.toThrow("Removing blocks from the middle");
     });
 });

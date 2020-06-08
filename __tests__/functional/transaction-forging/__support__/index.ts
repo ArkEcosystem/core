@@ -59,6 +59,8 @@ export const setUp = async (sandbox: Sandbox, crypto: CryptoSuite.CryptoSuite): 
 
         crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
         crypto.CryptoManager.MilestoneManager.getMilestone().htlcEnabled = true;
+        app.get<any>(Container.Identifiers.CryptoManager).MilestoneManager.getMilestone().aip11 = true;
+        app.get<any>(Container.Identifiers.CryptoManager).MilestoneManager.getMilestone().htlcEnabled = true;
 
         const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
         const walletRepository = app.getTagged<Contracts.State.WalletRepository>(

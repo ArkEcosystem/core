@@ -1,4 +1,5 @@
-import { Blocks, Crypto, Enums, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { CryptoSuite } from "@arkecosystem/core-crypto";
+import { Enums } from "@arkecosystem/crypto";
 import { Connection } from "typeorm";
 import { getCustomRepository } from "typeorm";
 
@@ -6,6 +7,8 @@ import { clearCoreDatabase, getCoreDatabaseConnection } from "../__support__";
 import { BlockRepository } from "../../../../packages/core-database/src/repositories/block-repository";
 import { TransactionRepository } from "../../../../packages/core-database/src/repositories/transaction-repository";
 import { BIP39 } from "../../../../packages/core-forger/src/methods/bip39";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 const getBlockTimeLookup = (height: number): number => {
     throw new Error("Mocked getBlockTimeLookup");
@@ -21,49 +24,52 @@ beforeEach(async () => {
     await clearCoreDatabase(connection);
 });
 
-const transaction1 = Transactions.BuilderFactory.transfer()
+const transaction1 = crypto.TransactionManager.BuilderFactory.transfer()
     .version(1)
     .amount("100")
-    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("1")
     .fee("100")
     .sign("sender's secret")
     .build();
-const transaction2 = Transactions.BuilderFactory.transfer()
+const transaction2 = crypto.TransactionManager.BuilderFactory.transfer()
     .version(1)
     .amount("100")
-    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("2")
     .fee("200")
     .sign("sender's secret")
     .build();
-const transaction3 = Transactions.BuilderFactory.transfer()
+const transaction3 = crypto.TransactionManager.BuilderFactory.transfer()
     .version(1)
     .amount("100")
-    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("3")
     .fee("300")
     .vendorField("vendor field value")
     .sign("sender's secret")
     .build();
 
-const bip39 = new BIP39("generator's secret");
-const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"), getBlockTimeLookup);
+const bip39 = new BIP39(crypto.CryptoManager, crypto.BlockFactory, "generator's secret");
+const block1 = crypto.BlockFactory.fromJson(
+    crypto.CryptoManager.NetworkConfigManager.get("genesisBlock"),
+    getBlockTimeLookup,
+);
 const block2 = bip39.forge(
     [transaction1.data],
     {
-        timestamp: Crypto.Slots.getTime() - 60,
+        timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime() - 60,
         previousBlock: block1.data,
-        reward: new Utils.BigNumber("100"),
+        reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
     },
     getBlockTimeLookup,
 );
 const block3 = bip39.forge(
     [transaction2.data, transaction3.data],
     {
-        timestamp: Crypto.Slots.getTime() - 30,
+        timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime() - 30,
         previousBlock: block2.data,
-        reward: new Utils.BigNumber("100"),
+        reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
     },
     getBlockTimeLookup,
 );
@@ -105,10 +111,17 @@ describe("TransactionRepository.getStatistics", () => {
         const statistics = await transactionRepository.getStatistics();
         expect(statistics.count).toBe(block1.transactions.length.toString());
         expect(statistics.totalAmount).toBe(
-            block1.transactions.reduce((s, t) => s.plus(t.data.amount), new Utils.BigNumber(0)).toString(),
+            block1.transactions
+                .reduce(
+                    (s, t) => s.plus(t.data.amount),
+                    crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
+                )
+                .toString(),
         );
         expect(statistics.totalFee).toBe(
-            block1.transactions.reduce((s, t) => s.plus(t.data.fee), new Utils.BigNumber(0)).toString(),
+            block1.transactions
+                .reduce((s, t) => s.plus(t.data.fee), crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0))
+                .toString(),
         );
     });
 });
@@ -118,7 +131,7 @@ describe("TransactionRepository.getFeeStatistics", () => {
         const blockRepository = getCustomRepository(BlockRepository);
         const transactionRepository = getCustomRepository(TransactionRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
-        const feeStatistics = await transactionRepository.getFeeStatistics(14, 0);
+        const feeStatistics = await transactionRepository.getFeeStatistics(crypto.CryptoManager, 14, 0);
         expect(feeStatistics).toStrictEqual([
             {
                 typeGroup: Enums.TransactionTypeGroup.Core,
@@ -139,7 +152,7 @@ describe("TransactionRepository.getSentTransactions", () => {
         await blockRepository.saveBlocks([block1, block2, block3]);
         const sentTransactions = await transactionRepository.getSentTransactions();
         const senderTransaction = sentTransactions.find(
-            (t) => t.senderPublicKey === Identities.PublicKey.fromPassphrase("sender's secret"),
+            (t) => t.senderPublicKey === crypto.CryptoManager.Identities.PublicKey.fromPassphrase("sender's secret"),
         );
         expect(senderTransaction).toStrictEqual({
             senderPublicKey: transaction1.data.senderPublicKey,
@@ -187,33 +200,33 @@ describe("TransactionRepository.findByType", () => {
 
 describe("TransactionRepository.findByHtlcLocks", () => {
     it("should find htlc claims and refunds by lock ids", async () => {
-        const htlcLock = Transactions.BuilderFactory.htlcLock()
+        const htlcLock = crypto.TransactionManager.BuilderFactory.htlcLock()
             .htlcLockAsset({
                 secretHash: "0".repeat(64),
                 expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
             })
             .amount("100")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("4")
             .fee("300")
             .sign("sender's secret")
             .build();
-        const htlcClaim = Transactions.BuilderFactory.htlcClaim()
+        const htlcClaim = crypto.TransactionManager.BuilderFactory.htlcClaim()
             .htlcClaimAsset({
                 lockTransactionId: htlcLock.id,
                 unlockSecret: "1".repeat(64),
             })
             .amount("0")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("5")
             .sign("sender's secret")
             .build();
         const block4 = bip39.forge(
             [htlcLock.data, htlcClaim.data],
             {
-                timestamp: Crypto.Slots.getTime(),
+                timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(),
                 previousBlock: block3.data,
-                reward: new Utils.BigNumber("100"),
+                reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
             },
             getBlockTimeLookup,
         );
@@ -230,41 +243,41 @@ describe("TransactionRepository.findByHtlcLocks", () => {
 
 describe("TransactionRepository.getOpenHtlcLocks", () => {
     it("should find all htlc locks and add open field indicating if they are open", async () => {
-        const htlcLock1 = Transactions.BuilderFactory.htlcLock()
+        const htlcLock1 = crypto.TransactionManager.BuilderFactory.htlcLock()
             .htlcLockAsset({
                 secretHash: "1".repeat(64),
                 expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
             })
             .amount("100")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("4")
             .fee("300")
             .sign("sender's secret")
             .build();
-        const htlcLock2 = Transactions.BuilderFactory.htlcLock()
+        const htlcLock2 = crypto.TransactionManager.BuilderFactory.htlcLock()
             .htlcLockAsset({
                 secretHash: "2".repeat(64),
                 expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
             })
             .amount("100")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("5")
             .fee("300")
             .sign("sender's secret")
             .build();
-        const htlcClaim1 = Transactions.BuilderFactory.htlcClaim()
+        const htlcClaim1 = crypto.TransactionManager.BuilderFactory.htlcClaim()
             .htlcClaimAsset({ lockTransactionId: htlcLock1.id, unlockSecret: "1".repeat(64) })
             .amount("0")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("6")
             .sign("sender's secret")
             .build();
         const block4 = bip39.forge(
             [htlcLock1.data, htlcLock2.data, htlcClaim1.data],
             {
-                timestamp: Crypto.Slots.getTime(),
+                timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(),
                 previousBlock: block3.data,
-                reward: new Utils.BigNumber("100"),
+                reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
             },
             getBlockTimeLookup,
         );
@@ -281,48 +294,48 @@ describe("TransactionRepository.getOpenHtlcLocks", () => {
 
 describe("TransactionRepository.getClaimedHtlcLockBalances", () => {
     it("should return sum of claimed amounts grouped by recipients", async () => {
-        const htlcLock1 = Transactions.BuilderFactory.htlcLock()
+        const htlcLock1 = crypto.TransactionManager.BuilderFactory.htlcLock()
             .htlcLockAsset({
                 secretHash: "1".repeat(64),
                 expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
             })
             .amount("100")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("4")
             .fee("300")
             .sign("sender's secret")
             .build();
-        const htlcLock2 = Transactions.BuilderFactory.htlcLock()
+        const htlcLock2 = crypto.TransactionManager.BuilderFactory.htlcLock()
             .htlcLockAsset({
                 secretHash: "2".repeat(64),
                 expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
             })
             .amount("100")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("5")
             .fee("300")
             .sign("sender's secret")
             .build();
-        const htlcClaim1 = Transactions.BuilderFactory.htlcClaim()
+        const htlcClaim1 = crypto.TransactionManager.BuilderFactory.htlcClaim()
             .htlcClaimAsset({ lockTransactionId: htlcLock1.id, unlockSecret: "1".repeat(64) })
             .amount("0")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("6")
             .sign("sender's secret")
             .build();
-        const htlcClaim2 = Transactions.BuilderFactory.htlcClaim()
+        const htlcClaim2 = crypto.TransactionManager.BuilderFactory.htlcClaim()
             .htlcClaimAsset({ lockTransactionId: htlcLock2.id, unlockSecret: "1".repeat(64) })
             .amount("0")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("7")
             .sign("sender's secret")
             .build();
         const block4 = bip39.forge(
             [htlcLock1.data, htlcLock2.data, htlcClaim1.data, htlcClaim2.data],
             {
-                timestamp: Crypto.Slots.getTime(),
+                timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(),
                 previousBlock: block3.data,
-                reward: new Utils.BigNumber("100"),
+                reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
             },
             getBlockTimeLookup,
         );
@@ -343,48 +356,48 @@ describe("TransactionRepository.getClaimedHtlcLockBalances", () => {
 
 describe("TransactionRepository.getRefundedHtlcLockBalances", () => {
     it("should return sum of claimed amounts grouped by recipients", async () => {
-        const htlcLock1 = Transactions.BuilderFactory.htlcLock()
+        const htlcLock1 = crypto.TransactionManager.BuilderFactory.htlcLock()
             .htlcLockAsset({
                 secretHash: "1".repeat(64),
                 expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
             })
             .amount("100")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("4")
             .fee("300")
             .sign("sender's secret")
             .build();
-        const htlcLock2 = Transactions.BuilderFactory.htlcLock()
+        const htlcLock2 = crypto.TransactionManager.BuilderFactory.htlcLock()
             .htlcLockAsset({
                 secretHash: "2".repeat(64),
                 expiration: { type: Enums.HtlcLockExpirationType.BlockHeight, value: 100 },
             })
             .amount("100")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("5")
             .fee("300")
             .sign("sender's secret")
             .build();
-        const htlcRefund1 = Transactions.BuilderFactory.htlcRefund()
+        const htlcRefund1 = crypto.TransactionManager.BuilderFactory.htlcRefund()
             .htlcRefundAsset({ lockTransactionId: htlcLock1.id })
             .amount("0")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("6")
             .sign("sender's secret")
             .build();
-        const htlcRefund2 = Transactions.BuilderFactory.htlcRefund()
+        const htlcRefund2 = crypto.TransactionManager.BuilderFactory.htlcRefund()
             .htlcRefundAsset({ lockTransactionId: htlcLock2.id })
             .amount("0")
-            .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+            .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
             .nonce("7")
             .sign("sender's secret")
             .build();
         const block4 = bip39.forge(
             [htlcLock1.data, htlcLock2.data, htlcRefund1.data, htlcRefund2.data],
             {
-                timestamp: Crypto.Slots.getTime(),
+                timestamp: crypto.CryptoManager.LibraryManager.Crypto.Slots.getTime(),
                 previousBlock: block3.data,
-                reward: new Utils.BigNumber("100"),
+                reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("100"),
             },
             getBlockTimeLookup,
         );

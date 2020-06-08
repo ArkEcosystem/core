@@ -1,16 +1,21 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Identities } from "@arkecosystem/crypto";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
 import { generateMnemonic } from "bip39";
 
+import { CryptoSuite } from "../../../packages/core-crypto";
+import { Sandbox } from "../../../packages/core-test-framework/src";
 import * as support from "./__support__";
 
-let app: Contracts.Kernel.Application;
-beforeAll(async () => (app = await support.setUp()));
-afterAll(async () => await support.tearDown());
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
+const sandbox: Sandbox = new Sandbox(crypto);
+
+beforeAll(async () => {
+    await support.setUp(sandbox, crypto);
+});
+afterAll(async () => await support.tearDown(sandbox));
 
 describe("Transaction Forging - Bridgechain update", () => {
     describe("Signed with 1 Passphrase", () => {
@@ -24,7 +29,7 @@ describe("Transaction Forging - Bridgechain update", () => {
 
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.initialize(app)
+            const businessRegistration = TransactionFactory.initialize(crypto, sandbox.app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -33,21 +38,21 @@ describe("Transaction Forging - Bridgechain update", () => {
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(businessRegistration.id).toBeForged();
 
             // Registering a bridgechain
-            const bridgechainRegistration = TransactionFactory.initialize(app)
+            const bridgechainRegistration = TransactionFactory.initialize(crypto, sandbox.app)
                 .bridgechainRegistration(bridgechainRegistrationAsset)
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(bridgechainRegistration).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(bridgechainRegistration.id).toBeForged();
 
             // Updating a bridgechain
-            const bridgechainUpdate = TransactionFactory.initialize(app)
+            const bridgechainUpdate = TransactionFactory.initialize(crypto, sandbox.app)
                 .bridgechainUpdate({
                     bridgechainId: bridgechainRegistrationAsset.genesisHash,
                     seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
@@ -57,22 +62,22 @@ describe("Transaction Forging - Bridgechain update", () => {
                 .createOne();
 
             await expect(bridgechainUpdate).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(bridgechainUpdate.id).toBeForged();
 
             // Bridgechain resignation
-            const bridgechainResignation = TransactionFactory.initialize(app)
+            const bridgechainResignation = TransactionFactory.initialize(crypto, sandbox.app)
                 .bridgechainResignation(bridgechainRegistrationAsset.genesisHash)
                 .withPassphrase(secrets[0])
                 .createOne();
             await expect(bridgechainResignation).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(bridgechainResignation.id).toBeForged();
         });
 
         it("should reject bridgechain update, because bridgechain resigned [Signed with 1 Passphrase]", async () => {
             // Updating a bridgechain after resignation
-            const bridgechainUpdate = TransactionFactory.initialize(app)
+            const bridgechainUpdate = TransactionFactory.initialize(crypto, sandbox.app)
                 .bridgechainUpdate({
                     bridgechainId: bridgechainRegistrationAsset.genesisHash,
                     seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
@@ -81,7 +86,7 @@ describe("Transaction Forging - Bridgechain update", () => {
                 .createOne();
 
             await expect(bridgechainUpdate).toBeRejected();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(bridgechainUpdate.id).not.toBeForged();
         });
 
@@ -95,16 +100,16 @@ describe("Transaction Forging - Bridgechain update", () => {
                 ports: { "@arkecosystem/core-api": 12345 },
             };
 
-            const bridgechainRegistration = TransactionFactory.initialize(app)
+            const bridgechainRegistration = TransactionFactory.initialize(crypto, sandbox.app)
                 .bridgechainRegistration(bridgechainRegistrationAsset2)
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(bridgechainRegistration).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(bridgechainRegistration.id).toBeForged();
 
-            const bridgechainUpdate = TransactionFactory.initialize(app)
+            const bridgechainUpdate = TransactionFactory.initialize(crypto, sandbox.app)
                 .bridgechainUpdate({
                     bridgechainId: bridgechainRegistrationAsset2.genesisHash,
                     seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
@@ -112,7 +117,7 @@ describe("Transaction Forging - Bridgechain update", () => {
                 .withPassphrase(secrets[0])
                 .createOne();
 
-            const bridgechainUpdate2 = TransactionFactory.initialize(app)
+            const bridgechainUpdate2 = TransactionFactory.initialize(crypto, sandbox.app)
                 .bridgechainUpdate({
                     bridgechainId: bridgechainRegistrationAsset2.genesisHash,
                     seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
@@ -122,7 +127,7 @@ describe("Transaction Forging - Bridgechain update", () => {
                 .createOne();
 
             await expect([bridgechainUpdate, bridgechainUpdate2]).not.toBeAllAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(bridgechainUpdate.id).toBeForged();
             await expect(bridgechainUpdate2.id).not.toBeForged();
         });
@@ -135,27 +140,27 @@ describe("Transaction Forging - Bridgechain update", () => {
             const secondPassphrase = generateMnemonic();
 
             // Initial Funds
-            const initialFunds = TransactionFactory.initialize(app)
-                .transfer(Identities.Address.fromPassphrase(passphrase), 200 * 1e8)
+            const initialFunds = TransactionFactory.initialize(crypto, sandbox.app)
+                .transfer(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrase), 200 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(initialFunds).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(initialFunds.id).toBeForged();
 
             // Register a second passphrase
-            const secondSignature = TransactionFactory.initialize(app)
+            const secondSignature = TransactionFactory.initialize(crypto, sandbox.app)
                 .secondSignature(secondPassphrase)
                 .withPassphrase(passphrase)
                 .createOne();
 
             await expect(secondSignature).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(secondSignature.id).toBeForged();
 
             // Registering a business
-            const businessRegistration = TransactionFactory.initialize(app)
+            const businessRegistration = TransactionFactory.initialize(crypto, sandbox.app)
                 .businessRegistration({
                     name: "arkecosystem",
                     website: "https://ark.io",
@@ -165,7 +170,7 @@ describe("Transaction Forging - Bridgechain update", () => {
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(businessRegistration.id).toBeForged();
 
             // Registering a bridgechain
@@ -177,18 +182,18 @@ describe("Transaction Forging - Bridgechain update", () => {
                 ports: { "@arkecosystem/core-api": 12345 },
             };
 
-            const bridgechainRegistration = TransactionFactory.initialize(app)
+            const bridgechainRegistration = TransactionFactory.initialize(crypto, sandbox.app)
                 .bridgechainRegistration(bridgechainRegistrationAsset)
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
                 .createOne();
 
             await expect(bridgechainRegistration).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(bridgechainRegistration.id).toBeForged();
 
             // Update a bridgechian
-            const bridgechainUpdate = TransactionFactory.initialize(app)
+            const bridgechainUpdate = TransactionFactory.initialize(crypto, sandbox.app)
                 .bridgechainUpdate({
                     bridgechainId: bridgechainRegistrationAsset.genesisHash,
                     seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
@@ -198,7 +203,7 @@ describe("Transaction Forging - Bridgechain update", () => {
                 .createOne();
 
             await expect(bridgechainUpdate).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(bridgechainUpdate.id).toBeForged();
         });
     });
@@ -208,47 +213,51 @@ describe("Transaction Forging - Bridgechain update", () => {
         const passphrase = generateMnemonic();
         const passphrases = [passphrase, secrets[4], secrets[5]];
         const participants = [
-            Identities.PublicKey.fromPassphrase(passphrases[0]),
-            Identities.PublicKey.fromPassphrase(passphrases[1]),
-            Identities.PublicKey.fromPassphrase(passphrases[2]),
+            crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]),
+            crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[1]),
+            crypto.CryptoManager.Identities.PublicKey.fromPassphrase(passphrases[2]),
         ];
         it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
             // Funds to register a multi signature wallet
-            const initialFunds = TransactionFactory.initialize(app)
-                .transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
+            const initialFunds = TransactionFactory.initialize(crypto, sandbox.app)
+                .transfer(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(initialFunds).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(initialFunds.id).toBeForged();
 
             // Registering a multi-signature wallet
-            const multiSignature = TransactionFactory.initialize(app)
+            const multiSignature = TransactionFactory.initialize(crypto, sandbox.app)
                 .multiSignature(participants, 3)
                 .withPassphrase(passphrase)
                 .withPassphraseList(passphrases)
                 .createOne();
 
             await expect(multiSignature).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(multiSignature.id).toBeForged();
 
             // Send funds to multi signature wallet
-            const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
-            const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
+            const multiSigAddress = crypto.CryptoManager.Identities.Address.fromMultiSignatureAsset(
+                multiSignature.asset.multiSignature,
+            );
+            const multiSigPublicKey = crypto.CryptoManager.Identities.PublicKey.fromMultiSignatureAsset(
+                multiSignature.asset.multiSignature,
+            );
 
-            const multiSignatureFunds = TransactionFactory.initialize(app)
+            const multiSignatureFunds = TransactionFactory.initialize(crypto, sandbox.app)
                 .transfer(multiSigAddress, 150 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(multiSignatureFunds).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(multiSignatureFunds.id).toBeForged();
 
             // Registering a business
-            const businessRegistration = TransactionFactory.initialize(app)
+            const businessRegistration = TransactionFactory.initialize(crypto, sandbox.app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -258,7 +267,7 @@ describe("Transaction Forging - Bridgechain update", () => {
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(businessRegistration.id).toBeForged();
 
             // Registering a bridgechain
@@ -270,18 +279,18 @@ describe("Transaction Forging - Bridgechain update", () => {
                 ports: { "@arkecosystem/core-api": 12345 },
             };
 
-            const bridgechainRegistration = TransactionFactory.initialize(app)
+            const bridgechainRegistration = TransactionFactory.initialize(crypto, sandbox.app)
                 .bridgechainRegistration(bridgechainRegistrationAsset)
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
             await expect(bridgechainRegistration).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(bridgechainRegistration.id).toBeForged();
 
             // Update a bridgechian
-            const bridgechainUpdate = TransactionFactory.initialize(app)
+            const bridgechainUpdate = TransactionFactory.initialize(crypto, sandbox.app)
                 .bridgechainUpdate({
                     bridgechainId: bridgechainRegistrationAsset.genesisHash,
                     seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
@@ -292,7 +301,7 @@ describe("Transaction Forging - Bridgechain update", () => {
                 .createOne();
 
             await expect(bridgechainUpdate).toBeAccepted();
-            await snoozeForBlock(1);
+            await snoozeForBlock(crypto.CryptoManager, 1);
             await expect(bridgechainUpdate.id).toBeForged();
         });
     });

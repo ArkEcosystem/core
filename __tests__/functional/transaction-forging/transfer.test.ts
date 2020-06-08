@@ -3,7 +3,6 @@ import "../../../packages/core-test-framework/src/matchers";
 import { Container } from "@arkecosystem/core-kernel";
 
 import { CryptoSuite } from "../../../packages/core-crypto";
-// import { Contracts } from "@arkecosystem/core-kernel";
 import { Sandbox } from "../../../packages/core-test-framework/src";
 import secrets from "../../../packages/core-test-framework/src/internal/passphrases.json";
 import {
@@ -17,7 +16,6 @@ import * as support from "./__support__";
 const { passphrase, secondPassphrase } = support.passphrases;
 
 const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
-// crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
 
 const sandbox: Sandbox = new Sandbox(crypto);
 
@@ -38,22 +36,16 @@ describe("Transaction Forging - Transfer", () => {
         await expect(transaction.id).toBeForged();
     });
 
-    it.only("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
+    it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
         // Funds to register a second passphrase
         const initialFunds = TransactionFactory.initialize(crypto, sandbox.app)
             .transfer(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
 
-        crypto.CryptoManager.HeightTracker.setHeight(2);
-        sandbox.app.get<CryptoSuite.CryptoManager>(Container.Identifiers.CryptoManager).HeightTracker.setHeight(2);
-        console.log("Initial funds created");
-
         await expect(initialFunds).toBeAccepted();
-        console.log("Initial funds accepted");
-
         await snoozeForBlock(crypto.CryptoManager, 1);
-        console.log("finished...");
+
         await expect(initialFunds.id).toBeForged();
 
         // Register a second passphrase
@@ -172,52 +164,51 @@ describe("Transaction Forging - Transfer", () => {
 
     it("should accept V1 before AIP11 milestone and reject after AIP11 milestone", async () => {
         const transfer = TransactionFactory.initialize(crypto, sandbox.app)
-            // .withNetworkConfig(networkConfig)
             .transfer(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[0])
             .createOne();
 
+        const cryptoManager = sandbox.app.get<CryptoSuite.CryptoManager>(Container.Identifiers.CryptoManager);
+
         await expect(transfer).toBeAccepted();
-        await snoozeForBlock(crypto.CryptoManager, 1);
+        await snoozeForBlock(cryptoManager, 1);
         await expect(transfer.id).toBeForged();
 
         const transfersLegacyWithoutNonce = TransactionFactory.initialize(crypto, sandbox.app)
-            // .withNetworkConfig(networkConfig)
-            .transfer(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrase))
+            .transfer(cryptoManager.Identities.Address.fromPassphrase(passphrase))
             .withVersion(1)
             .withPassphrase(secrets[0])
             .create(2);
 
-        crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = false;
+        cryptoManager.MilestoneManager.getMilestone().aip11 = false;
 
-        injectMilestone(crypto.CryptoManager, 1, {
+        injectMilestone(cryptoManager, 1, {
             height: getLastHeight(sandbox.app) + 1,
             aip11: true,
         });
 
         // Still accepts 1 height before milestone
         await expect(transfersLegacyWithoutNonce[0]).toBeAccepted();
-        await snoozeForBlock(crypto.CryptoManager, 1);
+        await snoozeForBlock(cryptoManager, 1);
         await expect(transfersLegacyWithoutNonce[0].id).toBeForged();
 
         // Now got activated
-        expect(crypto.CryptoManager.MilestoneManager.getMilestone().aip11).toBeTrue();
+        expect(cryptoManager.MilestoneManager.getMilestone().aip11).toBeTrue();
 
         // Rejects V1
         await expect(transfersLegacyWithoutNonce[1]).toBeRejected();
-        await snoozeForBlock(crypto.CryptoManager, 1);
+        await snoozeForBlock(cryptoManager, 1);
         await expect(transfersLegacyWithoutNonce[1].id).not.toBeForged();
 
         // and accepts V2
         const transferWithNonce = TransactionFactory.initialize(crypto, sandbox.app)
-            // .withNetworkConfig(networkConfig)
-            .transfer(crypto.CryptoManager.Identities.Address.fromPassphrase(passphrase))
+            .transfer(cryptoManager.Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[1])
             .createOne();
 
         expect(transferWithNonce.version).toBe(2);
         await expect(transferWithNonce).toBeAccepted();
-        await snoozeForBlock(crypto.CryptoManager, 1);
+        await snoozeForBlock(cryptoManager, 1);
         await expect(transferWithNonce.id).toBeForged();
     });
 });
