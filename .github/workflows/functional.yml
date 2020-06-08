@@ -1,4 +1,4 @@
-name: Lint, Test & Benchmark
+name: Functional Testing
 
 on:
     push:
@@ -9,69 +9,9 @@ on:
         types: [ready_for_review, synchronize, opened]
 
 jobs:
-    lint:
+    core-database:
         runs-on: ubuntu-latest
 
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v1
-
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Install & Build
-              run: yarn install && yarn bootstrap
-
-            - name: Lint Source
-              run: yarn lint
-    test-unit:
-        needs: lint
-
-        runs-on: ubuntu-latest
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v1
-
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Install & Build
-              run: yarn setup
-
-            - name: Test
-              run: yarn test:unit:coverage --coverageDirectory .coverage/unit/ --maxWorkers=2
-
-            - name: Codecov
-              run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
-    test-integration:
-        needs: lint
-
-        runs-on: ubuntu-latest
         services:
             postgres:
                 image: postgres:12
@@ -82,66 +22,17 @@ jobs:
                 ports:
                     - 5432:5432
                 options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
         strategy:
             matrix:
                 node-version: [12.x]
+
         env:
             CORE_DB_DATABASE: ark_unitnet
             CORE_DB_USERNAME: ark
             POSTGRES_USER: ark
             POSTGRES_PASSWORD: password
             POSTGRES_DB: ark_unitnet
-        steps:
-            - uses: actions/checkout@v1
-
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Integration tests
-              run: yarn test:integration:coverage --coverageDirectory .coverage/integration/
-
-            - name: Codecov
-              run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
-    test-functional-core-database:
-        needs: lint
-
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -169,20 +60,15 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test:coverage --coverageDirectory .coverage/functional/core-database/ __tests__/functional/core-database/
-
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
+              run: yarn test __tests__/functional/core-database/ --coverage --coverageDirectory .coverage/functional/core-database/
 
             - name: Codecov
-              run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
-    test-functional-bridgechain-registration:
-        needs: lint
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/core-database/clover.xml
+                  fail_ci_if_error: true
 
+    bridgechain-registration:
         runs-on: ubuntu-latest
 
         services:
@@ -227,13 +113,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/bridgechain-registration.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-bridgechain-resignation:
-        needs: lint
 
+    bridgechain-resignation:
         runs-on: ubuntu-latest
 
         services:
@@ -278,13 +162,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-bridgechain-update:
-        needs: lint
 
+    bridgechain-update:
         runs-on: ubuntu-latest
 
         services:
@@ -329,13 +211,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/bridgechain-update.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-business-registration:
-        needs: lint
 
+    business-registration:
         runs-on: ubuntu-latest
 
         services:
@@ -380,13 +260,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/business-registration.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-business-resignation:
-        needs: lint
 
+    business-resignation:
         runs-on: ubuntu-latest
 
         services:
@@ -431,13 +309,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-business-update:
-        needs: lint
 
+    business-update:
         runs-on: ubuntu-latest
 
         services:
@@ -482,13 +358,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/business-update.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-delegate-registration:
-        needs: lint
 
+    delegate-registration:
         runs-on: ubuntu-latest
 
         services:
@@ -533,13 +407,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/delegate-registration.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-delegate-resignation:
-        needs: lint
 
+    delegate-resignation:
         runs-on: ubuntu-latest
 
         services:
@@ -584,13 +456,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/delegate-resignation.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-htlc-claim:
-        needs: lint
 
+    htlc-claim:
         runs-on: ubuntu-latest
 
         services:
@@ -635,13 +505,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/htlc-claim.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-htlc-lock:
-        needs: lint
 
+    htlc-lock:
         runs-on: ubuntu-latest
 
         services:
@@ -686,13 +554,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/htlc-lock.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-htlc-refund:
-        needs: lint
 
+    htlc-refund:
         runs-on: ubuntu-latest
 
         services:
@@ -737,13 +603,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/htlc-refund.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-ipfs:
-        needs: lint
 
+    ipfs:
         runs-on: ubuntu-latest
 
         services:
@@ -788,13 +652,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/ipfs.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-multi-payment:
-        needs: lint
 
+    multi-payment:
         runs-on: ubuntu-latest
 
         services:
@@ -839,14 +701,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
-    test-functional-multi-signature-registration:
-        needs: lint
-
+    multi-signature-registration:
         runs-on: ubuntu-latest
 
         services:
@@ -891,13 +750,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-second-signature-registration:
-        needs: lint
 
+    second-signature-registration:
         runs-on: ubuntu-latest
 
         services:
@@ -942,13 +799,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/second-signature-registration.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-transfer:
-        needs: lint
 
+    transfer:
         runs-on: ubuntu-latest
 
         services:
@@ -993,13 +848,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/transfer.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-vote:
-        needs: lint
 
+    vote:
         runs-on: ubuntu-latest
 
         services:
@@ -1044,13 +897,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/vote.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-entity-register:
-        needs: lint
 
+    entity-register:
         runs-on: ubuntu-latest
 
         services:
@@ -1095,13 +946,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/entity-register.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-entity-resign:
-        needs: lint
 
+    entity-resign:
         runs-on: ubuntu-latest
 
         services:
@@ -1146,13 +995,11 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/entity-resign.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-    test-functional-entity-update:
-        needs: lint
 
+    entity-update:
         runs-on: ubuntu-latest
 
         services:
@@ -1197,78 +1044,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/entity-update.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
-
-    test-e2e:
-        runs-on: ubuntu-latest
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-e2e-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-e2e-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-            - name: Install and build packages
-              run: yarn setup
-            - name: Docker compose up
-              run: cd __tests__/e2e/lib/config && docker-compose up -d
-            - name: Let the network run during 5min
-              run: sleep 300
-            - name: Show logs - node0
-              if: always()
-              run: docker logs config_core0_1
-            - name: Show logs - node1
-              if: always()
-              run: docker logs config_core1_1
-            - name: Show logs - node2
-              if: always()
-              run: docker logs config_core2_1
-            - name: Show logs - node3
-              if: always()
-              run: docker logs config_core3_1
-            - name: Show logs - node4
-              if: always()
-              run: docker logs config_core4_1
-            
-    benchmark:
-        needs: lint
-
-        runs-on: ubuntu-latest
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v1
-
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Install & Build
-              run: yarn setup
-
-            - name: Benchmark
-              run: yarn bench
