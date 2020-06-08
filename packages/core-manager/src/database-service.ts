@@ -10,6 +10,11 @@ interface ConditionLine {
 
 const conditions = new Map<string, string>([
     ["$eq", "="],
+    ["$ne", "!="],
+    ["$lt", "<"],
+    ["$lte", "<="],
+    ["$gt", ">"],
+    ["$gte", ">="],
     ["$like", "LIKE"],
 ]);
 
@@ -149,20 +154,24 @@ export class DatabaseService {
     }
 
     private conditionLineToSQLCondition(conditionLine: ConditionLine, jsonExtractProperty?: string): string {
+        const useQuote = typeof conditionLine.value !== "number";
+
         if (jsonExtractProperty) {
             // Example: json_extract(data, '$.publicKey') = '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
             // prettier-ignore
-            return `json_extract(${jsonExtractProperty}, '${conditionLine.property}') ${conditions.get(conditionLine.condition)} '${conditionLine.value}'`;
+            return `json_extract(${jsonExtractProperty}, '${conditionLine.property}') ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
         }
 
         // Example: event LIKE 'wallet'
-        return `${conditionLine.property} ${conditions.get(conditionLine.condition)} '${conditionLine.value}'`;
+        // prettier-ignore
+        return `${conditionLine.property} ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
     }
 
     private extractConditions(data: any, property: string): ConditionLine[] {
         let result: ConditionLine[] = [];
 
         if (!data) {
+            /* istanbul ignore next */
             return [];
         }
 
@@ -170,7 +179,7 @@ export class DatabaseService {
             result.push({
                 property: `${property}`,
                 condition: "$eq",
-                value: data.toString(),
+                value: data,
             });
 
             return result;
@@ -181,7 +190,7 @@ export class DatabaseService {
                 result.push({
                     property: property,
                     condition: key,
-                    value: data[key].toString(),
+                    value: data[key],
                 });
             } else {
                 result = [...result, ...this.extractConditions(data[key], `${property}.${key}`)];
