@@ -22,6 +22,7 @@ export const Identifiers = {
     FilesystemManager: Symbol.for("Manager<Filesystem>"),
     LogManager: Symbol.for("Manager<Log>"),
     QueueManager: Symbol.for("Manager<Queue>"),
+    ProcessActionsManager: Symbol.for("Manager<ProcessAction>"),
     ValidationManager: Symbol.for("Manager<Validation>"),
     // Services
     BlockchainService: Symbol.for("Service<Blockchain>"),
@@ -38,6 +39,7 @@ export const Identifiers = {
     ScheduleService: Symbol.for("Service<Schedule>"),
     SnapshotService: Symbol.for("Service<Snapshot>"),
     TriggerService: Symbol.for("Service<Actions>"),
+    ProcessActionsService: Symbol.for("Service<ProcessActions>"),
     ValidationService: Symbol.for("Service<Validation>"),
     BlockHistoryService: Symbol.for("Service<BlockHistory>"),
     TransactionHistoryService: Symbol.for("Service<TransactionHistory>"),
@@ -49,14 +51,14 @@ export const Identifiers = {
     QueueFactory: Symbol.for("Factory<Queue>"),
 
     // Database
+    DatabaseLogger: Symbol.for("Database<Logger>"),
     DatabaseConnection: Symbol.for("Database<Connection>"),
     DatabaseRoundRepository: Symbol.for("Database<RoundRepository>"),
     DatabaseBlockRepository: Symbol.for("Database<BlockRepository>"),
-    DatabaseBlockModelConverter: Symbol.for("Database<BlockModelConverter>"),
     DatabaseBlockFilter: Symbol.for("Database<BlockFilter>"),
     DatabaseTransactionRepository: Symbol.for("Database<TransactionRepository>"),
-    DatabaseTransactionModelConverter: Symbol.for("Database<TransactionModelConverter>"),
     DatabaseTransactionFilter: Symbol.for("Database<TransactionFilter>"),
+    DatabaseModelConverter: Symbol.for("Database<ModelConverter>"),
 
     // Kernel
     ConfigRepository: Symbol.for("Repository<Config>"),
@@ -100,6 +102,10 @@ export const Identifiers = {
     TransactionPoolSenderMempoolFactory: Symbol.for("TransactionPool<SenderMempoolFactory>"),
     TransactionPoolSenderState: Symbol.for("TransactionPool<SenderState>"),
     TransactionPoolExpirationService: Symbol.for("TransactionPool<ExpirationService>"),
+    TransactionPoolWorkerPool: Symbol.for("TransactionPool<WorkerPool>"),
+    TransactionPoolWorker: Symbol.for("TransactionPool<Worker>"),
+    TransactionPoolWorkerFactory: Symbol.for("TransactionPool<WorkerFactory>"),
+    TransactionPoolWorkerIpcSubprocessFactory: Symbol.for("TransactionPool<WorkerIpcSubprocessFactory>"),
 
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),
@@ -108,4 +114,8 @@ export const Identifiers = {
     // Registries
     TransactionHandlerRegistry: Symbol.for("Registry<TransactionHandler>"),
     TransactionHandlerProvider: Symbol.for("Provider<TransactionHandler>"),
+
+    // Watcher
+    WatcherEventListener: Symbol.for("Watcher<EventListener>"),
+    WatcherDatabaseService: Symbol.for("Watcher<DatabaseService>"),
 };

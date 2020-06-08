@@ -1,0 +1,1049 @@
+name: Functional Testing
+
+on:
+    push:
+        branches:
+            - "master"
+            - "develop"
+    pull_request:
+        types: [ready_for_review, synchronize, opened]
+
+jobs:
+    core-database:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        env:
+            CORE_DB_DATABASE: ark_unitnet
+            CORE_DB_USERNAME: ark
+            POSTGRES_USER: ark
+            POSTGRES_PASSWORD: password
+            POSTGRES_DB: ark_unitnet
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/core-database/ --coverage --coverageDirectory .coverage/functional/core-database/
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/core-database/clover.xml
+                  fail_ci_if_error: true
+
+    bridgechain-registration:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/bridgechain-registration.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    bridgechain-resignation:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    bridgechain-update:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/bridgechain-update.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    business-registration:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/business-registration.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    business-resignation:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    business-update:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/business-update.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    delegate-registration:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/delegate-registration.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    delegate-resignation:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/delegate-resignation.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    htlc-claim:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/htlc-claim.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    htlc-lock:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/htlc-lock.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    htlc-refund:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/htlc-refund.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    ipfs:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/ipfs.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    multi-payment:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    multi-signature-registration:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    second-signature-registration:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/second-signature-registration.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    transfer:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/transfer.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    vote:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/vote.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    entity-register:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/entity-register.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    entity-resign:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/entity-resign.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+
+    entity-update:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Update system
+              run: sudo apt-get update -y
+
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+
+            - name: Install and build packages
+              run: yarn setup
+
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+
+            - name: Functional tests
+              run: yarn test __tests__/functional/transaction-forging/entity-update.test.ts
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark

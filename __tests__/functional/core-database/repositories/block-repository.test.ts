@@ -228,30 +228,6 @@ describe("BlockRepository.deleteBlocks", () => {
     });
 });
 
-describe("BlockRepository.findOneByExpression", () => {
-    it("should return single entity by id equal expression", async () => {
-        const blockRepository = getCustomRepository(BlockRepository);
-        await blockRepository.saveBlocks([block1, block2, block3]);
-        const block1ById = await blockRepository.findOneByExpression({
-            property: "id",
-            op: "equal",
-            value: block1.data.id,
-        });
-        expect(block1ById).toStrictEqual(toBlockModel(block1));
-    });
-
-    it("should return single entity by previousBlock equal expression", async () => {
-        const blockRepository = getCustomRepository(BlockRepository);
-        await blockRepository.saveBlocks([block1, block2, block3]);
-        const block2ByPreviousBlock = await blockRepository.findOneByExpression({
-            property: "previousBlock",
-            op: "equal",
-            value: block1.data.id,
-        });
-        expect(block2ByPreviousBlock).toStrictEqual(toBlockModel(block2));
-    });
-});
-
 describe("BlockRepository.findManyByExpression", () => {
     it("should return many entities by height greaterThanEqual expression", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
@@ -280,11 +256,45 @@ describe("BlockRepository.listByExpression", () => {
                 { property: "id", direction: "desc" },
             ],
             { offset: 0, limit: 2 },
+            { estimateTotalCount: false },
         );
         expect(listResult).toStrictEqual({
             rows: [toBlockModel(block3), toBlockModel(block2)],
             count: 3,
             countIsEstimate: false,
         });
+    });
+
+    it("should return result page and estimate count by height greaterThanEqual expression", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const listResult = await blockRepository.listByExpression(
+            {
+                property: "height",
+                op: "greaterThanEqual",
+                value: block1.data.height,
+            },
+            [
+                { property: "height", direction: "desc" },
+                { property: "id", direction: "desc" },
+            ],
+            { offset: 0, limit: 2 },
+        );
+        expect(listResult.countIsEstimate).toBe(true);
+        expect(listResult.rows).toStrictEqual([toBlockModel(block3), toBlockModel(block2)]);
+    });
+});
+
+describe("BlockRepository.deleteTopBlocks", () => {
+    it("should delete blocks", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        await blockRepository.deleteTopBlocks(2);
+        const block1ById = await blockRepository.findById(block1.data.id);
+        const block2ById = await blockRepository.findById(block2.data.id);
+        const block3ById = await blockRepository.findById(block3.data.id);
+        expect(block1ById).toStrictEqual(toBlockModel(block1));
+        expect(block2ById).toBeUndefined();
+        expect(block3ById).toBeUndefined();
     });
 });

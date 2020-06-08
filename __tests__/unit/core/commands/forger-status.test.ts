@@ -30,7 +30,7 @@ describe("StatusCommand", () => {
         });
 
         let message: string;
-        jest.spyOn(console, "log").mockImplementationOnce(m => (message = m));
+        jest.spyOn(console, "log").mockImplementationOnce((m) => (message = m));
 
         await cli.execute(Command);
 

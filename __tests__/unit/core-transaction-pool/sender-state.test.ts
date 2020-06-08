@@ -1,14 +1,14 @@
-import { Container, Contracts } from "@packages/core-kernel";
-import { Crypto, Interfaces, Managers } from "@packages/crypto";
-
-import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
-import { Sandbox } from "@packages/core-test-framework";
+import { Container, Contracts, Enums } from "@packages/core-kernel";
 import { Services } from "@packages/core-kernel/dist";
+import { Sandbox } from "@packages/core-test-framework";
 import {
     ApplyTransactionAction,
     RevertTransactionAction,
-    ThrowIfCannotEnterPoolAction, VerifyTransactionAction,
+    ThrowIfCannotEnterPoolAction,
+    VerifyTransactionAction,
 } from "@packages/core-transaction-pool/src/actions";
+import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
+import { Crypto, Interfaces, Managers } from "@packages/crypto";
 
 jest.mock("@packages/crypto");
 
@@ -16,6 +16,7 @@ const configuration = { getRequired: jest.fn(), getOptional: jest.fn() };
 const handler = { verify: jest.fn(), throwIfCannotEnterPool: jest.fn(), apply: jest.fn(), revert: jest.fn() };
 const handlerRegistry = { getActivatedHandlerForData: jest.fn() };
 const expirationService = { isExpired: jest.fn(), getExpirationHeight: jest.fn() };
+const eventDispatcherService = { dispatch: jest.fn() };
 
 let sandbox: Sandbox;
 
@@ -25,18 +26,23 @@ beforeEach(() => {
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
     sandbox.app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue(handlerRegistry);
     sandbox.app.bind(Container.Identifiers.TransactionPoolExpirationService).toConstantValue(expirationService);
+    sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcherService);
     sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
 
-    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
         .bind("applyTransaction", new ApplyTransactionAction());
 
-    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
         .bind("revertTransaction", new RevertTransactionAction());
 
-    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
         .bind("throwIfCannotEnterPool", new ThrowIfCannotEnterPoolAction());
 
-    sandbox.app.get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
+    sandbox.app
+        .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
         .bind("verifyTransaction", new VerifyTransactionAction());
 
     (Managers.configManager.get as jest.Mock).mockReset();
@@ -107,6 +113,9 @@ describe("SenderState.apply", () => {
 
         await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
         await expect(promise).rejects.toHaveProperty("type", "ERR_EXPIRED");
+
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledTimes(1);
+        expect(eventDispatcherService.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.Expired, expect.anything());
     });
 
     it("should throw when transaction fails to verify", async () => {

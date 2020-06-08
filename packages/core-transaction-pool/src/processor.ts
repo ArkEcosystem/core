@@ -1,8 +1,6 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
-import { TransactionFeeToLowError } from "./errors";
-
 @Container.injectable()
 export class Processor implements Contracts.TransactionPool.Processor {
     public accept: string[] = [];
@@ -20,28 +18,31 @@ export class Processor implements Contracts.TransactionPool.Processor {
     @Container.inject(Container.Identifiers.TransactionPoolDynamicFeeMatcher)
     private readonly dynamicFeeMatcher!: Contracts.TransactionPool.DynamicFeeMatcher;
 
+    @Container.inject(Container.Identifiers.TransactionPoolWorkerPool)
+    private readonly workerPool!: Contracts.TransactionPool.WorkerPool;
+
     @Container.inject(Container.Identifiers.PeerTransactionBroadcaster)
     @Container.optional()
     private readonly transactionBroadcaster!: Contracts.P2P.TransactionBroadcaster | undefined;
 
     public async process(data: Interfaces.ITransactionData[]): Promise<void> {
         const broadcastableTransactions: Interfaces.ITransaction[] = [];
-        const transactions = data.map((d) => Transactions.TransactionFactory.fromData(d));
+        const promises = data.map((d) => this.getTransactionFromData(d));
+        const transactions = await Promise.all(promises);
 
         try {
             for (const transaction of transactions) {
                 AppUtils.assert.defined<string>(transaction.id);
 
                 try {
-                    if (await this.dynamicFeeMatcher.canEnterPool(transaction)) {
-                        await this.pool.addTransaction(transaction);
-                        this.accept.push(transaction.id);
-                        if (await this.dynamicFeeMatcher.canBroadcast(transaction)) {
-                            broadcastableTransactions.push(transaction);
-                        }
-                    } else {
-                        throw new TransactionFeeToLowError(transaction);
-                    }
+                    await this.dynamicFeeMatcher.throwIfCannotEnterPool(transaction);
+                    await this.pool.addTransaction(transaction);
+                    this.accept.push(transaction.id);
+
+                    try {
+                        await this.dynamicFeeMatcher.throwIfCannotBroadcast(transaction);
+                        broadcastableTransactions.push(transaction);
+                    } catch {}
                 } catch (error) {
                     this.invalid.push(transaction.id);
 
@@ -71,6 +72,16 @@ export class Processor implements Contracts.TransactionPool.Processor {
                     this.broadcast.push(transaction.id);
                 }
             }
+        }
+    }
+
+    private async getTransactionFromData(
+        transactionData: Interfaces.ITransactionData,
+    ): Promise<Interfaces.ITransaction> {
+        if (this.workerPool.isTypeGroupSupported(transactionData.typeGroup!)) {
+            return this.workerPool.getTransactionFromData(transactionData);
+        } else {
+            return Transactions.TransactionFactory.fromData(transactionData);
         }
     }
 }

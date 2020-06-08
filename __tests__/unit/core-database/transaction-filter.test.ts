@@ -16,11 +16,68 @@ beforeEach(() => {
 
 describe("TransactionFilter.getExpression", () => {
     describe("TransactionCriteria.unknown", () => {
-        it("should return void expression", async () => {
+        it("should return true expression", async () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({ unknown: "123" } as any);
 
-            expect(expression).toEqual({ op: "void" });
+            expect(expression).toEqual({ op: "true" });
+        });
+    });
+
+    describe("TransactionCriteria.address", () => {
+        it("should compare senderPublicKey, recipientId, multipayment recipientId, delegate registration sender", async () => {
+            walletRepository.findByAddress
+                .mockReturnValueOnce({ publicKey: "456" })
+                .mockReturnValueOnce({ publicKey: "456" });
+
+            const transactionFilter = container.resolve(TransactionFilter);
+            const expression = await transactionFilter.getExpression({ address: "123" });
+
+            expect(walletRepository.findByAddress).toBeCalledWith("123");
+            expect(expression).toEqual({
+                op: "or",
+                expressions: [
+                    { property: "senderPublicKey", op: "equal", value: "456" },
+                    { property: "recipientId", op: "equal", value: "123" },
+                    {
+                        op: "and",
+                        expressions: [
+                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
+                            { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
+                            { property: "asset", op: "contains", value: { payment: [{ recipientId: "123" }] } },
+                        ],
+                    },
+                    {
+                        op: "and",
+                        expressions: [
+                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
+                            { property: "type", op: "equal", value: Enums.TransactionType.DelegateRegistration },
+                            { property: "senderPublicKey", op: "equal", value: "456" },
+                        ],
+                    },
+                ],
+            });
+        });
+
+        it("should compare recipientId, multipayment recipientId when wallet not found", async () => {
+            const transactionFilter = container.resolve(TransactionFilter);
+            const expression = await transactionFilter.getExpression({ address: "123" });
+
+            expect(walletRepository.findByAddress).toBeCalledWith("123");
+            expect(expression).toEqual({
+                op: "or",
+                expressions: [
+                    { property: "recipientId", op: "equal", value: "123" },
+                    {
+                        op: "and",
+                        expressions: [
+                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
+                            { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
+                            { property: "asset", op: "contains", value: { payment: [{ recipientId: "123" }] } },
+                        ],
+                    },
+                ],
+            });
         });
     });
 
@@ -43,6 +100,62 @@ describe("TransactionFilter.getExpression", () => {
 
             expect(walletRepository.findByAddress).toBeCalledWith("123");
             expect(expression).toEqual({ op: "false" });
+        });
+    });
+
+    describe("TransactionCriteria.recipientId", () => {
+        it("should compare using equal expression and include multipayment and include delegate registration transaction", async () => {
+            walletRepository.findByAddress.mockReturnValueOnce({
+                publicKey: "456",
+            });
+
+            const transactionFilter = container.resolve(TransactionFilter);
+            const expression = await transactionFilter.getExpression({ recipientId: "123" });
+
+            expect(walletRepository.findByAddress).toBeCalledWith("123");
+            expect(expression).toEqual({
+                op: "or",
+                expressions: [
+                    { property: "recipientId", op: "equal", value: "123" },
+                    {
+                        op: "and",
+                        expressions: [
+                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
+                            { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
+                            { property: "asset", op: "contains", value: { payment: [{ recipientId: "123" }] } },
+                        ],
+                    },
+                    {
+                        op: "and",
+                        expressions: [
+                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
+                            { property: "type", op: "equal", value: Enums.TransactionType.DelegateRegistration },
+                            { property: "senderPublicKey", op: "equal", value: "456" },
+                        ],
+                    },
+                ],
+            });
+        });
+
+        it("should compare using equal expression and include multipayment when wallet not found", async () => {
+            const transactionFilter = container.resolve(TransactionFilter);
+            const expression = await transactionFilter.getExpression({ recipientId: "123" });
+
+            expect(walletRepository.findByAddress).toBeCalledWith("123");
+            expect(expression).toEqual({
+                op: "or",
+                expressions: [
+                    { property: "recipientId", op: "equal", value: "123" },
+                    {
+                        op: "and",
+                        expressions: [
+                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
+                            { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
+                            { property: "asset", op: "contains", value: { payment: [{ recipientId: "123" }] } },
+                        ],
+                    },
+                ],
+            });
         });
     });
 
@@ -195,41 +308,6 @@ describe("TransactionFilter.getExpression", () => {
             const expression = await transactionFilter.getExpression({ senderPublicKey: "123" });
 
             expect(expression).toEqual({ property: "senderPublicKey", op: "equal", value: "123" });
-        });
-    });
-
-    describe("TransactionCriteria.recipientId", () => {
-        it("should compare using equal expression and include delegate registration transaction", async () => {
-            walletRepository.findByAddress.mockReturnValueOnce({
-                publicKey: "456",
-            });
-
-            const transactionFilter = container.resolve(TransactionFilter);
-            const expression = await transactionFilter.getExpression({ recipientId: "123" });
-
-            expect(walletRepository.findByAddress).toBeCalledWith("123");
-            expect(expression).toEqual({
-                op: "or",
-                expressions: [
-                    { property: "recipientId", op: "equal", value: "123" },
-                    {
-                        op: "and",
-                        expressions: [
-                            { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
-                            { property: "type", op: "equal", value: Enums.TransactionType.DelegateRegistration },
-                            { property: "senderPublicKey", op: "equal", value: "456" },
-                        ],
-                    },
-                ],
-            });
-        });
-
-        it("should compare using only equal expression when wallet not found", async () => {
-            const transactionFilter = container.resolve(TransactionFilter);
-            const expression = await transactionFilter.getExpression({ recipientId: "123" });
-
-            expect(walletRepository.findByAddress).toBeCalledWith("123");
-            expect(expression).toEqual({ property: "recipientId", op: "equal", value: "123" });
         });
     });
 

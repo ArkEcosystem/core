@@ -1,7 +1,6 @@
 export * from "./database-service";
 export * from "./service-provider";
 
-import * as Models from "./models";
-import * as Repositories from "./repositories";
-
-export { Models, Repositories };
+export * as Models from "./models";
+export * as Repositories from "./repositories";
+export * as Utils from "./utils";

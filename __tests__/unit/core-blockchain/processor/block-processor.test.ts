@@ -50,6 +50,7 @@ describe("BlockProcessor", () => {
         sandbox.app.bind(Container.Identifiers.DatabaseTransactionRepository).toConstantValue(transactionRepository);
         sandbox.app.bind(Container.Identifiers.WalletRepository).toConstantValue(walletRepository);
         sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
+        sandbox.app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue(transactionHandlerRegistry);
         sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue({});
         sandbox.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue({});
 

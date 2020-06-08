@@ -65,6 +65,9 @@ export const createSchemas = (settings: SchemaSettings) => {
         "orderBy query parameter (<iteratee>:<direction>)",
     );
 
+    const blocksOrderBy = orderBy.default("height:desc");
+    const transactionsOrderBy = orderBy.default("timestamp:desc,sequence:desc");
+
     const equalCriteria = (value: any) => value;
     const numericCriteria = (value: any) =>
         Joi.alternatives().try(
@@ -98,7 +101,9 @@ export const createSchemas = (settings: SchemaSettings) => {
     };
 
     const transactionCriteriaSchemas = {
+        address: orEqualCriteria(address),
         senderId: orEqualCriteria(address),
+        recipientId: orEqualCriteria(address),
         id: orEqualCriteria(Joi.string().hex().length(64)),
         version: orEqualCriteria(Joi.number().integer().positive()),
         blockId: orEqualCriteria(blockId),
@@ -106,7 +111,6 @@ export const createSchemas = (settings: SchemaSettings) => {
         timestamp: orNumericCriteria(Joi.number().integer().min(0)),
         nonce: orNumericCriteria(Joi.number().integer().positive()),
         senderPublicKey: orEqualCriteria(Joi.string().hex().length(66)),
-        recipientId: orEqualCriteria(address),
         type: orEqualCriteria(Joi.number().integer().min(0)),
         typeGroup: orEqualCriteria(Joi.number().integer().min(0)),
         vendorField: orLikeCriteria(Joi.string().max(255, "utf8")),
@@ -126,15 +130,8 @@ export const createSchemas = (settings: SchemaSettings) => {
         numberFixedOrBetween,
         walletId,
         orderBy,
-        equalCriteria,
-        numericCriteria,
-        likeCriteria,
-        containsCriteria,
-        orCriteria,
-        orEqualCriteria,
-        orNumericCriteria,
-        orLikeCriteria,
-        orContainsCriteria,
+        blocksOrderBy,
+        transactionsOrderBy,
         blockCriteriaSchemas,
         transactionCriteriaSchemas,
     };

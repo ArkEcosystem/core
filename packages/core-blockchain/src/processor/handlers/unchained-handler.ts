@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessorResult } from "../block-processor";

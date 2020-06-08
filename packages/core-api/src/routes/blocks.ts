@@ -16,7 +16,7 @@ export const register = (server: Hapi.Server): void => {
                 query: Joi.object({
                     ...server.app.schemas.blockCriteriaSchemas,
                     ...server.app.schemas.pagination,
-                    orderBy: server.app.schemas.orderBy,
+                    orderBy: server.app.schemas.blocksOrderBy,
                     transform: Joi.bool().default(true),
                 }),
             },
@@ -77,7 +77,7 @@ export const register = (server: Hapi.Server): void => {
                 query: Joi.object({
                     ...server.app.schemas.transactionCriteriaSchemas,
                     ...server.app.schemas.pagination,
-                    orderBy: server.app.schemas.orderBy,
+                    orderBy: server.app.schemas.transactionsOrderBy,
                     transform: Joi.bool().default(true),
                 }),
             },
@@ -92,7 +92,7 @@ export const register = (server: Hapi.Server): void => {
             validate: {
                 query: Joi.object({
                     ...server.app.schemas.pagination,
-                    orderBy: Joi.string(),
+                    orderBy: server.app.schemas.blocksOrderBy,
                     transform: Joi.bool().default(true),
                 }),
                 payload: Joi.object({

@@ -5,6 +5,7 @@ import { IBusinessWalletAttributes } from "./interfaces";
 export enum MagistrateIndex {
     Businesses = "businesses",
     Bridgechains = "bridgechains",
+    Entities = "entities",
 }
 
 export const businessIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet): void => {
@@ -23,6 +24,14 @@ export const bridgechainIndexer = (index: Contracts.State.WalletIndex, wallet: C
         for (const bridgechainId of Object.keys(wallet.getAttribute("business.bridgechains"))) {
             // TODO: allow generic index values to create more sophisticated indexes like publicKey -> bridgechains
             index.set(bridgechainId, wallet);
+        }
+    }
+};
+
+export const entityIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet): void => {
+    if (wallet.hasAttribute("entities")) {
+        for (const id of Object.keys(wallet.getAttribute("entities"))) {
+            index.set(id, wallet);
         }
     }
 };

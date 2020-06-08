@@ -2,4 +2,3 @@ ignore:
     - "packages/**/src/defaults.ts"
     - "packages/**/src/index.ts"
     - "packages/**/src/plugin.ts"
-    - "packages/core-interfaces"

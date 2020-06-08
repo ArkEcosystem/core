@@ -10,5 +10,4 @@ export const defaults = {
         synchronize: false,
         logging: false,
     },
-    estimateTotalCount: !process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT,
 };

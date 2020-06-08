@@ -403,21 +403,6 @@ describe("TransactionRepository.getRefundedHtlcLockBalances", () => {
     });
 });
 
-describe("TransactionRepository.findOneByExpression", () => {
-    it("should return single entity by id equal expression", async () => {
-        const blockRepository = getCustomRepository(BlockRepository);
-        const transactionRepository = getCustomRepository(TransactionRepository);
-        await blockRepository.saveBlocks([block1, block2, block3]);
-        const transaction1ById = await transactionRepository.findOneByExpression({
-            property: "id",
-            op: "equal",
-            value: transaction1.id,
-        });
-        expect(transaction1ById.id).toEqual(transaction1.id);
-        expect(transaction1ById.serialized).toEqual(transaction1.serialized);
-    });
-});
-
 describe("TransactionRepository.findManyByExpression", () => {
     it("should return single entity by id equal expression", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
@@ -438,7 +423,7 @@ describe("TransactionRepository.findManyByExpression", () => {
 });
 
 describe("TransactionRepository.listByExpression", () => {
-    it("should return single entity by id equal expression", async () => {
+    it("should return entities by id equal expression", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
         const transactionRepository = getCustomRepository(TransactionRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
@@ -453,9 +438,33 @@ describe("TransactionRepository.listByExpression", () => {
             },
             [],
             { offset: 0, limit: 2 },
+            { estimateTotalCount: false },
         );
         expect(listResult.count).toBe(3);
         expect(listResult.countIsEstimate).toBe(false);
+        expect(listResult.rows.length).toBe(2);
+        expect(listResult.rows[0].serialized).toEqual(transaction1.serialized);
+        expect(listResult.rows[1].serialized).toEqual(transaction2.serialized);
+    });
+
+    it("should return entities and estimate count by id equal expression", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const listResult = await transactionRepository.listByExpression(
+            {
+                op: "or",
+                expressions: [
+                    { property: "id", op: "equal", value: transaction1.id },
+                    { property: "id", op: "equal", value: transaction2.id },
+                    { property: "id", op: "equal", value: transaction3.id },
+                ],
+            },
+            [],
+            { offset: 0, limit: 2 },
+            { estimateTotalCount: true },
+        );
+        expect(listResult.countIsEstimate).toBe(true);
         expect(listResult.rows.length).toBe(2);
         expect(listResult.rows[0].serialized).toEqual(transaction1.serialized);
         expect(listResult.rows[1].serialized).toEqual(transaction2.serialized);

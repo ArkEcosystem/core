@@ -1,4 +1,2 @@
 export * from "./service-provider";
-import * as Wallets from "./wallets";
-
-export { Wallets };
+export * as Wallets from "./wallets";

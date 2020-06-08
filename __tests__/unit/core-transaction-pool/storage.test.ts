@@ -1,7 +1,6 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Transactions, Managers, Identities } from "@arkecosystem/crypto";
+import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
 import { ensureFileSync } from "fs-extra";
-import BetterSqlite3 from "better-sqlite3";
 
 import { Storage } from "../../../packages/core-transaction-pool/src/storage";
 
@@ -41,7 +40,7 @@ describe("Storage.boot", () => {
         storage.boot();
 
         try {
-            const database = storage["database"] as BetterSqlite3.Database;
+            const database = storage["database"];
             expect(ensureFileSync).toBeCalledWith(":memory:");
             expect(database.name).toBe(":memory:");
             expect(database.open).toBe(true);
@@ -56,7 +55,7 @@ describe("Storage.dispose", () => {
         configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
         const storage = container.resolve(Storage);
         storage.boot();
-        const database = storage["database"] as BetterSqlite3.Database;
+        const database = storage["database"];
 
         storage.dispose();
 
@@ -71,7 +70,7 @@ describe("Storage.hasTransaction", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1);
+            storage.addTransaction(transaction1.id, transaction1.serialized);
             const has = storage.hasTransaction(transaction1.id);
             expect(has).toBe(true);
         } finally {
@@ -85,7 +84,7 @@ describe("Storage.hasTransaction", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1);
+            storage.addTransaction(transaction1.id, transaction1.serialized);
             const has = storage.hasTransaction(transaction2.id);
             expect(has).toBe(false);
         } finally {
@@ -101,10 +100,13 @@ describe("Storage.getAllTransactions", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1);
-            storage.addTransaction(transaction2);
+            storage.addTransaction(transaction1.id, transaction1.serialized);
+            storage.addTransaction(transaction2.id, transaction2.serialized);
             const addedTransactions = Array.from(storage.getAllTransactions());
-            expect(addedTransactions).toStrictEqual([transaction1, transaction2]);
+            expect(addedTransactions).toStrictEqual([
+                { id: transaction1.id, serialized: transaction1.serialized },
+                { id: transaction2.id, serialized: transaction2.serialized },
+            ]);
         } finally {
             storage.dispose();
         }
@@ -118,7 +120,7 @@ describe("Storage.addTransaction", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1);
+            storage.addTransaction(transaction1.id, transaction1.serialized);
             const has = storage.hasTransaction(transaction1.id);
             expect(has).toBe(true);
         } finally {
@@ -132,8 +134,8 @@ describe("Storage.addTransaction", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1);
-            const check = () => storage.addTransaction(transaction1);
+            storage.addTransaction(transaction1.id, transaction1.serialized);
+            const check = () => storage.addTransaction(transaction1.id, transaction1.serialized);
             expect(check).toThrow();
         } finally {
             storage.dispose();
@@ -148,7 +150,7 @@ describe("Storage.removeTransaction", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1);
+            storage.addTransaction(transaction1.id, transaction1.serialized);
             storage.removeTransaction(transaction1.id);
             const has = storage.hasTransaction(transaction1.id);
             expect(has).toBe(false);
@@ -165,8 +167,8 @@ describe("Storage.flush", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1);
-            storage.addTransaction(transaction2);
+            storage.addTransaction(transaction1.id, transaction1.serialized);
+            storage.addTransaction(transaction2.id, transaction2.serialized);
             storage.flush();
             const addedTransactions = Array.from(storage.getAllTransactions());
             expect(addedTransactions).toStrictEqual([]);

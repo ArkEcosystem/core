@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
+import { Managers, Utils } from "@arkecosystem/crypto";
 import { ServiceProvider } from "@packages/core-api/src";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { resolve } from "path";
@@ -104,7 +104,13 @@ export const setUp = async () => {
                 klass: ServiceProvider,
             });
 
+            Managers.configManager.getMilestone().aip11 = false;
+            Managers.configManager.getMilestone().htlcEnabled = false;
+
             await app.boot();
+
+            Managers.configManager.getMilestone().aip11 = true;
+            Managers.configManager.getMilestone().htlcEnabled = true;
 
             await AppUtils.sleep(1000); // give some more time for api server to be up
         });

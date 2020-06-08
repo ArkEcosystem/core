@@ -107,7 +107,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     }
 
     public async pingPorts(peer: Contracts.P2P.Peer): Promise<void> {
-        Promise.all(
+        await Promise.all(
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
                 try {
                     let valid: boolean = false;
@@ -147,21 +147,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         );
     }
 
-    public validatePeerConfig(peer: Contracts.P2P.Peer, config: Contracts.P2P.PeerConfig): boolean {
-        if (config.network.nethash !== Managers.configManager.get("network.nethash")) {
-            return false;
-        }
-
-        peer.version = config.version;
-
-        if (!isValidVersion(this.app, peer)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public async getPeers(peer: Contracts.P2P.Peer): Promise<any> {
+    public async getPeers(peer: Contracts.P2P.Peer): Promise<Contracts.P2P.PeerBroadcast[]> {
         this.logger.debug(`Fetching a fresh peer list from ${peer.url}`);
 
         const getPeersTimeout = 5000;
@@ -169,24 +155,14 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     }
 
     public async hasCommonBlocks(peer: Contracts.P2P.Peer, ids: string[], timeoutMsec?: number): Promise<any> {
-        try {
-            const getCommonBlocksTimeout = timeoutMsec && timeoutMsec < 5000 ? timeoutMsec : 5000;
-            const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, getCommonBlocksTimeout);
+        const getCommonBlocksTimeout = timeoutMsec && timeoutMsec < 5000 ? timeoutMsec : 5000;
+        const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, getCommonBlocksTimeout);
 
-            if (!body || !body.common) {
-                return false;
-            }
-
-            return body.common;
-        } catch (error) {
-            const sfx = timeoutMsec !== undefined ? ` within ${timeoutMsec} ms` : "";
-
-            this.logger.error(`Could not determine common blocks with ${peer.ip}${sfx}: ${error.message}`);
-
-            this.emitter.dispatch(Enums.PeerEvent.Disconnect, { peer });
+        if (!body || !body.common) {
+            return false;
         }
 
-        return false;
+        return body.common;
     }
 
     public async getPeerBlocks(
@@ -212,7 +188,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             maxPayload,
         );
 
-        if (!peerBlocks) {
+        if (!peerBlocks || !peerBlocks.length) {
             this.logger.debug(
                 `Peer ${peer.ip} did not return any blocks via height ${fromBlockHeight.toLocaleString()}.`,
             );
@@ -232,6 +208,20 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         }
 
         return peerBlocks;
+    }
+
+    private validatePeerConfig(peer: Contracts.P2P.Peer, config: Contracts.P2P.PeerConfig): boolean {
+        if (config.network.nethash !== Managers.configManager.get("network.nethash")) {
+            return false;
+        }
+
+        peer.version = config.version;
+
+        if (!isValidVersion(this.app, peer)) {
+            return false;
+        }
+
+        return true;
     }
 
     private parseHeaders(peer: Contracts.P2P.Peer, response): void {
@@ -277,7 +267,11 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             this.parseHeaders(peer, response.payload);
 
             if (!this.validateReply(peer, response.payload, event)) {
-                throw new Error(`Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.data)}`);
+                const validationError = new Error(
+                    `Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.payload)}`,
+                );
+                validationError.name = SocketErrors.Validation;
+                throw validationError;
             }
         } catch (e) {
             this.handleSocketError(peer, event, e);
