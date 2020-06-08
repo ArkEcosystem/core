@@ -67,7 +67,9 @@ jobs:
               run: yarn test:unit:coverage --coverageDirectory .coverage/unit/ --maxWorkers=2
 
             - name: Codecov
-              run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/coverage.xml
     test-integration:
         needs: lint
 
@@ -122,7 +124,9 @@ jobs:
               run: yarn test:integration:coverage --coverageDirectory .coverage/integration/
 
             - name: Codecov
-              run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/integration/coverage.xml
     test-functional-core-database:
         needs: lint
 
@@ -142,6 +146,13 @@ jobs:
         strategy:
             matrix:
                 node-version: [12.x]
+
+        env:
+            CORE_DB_DATABASE: ark_unitnet
+            CORE_DB_USERNAME: ark
+            POSTGRES_USER: ark
+            POSTGRES_PASSWORD: password
+            POSTGRES_DB: ark_unitnet
 
         steps:
             - uses: actions/checkout@v1
@@ -171,15 +182,10 @@ jobs:
             - name: Functional tests
               run: yarn test:coverage --coverageDirectory .coverage/functional/core-database/ __tests__/functional/core-database/
 
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
-
             - name: Codecov
-              run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/core-database/coverage.xml
     test-functional-bridgechain-registration:
         needs: lint
 
@@ -227,7 +233,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/bridgechain-registration.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -278,7 +283,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -329,7 +333,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/bridgechain-update.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -380,7 +383,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/business-registration.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -431,7 +433,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -482,7 +483,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/business-update.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -533,7 +533,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/delegate-registration.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -584,7 +583,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/delegate-resignation.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -635,7 +633,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/htlc-claim.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -686,7 +683,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/htlc-lock.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -737,7 +733,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/htlc-refund.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -788,7 +783,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/ipfs.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -839,7 +833,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -891,7 +884,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -942,7 +934,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/second-signature-registration.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -993,7 +984,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/transfer.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -1044,7 +1034,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/vote.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -1095,7 +1084,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/entity-register.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -1146,7 +1134,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/entity-resign.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -1197,7 +1184,6 @@ jobs:
 
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/entity-update.test.ts
-
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
@@ -1242,7 +1228,7 @@ jobs:
             - name: Show logs - node4
               if: always()
               run: docker logs config_core4_1
-            
+
     benchmark:
         needs: lint
 
