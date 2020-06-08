@@ -261,7 +261,11 @@ export class TransactionFactory {
     }
 
     public entity(entityAsset: MagistrateInterfaces.IEntityAsset): TransactionFactory {
-        const entityBuilder = new MagistrateBuilders.EntityBuilder();
+        const entityBuilder = new MagistrateBuilders.EntityBuilder(
+            this.cryptoManager,
+            this.transactionsManager.TransactionFactory,
+            this.transactionsManager.TransactionTools,
+        );
         entityBuilder.asset(entityAsset);
 
         this.builder = entityBuilder;
