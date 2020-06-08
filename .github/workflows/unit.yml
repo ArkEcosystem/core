@@ -1,0 +1,690 @@
+name: Unit Testing
+
+on:
+    push:
+        branches:
+            - "master"
+            - "develop"
+    pull_request:
+        types: [ready_for_review, synchronize, opened]
+
+jobs:
+    core:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core --coverageDirectory .coverage/unit/core --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core/coverage.xml
+                  fail_ci_if_error: true
+
+    core-api:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-api --coverageDirectory .coverage/unit/core-api --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-api/coverage.xml
+                  fail_ci_if_error: true
+
+    core-blockchain:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-blockchain --coverageDirectory .coverage/unit/core-blockchain --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-blockchain/coverage.xml
+                  fail_ci_if_error: true
+
+    core-cli:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-cli --coverageDirectory .coverage/unit/core-cli --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-cli/coverage.xml
+                  fail_ci_if_error: true
+
+    core-database:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-database --coverageDirectory .coverage/unit/core-database --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-database/coverage.xml
+                  fail_ci_if_error: true
+
+    core-forger:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-forger --coverageDirectory .coverage/unit/core-forger --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-forger/coverage.xml
+                  fail_ci_if_error: true
+
+    core-kernel:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-kernel --coverageDirectory .coverage/unit/core-kernel --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-kernel/coverage.xml
+                  fail_ci_if_error: true
+
+    core-logger-pino:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-logger-pino --coverageDirectory .coverage/unit/core-logger-pino --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-logger-pino/coverage.xml
+                  fail_ci_if_error: true
+
+    core-magistrate-api:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-magistrate-api --coverageDirectory .coverage/unit/core-magistrate-api --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-magistrate-api/coverage.xml
+                  fail_ci_if_error: true
+
+    core-magistrate-crypto:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-magistrate-crypto --coverageDirectory .coverage/unit/core-magistrate-crypto --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-magistrate-crypto/coverage.xml
+                  fail_ci_if_error: true
+
+    core-magistrate-transactions:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-magistrate-transactions --coverageDirectory .coverage/unit/core-magistrate-transactions --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-magistrate-transactions/coverage.xml
+                  fail_ci_if_error: true
+
+    core-manager:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-manager --coverageDirectory .coverage/unit/core-manager --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-manager/coverage.xml
+                  fail_ci_if_error: true
+
+    core-p2p:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-p2p --coverageDirectory .coverage/unit/core-p2p --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-p2p/coverage.xml
+                  fail_ci_if_error: true
+
+    core-snapshots:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-snapshots --coverageDirectory .coverage/unit/core-snapshots --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-snapshots/coverage.xml
+                  fail_ci_if_error: true
+
+    core-state:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-state --coverageDirectory .coverage/unit/core-state --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-state/coverage.xml
+                  fail_ci_if_error: true
+
+    core-test-framework:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-test-framework --coverageDirectory .coverage/unit/core-test-framework --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-test-framework/coverage.xml
+                  fail_ci_if_error: true
+
+    core-transaction-pool:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-transaction-pool --coverageDirectory .coverage/unit/core-transaction-pool --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-transaction-pool/coverage.xml
+                  fail_ci_if_error: true
+
+    core-transactions:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-transactions --coverageDirectory .coverage/unit/core-transactions --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-transactions/coverage.xml
+                  fail_ci_if_error: true
+
+    core-webhooks:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/core-webhooks --coverageDirectory .coverage/unit/core-webhooks --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/core-webhooks/coverage.xml
+                  fail_ci_if_error: true
+
+    crypto:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Test
+              run: jest __tests__/unit/crypto --coverageDirectory .coverage/unit/crypto --maxWorkers=2
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/crypto/coverage.xml
+                  fail_ci_if_error: true
