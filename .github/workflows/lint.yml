@@ -9,7 +9,7 @@ on:
         types: [ready_for_review, synchronize, opened]
 
 jobs:
-    lint:
+    source:
         runs-on: ubuntu-latest
 
         strategy:
@@ -36,3 +36,31 @@ jobs:
 
             - name: Lint Source
               run: yarn lint
+
+    tests:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install & Build
+              run: yarn install && yarn bootstrap
+
+            - name: Lint Source
+              run: yarn lint:tests
