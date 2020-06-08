@@ -1,0 +1,51 @@
+name: End-to-End Testing
+
+on:
+    push:
+        branches:
+            - "master"
+            - "develop"
+    pull_request:
+        types: [ready_for_review, synchronize, opened]
+
+jobs:
+    e2e:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v2
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-e2e-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-e2e-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - name: Install and build packages
+              run: yarn setup
+            - name: Docker compose up
+              run: cd __tests__/e2e/lib/config && docker-compose up -d
+            - name: Let the network run during 5min
+              run: sleep 300
+            - name: Show logs - node0
+              if: always()
+              run: docker logs config_core0_1
+            - name: Show logs - node1
+              if: always()
+              run: docker logs config_core1_1
+            - name: Show logs - node2
+              if: always()
+              run: docker logs config_core2_1
+            - name: Show logs - node3
+              if: always()
+              run: docker logs config_core3_1
+            - name: Show logs - node4
+              if: always()
+              run: docker logs config_core4_1
