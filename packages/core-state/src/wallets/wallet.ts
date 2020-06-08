@@ -35,7 +35,7 @@ export class Wallet implements Contracts.State.Wallet {
      */
     public constructor(
         public readonly address: string,
-        private readonly attributes: Services.Attributes.AttributeMap,
+        protected readonly attributes: Services.Attributes.AttributeMap,
     ) {}
 
     /**
