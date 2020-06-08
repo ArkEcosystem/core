@@ -69,7 +69,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-api --coverageDirectory .coverage/unit/core-api
+              run: yarn test:parallel __tests__/unit/core-api --coverage --coverageDirectory .coverage/unit/core-api
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -103,7 +103,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-blockchain --coverageDirectory .coverage/unit/core-blockchain
+              run: yarn test:parallel __tests__/unit/core-blockchain --coverage --coverageDirectory .coverage/unit/core-blockchain
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -137,7 +137,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-cli --coverageDirectory .coverage/unit/core-cli
+              run: yarn test:parallel __tests__/unit/core-cli --coverage --coverageDirectory .coverage/unit/core-cli
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -171,7 +171,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-database --coverageDirectory .coverage/unit/core-database
+              run: yarn test:parallel __tests__/unit/core-database --coverage --coverageDirectory .coverage/unit/core-database
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -205,7 +205,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-forger --coverageDirectory .coverage/unit/core-forger
+              run: yarn test:parallel __tests__/unit/core-forger --coverage --coverageDirectory .coverage/unit/core-forger
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -239,7 +239,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-kernel --coverageDirectory .coverage/unit/core-kernel
+              run: yarn test:parallel __tests__/unit/core-kernel --coverage --coverageDirectory .coverage/unit/core-kernel
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -273,7 +273,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-logger-pino --coverageDirectory .coverage/unit/core-logger-pino
+              run: yarn test:parallel __tests__/unit/core-logger-pino --coverage --coverageDirectory .coverage/unit/core-logger-pino
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -307,7 +307,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-magistrate-api --coverageDirectory .coverage/unit/core-magistrate-api
+              run: yarn test:parallel __tests__/unit/core-magistrate-api --coverage --coverageDirectory .coverage/unit/core-magistrate-api
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -341,7 +341,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-magistrate-crypto --coverageDirectory .coverage/unit/core-magistrate-crypto
+              run: yarn test:parallel __tests__/unit/core-magistrate-crypto --coverage --coverageDirectory .coverage/unit/core-magistrate-crypto
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -375,7 +375,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-magistrate-transactions --coverageDirectory .coverage/unit/core-magistrate-transactions
+              run: yarn test:parallel __tests__/unit/core-magistrate-transactions --coverage --coverageDirectory .coverage/unit/core-magistrate-transactions
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -409,7 +409,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-manager --coverageDirectory .coverage/unit/core-manager
+              run: yarn test:parallel __tests__/unit/core-manager --coverage --coverageDirectory .coverage/unit/core-manager
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -443,7 +443,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-p2p --coverageDirectory .coverage/unit/core-p2p
+              run: yarn test:parallel __tests__/unit/core-p2p --coverage --coverageDirectory .coverage/unit/core-p2p
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -477,7 +477,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-snapshots --coverageDirectory .coverage/unit/core-snapshots
+              run: yarn test:parallel __tests__/unit/core-snapshots --coverage --coverageDirectory .coverage/unit/core-snapshots
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -511,7 +511,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-state --coverageDirectory .coverage/unit/core-state
+              run: yarn test:parallel __tests__/unit/core-state --coverage --coverageDirectory .coverage/unit/core-state
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -545,7 +545,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-test-framework --coverageDirectory .coverage/unit/core-test-framework
+              run: yarn test:parallel __tests__/unit/core-test-framework --coverage --coverageDirectory .coverage/unit/core-test-framework
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -579,7 +579,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-transaction-pool --coverageDirectory .coverage/unit/core-transaction-pool
+              run: yarn test:parallel __tests__/unit/core-transaction-pool --coverage --coverageDirectory .coverage/unit/core-transaction-pool
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -613,7 +613,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-transactions --coverageDirectory .coverage/unit/core-transactions
+              run: yarn test:parallel __tests__/unit/core-transactions --coverage --coverageDirectory .coverage/unit/core-transactions
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -647,7 +647,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core --coverage-webhooks --coverageDirectory .coverage/unit/core-webhooks
+              run: yarn test:parallel __tests__/unit/core-webhooks --coverage --coverageDirectory .coverage/unit/core-webhooks
 
             - name: Codecov
               uses: codecov/codecov-action@v1
@@ -681,7 +681,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/crypto --coverage --coverageDirectory .coverage/unit/crypto
+              run: yarn test:parallel __tests__/unit/crypto --coverage --coverage --coverageDirectory .coverage/unit/crypto
 
             - name: Codecov
               uses: codecov/codecov-action@v1
