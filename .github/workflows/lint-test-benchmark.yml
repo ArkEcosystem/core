@@ -36,6 +36,7 @@ jobs:
 
             - name: Lint Source
               run: yarn lint
+
     test-unit:
         needs: lint
 
@@ -70,6 +71,8 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/coverage.xml
+                  fail_ci_if_error: true
+
     test-integration:
         needs: lint
 
@@ -127,6 +130,8 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/integration/coverage.xml
+                  fail_ci_if_error: true
+
     test-functional-core-database:
         needs: lint
 
@@ -186,6 +191,8 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/functional/core-database/coverage.xml
+                  fail_ci_if_error: true
+
     test-functional-bridgechain-registration:
         needs: lint
 
@@ -236,6 +243,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-bridgechain-resignation:
         needs: lint
 
@@ -286,6 +294,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-bridgechain-update:
         needs: lint
 
@@ -336,6 +345,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-business-registration:
         needs: lint
 
@@ -386,6 +396,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-business-resignation:
         needs: lint
 
@@ -436,6 +447,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-business-update:
         needs: lint
 
@@ -486,6 +498,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-delegate-registration:
         needs: lint
 
@@ -536,6 +549,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-delegate-resignation:
         needs: lint
 
@@ -586,6 +600,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-htlc-claim:
         needs: lint
 
@@ -636,6 +651,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-htlc-lock:
         needs: lint
 
@@ -686,6 +702,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-htlc-refund:
         needs: lint
 
@@ -736,6 +753,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-ipfs:
         needs: lint
 
@@ -786,6 +804,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-multi-payment:
         needs: lint
 
@@ -887,6 +906,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-second-signature-registration:
         needs: lint
 
@@ -937,6 +957,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-transfer:
         needs: lint
 
@@ -987,6 +1008,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-vote:
         needs: lint
 
@@ -1037,6 +1059,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-entity-register:
         needs: lint
 
@@ -1087,6 +1110,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-entity-resign:
         needs: lint
 
@@ -1137,6 +1161,7 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
     test-functional-entity-update:
         needs: lint
 
