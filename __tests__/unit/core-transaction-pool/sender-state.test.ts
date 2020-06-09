@@ -1,7 +1,7 @@
 import { CryptoSuite } from "@packages/core-crypto";
 import { Container, Contracts, Enums } from "@packages/core-kernel";
 import { Services } from "@packages/core-kernel/dist";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 import {
     ApplyTransactionAction,
     RevertTransactionAction,
@@ -9,7 +9,6 @@ import {
     VerifyTransactionAction,
 } from "@packages/core-transaction-pool/src/actions";
 import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
-import { Interfaces } from "@packages/crypto";
 import { Interfaces } from "@packages/crypto";
 
 const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));

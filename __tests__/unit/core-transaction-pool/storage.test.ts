@@ -1,5 +1,4 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
 import { CryptoSuite } from "@packages/core-crypto";
 import { ensureFileSync } from "fs-extra";
 

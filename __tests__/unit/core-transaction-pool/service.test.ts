@@ -1,6 +1,7 @@
 import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
 import { CryptoSuite } from "@packages/core-crypto";
+
+import { Service } from "../../../packages/core-transaction-pool/src/service";
 
 const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
