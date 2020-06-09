@@ -91,7 +91,6 @@ export class Blockchain implements blockchain.IBlockchain {
                 logger.error(
                     `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
                 );
-                logger.error(error.stack);
                 return undefined;
             }
         }, 1);
