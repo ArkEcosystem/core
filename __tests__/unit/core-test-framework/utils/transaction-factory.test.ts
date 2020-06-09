@@ -25,10 +25,10 @@ let crypto: CryptoSuite.CryptoSuite;
 beforeEach(() => {
     crypto = new CryptoSuite.CryptoSuite(Generators.generateCryptoConfigRaw());
     crypto.CryptoManager.HeightTracker.setHeight(2);
-    sandbox = new Sandbox();
+    sandbox = new Sandbox(crypto);
     Identities = crypto.CryptoManager.Identities;
 
-    transactionFactory = TransactionFactory.initialize(crypto.CryptoManager, sandbox.app);
+    transactionFactory = TransactionFactory.initialize(crypto, sandbox.app);
 });
 
 afterEach(() => {

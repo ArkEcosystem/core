@@ -118,7 +118,7 @@ describe("Block", () => {
                 },
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
+            const transactions = TransactionFactory.initialize(crypto)
                 .transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withPassphrase("super cool passphrase")
                 .create(210);
@@ -140,7 +140,7 @@ describe("Block", () => {
                 },
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
+            const transactions = TransactionFactory.initialize(crypto)
                 .transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withPassphrase("super cool passphrase")
                 .create();
@@ -200,7 +200,7 @@ describe("Block", () => {
                 },
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
+            const transactions = TransactionFactory.initialize(crypto)
                 .transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withTimestamp(optionsDefault.timestamp)
                 .withPassphrase("super cool passphrase")
@@ -225,7 +225,7 @@ describe("Block", () => {
                 },
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
+            const transactions = TransactionFactory.initialize(crypto)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 10)
                 .withVersion(2)
                 .withExpiration(52)
@@ -253,7 +253,7 @@ describe("Block", () => {
 
             crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
 
-            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
+            const transactions = TransactionFactory.initialize(crypto)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withVersion(1)
                 .withTimestamp(optionsDefault.timestamp - 21601)
@@ -279,7 +279,7 @@ describe("Block", () => {
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
+            const transactions = TransactionFactory.initialize(crypto)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withVersion(1)
                 .withTimestamp(
@@ -311,7 +311,7 @@ describe("Block", () => {
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
+            const transactions = TransactionFactory.initialize(crypto)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withVersion(1)
                 .withTimestamp(
@@ -342,7 +342,7 @@ describe("Block", () => {
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
+            const transactions = TransactionFactory.initialize(crypto)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withVersion(1)
                 .withTimestamp(
@@ -370,7 +370,7 @@ describe("Block", () => {
                 reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.initialize(crypto.CryptoManager)
+            const transactions = TransactionFactory.initialize(crypto)
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withVersion(1)
                 .withTimestamp(

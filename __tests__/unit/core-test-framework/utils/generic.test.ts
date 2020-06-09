@@ -25,7 +25,7 @@ let walletRepository;
 beforeEach(async () => {
     crypto = new CryptoSuite.CryptoSuite(Generators.generateCryptoConfigRaw());
 
-    sandbox = new Sandbox();
+    sandbox = new Sandbox(crypto as any);
     Identities = crypto.CryptoManager.Identities;
 
     for (const item of crypto.CryptoManager.MilestoneManager.getMilestones()) {

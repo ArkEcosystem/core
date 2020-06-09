@@ -5,10 +5,9 @@ import { Models } from "@packages/core-database";
 import { TransactionRepository } from "@packages/core-test-framework/src/mocks";
 
 let transaction: Partial<Models.Transaction>;
+const crypto = new CryptoSuite.CryptoSuite();
 
 beforeAll(() => {
-    const crypto = new CryptoSuite.CryptoSuite();
-
     transaction = {
         id: "0c79fe9faf214de92847baa322a9e991a49f6f6f0bc774927098c7feae627d77",
         blockId: "6749a4b976e792817d32e1cf06d6b303badd2a5aff3086cc682349b9029290d5",
@@ -76,7 +75,7 @@ describe("TransactionRepository", () => {
         });
 
         it("getFeeStatistics should return empty search result", async () => {
-            await expect(TransactionRepository.instance.getFeeStatistics(1)).resolves.toEqual([]);
+            await expect(TransactionRepository.instance.getFeeStatistics(crypto.CryptoManager, 1)).resolves.toEqual([]);
         });
     });
 
@@ -155,7 +154,9 @@ describe("TransactionRepository", () => {
         });
 
         it("findByIdAndType should return mocked transaction", async () => {
-            await expect(TransactionRepository.instance.getFeeStatistics(1)).resolves.toEqual([feeStatistics]);
+            await expect(TransactionRepository.instance.getFeeStatistics(crypto.CryptoManager, 1)).resolves.toEqual([
+                feeStatistics,
+            ]);
         });
     });
 });

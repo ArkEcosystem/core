@@ -38,7 +38,7 @@ export const makeOptionsDefault = (cryptoSuite: CryptoSuite.CryptoSuite) => {
 };
 
 export const makeTransactions = (cryptoSuite: CryptoSuite.CryptoSuite) =>
-    TransactionFactory.initialize(cryptoSuite.CryptoManager)
+    TransactionFactory.initialize(cryptoSuite)
         .transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
         .withPassphrase("super cool passphrase")
         .create(50);

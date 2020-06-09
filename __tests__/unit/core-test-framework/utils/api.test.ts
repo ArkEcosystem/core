@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Identifiers } from "@packages/core-api/src";
-import { Utils } from "@packages/core-kernel/src";
+import { CryptoSuite } from "@packages/core-crypto";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { ApiHelpers } from "@packages/core-test-framework/src/utils/api";
 
@@ -19,6 +19,8 @@ let api: ApiHelpers;
 
 const mockResponse: any = '{test:"test"}';
 
+const crypto = new CryptoSuite.CryptoSuite();
+
 const mockServer = {
     async inject(options: any) {
         return mockResponse;
@@ -26,11 +28,11 @@ const mockServer = {
 };
 
 beforeEach(async () => {
-    sandbox = new Sandbox();
+    sandbox = new Sandbox(crypto as any);
 
     sandbox.app.bind(Identifiers.HTTP).toConstantValue(mockServer);
 
-    api = new ApiHelpers(sandbox.app);
+    api = new ApiHelpers(crypto, sandbox.app);
 });
 
 afterEach(() => {

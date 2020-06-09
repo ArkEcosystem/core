@@ -1,11 +1,14 @@
 import "@packages/core-test-framework/src/matchers/transactions/valid";
+
+import { CryptoSuite } from "@packages/core-crypto";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Interfaces } from "@packages/crypto";
 
 let factory: FactoryBuilder;
+const crypto = new CryptoSuite.CryptoSuite();
 
 beforeEach(() => {
-    factory = new FactoryBuilder();
+    factory = new FactoryBuilder(crypto);
 
     Factories.registerTransactionFactory(factory);
 });
@@ -16,7 +19,7 @@ describe("Valid", () => {
             const transaction: Interfaces.ITransaction = factory.get("Transfer").withStates("sign").make();
 
             expect(transaction.data.signature).toBeDefined();
-            expect(transaction.data).toBeValidTransaction();
+            expect(transaction.data).toBeValidTransaction(crypto.TransactionManager.TransactionTools);
         });
 
         it("should not be valid transaction - without sign", async () => {
@@ -24,7 +27,7 @@ describe("Valid", () => {
 
             expect(transaction.data.signature).toBeUndefined();
             expect(transaction.data.secondSignature).toBeUndefined();
-            expect(transaction.data).not.toBeValidTransaction();
+            expect(transaction.data).not.toBeValidTransaction(crypto.TransactionManager.TransactionTools);
         });
     });
 });
