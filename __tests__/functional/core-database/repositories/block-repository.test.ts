@@ -12,7 +12,6 @@ import { BlockRepository } from "../../../../packages/core-database/src/reposito
 import { BIP39 } from "../../../../packages/core-forger/src/methods/bip39";
 
 const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
-crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
 
 const getBlockTimeLookup = (height: number): number => {
     throw new Error("Mocked getBlockTimeLookup");
@@ -296,7 +295,7 @@ describe("BlockRepository.deleteTopBlocks", () => {
     it("should delete blocks", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
-        await blockRepository.deleteTopBlocks(2);
+        await blockRepository.deleteTopBlocks(2, crypto.CryptoManager);
         const block1ById = await blockRepository.findById(block1.data.id);
         const block2ById = await blockRepository.findById(block2.data.id);
         const block3ById = await blockRepository.findById(block3.data.id);

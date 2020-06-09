@@ -11,7 +11,7 @@ export class BlockRepository extends AbstractRepository<Block> {
     public async findLatest(): Promise<BlockInterfaces.IBlockData | undefined> {
         return (this.findOne({
             order: { height: "DESC" },
-        }) as unknown) as BlockInterfaces.IBlockData; // TODO: refactor
+        }) as unknown) as BlockInterfaces.IBlockData;
     }
 
     public async findRecent(limit: number): Promise<{ id: string }[]> {
