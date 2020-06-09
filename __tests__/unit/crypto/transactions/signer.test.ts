@@ -2,8 +2,16 @@ import "jest-extended";
 
 import * as Generators from "../../../../packages/core-test-framework/src/app/generators";
 import { TransactionFactory } from "../../../../packages/core-test-framework/src/utils/transaction-factory";
-import { CryptoManager, Transactions } from "../../../../packages/crypto/src";
 import { TransactionVersionError } from "../../../../packages/crypto/src/errors";
+import { CryptoSuite } from "./__support__/createCryptoSuite";
+
+const cryptoSuite = new CryptoSuite(Generators.generateCryptoConfigRaw(), {
+    extendTransaction: () => {},
+    // @ts-ignore
+    validate: (_, data) => ({
+        value: data,
+    }),
+});
 
 describe("Signer", () => {
     let Keys;
@@ -11,16 +19,9 @@ describe("Signer", () => {
     let cryptoManager;
 
     beforeAll(() => {
-        cryptoManager = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
+        cryptoManager = cryptoSuite.CryptoManager;
         cryptoManager.HeightTracker.setHeight(2);
-        const transactionsManagerRawConfig = new Transactions.TransactionManager(cryptoManager, {
-            extendTransaction: () => {},
-            // @ts-ignore
-            validate: (_, data) => ({
-                value: data,
-            }),
-        });
-        Signer = transactionsManagerRawConfig.TransactionTools.Signer;
+        Signer = cryptoSuite.TransactionManager.TransactionTools.Signer;
         Keys = cryptoManager.Identities.Keys;
     });
 
@@ -30,7 +31,7 @@ describe("Signer", () => {
 
         beforeAll(() => {
             keys = Keys.fromPassphrase("secret");
-            transaction = TransactionFactory.initialize()
+            transaction = TransactionFactory.initialize(cryptoSuite as any)
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withVersion(2)
                 .withFee(2000)

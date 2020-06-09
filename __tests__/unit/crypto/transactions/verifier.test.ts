@@ -6,23 +6,24 @@ import * as Generators from "../../../../packages/core-test-framework/src/app/ge
 import { TransactionFactory } from "../../../../packages/core-test-framework/src/utils/transaction-factory";
 import { CryptoManager, Interfaces, Transactions } from "../../../../packages/crypto/src";
 import { createRandomTx } from "./__support__";
+import { CryptoSuite } from "./__support__/createCryptoSuite";
 
 let Identities;
 let BuilderFactory;
 let Verifier;
 let crypto: CryptoManager<any>;
 let transactionsManager: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
+const cryptoSuite = new CryptoSuite(Generators.generateCryptoConfigRaw(), {
+    extendTransaction: () => {},
+    // @ts-ignore
+    validate: (_, data) => ({
+        value: data,
+    }),
+});
 
 beforeEach(() => {
-    crypto = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
-
-    transactionsManager = new Transactions.TransactionManager(crypto, {
-        extendTransaction: () => {},
-        // @ts-ignore
-        validate: (_, data) => ({
-            value: data,
-        }),
-    });
+    crypto = cryptoSuite.CryptoManager;
+    transactionsManager = cryptoSuite.TransactionManager;
 
     Identities = crypto.Identities;
     BuilderFactory = transactionsManager.BuilderFactory;
@@ -35,7 +36,7 @@ describe("Verifier", () => {
         let otherPublicKey;
 
         beforeAll(() => {
-            transaction = TransactionFactory.initialize()
+            transaction = TransactionFactory.initialize(cryptoSuite as any)
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withVersion(2)
                 .withFee(2000)
@@ -109,7 +110,7 @@ describe("Verifier", () => {
         beforeAll(() => {
             keys2 = Identities.Keys.fromPassphrase("secret two");
 
-            transaction = TransactionFactory.initialize()
+            transaction = TransactionFactory.initialize(cryptoSuite as any)
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withVersion(2)
                 .withFee(2000)

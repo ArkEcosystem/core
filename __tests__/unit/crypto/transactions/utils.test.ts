@@ -11,6 +11,7 @@ import {
 import { ITransaction, ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { Transaction } from "../../../../packages/crypto/src/transactions";
 import { buildTransaction as transactionDataFixture } from "../fixtures/transaction";
+import { CryptoSuite } from "./__support__/createCryptoSuite";
 
 let transactionData: ITransactionData;
 let transactionDataJSON;
@@ -103,18 +104,20 @@ let crypto: CryptoManager<any>;
 let transactionsManager: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
 let cryptoFromConfigRaw: CryptoManager<any>;
 let transactionsManagerConfigRaw: Transactions.TransactionManager<any, Interfaces.ITransactionData, any>;
+let cryptoSuite: CryptoSuite;
+let cryptoSuiteConfigRaw;
 
 describe("Transaction", () => {
     beforeEach(() => {
-        crypto = CryptoManager.createFromPreset("devnet");
-
-        transactionsManager = new Transactions.TransactionManager(crypto, {
+        cryptoSuite = new CryptoSuite(CryptoManager.findNetworkByName("devnet"), {
             extendTransaction: () => {},
             // @ts-ignore
             validate: (_, data) => ({
                 value: data,
             }),
         });
+        crypto = cryptoSuite.CryptoManager;
+        transactionsManager = cryptoSuite.TransactionManager;
 
         Keys = crypto.Identities.Keys;
         Utils = transactionsManager.TransactionTools.Utils;
@@ -127,15 +130,15 @@ describe("Transaction", () => {
             ...{ amount: transactionData.amount.toFixed(), fee: transactionData.fee.toFixed() },
         };
 
-        cryptoFromConfigRaw = CryptoManager.createFromConfig(Generators.generateCryptoConfigRaw());
-
-        transactionsManagerConfigRaw = new Transactions.TransactionManager(cryptoFromConfigRaw, {
+        cryptoSuiteConfigRaw = new CryptoSuite(Generators.generateCryptoConfigRaw(), {
             extendTransaction: () => {},
             // @ts-ignore
             validate: (_, data) => ({
                 value: data,
             }),
         });
+        cryptoFromConfigRaw = cryptoSuiteConfigRaw.CryptoManager;
+        transactionsManagerConfigRaw = cryptoSuiteConfigRaw.TransactionManager;
     });
 
     describe("toBytes / fromBytes", () => {
@@ -211,7 +214,7 @@ describe("Transaction", () => {
         let transaction: ITransactionData;
 
         beforeEach(() => {
-            transaction = TestTransactionFactory.initialize(cryptoFromConfigRaw as any)
+            transaction = TestTransactionFactory.initialize(cryptoSuiteConfigRaw)
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")
@@ -237,7 +240,7 @@ describe("Transaction", () => {
         let transaction: ITransactionData;
 
         beforeEach(() => {
-            transaction = TestTransactionFactory.initialize(cryptoFromConfigRaw as any)
+            transaction = TestTransactionFactory.initialize(cryptoSuiteConfigRaw)
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")

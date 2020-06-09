@@ -137,7 +137,7 @@ describe("BlockRepository.getStatistics", () => {
         const statistics = await blockRepository.getStatistics();
         expect(statistics).toStrictEqual({
             count: "3",
-            numberOfTransactions: "52",
+            numberOfTransactions: "153",
             totalAmount: "12500000000000000",
             totalFee: "0",
         });
@@ -150,8 +150,8 @@ describe("BlockRepository.getBlockRewards", () => {
         await blockRepository.saveBlocks([block1, block2, block3]);
         const blockRewards = await blockRepository.getBlockRewards();
         expect(blockRewards).toStrictEqual([
-            { generatorPublicKey: block1.data.generatorPublicKey, rewards: "0" },
             { generatorPublicKey: bip39.publicKey, rewards: "200" },
+            { generatorPublicKey: block1.data.generatorPublicKey, rewards: "0" },
         ]);
     });
 });
@@ -163,16 +163,16 @@ describe("BlockRepository.getDelegatesForgedBlocks", () => {
         const delegatesForgedBlocks = await blockRepository.getDelegatesForgedBlocks();
         expect(delegatesForgedBlocks).toStrictEqual([
             {
-                generatorPublicKey: block1.data.generatorPublicKey,
-                totalFees: "0",
-                totalRewards: "0",
-                totalProduced: "1",
-            },
-            {
                 generatorPublicKey: bip39.publicKey,
                 totalFees: "0",
                 totalRewards: "200",
                 totalProduced: "2",
+            },
+            {
+                generatorPublicKey: block1.data.generatorPublicKey,
+                totalFees: "0",
+                totalRewards: "0",
+                totalProduced: "1",
             },
         ]);
     });
