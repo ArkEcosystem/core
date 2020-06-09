@@ -3,8 +3,7 @@ import "jest-extended";
 import { CryptoSuite } from "@packages/core-crypto";
 import { Container, Utils } from "@packages/core-kernel";
 import { HttpOptions, HttpResponse } from "@packages/core-kernel/src/utils";
-import { Sandbox } from "@packages/core-test-framework";
-import * as coditions from "@packages/core-webhooks/src/conditions";
+import { Sandbox } from "@packages/core-test-framework/src";
 import { Database } from "@packages/core-webhooks/src/database";
 import { WebhookEvent } from "@packages/core-webhooks/src/events";
 import { Identifiers } from "@packages/core-webhooks/src/identifiers";
@@ -171,7 +170,8 @@ describe("Listener", () => {
         });
 
         it("should not broadcast if webhook condition throws error", async () => {
-            const spyOnEq = jest.spyOn(coditions, "eq").mockImplementation((actual, expected) => {
+            // @ts-ignore
+            const spyOnEq = jest.spyOn(listener.conditions, "eq").mockImplementation((actual, expected) => {
                 throw new Error();
             });
 
