@@ -51,6 +51,14 @@ export class Command extends Commands.Command {
 
         await Utils.buildApplication({
             flags,
+            plugins: {
+                "@arkecosystem/core-manager": {
+                    watcher: {
+                        enabled: false,
+                        storage: `${process.env.CORE_PATH_DATA}/events.sqlite`,
+                    },
+                },
+            },
         });
     }
 }
