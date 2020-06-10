@@ -12,6 +12,7 @@ const logger = {
     debug: jest.fn(),
     warning: jest.fn(),
     error: jest.fn(),
+    info: jest.fn(),
 };
 const emitter = {
     listen: jest.fn(),
