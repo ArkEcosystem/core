@@ -63,7 +63,9 @@ describe("StateBuilder", () => {
         jest.clearAllMocks();
         walletRepo.reset();
 
-        sandbox.app.config("crypto.exceptions.negativeBalances", {});
+        sandbox.app
+            .get<CryptoSuite.CryptoManager>(Container.Identifiers.CryptoManager)
+            .NetworkConfigManager.set("exceptions.negativeBalances", {});
 
         restoreDefaultSentTransactions();
 
@@ -162,8 +164,9 @@ describe("StateBuilder", () => {
             },
         };
 
-        sandbox.app.config("crypto.exceptions.negativeBalances", balance);
-
+        sandbox.app
+            .get<CryptoSuite.CryptoManager>(Container.Identifiers.CryptoManager)
+            .NetworkConfigManager.set("exceptions.negativeBalances", balance);
         setUpDefaults.getSentTransaction = [];
 
         await stateBuilder.run();
@@ -185,8 +188,9 @@ describe("StateBuilder", () => {
             },
         };
 
-        sandbox.app.config("crypto.exceptions.negativeBalances", balance);
-
+        sandbox.app
+            .get<CryptoSuite.CryptoManager>(Container.Identifiers.CryptoManager)
+            .NetworkConfigManager.set("exceptions.negativeBalances", balance);
         setUpDefaults.getSentTransaction = [];
 
         await stateBuilder.run();
@@ -210,8 +214,9 @@ describe("StateBuilder", () => {
             },
         };
 
-        sandbox.app.config("crypto.exceptions.negativeBalances", balance);
-
+        sandbox.app
+            .get<CryptoSuite.CryptoManager>(Container.Identifiers.CryptoManager)
+            .NetworkConfigManager.set("exceptions.negativeBalances", balance);
         setUpDefaults.getSentTransaction = [];
 
         await stateBuilder.run();
@@ -246,8 +251,9 @@ describe("StateBuilder", () => {
                 [wallet.nonce.toString()]: Utils.BigNumber.make(-90000).toString(),
             },
         };
-
-        sandbox.app.config("crypto.exceptions.negativeBalances", balance);
+        sandbox.app
+            .get<CryptoSuite.CryptoManager>(Container.Identifiers.CryptoManager)
+            .NetworkConfigManager.set("exceptions.negativeBalances", balance);
 
         setUpDefaults.getSentTransaction = [];
 
