@@ -550,7 +550,7 @@ describe("Blockchain", () => {
 
                 await blockchain.removeTopBlocks(numberOfBlocks);
 
-                expect(blockRepository.deleteTopBlocks).toHaveBeenLastCalledWith(numberOfBlocks);
+                expect(blockRepository.deleteTopBlocks).toHaveBeenLastCalledWith(numberOfBlocks, crypto.CryptoManager);
                 expect(databaseService.loadBlocksFromCurrentRound).toHaveBeenCalled();
             },
         );
