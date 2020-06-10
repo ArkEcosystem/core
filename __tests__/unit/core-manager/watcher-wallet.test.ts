@@ -3,7 +3,7 @@ import "jest-extended";
 import { Container, Services } from "@arkecosystem/core-kernel";
 import { WatcherWallet } from "@arkecosystem/core-manager/src/watcher-wallet";
 import { Utils } from "@arkecosystem/crypto";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 
 let sandbox: Sandbox;

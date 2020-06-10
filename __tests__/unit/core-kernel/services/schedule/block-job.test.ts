@@ -5,7 +5,7 @@ import { BlockEvent, ScheduleEvent } from "@packages/core-kernel/src/enums/event
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 import { BlockJob } from "@packages/core-kernel/src/services/schedule/block-job";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 let job: BlockJob;
@@ -28,7 +28,7 @@ const expectFinishedEventData = () => {
 
 beforeEach(() => {
     const crypto = new CryptoSuite.CryptoSuite();
-    sandbox = new Sandbox(crypto);
+    sandbox = new Sandbox(crypto as any);
     eventDispatcher = sandbox.app.resolve<MemoryEventDispatcher>(MemoryEventDispatcher);
 
     sandbox.app.bind(Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);

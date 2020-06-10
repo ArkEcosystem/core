@@ -13,9 +13,10 @@ export class NetworkUtils<T> {
         private networkConfigManager: NetworkConfigManager<T>,
         private milestoneManager: MilestoneManager<T>,
     ) {
-        this.genesisTransactions = this.networkConfigManager
-            .get("genesisBlock.transactions")
-            .reduce((acc, curr) => Object.assign(acc, { [curr.id]: true }), {});
+        this.genesisTransactions = (this.networkConfigManager.get("exceptions.transactions") || []).reduce(
+            (acc, curr) => Object.assign(acc, { [curr.id]: true }),
+            {},
+        );
 
         this.whitelistedBlockAndTransactionIds = [
             ...(this.networkConfigManager.get("exceptions.blocks") || []),

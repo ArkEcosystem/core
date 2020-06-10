@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Container, Enums } from "@packages/core-kernel";
 import { CronJob } from "@packages/core-kernel/src/services/schedule/cron-job";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 import moment from "moment-timezone";
 import { useFakeTimers } from "sinon";
 

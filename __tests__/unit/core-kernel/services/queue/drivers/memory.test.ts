@@ -3,7 +3,7 @@ import "jest-extended";
 import { sleep } from "@arkecosystem/utils";
 import { Container, Contracts, Enums } from "@packages/core-kernel/src";
 import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
-import { Sandbox } from "@packages/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 class DummyClass implements Contracts.Kernel.QueueJob {
     public constructor(private readonly method?) {}
