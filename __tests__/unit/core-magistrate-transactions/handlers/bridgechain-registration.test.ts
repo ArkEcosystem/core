@@ -67,7 +67,7 @@ beforeEach(() => {
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    factoryBuilder = new FactoryBuilder();
+    factoryBuilder = new FactoryBuilder(crypto);
     Factories.registerWalletFactory(factoryBuilder);
 
     senderWallet = buildSenderWallet(app, crypto.CryptoManager);
@@ -75,7 +75,7 @@ beforeEach(() => {
     walletRepository.index(senderWallet);
 });
 
-describe("BusinessRegistration", () => {
+describe("BridgechainRegistration", () => {
     let bridgechainRegistrationTransaction: TransactionInterfaces.ITransaction;
     let handler: TransactionHandler;
     let businessRegistrationAsset: IBusinessRegistrationAsset;

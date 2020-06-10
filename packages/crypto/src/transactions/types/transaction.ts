@@ -48,7 +48,7 @@ export abstract class Transaction<T, U extends ITransactionData = ITransactionDa
             }
         }
 
-        return cryptoManager.LibraryManager.Libraries.BigNumber.make(Transaction.defaultStaticFee);
+        return cryptoManager.LibraryManager.Libraries.BigNumber.make(this.defaultStaticFee);
     }
 
     public static getSchema(): TransactionSchema {

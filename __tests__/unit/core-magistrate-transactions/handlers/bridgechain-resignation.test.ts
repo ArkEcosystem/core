@@ -221,16 +221,6 @@ describe("BusinessRegistration", () => {
 
         it("should throw if wallet has insufficient balance", async () => {
             senderWallet.balance = crypto.CryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
-            const bridgechainResignationTransaction = new BridgechainResignationBuilder(
-                crypto.CryptoManager,
-                crypto.TransactionManager.TransactionFactory,
-                crypto.TransactionManager.TransactionTools,
-            )
-                .bridgechainResignationAsset(bridgechainRegistrationAsset.genesisHash)
-                .amount("10")
-                .nonce("1")
-                .sign(passphrases[0])
-                .build();
 
             await expect(
                 handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository),

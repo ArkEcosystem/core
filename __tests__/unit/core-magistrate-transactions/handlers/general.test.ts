@@ -51,7 +51,7 @@ beforeEach(() => {
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
-    factoryBuilder = new FactoryBuilder();
+    factoryBuilder = new FactoryBuilder(crypto);
     Factories.registerWalletFactory(factoryBuilder);
 
     senderWallet = buildSenderWallet(app, crypto.CryptoManager);
