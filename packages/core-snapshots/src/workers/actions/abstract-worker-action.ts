@@ -83,7 +83,7 @@ export abstract class AbstractWorkerAction implements WorkerAction {
 
     protected getVerifyFunction(): Function {
         // passing a codec method as last parameter. Example: Verifier.verifyBlock
-        return this.verifier[`verify${this.getSingularCapitalizedTableName()}`];
+        return this.verifier[`verify${this.getSingularCapitalizedTableName()}`].bind(this.verifier);
     }
 
     protected applyGenesisBlockFix(block: Models.Block): void {
