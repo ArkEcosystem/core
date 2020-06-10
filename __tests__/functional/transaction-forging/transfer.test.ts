@@ -182,7 +182,7 @@ describe("Transaction Forging - Transfer", () => {
 
         cryptoManager.MilestoneManager.getMilestone().aip11 = false;
 
-        injectMilestone(cryptoManager, 1, {
+        injectMilestone(cryptoManager, {
             height: getLastHeight(sandbox.app) + 1,
             aip11: true,
         });

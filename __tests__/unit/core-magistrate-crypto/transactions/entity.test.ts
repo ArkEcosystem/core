@@ -1,26 +1,29 @@
 import "jest-extended";
 
+import { CryptoSuite } from "@arkecosystem/core-crypto";
+import { Interfaces } from "@arkecosystem/core-magistrate-crypto";
 import { EntityBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
 import { EntityTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
-import { Managers, Transactions, Validation } from "@arkecosystem/crypto";
 
-import { checkCommonFields } from "../helper";
 import { generateAssets, generateSpecialAssets } from "../fixtures/entity/assets/generate";
-import { validRegisters, invalidRegisters } from "../fixtures/entity/schemas/register";
-import { validResigns, invalidResigns } from "../fixtures/entity/schemas/resign";
-import { validUpdates, invalidUpdates } from "../fixtures/entity/schemas/update";
-import { Interfaces } from "@arkecosystem/core-magistrate-crypto";
+import { invalidRegisters, validRegisters } from "../fixtures/entity/schemas/register";
+import { invalidResigns, validResigns } from "../fixtures/entity/schemas/resign";
+import { invalidUpdates, validUpdates } from "../fixtures/entity/schemas/update";
+import { checkCommonFields } from "../helper";
 
-let builder: EntityBuilder;
+let builder: EntityBuilder<any, any, any>;
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+crypto.CryptoManager.HeightTracker.setHeight(2);
 
 describe("Entity transaction", () => {
-    Managers.configManager.setFromPreset("testnet");
-    Managers.configManager.setHeight(2);
-
-    Transactions.TransactionRegistry.registerTransactionType(EntityTransaction);
+    crypto.TransactionManager.TransactionTools.TransactionRegistry.registerTransactionType(EntityTransaction);
 
     beforeEach(() => {
-        builder = new EntityBuilder();
+        builder = new EntityBuilder(
+            crypto.CryptoManager,
+            crypto.TransactionManager.TransactionFactory,
+            crypto.TransactionManager.TransactionTools,
+        );
     });
 
     describe("Ser/deser", () => {
@@ -28,18 +31,14 @@ describe("Entity transaction", () => {
         const entitySpecialAssets = generateSpecialAssets();
 
         it.each([entityAssets])("should ser/deserialize giving back original fields", (asset) => {
-            const mockVerifySchema = jest.spyOn(Transactions.Verifier, "verifySchema").mockImplementation(
-                (data) => ({ value: data, error: undefined })
-            );
+            const mockVerifySchema = jest
+                .spyOn(crypto.TransactionManager.TransactionTools.Verifier, "verifySchema")
+                .mockImplementation((data) => ({ value: data, error: undefined }));
 
-            const entity = builder
-                .network(23)
-                .asset(asset)
-                .sign("passphrase")
-                .getStruct();
+            const entity = builder.asset(asset).sign("passphrase").getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(entity).serialized.toString("hex");
-            const deserialized = Transactions.Deserializer.deserialize(serialized);
+            const serialized = crypto.TransactionManager.TransactionFactory.fromData(entity).serialized.toString("hex");
+            const deserialized = crypto.TransactionManager.TransactionTools.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, entity);
             expect(deserialized.data.asset).toEqual(entity.asset);
@@ -47,20 +46,20 @@ describe("Entity transaction", () => {
             mockVerifySchema.mockRestore();
         });
 
-        it.each([entitySpecialAssets])
-        ("should ser/deserialize giving back original fields", ([assetToSerialize, expectedDeserialized]) => {
-            const entity = builder
-                .network(23)
-                .asset(assetToSerialize)
-                .sign("passphrase")
-                .getStruct();
+        it.each([entitySpecialAssets])(
+            "should ser/deserialize giving back original fields",
+            ([assetToSerialize, expectedDeserialized]) => {
+                const entity = builder.asset(assetToSerialize).sign("passphrase").getStruct();
 
-            const serialized = Transactions.TransactionFactory.fromData(entity).serialized.toString("hex");
-            const deserialized = Transactions.Deserializer.deserialize(serialized);
+                const serialized = crypto.TransactionManager.TransactionFactory.fromData(entity).serialized.toString(
+                    "hex",
+                );
+                const deserialized = crypto.TransactionManager.TransactionTools.Deserializer.deserialize(serialized);
 
-            checkCommonFields(deserialized, entity);
-            expect(deserialized.data.asset).toEqual(expectedDeserialized);
-        });
+                checkCommonFields(deserialized, entity);
+                expect(deserialized.data.asset).toEqual(expectedDeserialized);
+            },
+        );
     });
 
     describe("Schema tests", () => {
@@ -70,21 +69,25 @@ describe("Entity transaction", () => {
             transactionSchema = EntityTransaction.getSchema();
         });
 
-        it.each([...validRegisters, ...validResigns, ...validUpdates].map(asset => [asset]))
-        ("should not give any validation error", (asset: Interfaces.IEntityAsset) => {
-            const entityRegistration = builder.asset(asset).sign("passphrase");
+        it.each([...validRegisters, ...validResigns, ...validUpdates].map((asset) => [asset]))(
+            "should not give any validation error",
+            (asset: Interfaces.IEntityAsset) => {
+                const entityRegistration = builder.asset(asset).sign("passphrase");
 
-            const { error, value } = Validation.validator.validate(transactionSchema, entityRegistration.getStruct());
-            expect(error).toBeUndefined();
-            expect(value.asset).toEqual(asset);
-        });
+                const { error, value } = crypto.Validator.validate(transactionSchema, entityRegistration.getStruct());
+                expect(error).toBeUndefined();
+                expect(value.asset).toEqual(asset);
+            },
+        );
 
-        it.each([...invalidRegisters, ...invalidResigns, ...invalidUpdates].map(asset => [asset]))
-        ("should give validation error", (asset: Interfaces.IEntityAsset) => {
-            const entityRegistration = builder.asset(asset).sign("passphrase");
+        it.each([...invalidRegisters, ...invalidResigns, ...invalidUpdates].map((asset) => [asset]))(
+            "should give validation error",
+            (asset: Interfaces.IEntityAsset) => {
+                const entityRegistration = builder.asset(asset).sign("passphrase");
 
-            const { error } = Validation.validator.validate(transactionSchema, entityRegistration.getStruct());
-            expect(error).not.toBeUndefined();
-        });
+                const { error } = crypto.Validator.validate(transactionSchema, entityRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            },
+        );
     });
 });

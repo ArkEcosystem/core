@@ -34,11 +34,7 @@ export class TransactionFactory {
 
     private app: Contracts.Kernel.Application;
 
-    private constructor(
-        cryptoSuite: CryptoSuite.CryptoSuite,
-        app?: Contracts.Kernel.Application,
-        schemaValidator?: Interfaces.Validator,
-    ) {
+    private constructor(cryptoSuite: CryptoSuite.CryptoSuite, app?: Contracts.Kernel.Application) {
         // @ts-ignore - this is only needed because of the "getNonce"
         // method so we don't care if it is undefined in certain scenarios
         this.app = app;
@@ -49,9 +45,8 @@ export class TransactionFactory {
     public static initialize(
         cryptoSuite: CryptoSuite.CryptoSuite,
         app?: Contracts.Kernel.Application,
-        schemaValidator?: Interfaces.Validator,
     ): TransactionFactory {
-        return new TransactionFactory(cryptoSuite, app, schemaValidator);
+        return new TransactionFactory(cryptoSuite, app);
     }
 
     public transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory {

@@ -71,7 +71,7 @@ describe("Generic", () => {
         it("should inject milestone", async () => {
             const oldMilestonesLength = crypto.CryptoManager.MilestoneManager.getMilestones().length;
 
-            injectMilestone(crypto.CryptoManager, 0, { test: "test_milestone" });
+            injectMilestone(crypto.CryptoManager, { test: "test_milestone" });
 
             const newMilestonesLength = crypto.CryptoManager.MilestoneManager.getMilestones().length;
 

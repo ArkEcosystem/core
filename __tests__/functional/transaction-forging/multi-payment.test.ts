@@ -81,7 +81,7 @@ describe("Transaction Forging - Multipayment", () => {
             .create(200);
 
         await expect(transactions).toBeEachAccepted();
-        await snoozeForBlock(70); // we need 7 blocks for the transactions to be forged (30 per block because of maxTransactionBytes)
+        await snoozeForBlock(cryptoManager, 70); // we need 7 blocks for the transactions to be forged (30 per block because of maxTransactionBytes)
 
         for (const transaction of transactions) {
             await expect(transaction.id).toBeForged();

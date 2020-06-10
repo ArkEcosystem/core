@@ -133,7 +133,7 @@ describe("Transaction Forging - Multi Signature Registration", () => {
 
         cryptoManager.MilestoneManager.getMilestone().aip11 = false;
 
-        injectMilestone(1, {
+        injectMilestone(cryptoManager, {
             height: getLastHeight(sandbox.app) + 1,
             aip11: true,
         });
