@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Container } from "@packages/core-kernel";
-import { Action } from "@packages/core-manager/src/actions/configuration-env-get";
+import { Action } from "@packages/core-manager/src/actions/configuration-get-env";
 import { Sandbox } from "@packages/core-test-framework";
 
 let sandbox: Sandbox;
