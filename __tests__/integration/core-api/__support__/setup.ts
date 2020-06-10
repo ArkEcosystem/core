@@ -1,12 +1,11 @@
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Managers, Utils } from "@arkecosystem/crypto";
+import { Types } from "@arkecosystem/crypto";
 import { ServiceProvider } from "@packages/core-api/src";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { resolve } from "path";
 
-const sandbox: Sandbox = new Sandbox();
-
-export const setUp = async () => {
+export const setUp = async (sandbox: Sandbox, crypto: CryptoSuite.CryptoSuite) => {
     jest.setTimeout(60000);
 
     process.env.DISABLE_P2P_SERVER = "true"; // no need for p2p socket server to run
@@ -104,13 +103,15 @@ export const setUp = async () => {
                 klass: ServiceProvider,
             });
 
-            Managers.configManager.getMilestone().aip11 = false;
-            Managers.configManager.getMilestone().htlcEnabled = false;
+            crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = false;
+            crypto.CryptoManager.MilestoneManager.getMilestone().htlcEnabled = false;
 
             await app.boot();
 
-            Managers.configManager.getMilestone().aip11 = true;
-            Managers.configManager.getMilestone().htlcEnabled = true;
+            crypto.CryptoManager.MilestoneManager.getMilestone().aip11 = true;
+            crypto.CryptoManager.MilestoneManager.getMilestone().htlcEnabled = true;
+            app.get<any>(Container.Identifiers.CryptoManager).MilestoneManager.getMilestone().aip11 = true;
+            app.get<any>(Container.Identifiers.CryptoManager).MilestoneManager.getMilestone().htlcEnabled = true;
 
             await AppUtils.sleep(1000); // give some more time for api server to be up
         });
@@ -118,9 +119,9 @@ export const setUp = async () => {
     return sandbox.app;
 };
 
-export const tearDown = async () => sandbox.dispose();
+export const tearDown = async (sandbox: Sandbox) => await sandbox.dispose();
 
-export const calculateRanks = async () => {
+export const calculateRanks = async (sandbox: Sandbox) => {
     const walletRepository = sandbox.app.getTagged<Contracts.State.WalletRepository>(
         Container.Identifiers.WalletRepository,
         "state",
@@ -131,8 +132,8 @@ export const calculateRanks = async () => {
         walletRepository.allByUsername(),
     ).sort((a: Contracts.State.Wallet, b: Contracts.State.Wallet) =>
         b
-            .getAttribute<Utils.BigNumber>("delegate.voteBalance")
-            .comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
+            .getAttribute<Types.BigNumber>("delegate.voteBalance")
+            .comparedTo(a.getAttribute<Types.BigNumber>("delegate.voteBalance")),
     );
 
     AppUtils.sortBy(delegateWallets, (wallet) => wallet.publicKey).forEach((delegate, i) => {

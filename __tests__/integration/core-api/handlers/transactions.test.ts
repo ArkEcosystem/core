@@ -1,27 +1,25 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { CryptoSuite } from "@packages/core-crypto";
 import { ApiHelpers, getWalletNonce } from "@packages/core-test-framework/src";
+import { Sandbox } from "@packages/core-test-framework/src";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { generateMnemonic } from "bip39";
 
 import { setUp, tearDown } from "../__support__/setup";
 
-const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+const cryptoSuite = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+const sandbox: Sandbox = new Sandbox(cryptoSuite);
 
 const generateWallets = (quantity) => {
     const wallets: { address: string; passphrase: string; publicKey: string }[] = [];
 
     for (let i = 0; i < quantity; i++) {
         const passphrase: string = generateMnemonic();
-        const publicKey: string = crypto.CryptoManager.LibraryManager.Libraries.Identities.PublicKey.fromPassphrase(
-            passphrase,
-        );
-        const address: string = crypto.CryptoManager.LibraryManager.Libraries.Identities.Address.fromPassphrase(
-            passphrase,
-        );
+        const publicKey: string = cryptoSuite.CryptoManager.Identities.PublicKey.fromPassphrase(passphrase);
+        const address: string = cryptoSuite.CryptoManager.Identities.Address.fromPassphrase(passphrase);
 
         wallets.push({ address, passphrase, publicKey });
     }
@@ -56,20 +54,20 @@ let delegates: any;
 
 let app: Contracts.Kernel.Application;
 let api: ApiHelpers;
+let cryptoManager: CryptoSuite.CryptoManager;
 
 beforeAll(async () => {
-    app = await setUp();
-    api = new ApiHelpers(app);
+    app = await setUp(sandbox, cryptoSuite);
+    cryptoManager = app.get<CryptoSuite.CryptoManager>(Container.Identifiers.CryptoManager);
+    api = new ApiHelpers(cryptoSuite, app);
 
     delegates = secrets.map((secret) => {
-        const publicKey: string = crypto.CryptoManager.LibraryManager.Libraries.Identities.PublicKey.fromPassphrase(
-            secret,
-        );
-        const address: string = crypto.CryptoManager.LibraryManager.Libraries.Identities.Address.fromPassphrase(secret);
+        const publicKey: string = cryptoManager.Identities.PublicKey.fromPassphrase(secret);
+        const address: string = cryptoManager.Identities.Address.fromPassphrase(secret);
 
-        const transaction: { amount: string } = Managers.configManager
-            .get("genesisBlock")
-            .transactions.find((transaction) => transaction.recipientId === address && transaction.type === 0);
+        const transaction: { amount: string } = cryptoManager.NetworkConfigManager.get(
+            "genesisBlock",
+        ).transactions.find((transaction) => transaction.recipientId === address && transaction.type === 0);
 
         return {
             secret,
@@ -80,7 +78,7 @@ beforeAll(async () => {
         };
     });
 
-    const genesisBlock = Managers.configManager.get("genesisBlock");
+    const genesisBlock = cryptoManager.NetworkConfigManager.get("genesisBlock");
 
     genesisTransactions = genesisBlock.transactions;
     genesisTransaction = genesisTransactions[0];
@@ -91,10 +89,7 @@ beforeAll(async () => {
     wrongType = 3;
     version = 1;
     senderPublicKey = genesisTransaction.senderPublicKey;
-    senderAddress = crypto.CryptoManager.LibraryManager.Libraries.Identities.Address.fromPublicKey(
-        genesisTransaction.senderPublicKey,
-        23,
-    );
+    senderAddress = cryptoManager.Identities.Address.fromPublicKey(genesisTransaction.senderPublicKey);
     recipientAddress = genesisTransaction.recipientId;
     timestamp = genesisTransaction.timestamp;
     timestampFrom = timestamp;
@@ -107,7 +102,7 @@ beforeAll(async () => {
     feeTo = fee;
 });
 
-afterAll(async () => await tearDown());
+afterAll(async () => await tearDown(sandbox));
 describe("API 2.0 - Transactions", () => {
     describe("GET /transactions", () => {
         it("should GET all the transactions", async () => {
@@ -513,9 +508,8 @@ describe("API 2.0 - Transactions", () => {
         let transactions;
 
         beforeEach(() => {
-            transactions = TransactionFactory.initialize(crypto, app)
+            transactions = TransactionFactory.initialize(cryptoSuite, app)
                 .transfer(delegates[1].address)
-                .withNetwork("testnet")
                 .withPassphrase(delegates[0].secret)
                 .create(40);
         });
@@ -538,12 +532,11 @@ describe("API 2.0 - Transactions", () => {
 
         // FIXME
         it.skip("should POST 2 transactions double spending and get only 1 accepted and broadcasted", async () => {
-            const transactions = TransactionFactory.initialize(crypto, app)
+            const transactions = TransactionFactory.initialize(cryptoSuite, app)
                 .transfer(
                     delegates[1].address,
                     300000000000000 - 5098000000000, // a bit less than the delegates' balance
                 )
-                .withNetwork("testnet")
                 .withPassphrase(delegates[0].secret)
                 .create(2);
 
@@ -569,12 +562,12 @@ describe("API 2.0 - Transactions", () => {
             const amountPlusFee = Math.floor(+sender.balance / txNumber);
             const lastAmountPlusFee = +sender.balance - (txNumber - 1) * amountPlusFee;
 
-            const transactions = TransactionFactory.initialize(crypto, app)
+            const transactions = TransactionFactory.initialize(cryptoSuite, app)
                 .transfer(receivers[0].address, amountPlusFee - transferFee)
                 .withPassphrase(sender.secret)
                 .create(txNumber - 1);
 
-            const lastTransaction = TransactionFactory.initialize(crypto, app)
+            const lastTransaction = TransactionFactory.initialize(cryptoSuite, app)
                 .transfer(receivers[0].address, lastAmountPlusFee - transferFee)
                 .withNonce(transactions[transactions.length - 1].nonce)
                 .withPassphrase(sender.secret)
@@ -605,16 +598,14 @@ describe("API 2.0 - Transactions", () => {
                 const amountPlusFee = Math.floor(+sender.balance / txNumber);
                 const lastAmountPlusFee = +sender.balance - (txNumber - 1) * amountPlusFee + 1;
 
-                const transactions = TransactionFactory.initialize(crypto, app)
+                const transactions = TransactionFactory.initialize(cryptoSuite, app)
                     .transfer(receivers[0].address, amountPlusFee - transferFee)
-                    .withNetwork("testnet")
                     .withPassphrase(sender.secret)
                     .create(txNumber - 1);
 
-                const senderNonce = getWalletNonce(app, sender.publicKey);
-                const lastTransaction = TransactionFactory.initialize(crypto, app)
+                const senderNonce = getWalletNonce(app, cryptoSuite.CryptoManager, sender.publicKey);
+                const lastTransaction = TransactionFactory.initialize(cryptoSuite, app)
                     .transfer(receivers[1].address, lastAmountPlusFee - transferFee)
-                    .withNetwork("testnet")
                     .withPassphrase(sender.secret)
                     .withNonce(senderNonce.plus(txNumber - 1))
                     .create();
