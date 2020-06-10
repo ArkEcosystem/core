@@ -35,12 +35,12 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public constructor(
-        private readonly cryptoManager: CryptoSuite.CryptoManager,
+        cryptoManager: CryptoSuite.CryptoManager,
         public readonly address: string,
         protected readonly attributes: Services.Attributes.AttributeMap,
     ) {
-        this.balance = this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
-        this.nonce = this.cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
+        this.balance = cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
+        this.nonce = cryptoManager.LibraryManager.Libraries.BigNumber.ZERO;
     }
 
     /**

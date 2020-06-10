@@ -114,8 +114,10 @@ export class Service implements Contracts.TransactionPool.Service {
     public async readdTransactions(prevTransactions?: Interfaces.ITransaction[]): Promise<void> {
         this.mempool.flush();
 
-        let prevCount = 0;
-        let count = 0;
+        let precedingSuccessCount = 0;
+        let precedingErrorCount = 0;
+        let pendingSuccessCount = 0;
+        let pendingErrorCount = 0;
 
         if (prevTransactions) {
             for (const transaction of prevTransactions) {
@@ -123,9 +125,10 @@ export class Service implements Contracts.TransactionPool.Service {
                     await this.addTransactionToMempool(transaction);
                     AppUtils.assert.defined<string>(transaction.id);
                     this.storage.addTransaction(transaction.id, transaction.serialized);
-                    prevCount++;
-                    count++;
-                } catch (error) {}
+                    precedingSuccessCount++;
+                } catch (error) {
+                    precedingErrorCount++;
+                }
             }
         }
 
@@ -133,13 +136,37 @@ export class Service implements Contracts.TransactionPool.Service {
             try {
                 const transaction = this.transactionsManager.TransactionFactory.fromBytes(serialized);
                 await this.addTransactionToMempool(transaction);
-                count++;
+                pendingSuccessCount++;
             } catch (error) {
                 this.storage.removeTransaction(id);
+                pendingErrorCount++;
             }
         }
 
-        this.logger.debug(`${AppUtils.pluralize("transaction", count, true)} re-added to pool (${prevCount} previous)`);
+        if (precedingSuccessCount === 1) {
+            this.logger.info(`${precedingSuccessCount} preceding transaction was re-added to pool`);
+        }
+        if (precedingSuccessCount > 1) {
+            this.logger.info(`${precedingSuccessCount} preceding transactions were re-added to pool`);
+        }
+        if (precedingErrorCount === 1) {
+            this.logger.warning(`${precedingErrorCount} preceding transaction was not re-added to pool`);
+        }
+        if (precedingErrorCount > 1) {
+            this.logger.warning(`${precedingErrorCount} preceding transactions were not re-added to pool`);
+        }
+        if (pendingSuccessCount === 1) {
+            this.logger.info(`${pendingSuccessCount} pending transaction was re-added to pool`);
+        }
+        if (pendingSuccessCount > 1) {
+            this.logger.info(`${pendingSuccessCount} pending transactions were re-added to pool`);
+        }
+        if (pendingErrorCount === 1) {
+            this.logger.warning(`${pendingErrorCount} pending transaction was not re-added to pool`);
+        }
+        if (pendingErrorCount > 1) {
+            this.logger.warning(`${pendingErrorCount} pending transactions were not re-added to pool`);
+        }
     }
 
     public async cleanUp(): Promise<void> {

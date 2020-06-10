@@ -23,15 +23,17 @@ export const snoozeForBlock = async (
     return AppUtils.sleep(blockTime + remainingTimeInSlot + sleepTime);
 };
 
-export const injectMilestone = (
-    cryptoManager: CryptoSuite.CryptoManager,
-    index: number,
-    milestone: Record<string, any>,
-): void =>
-    (cryptoManager.MilestoneManager as any).milestones.splice(index, 0, {
-        ...cloneDeep(cryptoManager.MilestoneManager.getMilestone()),
-        ...milestone,
+export const injectMilestone = (cryptoManager: CryptoSuite.CryptoManager, milestone: Record<string, any>): void => {
+    const milestones = cryptoManager.MilestoneManager.getMilestones() as any[];
+    const nextMilestoneIndex = milestones.findIndex((existingMilestone) => {
+        return existingMilestone.height > milestone.height;
     });
+    const newMilestone =
+        nextMilestoneIndex === 0
+            ? { ...cloneDeep(milestones[0]), ...milestone }
+            : { ...cloneDeep(milestones[nextMilestoneIndex - 1]), ...milestone };
+    milestones.splice(nextMilestoneIndex, 0, newMilestone);
+};
 
 export const getLastHeight = (app: Contracts.Kernel.Application): number =>
     app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();

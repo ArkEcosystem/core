@@ -25,6 +25,9 @@ export class Server {
     @Container.tagged("plugin", "@arkecosystem/core-api")
     private readonly configuration!: Providers.PluginConfiguration;
 
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     /**
      * @private
      * @type {HapiServer}
@@ -62,6 +65,13 @@ export class Server {
 
                 return h.continue;
             },
+        });
+
+        this.server.ext("onPreResponse", (request, h) => {
+            if (request.response.isBoom && request.response.isServer) {
+                this.logger.error(request.response.stack);
+            }
+            return h.continue;
         });
 
         this.server.route({

@@ -46,10 +46,10 @@ export class DatabaseService {
     }
 
     public addEvent(event: string, data: any): void {
-        this.database.prepare("INSERT INTO events (event, data) VALUES (:event, json(:data))").run({
-            event: event,
-            data: JSON.stringify(data || {}),
-        });
+        // this.database.prepare("INSERT INTO events (event, data) VALUES (:event, json(:data))").run({
+        //     event: event,
+        //     data: JSON.stringify(data || {}),
+        // });
     }
 
     public getAllEvents(): any[] {

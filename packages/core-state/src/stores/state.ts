@@ -31,6 +31,9 @@ export class StateStore implements Contracts.State.StateStore {
     @Container.tagged("plugin", "@arkecosystem/core-state")
     private readonly configuration!: Providers.PluginConfiguration;
 
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     // Stores the last n blocks in ascending height. The amount of last blocks
     // can be configured with the option `state.maxLastBlocks`.
     private lastBlocks: OrderedMap<number, Interfaces.IBlock> = OrderedMap<number, Interfaces.IBlock>();
@@ -113,6 +116,7 @@ export class StateStore implements Contracts.State.StateStore {
         this.cryptoManager.HeightTracker.setHeight(block.data.height);
 
         if (this.cryptoManager.MilestoneManager.isNewMilestone()) {
+            this.logger.notice("Milestone change");
             this.app
                 .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
                 .dispatch(Enums.CryptoEvent.MilestoneChanged);
