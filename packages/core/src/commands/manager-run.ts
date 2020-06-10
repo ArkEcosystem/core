@@ -55,7 +55,7 @@ export class Command extends Commands.Command {
                 "@arkecosystem/core-manager": {
                     watcher: {
                         enabled: false,
-                        storage: `${process.env.CORE_PATH_DATA}/events.sqlite`,
+                        resetDatabase: process.env.CORE_RESET_DATABASE,
                     },
                 },
             },

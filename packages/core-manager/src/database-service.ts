@@ -27,7 +27,9 @@ export class DatabaseService {
     private database!: BetterSqlite3.Database;
 
     public boot(): void {
-        const filename = this.configuration.getRequired<{ storage: string }>("watcher").storage;
+        const filename =
+            this.configuration.getRequired<{ storage: string }>("watcher").storage ||
+            `${process.env.CORE_PATH_DATA}/events.sqlite`;
         ensureFileSync(filename);
 
         this.database = new BetterSqlite3(filename);
@@ -35,6 +37,10 @@ export class DatabaseService {
             PRAGMA journal_mode = WAL;
             CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, event VARCHAR(255) NOT NULL, data JSON NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);
         `);
+
+        if (this.configuration.getRequired<{ resetDatabase: boolean }>("watcher").resetDatabase) {
+            this.flush();
+        }
     }
 
     public dispose(): void {
@@ -120,8 +126,6 @@ export class DatabaseService {
         for (let i = 1; i < extractedConditions.length; i++) {
             query += " AND " + extractedConditions[i];
         }
-
-        console.log(query);
 
         return query;
     }
