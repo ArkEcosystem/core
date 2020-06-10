@@ -62,6 +62,22 @@ export const initApp = (
 ): Application => {
     const app = new Application(new Container.Container(), crypto);
 
+    const error: jest.SpyInstance = jest.fn();
+    const info: jest.SpyInstance = jest.fn();
+    const debug: jest.SpyInstance = jest.fn();
+    const warning: jest.SpyInstance = jest.fn();
+    const notice: jest.SpyInstance = jest.fn();
+
+    const logger = {
+        error,
+        info,
+        debug,
+        warning,
+        notice,
+    };
+
+    app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 
     app.bind(Container.Identifiers.StateStore).toConstantValue(Mocks.StateStore.instance);
