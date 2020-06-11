@@ -41,6 +41,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-api:
@@ -75,6 +76,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-api/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-blockchain:
@@ -109,6 +111,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-blockchain/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-cli:
@@ -143,6 +146,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-cli/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-database:
@@ -177,6 +181,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-database/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-forger:
@@ -211,6 +216,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-forger/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-kernel:
@@ -245,6 +251,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-kernel/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-logger-pino:
@@ -279,6 +286,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-logger-pino/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-magistrate-api:
@@ -313,6 +321,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-magistrate-api/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-magistrate-crypto:
@@ -347,6 +356,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-magistrate-crypto/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-magistrate-transactions:
@@ -381,6 +391,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-magistrate-transactions/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-manager:
@@ -415,6 +426,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-manager/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-p2p:
@@ -449,6 +461,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-p2p/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-snapshots:
@@ -483,6 +496,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-snapshots/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-state:
@@ -517,6 +531,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-state/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-test-framework:
@@ -551,6 +566,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-test-framework/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-transaction-pool:
@@ -585,6 +601,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-transaction-pool/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-transactions:
@@ -619,6 +636,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-transactions/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     core-webhooks:
@@ -653,6 +671,7 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/core-webhooks/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
 
     crypto:
@@ -687,4 +706,5 @@ jobs:
               uses: codecov/codecov-action@v1
               with:
                   file: .coverage/unit/crypto/clover.xml
+                  flags: unit
                   fail_ci_if_error: true
