@@ -8,8 +8,6 @@ import { WalletIndex } from "./wallet-index";
 // todo: review the implementation
 @Container.injectable()
 export class WalletRepository implements Contracts.State.WalletRepository {
-    protected readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
-
     @Container.multiInject(Container.Identifiers.WalletRepositoryIndexerIndex)
     private readonly indexerIndexes!: Contracts.State.WalletIndexerIndex[];
 
@@ -18,6 +16,8 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
+
+    protected readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
 
     @Container.postConstruct()
     public initialize(): void {

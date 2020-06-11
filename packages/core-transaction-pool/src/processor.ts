@@ -3,12 +3,6 @@ import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class Processor implements Contracts.TransactionPool.Processor {
-    public accept: string[] = [];
-    public broadcast: string[] = [];
-    public invalid: string[] = [];
-    public excess: string[] = [];
-    public errors?: { [id: string]: Contracts.TransactionPool.ProcessorError };
-
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -24,6 +18,12 @@ export class Processor implements Contracts.TransactionPool.Processor {
     @Container.inject(Container.Identifiers.PeerTransactionBroadcaster)
     @Container.optional()
     private readonly transactionBroadcaster!: Contracts.P2P.TransactionBroadcaster | undefined;
+
+    public accept: string[] = [];
+    public broadcast: string[] = [];
+    public invalid: string[] = [];
+    public excess: string[] = [];
+    public errors?: { [id: string]: Contracts.TransactionPool.ProcessorError };
 
     public async process(data: Interfaces.ITransactionData[]): Promise<void> {
         const broadcastableTransactions: Interfaces.ITransaction[] = [];

@@ -6,10 +6,10 @@ import { Identifiers } from "../ioc";
 
 @Container.injectable()
 export class Action implements Actions.Action {
-    public name = "process.list";
-
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Application;
+
+    public name = "process.list";
 
     public async execute(params: any): Promise<any> {
         return this.getProcessList();

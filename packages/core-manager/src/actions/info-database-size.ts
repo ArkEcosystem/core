@@ -26,9 +26,7 @@ export class Action implements Actions.Action {
         const connection = await this.connect();
 
         try {
-            const result = await connection.query(
-                `SELECT pg_database_size('${this.getDatabaseName()}');`,
-            );
+            const result = await connection.query(`SELECT pg_database_size('${this.getDatabaseName()}');`);
 
             return Math.round(result[0].pg_database_size / 1024);
         } finally {

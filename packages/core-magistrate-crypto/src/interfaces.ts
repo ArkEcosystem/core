@@ -1,4 +1,4 @@
-import { EntityType, EntitySubType, EntityAction } from "./enums";
+import { EntityAction, EntitySubType, EntityType } from "./enums";
 
 export interface IBridgechainPorts {
     [name: string]: number;

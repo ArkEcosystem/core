@@ -11,6 +11,22 @@ import { InputValidator } from "./validator";
 @injectable()
 export class Input {
     /**
+     * @private
+     * @type {Application}
+     * @memberof ComponentFactory
+     */
+    @inject(Identifiers.Application)
+    protected readonly app!: Application;
+
+    /**
+     * @private
+     * @type {InputValidator}
+     * @memberof ComponentFactory
+     */
+    @inject(Identifiers.InputValidator)
+    protected readonly validator!: InputValidator;
+
+    /**
      * The parsed input arguments.
      *
      * @type {InputArgument}
@@ -33,22 +49,6 @@ export class Input {
      * @memberof Input
      */
     public interactive: boolean = true;
-
-    /**
-     * @private
-     * @type {Application}
-     * @memberof ComponentFactory
-     */
-    @inject(Identifiers.Application)
-    protected readonly app!: Application;
-
-    /**
-     * @private
-     * @type {InputValidator}
-     * @memberof ComponentFactory
-     */
-    @inject(Identifiers.InputValidator)
-    protected readonly validator!: InputValidator;
 
     /**
      * The raw input arguments.

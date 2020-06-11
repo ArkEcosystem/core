@@ -7,9 +7,6 @@ import { DisconnectInvalidPeers } from "./listeners";
 // todo: review the implementation
 @Container.injectable()
 export class PeerProcessor implements Contracts.P2P.PeerProcessor {
-    public server: any;
-    public nextUpdateNetworkStatusScheduled: boolean = false;
-
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -31,6 +28,9 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
 
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
+
+    public server: any;
+    public nextUpdateNetworkStatusScheduled: boolean = false;
 
     public initialize() {
         this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, this.app.resolve(DisconnectInvalidPeers));

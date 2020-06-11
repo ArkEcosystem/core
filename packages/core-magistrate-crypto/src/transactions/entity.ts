@@ -3,16 +3,15 @@ import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
 import {
-    EntityType,
-    EntitySubType,
     EntityAction,
+    EntitySubType,
+    EntityType,
     MagistrateTransactionGroup,
     MagistrateTransactionStaticFees,
-    MagistrateTransactionType
+    MagistrateTransactionType,
 } from "../enums";
 import { IEntityAsset } from "../interfaces";
-
-import { register, update, resign } from "./utils/entity-schemas";
+import { register, resign, update } from "./utils/entity-schemas";
 
 const { schemas } = Transactions;
 
@@ -22,19 +21,17 @@ export class EntityTransaction extends Transactions.Transaction {
     public static key: string = "entity";
     public static version: number = 2;
 
-    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
-        MagistrateTransactionStaticFees.Entity,
-    );
+    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(MagistrateTransactionStaticFees.Entity);
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         const baseAssetDataProps = {
-            type: { enum: [ EntityType.Business, EntityType.Bridgechain, EntityType.Developer, EntityType.Plugin] },
+            type: { enum: [EntityType.Business, EntityType.Bridgechain, EntityType.Developer, EntityType.Plugin] },
             subType: {
-                enum: [ EntitySubType.None, EntitySubType.PluginCore, EntitySubType.PluginDesktop ],
+                enum: [EntitySubType.None, EntitySubType.PluginCore, EntitySubType.PluginDesktop],
             }, // subType depends on type but the type/subType check is in handler
             registrationId: { $ref: "transactionId" },
         };
-        
+
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "entity",
             required: ["asset", "typeGroup"],
@@ -52,7 +49,7 @@ export class EntityTransaction extends Transactions.Transaction {
                                 ...baseAssetDataProps,
                                 action: { const: EntityAction.Register },
                                 data: register,
-                            }
+                            },
                         },
                         {
                             required: ["type", "subType", "action", "data", "registrationId"],
@@ -61,7 +58,7 @@ export class EntityTransaction extends Transactions.Transaction {
                                 ...baseAssetDataProps,
                                 action: { const: EntityAction.Resign },
                                 data: resign,
-                            }
+                            },
                         },
                         {
                             required: ["type", "subType", "action", "data", "registrationId"],
@@ -70,8 +67,8 @@ export class EntityTransaction extends Transactions.Transaction {
                                 ...baseAssetDataProps,
                                 action: { const: EntityAction.Update },
                                 data: update,
-                            }
-                        }
+                            },
+                        },
                     ],
                 },
             },
@@ -86,7 +83,7 @@ export class EntityTransaction extends Transactions.Transaction {
         const asset: IEntityAsset = data.asset;
 
         const buffer: ByteBuffer = new ByteBuffer();
-        
+
         buffer.writeUint8(asset.type);
         buffer.writeUint8(asset.subType);
         buffer.writeUint8(asset.action);

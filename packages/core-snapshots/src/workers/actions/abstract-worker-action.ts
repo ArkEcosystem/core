@@ -11,6 +11,9 @@ import { Verifier } from "../../verifier";
 
 @Container.injectable()
 export abstract class AbstractWorkerAction implements WorkerAction {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     protected table?: string;
     protected codec?: string;
     protected skipCompression?: boolean;
@@ -19,9 +22,6 @@ export abstract class AbstractWorkerAction implements WorkerAction {
     protected updateStep?: number;
 
     protected options?: Worker.ActionOptions;
-
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
 
     public init(options: Worker.ActionOptions) {
         this.table = options.table;

@@ -4,6 +4,12 @@ import { Actions } from "../contracts";
 
 @Container.injectable()
 export class Action implements Actions.Action {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Application;
+
+    @Container.inject(Container.Identifiers.FilesystemService)
+    private readonly filesystem!: Contracts.Kernel.Filesystem;
+
     public name = "configuration.updatePlugins";
 
     public schema = {
@@ -15,12 +21,6 @@ export class Action implements Actions.Action {
         },
         required: ["content"],
     };
-
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Application;
-
-    @Container.inject(Container.Identifiers.FilesystemService)
-    private readonly filesystem!: Contracts.Kernel.Filesystem;
 
     public async execute(params: { content: string }): Promise<any> {
         await this.updatePlugins(params.content);

@@ -21,38 +21,6 @@ import { DiscoverNetwork } from "./discover-network";
 @injectable()
 export abstract class Command {
     /**
-     * The console command signature.
-     *
-     * @type {string}
-     * @memberof Command
-     */
-    public signature!: string;
-
-    /**
-     * The console command description.
-     *
-     * @type {(string | undefined)}
-     * @memberof Command
-     */
-    public description: string | undefined;
-
-    /**
-     * Indicates whether the command should be shown in the command list.
-     *
-     * @type {boolean}
-     * @memberof Command
-     */
-    public isHidden: boolean = false;
-
-    /**
-     * Indicates whether the command requires a network to be present.
-     *
-     * @type {boolean}
-     * @memberof Command
-     */
-    public requiresNetwork: boolean = true;
-
-    /**
      * @private
      * @type {Application}
      * @memberof Command
@@ -109,6 +77,38 @@ export abstract class Command {
     protected readonly components!: ComponentFactory;
 
     /**
+     * The console command signature.
+     *
+     * @type {string}
+     * @memberof Command
+     */
+    public signature!: string;
+
+    /**
+     * The console command description.
+     *
+     * @type {(string | undefined)}
+     * @memberof Command
+     */
+    public description: string | undefined;
+
+    /**
+     * Indicates whether the command should be shown in the command list.
+     *
+     * @type {boolean}
+     * @memberof Command
+     */
+    public isHidden: boolean = false;
+
+    /**
+     * Indicates whether the command requires a network to be present.
+     *
+     * @type {boolean}
+     * @memberof Command
+     */
+    public requiresNetwork: boolean = true;
+
+    /**
      * @type {InputDefinition}
      * @memberof Command
      */
@@ -119,6 +119,23 @@ export abstract class Command {
      * @memberof Command
      */
     protected input!: Input;
+
+    /**
+     * Configure the console command.
+     *
+     * @remarks
+     * This is executed before arguments are available in any way, shape or form.
+     * If your task requires arguments to be parsed and validated you should consider to use the initialize method.
+     *
+     * @returns {void}
+     * @memberof Command
+     */
+    /* istanbul ignore next */
+    @postConstruct()
+    // todo: for some reason this isn't recognized in tests for being called
+    public configure(): void {
+        // Do nothing...
+    }
 
     /**
      * @memberof Command
@@ -136,23 +153,6 @@ export abstract class Command {
         } catch (error) {
             this.components.fatal(error.message);
         }
-    }
-
-    /**
-     * Configure the console command.
-     *
-     * @remarks
-     * This is executed before arguments are available in any way, shape or form.
-     * If your task requires arguments to be parsed and validated you should consider to use the initialize method.
-     *
-     * @returns {void}
-     * @memberof Command
-     */
-    /* istanbul ignore next */
-    @postConstruct()
-    // todo: for some reason this isn't recognized in tests for being called
-    public configure(): void {
-        // Do nothing...
     }
 
     /**

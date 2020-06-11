@@ -1,9 +1,13 @@
-import { Contracts, Utils as KernelUtils, Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as KernelUtils } from "@arkecosystem/core-kernel";
+import {
+    Enums,
+    Interfaces as MagistrateInterfaces,
+    Transactions as MagistrateTransactions,
+} from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces as CryptoInterfaces, Utils, Transactions, Interfaces } from "@arkecosystem/crypto";
-import { Transactions as MagistrateTransactions, Enums, Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
+import { Interfaces as CryptoInterfaces, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
-import { StaticFeeMismatchError, EntityWrongSubTypeError } from "../errors";
+import { EntityWrongSubTypeError, StaticFeeMismatchError } from "../errors";
 import { EntityRegisterSubHandler, EntityResignSubHandler, EntityUpdateSubHandler } from "./entity-subhandlers";
 import BridgechainSubHandlers from "./entity-subhandlers/bridgechain";
 import BusinessSubHandlers from "./entity-subhandlers/business";
@@ -15,7 +19,7 @@ type SubHandlers = {
     [Enums.EntityAction.Register]: EntityRegisterSubHandler;
     [Enums.EntityAction.Resign]: EntityResignSubHandler;
     [Enums.EntityAction.Update]: EntityUpdateSubHandler;
-}
+};
 type Handlers = {
     [Enums.EntityType.Business]: {
         [Enums.EntitySubType.None]: SubHandlers;
@@ -29,7 +33,7 @@ type Handlers = {
     [Enums.EntityType.Plugin]: {
         [Enums.EntitySubType.PluginCore]: SubHandlers;
         [Enums.EntitySubType.PluginDesktop]: SubHandlers;
-    }
+    };
 };
 
 @Container.injectable()
@@ -38,7 +42,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     protected readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     private handlers!: Handlers;
-    
+
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [];
     }
@@ -46,7 +50,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.EntityTransaction;
     }
-    
+
     public async isActivated(): Promise<boolean> {
         return true;
     }
@@ -59,8 +63,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         return ["entities"];
     }
 
-    public async bootstrap(): Promise<void> {
-    }
+    public async bootstrap(): Promise<void> {}
 
     public async throwIfCannotBeApplied(
         transaction: CryptoInterfaces.ITransaction,
@@ -80,7 +83,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         const handler = this.getHandler(transaction);
-        if(!handler) {
+        if (!handler) {
             throw new EntityWrongSubTypeError(); // wrong sub type / type association
         }
 
@@ -110,7 +113,11 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
 
         const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
-        return this.getHandler(transaction)!.revertForSender(transaction, walletRepository, this.transactionHistoryService);
+        return this.getHandler(transaction)!.revertForSender(
+            transaction,
+            walletRepository,
+            this.transactionHistoryService,
+        );
     }
 
     public async applyToRecipient(
@@ -125,15 +132,20 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 
-    private getHandler(transaction: Interfaces.ITransaction)
-    : EntityRegisterSubHandler | EntityResignSubHandler | EntityUpdateSubHandler | undefined {
+    private getHandler(
+        transaction: Interfaces.ITransaction,
+    ): EntityRegisterSubHandler | EntityResignSubHandler | EntityUpdateSubHandler | undefined {
         if (!this.handlers) {
             this.initializeHandlers();
         }
 
         KernelUtils.assert.defined<MagistrateInterfaces.IEntityAsset>(transaction.data.asset);
 
-        const { type, subType, action }: {
+        const {
+            type,
+            subType,
+            action,
+        }: {
             type: Enums.EntityType;
             subType: Enums.EntitySubType;
             action: Enums.EntityAction;
@@ -153,7 +165,9 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
             },
             [Enums.EntityType.Bridgechain]: {
                 [Enums.EntitySubType.None]: {
-                    [Enums.EntityAction.Register]: this.app.resolve(BridgechainSubHandlers.BridgechainRegisterSubHandler),
+                    [Enums.EntityAction.Register]: this.app.resolve(
+                        BridgechainSubHandlers.BridgechainRegisterSubHandler,
+                    ),
                     [Enums.EntityAction.Resign]: this.app.resolve(BridgechainSubHandlers.BridgechainResignSubHandler),
                     [Enums.EntityAction.Update]: this.app.resolve(BridgechainSubHandlers.BridgechainUpdateSubHandler),
                 },
@@ -172,11 +186,17 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                     [Enums.EntityAction.Update]: this.app.resolve(PluginCoreSubHandlers.PluginCoreUpdateSubHandler),
                 },
                 [Enums.EntitySubType.PluginDesktop]: {
-                    [Enums.EntityAction.Register]: this.app.resolve(PluginDesktopSubHandlers.PluginDesktopRegisterSubHandler),
-                    [Enums.EntityAction.Resign]: this.app.resolve(PluginDesktopSubHandlers.PluginDesktopResignSubHandler),
-                    [Enums.EntityAction.Update]: this.app.resolve(PluginDesktopSubHandlers.PluginDesktopUpdateSubHandler),
+                    [Enums.EntityAction.Register]: this.app.resolve(
+                        PluginDesktopSubHandlers.PluginDesktopRegisterSubHandler,
+                    ),
+                    [Enums.EntityAction.Resign]: this.app.resolve(
+                        PluginDesktopSubHandlers.PluginDesktopResignSubHandler,
+                    ),
+                    [Enums.EntityAction.Update]: this.app.resolve(
+                        PluginDesktopSubHandlers.PluginDesktopUpdateSubHandler,
+                    ),
                 },
             },
-        }
+        };
     }
 }
