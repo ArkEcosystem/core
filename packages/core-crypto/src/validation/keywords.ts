@@ -68,7 +68,7 @@ const network = (ajv: Ajv, cryptoManager: CryptoManager<IBlockData>) => {
 
 const bignumber = (ajv: Ajv, cryptoManager: CryptoManager<IBlockData>) => {
     const instanceOf = ajvKeywords.get("instanceof").definition;
-    instanceOf.CONSTRUCTORS.BigNumber = Types.BigNumber;
+    instanceOf.CONSTRUCTORS.BigNumber = cryptoManager.LibraryManager.Libraries.BigNumber;
 
     ajv.addKeyword("bignumber", {
         compile(schema) {

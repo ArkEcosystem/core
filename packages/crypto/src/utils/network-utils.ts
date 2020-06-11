@@ -13,7 +13,7 @@ export class NetworkUtils<T> {
         private networkConfigManager: NetworkConfigManager<T>,
         private milestoneManager: MilestoneManager<T>,
     ) {
-        this.genesisTransactions = (this.networkConfigManager.get("exceptions.transactions") || []).reduce(
+        this.genesisTransactions = (this.networkConfigManager.get("genesisBlock.transactions") || []).reduce(
             (acc, curr) => Object.assign(acc, { [curr.id]: true }),
             {},
         );
