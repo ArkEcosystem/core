@@ -27,7 +27,7 @@ describe("Configuration:UpdatePlugins", () => {
     });
 
     it("should validate and save configuration", async () => {
-        const content = "module.exports = { '@arkecosystem/core-kernel': {} }";
+        const content = '{ "core": { "plugins": [ { "package": "@arkecosystem/core-manager" } ] } }';
 
         const result = await action.execute({ content: content });
 
@@ -36,17 +36,17 @@ describe("Configuration:UpdatePlugins", () => {
     });
 
     it("should throw error - content cannot be resolved", async () => {
-        const content = "invalid_file";
+        const content = "invalid_json";
         await expect(action.execute({ content: content })).rejects.toThrow("Content cannot be resolved");
     });
 
     it("should throw error - plugins keys are missing", async () => {
-        const content = "module.exports = {}";
-        await expect(action.execute({ content: content })).rejects.toThrow("Missing plugin keys");
+        const content = '{ "core": { } }';
+        await expect(action.execute({ content: content })).rejects.toThrow("core plugins array is missing");
     });
 
     it("should throw error - plugin is not an abject", async () => {
-        const content = "module.exports = { '@arkecosystem/core-kernel': 1 }";
-        await expect(action.execute({ content: content })).rejects.toThrow("Plugin is not an object");
+        const content = '{ "core": { "plugins": [ { "package": 123 } ] } }';
+        await expect(action.execute({ content: content })).rejects.toThrow("Package is not a string");
     });
 });

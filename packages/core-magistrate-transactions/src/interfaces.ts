@@ -1,4 +1,4 @@
-import { Interfaces, Enums } from "@arkecosystem/core-magistrate-crypto";
+import { Enums, Interfaces } from "@arkecosystem/core-magistrate-crypto";
 
 export interface IBusinessWalletAttributes {
     businessAsset: Interfaces.IBusinessRegistrationAsset;

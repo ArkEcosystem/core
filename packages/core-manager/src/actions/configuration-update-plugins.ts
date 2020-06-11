@@ -1,10 +1,15 @@
 import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
-import requireFromString from "require-from-string";
 
 import { Actions } from "../contracts";
 
 @Container.injectable()
 export class Action implements Actions.Action {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Application;
+
+    @Container.inject(Container.Identifiers.FilesystemService)
+    private readonly filesystem!: Contracts.Kernel.Filesystem;
+
     public name = "configuration.updatePlugins";
 
     public schema = {
@@ -17,12 +22,6 @@ export class Action implements Actions.Action {
         required: ["content"],
     };
 
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Application;
-
-    @Container.inject(Container.Identifiers.FilesystemService)
-    private readonly filesystem!: Contracts.Kernel.Filesystem;
-
     public async execute(params: { content: string }): Promise<any> {
         await this.updatePlugins(params.content);
 
@@ -30,27 +29,29 @@ export class Action implements Actions.Action {
     }
 
     private validatePlugins(content: string): void {
-        let pluginsResolved: any = undefined;
+        let plugins: any = undefined;
         try {
-            pluginsResolved = requireFromString(content);
+            plugins = JSON.parse(content);
         } catch {}
 
-        if (typeof pluginsResolved !== "object") {
+        if (typeof plugins !== "object") {
             throw new Error("Content cannot be resolved");
         }
 
-        if (!Object.keys(pluginsResolved).some((key) => key.includes("@arkecosystem/"))) {
-            throw new Error("Missing plugin keys");
-        }
+        for (const application of Object.keys(plugins)) {
+            if (!Array.isArray(plugins[application].plugins)) {
+                throw new Error(`${application} plugins array is missing`);
+            }
 
-        if (!Object.keys(pluginsResolved).every((key) => typeof pluginsResolved[key] === "object")) {
-            throw new Error(`Plugin is not an object`);
+            if (!plugins[application].plugins.every((x) => typeof x.package === "string")) {
+                throw new Error(`Package is not a string`);
+            }
         }
     }
 
     private async updatePlugins(content: string): Promise<void> {
         this.validatePlugins(content);
 
-        await this.filesystem.put(this.app.configPath("plugins.js"), content);
+        await this.filesystem.put(this.app.configPath("app.json"), content);
     }
 }

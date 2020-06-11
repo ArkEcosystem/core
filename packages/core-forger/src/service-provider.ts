@@ -84,8 +84,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .get<Contracts.Kernel.ProcessActionsService>(Container.Identifiers.ProcessActionsService)
             .register(this.app.resolve(NextSlotProcessAction));
-      
-      this.app
+
+        this.app
             .get<Contracts.Kernel.ProcessActionsService>(Container.Identifiers.ProcessActionsService)
             .register(this.app.resolve(LastForgedBlockRemoteAction));
     }

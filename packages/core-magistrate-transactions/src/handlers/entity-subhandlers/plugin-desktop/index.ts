@@ -1,6 +1,6 @@
 import { PluginDesktopRegisterSubHandler } from "./register";
-import { PluginDesktopUpdateSubHandler } from "./update";
 import { PluginDesktopResignSubHandler } from "./resign";
+import { PluginDesktopUpdateSubHandler } from "./update";
 
 export default {
     PluginDesktopRegisterSubHandler,

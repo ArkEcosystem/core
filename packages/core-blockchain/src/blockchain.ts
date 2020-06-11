@@ -10,9 +10,6 @@ import { StateMachine } from "./state-machine";
 // todo: reduce the overall complexity of this class and remove all helpers and getters that just serve as proxies
 @Container.injectable()
 export class Blockchain implements Contracts.Blockchain.Blockchain {
-    @Container.inject(Container.Identifiers.Application)
-    public readonly app!: Contracts.Kernel.Application;
-
     // todo: make this private
     public isStopped!: boolean;
     // todo: make this private
@@ -20,6 +17,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     // todo: make this private and use a queue instance from core-kernel
     // @ts-ignore
     public queue: async.AsyncQueue<any>;
+
+    @Container.inject(Container.Identifiers.Application)
+    public readonly app!: Contracts.Kernel.Application;
+
     // todo: make this private
     // @ts-ignore
     protected blockProcessor: BlockProcessor;

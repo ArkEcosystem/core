@@ -7,6 +7,9 @@ import { getConnectionData, HttpClient } from "../utils";
 
 @Container.injectable()
 export class Action implements Actions.Action {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Application;
+
     public name = "info.coreStatus";
 
     public schema = {
@@ -17,9 +20,6 @@ export class Action implements Actions.Action {
             },
         },
     };
-
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Application;
 
     public async execute(params: any): Promise<any> {
         return {

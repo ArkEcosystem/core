@@ -65,7 +65,8 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/core-database/clover.xml
+                  file: .coverage/functional/core-database/lcov.info
+                  flags: functional
                   fail_ci_if_error: true
 
     bridgechain-registration:
@@ -112,10 +113,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-registration.test.ts
+              run: yarn test __tests__/functional/transaction-forging/bridgechain-registration.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/bridgechain-registration/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/bridgechain-registration/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     bridgechain-resignation:
         runs-on: ubuntu-latest
@@ -161,10 +169,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts
+              run: yarn test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/bridgechain-resignation/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/bridgechain-resignation/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     bridgechain-update:
         runs-on: ubuntu-latest
@@ -210,10 +225,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-update.test.ts
+              run: yarn test __tests__/functional/transaction-forging/bridgechain-update.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/bridgechain-update/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/bridgechain-update/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     business-registration:
         runs-on: ubuntu-latest
@@ -259,10 +281,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-registration.test.ts
+              run: yarn test __tests__/functional/transaction-forging/business-registration.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/business-registration/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/business-registration/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     business-resignation:
         runs-on: ubuntu-latest
@@ -308,10 +337,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts
+              run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/business-resignation/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/business-resignation/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     business-update:
         runs-on: ubuntu-latest
@@ -357,10 +393,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-update.test.ts
+              run: yarn test __tests__/functional/transaction-forging/business-update.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/business-update/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/business-update/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     delegate-registration:
         runs-on: ubuntu-latest
@@ -406,10 +449,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/delegate-registration.test.ts
+              run: yarn test __tests__/functional/transaction-forging/delegate-registration.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/delegate-registration/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/delegate-registration/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     delegate-resignation:
         runs-on: ubuntu-latest
@@ -455,10 +505,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/delegate-resignation.test.ts
+              run: yarn test __tests__/functional/transaction-forging/delegate-resignation.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/delegate-resignation/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/delegate-resignation/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     htlc-claim:
         runs-on: ubuntu-latest
@@ -504,10 +561,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-claim.test.ts
+              run: yarn test __tests__/functional/transaction-forging/htlc-claim.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/htlc-claim/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/htlc-claim/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     htlc-lock:
         runs-on: ubuntu-latest
@@ -553,10 +617,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-lock.test.ts
+              run: yarn test __tests__/functional/transaction-forging/htlc-lock.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/htlc-lock/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/htlc-lock/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     htlc-refund:
         runs-on: ubuntu-latest
@@ -602,10 +673,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-refund.test.ts
+              run: yarn test __tests__/functional/transaction-forging/htlc-refund.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/htlc-refund/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/htlc-refund/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     ipfs:
         runs-on: ubuntu-latest
@@ -651,10 +729,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/ipfs.test.ts
+              run: yarn test __tests__/functional/transaction-forging/ipfs.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/ipfs/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/ipfs/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     multi-payment:
         runs-on: ubuntu-latest
@@ -700,10 +785,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts
+              run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/multi-payment/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/multi-payment/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     multi-signature-registration:
         runs-on: ubuntu-latest
@@ -749,10 +841,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts
+              run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/multi-signature-registration/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/multi-signature-registration/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     second-signature-registration:
         runs-on: ubuntu-latest
@@ -798,10 +897,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/second-signature-registration.test.ts
+              run: yarn test __tests__/functional/transaction-forging/second-signature-registration.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/second-signature-registration/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/second-signature-registration/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     transfer:
         runs-on: ubuntu-latest
@@ -847,10 +953,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/transfer.test.ts
+              run: yarn test __tests__/functional/transaction-forging/transfer.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/transfer/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/transfer/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     vote:
         runs-on: ubuntu-latest
@@ -896,10 +1009,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/vote.test.ts
+              run: yarn test __tests__/functional/transaction-forging/vote.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/vote/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/vote/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     entity-register:
         runs-on: ubuntu-latest
@@ -945,10 +1065,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/entity-register.test.ts
+              run: yarn test __tests__/functional/transaction-forging/entity-register.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/entity-register/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/entity-register/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     entity-resign:
         runs-on: ubuntu-latest
@@ -994,10 +1121,17 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/entity-resign.test.ts
+              run: yarn test __tests__/functional/transaction-forging/entity-resign.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/entity-resign/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/entity-resign/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true
 
     entity-update:
         runs-on: ubuntu-latest
@@ -1043,7 +1177,14 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/entity-update.test.ts
+              run: yarn test __tests__/functional/transaction-forging/entity-update.test.ts --coverage --coverageDirectory .coverage/functional/transaction-forging/entity-update/
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/transaction-forging/entity-update/lcov.info
+                  flags: functional
+                  fail_ci_if_error: true

@@ -17,9 +17,12 @@ import { WatcherWallet } from "./watcher-wallet";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
+        this.app.bind(Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
+        this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService).boot();
+
         if (this.config().getRequired<{ enabled: boolean }>("watcher").enabled) {
-            this.app.bind(Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
-            this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService).boot();
+            this.app.bind(Container.Identifiers.DatabaseLogger).to(DatabaseLogger).inSingletonScope();
+            this.app.bind(Identifiers.EventsListener).to(Listener).inSingletonScope();
 
             const logService = this.app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService);
             this.app
@@ -30,6 +33,20 @@ export class ServiceProvider extends Providers.ServiceProvider {
                         this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService),
                     ),
                 );
+
+            this.app
+                .bind(Container.Identifiers.WalletFactory)
+                .toFactory<Contracts.State.Wallet>((context: Container.interfaces.Context) => (address: string) =>
+                    new WatcherWallet(
+                        context.container.get(Container.Identifiers.Application),
+                        address,
+                        new Services.Attributes.AttributeMap(
+                            context.container.get<Services.Attributes.AttributeSet>(
+                                Container.Identifiers.WalletAttributes,
+                            ),
+                        ),
+                    ),
+                );
         }
 
         this.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
@@ -37,26 +54,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Identifiers.BasicCredentialsValidator).to(Argon2id).inSingletonScope();
         this.app.bind(Identifiers.TokenValidator).to(SimpleTokenValidator).inSingletonScope();
         this.app.bind(Identifiers.SnapshotsManager).to(SnapshotsManager).inSingletonScope();
-        this.app.bind(Identifiers.EventsListener).to(Listener).inSingletonScope();
-        this.app.bind(Container.Identifiers.DatabaseLogger).to(DatabaseLogger).inSingletonScope();
 
         const pkg: Types.PackageJson = require("../package.json");
+        // TODO: pass this through properly
         const cryptoSuite = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
         this.app
             .bind(Identifiers.CLI)
             .toConstantValue(ApplicationFactory.make(new Container.Container(), pkg, cryptoSuite));
-
-        this.app
-            .bind(Container.Identifiers.WalletFactory)
-            .toFactory<Contracts.State.Wallet>((context: Container.interfaces.Context) => (address: string) =>
-                new WatcherWallet(
-                    context.container.get(Container.Identifiers.Application),
-                    address,
-                    new Services.Attributes.AttributeMap(
-                        context.container.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes),
-                    ),
-                ),
-            );
     }
 
     /**

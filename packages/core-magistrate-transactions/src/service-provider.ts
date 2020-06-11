@@ -8,8 +8,8 @@ import {
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
 } from "./handlers";
-import { bridgechainIndexer, businessIndexer, MagistrateIndex, entityIndexer } from "./wallet-indexes";
 import { EntityTransactionHandler } from "./handlers/entity";
+import { bridgechainIndexer, businessIndexer, entityIndexer, MagistrateIndex } from "./wallet-indexes";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {

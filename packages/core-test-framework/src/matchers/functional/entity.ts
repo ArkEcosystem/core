@@ -1,6 +1,6 @@
-import got from "got";
-import { Interfaces } from "@arkecosystem/crypto";
 import { IEntityAsset } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
+import { Interfaces } from "@arkecosystem/crypto";
+import got from "got";
 
 export {};
 
@@ -28,23 +28,22 @@ expect.extend({
             errors = parsedBody.errors;
 
             const entityAsset: IEntityAsset = transaction.asset as IEntityAsset;
-            pass = (
-                parsedBody.errors === undefined
-                && parsedBody.data.id === transaction.id
-                && parsedBody.data.type === entityAsset.type
-                && parsedBody.data.subType === entityAsset.subType
-                && parsedBody.data.data.name === entityAsset.data.name
-                && parsedBody.data.data.ipfsData === entityAsset.data.ipfsData
-            );
-        } catch(e) {
+            pass =
+                parsedBody.errors === undefined &&
+                parsedBody.data.id === transaction.id &&
+                parsedBody.data.type === entityAsset.type &&
+                parsedBody.data.subType === entityAsset.subType &&
+                parsedBody.data.data.name === entityAsset.data.name &&
+                parsedBody.data.data.ipfsData === entityAsset.data.ipfsData;
+        } catch (e) {
             errors = e;
         }
 
         return {
             pass,
+            message: /* istanbul ignore next */ () =>
             // @ts-ignore
-            message: /* istanbul ignore next */ () => `expected entity ${transaction.id} ${this.isNot ? "not" : ""
-            } to be registered. ${errors}`,
+                `expected entity ${transaction.id} ${this.isNot ? "not" : ""} to be registered. ${errors}`,
         };
     },
 
@@ -59,20 +58,19 @@ expect.extend({
 
             errors = parsedBody.errors;
 
-            pass = (
-                parsedBody.errors === undefined
-                && parsedBody.data.id === registrationId
-                && parsedBody.data.isResigned === true
-            );
-        } catch(e) {
+            pass =
+                parsedBody.errors === undefined &&
+                parsedBody.data.id === registrationId &&
+                parsedBody.data.isResigned === true;
+        } catch (e) {
             errors = e;
         }
 
         return {
             pass,
+            message: /* istanbul ignore next */ () =>
             // @ts-ignore
-            message: /* istanbul ignore next */ () => `expected entity ${registrationId} ${this.isNot ? "not" : ""
-            } to be resigned. ${errors}`,
+                `expected entity ${registrationId} ${this.isNot ? "not" : ""} to be resigned. ${errors}`,
         };
     },
 
@@ -89,22 +87,21 @@ expect.extend({
 
             errors = parsedBody.errors;
 
-            pass = (
-                parsedBody.errors === undefined
-                && parsedBody.data.id === entityAsset.registrationId
-                && parsedBody.data.type === entityAsset.type
-                && parsedBody.data.subType === entityAsset.subType
-                && parsedBody.data.data.ipfsData === entityAsset.data.ipfsData
-            );
-        } catch(e) {
+            pass =
+                parsedBody.errors === undefined &&
+                parsedBody.data.id === entityAsset.registrationId &&
+                parsedBody.data.type === entityAsset.type &&
+                parsedBody.data.subType === entityAsset.subType &&
+                parsedBody.data.data.ipfsData === entityAsset.data.ipfsData;
+        } catch (e) {
             errors = e;
         }
 
         return {
             pass,
+            message: /* istanbul ignore next */ () =>
             // @ts-ignore
-            message: /* istanbul ignore next */ () => `expected entity ${updateTransaction.id} ${this.isNot ? "not" : ""
-            } to be updated. ${errors}`,
+                `expected entity ${updateTransaction.id} ${this.isNot ? "not" : ""} to be updated. ${errors}`,
         };
     },
 });

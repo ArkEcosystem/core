@@ -9,6 +9,14 @@ import Joi from "@hapi/joi";
 @Container.injectable()
 export class Command extends Commands.Command {
     /**
+     * @private
+     * @type {Installer}
+     * @memberof Command
+     */
+    @Container.inject(Container.Identifiers.Installer)
+    private readonly installer!: Services.Installer;
+
+    /**
      * The console command signature.
      *
      * @type {string}
@@ -31,14 +39,6 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public requiresNetwork: boolean = false;
-
-    /**
-     * @private
-     * @type {Installer}
-     * @memberof Command
-     */
-    @Container.inject(Container.Identifiers.Installer)
-    private readonly installer!: Services.Installer;
 
     /**
      * Configure the console command.

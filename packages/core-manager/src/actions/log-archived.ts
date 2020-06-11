@@ -5,10 +5,10 @@ import { Actions } from "../contracts";
 
 @Container.injectable()
 export class Action implements Actions.Action {
-    public name = "log.archived";
-
     @Container.inject(Container.Identifiers.FilesystemService)
     private readonly filesystem!: Contracts.Kernel.Filesystem;
+
+    public name = "log.archived";
 
     public async execute(params: object): Promise<any> {
         return Promise.all((await this.getArchivedLogs()).map((x) => this.getArchiveInfo(x)));

@@ -15,6 +15,14 @@ import { RelayHost } from "./interfaces";
 @Container.injectable()
 export class Client {
     /**
+     * @private
+     * @type {Contracts.Kernel.Logger}
+     * @memberof Client
+     */
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    /**
      * @type {RelayHost[]}
      * @memberof Client
      */
@@ -27,14 +35,6 @@ export class Client {
      */
     // @ts-ignore
     private host: RelayHost;
-
-    /**
-     * @private
-     * @type {Contracts.Kernel.Logger}
-     * @memberof Client
-     */
-    @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.BlockFactory)
     private readonly blockFactory!: Blocks.BlockFactory;

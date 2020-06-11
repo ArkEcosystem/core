@@ -18,7 +18,7 @@ beforeEach(() => {
     sandbox.app.bind(Container.Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
 
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
-        getRequired: jest.fn().mockReturnValue({ storage: storagePath }),
+        getRequired: jest.fn().mockReturnValue({ storage: storagePath, resetDatabase: true }),
     });
 
     database = sandbox.app.get(Container.Identifiers.WatcherDatabaseService);

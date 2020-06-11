@@ -1,7 +1,6 @@
 import { Container } from "@arkecosystem/core-kernel";
+
 import { EntityResignSubHandler } from "../resign";
 
 @Container.injectable()
-export class DeveloperResignSubHandler extends EntityResignSubHandler {
-
-}
+export class DeveloperResignSubHandler extends EntityResignSubHandler {}
