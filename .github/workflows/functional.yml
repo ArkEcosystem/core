@@ -60,7 +60,14 @@ jobs:
               run: mkdir -p $HOME/.core/database
 
             - name: Functional tests
-              run: yarn test __tests__/functional/core-database/
+              run: yarn test __tests__/functional/core-database/ --coverage --coverageDirectory .coverage/functional/core-database/
+
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/functional/core-database/clover.xml
+                  flags: functional
+                  fail_ci_if_error: true
 
     bridgechain-registration:
         runs-on: ubuntu-latest
