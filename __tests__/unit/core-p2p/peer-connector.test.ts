@@ -9,12 +9,17 @@ import { NesClient } from "./mocks/nes";
 
 jest.mock("@hapi/nes", () => require("./mocks/nes"));
 
+
 describe("PeerConnector", () => {
     let peerConnector: PeerConnector;
+    let logger;
 
     beforeEach(() => {
+        logger = { warning: jest.fn(), debug: jest.fn(), error: jest.fn(), info: jest.fn() };
+
         const container = new Container.Container();
         container.unbindAll();
+        container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.PeerConnector).to(PeerConnector);
 
         peerConnector = container.get<PeerConnector>(Container.Identifiers.PeerConnector);
@@ -57,6 +62,16 @@ describe("PeerConnector", () => {
 
             expect(peerConnection).toBeInstanceOf(NesClient);
             expect(peerConnection).toBe(peerConnector.connection(peer));
+        });
+
+        it("should log if error on connection", async () => {
+            const peer = new Peer("178.165.55.11", 4000);
+            const peerConnection = await peerConnector.connect(peer);
+
+            peerConnection.onError(new Error("dummy"));
+
+            expect(peerConnection).toBeInstanceOf(NesClient);
+            expect(logger.debug).toHaveBeenCalled();
         });
     });
 
