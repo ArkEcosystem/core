@@ -1,3 +1,5 @@
+import { EntityTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers/entity";
+import { CryptoSuite } from "@packages/core-crypto";
 import { Application, Container, Contracts, Providers, Services } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import {
@@ -7,8 +9,8 @@ import {
 import {
     bridgechainIndexer,
     businessIndexer,
-    MagistrateIndex,
     entityIndexer,
+    MagistrateIndex,
 } from "@packages/core-magistrate-transactions/src/wallet-indexes";
 import { Wallets } from "@packages/core-state";
 import {
@@ -22,8 +24,6 @@ import passphrases from "@packages/core-test-framework/src/internal/passphrases.
 import { One, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Utils } from "@packages/crypto";
-import { EntityTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers/entity";
 
 export type PaginatedResponse = {
     totalCount: number;
@@ -37,19 +37,22 @@ export type ItemResponse = {
 
 export const buildSenderWallet = (app: Application): Contracts.State.Wallet => {
     const walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
+    const cryptoManager = app.get<CryptoSuite.CryptoManager>(Identifiers.CryptoManager);
 
     const wallet: Contracts.State.Wallet = walletRepository.createWallet(
-        Identities.Address.fromPassphrase(passphrases[0]),
+        cryptoManager.Identities.Address.fromPassphrase(passphrases[0]),
     );
 
-    wallet.publicKey = Identities.PublicKey.fromPassphrase(passphrases[0]);
-    wallet.balance = Utils.BigNumber.make(7527654310);
+    wallet.publicKey = cryptoManager.Identities.PublicKey.fromPassphrase(passphrases[0]);
+    wallet.balance = cryptoManager.LibraryManager.Libraries.BigNumber.make(7527654310);
 
     return wallet;
 };
 
-export const initApp = (): Application => {
-    const app = new Application(new Container.Container());
+export const initApp = (
+    crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet")),
+): Application => {
+    const app = new Application(new Container.Container(), crypto);
 
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
     app.bind(Container.Identifiers.StateStore).toConstantValue({});
@@ -134,6 +137,7 @@ export const initApp = (): Application => {
     app.bind(Identifiers.WalletFactory).toFactory<Contracts.State.Wallet>(
         (context: Container.interfaces.Context) => (address: string) =>
             new Wallets.Wallet(
+                app.get(Container.Identifiers.CryptoManager),
                 address,
                 new Services.Attributes.AttributeMap(
                     context.container.get<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes),

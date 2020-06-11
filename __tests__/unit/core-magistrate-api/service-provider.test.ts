@@ -2,13 +2,21 @@ import "jest-extended";
 
 import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
+// import { CryptoSuite } from "@packages/core-crypto";
 import { Application, Container, Providers } from "@packages/core-kernel";
 import { ServiceProvider } from "@packages/core-magistrate-api/src";
 
 let app: Application;
+const logger = {
+    notice: jest.fn(),
+    debug: jest.fn(),
+    warning: jest.fn(),
+};
 
 beforeEach(() => {
     app = new Application(new Container.Container());
+
+    app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 

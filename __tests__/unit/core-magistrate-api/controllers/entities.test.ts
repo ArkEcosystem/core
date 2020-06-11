@@ -1,17 +1,15 @@
 import "jest-extended";
 
-import Hapi from "@hapi/hapi";
 import { Application, Contracts } from "@arkecosystem/core-kernel";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
 import { EntityController } from "@arkecosystem/core-magistrate-api/src/controllers/entities";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Enums } from "@arkecosystem/core-magistrate-crypto/src";
+import { IEntityWallet } from "@arkecosystem/core-magistrate-transactions/src/interfaces";
 import { MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-indexes";
 import { Wallets } from "@arkecosystem/core-state";
-import { Transactions } from "@arkecosystem/crypto";
+import Hapi from "@hapi/hapi";
 
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
-import { IEntityWallet } from "@arkecosystem/core-magistrate-transactions/src/interfaces";
-import { Enums } from "@arkecosystem/core-magistrate-crypto/src";
 
 let app: Application;
 let controller: EntityController;
@@ -24,7 +22,7 @@ const entityRegistrationAsset: IEntityWallet = {
     data: {
         name: "iam_a_dev",
         ipfsData: "Qdm2345ousd462",
-    }
+    },
 };
 const registrationTxId = "e77a1d1d080adce114dd27e1cb0a242ec8600fb72cd62eca4e46148bee1d3acc";
 let expectedApiEntity;
@@ -37,7 +35,7 @@ beforeEach(() => {
     senderWallet = buildSenderWallet(app);
 
     senderWallet.setAttribute("entities", {
-        [registrationTxId]: entityRegistrationAsset
+        [registrationTxId]: entityRegistrationAsset,
     });
 
     expectedApiEntity = {
@@ -51,20 +49,6 @@ beforeEach(() => {
     walletRepository.index(senderWallet);
 
     controller = app.resolve<EntityController>(EntityController);
-});
-
-afterEach(() => {
-    try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.BusinessRegistrationTransaction,
-        );
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.BridgechainRegistrationTransaction,
-        );
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.EntityTransaction,
-        );
-    } catch {}
 });
 
 describe("EntityController", () => {
@@ -105,7 +89,7 @@ describe("EntityController", () => {
                     id: senderWallet.publicKey,
                 },
             };
-            
+
             await expect(controller.show(request, undefined)).resolves.toThrowError("Entity not found");
         });
 
@@ -129,7 +113,7 @@ describe("EntityController", () => {
             walletRepository.index(senderWallet);
 
             senderWallet.setAttribute("entities", {
-                [registrationTxId]: entityRegistrationAsset
+                [registrationTxId]: entityRegistrationAsset,
             });
 
             const request: Hapi.Request = {

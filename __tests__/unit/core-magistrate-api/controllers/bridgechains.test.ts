@@ -4,10 +4,8 @@ import Hapi from "@hapi/hapi";
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { BridgechainController } from "@packages/core-magistrate-api/src/controllers/bridgechains";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { IBridgechainRegistrationAsset } from "@packages/core-magistrate-crypto/src/interfaces";
 import { Wallets } from "@packages/core-state";
-import { Transactions } from "@packages/crypto";
 
 import { Assets } from "../__fixtures__";
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
@@ -44,20 +42,6 @@ beforeEach(() => {
     walletRepository.index(senderWallet);
 
     controller = app.resolve<BridgechainController>(BridgechainController);
-});
-
-afterEach(() => {
-    try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.BusinessRegistrationTransaction,
-        );
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.BridgechainRegistrationTransaction,
-        );
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.EntityTransaction,
-        );
-    } catch {}
 });
 
 describe("BridgechainController", () => {
