@@ -22,7 +22,7 @@ const mockEventDispatcher = {
 
 const setPluginConfiguration = (app: Application, serviceProvider: ServiceProvider, configuration: any) => {
     const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
-    const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-monitor", configuration);
+    const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-manager", configuration);
 
     serviceProvider.setConfig(instance);
 };
@@ -119,6 +119,8 @@ describe("ServiceProvider", () => {
 
     it("should create wallet", async () => {
         const usedDefaults = { ...defaults };
+
+        usedDefaults.watcher.enabled = true;
 
         setPluginConfiguration(app, serviceProvider, usedDefaults);
 
