@@ -6,6 +6,9 @@ import { Actions } from "../contracts";
 
 @Container.injectable()
 export class Action implements Actions.Action {
+    @Container.inject(Container.Identifiers.FilesystemService)
+    private readonly filesystem!: Contracts.Kernel.Filesystem;
+
     public name = "log.log";
 
     public schema = {
@@ -29,9 +32,6 @@ export class Action implements Actions.Action {
         },
         required: ["name"],
     };
-
-    @Container.inject(Container.Identifiers.FilesystemService)
-    private readonly filesystem!: Contracts.Kernel.Filesystem;
 
     public async execute(params: {
         name: string;

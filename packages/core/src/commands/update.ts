@@ -10,6 +10,14 @@ import Joi from "@hapi/joi";
 @Container.injectable()
 export class Command extends Commands.Command {
     /**
+     * @private
+     * @type {Contracts.Updater}
+     * @memberof Command
+     */
+    @Container.inject(Container.Identifiers.Updater)
+    private readonly updater!: Contracts.Updater;
+
+    /**
      * The console command signature.
      *
      * @type {string}
@@ -24,14 +32,6 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public description: string = "Update the Core installation.";
-
-    /**
-     * @private
-     * @type {Contracts.Updater}
-     * @memberof Command
-     */
-    @Container.inject(Container.Identifiers.Updater)
-    private readonly updater!: Contracts.Updater;
 
     /**
      * Configure the console command.

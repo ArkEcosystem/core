@@ -4,13 +4,13 @@ import { Actions } from "../contracts";
 
 @Container.injectable()
 export class Action implements Actions.Action {
-    public name = "configuration.getPlugins";
-
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Application;
 
     @Container.inject(Container.Identifiers.FilesystemService)
     private readonly filesystem!: Contracts.Kernel.Filesystem;
+
+    public name = "configuration.getPlugins";
 
     public async execute(params: object): Promise<any> {
         return await this.getPluginFile();

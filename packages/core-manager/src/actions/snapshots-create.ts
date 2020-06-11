@@ -6,6 +6,12 @@ import { SnapshotsManager } from "../snapshots/snapshots-manager";
 
 @Container.injectable()
 export class Action implements Actions.Action {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Application;
+
+    @Container.inject(Identifiers.SnapshotsManager)
+    private readonly snapshotManager!: SnapshotsManager;
+
     public name = "snapshots.create";
 
     public schema = {
@@ -25,12 +31,6 @@ export class Action implements Actions.Action {
             },
         },
     };
-
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Application;
-
-    @Container.inject(Identifiers.SnapshotsManager)
-    private readonly snapshotManager!: SnapshotsManager;
 
     public async execute(params: any): Promise<any> {
         await this.snapshotManager.dump({

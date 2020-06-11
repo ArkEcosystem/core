@@ -10,6 +10,9 @@ import Joi from "@hapi/joi";
  */
 @Container.injectable()
 export class Command extends Commands.Command {
+    @Container.inject(Container.Identifiers.Logger)
+    private readonly logger!: Services.Logger;
+
     /**
      * The console command signature.
      *
@@ -25,9 +28,6 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public description: string = "Rollback chain to specified height.";
-
-    @Container.inject(Container.Identifiers.Logger)
-    private readonly logger!: Services.Logger;
 
     /**
      * Configure the console command.

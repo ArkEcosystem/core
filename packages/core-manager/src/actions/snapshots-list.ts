@@ -5,10 +5,10 @@ import { Actions } from "../contracts";
 
 @Container.injectable()
 export class Action implements Actions.Action {
-    public name = "snapshots.list";
-
     @Container.inject(Container.Identifiers.FilesystemService)
     private readonly filesystem!: Contracts.Kernel.Filesystem;
+
+    public name = "snapshots.list";
 
     public async execute(params: object): Promise<any> {
         return await this.getSnapshots();

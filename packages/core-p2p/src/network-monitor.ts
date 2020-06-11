@@ -10,24 +10,6 @@ import { checkDNS, checkNTP } from "./utils";
 // todo: review the implementation
 @Container.injectable()
 export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
-    public config: any;
-    public nextUpdateNetworkStatusScheduled: boolean | undefined;
-    private coldStart: boolean = false;
-
-    /**
-     * If downloading some chunk fails but nevertheless we manage to download higher chunks,
-     * then they are stored here for later retrieval.
-     */
-    private downloadedChunksCache: { [key: string]: Interfaces.IBlockData[] } = {};
-
-    /**
-     * Maximum number of entries to keep in `downloadedChunksCache`.
-     * At 400 blocks per chunk, 100 chunks would amount to 40k blocks.
-     */
-    private downloadedChunksCacheMax: number = 100;
-
-    private initializing = true;
-
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -46,6 +28,24 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
+
+    public config: any;
+    public nextUpdateNetworkStatusScheduled: boolean | undefined;
+    private coldStart: boolean = false;
+
+    /**
+     * If downloading some chunk fails but nevertheless we manage to download higher chunks,
+     * then they are stored here for later retrieval.
+     */
+    private downloadedChunksCache: { [key: string]: Interfaces.IBlockData[] } = {};
+
+    /**
+     * Maximum number of entries to keep in `downloadedChunksCache`.
+     * At 400 blocks per chunk, 100 chunks would amount to 40k blocks.
+     */
+    private downloadedChunksCacheMax: number = 100;
+
+    private initializing = true;
 
     public initialize() {
         this.config = this.configuration.all(); // >_<

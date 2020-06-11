@@ -15,13 +15,6 @@ import { ExecuteCallbackWhenReady } from "./listeners";
  */
 @injectable()
 export class BlockJob implements Job {
-    /**
-     * @private
-     * @type {number}
-     * @memberof BlockJob
-     */
-    protected blockCount: number = 1;
-
     @inject(Identifiers.Application)
     protected readonly app!: Application;
 
@@ -32,6 +25,13 @@ export class BlockJob implements Job {
      */
     @inject(Identifiers.EventDispatcherService)
     private readonly events!: EventDispatcher;
+
+    /**
+     * @private
+     * @type {number}
+     * @memberof BlockJob
+     */
+    protected blockCount: number = 1;
 
     /**
      * @param {Function} callback

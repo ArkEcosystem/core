@@ -6,6 +6,9 @@ import { Identifiers } from "../ioc";
 
 @Container.injectable()
 export class Action implements Actions.Action {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Application;
+
     public name = "process.restart";
 
     public schema = {
@@ -16,9 +19,6 @@ export class Action implements Actions.Action {
             },
         },
     };
-
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Application;
 
     public async execute(params: any): Promise<any> {
         return {

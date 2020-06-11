@@ -5,6 +5,9 @@ import { Actions } from "../contracts";
 
 @Container.injectable()
 export class Action implements Actions.Action {
+    @Container.inject(Container.Identifiers.FilesystemService)
+    private readonly filesystem!: Contracts.Kernel.Filesystem;
+
     public name = "snapshots.delete";
 
     public schema = {
@@ -16,9 +19,6 @@ export class Action implements Actions.Action {
         },
         required: ["name"],
     };
-
-    @Container.inject(Container.Identifiers.FilesystemService)
-    private readonly filesystem!: Contracts.Kernel.Filesystem;
 
     public async execute(params: { name: string }): Promise<any> {
         await this.deleteSnapshot(params.name);

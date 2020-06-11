@@ -11,13 +11,6 @@ import { TransactionRepository } from "./repositories/transaction-repository";
 // TODO: maybe we should introduce `BlockLike`, `TransactionLike`, `RoundLke` interfaces to remove the need to cast
 @Container.injectable()
 export class DatabaseService {
-    // TODO: make private readonly
-    public blocksInCurrentRound: Interfaces.IBlock[] | undefined = undefined;
-    // TODO: make private readonly
-    public restoredDatabaseIntegrity: boolean = false;
-    // TODO: make private readonly
-    public forgingDelegates: Contracts.State.Wallet[] | undefined = undefined;
-
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -72,6 +65,13 @@ export class DatabaseService {
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly emitter!: Contracts.Kernel.EventDispatcher;
+
+    // TODO: make private readonly
+    public blocksInCurrentRound: Interfaces.IBlock[] | undefined = undefined;
+    // TODO: make private readonly
+    public restoredDatabaseIntegrity: boolean = false;
+    // TODO: make private readonly
+    public forgingDelegates: Contracts.State.Wallet[] | undefined = undefined;
 
     public async initialize(): Promise<void> {
         try {

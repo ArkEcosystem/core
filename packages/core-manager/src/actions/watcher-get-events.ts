@@ -5,6 +5,9 @@ import { DatabaseService } from "../database-service";
 
 @Container.injectable()
 export class Action implements Actions.Action {
+    @Container.inject(Container.Identifiers.WatcherDatabaseService)
+    private readonly database!: DatabaseService;
+
     public name = "watcher.getEvents";
 
     public schema = {
@@ -26,9 +29,6 @@ export class Action implements Actions.Action {
         },
         required: ["query"],
     };
-
-    @Container.inject(Container.Identifiers.WatcherDatabaseService)
-    private readonly database!: DatabaseService;
 
     public async execute(params: { query: any }): Promise<any> {
         return this.database.queryEvents(params.query);

@@ -7,10 +7,10 @@ import { parseProcessActionResponse } from "../utils";
 
 @Container.injectable()
 export class Action implements Actions.Action {
-    public name = "info.lastForgedBlock";
-
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Application;
+
+    public name = "info.lastForgedBlock";
 
     public async execute(params: object): Promise<any> {
         return await this.getLastForgedBlock();
