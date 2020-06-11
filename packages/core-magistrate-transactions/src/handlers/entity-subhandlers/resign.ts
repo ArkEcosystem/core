@@ -1,8 +1,14 @@
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
-import { EntityNotRegisteredError, EntityAlreadyResignedError, EntityWrongSubTypeError, EntityWrongTypeError } from "../../errors";
-import { TransactionReader } from "@arkecosystem/core-transactions";
 import { Models } from "@arkecosystem/core-database";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { TransactionReader } from "@arkecosystem/core-transactions";
+import { Interfaces } from "@arkecosystem/crypto";
+
+import {
+    EntityAlreadyResignedError,
+    EntityNotRegisteredError,
+    EntityWrongSubTypeError,
+    EntityWrongTypeError,
+} from "../../errors";
 import { IEntitiesWallet } from "../../interfaces";
 
 // Entity Resign sub-handler : most of the sub-handler methods are implemented here
@@ -11,7 +17,7 @@ import { IEntitiesWallet } from "../../interfaces";
 export class EntityResignSubHandler {
     public async bootstrap(
         walletRepository: Contracts.State.WalletRepository,
-        reader: TransactionReader
+        reader: TransactionReader,
     ): Promise<void> {
         const transactions: Models.Transaction[] = await reader.read();
 
@@ -23,13 +29,13 @@ export class EntityResignSubHandler {
                 ...entities[transaction.asset.registrationId],
                 resigned: true,
             };
-            
+
             wallet.setAttribute("entities", entities);
 
             walletRepository.index(wallet);
         }
     }
-    
+
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -55,8 +61,7 @@ export class EntityResignSubHandler {
         }
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
-    }
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {}
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
@@ -75,7 +80,7 @@ export class EntityResignSubHandler {
                 resigned: true,
             };
         }
-        
+
         wallet.setAttribute("entities", entities);
 
         walletRepository.index(wallet);
@@ -95,7 +100,7 @@ export class EntityResignSubHandler {
         if (entities[transaction.data.asset.registrationId]) {
             delete entities[transaction.data.asset.registrationId].resigned;
         }
-        
+
         wallet.setAttribute("entities", entities);
 
         walletRepository.index(wallet);

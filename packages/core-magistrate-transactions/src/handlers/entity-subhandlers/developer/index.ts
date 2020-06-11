@@ -1,6 +1,6 @@
 import { DeveloperRegisterSubHandler } from "./register";
-import { DeveloperUpdateSubHandler } from "./update";
 import { DeveloperResignSubHandler } from "./resign";
+import { DeveloperUpdateSubHandler } from "./update";
 
 export default {
     DeveloperRegisterSubHandler,

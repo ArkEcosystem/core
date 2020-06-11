@@ -1,6 +1,6 @@
 import { BridgechainRegisterSubHandler } from "./register";
-import { BridgechainUpdateSubHandler } from "./update";
 import { BridgechainResignSubHandler } from "./resign";
+import { BridgechainUpdateSubHandler } from "./update";
 
 export default {
     BridgechainRegisterSubHandler,

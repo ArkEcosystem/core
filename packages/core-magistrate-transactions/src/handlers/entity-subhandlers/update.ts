@@ -1,11 +1,17 @@
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
-import { EntityNotRegisteredError, EntityAlreadyResignedError, EntityWrongTypeError, EntityWrongSubTypeError } from "../../errors";
-import { IEntityAssetData, IEntityAsset } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
-import { IEntityWallet, IEntitiesWallet } from "../../interfaces";
-import { TransactionReader } from "@arkecosystem/core-transactions";
 import { Models } from "@arkecosystem/core-database";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Enums } from "@arkecosystem/core-magistrate-crypto";
+import { IEntityAsset, IEntityAssetData } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
+import { TransactionReader } from "@arkecosystem/core-transactions";
+import { Interfaces } from "@arkecosystem/crypto";
+
+import {
+    EntityAlreadyResignedError,
+    EntityNotRegisteredError,
+    EntityWrongSubTypeError,
+    EntityWrongTypeError,
+} from "../../errors";
+import { IEntitiesWallet, IEntityWallet } from "../../interfaces";
 
 // Entity Register sub-handler : most of the sub-handler methods are implemented here
 // but it is extended by the bridgechain, business, developer, plugin... subhandlers
@@ -16,7 +22,7 @@ export class EntityUpdateSubHandler {
 
     public async bootstrap(
         walletRepository: Contracts.State.WalletRepository,
-        reader: TransactionReader
+        reader: TransactionReader,
     ): Promise<void> {
         const transactions: Models.Transaction[] = await reader.read();
 
@@ -29,7 +35,7 @@ export class EntityUpdateSubHandler {
                 subType: entities[transaction.asset.registrationId].subType,
                 data: this.mergeAssetData(entities[transaction.asset.registrationId].data, transaction.asset.data),
             };
-            
+
             wallet.setAttribute("entities", entities);
 
             walletRepository.index(wallet);
@@ -61,8 +67,7 @@ export class EntityUpdateSubHandler {
         }
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
-    }
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {}
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
@@ -84,7 +89,7 @@ export class EntityUpdateSubHandler {
                 data: this.mergeAssetData(entities[transaction.data.asset.registrationId].data, assetData),
             };
         }
-        
+
         wallet.setAttribute("entities", entities);
 
         walletRepository.index(wallet);

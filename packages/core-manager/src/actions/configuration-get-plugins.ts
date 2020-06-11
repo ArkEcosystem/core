@@ -1,4 +1,5 @@
 import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
+
 import { Actions } from "../contracts";
 
 @Container.injectable()

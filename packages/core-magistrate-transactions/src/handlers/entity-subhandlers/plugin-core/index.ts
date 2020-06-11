@@ -1,6 +1,6 @@
 import { PluginCoreRegisterSubHandler } from "./register";
-import { PluginCoreUpdateSubHandler } from "./update";
 import { PluginCoreResignSubHandler } from "./resign";
+import { PluginCoreUpdateSubHandler } from "./update";
 
 export default {
     PluginCoreRegisterSubHandler,

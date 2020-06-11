@@ -20,7 +20,9 @@ export const register = (server: Hapi.Server): void => {
                         publicKey: Joi.string().hex().length(66),
                         type: Joi.number().integer(), // see enum in core-magistrate-crypto
                         subType: Joi.number().integer(), // see enum in core-magistrate-crypto
-                        name: Joi.string().regex(/^[a-zA-Z0-9_-]+$/).max(40),
+                        name: Joi.string()
+                            .regex(/^[a-zA-Z0-9_-]+$/)
+                            .max(40),
                         isResigned: Joi.bool(),
                     },
                 }),
@@ -57,7 +59,9 @@ export const register = (server: Hapi.Server): void => {
                     publicKey: Joi.string().hex().length(66),
                     type: Joi.number().integer(), // see enum in core-magistrate-crypto
                     subType: Joi.number().integer(), // see enum in core-magistrate-crypto
-                    name: Joi.string().regex(/^[a-zA-Z0-9_-]+$/).max(40),
+                    name: Joi.string()
+                        .regex(/^[a-zA-Z0-9_-]+$/)
+                        .max(40),
                     isResigned: Joi.bool(),
                 }),
             },

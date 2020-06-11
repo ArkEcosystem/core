@@ -1,10 +1,10 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 import { IEntityAsset } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
+import { TransactionReader } from "@arkecosystem/core-transactions";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import { EntityAlreadyRegisteredError, EntityNameAlreadyRegisteredError } from "../../errors";
-import { TransactionReader } from "@arkecosystem/core-transactions";
-import { Models } from "@arkecosystem/core-database";
 import { IEntitiesWallet, IEntityWallet } from "../../interfaces";
 import { MagistrateIndex } from "../../wallet-indexes";
 
@@ -14,7 +14,7 @@ import { MagistrateIndex } from "../../wallet-indexes";
 export class EntityRegisterSubHandler {
     public async bootstrap(
         walletRepository: Contracts.State.WalletRepository,
-        reader: TransactionReader
+        reader: TransactionReader,
     ): Promise<void> {
         const transactions: Models.Transaction[] = await reader.read();
 
@@ -27,13 +27,13 @@ export class EntityRegisterSubHandler {
                 subType: entities[transaction.asset.registrationId].subType,
                 data: entities[transaction.asset.registrationId].data,
             };
-            
+
             wallet.setAttribute("entities", entities);
 
             walletRepository.index(wallet);
         }
     }
-    
+
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -50,19 +50,21 @@ export class EntityRegisterSubHandler {
             if (wallet.hasAttribute("entities")) {
                 const entityValues: IEntityWallet[] = Object.values(wallet.getAttribute("entities"));
 
-                if (entityValues.some((entity) => (
-                    entity.data.name!.toLowerCase() === transaction.data.asset!.data.name.toLowerCase()
-                    && entity.type === transaction.data.asset!.type
-                    && entity.subType === transaction.data.asset!.subType
-                ))) {
+                if (
+                    entityValues.some(
+                        (entity) =>
+                            entity.data.name!.toLowerCase() === transaction.data.asset!.data.name.toLowerCase() &&
+                            entity.type === transaction.data.asset!.type &&
+                            entity.subType === transaction.data.asset!.subType,
+                    )
+                ) {
                     throw new EntityNameAlreadyRegisteredError();
                 }
             }
         }
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
-    }
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {}
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
@@ -80,7 +82,7 @@ export class EntityRegisterSubHandler {
             subType: transaction.data.asset.subType,
             data: { ...transaction.data.asset.data },
         };
-        
+
         wallet.setAttribute("entities", entities);
 
         walletRepository.index(wallet);
@@ -98,7 +100,7 @@ export class EntityRegisterSubHandler {
 
         const entities = wallet.getAttribute("entities", {});
         delete entities[transaction.id];
-        
+
         wallet.setAttribute("entities", entities);
 
         walletRepository.index(wallet);
