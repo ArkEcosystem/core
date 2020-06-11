@@ -273,19 +273,19 @@ describe("DatabaseService.initialize", () => {
 
         expect(transactionRepository.findByBlockIds).toBeCalledWith([block106data.id]);
 
-        expect(blockRepository.deleteBlocks).toBeCalledWith([block106data]);
+        expect(blockRepository.deleteBlocks).toBeCalledWith([block106data], crypto.CryptoManager);
         expect(transactionRepository.findByBlockIds).toBeCalledWith([block105data.id]);
 
-        expect(blockRepository.deleteBlocks).toBeCalledWith([block105data]);
+        expect(blockRepository.deleteBlocks).toBeCalledWith([block105data], crypto.CryptoManager);
         expect(transactionRepository.findByBlockIds).toBeCalledWith([block104data.id]);
 
-        expect(blockRepository.deleteBlocks).toBeCalledWith([block104data]);
+        expect(blockRepository.deleteBlocks).toBeCalledWith([block104data], crypto.CryptoManager);
         expect(transactionRepository.findByBlockIds).toBeCalledWith([block103data.id]);
 
-        expect(blockRepository.deleteBlocks).toBeCalledWith([block103data]);
+        expect(blockRepository.deleteBlocks).toBeCalledWith([block103data], crypto.CryptoManager);
         expect(transactionRepository.findByBlockIds).toBeCalledWith([block102data.id]);
 
-        expect(blockRepository.deleteBlocks).toBeCalledWith([block102data]);
+        expect(blockRepository.deleteBlocks).toBeCalledWith([block102data], crypto.CryptoManager);
         expect(transactionRepository.findByBlockIds).toBeCalledWith([block101data.id]);
 
         expect(app.terminate).toBeCalled();
@@ -670,7 +670,7 @@ describe("DatabaseService.getBlocks", () => {
         const result = await databaseService.getBlocks(100, 3);
 
         expect(stateStore.getLastBlocksByHeight).toBeCalledWith(100, 102, undefined);
-        expect(blockRepository.findByHeightRangeWithTransactions).toBeCalledWith(100, 102);
+        expect(blockRepository.findByHeightRangeWithTransactions).toBeCalledWith(100, 102, crypto.TransactionManager);
         expect(result).toEqual([block100, block101, block102]);
     });
 
@@ -704,7 +704,7 @@ describe("DatabaseService.getBlocksForDownload", () => {
 
         const result = await databaseService.getBlocksForDownload(100, 3);
 
-        expect(blockRepository.findByHeightRangeWithTransactions).toBeCalledWith(100, 102);
+        expect(blockRepository.findByHeightRangeWithTransactions).toBeCalledWith(100, 102, crypto.TransactionManager);
         expect(result).toEqual([block100, block101, block102]);
     });
 
