@@ -60,7 +60,7 @@
         "@types/babel__core": "^7.1.6",
         "@types/create-hash": "^1.2.2",
         "@types/depcheck": "^0.9.1",
-        "@types/jest": "^25.1.4",
+        "@types/jest": "^26.0.0",
         "@types/js-yaml": "^3.12.3",
         "@types/node": "^13.9.5",
         "@types/prettier": "^2.0.0",
