@@ -40,7 +40,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core/clover.xml
+                  file: .coverage/unit/core/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -75,7 +75,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-api/clover.xml
+                  file: .coverage/unit/core-api/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -110,7 +110,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-blockchain/clover.xml
+                  file: .coverage/unit/core-blockchain/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -145,7 +145,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-cli/clover.xml
+                  file: .coverage/unit/core-cli/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -180,7 +180,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-database/clover.xml
+                  file: .coverage/unit/core-database/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -215,7 +215,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-forger/clover.xml
+                  file: .coverage/unit/core-forger/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -250,7 +250,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-kernel/clover.xml
+                  file: .coverage/unit/core-kernel/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -285,7 +285,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-logger-pino/clover.xml
+                  file: .coverage/unit/core-logger-pino/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -320,7 +320,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-magistrate-api/clover.xml
+                  file: .coverage/unit/core-magistrate-api/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -355,7 +355,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-magistrate-crypto/clover.xml
+                  file: .coverage/unit/core-magistrate-crypto/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -390,7 +390,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-magistrate-transactions/clover.xml
+                  file: .coverage/unit/core-magistrate-transactions/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -425,7 +425,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-manager/clover.xml
+                  file: .coverage/unit/core-manager/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -460,7 +460,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-p2p/clover.xml
+                  file: .coverage/unit/core-p2p/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -495,7 +495,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-snapshots/clover.xml
+                  file: .coverage/unit/core-snapshots/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -530,7 +530,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-state/clover.xml
+                  file: .coverage/unit/core-state/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -565,7 +565,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-test-framework/clover.xml
+                  file: .coverage/unit/core-test-framework/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -600,7 +600,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-transaction-pool/clover.xml
+                  file: .coverage/unit/core-transaction-pool/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -635,7 +635,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-transactions/clover.xml
+                  file: .coverage/unit/core-transactions/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -670,7 +670,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/core-webhooks/clover.xml
+                  file: .coverage/unit/core-webhooks/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -705,6 +705,6 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/crypto/clover.xml
+                  file: .coverage/unit/crypto/lcov.info
                   flags: unit
                   fail_ci_if_error: true
