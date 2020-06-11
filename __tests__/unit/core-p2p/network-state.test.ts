@@ -1,22 +1,24 @@
-import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
-import { NetworkStateStatus } from "@arkecosystem/core-p2p/src/enums";
+import { Blocks, CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container } from "@arkecosystem/core-kernel";
+import { NetworkStateStatus } from "@arkecosystem/core-p2p/src/enums";
+import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
-import { Utils, Blocks } from "@arkecosystem/crypto";
 import { PeerVerificationResult } from "@arkecosystem/core-p2p/src/peer-verifier";
 
 describe("NetworkState", () => {
+    const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+
     const lastBlock = {
         data: {
             id: "17882607875259085966",
             version: 0,
             timestamp: 46583330,
             height: 8,
-            reward: Utils.BigNumber.make("0"),
+            reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
             previousBlock: "17184958558311101492",
             numberOfTransactions: 0,
-            totalAmount: Utils.BigNumber.make("0"),
-            totalFee: Utils.BigNumber.make("0"),
+            totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
+            totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
             payloadLength: 0,
             payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             generatorPublicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
@@ -28,6 +30,7 @@ describe("NetworkState", () => {
     const blockchainService = { getLastBlock: () => lastBlock };
     const appGet = {
         [Container.Identifiers.BlockchainService]: blockchainService,
+        [Container.Identifiers.CryptoManager]: crypto.CryptoManager,
     };
     const configuration = { getOptional: () => 2 }; // minimumNetworkReach
     const app = {
@@ -51,7 +54,7 @@ describe("NetworkState", () => {
             it("should call completeColdStart() and return ColdStart status", async () => {
                 networkMonitor.isColdStart = jest.fn().mockReturnValueOnce(true);
 
-                const networkState = await NetworkState.analyze(networkMonitor, peerStorage);
+                const networkState = await NetworkState.analyze(networkMonitor, peerStorage, crypto.CryptoManager);
                 expect(networkState.status).toBe(NetworkStateStatus.ColdStart);
                 expect(networkMonitor.completeColdStart).toBeCalledTimes(1);
             });
@@ -61,7 +64,7 @@ describe("NetworkState", () => {
             it("should return Test status", async () => {
                 process.env.CORE_ENV = "test";
 
-                const networkState = await NetworkState.analyze(networkMonitor, peerStorage);
+                const networkState = await NetworkState.analyze(networkMonitor, peerStorage, crypto.CryptoManager);
                 expect(networkState.status).toBe(NetworkStateStatus.Test);
 
                 delete process.env.CORE_ENV;
@@ -70,7 +73,7 @@ describe("NetworkState", () => {
 
         describe("when peers are below minimum network reach", () => {
             it("should return BelowMinimumPeers status", async () => {
-                const networkState = await NetworkState.analyze(networkMonitor, peerStorage);
+                const networkState = await NetworkState.analyze(networkMonitor, peerStorage, crypto.CryptoManager);
                 expect(networkState.status).toBe(NetworkStateStatus.BelowMinimumPeers);
             });
         });
@@ -95,7 +98,7 @@ describe("NetworkState", () => {
                 peer5.state = { header: {}, height: 6, forgingAllowed: false, currentSlot: 7 }; // below height, not forked
                 peers = [peer1, peer2, peer3, peer4, peer5];
 
-                const networkState = await NetworkState.analyze(networkMonitor, peerStorage);
+                const networkState = await NetworkState.analyze(networkMonitor, peerStorage, crypto.CryptoManager);
 
                 expect(networkState.getQuorum()).toBe(3 / 5); // 2 same-height + 1 below-height but not forked
 
@@ -106,20 +109,22 @@ describe("NetworkState", () => {
 
     describe("parse", () => {
         describe("when data or data.status is undefined", () => {
-            it.each([[undefined], [{}]])
-            ("should return NetworkStateStatus.Unknown", (data) => {
+            it.each([[undefined], [{}]])("should return NetworkStateStatus.Unknown", (data) => {
                 expect(NetworkState.parse(data)).toEqual(new NetworkState(NetworkStateStatus.Unknown));
-            })
-        })
+            });
+        });
 
         it.each([
             [NetworkStateStatus.Default, 5, "7aaf2d2dc30fdbe8808b010714fd429f893535f5a90aa2abdb0ca62aa7d35130"],
             [NetworkStateStatus.ColdStart, 144, "416d6ac21f279d9b79dde1fe59c6084628779a3a3cb5b4ea11fa4bf10295143b"],
-            [NetworkStateStatus.BelowMinimumPeers, 2, "1d582b5c84d5b72da8a25ca2bd95ccef1534c58823a01e0f698786a6fd0be4e6"],
+            [
+                NetworkStateStatus.BelowMinimumPeers,
+                2,
+                "1d582b5c84d5b72da8a25ca2bd95ccef1534c58823a01e0f698786a6fd0be4e6",
+            ],
             [NetworkStateStatus.Test, 533, "10024d739768a68b43a6e4124718129e1fe07b0461630b3f275b7640d298c3b7"],
             [NetworkStateStatus.Unknown, 5333, "d76512050d858417f71da1f84ca4896a78057c14ea1ecebf70830c7cc87cd49a"],
-        ])
-        ("should return the NetworkState corresponding to the data provided", (status, nodeHeight, lastBlockId) => {
+        ])("should return the NetworkState corresponding to the data provided", (status, nodeHeight, lastBlockId) => {
             const data = {
                 status,
                 nodeHeight,
@@ -133,14 +138,14 @@ describe("NetworkState", () => {
                     peersDifferentSlot: 0,
                     peersForgingNotAllowed: 1,
                 },
-            }
+            };
 
             const parsed = NetworkState.parse(data);
             for (const key of ["status", "nodeHeight", "lastBlockId"]) {
                 expect(data[key]).toEqual(parsed[key]);
             }
-        })
-    })
+        });
+    });
 
     describe("getQuorum", () => {
         it("should return 1 when NetworkStateStatus.Test", () => {
@@ -157,13 +162,13 @@ describe("NetworkState", () => {
                     peersDifferentSlot: 0,
                     peersForgingNotAllowed: 1,
                 },
-            }
+            };
 
             const parsed = NetworkState.parse(data);
 
             expect(parsed.getQuorum()).toBe(1);
-        })
-    })
+        });
+    });
 
     describe("toJson", () => {
         it("should return 1 when NetworkStateStatus.Test", () => {
@@ -180,13 +185,13 @@ describe("NetworkState", () => {
                     peersDifferentSlot: 0,
                     peersForgingNotAllowed: 1,
                 },
-            }
+            };
             const expectedJson = { ...data, quorum: 0.75 }; // 30 / (10+30)
             delete expectedJson.status;
 
             const parsed = NetworkState.parse(data);
 
             expect(JSON.parse(parsed.toJson())).toEqual(expectedJson);
-        })
-    })
+        });
+    });
 });

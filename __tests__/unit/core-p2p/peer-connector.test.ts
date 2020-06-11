@@ -1,13 +1,14 @@
 import "jest-extended";
 
-import { Container } from "@arkecosystem/core-kernel";
-
-import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
-import { Peer } from "../../../packages/core-p2p/src/peer";
+import { CryptoSuite } from "@packages/core-crypto";
+import { Container } from "@packages/core-kernel";
+import { Peer } from "@packages/core-p2p/src/peer";
+import { PeerConnector } from "@packages/core-p2p/src/peer-connector";
 
 import { NesClient } from "./mocks/nes";
 
 jest.mock("@hapi/nes", () => require("./mocks/nes"));
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 describe("PeerConnector", () => {
     let peerConnector: PeerConnector;
@@ -16,6 +17,8 @@ describe("PeerConnector", () => {
         const container = new Container.Container();
         container.unbindAll();
         container.bind(Container.Identifiers.PeerConnector).to(PeerConnector);
+
+        container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
 
         peerConnector = container.get<PeerConnector>(Container.Identifiers.PeerConnector);
     });

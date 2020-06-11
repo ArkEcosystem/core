@@ -1,13 +1,14 @@
 import { Container, Utils as KernelUtils } from "@arkecosystem/core-kernel";
-
-import { InternalController } from "@arkecosystem/core-p2p/src/socket-server/controllers/internal";
-import { Networks, Utils, Blocks } from "@arkecosystem/crypto";
-import { TransactionFactory } from "@arkecosystem/crypto/dist/transactions";
-import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p/src/enums";
+import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
+import { InternalController } from "@arkecosystem/core-p2p/src/socket-server/controllers/internal";
+import { Networks } from "@arkecosystem/crypto";
+import { Blocks, CryptoSuite } from "@packages/core-crypto";
 
 describe("InternalController", () => {
     let internalController: InternalController;
+
+    const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
     const container = new Container.Container();
 
@@ -23,6 +24,7 @@ describe("InternalController", () => {
         [Container.Identifiers.TransactionPoolCollator]: poolCollator,
         [Container.Identifiers.TransactionPoolService]: poolService,
         [Container.Identifiers.BlockchainService]: blockchain,
+        [Container.Identifiers.CryptoManager]: crypto.CryptoManager,
     };
     const app = {
         get: (key) => appGet[key],
@@ -36,6 +38,7 @@ describe("InternalController", () => {
         container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
+        container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
     });
 
     beforeEach(() => {
@@ -67,10 +70,10 @@ describe("InternalController", () => {
         it("should return the unconfirmed transactions from the pool", async () => {
             const poolSize = 330;
             const unconfirmedTxs = Networks.testnet.genesisBlock.transactions.map((tx) =>
-                TransactionFactory.fromData({
+                crypto.TransactionManager.TransactionFactory.fromData({
                     ...tx,
-                    amount: Utils.BigNumber.make(tx.amount),
-                    fee: Utils.BigNumber.make(1000000),
+                    amount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(tx.amount),
+                    fee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make(1000000),
                 }),
             );
             poolService.getPoolSize = jest.fn().mockReturnValueOnce(poolSize);
@@ -90,11 +93,11 @@ describe("InternalController", () => {
                 version: 0,
                 timestamp: 46583330,
                 height: 2,
-                reward: Utils.BigNumber.make("0"),
+                reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
                 previousBlock: "17184958558311101492",
                 numberOfTransactions: 0,
-                totalAmount: Utils.BigNumber.make("0"),
-                totalFee: Utils.BigNumber.make("0"),
+                totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
+                totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
                 payloadLength: 0,
                 payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                 generatorPublicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",

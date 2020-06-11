@@ -1,10 +1,12 @@
+import { CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container } from "@arkecosystem/core-kernel";
-
 import { DisconnectInvalidPeers, DisconnectPeer } from "@arkecosystem/core-p2p/src/listeners";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
 
 describe("DisconnectInvalidPeers", () => {
     let disconnectInvalidPeers: DisconnectInvalidPeers;
+
+    const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
     const container = new Container.Container();
 
@@ -23,6 +25,7 @@ describe("DisconnectInvalidPeers", () => {
         container.bind(Container.Identifiers.PeerStorage).toConstantValue(storage);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
         container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
+        container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
     });
 
     const peers = [

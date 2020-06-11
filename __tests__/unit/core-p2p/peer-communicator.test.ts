@@ -1,24 +1,24 @@
+import { Blocks, CryptoSuite } from "@arkecosystem/core-crypto";
 import { Container, Utils as KernelUtils } from "@arkecosystem/core-kernel";
-
-import { PeerCommunicator } from "@arkecosystem/core-p2p/src/peer-communicator";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
-import { Blocks, Managers, Utils, Transactions, Identities } from "@arkecosystem/crypto";
+import { constants } from "@arkecosystem/core-p2p/src/constants";
 import {
+    PeerPingTimeoutError,
     PeerStatusResponseError,
     PeerVerificationFailedError,
-    PeerPingTimeoutError,
 } from "@arkecosystem/core-p2p/src/errors";
-import delay from "delay";
+import { Peer } from "@arkecosystem/core-p2p/src/peer";
+import { PeerCommunicator } from "@arkecosystem/core-p2p/src/peer-communicator";
 import { PeerVerificationResult } from "@arkecosystem/core-p2p/src/peer-verifier";
 import { replySchemas } from "@arkecosystem/core-p2p/src/schemas";
-import { constants } from "@arkecosystem/core-p2p/src/constants";
-
-Managers.configManager.getMilestone().aip11 = true;
+import delay from "delay";
 
 const cloneObject = (obj) => JSON.parse(JSON.stringify(obj));
 
 describe("PeerCommunicator", () => {
     let peerCommunicator: PeerCommunicator;
+
+    const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+    crypto.CryptoManager.HeightTracker.setHeight(2);
 
     const container = new Container.Container();
 
@@ -38,6 +38,9 @@ describe("PeerCommunicator", () => {
         container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
         container.bind(Container.Identifiers.PeerConnector).toConstantValue(connector);
         container.bind(Container.Identifiers.PeerCommunicator).to(PeerCommunicator);
+        container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
+        container.bind(Container.Identifiers.TransactionManager).toConstantValue(crypto.TransactionManager);
+        container.bind(Container.Identifiers.BlockFactory).toConstantValue(crypto.BlockFactory);
 
         process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA = "true";
     });
@@ -58,11 +61,11 @@ describe("PeerCommunicator", () => {
                     version: 0,
                     timestamp: 46583330,
                     height: 2,
-                    reward: Utils.BigNumber.make("0"),
+                    reward: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
                     previousBlock: "17184958558311101492",
                     numberOfTransactions: 0,
-                    totalAmount: Utils.BigNumber.make("0"),
-                    totalFee: Utils.BigNumber.make("0"),
+                    totalAmount: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
+                    totalFee: crypto.CryptoManager.LibraryManager.Libraries.BigNumber.make("0"),
                     payloadLength: 0,
                     payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                     generatorPublicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
@@ -70,14 +73,14 @@ describe("PeerCommunicator", () => {
                         "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
                 },
                 transactions: [
-                    Transactions.BuilderFactory.transfer()
+                    crypto.TransactionManager.BuilderFactory.transfer()
                         .version(2)
                         .amount("100")
-                        .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+                        .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
                         .nonce("1")
                         .fee("100")
                         .sign("sender's secret")
-                        .build()
+                        .build(),
                 ],
             } as Blocks.Block;
             const payload = { block };
@@ -107,7 +110,7 @@ describe("PeerCommunicator", () => {
             config: {
                 network: {
                     name: "testnet",
-                    nethash: Managers.configManager.get("network.nethash"),
+                    nethash: crypto.CryptoManager.NetworkConfigManager.get("network.nethash"),
                     explorer: "explorer.ark.io",
                     token: {
                         name: "TARK",
@@ -123,7 +126,7 @@ describe("PeerCommunicator", () => {
                 currentSlot: 1,
                 header: {},
             },
-            headers: { height: 1 }
+            headers: { height: 1 },
         };
 
         it("should not call connector emit when peer.recentlyPinged() && !force", async () => {
@@ -165,26 +168,28 @@ describe("PeerCommunicator", () => {
         });
 
         describe("when !process.env.CORE_SKIP_PEER_STATE_VERIFICATION", () => {
-            it.each([[true], [false]])
-            ("should throw PeerVerificationFailedError when peer config is not validated", async (withWrongNethash) => {
-                const event = "p2p.peer.getStatus";
-                const peer = new Peer("187.168.65.65", 4000);
-                const pingResponse = cloneObject(baseGetStatusResponse);
+            it.each([[true], [false]])(
+                "should throw PeerVerificationFailedError when peer config is not validated",
+                async (withWrongNethash) => {
+                    const event = "p2p.peer.getStatus";
+                    const peer = new Peer("187.168.65.65", 4000);
+                    const pingResponse = cloneObject(baseGetStatusResponse);
 
-                if (withWrongNethash) {
-                    // tweaking the base nethash to make it invalid
-                    pingResponse.config.network.nethash = pingResponse.config.network.nethash.replace("a", "b");
-                } else {
-                    // tweaking the base version to make it invalid
-                    pingResponse.config.version = "3.0.0.0";
-                }
-                connector.emit = jest.fn().mockReturnValueOnce({ payload: pingResponse });
+                    if (withWrongNethash) {
+                        // tweaking the base nethash to make it invalid
+                        pingResponse.config.network.nethash = pingResponse.config.network.nethash.replace("a", "b");
+                    } else {
+                        // tweaking the base version to make it invalid
+                        pingResponse.config.version = "3.0.0.0";
+                    }
+                    connector.emit = jest.fn().mockReturnValueOnce({ payload: pingResponse });
 
-                await expect(peerCommunicator.ping(peer, 1000)).rejects.toThrow(PeerVerificationFailedError);
+                    await expect(peerCommunicator.ping(peer, 1000)).rejects.toThrow(PeerVerificationFailedError);
 
-                expect(connector.emit).toBeCalledTimes(1);
-                expect(connector.emit).toBeCalledWith(peer, event, {});
-            });
+                    expect(connector.emit).toBeCalledTimes(1);
+                    expect(connector.emit).toBeCalledWith(peer, event, {});
+                },
+            );
 
             it("should throw PeerPingTimeoutError when deadline is passed", async () => {
                 const event = "p2p.peer.getStatus";
@@ -266,7 +271,7 @@ describe("PeerCommunicator", () => {
             };
             jest.spyOn(KernelUtils.http, "get")
                 .mockResolvedValueOnce({
-                    data: { data: { nethash: Managers.configManager.get("network.nethash") } },
+                    data: { data: { nethash: crypto.CryptoManager.NetworkConfigManager.get("network.nethash") } },
                     statusCode: 200,
                 } as any)
                 .mockResolvedValueOnce({ data: {}, statusCode: 200 } as any);
@@ -296,12 +301,14 @@ describe("PeerCommunicator", () => {
 
             await peerCommunicator.pingPorts(peer);
 
-            expect(peer.ports["core-api"]).toBeUndefined()
+            expect(peer.ports["core-api"]).toBeUndefined();
             expect(peer.ports["custom-plugin"]).toBeUndefined;
             expect(logger.warning).toBeCalledTimes(1);
-            expect(logger.warning).toBeCalledWith(`Disconnecting from ${ip}:${apiPort}: nethash mismatch: our=${
-                Managers.configManager.get("network.nethash")
-            }, his=${wrongNethash}.`);
+            expect(logger.warning).toBeCalledWith(
+                `Disconnecting from ${ip}:${apiPort}: nethash mismatch: our=${crypto.CryptoManager.NetworkConfigManager.get(
+                    "network.nethash",
+                )}, his=${wrongNethash}.`,
+            );
             expect(emitter.dispatch).toBeCalledTimes(1);
             expect(emitter.dispatch).toBeCalledWith("internal.p2p.disconnectPeer", { peer });
         });
@@ -355,13 +362,14 @@ describe("PeerCommunicator", () => {
             expect(connector.emit).toBeCalledWith(peer, event, payload);
             expect(getPeersResult1).toEqual(mockConnectorResponse.payload);
             expect(getPeersResult2).toEqual(mockConnectorResponse.payload);
-            expect(logger.debug).toBeCalledWith(`Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`)
+            expect(logger.debug).toBeCalledWith(
+                `Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`,
+            );
 
             connector.emit = jest.fn();
         });
 
-        it.each([[true], [false]])
-        ("should return undefined when emit fails", async (throwErrorInstance) => {
+        it.each([[true], [false]])("should return undefined when emit fails", async (throwErrorInstance) => {
             const event = "p2p.peer.getPeers";
             const payload = {};
             const peer = new Peer("187.168.65.65", 4000);
@@ -436,22 +444,22 @@ describe("PeerCommunicator", () => {
             payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             generatorPublicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
             blockSignature:
-                    "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
+                "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
             transactions: [
-                Transactions.Serializer.serialize(Transactions.BuilderFactory.transfer()
-                    .version(2)
-                    .amount("100")
-                    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
-                    .nonce("1")
-                    .fee("100")
-                    .sign("sender's secret")
-                    .build()
-                ).toString("hex")
+                crypto.TransactionManager.TransactionTools.Serializer.serialize(
+                    crypto.TransactionManager.BuilderFactory.transfer()
+                        .version(2)
+                        .amount("100")
+                        .recipientId(crypto.CryptoManager.Identities.Address.fromPassphrase("recipient's secret"))
+                        .nonce("1")
+                        .fee("100")
+                        .sign("sender's secret")
+                        .build(),
+                ).toString("hex"),
             ],
         };
 
-        it.each([[true], [false]])
-        ("should use connector to emit p2p.peer.getBlocks", async (withTransactions) => {
+        it.each([[true], [false]])("should use connector to emit p2p.peer.getBlocks", async (withTransactions) => {
             const event = "p2p.peer.getBlocks";
             const options = {
                 fromBlockHeight: 1,
@@ -500,7 +508,9 @@ describe("PeerCommunicator", () => {
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event, expectedEmitPayload);
             expect(getPeerBlocksResult).toEqual([]);
-            expect(logger.debug).toBeCalledWith(`Peer ${peer.ip} did not return any blocks via height ${options.fromBlockHeight}.`);
+            expect(logger.debug).toBeCalledWith(
+                `Peer ${peer.ip} did not return any blocks via height ${options.fromBlockHeight}.`,
+            );
         });
     });
 });

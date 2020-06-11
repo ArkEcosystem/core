@@ -1,8 +1,10 @@
 import "jest-extended";
 
-import { isValidVersion } from "@arkecosystem/core-p2p/src/utils/is-valid-version";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
-import { Managers } from "@arkecosystem/crypto";
+import { isValidVersion } from "@arkecosystem/core-p2p/src/utils/is-valid-version";
+import { CryptoSuite } from "@packages/core-crypto";
+
+const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
 
 let peerMock: Peer;
 const app = {
@@ -15,31 +17,30 @@ beforeEach(async () => {
 });
 
 describe.each([[true], [false]])("isValidVersion", (withMilestones) => {
-    let spyGetMilestone = jest.spyOn(Managers.configManager, "getMilestone");
+    let spyGetMilestone = jest.spyOn(crypto.CryptoManager.MilestoneManager, "getMilestone");
     beforeEach(() => {
         if (withMilestones) {
-            spyGetMilestone = jest.spyOn(Managers.configManager, "getMilestone").mockReturnValue({
+            spyGetMilestone = jest.spyOn(crypto.CryptoManager.MilestoneManager, "getMilestone").mockReturnValue({
                 p2p: {
-                    minimumVersions: ["^2.6.0"]
-                }
+                    minimumVersions: ["^2.6.0"],
+                },
             });
         }
-    })
+    });
     afterEach(() => {
         spyGetMilestone.mockRestore();
-    })
-    
+    });
+
     it.each([["2.6.0"], ["2.6.666"], ["2.7.0"], ["2.8.0"], ["2.9.0"], ["2.9.934"]])(
         "should be a valid version",
         (version) => {
             peerMock.version = version;
-            expect(isValidVersion(app, peerMock)).toBeTrue();
+            expect(isValidVersion(app, peerMock, crypto.CryptoManager)).toBeTrue();
         },
     );
 
     it.each([
-        [undefined]
-        ["2.4.0"],
+        [undefined]["2.4.0"],
         ["2.5.0"],
         ["1.0.0"],
         ["---aaa"],
@@ -52,6 +53,6 @@ describe.each([[true], [false]])("isValidVersion", (withMilestones) => {
         ["2.0.0.0"],
     ])("should be an invalid version", (version: any) => {
         peerMock.version = version;
-        expect(isValidVersion(app, peerMock)).toBeFalse();
+        expect(isValidVersion(app, peerMock, crypto.CryptoManager)).toBeFalse();
     });
 });

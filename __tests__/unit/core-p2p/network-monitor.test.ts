@@ -1,15 +1,17 @@
-import { Container, Utils, Enums } from "@arkecosystem/core-kernel";
-
-import delay from "delay";
+import { Blocks, CryptoSuite } from "@arkecosystem/core-crypto";
+import { Container, Enums, Utils } from "@arkecosystem/core-kernel";
 import { NetworkMonitor } from "@arkecosystem/core-p2p/src/network-monitor";
-import path from "path";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
+import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { PeerVerificationResult } from "@arkecosystem/core-p2p/src/peer-verifier";
-import { Blocks } from "@arkecosystem/crypto";
+import delay from "delay";
+import path from "path";
 
 describe("NetworkMonitor", () => {
     let networkMonitor: NetworkMonitor;
+
+    const crypto = new CryptoSuite.CryptoSuite(CryptoSuite.CryptoManager.findNetworkByName("testnet"));
+    crypto.CryptoManager.HeightTracker.setHeight(2);
 
     const container = new Container.Container();
 
@@ -44,6 +46,7 @@ describe("NetworkMonitor", () => {
         [Container.Identifiers.TriggerService]: triggerService,
         [Container.Identifiers.StateStore]: stateStore,
         [Container.Identifiers.BlockchainService]: blockchain,
+        [Container.Identifiers.CryptoManager]: crypto.CryptoManager,
     };
     const appConfigPeers = {
         list: [],
@@ -67,6 +70,7 @@ describe("NetworkMonitor", () => {
         container.bind(Container.Identifiers.PeerStorage).toConstantValue(storage);
         container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(pluginConfiguration);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
+        container.bind(Container.Identifiers.CryptoManager).toConstantValue(crypto.CryptoManager);
     });
 
     beforeEach(() => {
@@ -79,14 +83,14 @@ describe("NetworkMonitor", () => {
     describe.each([[true], [false]])("boot", (dnsAndNtpFail) => {
         beforeEach(() => {
             if (dnsAndNtpFail) {
-                config.ntp = ["nontp.notworking.com"]
-                config.dns = ["nodns.notworking.com"]
+                config.ntp = ["nontp.notworking.com"];
+                config.dns = ["nodns.notworking.com"];
             }
-        })
+        });
         afterEach(() => {
             config.dns = ["1.1.1.1"];
             config.ntp = ["time.google.com"];
-        })
+        });
 
         describe("when peer discovery is disabled", () => {
             beforeEach(() => {
@@ -269,9 +273,9 @@ describe("NetworkMonitor", () => {
             it("should fall back to seed peers when after discovering we are below minimum peers", async () => {
                 config.minimumNetworkReach = 5;
                 storage.getPeers.mockReturnValue([]);
-    
+
                 await networkMonitor.updateNetworkStatus();
-    
+
                 expect(logger.info).toBeCalledWith("Couldn't find enough peers. Falling back to seed peers.");
             });
 
@@ -279,21 +283,22 @@ describe("NetworkMonitor", () => {
                 config.minimumNetworkReach = 5;
                 config.ignoreMinimumNetworkReach = true;
                 storage.getPeers.mockReturnValue([]);
-    
+
                 await networkMonitor.updateNetworkStatus();
-    
+
                 expect(logger.info).not.toBeCalledWith("Couldn't find enough peers. Falling back to seed peers.");
             });
-        })
-        
+        });
 
         it("should schedule the next updateNetworkStatus only once", async () => {
             storage.getPeers.mockReturnValue([]);
 
             let sleeping = true;
             const mockSleep = async () => {
-                while(sleeping) { await delay(10) }
-            }
+                while (sleeping) {
+                    await delay(10);
+                }
+            };
             const spySleep = jest.spyOn(Utils, "sleep").mockImplementationOnce(mockSleep);
             await networkMonitor.updateNetworkStatus();
 
@@ -430,7 +435,7 @@ describe("NetworkMonitor", () => {
             networkMonitor.completeColdStart();
             expect(networkMonitor.isColdStart()).toBeFalse();
         });
-    })
+    });
 
     describe("getNetworkHeight", () => {
         it.each([
@@ -461,6 +466,7 @@ describe("NetworkMonitor", () => {
             storage.getPeers = jest.fn();
         });
 
+        // @ts-ignore
         const block = {
             data: {
                 id: "17882607875259085966",
@@ -640,7 +646,9 @@ describe("NetworkMonitor", () => {
 
             expect(await networkMonitor.downloadBlocksFromHeight(1, maxParallelDownloads)).toEqual([]);
             expect(logger.error).toBeCalledTimes(1);
-            expect(logger.error).toBeCalledWith("Could not download blocks: We have 1 peer(s) but all of them are on a different chain than us");
+            expect(logger.error).toBeCalledWith(
+                "Could not download blocks: We have 1 peer(s) but all of them are on a different chain than us",
+            );
         });
 
         it("should download blocks from 1 peer", async () => {
@@ -781,9 +789,9 @@ describe("NetworkMonitor", () => {
             storage.getPeers = jest.fn().mockReturnValue(peers);
 
             const chunksToDownload = 2;
-            let fromHeight = baseHeight - 1 - chunksToDownload * downloadChunkSize;
+            const fromHeight = baseHeight - 1 - chunksToDownload * downloadChunkSize;
 
-            let downloadedBlocks = await networkMonitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
+            const downloadedBlocks = await networkMonitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
 
             expect(downloadedBlocks).toEqual([]);
         });
@@ -803,6 +811,7 @@ describe("NetworkMonitor", () => {
     });
 
     describe("broadcastBlock", () => {
+        // @ts-ignore
         const block = {
             data: {
                 id: "17882607875259085966",
@@ -822,6 +831,7 @@ describe("NetworkMonitor", () => {
             },
             transactions: [],
         } as Blocks.Block;
+
         const peers = [
             new Peer("180.177.54.4", 4000),
             new Peer("181.177.54.4", 4000),
