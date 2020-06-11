@@ -65,7 +65,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/core-database/clover.xml
+                  file: .coverage/functional/core-database/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -121,7 +121,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/bridgechain-registration/clover.xml
+                  file: .coverage/functional/transaction-forging/bridgechain-registration/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -177,7 +177,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/bridgechain-resignation/clover.xml
+                  file: .coverage/functional/transaction-forging/bridgechain-resignation/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -233,7 +233,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/bridgechain-update/clover.xml
+                  file: .coverage/functional/transaction-forging/bridgechain-update/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -289,7 +289,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/business-registration/clover.xml
+                  file: .coverage/functional/transaction-forging/business-registration/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -345,7 +345,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/business-resignation/clover.xml
+                  file: .coverage/functional/transaction-forging/business-resignation/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -401,7 +401,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/business-update/clover.xml
+                  file: .coverage/functional/transaction-forging/business-update/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -457,7 +457,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/delegate-registration/clover.xml
+                  file: .coverage/functional/transaction-forging/delegate-registration/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -513,7 +513,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/delegate-resignation/clover.xml
+                  file: .coverage/functional/transaction-forging/delegate-resignation/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -569,7 +569,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/htlc-claim/clover.xml
+                  file: .coverage/functional/transaction-forging/htlc-claim/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -625,7 +625,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/htlc-lock/clover.xml
+                  file: .coverage/functional/transaction-forging/htlc-lock/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -681,7 +681,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/htlc-refund/clover.xml
+                  file: .coverage/functional/transaction-forging/htlc-refund/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -737,7 +737,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/ipfs/clover.xml
+                  file: .coverage/functional/transaction-forging/ipfs/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -793,7 +793,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/multi-payment/clover.xml
+                  file: .coverage/functional/transaction-forging/multi-payment/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -849,7 +849,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/multi-signature-registration/clover.xml
+                  file: .coverage/functional/transaction-forging/multi-signature-registration/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -905,7 +905,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/second-signature-registration/clover.xml
+                  file: .coverage/functional/transaction-forging/second-signature-registration/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -961,7 +961,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/transfer/clover.xml
+                  file: .coverage/functional/transaction-forging/transfer/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -1017,7 +1017,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/vote/clover.xml
+                  file: .coverage/functional/transaction-forging/vote/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -1073,7 +1073,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/entity-register/clover.xml
+                  file: .coverage/functional/transaction-forging/entity-register/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -1129,7 +1129,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/entity-resign/clover.xml
+                  file: .coverage/functional/transaction-forging/entity-resign/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -1185,6 +1185,6 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/transaction-forging/entity-update/clover.xml
+                  file: .coverage/functional/transaction-forging/entity-update/lcov.info
                   flags: functional
                   fail_ci_if_error: true
