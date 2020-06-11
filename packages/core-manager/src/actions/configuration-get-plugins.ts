@@ -16,6 +16,6 @@ export class Action implements Actions.Action {
     }
 
     public async getPluginFile(): Promise<string> {
-        return (await this.filesystem.get(this.app.configPath("plugins.js"))).toString();
+        return (await this.filesystem.get(this.app.configPath("app.json"))).toString();
     }
 }
