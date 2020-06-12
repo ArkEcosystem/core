@@ -26,9 +26,24 @@ export class Processor implements Contracts.TransactionPool.Processor {
     public errors?: { [id: string]: Contracts.TransactionPool.ProcessorError };
 
     public async process(data: Interfaces.ITransactionData[]): Promise<void> {
+        const promises = data.map(async (d) => {
+            AppUtils.assert.defined<string>(d.id);
+            try {
+                return await this.getTransactionFromData(d);
+            } catch (error) {
+                this.logger.warning(`${d.id} failed to deserialize: ${error.message}`);
+                this.invalid.push(d.id);
+                if (!this.errors) this.errors = {};
+                this.errors[d.id] = {
+                    type: "ERR_DESERIALIZE",
+                    message: error.message,
+                };
+                return null;
+            }
+        });
+        const results = await Promise.all(promises);
+        const transactions = results.filter((t) => !!t) as Interfaces.ITransaction[];
         const broadcastableTransactions: Interfaces.ITransaction[] = [];
-        const promises = data.map((d) => this.getTransactionFromData(d));
-        const transactions = await Promise.all(promises);
 
         try {
             for (const transaction of transactions) {
