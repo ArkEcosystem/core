@@ -47,21 +47,26 @@ export class WalletsController extends Controller {
             return notFound("Wallet not found");
         }
 
+        const criteria: Contracts.Shared.TransactionCriteria = { ...request.query, address: wallet.address };
+        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
+        const page: Contracts.Search.ListPage = this.getListingPage(request);
+        const options: Contracts.Search.ListOptions = this.getListingOptions();
+
         if (request.query.transform) {
             const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
-                { ...request.query, address: wallet.address },
-                this.getListingOrder(request),
-                this.getListingPage(request),
-                this.getListingOptions(),
+                criteria,
+                order,
+                page,
+                options,
             );
 
             return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
         } else {
             const transactionListResult = await this.transactionHistoryService.listByCriteria(
-                { ...request.query, address: wallet.address },
-                this.getListingOrder(request),
-                this.getListingPage(request),
-                this.getListingOptions(),
+                criteria,
+                order,
+                page,
+                options,
             );
 
             return this.toPagination(transactionListResult, TransactionResource, false);
@@ -77,15 +82,30 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        const criteria = { ...request.query, senderPublicKey: wallet.publicKey };
-        const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            criteria,
-            this.getListingOrder(request),
-            this.getListingPage(request),
-            this.getListingOptions(),
-        );
+        const criteria: Contracts.Shared.TransactionCriteria = { ...request.query, senderPublicKey: wallet.publicKey };
+        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
+        const page: Contracts.Search.ListPage = this.getListingPage(request);
+        const options: Contracts.Search.ListOptions = this.getListingOptions();
 
-        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
+        if (request.query.transform) {
+            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
+                criteria,
+                order,
+                page,
+                options,
+            );
+
+            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
+        } else {
+            const transactionListResult = await this.transactionHistoryService.listByCriteria(
+                criteria,
+                order,
+                page,
+                options,
+            );
+
+            return this.toPagination(transactionListResult, TransactionResource, false);
+        }
     }
 
     public async transactionsReceived(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -94,15 +114,30 @@ export class WalletsController extends Controller {
             return notFound("Wallet not found");
         }
 
-        const criteria = { ...request.query, recipientId: wallet.address };
-        const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            criteria,
-            this.getListingOrder(request),
-            this.getListingPage(request),
-            this.getListingOptions(),
-        );
+        const criteria: Contracts.Shared.TransactionCriteria = { ...request.query, recipientId: wallet.address };
+        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
+        const page: Contracts.Search.ListPage = this.getListingPage(request);
+        const options: Contracts.Search.ListOptions = this.getListingOptions();
 
-        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
+        if (request.query.transform) {
+            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
+                criteria,
+                order,
+                page,
+                options,
+            );
+
+            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
+        } else {
+            const transactionListResult = await this.transactionHistoryService.listByCriteria(
+                criteria,
+                order,
+                page,
+                options,
+            );
+
+            return this.toPagination(transactionListResult, TransactionResource, false);
+        }
     }
 
     public async votes(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -114,21 +149,35 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
         }
 
-        const criteria = {
+        const criteria: Contracts.Shared.TransactionCriteria = {
             ...request.query,
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
             senderPublicKey: wallet.publicKey,
         };
+        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
+        const page: Contracts.Search.ListPage = this.getListingPage(request);
+        const options: Contracts.Search.ListOptions = this.getListingOptions();
 
-        const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            criteria,
-            this.getListingOrder(request),
-            this.getListingPage(request),
-            this.getListingOptions(),
-        );
+        if (request.query.transform) {
+            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
+                criteria,
+                order,
+                page,
+                options,
+            );
 
-        return this.toPagination(transactionListResult, TransactionResource);
+            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
+        } else {
+            const transactionListResult = await this.transactionHistoryService.listByCriteria(
+                criteria,
+                order,
+                page,
+                options,
+            );
+
+            return this.toPagination(transactionListResult, TransactionResource, false);
+        }
     }
 
     public async locks(request: Hapi.Request, h: Hapi.ResponseToolkit) {
