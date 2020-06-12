@@ -35,7 +35,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
                 this.invalid.push(d.id);
                 if (!this.errors) this.errors = {};
                 this.errors[d.id] = {
-                    type: "ERR_DESERIALIZE",
+                    type: "ERR_INVALID",
                     message: error.message,
                 };
                 return null;
