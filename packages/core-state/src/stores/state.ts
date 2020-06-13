@@ -14,6 +14,9 @@ export class StateStore implements Contracts.State.StateStore {
     @Container.tagged("plugin", "@arkecosystem/core-state")
     private readonly configuration!: Providers.PluginConfiguration;
 
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};
     public genesisBlock: Interfaces.IBlock | undefined = undefined;
@@ -109,6 +112,7 @@ export class StateStore implements Contracts.State.StateStore {
         Managers.configManager.setHeight(block.data.height);
 
         if (Managers.configManager.isNewMilestone()) {
+            this.logger.notice("Milestone change");
             this.app
                 .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
                 .dispatch(Enums.CryptoEvent.MilestoneChanged);
