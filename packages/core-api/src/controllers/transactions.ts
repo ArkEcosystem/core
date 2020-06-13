@@ -4,7 +4,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { TransactionResource } from "../resources";
+import { TransactionResource, TransactionWithBlockResource } from "../resources";
 import { Controller } from "./controller";
 
 @Container.injectable()
@@ -26,14 +26,29 @@ export class TransactionsController extends Controller {
     private readonly createProcessor!: Contracts.TransactionPool.ProcessorFactory;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            request.query,
-            this.getListingOrder(request),
-            this.getListingPage(request),
-            this.getListingOptions(),
-        );
+        const criteria: Contracts.Shared.TransactionCriteria = request.query;
+        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
+        const page: Contracts.Search.ListPage = this.getListingPage(request);
+        const options: Contracts.Search.ListOptions = this.getListingOptions();
 
-        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
+        if (request.query.transform) {
+            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
+                criteria,
+                order,
+                page,
+                options,
+            );
+
+            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
+        } else {
+            const transactionListResult = await this.transactionHistoryService.listByCriteria(
+                criteria,
+                order,
+                page,
+                options,
+            );
+            return this.toPagination(transactionListResult, TransactionResource, false);
+        }
     }
 
     public async store(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -86,14 +101,29 @@ export class TransactionsController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            request.payload,
-            this.getListingOrder(request),
-            this.getListingPage(request),
-            this.getListingOptions(),
-        );
+        const criteria: Contracts.Shared.TransactionCriteria = request.payload;
+        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
+        const page: Contracts.Search.ListPage = this.getListingPage(request);
+        const options: Contracts.Search.ListOptions = this.getListingOptions();
 
-        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
+        if (request.query.transform) {
+            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
+                criteria,
+                order,
+                page,
+                options,
+            );
+
+            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
+        } else {
+            const transactionListResult = await this.transactionHistoryService.listByCriteria(
+                criteria,
+                order,
+                page,
+                options,
+            );
+            return this.toPagination(transactionListResult, TransactionResource, false);
+        }
     }
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
