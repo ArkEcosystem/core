@@ -27,6 +27,14 @@ export class Server {
 
     /**
      * @private
+     * @type {Contracts.Kernel.Logger}
+     * @memberof Server
+     */
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    /**
+     * @private
      * @type {HapiServer}
      * @memberof Server
      */
@@ -55,13 +63,16 @@ export class Server {
             },
         });
 
-        this.server.ext({
-            type: "onPreHandler",
-            async method(request, h) {
-                request.headers["content-type"] = "application/json";
+        this.server.ext("onPreHandler", (request, h) => {
+            request.headers["content-type"] = "application/json";
+            return h.continue;
+        });
 
-                return h.continue;
-            },
+        this.server.ext("onPreResponse", (request, h) => {
+            if (request.response.isBoom && request.response.isServer) {
+                this.logger.error(request.response.stack);
+            }
+            return h.continue;
         });
 
         this.server.route({
