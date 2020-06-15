@@ -100,7 +100,6 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
             throw new Contracts.TransactionPool.PoolError(
                 `Sender ${transaction.data.senderPublicKey} already has a transaction of type '${Enums.TransactionType.MultiSignature}' in the pool`,
                 "ERR_PENDING",
-                transaction,
             );
         }
     }

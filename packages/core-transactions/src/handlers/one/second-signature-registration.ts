@@ -63,7 +63,6 @@ export class SecondSignatureRegistrationTransactionHandler extends TransactionHa
             throw new Contracts.TransactionPool.PoolError(
                 `Sender ${transaction.data.senderPublicKey} already has a transaction of type '${Enums.TransactionType.SecondSignature}' in the pool`,
                 "ERR_PENDING",
-                transaction,
             );
         }
     }

@@ -93,7 +93,6 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             throw new Contracts.TransactionPool.PoolError(
                 `Sender ${transaction.data.senderPublicKey} already has a transaction of type '${Enums.TransactionType.DelegateRegistration}' in the pool`,
                 "ERR_PENDING",
-                transaction,
             );
         }
 
@@ -109,7 +108,6 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             throw new Contracts.TransactionPool.PoolError(
                 `Delegate registration for "${username}" already in the pool`,
                 "ERR_PENDING",
-                transaction,
             );
         }
     }

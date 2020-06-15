@@ -67,6 +67,7 @@ export class Service implements Contracts.TransactionPool.Service {
                 this.emitter.dispatch(Enums.TransactionEvent.AddedToPool, transaction.data);
             } catch (error) {
                 this.storage.removeTransaction(transaction.id);
+                this.logger.warning(`${transaction} failed to enter pool: ${error.message}`);
                 this.emitter.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
                 throw error;
             }

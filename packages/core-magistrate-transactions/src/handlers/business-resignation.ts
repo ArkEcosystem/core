@@ -67,11 +67,7 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
             .has();
 
         if (hasSender) {
-            throw new Contracts.TransactionPool.PoolError(
-                `Business resignation already in the pool`,
-                "ERR_PENDING",
-                transaction,
-            );
+            throw new Contracts.TransactionPool.PoolError(`Business resignation already in the pool`, "ERR_PENDING");
         }
     }
 

@@ -33,7 +33,6 @@ test("RetryTransactionError", () => {
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_RETRY");
-    expect(error.transaction).toBe(transaction);
     expect(error.message).toBe(`${transaction} cannot be added to pool, please retry`);
 });
 
@@ -42,7 +41,6 @@ test("TransactionAlreadyInPoolError", () => {
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_DUPLICATE");
-    expect(error.transaction).toBe(transaction);
     expect(error.message).toBe(`${transaction} is already in pool`);
 });
 
@@ -51,7 +49,6 @@ test("TransactionExceedsMaximumByteSizeError", () => {
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_TOO_LARGE");
-    expect(error.transaction).toBe(transaction);
     expect(error.message).toBe(`${transaction} exceeds size limit of 1024 bytes`);
 });
 
@@ -60,7 +57,6 @@ test("TransactionHasExpiredError", () => {
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_EXPIRED");
-    expect(error.transaction).toBe(transaction);
     expect(error.message).toBe(`${transaction} expired at height 100`);
 });
 
@@ -69,7 +65,6 @@ test("TransactionFeeToLowError", () => {
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_LOW_FEE");
-    expect(error.transaction).toBe(transaction);
     expect(error.message).toBe(`${transaction} fee is to low to enter the pool`);
 });
 
@@ -78,7 +73,6 @@ test("SenderExceededMaximumTransactionCountError", () => {
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_EXCEEDS_MAX_COUNT");
-    expect(error.transaction).toBe(transaction);
     expect(error.message).toBe(`${transaction} exceeds sender's 1 transaction count limit`);
 });
 
@@ -87,7 +81,6 @@ test("TransactionPoolFullError", () => {
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_POOL_FULL");
-    expect(error.transaction).toBe(transaction);
     expect(error.message).toBe(`${transaction} fee 0.000009 DѦ is lower than 0.00001 DѦ already in pool`);
 });
 
@@ -96,7 +89,6 @@ test("TransactionFailedToApplyError", () => {
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_APPLY");
-    expect(error.transaction).toBe(transaction);
     expect(error.message).toBe(`${transaction} cannot be applied: Something went horribly wrong`);
 });
 
@@ -105,7 +97,6 @@ test("TransactionFailedToVerifyError", () => {
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_BAD_DATA");
-    expect(error.transaction).toBe(transaction);
     expect(error.message).toBe(`${transaction} didn't passed verification`);
 });
 
@@ -114,7 +105,6 @@ test("TransactionFromFutureError", () => {
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_FROM_FUTURE");
-    expect(error.transaction).toBe(transaction);
     expect(error.message).toBe(`${transaction} is 1 second in future`);
 });
 
@@ -123,6 +113,5 @@ test("TransactionFromWrongNetworkError", () => {
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_WRONG_NETWORK");
-    expect(error.transaction).toBe(transaction);
     expect(error.message).toBe(`${transaction} network 30 doesn't match node's network 23`);
 });

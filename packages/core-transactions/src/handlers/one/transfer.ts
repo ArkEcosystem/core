@@ -47,7 +47,6 @@ export class TransferTransactionHandler extends TransactionHandler {
             throw new Contracts.TransactionPool.PoolError(
                 `Recipient ${recipientId} is not on the same network: ${network} `,
                 "ERR_INVALID_RECIPIENT",
-                transaction,
             );
         }
     }

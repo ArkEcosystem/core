@@ -83,7 +83,6 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             throw new Contracts.TransactionPool.PoolError(
                 `Delegate resignation for "${wallet.getAttribute("delegate.username")}" already in the pool`,
                 "ERR_PENDING",
-                transaction,
             );
         }
     }

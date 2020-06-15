@@ -1,9 +1,13 @@
 import "jest-extended";
 
-import { Container, Contracts } from "@packages/core-kernel";
-import { DynamicFeeMatcher } from "@packages/core-transaction-pool/src/dynamic-fee-matcher";
-import { TransactionFeeToHighError, TransactionFeeToLowError } from "@packages/core-transaction-pool/src/errors";
-import { Interfaces, Utils } from "@packages/crypto";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
+
+import { DynamicFeeMatcher } from "../../../packages/core-transaction-pool/src/dynamic-fee-matcher";
+import {
+    TransactionFeeToHighError,
+    TransactionFeeToLowError,
+} from "../../../packages/core-transaction-pool/src/errors";
 
 const handler = { dynamicFee: jest.fn() };
 const configuration = { getRequired: jest.fn() };

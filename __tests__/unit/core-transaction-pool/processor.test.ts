@@ -1,7 +1,8 @@
-import { Container, Contracts } from "@packages/core-kernel";
-import { TransactionFeeToLowError } from "@packages/core-transaction-pool/src/errors";
-import { Processor } from "@packages/core-transaction-pool/src/processor";
-import { Identities, Managers, Transactions } from "@packages/crypto";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
+
+import { TransactionFeeToLowError } from "../../../packages/core-transaction-pool/src/errors";
+import { Processor } from "../../../packages/core-transaction-pool/src/processor";
 
 Managers.configManager.getMilestone().aip11 = true;
 const transaction1 = Transactions.BuilderFactory.transfer()
@@ -19,21 +20,18 @@ const transaction2 = Transactions.BuilderFactory.transfer()
     .sign("sender's secret")
     .build();
 
-const logger = { warning: jest.fn(), error: jest.fn() };
 const pool = { addTransaction: jest.fn() };
 const dynamicFeeMatcher = { throwIfCannotEnterPool: jest.fn(), throwIfCannotBroadcast: jest.fn() };
 const transactionBroadcaster = { broadcastTransactions: jest.fn() };
 const workerPool = { isTypeGroupSupported: jest.fn(), getTransactionFromData: jest.fn() };
 
 const container = new Container.Container();
-container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(pool);
 container.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).toConstantValue(dynamicFeeMatcher);
 container.bind(Container.Identifiers.PeerTransactionBroadcaster).toConstantValue(transactionBroadcaster);
 container.bind(Container.Identifiers.TransactionPoolWorkerPool).toConstantValue(workerPool);
 
 beforeEach(() => {
-    logger.warning.mockReset();
     pool.addTransaction.mockReset();
     dynamicFeeMatcher.throwIfCannotEnterPool.mockReset();
     dynamicFeeMatcher.throwIfCannotBroadcast.mockReset();
@@ -143,7 +141,7 @@ describe("Processor.process", () => {
     });
 
     it("should track excess transactions", async () => {
-        const exceedsError = new Contracts.TransactionPool.PoolError("Exceeds", "ERR_EXCEEDS_MAX_COUNT", transaction1);
+        const exceedsError = new Contracts.TransactionPool.PoolError("Exceeds", "ERR_EXCEEDS_MAX_COUNT");
 
         workerPool.isTypeGroupSupported.mockReturnValue(false);
         pool.addTransaction.mockRejectedValueOnce(exceedsError);
