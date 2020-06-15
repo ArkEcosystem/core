@@ -154,26 +154,32 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         this.logger.info(`Checking ${max} peers`);
         const peerErrors = {};
-        await Promise.all(
-            peers.map(async peer => {
-                try {
-                    await this.communicator.ping(peer, pingDelay, forcePing);
-                } catch (error) {
-                    unresponsivePeers++;
 
-                    if (peerErrors[error]) {
-                        peerErrors[error].push(peer);
-                    } else {
-                        peerErrors[error] = [peer];
+        // we use Promise.race to cut loose in case some communicator.ping() does not resolve within the delay
+        // in that case we want to keep on with our program execution while ping promises can finish in the background
+        await Promise.race([
+            Promise.all(
+                peers.map(async peer => {
+                    try {
+                        await this.communicator.ping(peer, pingDelay, forcePing);
+                    } catch (error) {
+                        unresponsivePeers++;
+
+                        if (peerErrors[error]) {
+                            peerErrors[error].push(peer);
+                        } else {
+                            peerErrors[error] = [peer];
+                        }
+
+                        this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                        this.emitter.emit(ApplicationEvents.PeerRemoved, peer);
+
+                        return undefined;
                     }
-
-                    this.emitter.emit("internal.p2p.disconnectPeer", { peer });
-                    this.emitter.emit(ApplicationEvents.PeerRemoved, peer);
-
-                    return undefined;
-                }
-            }),
-        );
+                }),
+            ),
+            delay(pingDelay),
+        ]);
 
         for (const key of Object.keys(peerErrors)) {
             const peerCount = peerErrors[key].length;
