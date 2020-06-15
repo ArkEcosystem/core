@@ -5,6 +5,7 @@ import { Service } from "../../../packages/core-transaction-pool/src/service";
 
 const logger = {
     debug: jest.fn(),
+    info: jest.fn(),
     warning: jest.fn(),
     error: jest.fn(),
 };
