@@ -7,9 +7,17 @@ export class Hash {
     }
 
     public static verifyECDSA(hash: Buffer, signature: Buffer | string, publicKey: Buffer | string): boolean {
+        const signatureRS = secp256k1.signatureImport(
+            signature instanceof Buffer ? signature : Buffer.from(signature, "hex"),
+        );
+
+        if (!secp256k1.isLowS(signatureRS)) {
+            return false;
+        }
+
         return secp256k1.verify(
             hash,
-            secp256k1.signatureImport(signature instanceof Buffer ? signature : Buffer.from(signature, "hex")),
+            signatureRS,
             publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, "hex"),
         );
     }
