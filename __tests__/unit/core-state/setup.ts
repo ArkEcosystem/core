@@ -23,6 +23,7 @@ export interface Spies {
     logger: {
         error: jest.SpyInstance;
         info: jest.SpyInstance;
+        notice: jest.SpyInstance;
         debug: jest.SpyInstance;
         warning: jest.SpyInstance;
     };
@@ -71,6 +72,7 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
     const logger = {
         error: jest.fn(),
         info: jest.fn(),
+        notice: jest.fn(),
         debug: jest.fn(),
         warning: jest.fn(),
     };
