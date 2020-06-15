@@ -1,5 +1,6 @@
 import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import assert from "assert";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
 
@@ -163,7 +164,7 @@ export class Service implements Contracts.TransactionPool.Service {
             if (this.updateLocks.length) {
                 this.logger.debug(`Re-add is waiting for update locks`);
                 await Promise.all(this.updateLocks);
-                AppUtils.assert.boolean(this.updateLocks.length === 0);
+                assert(this.updateLocks.length === 0);
             }
 
             this.mempool.flush();
