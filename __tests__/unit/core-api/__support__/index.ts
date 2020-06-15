@@ -53,6 +53,9 @@ export const buildSenderWallet = (app: Application, passphrase: string | null = 
 
 export const initApp = (): Application => {
     const app = new Application(new Container.Container());
+    const logger = { error: jest.fn() };
+
+    app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 

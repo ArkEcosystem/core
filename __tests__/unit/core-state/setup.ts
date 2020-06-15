@@ -23,6 +23,7 @@ export interface Spies {
     logger: {
         error: jest.SpyInstance;
         info: jest.SpyInstance;
+        notice: jest.SpyInstance;
         debug: jest.SpyInstance;
         warning: jest.SpyInstance;
     };
@@ -67,6 +68,16 @@ export const setUpDefaults = {
 
 export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Promise<Setup> => {
     const sandbox = new Sandbox();
+
+    const logger = {
+        error: jest.fn(),
+        info: jest.fn(),
+        notice: jest.fn(),
+        debug: jest.fn(),
+        warning: jest.fn(),
+    };
+
+    sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
     sandbox.app.bind(Container.Identifiers.WalletAttributes).to(Services.Attributes.AttributeSet).inSingletonScope();
 
@@ -193,19 +204,6 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
 
     const applySpy: jest.SpyInstance = jest.fn();
     const revertSpy: jest.SpyInstance = jest.fn();
-    const error: jest.SpyInstance = jest.fn();
-    const info: jest.SpyInstance = jest.fn();
-    const debug: jest.SpyInstance = jest.fn();
-    const warning: jest.SpyInstance = jest.fn();
-
-    const logger = {
-        error,
-        info,
-        debug,
-        warning,
-    };
-
-    sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
     const getRegisteredHandlersSpy = jest.fn();
 

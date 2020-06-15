@@ -17,7 +17,6 @@ describe("Transaction Forging - Entity registration", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Registering a desktop wallet plugin
-            await snoozeForBlock(1);
             const entityRegistration = TransactionFactory.initialize(app)
                 .entity({
                     type: Enums.EntityType.Plugin,
@@ -29,10 +28,12 @@ describe("Transaction Forging - Entity registration", () => {
                 })
                 .withPassphrase(secrets[0])
                 .createOne();
+
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
-            // await expect(entityRegistration.id).toBeForged();
-            // await expect(entityRegistration).entityRegistered();
+            await expect(entityRegistration.id).toBeForged();
+
+            await expect(entityRegistration).entityRegistered();
         });
 
         it("should reject entity registration, because entity name contains unicode control characters [Signed with 1 Passphrase]", async () => {
