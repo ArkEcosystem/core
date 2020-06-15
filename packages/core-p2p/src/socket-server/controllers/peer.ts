@@ -43,7 +43,7 @@ export class PeerController extends Controller {
 
         const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
         return {
-            common: commonBlocks[0],
+            common: commonBlocks.sort((a, b) => a.height - b.height)[commonBlocks.length - 1],
             lastBlockHeight: blockchain.getLastBlock().data.height,
         };
     }
