@@ -262,8 +262,24 @@ export class Service implements Contracts.TransactionPool.Service {
             await this.rebuildLock;
         }
 
-        this.mempool.flush();
-        this.storage.flush();
+        const fn = async () => {
+            if (this.updateLocks.length) {
+                this.logger.debug(`Flush is waiting for update locks`);
+                await Promise.all(this.updateLocks);
+                assert(this.updateLocks.length === 0);
+            }
+
+            this.mempool.flush();
+            this.storage.flush();
+        };
+
+        this.rebuildLock = fn();
+
+        try {
+            await this.rebuildLock;
+        } finally {
+            this.rebuildLock = undefined;
+        }
     }
 
     private async addTransactionToMempool(transaction: Interfaces.ITransaction): Promise<void> {
