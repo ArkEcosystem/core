@@ -70,6 +70,26 @@ describe("Processor.process", () => {
         expect(processor.errors).toBeUndefined();
     });
 
+    it("should wrap deserialize errors into BAD_DATA pool error", async () => {
+        const processor = container.resolve(Processor);
+
+        workerPool.isTypeGroupSupported.mockReturnValueOnce(true);
+        workerPool.getTransactionFromData.mockRejectedValueOnce(new Error("Version 1 not supported"));
+
+        await processor.process([transaction1.data]);
+
+        expect(workerPool.isTypeGroupSupported).toBeCalledWith(transaction1.data.typeGroup);
+        expect(workerPool.getTransactionFromData).toBeCalledWith(transaction1.data);
+
+        expect(processor.invalid).toEqual([transaction1.id]);
+        expect(processor.errors).toEqual({
+            [transaction1.data.id]: {
+                type: "ERR_BAD_DATA",
+                message: "Invalid transaction data: Version 1 not supported",
+            },
+        });
+    });
+
     it("should add eligible transactions to pool", async () => {
         workerPool.isTypeGroupSupported.mockReturnValue(false);
 

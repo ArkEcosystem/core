@@ -2,6 +2,7 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import {
+    InvalidTransactionDataError,
     RetryTransactionError,
     SenderExceededMaximumTransactionCountError,
     TransactionAlreadyInPoolError,
@@ -114,4 +115,12 @@ test("TransactionFromWrongNetworkError", () => {
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_WRONG_NETWORK");
     expect(error.message).toBe(`${transaction} network 30 doesn't match node's network 23`);
+});
+
+test("InvalidTransactionDataError", () => {
+    const error = new InvalidTransactionDataError("Version 1 not supported");
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_BAD_DATA");
+    expect(error.message).toBe("Invalid transaction data: Version 1 not supported");
 });
