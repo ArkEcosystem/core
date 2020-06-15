@@ -6,7 +6,7 @@ export interface Service {
     addTransaction(transaction: Interfaces.ITransaction): Promise<void>;
     removeTransaction(transaction: Interfaces.ITransaction): Promise<void>;
     acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<void>;
-    readdTransactions(prevTransactions?: Interfaces.ITransaction[]): Promise<void>;
+    readdTransactions(precedingTransactions?: Interfaces.ITransaction[]): Promise<void>;
     cleanUp(): Promise<void>;
-    flush(): void;
+    flush(): Promise<void>;
 }
