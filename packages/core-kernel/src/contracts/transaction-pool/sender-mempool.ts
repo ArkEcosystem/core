@@ -1,7 +1,7 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface SenderMempool {
-    isEmpty(): boolean;
+    isDisposable(): boolean;
     getSize(): number;
 
     getFromEarliest(): Iterable<Interfaces.ITransaction>;

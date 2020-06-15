@@ -43,10 +43,10 @@ const transaction3 = Transactions.BuilderFactory.transfer()
     .sign("sender's secret")
     .build();
 
-describe("SenderMempool.isEmpty", () => {
-    it("should return true intially", () => {
+describe("SenderMempool.isDisposable", () => {
+    it("should return true initially", () => {
         const senderMempool = container.resolve(SenderMempool);
-        const empty = senderMempool.isEmpty();
+        const empty = senderMempool.isDisposable();
 
         expect(empty).toBe(true);
     });
@@ -56,7 +56,7 @@ describe("SenderMempool.isEmpty", () => {
 
         const senderMempool = container.resolve(SenderMempool);
         await senderMempool.addTransaction(transaction1);
-        const empty = senderMempool.isEmpty();
+        const empty = senderMempool.isDisposable();
 
         expect(empty).toBe(false);
     });

@@ -44,9 +44,11 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         try {
             await senderMempool.addTransaction(transaction);
         } finally {
-            if (senderMempool.isEmpty()) {
+            if (senderMempool.isDisposable()) {
                 this.senderMempools.delete(transaction.data.senderPublicKey);
-                this.logger.debug(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`);
+                this.logger.debug(
+                    `${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state disposed`,
+                );
             }
         }
     }
@@ -62,9 +64,11 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         try {
             return await senderMempool.removeTransaction(transaction);
         } finally {
-            if (senderMempool.isEmpty()) {
+            if (senderMempool.isDisposable()) {
                 this.senderMempools.delete(transaction.data.senderPublicKey);
-                this.logger.debug(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`);
+                this.logger.debug(
+                    `${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state disposed`,
+                );
             }
         }
     }
@@ -80,9 +84,11 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         try {
             return await senderMempool.acceptForgedTransaction(transaction);
         } finally {
-            if (senderMempool.isEmpty()) {
+            if (senderMempool.isDisposable()) {
                 this.senderMempools.delete(transaction.data.senderPublicKey);
-                this.logger.debug(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`);
+                this.logger.debug(
+                    `${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state disposed`,
+                );
             }
         }
     }

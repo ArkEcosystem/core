@@ -35,28 +35,33 @@ export class IteratorMany<T> implements Iterator<T> {
     }
 }
 
-export const createLock = () => {
-    type QueueItem = () => Promise<void>;
-    const queue: QueueItem[] = [];
+type LockQueueItem = () => Promise<void>;
 
-    return <T>(callback: () => Promise<T>): Promise<T> => {
+export class Lock {
+    private readonly queue: LockQueueItem[] = [];
+
+    public isFree(): boolean {
+        return this.queue.length === 0;
+    }
+
+    public async run<T>(callback: () => Promise<T>): Promise<T> {
         return new Promise<T>((resolve, reject) => {
-            queue.push(async () => {
+            this.queue.push(async () => {
                 try {
                     resolve(await callback());
                 } catch (error) {
                     reject(error);
                 } finally {
-                    queue.shift();
-                    if (queue.length) {
-                        queue[0]();
+                    this.queue.shift();
+                    if (this.queue.length) {
+                        this.queue[0]();
                     }
                 }
             });
 
-            if (queue.length === 1) {
-                queue[0]();
+            if (this.queue.length === 1) {
+                this.queue[0]();
             }
         });
-    };
-};
+    }
+}

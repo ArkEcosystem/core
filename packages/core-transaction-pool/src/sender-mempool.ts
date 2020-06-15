@@ -2,7 +2,7 @@ import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosyste
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { SenderExceededMaximumTransactionCountError } from "./errors";
-import { createLock } from "./utils";
+import { Lock } from "./utils";
 
 @Container.injectable()
 export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
@@ -13,12 +13,12 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     @Container.inject(Container.Identifiers.TransactionPoolSenderState)
     private readonly senderState!: Contracts.TransactionPool.SenderState;
 
-    private readonly lock = createLock();
+    private readonly lock = new Lock();
 
     private readonly transactions: Interfaces.ITransaction[] = [];
 
-    public isEmpty(): boolean {
-        return this.transactions.length === 0;
+    public isDisposable(): boolean {
+        return this.transactions.length === 0 && this.lock.isFree();
     }
 
     public getSize(): number {
@@ -34,7 +34,7 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     }
 
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        await this.lock(async () => {
+        await this.lock.run(async () => {
             AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
             const maxTransactionsPerSender: number = this.configuration.getRequired<number>("maxTransactionsPerSender");
@@ -51,7 +51,7 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     }
 
     public async removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        return await this.lock(async () => {
+        return await this.lock.run(async () => {
             const index = this.transactions.findIndex((t) => t.id === transaction.id);
             if (index === -1) {
                 return [];
@@ -74,7 +74,7 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     }
 
     public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        return await this.lock(async () => {
+        return await this.lock.run(async () => {
             const index: number = this.transactions.findIndex((t) => t.id === transaction.id);
             if (index === -1) {
                 return this.transactions.splice(0, this.transactions.length);
