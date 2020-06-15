@@ -90,7 +90,7 @@ describe("PeerController", () => {
     });
 
     describe("getCommonBlocks", () => {
-        it("should return the first common block found and the last height", async () => {
+        it("should return the last common block found and the last height", async () => {
             const request = { payload: { ids: ["123456789", "111116789"] } };
             database.getCommonBlocks = jest.fn().mockReturnValueOnce(request.payload.ids);
             const height = 1433;
@@ -98,7 +98,7 @@ describe("PeerController", () => {
             const commonBlocks = await peerController.getCommonBlocks(request, {});
 
             expect(commonBlocks).toEqual({
-                common: request.payload.ids[0],
+                common: request.payload.ids[1],
                 lastBlockHeight: height,
             });
         });
@@ -213,7 +213,7 @@ describe("PeerController", () => {
             it("should throw TooManyTransactionsError when transactions.length is too much", async () => {
                 blockchain.getLastDownloadedBlock = jest.fn().mockReturnValueOnce(Networks.testnet.genesisBlock);
                 const blockTooManyTxs = deepClone(block);
-                
+
                 const transactions = [];
                 for(let i = 0; i < 2; i++) {
                     transactions.push(
