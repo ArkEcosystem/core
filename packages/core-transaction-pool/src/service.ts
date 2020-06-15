@@ -77,7 +77,9 @@ export class Service implements Contracts.TransactionPool.Service {
         try {
             await promise;
         } finally {
-            this.updateLocks.splice(this.updateLocks.indexOf(promise), 1);
+            const index = this.updateLocks.indexOf(promise);
+            assert(index !== -1);
+            this.updateLocks.splice(index, 1);
         }
     }
 
@@ -114,7 +116,9 @@ export class Service implements Contracts.TransactionPool.Service {
         try {
             await promise;
         } finally {
-            this.updateLocks.splice(this.updateLocks.indexOf(promise), 1);
+            const index = this.updateLocks.indexOf(promise);
+            assert(index !== -1);
+            this.updateLocks.splice(index, 1);
         }
     }
 
@@ -150,7 +154,9 @@ export class Service implements Contracts.TransactionPool.Service {
         try {
             await promise;
         } finally {
-            this.updateLocks.splice(this.updateLocks.indexOf(promise), 1);
+            const index = this.updateLocks.indexOf(promise);
+            assert(index !== -1);
+            this.updateLocks.splice(index, 1);
         }
     }
 
@@ -252,7 +258,9 @@ export class Service implements Contracts.TransactionPool.Service {
         try {
             await promise;
         } finally {
-            this.updateLocks.splice(this.updateLocks.indexOf(promise), 1);
+            const index = this.updateLocks.indexOf(promise);
+            assert(index !== -1);
+            this.updateLocks.splice(index, 1);
         }
     }
 
