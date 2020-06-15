@@ -76,7 +76,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     ): Promise<Interfaces.ITransaction> {
         try {
             if (this.workerPool.isTypeGroupSupported(transactionData.typeGroup!)) {
-                return this.workerPool.getTransactionFromData(transactionData);
+                return await this.workerPool.getTransactionFromData(transactionData);
             } else {
                 return Transactions.TransactionFactory.fromData(transactionData);
             }
