@@ -2,7 +2,7 @@ import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosyste
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
-export class ExpirationService {
+export class ExpirationService implements Contracts.TransactionPool.ExpirationService {
     @Container.inject(Container.Identifiers.Application)
     public readonly app!: Contracts.Kernel.Application;
 

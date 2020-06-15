@@ -310,9 +310,9 @@ describe("BlockState", () => {
         expect(forgingWallet.balance).toEqual(balanceBefore);
     });
 
-    it("should throw if there is no forger wallet", () => {
+    it("should throw if there is no forger wallet", async () => {
         walletRepo.forgetByPublicKey(forgingWallet.publicKey);
-        expect(async () => await blockState.applyBlock(blocks[0])).toReject();
+        await expect(blockState.applyBlock(blocks[0])).toReject();
     });
 
     it("should update sender's and recipient's delegate's vote balance when applying transaction", async () => {

@@ -4,6 +4,9 @@ import Nes from "@hapi/nes";
 // todo: review the implementation
 @Container.injectable()
 export class PeerConnector implements Contracts.P2P.PeerConnector {
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     private readonly connections: Map<string, Nes.Client> = new Map<string, Nes.Client>();
     private readonly errors: Map<string, string> = new Map<string, string>();
 
@@ -65,6 +68,11 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
 
     private async create(peer: Contracts.P2P.Peer): Promise<Nes.Client> {
         const connection = new Nes.Client(`ws://${peer.ip}:${peer.port}`);
+
+        connection.onError = (error) => {
+            this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
+        };
+
         await connection.connect();
 
         return connection;

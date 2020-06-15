@@ -1,5 +1,6 @@
 import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import assert from "assert";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
 
@@ -27,13 +28,17 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(Container.Identifiers.TransactionPoolExpirationService)
     private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
 
+    private readonly updateLocks: Promise<void>[] = [];
+
+    private rebuildLock?: Promise<void>;
+
     public async boot(): Promise<void> {
         this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, {
             handle: () => this.readdTransactions(),
         });
 
         if (process.env.CORE_RESET_DATABASE || process.env.CORE_RESET_POOL) {
-            this.flush();
+            await this.flush();
         } else {
             await this.readdTransactions();
         }
@@ -44,105 +49,245 @@ export class Service implements Contracts.TransactionPool.Service {
     }
 
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        AppUtils.assert.defined<string>(transaction.id);
-        if (this.storage.hasTransaction(transaction.id)) {
-            throw new TransactionAlreadyInPoolError(transaction);
+        while (this.rebuildLock) {
+            this.logger.debug(`${transaction} add is waiting for rebuild lock`);
+            await this.rebuildLock;
         }
 
-        this.storage.addTransaction(transaction.id, transaction.serialized);
+        const fn = async () => {
+            AppUtils.assert.defined<string>(transaction.id);
+            if (this.storage.hasTransaction(transaction.id)) {
+                throw new TransactionAlreadyInPoolError(transaction);
+            }
+
+            this.storage.addTransaction(transaction.id, transaction.serialized);
+            try {
+                await this.addTransactionToMempool(transaction);
+                this.logger.debug(`${transaction} added to pool`);
+                this.emitter.dispatch(Enums.TransactionEvent.AddedToPool, transaction.data);
+            } catch (error) {
+                this.storage.removeTransaction(transaction.id);
+                this.emitter.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
+                throw error;
+            }
+        };
+
+        const promise = fn();
+        this.updateLocks.push(promise);
         try {
-            await this.addTransactionToMempool(transaction);
-            this.logger.debug(`${transaction} added to pool`);
-            this.emitter.dispatch(Enums.TransactionEvent.AddedToPool, transaction.data);
-        } catch (error) {
-            this.storage.removeTransaction(transaction.id);
-            this.emitter.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
-            throw error;
+            await promise;
+        } finally {
+            const index = this.updateLocks.indexOf(promise);
+            assert(index !== -1);
+            this.updateLocks.splice(index, 1);
         }
     }
 
     public async removeTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        AppUtils.assert.defined<string>(transaction.id);
-        if (this.storage.hasTransaction(transaction.id) === false) {
-            this.logger.error(`${transaction} not found`);
-            return;
+        while (this.rebuildLock) {
+            this.logger.debug(`${transaction} remove is waiting for rebuild lock`);
+            await this.rebuildLock;
         }
 
-        const removedTransactions = await this.mempool.removeTransaction(transaction);
-        for (const removedTransaction of removedTransactions) {
-            AppUtils.assert.defined<string>(removedTransaction.id);
-            this.storage.removeTransaction(removedTransaction.id);
-            this.logger.debug(`${removedTransaction} removed from pool`);
-        }
+        const fn = async () => {
+            AppUtils.assert.defined<string>(transaction.id);
+            if (this.storage.hasTransaction(transaction.id) === false) {
+                this.logger.error(`${transaction} not found`);
+                return;
+            }
 
-        if (!removedTransactions.find((t) => t.id === transaction.id)) {
-            this.storage.removeTransaction(transaction.id);
-            this.logger.error(`${transaction} removed from pool (wasn't in mempool)`);
-        }
+            const removedTransactions = await this.mempool.removeTransaction(transaction);
+            for (const removedTransaction of removedTransactions) {
+                AppUtils.assert.defined<string>(removedTransaction.id);
+                this.storage.removeTransaction(removedTransaction.id);
+                this.logger.debug(`${removedTransaction} removed from pool`);
+            }
 
-        this.emitter.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
+            if (!removedTransactions.find((t) => t.id === transaction.id)) {
+                this.storage.removeTransaction(transaction.id);
+                this.logger.error(`${transaction} removed from pool (wasn't in mempool)`);
+            }
+
+            this.emitter.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
+        };
+
+        const promise = fn();
+        this.updateLocks.push(promise);
+        try {
+            await promise;
+        } finally {
+            const index = this.updateLocks.indexOf(promise);
+            assert(index !== -1);
+            this.updateLocks.splice(index, 1);
+        }
     }
 
     public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        AppUtils.assert.defined<string>(transaction.id);
-        if (this.storage.hasTransaction(transaction.id) === false) {
-            return;
+        while (this.rebuildLock) {
+            this.logger.debug(`${transaction} accept forged is waiting for rebuild lock`);
+            await this.rebuildLock;
         }
 
-        const removedTransactions = await this.mempool.acceptForgedTransaction(transaction);
-        for (const removedTransaction of removedTransactions) {
-            AppUtils.assert.defined<string>(removedTransaction.id);
-            this.storage.removeTransaction(removedTransaction.id);
-            this.logger.debug(`${removedTransaction} removed from pool`);
-        }
+        const fn = async () => {
+            AppUtils.assert.defined<string>(transaction.id);
+            if (this.storage.hasTransaction(transaction.id) === false) {
+                return;
+            }
 
-        if (removedTransactions.find((t) => t.id === transaction.id)) {
-            this.logger.debug(`${transaction} forged and accepted by pool`);
-        } else {
-            this.storage.removeTransaction(transaction.id);
-            this.logger.error(`${transaction} forged and accepted by pool (wasn't in mempool)`);
+            const removedTransactions = await this.mempool.acceptForgedTransaction(transaction);
+            for (const removedTransaction of removedTransactions) {
+                AppUtils.assert.defined<string>(removedTransaction.id);
+                this.storage.removeTransaction(removedTransaction.id);
+                this.logger.debug(`${removedTransaction} removed from pool`);
+            }
+
+            if (removedTransactions.find((t) => t.id === transaction.id)) {
+                this.logger.debug(`${transaction} forged and accepted by pool`);
+            } else {
+                this.storage.removeTransaction(transaction.id);
+                this.logger.error(`${transaction} forged and accepted by pool (wasn't in mempool)`);
+            }
+        };
+
+        const promise = fn();
+        this.updateLocks.push(promise);
+        try {
+            await promise;
+        } finally {
+            const index = this.updateLocks.indexOf(promise);
+            assert(index !== -1);
+            this.updateLocks.splice(index, 1);
         }
     }
 
-    public async readdTransactions(prevTransactions?: Interfaces.ITransaction[]): Promise<void> {
-        this.mempool.flush();
+    public async readdTransactions(precedingTransactions?: Interfaces.ITransaction[]): Promise<void> {
+        while (this.rebuildLock) {
+            this.logger.debug(`Re-add is waiting for rebuild lock`);
+            await this.rebuildLock;
+        }
 
-        let prevCount = 0;
-        let count = 0;
+        const fn = async () => {
+            if (this.updateLocks.length) {
+                this.logger.debug(`Re-add is waiting for update locks`);
+                await Promise.all(this.updateLocks);
+                assert(this.updateLocks.length === 0);
+            }
 
-        if (prevTransactions) {
-            for (const transaction of prevTransactions) {
+            this.mempool.flush();
+
+            let precedingSuccessCount = 0;
+            let precedingErrorCount = 0;
+            let pendingSuccessCount = 0;
+            let pendingErrorCount = 0;
+
+            if (precedingTransactions) {
+                for (const { id, serialized } of precedingTransactions) {
+                    try {
+                        AppUtils.assert.defined<string>(id);
+                        const precedingTransaction = Transactions.TransactionFactory.fromBytes(serialized);
+                        await this.addTransactionToMempool(precedingTransaction);
+                        this.storage.addTransaction(id, serialized);
+                        precedingSuccessCount++;
+                    } catch (error) {
+                        this.logger.debug(`Failed to re-add and wasn't added to storage: ${error.message}`);
+                        precedingErrorCount++;
+                    }
+                }
+            }
+
+            for (const { id, serialized } of this.storage.getAllTransactions()) {
                 try {
-                    await this.addTransactionToMempool(transaction);
-                    AppUtils.assert.defined<string>(transaction.id);
-                    this.storage.addTransaction(transaction.id, transaction.serialized);
-                    prevCount++;
-                    count++;
-                } catch (error) {}
+                    const pendingTransaction = Transactions.TransactionFactory.fromBytes(serialized);
+                    await this.addTransactionToMempool(pendingTransaction);
+                    pendingSuccessCount++;
+                } catch (error) {
+                    this.storage.removeTransaction(id);
+                    this.logger.debug(`Failed to re-add and was removed from storage: ${error.message}`);
+                    pendingErrorCount++;
+                }
             }
-        }
 
-        for (const { id, serialized } of this.storage.getAllTransactions()) {
-            try {
-                const transaction = Transactions.TransactionFactory.fromBytes(serialized);
-                await this.addTransactionToMempool(transaction);
-                count++;
-            } catch (error) {
-                this.storage.removeTransaction(id);
+            if (precedingSuccessCount === 1) {
+                this.logger.info(`${precedingSuccessCount} preceding transaction was re-added to pool`);
             }
-        }
+            if (precedingSuccessCount > 1) {
+                this.logger.info(`${precedingSuccessCount} preceding transactions were re-added to pool`);
+            }
+            if (precedingErrorCount === 1) {
+                this.logger.warning(`${precedingErrorCount} preceding transaction was not re-added to pool`);
+            }
+            if (precedingErrorCount > 1) {
+                this.logger.warning(`${precedingErrorCount} preceding transactions were not re-added to pool`);
+            }
+            if (pendingSuccessCount === 1) {
+                this.logger.info(`${pendingSuccessCount} pending transaction was re-added to pool`);
+            }
+            if (pendingSuccessCount > 1) {
+                this.logger.info(`${pendingSuccessCount} pending transactions were re-added to pool`);
+            }
+            if (pendingErrorCount === 1) {
+                this.logger.warning(`${pendingErrorCount} pending transaction was not re-added to pool`);
+            }
+            if (pendingErrorCount > 1) {
+                this.logger.warning(`${pendingErrorCount} pending transactions were not re-added to pool`);
+            }
+        };
 
-        this.logger.debug(`${AppUtils.pluralize("transaction", count, true)} re-added to pool (${prevCount} previous)`);
+        this.rebuildLock = fn();
+
+        try {
+            await this.rebuildLock;
+        } finally {
+            this.rebuildLock = undefined;
+        }
     }
 
     public async cleanUp(): Promise<void> {
-        await this.cleanExpired();
-        await this.cleanLowestPriority();
+        while (this.rebuildLock) {
+            this.logger.debug(`Clean-up is waiting for rebuild lock`);
+            await this.rebuildLock;
+        }
+
+        const fn = async () => {
+            await this.cleanExpired();
+            await this.cleanLowestPriority();
+        };
+
+        const promise = fn();
+        this.updateLocks.push(promise);
+        try {
+            await promise;
+        } finally {
+            const index = this.updateLocks.indexOf(promise);
+            assert(index !== -1);
+            this.updateLocks.splice(index, 1);
+        }
     }
 
-    public flush(): void {
-        this.mempool.flush();
-        this.storage.flush();
+    public async flush(): Promise<void> {
+        while (this.rebuildLock) {
+            this.logger.debug(`Flush is waiting for rebuild lock`);
+            await this.rebuildLock;
+        }
+
+        const fn = async () => {
+            if (this.updateLocks.length) {
+                this.logger.debug(`Flush is waiting for update locks`);
+                await Promise.all(this.updateLocks);
+                assert(this.updateLocks.length === 0);
+            }
+
+            this.mempool.flush();
+            this.storage.flush();
+        };
+
+        this.rebuildLock = fn();
+
+        try {
+            await this.rebuildLock;
+        } finally {
+            this.rebuildLock = undefined;
+        }
     }
 
     private async addTransactionToMempool(transaction: Interfaces.ITransaction): Promise<void> {

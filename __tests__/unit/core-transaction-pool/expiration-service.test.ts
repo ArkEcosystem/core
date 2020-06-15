@@ -137,10 +137,10 @@ describe("ExpirationService.getExpirationHeight", () => {
         const expirationService = container.resolve(ExpirationService);
         const check = async () => await expirationService.getExpirationHeight(transaction);
 
-        expect(await check).toReject();
+        await expect(check()).rejects.toThrowError();
     });
 
-    it("should return value stored in expiration field when checking v2 transaciton with expiration field", async () => {
+    it("should return value stored in expiration field when checking v2 transaction with expiration field", async () => {
         const transaction = { data: { version: 2, expiration: 100 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
         const expirationHeight = await expirationService.getExpirationHeight(transaction);
