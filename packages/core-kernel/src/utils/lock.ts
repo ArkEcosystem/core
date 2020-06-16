@@ -9,13 +9,13 @@ export class Lock {
             await safeExclusivePromise;
         }
 
-        const promise = callback();
+        const nonExclusivePromise = callback();
 
         try {
-            this.nonExclusivePromises.add(promise);
-            return await promise;
+            this.nonExclusivePromises.add(nonExclusivePromise);
+            return await nonExclusivePromise;
         } finally {
-            this.nonExclusivePromises.delete(promise);
+            this.nonExclusivePromises.delete(nonExclusivePromise);
         }
     }
 
@@ -25,15 +25,15 @@ export class Lock {
             await safeExclusivePromise;
         }
 
-        const promise = (async () => {
+        const exclusivePromise = (async () => {
             const safeNonExclusivePromises = Array.from(this.nonExclusivePromises).map((p) => p.catch(() => undefined));
             await Promise.all(safeNonExclusivePromises);
             return await callback();
         })();
 
         try {
-            this.exclusivePromise = promise;
-            return await promise;
+            this.exclusivePromise = exclusivePromise;
+            return await exclusivePromise;
         } finally {
             this.exclusivePromise = undefined;
         }
