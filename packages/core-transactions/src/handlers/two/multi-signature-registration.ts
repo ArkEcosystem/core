@@ -53,7 +53,6 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
@@ -70,12 +69,10 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
             throw new MultiSignatureKeyCountMismatchError();
         }
 
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset.multiSignature);
 
         const multiSigPublicKey: string = Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature);
-        const recipientWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(multiSigPublicKey);
+        const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(multiSigPublicKey);
 
         if (recipientWallet.hasMultiSignature()) {
             throw new MultiSignatureAlreadyRegisteredError();
@@ -85,7 +82,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
             throw new InvalidMultiSignatureError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet);
     }
 
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
@@ -105,58 +102,41 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         }
     }
 
-    public async applyToSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.applyToSender(transaction, customWalletRepository);
+    public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.applyToSender(transaction);
 
         // Create the multi sig wallet
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
 
-        walletRepository
+        this.walletRepository
             .findByPublicKey(Identities.PublicKey.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
             .setAttribute("multiSignature", transaction.data.asset.multiSignature);
     }
 
-    public async revertForSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.revertForSender(transaction, customWalletRepository);
+    public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.revertForSender(transaction);
         // Nothing else to do for the sender since the recipient wallet
         // is made into a multi sig wallet.
     }
 
-    public async applyToRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
+    public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset?.multiSignature);
 
-        const recipientWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
+        const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
             Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature),
         );
 
         recipientWallet.setAttribute("multiSignature", data.asset.multiSignature);
     }
 
-    public async revertForRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
+    public async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset?.multiSignature);
 
-        const recipientWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
+        const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
             Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature),
         );
 

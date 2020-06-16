@@ -132,43 +132,33 @@ describe("TransferTransaction", () => {
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).toResolve();
         });
 
         it("should not throw - second sign", async () => {
             await expect(
-                handler.throwIfCannotBeApplied(
-                    secondSignatureTransferTransaction,
-                    secondSignatureWallet,
-                    walletRepository,
-                ),
+                handler.throwIfCannotBeApplied(secondSignatureTransferTransaction, secondSignatureWallet),
             ).toResolve();
         });
 
         it("should not throw - multi sign", async () => {
             await expect(
-                handler.throwIfCannotBeApplied(
-                    multiSignatureTransferTransaction,
-                    multiSignatureWallet,
-                    walletRepository,
-                ),
+                handler.throwIfCannotBeApplied(multiSignatureTransferTransaction, multiSignatureWallet),
             ).toResolve();
         });
 
         it("should throw", async () => {
             transferTransaction.data.senderPublicKey = "a".repeat(66);
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(SenderWalletMismatchError);
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrow(
+                SenderWalletMismatchError,
+            );
         });
 
         it("should throw if wallet has insufficient funds for vote", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(InsufficientBalanceError);
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrow(
+                InsufficientBalanceError,
+            );
         });
 
         it("should throw if sender is cold wallet", async () => {
@@ -189,9 +179,9 @@ describe("TransferTransaction", () => {
                 .sign(passphrases[3])
                 .build();
 
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, coldWallet, walletRepository),
-            ).rejects.toThrow(ColdWalletError);
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, coldWallet)).rejects.toThrow(
+                ColdWalletError,
+            );
         });
 
         it("should not throw if recipient is cold wallet", async () => {
@@ -212,9 +202,7 @@ describe("TransferTransaction", () => {
                 .sign(passphrases[0])
                 .build();
 
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).toResolve();
         });
     });
 
@@ -237,7 +225,7 @@ describe("TransferTransaction", () => {
             const senderBalance = senderWallet.balance;
             const recipientBalance = recipientWallet.balance;
 
-            await handler.apply(transferTransaction, walletRepository);
+            await handler.apply(transferTransaction);
 
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance)
@@ -256,7 +244,7 @@ describe("TransferTransaction", () => {
             const senderBalance = senderWallet.balance;
             const recipientBalance = recipientWallet.balance;
 
-            await handler.apply(transferTransaction, walletRepository);
+            await handler.apply(transferTransaction);
 
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance)
@@ -268,7 +256,7 @@ describe("TransferTransaction", () => {
                 Utils.BigNumber.make(recipientBalance).plus(transferTransaction.data.amount),
             );
 
-            await handler.revert(transferTransaction, walletRepository);
+            await handler.revert(transferTransaction);
 
             expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
 

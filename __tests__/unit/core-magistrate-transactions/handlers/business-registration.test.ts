@@ -116,22 +116,20 @@ describe("BusinessRegistration", () => {
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet)).toResolve();
         });
 
         it("should throw if business already registered", async () => {
             senderWallet.setAttribute("business", {});
             await expect(
-                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet),
             ).rejects.toThrowError(BusinessAlreadyRegisteredError);
         });
 
         it("should throw if wallet has insufficient balance", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
             await expect(
-                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet),
             ).rejects.toThrowError(InsufficientBalanceError);
         });
     });
@@ -154,7 +152,7 @@ describe("BusinessRegistration", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
 
-            await handler.apply(businessRegistrationTransaction, walletRepository);
+            await handler.apply(businessRegistrationTransaction);
 
             expect(senderWallet.hasAttribute("business")).toBeTrue();
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessRegistrationAsset);
@@ -173,7 +171,7 @@ describe("BusinessRegistration", () => {
         it("should throw if transaction asset is missing", async () => {
             delete businessRegistrationTransaction.data.asset;
 
-            await expect(handler.apply(businessRegistrationTransaction, walletRepository)).rejects.toThrowError();
+            await expect(handler.apply(businessRegistrationTransaction)).rejects.toThrowError();
         });
     });
 
@@ -181,11 +179,11 @@ describe("BusinessRegistration", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
 
-            await handler.apply(businessRegistrationTransaction, walletRepository);
+            await handler.apply(businessRegistrationTransaction);
 
             expect(senderWallet.hasAttribute("business")).toBeTrue();
 
-            await handler.revert(businessRegistrationTransaction, walletRepository);
+            await handler.revert(businessRegistrationTransaction);
 
             expect(senderWallet.hasAttribute("business")).toBeFalse();
             expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));

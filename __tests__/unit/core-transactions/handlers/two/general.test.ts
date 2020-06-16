@@ -113,31 +113,29 @@ describe("General Tests", () => {
 
     describe("verify", () => {
         it("should be verified", async () => {
-            await expect(handler.verify(transferTransaction, walletRepository)).resolves.toBeTrue();
+            await expect(handler.verify(transferTransaction)).resolves.toBeTrue();
         });
 
         it("should be verified with multi sign", async () => {
-            await expect(handler.verify(multiSignatureTransferTransaction, walletRepository)).resolves.toBeTrue();
+            await expect(handler.verify(multiSignatureTransferTransaction)).resolves.toBeTrue();
         });
     });
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).toResolve();
         });
 
         it("should throw if wallet publicKey does not match transaction senderPublicKey", async () => {
             transferTransaction.data.senderPublicKey = "a".repeat(66);
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository),
-            ).rejects.toThrowError(SenderWalletMismatchError);
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrowError(
+                SenderWalletMismatchError,
+            );
         });
 
         it("should throw if the transaction has a second signature but wallet does not", async () => {
             await expect(
-                handler.throwIfCannotBeApplied(transactionWithSecondSignature, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(transactionWithSecondSignature, senderWallet),
             ).rejects.toThrowError(UnexpectedSecondSignatureError);
         });
 
@@ -147,16 +145,16 @@ describe("General Tests", () => {
                 "secondPublicKey",
                 "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
             );
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, secondSigWallet, walletRepository),
-            ).rejects.toThrowError(UnexpectedSecondSignatureError);
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, secondSigWallet)).rejects.toThrowError(
+                UnexpectedSecondSignatureError,
+            );
         });
 
         it("should throw if nonce is invalid", async () => {
             senderWallet.nonce = Utils.BigNumber.make(1);
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository),
-            ).rejects.toThrowError(UnexpectedNonceError);
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrowError(
+                UnexpectedNonceError,
+            );
         });
 
         it("should throw if sender has legacy multi signature", async () => {
@@ -172,9 +170,9 @@ describe("General Tests", () => {
             };
 
             senderWallet.setAttribute("multiSignature", multiSignatureAsset);
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository),
-            ).rejects.toThrowError(LegacyMultiSignatureError);
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrowError(
+                LegacyMultiSignatureError,
+            );
         });
 
         it("should throw if sender has multi signature, but indexed wallet has not", async () => {
@@ -189,9 +187,9 @@ describe("General Tests", () => {
 
             const multiSigWallet = buildSenderWallet(factoryBuilder);
             multiSigWallet.setAttribute("multiSignature", multiSignatureAsset);
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, multiSigWallet, walletRepository),
-            ).rejects.toThrowError(UnexpectedMultiSignatureError);
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, multiSigWallet)).rejects.toThrowError(
+                UnexpectedMultiSignatureError,
+            );
         });
 
         it("should throw if sender and transaction multi signatures does not match", async () => {
@@ -206,11 +204,7 @@ describe("General Tests", () => {
 
             multiSignatureWallet.setAttribute("multiSignature", multiSignatureAsset);
             await expect(
-                handler.throwIfCannotBeApplied(
-                    multiSignatureTransferTransaction,
-                    multiSignatureWallet,
-                    walletRepository,
-                ),
+                handler.throwIfCannotBeApplied(multiSignatureTransferTransaction, multiSignatureWallet),
             ).rejects.toThrowError(InvalidMultiSignatureError);
         });
 
@@ -220,24 +214,24 @@ describe("General Tests", () => {
                 "0116779a98b2009b35d4003dda7628e46365f1a52068489bfbd80594770967a3949f76bc09e204eddd7d460e1e519b826c53dc6e2c9573096326dbc495050cf292",
                 "02687bd0f4a91be39daf648a5b1e1af5ffa4a3d4319b2e38b1fc2dc206db03f542f3b26c4803e0b4c8a53ddfb6cf4533b512d71ae869d4e4ccba989c4a4222396b",
             ];
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository),
-            ).rejects.toThrowError(UnexpectedMultiSignatureError);
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrowError(
+                UnexpectedMultiSignatureError,
+            );
         });
 
         it("should throw if wallet and transaction second signatures does not match", async () => {
             senderWallet.setAttribute("secondPublicKey", "invalid-public-key");
-            await expect(
-                handler.throwIfCannotBeApplied(transactionWithSecondSignature, senderWallet, walletRepository),
-            ).rejects.toThrow(InvalidSecondSignatureError);
+            await expect(handler.throwIfCannotBeApplied(transactionWithSecondSignature, senderWallet)).rejects.toThrow(
+                InvalidSecondSignatureError,
+            );
         });
 
         it("should throw if wallet has not enough balance", async () => {
             // 1 arktoshi short
             senderWallet.balance = transferTransaction.data.amount.plus(transferTransaction.data.fee).minus(1);
-            await expect(
-                handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(InsufficientBalanceError);
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrow(
+                InsufficientBalanceError,
+            );
         });
 
         it("should be true even with publicKey case mismatch", async () => {
@@ -247,7 +241,7 @@ describe("General Tests", () => {
             const instance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
                 transferTransaction.data,
             );
-            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletRepository)).toResolve();
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet)).toResolve();
         });
     });
 
@@ -319,7 +313,7 @@ describe("General Tests", () => {
         });
 
         it("should resolve", async () => {
-            await expect(handler.apply(transferTransaction, walletRepository)).toResolve();
+            await expect(handler.apply(transferTransaction)).toResolve();
         });
 
         it("should not fail due to case mismatch", async () => {
@@ -330,7 +324,7 @@ describe("General Tests", () => {
             const senderBalance = senderWallet.balance;
             const recipientBalance = recipientWallet.balance;
 
-            await handler.apply(instance, walletRepository);
+            await handler.apply(instance);
 
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance).minus(instance.data.amount).minus(instance.data.fee),
@@ -342,7 +336,7 @@ describe("General Tests", () => {
         it("should resolve defined as exception", async () => {
             configManager.set("exceptions.transactions", [transferTransaction.id]);
             configManager.set("network.pubKeyHash", 99);
-            await expect(handler.apply(transferTransaction, walletRepository)).toResolve();
+            await expect(handler.apply(transferTransaction)).toResolve();
         });
 
         it("should resolve with V1", async () => {
@@ -355,35 +349,31 @@ describe("General Tests", () => {
                 .sign(passphrases[0])
                 .build();
 
-            await expect(handler.apply(transferTransaction, walletRepository)).toResolve();
+            await expect(handler.apply(transferTransaction)).toResolve();
         });
 
         it("should throw with negative balance", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
-            await expect(handler.apply(transferTransaction, walletRepository)).rejects.toThrow(
-                InsufficientBalanceError,
-            );
+            await expect(handler.apply(transferTransaction)).rejects.toThrow(InsufficientBalanceError);
         });
 
         it("should throw with negative balance if environment is not test", async () => {
             process.env.CORE_ENV === "unitest";
             senderWallet.balance = Utils.BigNumber.ZERO;
-            await expect(handler.apply(transferTransaction, walletRepository)).rejects.toThrow(
-                InsufficientBalanceError,
-            );
+            await expect(handler.apply(transferTransaction)).rejects.toThrow(InsufficientBalanceError);
         });
     });
 
     describe("revert", () => {
         it("should resolve", async () => {
-            await expect(handler.apply(transferTransaction, walletRepository)).toResolve();
-            await expect(handler.revert(transferTransaction, walletRepository)).toResolve();
+            await expect(handler.apply(transferTransaction)).toResolve();
+            await expect(handler.revert(transferTransaction)).toResolve();
         });
 
         it("should throw if nonce is invalid", async () => {
-            await expect(handler.apply(transferTransaction, walletRepository)).toResolve();
+            await expect(handler.apply(transferTransaction)).toResolve();
             senderWallet.nonce = Utils.BigNumber.make(100);
-            await expect(handler.revert(transferTransaction, walletRepository)).rejects.toThrow(UnexpectedNonceError);
+            await expect(handler.revert(transferTransaction)).rejects.toThrow(UnexpectedNonceError);
         });
 
         it("should not fail due to case mismatch", async () => {
@@ -396,7 +386,7 @@ describe("General Tests", () => {
             const senderBalance = senderWallet.balance;
             const recipientBalance = recipientWallet.balance;
 
-            await handler.revert(instance, walletRepository);
+            await handler.revert(instance);
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance).plus(instance.data.amount).plus(instance.data.fee),
             );

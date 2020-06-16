@@ -54,13 +54,12 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (wallet.hasAttribute("business")) {
             throw new BusinessAlreadyRegisteredError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
@@ -84,17 +83,12 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
         }
     }
 
-    public async applyToSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.applyToSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.applyToSender(transaction);
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         AppUtils.assert.defined<MagistrateInterfaces.IBusinessRegistrationAsset>(
             transaction.data.asset?.businessRegistration,
@@ -104,37 +98,30 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
             businessAsset: transaction.data.asset.businessRegistration,
         });
 
-        walletRepository.index(sender);
+        this.walletRepository.index(sender);
     }
 
-    public async revertForSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.revertForSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.revertForSender(transaction);
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.forgetAttribute("business");
 
-        walletRepository.forgetByIndex(MagistrateIndex.Businesses, transaction.data.senderPublicKey);
+        this.walletRepository.forgetByIndex(MagistrateIndex.Businesses, transaction.data.senderPublicKey);
 
-        walletRepository.index(sender);
+        this.walletRepository.index(sender);
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 }

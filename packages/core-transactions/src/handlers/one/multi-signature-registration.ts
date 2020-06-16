@@ -47,7 +47,6 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
@@ -66,13 +65,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         );
     }
 
-    public async applyToRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository | undefined,
-    ): Promise<void> {}
+    public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 
-    public async revertForRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository | undefined,
-    ): Promise<void> {}
+    public async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 }

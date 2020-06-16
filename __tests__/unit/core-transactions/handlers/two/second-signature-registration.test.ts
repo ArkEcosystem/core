@@ -103,9 +103,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).toResolve();
         });
 
         it("should throw if wallet already has a second signature", async () => {
@@ -114,9 +112,9 @@ describe("SecondSignatureRegistrationTransaction", () => {
                 "02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d",
             );
 
-            await expect(
-                handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(SecondSignatureAlreadyRegisteredError);
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
+                SecondSignatureAlreadyRegisteredError,
+            );
         });
 
         it("should throw if wallet already has a multi signature", async () => {
@@ -131,17 +129,17 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
             senderWallet.setAttribute("multiSignature", multiSignatureAsset);
 
-            await expect(
-                handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(NotSupportedForMultiSignatureWalletError);
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
+                NotSupportedForMultiSignatureWalletError,
+            );
         });
 
         it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
 
-            await expect(
-                handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(InsufficientBalanceError);
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
+                InsufficientBalanceError,
+            );
         });
     });
 
@@ -161,46 +159,40 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
     describe("apply", () => {
         it("should not throw with second signature registration", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).toResolve();
 
-            await handler.apply(secondSignatureTransaction, walletRepository);
+            await handler.apply(secondSignatureTransaction);
             expect(senderWallet.getAttribute("secondPublicKey")).toBe(
                 "02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d",
             );
         });
 
         it("should be invalid to apply a second signature registration twice", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).toResolve();
 
-            await handler.apply(secondSignatureTransaction, walletRepository);
+            await handler.apply(secondSignatureTransaction);
             expect(senderWallet.getAttribute("secondPublicKey")).toBe(
                 "02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d",
             );
 
-            await expect(
-                handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(SecondSignatureAlreadyRegisteredError);
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
+                SecondSignatureAlreadyRegisteredError,
+            );
         });
     });
 
     describe("revert", () => {
         it("should be ok", async () => {
             expect(senderWallet.hasAttribute("secondPublicKey")).toBe(false);
-            await expect(
-                handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).toResolve();
 
-            await handler.apply(secondSignatureTransaction, walletRepository);
+            await handler.apply(secondSignatureTransaction);
             expect(senderWallet.hasAttribute("secondPublicKey")).toBe(true);
             expect(senderWallet.getAttribute("secondPublicKey")).toBe(
                 "02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d",
             );
 
-            await handler.revert(secondSignatureTransaction, walletRepository);
+            await handler.revert(secondSignatureTransaction);
             expect(senderWallet.hasAttribute("secondPublicKey")).toBe(false);
         });
     });

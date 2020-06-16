@@ -126,43 +126,33 @@ describe("MultiPaymentTransaction", () => {
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet)).toResolve();
         });
 
         it("should not throw - second sign", async () => {
             await expect(
-                handler.throwIfCannotBeApplied(
-                    secondSignatureMultiPaymentTransaction,
-                    secondSignatureWallet,
-                    walletRepository,
-                ),
+                handler.throwIfCannotBeApplied(secondSignatureMultiPaymentTransaction, secondSignatureWallet),
             ).toResolve();
         });
 
         it("should not throw - multi sign", async () => {
             await expect(
-                handler.throwIfCannotBeApplied(
-                    multiSignatureMultiPaymentTransaction,
-                    multiSignatureWallet,
-                    walletRepository,
-                ),
+                handler.throwIfCannotBeApplied(multiSignatureMultiPaymentTransaction, multiSignatureWallet),
             ).toResolve();
         });
 
         it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
-            await expect(
-                handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(InsufficientBalanceError);
+            await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet)).rejects.toThrow(
+                InsufficientBalanceError,
+            );
         });
 
         it("should throw if wallet has insufficient funds send all payouts", async () => {
             senderWallet.balance = Utils.BigNumber.make(150); // short by the fee
-            await expect(
-                handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(InsufficientBalanceError);
+            await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet)).rejects.toThrow(
+                InsufficientBalanceError,
+            );
         });
     });
 
@@ -174,7 +164,7 @@ describe("MultiPaymentTransaction", () => {
                 Utils.BigNumber.ZERO,
             );
 
-            await handler.apply(multiPaymentTransaction, walletRepository);
+            await handler.apply(multiPaymentTransaction);
 
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance).minus(totalPaymentsAmount).minus(multiPaymentTransaction.data.fee),
@@ -201,7 +191,7 @@ describe("MultiPaymentTransaction", () => {
                 Utils.BigNumber.ZERO,
             );
 
-            await handler.revert(multiPaymentTransaction, walletRepository);
+            await handler.revert(multiPaymentTransaction);
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance).plus(totalPaymentsAmount).plus(multiPaymentTransaction.data.fee),
             );

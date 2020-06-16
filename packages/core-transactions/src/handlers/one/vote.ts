@@ -39,17 +39,15 @@ export class VoteTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         Utils.assert.defined<string[]>(transaction.data.asset?.votes);
 
         const vote: string = transaction.data.asset.votes[0];
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         let walletVote: string | undefined;
 
         const delegatePublicKey: string = vote.slice(1);
-        const delegateWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(delegatePublicKey);
+        const delegateWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(delegatePublicKey);
 
         if (wallet.hasAttribute("vote")) {
             walletVote = wallet.getAttribute("vote");
@@ -75,7 +73,7 @@ export class VoteTransactionHandler extends TransactionHandler {
             throw new VotedForNonDelegateError(vote);
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
@@ -106,17 +104,12 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
     }
 
-    public async applyToSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.applyToSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.applyToSender(transaction);
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         Utils.assert.defined<string[]>(transaction.data.asset?.votes);
 
@@ -129,17 +122,12 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
     }
 
-    public async revertForSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.revertForSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.revertForSender(transaction);
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         Utils.assert.defined<Interfaces.ITransactionAsset>(transaction.data.asset?.votes);
 
@@ -152,13 +140,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
     }
 
-    public async applyToRecipient(
-        transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 
-    public async revertForRecipient(
-        transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    public async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 }

@@ -68,7 +68,6 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: CryptoInterfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (Utils.isException(transaction.data.id)) {
             return;
@@ -79,56 +78,43 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
             throw new StaticFeeMismatchError(staticFee.toFixed());
         }
 
-        super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+        super.throwIfCannotBeApplied(transaction, wallet);
 
         const handler = this.getHandler(transaction);
         if (!handler) {
             throw new EntityWrongSubTypeError(); // wrong sub type / type association
         }
 
-        return this.getHandler(transaction)!.throwIfCannotBeApplied(transaction, wallet, walletRepository);
+        return this.getHandler(transaction)!.throwIfCannotBeApplied(transaction, wallet, this.walletRepository);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         return this.getHandler(transaction)!.emitEvents(transaction, emitter);
     }
 
-    public async applyToSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.applyToSender(transaction, customWalletRepository);
+    public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.applyToSender(transaction);
 
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-
-        return this.getHandler(transaction)!.applyToSender(transaction, walletRepository);
+        return this.getHandler(transaction)!.applyToSender(transaction, this.walletRepository);
     }
 
-    public async revertForSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.revertForSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.revertForSender(transaction);
 
         return this.getHandler(transaction)!.revertForSender(
             transaction,
-            walletRepository,
+            this.walletRepository,
             this.transactionHistoryService,
         );
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 

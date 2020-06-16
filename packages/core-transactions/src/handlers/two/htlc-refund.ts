@@ -46,19 +46,17 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await this.performGenericWalletChecks(transaction, sender, customWalletRepository);
+        await this.performGenericWalletChecks(transaction, sender);
 
         AppUtils.assert.defined<string>(transaction.data.asset?.refund);
 
         // Specific HTLC refund checks
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         AppUtils.assert.defined<Interfaces.IHtlcRefundAsset>(transaction.data.asset.refund);
 
         const lockId: string = transaction.data.asset.refund.lockTransactionId;
-        const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
+        const lockWallet: Contracts.State.Wallet = this.walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
@@ -108,15 +106,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
     }
 
-    public async applyToSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-
+    public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -124,7 +117,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             this.app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
-        await this.throwIfCannotBeApplied(transaction, sender, customWalletRepository);
+        await this.throwIfCannotBeApplied(transaction, sender);
 
         this.verifyTransactionNonceApply(sender, transaction);
 
@@ -135,7 +128,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         AppUtils.assert.defined<string>(data.asset?.refund?.lockTransactionId);
 
         const lockId: string = data.asset.refund.lockTransactionId;
-        const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
+        const lockWallet: Contracts.State.Wallet = this.walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
@@ -156,18 +149,13 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         delete locks[lockId];
 
-        walletRepository.index(lockWallet);
+        this.walletRepository.index(lockWallet);
     }
 
-    public async revertForSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-
+    public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         this.verifyTransactionNonceRevert(sender, transaction);
 
@@ -181,7 +169,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         AppUtils.assert.defined<string>(lockTransaction.senderPublicKey);
 
-        const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(lockTransaction.senderPublicKey);
+        const lockWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+            lockTransaction.senderPublicKey,
+        );
 
         lockWallet.balance = lockWallet.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
 
@@ -206,16 +196,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             };
         }
 
-        walletRepository.index(lockWallet);
+        this.walletRepository.index(lockWallet);
     }
 
-    public async applyToRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 
-    public async revertForRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    public async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 }

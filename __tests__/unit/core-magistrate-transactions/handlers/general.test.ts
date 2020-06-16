@@ -102,15 +102,13 @@ describe("BusinessRegistration", () => {
             configManager.set("network.pubKeyHash", 99);
             configManager.set("exceptions.transactions", [businessRegistrationTransaction.data.id]);
 
-            await expect(
-                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet)).toResolve();
         });
 
         it("should throw on fee mismatch", async () => {
             businessRegistrationTransaction.data.fee = Utils.BigNumber.ZERO;
             await expect(
-                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet),
             ).rejects.toThrowError(StaticFeeMismatchError);
         });
     });

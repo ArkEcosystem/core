@@ -180,37 +180,27 @@ describe("Htlc lock", () => {
 
         describe("throwIfCannotBeApplied", () => {
             it("should not throw", async () => {
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet, walletRepository),
-                ).toResolve();
+                await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).toResolve();
             });
 
             it("should not throw - second sign", async () => {
                 await expect(
-                    handler.throwIfCannotBeApplied(
-                        secondSignatureHtlcLockTransaction,
-                        secondSignatureWallet,
-                        walletRepository,
-                    ),
+                    handler.throwIfCannotBeApplied(secondSignatureHtlcLockTransaction, secondSignatureWallet),
                 ).toResolve();
             });
 
             it("should not throw - multi sign", async () => {
                 await expect(
-                    handler.throwIfCannotBeApplied(
-                        multiSignatureHtlcLockTransaction,
-                        multiSignatureWallet,
-                        walletRepository,
-                    ),
+                    handler.throwIfCannotBeApplied(multiSignatureHtlcLockTransaction, multiSignatureWallet),
                 ).toResolve();
             });
 
             it("should throw if wallet has insufficient funds", async () => {
                 senderWallet.balance = Utils.BigNumber.ZERO;
 
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet, walletRepository),
-                ).rejects.toThrow(InsufficientBalanceError);
+                await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).rejects.toThrow(
+                    InsufficientBalanceError,
+                );
             });
 
             it("should throw if lock is already expired", async () => {
@@ -222,9 +212,9 @@ describe("Htlc lock", () => {
                     htlcLockTransaction.data.asset!.lock!.expiration.value = Crypto.Slots.getTime();
                 }
 
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet, walletRepository),
-                ).rejects.toThrow(HtlcLockExpiredError);
+                await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).rejects.toThrow(
+                    HtlcLockExpiredError,
+                );
 
                 if (expirationType === Enums.HtlcLockExpirationType.BlockHeight) {
                     htlcLockTransaction.data.asset!.lock!.expiration.value = 1000;
@@ -232,9 +222,7 @@ describe("Htlc lock", () => {
                     htlcLockTransaction.data.asset!.lock!.expiration.value = Crypto.Slots.getTime() + 10000;
                 }
 
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet, walletRepository),
-                ).toResolve();
+                await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).toResolve();
 
                 process.env.CORE_ENV = "test";
             });
@@ -242,13 +230,11 @@ describe("Htlc lock", () => {
 
         describe("apply", () => {
             it("should apply htlc lock transaction", async () => {
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet, walletRepository),
-                ).toResolve();
+                await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).toResolve();
 
                 const balanceBefore = senderWallet.balance;
 
-                await handler.apply(htlcLockTransaction, walletRepository);
+                await handler.apply(htlcLockTransaction);
 
                 expect(senderWallet.getAttribute("htlc.locks", {})[htlcLockTransaction.id!]).toBeDefined();
                 expect(senderWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
@@ -260,13 +246,11 @@ describe("Htlc lock", () => {
 
         describe("revert", () => {
             it("should be ok", async () => {
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet, walletRepository),
-                ).toResolve();
+                await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).toResolve();
 
                 const balanceBefore = senderWallet.balance;
 
-                await handler.apply(htlcLockTransaction, walletRepository);
+                await handler.apply(htlcLockTransaction);
 
                 expect(senderWallet.getAttribute("htlc.locks", {})[htlcLockTransaction.id!]).toBeDefined();
                 expect(senderWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
@@ -276,7 +260,7 @@ describe("Htlc lock", () => {
                     balanceBefore.minus(htlcLockTransaction.data.fee).minus(htlcLockTransaction.data.amount),
                 );
 
-                await handler.revert(htlcLockTransaction, walletRepository);
+                await handler.revert(htlcLockTransaction);
 
                 expect(senderWallet.getAttribute("htlc.locks", {})[htlcLockTransaction.id!]).toBeUndefined();
                 expect(senderWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(

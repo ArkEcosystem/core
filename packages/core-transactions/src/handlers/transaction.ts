@@ -31,15 +31,12 @@ export abstract class TransactionHandler {
     @Container.inject(Container.Identifiers.WalletRepository)
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
-    public async verify(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<boolean> {
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-
+    public async verify(transaction: Interfaces.ITransaction): Promise<boolean> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+            transaction.data.senderPublicKey,
+        );
 
         if (senderWallet.hasMultiSignature()) {
             transaction.isVerified = this.verifySignatures(senderWallet, transaction.data);
@@ -66,45 +63,32 @@ export abstract class TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-        const senderWallet: Contracts.State.Wallet = walletRepository.findByAddress(sender.address);
+        const senderWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(sender.address);
 
         AppUtils.assert.defined<string>(sender.publicKey);
 
-        if (!walletRepository.hasByPublicKey(sender.publicKey) && senderWallet.balance.isZero()) {
+        if (!this.walletRepository.hasByPublicKey(sender.publicKey) && senderWallet.balance.isZero()) {
             throw new ColdWalletError();
         }
 
-        return this.performGenericWalletChecks(transaction, sender, customWalletRepository);
+        return this.performGenericWalletChecks(transaction, sender);
     }
 
-    public async apply(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await this.applyToSender(transaction, customWalletRepository);
-        await this.applyToRecipient(transaction, customWalletRepository);
+    public async apply(transaction: Interfaces.ITransaction): Promise<void> {
+        await this.applyToSender(transaction);
+        await this.applyToRecipient(transaction);
     }
 
-    public async revert(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await this.revertForSender(transaction, customWalletRepository);
-        await this.revertForRecipient(transaction, customWalletRepository);
+    public async revert(transaction: Interfaces.ITransaction): Promise<void> {
+        await this.revertForSender(transaction);
+        await this.revertForRecipient(transaction);
     }
 
-    public async applyToSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-
+    public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -112,7 +96,7 @@ export abstract class TransactionHandler {
             this.app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
-        await this.throwIfCannotBeApplied(transaction, sender, customWalletRepository);
+        await this.throwIfCannotBeApplied(transaction, sender);
 
         // TODO: extract version specific code
         if (data.version && data.version > 1) {
@@ -150,15 +134,10 @@ export abstract class TransactionHandler {
         sender.balance = newBalance;
     }
 
-    public async revertForSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-
+    public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -205,7 +184,6 @@ export abstract class TransactionHandler {
     protected async performGenericWalletChecks(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -324,15 +302,9 @@ export abstract class TransactionHandler {
 
     public abstract async bootstrap(): Promise<void>;
 
-    public abstract async applyToRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void>;
+    public abstract async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void>;
 
-    public abstract async revertForRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void>;
+    public abstract async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void>;
 }
 
 export type TransactionHandlerConstructor = typeof TransactionHandler;

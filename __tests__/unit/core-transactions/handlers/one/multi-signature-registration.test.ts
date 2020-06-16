@@ -147,18 +147,16 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should throw", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(LegacyMultiSignatureError);
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet)).rejects.toThrow(
+                LegacyMultiSignatureError,
+            );
         });
 
         it("should not throw defined as exception", async () => {
             configManager.set("network.pubKeyHash", 99);
             configManager.set("exceptions.transactions", [multiSignatureTransaction.id]);
 
-            await expect(
-                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet)).toResolve();
         });
     });
 
