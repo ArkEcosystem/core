@@ -1,74 +1,41 @@
 export class Lock {
-    private concurrency: number = 0;
+    private exclusivePromise?: Promise<any>;
 
-    private currentExclusive?: Promise<any>;
-
-    private readonly currentNonExclusive: Set<Promise<any>> = new Set<Promise<any>>();
-
-    public isIdle(): boolean {
-        return this.concurrency === 0;
-    }
+    private readonly nonExclusivePromises: Set<Promise<any>> = new Set<Promise<any>>();
 
     public async runNonExclusive<T>(callback: () => Promise<T>): Promise<T> {
+        while (this.exclusivePromise) {
+            const safeExclusivePromise = this.exclusivePromise.catch(() => undefined);
+            await safeExclusivePromise;
+        }
+
+        const promise = callback();
+
         try {
-            // count this execution
-            this.concurrency++;
-
-            // wait for potentially several exclusive executions to finish
-            while (this.currentExclusive) {
-                await this.currentExclusive.catch(() => undefined);
-            }
-
-            // start execution which may throw and it's ok
-            const nonExclusivePromise = callback();
-
-            try {
-                // remember this execution, so new exclusive execution can wait for it to finish
-                this.currentNonExclusive.add(nonExclusivePromise);
-
-                // wait for execution to finish
-                return await nonExclusivePromise;
-            } finally {
-                // forget finished execution
-                this.currentNonExclusive.delete(nonExclusivePromise);
-            }
+            this.nonExclusivePromises.add(promise);
+            return await promise;
         } finally {
-            // one parallel execution less
-            this.concurrency--;
+            this.nonExclusivePromises.delete(promise);
         }
     }
 
     public async runExclusive<T>(callback: () => Promise<T>): Promise<T> {
+        while (this.exclusivePromise) {
+            const safeExclusivePromise = this.exclusivePromise.catch(() => undefined);
+            await safeExclusivePromise;
+        }
+
+        const promise = (async () => {
+            const safeNonExclusivePromises = Array.from(this.nonExclusivePromises).map((p) => p.catch(() => undefined));
+            await Promise.all(safeNonExclusivePromises);
+            return await callback();
+        })();
+
         try {
-            // count this execution
-            this.concurrency++;
-
-            // wait for potentially several exclusive executions to finish
-            while (this.currentExclusive) {
-                await this.currentExclusive.catch(() => undefined);
-            }
-
-            const exclusivePromise = (async () => {
-                // wait for all non-exclusive executions to finish
-                await Promise.all(Array.from(this.currentNonExclusive).map((p) => p.catch(() => undefined)));
-
-                // run exclusive execution
-                return callback();
-            })();
-
-            try {
-                // remember this execution, so new executions can wait for it to finish
-                this.currentExclusive = exclusivePromise;
-
-                // wait for execution to finish
-                return await exclusivePromise;
-            } finally {
-                // forget finished execution
-                this.currentExclusive = undefined;
-            }
+            this.exclusivePromise = promise;
+            return await promise;
         } finally {
-            // one parallel execution less
-            this.concurrency--;
+            this.exclusivePromise = undefined;
         }
     }
 }
