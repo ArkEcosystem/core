@@ -329,41 +329,97 @@ describe("Service.readdTransactions", () => {
         const service = container.resolve(Service);
         await service.readdTransactions();
 
+        expect(mempool.addTransaction).toBeCalledTimes(3);
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
         expect(mempool.addTransaction).toBeCalledWith(transaction2);
         expect(mempool.addTransaction).toBeCalledWith(transaction3);
+
+        expect(storage.removeTransaction).toBeCalledTimes(0);
     });
 
-    it("should remove transaction from storage that failed adding to mempool", async () => {
+    it("should remove transaction from storage that cannot be added to mempool", async () => {
         storage.getAllTransactions.mockReturnValueOnce([transaction1]);
         mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
 
         const service = container.resolve(Service);
         await service.readdTransactions();
 
+        expect(mempool.addTransaction).toBeCalledTimes(1);
+        expect(mempool.addTransaction).toBeCalledWith(transaction1);
+
+        expect(storage.removeTransaction).toBeCalledTimes(1);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
     });
 
-    it("should first add transactions passed in argument", async () => {
+    it("should remove all transactions from storage that cannot be added to mempool", async () => {
+        storage.getAllTransactions.mockReturnValueOnce([transaction1, transaction2]);
+        mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
+        mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
+
+        const service = container.resolve(Service);
+        await service.readdTransactions();
+
+        expect(mempool.addTransaction).toBeCalledTimes(2);
+        expect(mempool.addTransaction).toBeCalledWith(transaction1);
+        expect(mempool.addTransaction).toBeCalledWith(transaction2);
+
+        expect(storage.removeTransaction).toBeCalledTimes(2);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+        expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
+    });
+
+    it("should add preceding transactions first", async () => {
         storage.getAllTransactions.mockReturnValueOnce([transaction3]);
 
         const service = container.resolve(Service);
         await service.readdTransactions([transaction1, transaction2]);
 
+        expect(mempool.addTransaction).toBeCalledTimes(3);
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
         expect(mempool.addTransaction).toBeCalledWith(transaction2);
         expect(mempool.addTransaction).toBeCalledWith(transaction3);
+
+        expect(storage.addTransaction).toBeCalledTimes(2);
+        expect(storage.addTransaction).toBeCalledWith(transaction1.id, transaction1.serialized);
+        expect(storage.addTransaction).toBeCalledWith(transaction2.id, transaction2.serialized);
+
+        expect(storage.removeTransaction).toBeCalledTimes(0);
     });
 
-    it("should ignore errors when adding transaction that was passed in argument", async () => {
+    it("should ignore error when adding preceding transactions", async () => {
         storage.getAllTransactions.mockReturnValueOnce([transaction3]);
         mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
 
         const service = container.resolve(Service);
         await service.readdTransactions([transaction1, transaction2]);
 
+        expect(mempool.addTransaction).toBeCalledTimes(3);
+        expect(mempool.addTransaction).toBeCalledWith(transaction1);
         expect(mempool.addTransaction).toBeCalledWith(transaction2);
         expect(mempool.addTransaction).toBeCalledWith(transaction3);
+
+        expect(storage.addTransaction).toBeCalledTimes(1);
+        expect(storage.addTransaction).toBeCalledWith(transaction2.id, transaction2.serialized);
+
+        expect(storage.removeTransaction).toBeCalledTimes(0);
+    });
+
+    it("should ignore all errors when adding preceding transactions", async () => {
+        storage.getAllTransactions.mockReturnValueOnce([transaction3]);
+        mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
+        mempool.addTransaction.mockRejectedValueOnce(new Error("Something wrong"));
+
+        const service = container.resolve(Service);
+        await service.readdTransactions([transaction1, transaction2]);
+
+        expect(mempool.addTransaction).toBeCalledTimes(3);
+        expect(mempool.addTransaction).toBeCalledWith(transaction1);
+        expect(mempool.addTransaction).toBeCalledWith(transaction2);
+        expect(mempool.addTransaction).toBeCalledWith(transaction3);
+
+        expect(storage.addTransaction).toBeCalledTimes(0);
+
+        expect(storage.removeTransaction).toBeCalledTimes(0);
     });
 });
 
