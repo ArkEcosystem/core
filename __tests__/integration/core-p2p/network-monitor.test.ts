@@ -1,6 +1,7 @@
 import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
+import delay from "delay";
 import { Peer } from "../../../packages/core-p2p/src/peer";
 import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { MockSocketManager } from "./__support__/mock-socket-server/manager";
@@ -55,6 +56,8 @@ describe("NetworkMonitor", () => {
             const previousLength = storage.getPeers().length;
 
             await monitor.cleansePeers({ fast: true });
+
+            await delay(1000); // removing peer can happen a bit after cleansePeers has resolved
 
             expect(storage.getPeers().length).toBeLessThan(previousLength);
         });
