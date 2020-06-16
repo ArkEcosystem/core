@@ -36,7 +36,7 @@ export class BlockProcessor {
     }
 
     public async getHandler(block: Interfaces.IBlock): Promise<BlockHandler> {
-        if (Utils.isException(block.data)) {
+        if (Utils.isException({ ...block.data, transactions: block.transactions.map(tx => tx.data) })) {
             return new ExceptionHandler(this.blockchain, block);
         }
 

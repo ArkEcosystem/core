@@ -64,8 +64,6 @@ export const isException = (blockOrTransaction: { id?: string; transactions?: IT
         const blockToCheckTxIds = blockTransactions.map(tx => tx.id).sort();
         for (let i = 0; i < blockExceptionTxIds.length; i++) {
             if (blockToCheckTxIds[i] !== blockExceptionTxIds[i]) {
-                console.log(blockExceptionTxIds);
-                console.log(blockToCheckTxIds);
                 return false;
             }
         }
