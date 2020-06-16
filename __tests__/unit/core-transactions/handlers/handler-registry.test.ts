@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Contracts, Services } from "@packages/core-kernel";
+import { Services } from "@packages/core-kernel";
 import { Application } from "@packages/core-kernel/src/application";
 import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import {
