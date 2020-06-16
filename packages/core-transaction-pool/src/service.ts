@@ -2,7 +2,6 @@ import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arke
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
-import { Lock } from "./utils";
 
 @Container.injectable()
 export class Service implements Contracts.TransactionPool.Service {
@@ -28,7 +27,7 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(Container.Identifiers.TransactionPoolExpirationService)
     private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
 
-    private readonly lock: Lock = new Lock();
+    private readonly lock: AppUtils.Lock = new AppUtils.Lock();
 
     public async boot(): Promise<void> {
         this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, {

@@ -2,7 +2,6 @@ import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosyste
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { SenderExceededMaximumTransactionCountError } from "./errors";
-import { Lock } from "./utils";
 
 @Container.injectable()
 export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
@@ -13,7 +12,7 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     @Container.inject(Container.Identifiers.TransactionPoolSenderState)
     private readonly senderState!: Contracts.TransactionPool.SenderState;
 
-    private readonly lock = new Lock();
+    private readonly lock: AppUtils.Lock = new AppUtils.Lock();
 
     private readonly transactions: Interfaces.ITransaction[] = [];
 
