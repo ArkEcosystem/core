@@ -18,7 +18,7 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     private readonly transactions: Interfaces.ITransaction[] = [];
 
     public isDisposable(): boolean {
-        return this.transactions.length === 0 && this.lock.isFree();
+        return this.transactions.length === 0 && this.lock.isIdle();
     }
 
     public getSize(): number {
@@ -34,7 +34,7 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     }
 
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        await this.lock.run(async () => {
+        await this.lock.runExclusive(async () => {
             AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
             const maxTransactionsPerSender: number = this.configuration.getRequired<number>("maxTransactionsPerSender");
@@ -51,7 +51,7 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     }
 
     public async removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        return await this.lock.run(async () => {
+        return await this.lock.runExclusive(async () => {
             const index = this.transactions.findIndex((t) => t.id === transaction.id);
             if (index === -1) {
                 return [];
@@ -74,7 +74,7 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     }
 
     public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        return await this.lock.run(async () => {
+        return await this.lock.runExclusive(async () => {
             const index: number = this.transactions.findIndex((t) => t.id === transaction.id);
             if (index === -1) {
                 return this.transactions.splice(0, this.transactions.length);
