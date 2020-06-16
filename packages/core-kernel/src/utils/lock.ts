@@ -5,8 +5,9 @@ export class Lock {
 
     public async runNonExclusive<T>(callback: () => Promise<T>): Promise<T> {
         while (this.exclusivePromise) {
-            const safeExclusivePromise = this.exclusivePromise.catch(() => undefined);
-            await safeExclusivePromise;
+            try {
+                await this.exclusivePromise;
+            } catch {}
         }
 
         const nonExclusivePromise = callback();
@@ -21,13 +22,18 @@ export class Lock {
 
     public async runExclusive<T>(callback: () => Promise<T>): Promise<T> {
         while (this.exclusivePromise) {
-            const safeExclusivePromise = this.exclusivePromise.catch(() => undefined);
-            await safeExclusivePromise;
+            try {
+                await this.exclusivePromise;
+            } catch {}
         }
 
         const exclusivePromise = (async () => {
-            const safeNonExclusivePromises = Array.from(this.nonExclusivePromises).map((p) => p.catch(() => undefined));
-            await Promise.all(safeNonExclusivePromises);
+            for (const nonExclusivePromise of this.nonExclusivePromises) {
+                try {
+                    await nonExclusivePromise;
+                } catch {}
+            }
+
             return await callback();
         })();
 
