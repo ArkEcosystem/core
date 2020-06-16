@@ -2,7 +2,7 @@ import "../mocks/";
 import { blockchain } from "../mocks/blockchain";
 import { database } from "../mocks/database";
 
-import { Blocks, Managers, Utils } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import { BlockProcessor, BlockProcessorResult } from "../../../../packages/core-blockchain/src/processor";
 import * as handlers from "../../../../packages/core-blockchain/src/processor/handlers";
 import {
@@ -48,25 +48,27 @@ describe("Block processor", () => {
             Managers.configManager.setFromPreset("mainnet");
             const exceptionBlock = BlockFactory.fromData(blockTemplate);
             exceptionBlock.data.id = "10370119864814436559";
-            exceptionBlock.data.transactions = [
+            exceptionBlock.transactions = [
                 {
-                    id: "124860f9131d8b7d24b06d262d82929bc77cc7544586817e59297753203dc12b",
-                    blockId: "10370119864814436559",
-                    version: 1,
-                    type: 3,
-                    typeGroup: 1,
-                    amount: Utils.BigNumber.ZERO,
-                    fee: Utils.BigNumber.make("100000000"),
-                    senderPublicKey: "0247b3911ddad3d24314afc621304755b054207abcd0493745d5469d6a986cef54",
-                    recipientId: "AWMYLnbdVtGckhTzF8ZpMLEP3o3a24ZLBM",
-                    signature:
-                        "30440220538d262dc2636d3b78e4f1e903a732051c8082384290796a7b93ddcebb882d1f0220549464b55be0a64516431f25e40b7a45929f7892d8dbca9e0d3d8713b5e05f78",
-                    asset: {
-                        votes: ["+021f277f1e7a48c88f9c02988f06ca63d6f1781471f78dba49d58bab85eb3964c6"],
+                    data: {
+                        id: "43223de192d61a341301cc831a325ffe21d3e99666c023749bd4b562652f6796",
+                        blockId: "10370119864814436559",
+                        version: 1,
+                        type: 3,
+                        typeGroup: 1,
+                        amount: Utils.BigNumber.ZERO,
+                        fee: Utils.BigNumber.make("100000000"),
+                        senderPublicKey: "0247b3911ddad3d24314afc621304755b054207abcd0493745d5469d6a986cef54",
+                        recipientId: "AWMYLnbdVtGckhTzF8ZpMLEP3o3a24ZLBM",
+                        signature:
+                            "30440220538d262dc2636d3b78e4f1e903a732051c8082384290796a7b93ddcebb882d1f0220549464b55be0a64516431f25e40b7a45929f7892d8dbca9e0d3d8713b5e05f78",
+                        asset: {
+                            votes: ["+021f277f1e7a48c88f9c02988f06ca63d6f1781471f78dba49d58bab85eb3964c6"],
+                        },
+                        timestamp: 53231063,
+                        nonce: Utils.BigNumber.ONE,
                     },
-                    timestamp: 53231063,
-                    nonce: Utils.BigNumber.ONE,
-                },
+                } as Interfaces.ITransaction,
             ];
             exceptionBlock.data.numberOfTransactions = 1;
 
