@@ -1,11 +1,10 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
+import { InvalidTransactionDataError } from "./errors";
+
 @Container.injectable()
 export class Processor implements Contracts.TransactionPool.Processor {
-    @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
-
     @Container.inject(Container.Identifiers.TransactionPoolService)
     private readonly pool!: Contracts.TransactionPool.Service;
 
@@ -27,39 +26,36 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     public async process(data: Interfaces.ITransactionData[]): Promise<void> {
         const broadcastableTransactions: Interfaces.ITransaction[] = [];
-        const promises = data.map((d) => this.getTransactionFromData(d));
-        const transactions = await Promise.all(promises);
 
         try {
-            for (const transaction of transactions) {
-                AppUtils.assert.defined<string>(transaction.id);
+            for (const transactionData of data) {
+                const id = transactionData.id;
+                AppUtils.assert.defined<string>(id);
 
                 try {
+                    const transaction = await this.getTransactionFromData(transactionData);
                     await this.dynamicFeeMatcher.throwIfCannotEnterPool(transaction);
                     await this.pool.addTransaction(transaction);
-                    this.accept.push(transaction.id);
+                    this.accept.push(id);
 
                     try {
                         await this.dynamicFeeMatcher.throwIfCannotBroadcast(transaction);
                         broadcastableTransactions.push(transaction);
                     } catch {}
                 } catch (error) {
-                    this.invalid.push(transaction.id);
+                    this.invalid.push(id);
 
                     if (error instanceof Contracts.TransactionPool.PoolError) {
                         if (error.type === "ERR_EXCEEDS_MAX_COUNT") {
-                            this.excess.push(transaction.id);
+                            this.excess.push(id);
                         }
 
                         if (!this.errors) this.errors = {};
-                        this.errors[transaction.id] = {
+                        this.errors[id] = {
                             type: error.type,
                             message: error.message,
                         };
-
-                        this.logger.warning(`${transaction} failed to enter pool: ${error.message}`);
                     } else {
-                        this.logger.error(`${transaction} caused error entering pool: ${error.stack}`);
                         throw error;
                     }
                 }
@@ -78,10 +74,14 @@ export class Processor implements Contracts.TransactionPool.Processor {
     private async getTransactionFromData(
         transactionData: Interfaces.ITransactionData,
     ): Promise<Interfaces.ITransaction> {
-        if (this.workerPool.isTypeGroupSupported(transactionData.typeGroup!)) {
-            return this.workerPool.getTransactionFromData(transactionData);
-        } else {
-            return Transactions.TransactionFactory.fromData(transactionData);
+        try {
+            if (this.workerPool.isTypeGroupSupported(transactionData.typeGroup!)) {
+                return await this.workerPool.getTransactionFromData(transactionData);
+            } else {
+                return Transactions.TransactionFactory.fromData(transactionData);
+            }
+        } catch (error) {
+            throw new InvalidTransactionDataError(error.message);
         }
     }
 }

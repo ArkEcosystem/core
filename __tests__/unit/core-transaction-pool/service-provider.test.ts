@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Application, Container, Services } from "@packages/core-kernel";
-import { ServiceProvider } from "@packages/core-transaction-pool/src";
+import { Application, Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { fork } from "child_process";
+
+import { ServiceProvider } from "../../../packages/core-transaction-pool/src";
 
 jest.mock("child_process");
 

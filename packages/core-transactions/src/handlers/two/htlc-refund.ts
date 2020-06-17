@@ -87,7 +87,6 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             throw new Contracts.TransactionPool.PoolError(
                 `The associated lock transaction id "${lockId}" was not found`,
                 "ERR_HTLCLOCKNOTFOUND",
-                transaction,
             );
         }
 
@@ -101,7 +100,6 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             throw new Contracts.TransactionPool.PoolError(
                 `HtlcRefund for "${lockId}" already in the pool`,
                 "ERR_PENDING",
-                transaction,
             );
         }
     }

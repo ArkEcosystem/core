@@ -129,7 +129,6 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             throw new Contracts.TransactionPool.PoolError(
                 `Bridgechain update for bridgechainId "${bridgechainId}" already in the pool`,
                 "ERR_PENDING",
-                transaction,
             );
         }
     }

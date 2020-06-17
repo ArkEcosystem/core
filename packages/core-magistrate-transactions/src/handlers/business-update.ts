@@ -81,11 +81,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
             .has();
 
         if (hasSender) {
-            throw new Contracts.TransactionPool.PoolError(
-                `Business update already in the pool`,
-                "ERR_PENDING",
-                transaction,
-            );
+            throw new Contracts.TransactionPool.PoolError(`Business update already in the pool`, "ERR_PENDING");
         }
     }
 

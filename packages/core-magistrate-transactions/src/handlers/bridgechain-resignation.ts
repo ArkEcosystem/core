@@ -112,7 +112,6 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
             throw new Contracts.TransactionPool.PoolError(
                 `Bridgechain resignation for bridgechainId "${bridgechainId}" already in the pool`,
                 "ERR_PENDING",
-                transaction,
             );
         }
     }
