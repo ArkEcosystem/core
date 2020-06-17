@@ -4,6 +4,7 @@ import { container } from "./mocks/container";
 
 import * as Utils from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { stateMachine } from "../../../packages/core-blockchain/src/state-machine";
 import "../../utils";
