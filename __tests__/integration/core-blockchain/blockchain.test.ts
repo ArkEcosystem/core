@@ -57,7 +57,7 @@ const addBlocks = async untilHeight => {
 
     for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
         const blockToProcess = allBlocks[height - 2];
-        await blockchain.processBlocks([blockToProcess], () => undefined);
+        await blockchain.processBlocks([blockToProcess]);
     }
 };
 
@@ -224,8 +224,6 @@ describe("Blockchain", () => {
         };
 
         it("should restore vote balances after a rollback", async () => {
-            const mockCallback = jest.fn(() => true);
-
             // Create key pair for new voter
             const keyPair = Identities.Keys.fromPassphrase("secret");
             const recipient = Identities.Address.fromPublicKey(keyPair.publicKey);
@@ -241,7 +239,7 @@ describe("Blockchain", () => {
                 .createOne();
 
             const transferBlock = createBlock(forgerKeys, [transfer]);
-            await blockchain.processBlocks([transferBlock], mockCallback);
+            await blockchain.processBlocks([transferBlock]);
 
             const wallet = blockchain.database.walletManager.findByPublicKey(keyPair.publicKey);
             const walletForger = blockchain.database.walletManager.findByPublicKey(forgerKeys.publicKey);
@@ -264,7 +262,7 @@ describe("Blockchain", () => {
             let nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
 
             const voteBlock = createBlock(nextForgerWallet, [vote]);
-            await blockchain.processBlocks([voteBlock], mockCallback);
+            await blockchain.processBlocks([voteBlock]);
 
             // Wallet paid a fee of 1 and the vote has been placed.
             expect(wallet.balance).toEqual(Utils.BigNumber.make(124));
@@ -287,7 +285,7 @@ describe("Blockchain", () => {
             nextForgerWallet = delegates.find(wallet => wallet.publicKey === nextForger.publicKey);
 
             const unvoteBlock = createBlock(nextForgerWallet, [unvote]);
-            await blockchain.processBlocks([unvoteBlock], mockCallback);
+            await blockchain.processBlocks([unvoteBlock]);
 
             // Wallet paid a fee of 1 and no longer voted a delegate
             expect(wallet.balance).toEqual(Utils.BigNumber.make(123));

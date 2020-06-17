@@ -53,6 +53,7 @@ export class Config {
                     .required(),
                 exceptions: Joi.object({
                     blocks: Joi.array().items(Joi.string()),
+                    blocksTransactions: Joi.object(),
                     transactions: Joi.array().items(Joi.string()),
                     outlookTable: Joi.object(),
                     transactionIdFixTable: Joi.object(),

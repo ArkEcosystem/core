@@ -49,6 +49,9 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return this.emit(peer, "p2p.peer.postTransactions", { transactions }, postTransactionsTimeout);
     }
 
+    // ! do not rely on parameter timeoutMsec as guarantee that ping method will resolve within it !
+    // ! peerVerifier.checkState can take more time !
+    // TODO refactor on next version ?
     public async ping(peer: P2P.IPeer, timeoutMsec: number, force: boolean = false): Promise<any> {
         const deadline = new Date().getTime() + timeoutMsec;
 

@@ -4,7 +4,6 @@ import { container } from "./mocks/container";
 
 import * as Utils from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
-import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { stateMachine } from "../../../packages/core-blockchain/src/state-machine";
 import "../../utils";
@@ -113,55 +112,46 @@ describe("Blockchain", () => {
         });
 
         it("should process a new chained block", async () => {
-            const mockCallback = jest.fn(() => true);
             blockchain.state.blockchain = {};
 
-            await blockchain.processBlocks([blocks2to100[2]], mockCallback);
-            await delay(200);
+            const acceptedBlocks = await blockchain.processBlocks([blocks2to100[2]]);
 
-            expect(mockCallback.mock.calls.length).toBe(1);
+            expect(acceptedBlocks.length).toBe(1);
         });
 
-        it("should process a valid block already known", async () => {
-            const mockCallback = jest.fn(() => true);
+        it("should handle a valid block already known", async () => {
             const lastBlock = blockchain.getLastBlock().data;
 
-            await blockchain.processBlocks([lastBlock], mockCallback);
-            await delay(200);
+            const acceptedBlocks = await blockchain.processBlocks([lastBlock]);
 
-            expect(mockCallback.mock.calls.length).toBe(1);
+            expect(acceptedBlocks).toBeUndefined();
             expect(blockchain.getLastBlock().data).toEqual(lastBlock);
         });
 
-        it("should process a new block with database saveBlocks failing once", async () => {
-            const mockCallback = jest.fn(() => true);
+        it("should handle database saveBlocks failing once", async () => {
             blockchain.state.blockchain = {};
             database.saveBlocks = jest.fn().mockRejectedValueOnce(new Error("oops"));
             jest.spyOn(blockchain, "removeTopBlocks").mockReturnValueOnce(undefined);
 
-            await blockchain.processBlocks([blocks2to100[2]], mockCallback);
-            await delay(200);
+            const acceptedBlocks = await blockchain.processBlocks([blocks2to100[2]]);
 
-            expect(mockCallback.mock.calls.length).toBe(1);
+            expect(acceptedBlocks).toBeUndefined();
         });
 
-        it("should process a new block with database saveBlocks + getLastBlock failing once", async () => {
-            const mockCallback = jest.fn(() => true);
+        it("should handle a new block with database saveBlocks + getLastBlock failing once", async () => {
             blockchain.state.blockchain = {};
             jest.spyOn(database, "saveBlocks").mockRejectedValueOnce(new Error("oops saveBlocks"));
             jest.spyOn(blockchain, "removeTopBlocks").mockReturnValueOnce(undefined);
 
-            await blockchain.processBlocks([blocks2to100[2]], mockCallback);
-            await delay(200);
+            const acceptedBlocks = await blockchain.processBlocks([blocks2to100[2]]);
 
-            expect(mockCallback.mock.calls.length).toBe(1);
+            expect(acceptedBlocks).toBeUndefined();
         });
 
         it("should broadcast a block if (Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
             blockchain.state.started = true;
             jest.spyOn(Utils, "isBlockChained").mockReturnValueOnce(true);
 
-            const mockCallback = jest.fn(() => true);
             const lastBlock = blockchain.getLastBlock().data;
             const spyGetSlotNumber = jest
                 .spyOn(Crypto.Slots, "getSlotNumber")
@@ -169,10 +159,8 @@ describe("Blockchain", () => {
 
             const broadcastBlock = jest.spyOn(getMonitor, "broadcastBlock");
 
-            await blockchain.processBlocks([lastBlock], mockCallback);
-            await delay(200);
+            await blockchain.processBlocks([lastBlock]);
 
-            expect(mockCallback.mock.calls.length).toBe(1);
             expect(broadcastBlock).toHaveBeenCalled();
 
             spyGetSlotNumber.mockRestore();
