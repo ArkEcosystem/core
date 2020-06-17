@@ -24,6 +24,7 @@ describe("Hapi Ajv", () => {
                 pagination: {
                     limit: 100,
                 },
+                socketTimeout: 5000,
                 cache: {
                     enabled: true,
                     stdTTL: 0, // unlimited

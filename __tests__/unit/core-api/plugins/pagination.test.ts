@@ -23,6 +23,7 @@ describe("Pagination", () => {
                 pagination: {
                     limit: 100,
                 },
+                socketTimeout: 5000,
             },
         };
 

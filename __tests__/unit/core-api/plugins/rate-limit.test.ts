@@ -24,6 +24,7 @@ describe("Rate limit", () => {
                 pagination: {
                     limit: 100,
                 },
+                socketTimeout: 5000,
                 rateLimit: {
                     enabled: true,
                     points: 1,

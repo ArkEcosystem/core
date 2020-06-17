@@ -36,6 +36,7 @@ export const defaults = {
         pagination: {
             limit: 100,
         },
+        socketTimeout: 5000,
         whitelist: ["*"],
     },
     options: {

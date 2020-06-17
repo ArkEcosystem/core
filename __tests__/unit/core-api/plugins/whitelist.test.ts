@@ -22,6 +22,7 @@ describe("Whitelist", () => {
                 pagination: {
                     limit: 100,
                 },
+                socketTimeout: 5000,
                 whitelist: ["127.0.0.1"],
             },
         };
