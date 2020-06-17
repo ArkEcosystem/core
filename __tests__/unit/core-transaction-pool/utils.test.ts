@@ -1,4 +1,4 @@
-import { createLock, IteratorMany } from "../../../packages/core-transaction-pool/src/utils";
+import { IteratorMany } from "../../../packages/core-transaction-pool/src/utils";
 
 describe("IteratorMany", () => {
     it("should choose next item based on comparator", () => {
@@ -28,38 +28,5 @@ describe("IteratorMany", () => {
         expect(iteratorMany.next()).toStrictEqual({ done: false, value: 0 });
         // [], []
         expect(iteratorMany.next()).toStrictEqual({ done: true, value: undefined });
-    });
-});
-
-describe("createLock", () => {
-    it("should synchronize parallel async executions", async () => {
-        let counter = 0;
-        const lock = createLock();
-
-        const promise1 = lock(async () => {
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            return ++counter;
-        });
-        const promise2 = lock(async () => {
-            return ++counter;
-        });
-        const results = await Promise.all([promise1, promise2]);
-
-        expect(results).toStrictEqual([1, 2]);
-    });
-
-    it("should synchronize parallel async executions even if error was thrown", async () => {
-        let counter = 0;
-        const lock = createLock();
-
-        const promise1 = lock(async () => {
-            await new Promise((_, reject) => setTimeout(() => reject(++counter), 100));
-        }).catch((value) => value);
-        const promise2 = lock(async () => {
-            return ++counter;
-        });
-        const results = await Promise.all([promise1, promise2]);
-
-        expect(results).toStrictEqual([1, 2]);
     });
 });

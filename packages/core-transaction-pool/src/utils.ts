@@ -34,29 +34,3 @@ export class IteratorMany<T> implements Iterator<T> {
         return result;
     }
 }
-
-export const createLock = () => {
-    type QueueItem = () => Promise<void>;
-    const queue: QueueItem[] = [];
-
-    return <T>(callback: () => Promise<T>): Promise<T> => {
-        return new Promise<T>((resolve, reject) => {
-            queue.push(async () => {
-                try {
-                    resolve(await callback());
-                } catch (error) {
-                    reject(error);
-                } finally {
-                    queue.shift();
-                    if (queue.length) {
-                        queue[0]();
-                    }
-                }
-            });
-
-            if (queue.length === 1) {
-                queue[0]();
-            }
-        });
-    };
-};

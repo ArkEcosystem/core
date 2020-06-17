@@ -2,7 +2,6 @@ import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosyste
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { SenderExceededMaximumTransactionCountError } from "./errors";
-import { createLock } from "./utils";
 
 @Container.injectable()
 export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
@@ -13,12 +12,14 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     @Container.inject(Container.Identifiers.TransactionPoolSenderState)
     private readonly senderState!: Contracts.TransactionPool.SenderState;
 
-    private readonly lock = createLock();
+    private concurrency: number = 0;
+
+    private readonly lock: AppUtils.Lock = new AppUtils.Lock();
 
     private readonly transactions: Interfaces.ITransaction[] = [];
 
-    public isEmpty(): boolean {
-        return this.transactions.length === 0;
+    public isDisposable(): boolean {
+        return this.transactions.length === 0 && this.concurrency === 0;
     }
 
     public getSize(): number {
@@ -34,53 +35,70 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     }
 
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        await this.lock(async () => {
-            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+        try {
+            this.concurrency++;
+            await this.lock.runExclusive(async () => {
+                AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-            const maxTransactionsPerSender: number = this.configuration.getRequired<number>("maxTransactionsPerSender");
-            if (this.transactions.length >= maxTransactionsPerSender) {
-                const allowedSenders: string[] = this.configuration.getOptional<string[]>("allowedSenders", []);
-                if (!allowedSenders.includes(transaction.data.senderPublicKey)) {
-                    throw new SenderExceededMaximumTransactionCountError(transaction, maxTransactionsPerSender);
+                const maxTransactionsPerSender: number = this.configuration.getRequired<number>(
+                    "maxTransactionsPerSender",
+                );
+                if (this.transactions.length >= maxTransactionsPerSender) {
+                    const allowedSenders: string[] = this.configuration.getOptional<string[]>("allowedSenders", []);
+                    if (!allowedSenders.includes(transaction.data.senderPublicKey)) {
+                        throw new SenderExceededMaximumTransactionCountError(transaction, maxTransactionsPerSender);
+                    }
                 }
-            }
 
-            await this.senderState.apply(transaction);
-            this.transactions.push(transaction);
-        });
+                await this.senderState.apply(transaction);
+                this.transactions.push(transaction);
+            });
+        } finally {
+            this.concurrency--;
+        }
     }
 
     public async removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        return await this.lock(async () => {
-            const index = this.transactions.findIndex((t) => t.id === transaction.id);
-            if (index === -1) {
-                return [];
-            }
-
-            const removedTransactions: Interfaces.ITransaction[] = this.transactions
-                .splice(index, this.transactions.length - index)
-                .reverse();
-
-            try {
-                for (const removedTransaction of removedTransactions) {
-                    await this.senderState.revert(removedTransaction);
+        try {
+            this.concurrency++;
+            return await this.lock.runExclusive(async () => {
+                const index = this.transactions.findIndex((t) => t.id === transaction.id);
+                if (index === -1) {
+                    return [];
                 }
-                return removedTransactions;
-            } catch (error) {
-                const otherRemovedTransactions = this.transactions.splice(0, this.transactions.length).reverse();
-                return [...removedTransactions, ...otherRemovedTransactions];
-            }
-        });
+
+                const removedTransactions: Interfaces.ITransaction[] = this.transactions
+                    .splice(index, this.transactions.length - index)
+                    .reverse();
+
+                try {
+                    for (const removedTransaction of removedTransactions) {
+                        await this.senderState.revert(removedTransaction);
+                    }
+                    return removedTransactions;
+                } catch (error) {
+                    const otherRemovedTransactions = this.transactions.splice(0, this.transactions.length).reverse();
+                    return [...removedTransactions, ...otherRemovedTransactions];
+                }
+            });
+        } finally {
+            this.concurrency--;
+        }
     }
 
     public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        return await this.lock(async () => {
-            const index: number = this.transactions.findIndex((t) => t.id === transaction.id);
-            if (index === -1) {
-                return this.transactions.splice(0, this.transactions.length);
-            } else {
-                return this.transactions.splice(0, index + 1);
-            }
-        });
+        try {
+            this.concurrency++;
+            return await this.lock.runExclusive(async () => {
+                const index: number = this.transactions.findIndex((t) => t.id === transaction.id);
+                if (index === -1) {
+                    return this.transactions.splice(0, this.transactions.length);
+                } else {
+                    return this.transactions.splice(0, index + 1);
+                }
+            });
+        } finally {
+            this.concurrency--;
+        }
     }
 }

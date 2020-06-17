@@ -1,6 +1,5 @@
 import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import assert from "assert";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
 
@@ -28,9 +27,7 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(Container.Identifiers.TransactionPoolExpirationService)
     private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
 
-    private readonly updateLocks: Promise<void>[] = [];
-
-    private rebuildLock?: Promise<void>;
+    private readonly lock: AppUtils.Lock = new AppUtils.Lock();
 
     public async boot(): Promise<void> {
         this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, {
@@ -49,12 +46,7 @@ export class Service implements Contracts.TransactionPool.Service {
     }
 
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        while (this.rebuildLock) {
-            this.logger.debug(`${transaction} add is waiting for rebuild lock`);
-            await this.rebuildLock;
-        }
-
-        const fn = async () => {
+        await this.lock.runNonExclusive(async () => {
             AppUtils.assert.defined<string>(transaction.id);
             if (this.storage.hasTransaction(transaction.id)) {
                 throw new TransactionAlreadyInPoolError(transaction);
@@ -70,26 +62,11 @@ export class Service implements Contracts.TransactionPool.Service {
                 this.emitter.dispatch(Enums.TransactionEvent.RejectedByPool, transaction.data);
                 throw error;
             }
-        };
-
-        const promise = fn();
-        this.updateLocks.push(promise);
-        try {
-            await promise;
-        } finally {
-            const index = this.updateLocks.indexOf(promise);
-            assert(index !== -1);
-            this.updateLocks.splice(index, 1);
-        }
+        });
     }
 
     public async removeTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        while (this.rebuildLock) {
-            this.logger.debug(`${transaction} remove is waiting for rebuild lock`);
-            await this.rebuildLock;
-        }
-
-        const fn = async () => {
+        await this.lock.runNonExclusive(async () => {
             AppUtils.assert.defined<string>(transaction.id);
             if (this.storage.hasTransaction(transaction.id) === false) {
                 this.logger.error(`${transaction} not found`);
@@ -109,26 +86,11 @@ export class Service implements Contracts.TransactionPool.Service {
             }
 
             this.emitter.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
-        };
-
-        const promise = fn();
-        this.updateLocks.push(promise);
-        try {
-            await promise;
-        } finally {
-            const index = this.updateLocks.indexOf(promise);
-            assert(index !== -1);
-            this.updateLocks.splice(index, 1);
-        }
+        });
     }
 
     public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        while (this.rebuildLock) {
-            this.logger.debug(`${transaction} accept forged is waiting for rebuild lock`);
-            await this.rebuildLock;
-        }
-
-        const fn = async () => {
+        await this.lock.runNonExclusive(async () => {
             AppUtils.assert.defined<string>(transaction.id);
             if (this.storage.hasTransaction(transaction.id) === false) {
                 return;
@@ -147,32 +109,11 @@ export class Service implements Contracts.TransactionPool.Service {
                 this.storage.removeTransaction(transaction.id);
                 this.logger.error(`${transaction} forged and accepted by pool (wasn't in mempool)`);
             }
-        };
-
-        const promise = fn();
-        this.updateLocks.push(promise);
-        try {
-            await promise;
-        } finally {
-            const index = this.updateLocks.indexOf(promise);
-            assert(index !== -1);
-            this.updateLocks.splice(index, 1);
-        }
+        });
     }
 
     public async readdTransactions(precedingTransactions?: Interfaces.ITransaction[]): Promise<void> {
-        while (this.rebuildLock) {
-            this.logger.debug(`Re-add is waiting for rebuild lock`);
-            await this.rebuildLock;
-        }
-
-        const fn = async () => {
-            if (this.updateLocks.length) {
-                this.logger.debug(`Re-add is waiting for update locks`);
-                await Promise.all(this.updateLocks);
-                assert(this.updateLocks.length === 0);
-            }
-
+        await this.lock.runExclusive(async () => {
             this.mempool.flush();
 
             let precedingSuccessCount = 0;
@@ -231,63 +172,21 @@ export class Service implements Contracts.TransactionPool.Service {
             if (pendingErrorCount > 1) {
                 this.logger.warning(`${pendingErrorCount} pending transactions were not re-added to pool`);
             }
-        };
-
-        this.rebuildLock = fn();
-
-        try {
-            await this.rebuildLock;
-        } finally {
-            this.rebuildLock = undefined;
-        }
+        });
     }
 
     public async cleanUp(): Promise<void> {
-        while (this.rebuildLock) {
-            this.logger.debug(`Clean-up is waiting for rebuild lock`);
-            await this.rebuildLock;
-        }
-
-        const fn = async () => {
+        await this.lock.runNonExclusive(async () => {
             await this.cleanExpired();
             await this.cleanLowestPriority();
-        };
-
-        const promise = fn();
-        this.updateLocks.push(promise);
-        try {
-            await promise;
-        } finally {
-            const index = this.updateLocks.indexOf(promise);
-            assert(index !== -1);
-            this.updateLocks.splice(index, 1);
-        }
+        });
     }
 
     public async flush(): Promise<void> {
-        while (this.rebuildLock) {
-            this.logger.debug(`Flush is waiting for rebuild lock`);
-            await this.rebuildLock;
-        }
-
-        const fn = async () => {
-            if (this.updateLocks.length) {
-                this.logger.debug(`Flush is waiting for update locks`);
-                await Promise.all(this.updateLocks);
-                assert(this.updateLocks.length === 0);
-            }
-
+        await this.lock.runExclusive(async () => {
             this.mempool.flush();
             this.storage.flush();
-        };
-
-        this.rebuildLock = fn();
-
-        try {
-            await this.rebuildLock;
-        } finally {
-            this.rebuildLock = undefined;
-        }
+        });
     }
 
     private async addTransactionToMempool(transaction: Interfaces.ITransaction): Promise<void> {
