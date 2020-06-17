@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.39] - 2020-06-17
+
+### Fixed
+
+-   Block schema violation ([#3806])
+
+## [2.6.38] - 2020-05-27
+
+### Fixed
+
+-   Discard late-forged blocks from forger ([#3746])
+
+## [2.6.37] - 2020-05-12
+
+### Changed
+
+-   Custom validation for `postBlock` in `core-p2p` worker ([#3695])
+
+## [2.6.36] - 2020-05-04
+
+### Fixed
+
+-   Update vote balance with htlc locked balance on vote transactions ([#3669])
+-   Use sorted array (instead of tree) for storing transactions by fee and nonce ([#3678])
+
 ## [2.6.34] - 2020-04-28
 
 ### Fixed
@@ -956,6 +981,10 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.6.39]: https://github.com/ARKEcosystem/core/compare/2.6.38...2.6.39
+[2.6.38]: https://github.com/ARKEcosystem/core/compare/2.6.37...2.6.38
+[2.6.37]: https://github.com/ARKEcosystem/core/compare/2.6.36...2.6.37
+[2.6.36]: https://github.com/ARKEcosystem/core/compare/2.6.34...2.6.36
 [2.6.34]: https://github.com/ARKEcosystem/core/compare/2.6.31...2.6.34
 [2.6.31]: https://github.com/ARKEcosystem/core/compare/2.6.30...2.6.31
 [2.6.30]: https://github.com/ARKEcosystem/core/compare/2.6.29...2.6.30
@@ -1509,6 +1538,11 @@ Closed security vulnerabilities:
 [#3659]: https://github.com/ARKEcosystem/core/pull/3659
 [#3665]: https://github.com/ARKEcosystem/core/pull/3665
 [#3667]: https://github.com/ARKEcosystem/core/pull/3667
+[#3669]: https://github.com/ARKEcosystem/core/pull/3669
+[#3678]: https://github.com/ARKEcosystem/core/pull/3678
+[#3695]: https://github.com/ARKEcosystem/core/pull/3695
+[#3746]: https://github.com/ARKEcosystem/core/pull/3746
+[#3806]: https://github.com/ARKEcosystem/core/pull/3806
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a

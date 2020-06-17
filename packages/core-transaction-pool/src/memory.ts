@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { State } from "@arkecosystem/core-interfaces";
-import { expirationCalculator, Tree } from "@arkecosystem/core-utils";
+import { expirationCalculator, SortedArray } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -15,10 +15,10 @@ export class Memory {
     private all: Interfaces.ITransaction[] = [];
     private allIsSorted: boolean = true;
     private byId: { [key: string]: Interfaces.ITransaction } = {};
-    private bySender: { [key: string]: Tree<Interfaces.ITransaction> } = {};
+    private bySender: { [key: string]: SortedArray<Interfaces.ITransaction> } = {};
     private byType: Map<Transactions.InternalTransactionType, Set<Interfaces.ITransaction>> = new Map();
 
-    private byFee: Tree<Interfaces.ITransaction> = new Tree(
+    private byFee: SortedArray<Interfaces.ITransaction> = new SortedArray(
         (a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
             if (a.data.fee.isGreaterThan(b.data.fee)) {
                 return -1;
@@ -122,26 +122,46 @@ export class Memory {
         return new Set();
     }
 
-    public getBySender(senderPublicKey: string): Set<Interfaces.ITransaction> {
+    public getBySender(senderPublicKey: string): Interfaces.ITransaction[] {
         if (this.bySender[senderPublicKey] !== undefined) {
-            return new Set(this.bySender[senderPublicKey].getAll());
+            return this.bySender[senderPublicKey].getAll();
         }
 
-        return new Set();
+        return [];
     }
 
     public getLowestFeeLastNonce(): Interfaces.ITransaction | undefined {
         // Algorithm : get the lowest fees transactions : if one of them happen to be the last nonce
-        // of the sender, then return it (try that for the 1000 lowest fee transactions)
-        const sortedByFee = this.byFee.getAll();
-        for (let i = sortedByFee.length - 1; i >= Math.max(sortedByFee.length - 1000, 0); i--) {
-            const transaction = sortedByFee[i];
-            const lastByNonceSameSender = this.bySender[transaction.data.senderPublicKey].getLast();
-            if (lastByNonceSameSender && lastByNonceSameSender[0].data.id === transaction.data.id) {
+        // of the sender, then return it (try that for the 100 lowest fee transactions)
+        // if not, just fetch 100 "last nonce txs" and return the lowest fee one (it might not be the
+        // lowest "last nonce tx" among all the pool - we don't want to go through all the pool for
+        // performance reasons - but it's important to return a transaction so that new transactions
+        // can be accepted into the pool when it is full if they have a high enough fee)
+        const maxTxsToFetch = 100;
+        const all = this.byFee.getAll();
+        const lowestFeeTxs = all.slice(Math.max(all.length - maxTxsToFetch, 0)).reverse();
+        for (const transaction of lowestFeeTxs) {
+            const allBySameSender = this.bySender[transaction.data.senderPublicKey].getAll();
+            const lastByNonceSameSender = allBySameSender[allBySameSender.length - 1];
+            if (lastByNonceSameSender && lastByNonceSameSender.id === transaction.id) {
                 return transaction;
             }
         }
-        return undefined;
+
+        // if we didn't find a "last nonce tx" among the lowest fee transactions, fetch
+        // the first 100 "last nonce tx" by sender and return the lowest fee one
+        let lowestFeeTx: Interfaces.ITransaction;
+        for (const bySender of Object.values(this.bySender).slice(0, maxTxsToFetch)) {
+            const txsBySender = bySender.getAll();
+            const lastNonceTxBySender = txsBySender[txsBySender.length - 1];
+            lowestFeeTx = lowestFeeTx
+                ? lastNonceTxBySender.data.fee.isLessThan(lowestFeeTx.data.nonce)
+                    ? lastNonceTxBySender
+                    : lowestFeeTx
+                : lastNonceTxBySender;
+        }
+
+        return lowestFeeTx;
     }
 
     public remember(transaction: Interfaces.ITransaction, databaseReady?: boolean): void {
@@ -150,7 +170,7 @@ export class Memory {
         this.all.push(transaction);
         this.allIsSorted = false;
 
-        this.byFee.insert(transaction.data.id, transaction);
+        this.byFee.insert(transaction);
 
         this.byId[transaction.id] = transaction;
 
@@ -159,8 +179,8 @@ export class Memory {
 
         if (this.bySender[sender] === undefined) {
             // First transaction from this sender, create a new Tree.
-            this.bySender[sender] = new Tree((a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
-                // if no nonce (v1 transactions), default to BigNumber.ZERO to still be able to use the tree
+            this.bySender[sender] = new SortedArray((a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
+                // if no nonce (v1 transactions), default to BigNumber.ZERO to still be able to use the sorted array
                 const nonceA = a.data.nonce || Utils.BigNumber.ZERO;
                 const nonceB = b.data.nonce || Utils.BigNumber.ZERO;
                 if (nonceA.isGreaterThan(nonceB)) {
@@ -173,7 +193,7 @@ export class Memory {
             });
         }
         // Append to existing transaction ids for this sender.
-        this.bySender[sender].insert(transaction.data.id, transaction);
+        this.bySender[sender].insert(transaction);
 
         const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
             type,
@@ -227,7 +247,8 @@ export class Memory {
         const transaction: Interfaces.ITransaction = this.byId[id];
         const { type, typeGroup } = this.byId[id];
 
-        this.byFee.remove(id, transaction);
+        const byFeeIndex = this.byFee.findIndex(tx => tx.id === transaction.id);
+        this.byFee.removeAtIndex(byFeeIndex);
 
         // XXX worst case: O(n)
         let i: number = this.byExpiration.findIndex(e => e.id === id);
@@ -235,7 +256,8 @@ export class Memory {
             this.byExpiration.splice(i, 1);
         }
 
-        this.bySender[senderPublicKey].remove(transaction.data.id, transaction);
+        const bySenderIndex = this.bySender[senderPublicKey].findIndex(tx => tx.id === transaction.id);
+        this.bySender[senderPublicKey].removeAtIndex(bySenderIndex);
         if (this.bySender[senderPublicKey].isEmpty()) {
             delete this.bySender[senderPublicKey];
         }
@@ -273,7 +295,7 @@ export class Memory {
     public flush(): void {
         this.all = [];
         this.allIsSorted = true;
-        this.byFee = new Tree(this.byFee.getCompareFunction());
+        this.byFee = new SortedArray(this.byFee.getCompareFunction());
         this.byId = {};
         this.bySender = {};
         this.byType.clear();
@@ -317,53 +339,38 @@ export class Memory {
     private sort(limit?: number): Interfaces.ITransaction[] {
         const sortedByFee = this.byFee.getAll();
 
-        let allMoved = 0;
-        const indexBySender = {};
-        for (let i = 0; i < sortedByFee.length; i++) {
-            const transaction: Interfaces.ITransaction = sortedByFee[i];
-
+        const sortedByFeeAndNonce = [];
+        const lastAddedBySender = {};
+        const txsToIgnore = {};
+        for (const transaction of sortedByFee) {
             if (transaction.data.version < 2) {
+                sortedByFeeAndNonce.push(transaction);
+                continue;
+            }
+
+            if (txsToIgnore[transaction.id]) {
                 continue;
             }
 
             const sender: string = transaction.data.senderPublicKey;
-            if (indexBySender[sender] === undefined) {
-                indexBySender[sender] = [];
+            const lowerNonceTxsForSender = lastAddedBySender[sender]
+                ? this.bySender[sender].getStrictlyBetween(lastAddedBySender[sender], transaction)
+                : this.bySender[sender].getStrictlyBelow(transaction);
+
+            for (const lowerNonceTx of lowerNonceTxsForSender) {
+                txsToIgnore[lowerNonceTx.id] = lowerNonceTx;
+                sortedByFeeAndNonce.push(lowerNonceTx);
             }
-            indexBySender[sender].push(i);
+            sortedByFeeAndNonce.push(transaction);
 
-            let nMoved = 0;
+            lastAddedBySender[sender] = transaction;
 
-            for (let j = 0; j < indexBySender[sender].length - 1; j++) {
-                const prevIndex: number = indexBySender[sender][j];
-                if (sortedByFee[i].data.nonce.isLessThan(sortedByFee[prevIndex].data.nonce)) {
-                    const newIndex = i + 1 + nMoved;
-                    sortedByFee.splice(newIndex, 0, sortedByFee[prevIndex]);
-                    sortedByFee[prevIndex] = undefined;
-
-                    indexBySender[sender][j] = newIndex;
-
-                    nMoved++;
-                }
-            }
-
-            if (nMoved > 0) {
-                indexBySender[sender].sort((a, b) => a - b);
-            }
-
-            i += nMoved;
-            allMoved += nMoved;
-
-            if (limit && i > limit + allMoved) {
+            if (limit && sortedByFeeAndNonce.length >= limit) {
                 break;
             }
         }
 
-        if (limit) {
-            return sortedByFee.slice(0, limit + allMoved).filter(t => t !== undefined);
-        }
-
-        return sortedByFee.filter(t => t !== undefined);
+        return sortedByFeeAndNonce;
     }
 
     private currentHeight(): number {
