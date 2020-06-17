@@ -41,7 +41,6 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (!wallet.hasAttribute("business")) {
             throw new BusinessIsNotRegisteredError();
@@ -51,7 +50,7 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
             throw new BusinessIsResignedError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
@@ -75,47 +74,35 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
         }
     }
 
-    public async applyToSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.applyToSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.applyToSender(transaction);
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.setAttribute("business.resigned", true);
-        walletRepository.index(sender);
+        this.walletRepository.index(sender);
     }
 
-    public async revertForSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.revertForSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.revertForSender(transaction);
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.forgetAttribute("business.resigned");
-        walletRepository.index(sender);
+        this.walletRepository.index(sender);
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 }

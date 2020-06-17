@@ -44,31 +44,24 @@ export class IpfsTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (CryptoUtils.isException(transaction.data.id)) {
             return;
         }
 
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-        if (walletRepository.getIndex(Contracts.State.WalletIndexes.Ipfs).has(transaction.data.asset!.ipfs!)) {
+        if (this.walletRepository.getIndex(Contracts.State.WalletIndexes.Ipfs).has(transaction.data.asset!.ipfs!)) {
             throw new IpfsHashAlreadyExists();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet);
     }
 
-    public async applyToSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.applyToSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.applyToSender(transaction);
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         if (!sender.hasAttribute("ipfs")) {
             sender.setAttribute("ipfs", { hashes: {} });
@@ -78,20 +71,15 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
         sender.getAttribute("ipfs.hashes", {})[transaction.data.asset.ipfs] = true;
 
-        walletRepository.index(sender);
+        this.walletRepository.index(sender);
     }
 
-    public async revertForSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.revertForSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.revertForSender(transaction);
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         Utils.assert.defined<Interfaces.ITransactionAsset>(transaction.data.asset?.ipfs);
 
@@ -102,16 +90,10 @@ export class IpfsTransactionHandler extends TransactionHandler {
             sender.forgetAttribute("ipfs");
         }
 
-        walletRepository.index(sender);
+        this.walletRepository.index(sender);
     }
 
-    public async applyToRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 
-    public async revertForRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    public async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 }

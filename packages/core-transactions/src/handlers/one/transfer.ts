@@ -29,9 +29,8 @@ export class TransferTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        return super.throwIfCannotBeApplied(transaction, sender, customWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, sender);
     }
 
     public hasVendorField(): boolean {
@@ -52,28 +51,18 @@ export class TransferTransactionHandler extends TransactionHandler {
         }
     }
 
-    public async applyToRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-
+    public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {
         Utils.assert.defined<string>(transaction.data.recipientId);
 
-        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(transaction.data.recipientId);
+        const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.data.recipientId);
 
         recipient.balance = recipient.balance.plus(transaction.data.amount);
     }
 
-    public async revertForRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-
+    public async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void> {
         Utils.assert.defined<string>(transaction.data.recipientId);
 
-        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(transaction.data.recipientId);
+        const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.data.recipientId);
 
         recipient.balance = recipient.balance.minus(transaction.data.amount);
     }

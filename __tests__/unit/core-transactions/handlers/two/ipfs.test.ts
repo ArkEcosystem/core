@@ -122,52 +122,52 @@ describe("Ipfs", () => {
         });
 
         it("should not throw", async () => {
-            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).toResolve();
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).toResolve();
         });
 
         it("should not throw defined as exception", async () => {
             configManager.set("network.pubKeyHash", 99);
             configManager.set("exceptions.transactions", [ipfsTransaction.id]);
 
-            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).toResolve();
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).toResolve();
         });
 
         it("should not throw - second sign", async () => {
             await expect(
-                handler.throwIfCannotBeApplied(secondSignatureIpfsTransaction, secondSignatureWallet, walletRepository),
+                handler.throwIfCannotBeApplied(secondSignatureIpfsTransaction, secondSignatureWallet),
             ).toResolve();
         });
 
         it("should not throw - multi sign", async () => {
             await expect(
-                handler.throwIfCannotBeApplied(multiSignatureIpfsTransaction, multiSignatureWallet, walletRepository),
+                handler.throwIfCannotBeApplied(multiSignatureIpfsTransaction, multiSignatureWallet),
             ).toResolve();
         });
 
         it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
 
-            await expect(
-                handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(InsufficientBalanceError);
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).rejects.toThrow(
+                InsufficientBalanceError,
+            );
         });
 
         it("should throw if hash already exists", async () => {
-            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).toResolve();
-            await expect(handler.apply(ipfsTransaction, walletRepository)).toResolve();
-            await expect(
-                handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(IpfsHashAlreadyExists);
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).toResolve();
+            await expect(handler.apply(ipfsTransaction)).toResolve();
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).rejects.toThrow(
+                IpfsHashAlreadyExists,
+            );
         });
     });
 
     describe("apply", () => {
         it("should apply ipfs transaction", async () => {
-            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).toResolve();
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).toResolve();
 
             const balanceBefore = senderWallet.balance;
 
-            await handler.apply(ipfsTransaction, walletRepository);
+            await handler.apply(ipfsTransaction);
 
             expect(
                 senderWallet.getAttribute<Contracts.State.WalletIpfsAttributes>("ipfs.hashes")[
@@ -180,11 +180,11 @@ describe("Ipfs", () => {
 
     describe("revert", () => {
         it("should be ok", async () => {
-            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).toResolve();
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).toResolve();
 
             const balanceBefore = senderWallet.balance;
 
-            await handler.apply(ipfsTransaction, walletRepository);
+            await handler.apply(ipfsTransaction);
 
             expect(senderWallet.balance).toEqual(balanceBefore.minus(ipfsTransaction.data.fee));
             expect(
@@ -193,7 +193,7 @@ describe("Ipfs", () => {
                 ],
             ).toBeTrue();
 
-            await handler.revert(ipfsTransaction, walletRepository);
+            await handler.revert(ipfsTransaction);
 
             expect(senderWallet.hasAttribute("ipfs")).toBeFalse();
             expect(senderWallet.balance).toEqual(balanceBefore);

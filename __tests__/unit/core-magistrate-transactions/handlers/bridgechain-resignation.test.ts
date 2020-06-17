@@ -148,22 +148,20 @@ describe("BusinessRegistration", () => {
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet)).toResolve();
         });
 
         it("should throw if wallet is not business", async () => {
             senderWallet.forgetAttribute("business");
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet),
             ).rejects.toThrowError(WalletIsNotBusinessError);
         });
 
         it("should throw if business is resigned", async () => {
             senderWallet.setAttribute("business.resigned", true);
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet),
             ).rejects.toThrowError(BusinessIsResignedError);
         });
 
@@ -173,7 +171,7 @@ describe("BusinessRegistration", () => {
 
             senderWallet.setAttribute("business", businessAttributes);
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet),
             ).rejects.toThrowError(BridgechainIsNotRegisteredByWalletError);
         });
 
@@ -185,7 +183,7 @@ describe("BusinessRegistration", () => {
                 .build();
 
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet),
             ).rejects.toThrowError(BridgechainIsNotRegisteredByWalletError);
         });
 
@@ -195,7 +193,7 @@ describe("BusinessRegistration", () => {
 
             senderWallet.setAttribute("business", businessAttributes);
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet),
             ).rejects.toThrowError(BridgechainIsResignedError);
         });
 
@@ -203,14 +201,14 @@ describe("BusinessRegistration", () => {
             delete bridgechainResignationTransaction.data.asset;
 
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet),
             ).rejects.toThrowError();
         });
 
         it("should throw if wallet has insufficient balance", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet),
             ).rejects.toThrowError(InsufficientBalanceError);
         });
     });
@@ -235,7 +233,7 @@ describe("BusinessRegistration", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
 
-            await handler.apply(bridgechainResignationTransaction, walletRepository);
+            await handler.apply(bridgechainResignationTransaction);
 
             expect(
                 senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].resigned,
@@ -251,7 +249,7 @@ describe("BusinessRegistration", () => {
         it("should throw if transaction asset is missing", async () => {
             delete bridgechainResignationTransaction.data.asset;
 
-            await expect(handler.apply(bridgechainResignationTransaction, walletRepository)).rejects.toThrowError();
+            await expect(handler.apply(bridgechainResignationTransaction)).rejects.toThrowError();
         });
     });
 
@@ -259,13 +257,13 @@ describe("BusinessRegistration", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
 
-            await handler.apply(bridgechainResignationTransaction, walletRepository);
+            await handler.apply(bridgechainResignationTransaction);
 
             expect(
                 senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].resigned,
             ).toBeTrue();
 
-            await handler.revert(bridgechainResignationTransaction, walletRepository);
+            await handler.revert(bridgechainResignationTransaction);
 
             expect(
                 senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].resigned,
@@ -275,7 +273,7 @@ describe("BusinessRegistration", () => {
         });
 
         it("should throw if transaction asset is missing", async () => {
-            await handler.apply(bridgechainResignationTransaction, walletRepository);
+            await handler.apply(bridgechainResignationTransaction);
 
             expect(
                 senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].resigned,
@@ -283,7 +281,7 @@ describe("BusinessRegistration", () => {
 
             delete bridgechainResignationTransaction.data.asset;
 
-            await expect(handler.revert(bridgechainResignationTransaction, walletRepository)).rejects.toThrowError();
+            await expect(handler.revert(bridgechainResignationTransaction)).rejects.toThrowError();
         });
     });
 });

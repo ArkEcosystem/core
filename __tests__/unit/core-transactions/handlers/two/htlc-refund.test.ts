@@ -193,37 +193,27 @@ describe("Htlc refund", () => {
 
         describe("throwIfCannotBeApplied", () => {
             it("should not throw", async () => {
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
-                ).toResolve();
+                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).toResolve();
             });
 
             it("should not throw - second sign", async () => {
                 await expect(
-                    handler.throwIfCannotBeApplied(
-                        secondSignatureHtlcRefundTransaction,
-                        secondSignatureWallet,
-                        walletRepository,
-                    ),
+                    handler.throwIfCannotBeApplied(secondSignatureHtlcRefundTransaction, secondSignatureWallet),
                 ).toResolve();
             });
 
             it("should not throw - multi sign", async () => {
                 await expect(
-                    handler.throwIfCannotBeApplied(
-                        multiSignatureHtlcRefundTransaction,
-                        multiSignatureWallet,
-                        walletRepository,
-                    ),
+                    handler.throwIfCannotBeApplied(multiSignatureHtlcRefundTransaction, multiSignatureWallet),
                 ).toResolve();
             });
 
             it("should throw if no wallet has a lock with associated transaction id", async () => {
                 lockWallet.setAttribute("htlc.locks", {});
 
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
-                ).rejects.toThrow(HtlcLockTransactionNotFoundError);
+                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).rejects.toThrow(
+                    HtlcLockTransactionNotFoundError,
+                );
             });
 
             it("should not throw if refund wallet is not sender of lock transaction", async () => {
@@ -246,9 +236,7 @@ describe("Htlc refund", () => {
                     .sign(dummyPassphrase)
                     .build();
 
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcRefundTransaction, dummyWallet, walletRepository),
-                ).toResolve();
+                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, dummyWallet)).toResolve();
             });
 
             it("should throw if lock didn't expire - expiration type %i", async () => {
@@ -289,9 +277,9 @@ describe("Htlc refund", () => {
                     .sign(lockPassphrase)
                     .build();
 
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
-                ).rejects.toThrow(HtlcLockNotExpiredError);
+                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).rejects.toThrow(
+                    HtlcLockNotExpiredError,
+                );
             });
         });
 
@@ -350,9 +338,7 @@ describe("Htlc refund", () => {
             });
 
             it("should apply htlc refund transaction", async () => {
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
-                ).toResolve();
+                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).toResolve();
 
                 const balanceBefore = lockWallet.balance;
 
@@ -360,7 +346,7 @@ describe("Htlc refund", () => {
                 expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeDefined();
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
 
-                await handler.apply(htlcRefundTransaction, walletRepository);
+                await handler.apply(htlcRefundTransaction);
 
                 expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
@@ -373,7 +359,7 @@ describe("Htlc refund", () => {
                 configManager.set("network.pubKeyHash", 99);
                 configManager.set("exceptions.transactions", [htlcRefundTransaction.id]);
 
-                await expect(handler.apply(htlcRefundTransaction, walletRepository)).toResolve();
+                await expect(handler.apply(htlcRefundTransaction)).toResolve();
             });
 
             it("should apply htlc refund transaction - when sender is not refund wallet", async () => {
@@ -396,9 +382,7 @@ describe("Htlc refund", () => {
                     .sign(dummyPassphrase)
                     .build();
 
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcRefundTransaction, dummyWallet, walletRepository),
-                ).toResolve();
+                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, dummyWallet)).toResolve();
 
                 const balanceBefore = lockWallet.balance;
 
@@ -406,7 +390,7 @@ describe("Htlc refund", () => {
                 expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeDefined();
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
 
-                await handler.apply(htlcRefundTransaction, walletRepository);
+                await handler.apply(htlcRefundTransaction);
 
                 expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
@@ -418,14 +402,12 @@ describe("Htlc refund", () => {
 
         describe("revert", () => {
             it("should be ok", async () => {
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
-                ).toResolve();
+                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).toResolve();
 
                 Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
                 const balanceBefore = lockWallet.balance;
 
-                await handler.apply(htlcRefundTransaction, walletRepository);
+                await handler.apply(htlcRefundTransaction);
 
                 // @ts-ignore
                 expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeUndefined();
@@ -434,7 +416,7 @@ describe("Htlc refund", () => {
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
 
-                await handler.revert(htlcRefundTransaction, walletRepository);
+                await handler.revert(htlcRefundTransaction);
 
                 const foundLockWallet = walletRepository.findByIndex(
                     Contracts.State.WalletIndexes.Locks,
@@ -454,14 +436,12 @@ describe("Htlc refund", () => {
             it("should be ok if lcok transaction has vendor field", async () => {
                 htlcLockTransaction.data.vendorField = "dummy";
 
-                await expect(
-                    handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository),
-                ).toResolve();
+                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).toResolve();
 
                 Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
                 const balanceBefore = lockWallet.balance;
 
-                await handler.apply(htlcRefundTransaction, walletRepository);
+                await handler.apply(htlcRefundTransaction);
 
                 // @ts-ignore
                 expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeUndefined();
@@ -470,7 +450,7 @@ describe("Htlc refund", () => {
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
 
-                await handler.revert(htlcRefundTransaction, walletRepository);
+                await handler.revert(htlcRefundTransaction);
 
                 const foundLockWallet = walletRepository.findByIndex(
                     Contracts.State.WalletIndexes.Locks,

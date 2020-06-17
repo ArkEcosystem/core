@@ -8,17 +8,11 @@ export class TransactionHandler {
     protected app = app;
     protected walletRepository = walletRepository;
 
-    public applyToSender(transaction, customWalletRepository?) {
+    public applyToSender(transaction) {}
 
-    }
+    public revertForSender(transaction) {}
 
-    public revertForSender(transaction, customWalletRepository?) {
-
-    }
-
-    public throwIfCannotBeApplied(transaction, wallet, customWalletRepository?) {
-
-    }
+    public throwIfCannotBeApplied(transaction, wallet) {}
 
     protected getTransactionReader() {
         return transactionReader;
@@ -26,7 +20,7 @@ export class TransactionHandler {
 
     protected getConstructor() {
         return {
-            staticFee: () => "50000000"
+            staticFee: () => "50000000",
         };
     }
 }

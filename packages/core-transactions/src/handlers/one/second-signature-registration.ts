@@ -32,23 +32,22 @@ export class SecondSignatureRegistrationTransactionHandler extends TransactionHa
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (wallet.hasSecondSignature()) {
             throw new SecondSignatureAlreadyRegisteredError();
         }
 
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+            transaction.data.senderPublicKey,
+        );
 
         if (senderWallet.hasMultiSignature()) {
             throw new NotSupportedForMultiSignatureWalletError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet);
     }
 
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
@@ -68,43 +67,29 @@ export class SecondSignatureRegistrationTransactionHandler extends TransactionHa
         }
     }
 
-    public async applyToSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.applyToSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.applyToSender(transaction);
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+            transaction.data.senderPublicKey,
+        );
 
         Utils.assert.defined<string>(transaction.data.asset?.signature?.publicKey);
 
         senderWallet.setAttribute("secondPublicKey", transaction.data.asset.signature.publicKey);
     }
 
-    public async revertForSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.revertForSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.revertForSender(transaction);
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        walletRepository.findByPublicKey(transaction.data.senderPublicKey).forgetAttribute("secondPublicKey");
+        this.walletRepository.findByPublicKey(transaction.data.senderPublicKey).forgetAttribute("secondPublicKey");
     }
 
-    public async applyToRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 
-    public async revertForRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    public async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 }

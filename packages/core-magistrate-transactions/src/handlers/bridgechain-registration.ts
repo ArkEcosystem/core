@@ -61,7 +61,6 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (Utils.isException(transaction.data.id)) {
             return;
@@ -102,8 +101,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
             }
         }
 
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-        for (const wallet of walletRepository.getIndex(MagistrateIndex.Businesses).values()) {
+        for (const wallet of this.walletRepository.getIndex(MagistrateIndex.Businesses).values()) {
             if (wallet.hasAttribute("business.bridgechains")) {
                 const bridgechainValues: IBridgechainWalletAttributes[] = Object.values(
                     wallet.getAttribute("business.bridgechains"),
@@ -122,24 +120,19 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
             }
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(MagistrateApplicationEvents.BridgechainRegistered, transaction.data);
     }
 
-    public async applyToSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.applyToSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.applyToSender(transaction);
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
@@ -159,20 +152,15 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         };
 
         sender.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
-        walletRepository.index(sender);
+        this.walletRepository.index(sender);
     }
 
-    public async revertForSender(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        await super.revertForSender(transaction, customWalletRepository);
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+    public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
+        await super.revertForSender(transaction);
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
@@ -186,18 +174,16 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
 
         delete businessAttributes.bridgechains[bridgechainId];
 
-        walletRepository.index(sender);
+        this.walletRepository.index(sender);
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 }

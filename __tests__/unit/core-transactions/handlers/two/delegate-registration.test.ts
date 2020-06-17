@@ -178,18 +178,12 @@ describe("DelegateRegistrationTransaction", () => {
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).toResolve();
         });
 
         it("should not throw - second sign", async () => {
             await expect(
-                handler.throwIfCannotBeApplied(
-                    secondSignaturedDelegateRegistrationTransaction,
-                    secondSignatureWallet,
-                    walletRepository,
-                ),
+                handler.throwIfCannotBeApplied(secondSignaturedDelegateRegistrationTransaction, secondSignatureWallet),
             ).toResolve();
         });
 
@@ -205,15 +199,15 @@ describe("DelegateRegistrationTransaction", () => {
 
             senderWallet.setAttribute("multiSignature", multiSignatureAsset);
 
-            await expect(
-                handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(NotSupportedForMultiSignatureWalletError);
+            await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
+                NotSupportedForMultiSignatureWalletError,
+            );
         });
 
         // it("should throw if transaction does not have delegate", async () => {
         //     delegateRegistrationTransaction.data.asset.delegate.username! = null;
         //
-        //     await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrow(
+        //     await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
         //         WalletNotADelegateError,
         //     );
         // });
@@ -221,9 +215,9 @@ describe("DelegateRegistrationTransaction", () => {
         it("should throw if wallet already registered a username", async () => {
             senderWallet.setAttribute("delegate", { username: "dummy" });
 
-            await expect(
-                handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(WalletIsAlreadyDelegateError);
+            await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
+                WalletIsAlreadyDelegateError,
+            );
         });
 
         it("should throw if another wallet already registered a username", async () => {
@@ -239,17 +233,17 @@ describe("DelegateRegistrationTransaction", () => {
 
             walletRepository.index(delegateWallet);
 
-            await expect(
-                handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(WalletUsernameAlreadyRegisteredError);
+            await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
+                WalletUsernameAlreadyRegisteredError,
+            );
         });
 
         it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
 
-            await expect(
-                handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(InsufficientBalanceError);
+            await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet)).rejects.toThrow(
+                InsufficientBalanceError,
+            );
         });
     });
 
@@ -297,7 +291,7 @@ describe("DelegateRegistrationTransaction", () => {
 
     describe("apply", () => {
         it("should set username", async () => {
-            await handler.apply(delegateRegistrationTransaction, walletRepository);
+            await handler.apply(delegateRegistrationTransaction);
             expect(senderWallet.getAttribute("delegate.username")).toBe("dummy");
         });
     });
@@ -306,12 +300,12 @@ describe("DelegateRegistrationTransaction", () => {
         it("should unset username", async () => {
             expect(senderWallet.hasAttribute("delegate.username")).toBeFalse();
 
-            await handler.apply(delegateRegistrationTransaction, walletRepository);
+            await handler.apply(delegateRegistrationTransaction);
 
             expect(senderWallet.hasAttribute("delegate.username")).toBeTrue();
             expect(senderWallet.getAttribute("delegate.username")).toBe("dummy");
 
-            await handler.revert(delegateRegistrationTransaction, walletRepository);
+            await handler.revert(delegateRegistrationTransaction);
 
             expect(senderWallet.nonce.isZero()).toBeTrue();
             expect(senderWallet.hasAttribute("delegate.username")).toBeFalse();

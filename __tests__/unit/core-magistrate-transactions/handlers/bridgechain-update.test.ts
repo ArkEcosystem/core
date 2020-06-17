@@ -182,22 +182,20 @@ describe("BusinessRegistration", () => {
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet)).toResolve();
         });
 
         it("should throw if wallet is not business", async () => {
             senderWallet.forgetAttribute("business");
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet),
             ).rejects.toThrowError(BusinessIsNotRegisteredError);
         });
 
         it("should throw if business is resigned", async () => {
             senderWallet.setAttribute("business.resigned", true);
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet),
             ).rejects.toThrowError(BusinessIsResignedError);
         });
 
@@ -206,7 +204,7 @@ describe("BusinessRegistration", () => {
             delete businessAttributes.bridgechains;
 
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet),
             ).rejects.toThrowError(BridgechainIsNotRegisteredByWalletError);
         });
 
@@ -220,7 +218,7 @@ describe("BusinessRegistration", () => {
                 .build();
 
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet),
             ).rejects.toThrowError(BridgechainIsNotRegisteredByWalletError);
         });
 
@@ -229,7 +227,7 @@ describe("BusinessRegistration", () => {
             businessAttributes.bridgechains[bridgechainRegistrationAsset.genesisHash].resigned = true;
 
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet),
             ).rejects.toThrowError(BridgechainIsResignedError);
         });
 
@@ -237,7 +235,7 @@ describe("BusinessRegistration", () => {
             bridgechainUpdateTransaction.data.asset!.bridgechainUpdate.ports = { "@arkecosystem/INVALID": 55555 };
 
             await expect(
-                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet),
             ).rejects.toThrowError(PortKeyMustBeValidPackageNameError);
         });
     });
@@ -260,7 +258,7 @@ describe("BusinessRegistration", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
 
-            await handler.apply(bridgechainUpdateTransaction, walletRepository);
+            await handler.apply(bridgechainUpdateTransaction);
 
             const bridgechainUpdateAssetClone = Object.assign({}, bridgechainUpdateAsset);
             delete bridgechainUpdateAssetClone.bridgechainId;
@@ -314,7 +312,7 @@ describe("BusinessRegistration", () => {
                 .sign(passphrases[0])
                 .build();
 
-            await handler.apply(secondBridgechainUpdateTransaction, walletRepository);
+            await handler.apply(secondBridgechainUpdateTransaction);
 
             const secondBridgechainUpdateAssetClone = Object.assign({}, secondBridgechainUpdateAsset);
             delete secondBridgechainUpdateAssetClone.bridgechainId;
@@ -334,7 +332,7 @@ describe("BusinessRegistration", () => {
                 secondBridgechainUpdateTransaction.data,
             ]);
 
-            await handler.revert(secondBridgechainUpdateTransaction, walletRepository);
+            await handler.revert(secondBridgechainUpdateTransaction);
 
             expect(
                 senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash]

@@ -135,30 +135,28 @@ describe("BusinessRegistration", () => {
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(businessUpdateTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(businessUpdateTransaction, senderWallet)).toResolve();
         });
 
         it("should throw if business is not registered", async () => {
             senderWallet.forgetAttribute("business");
-            await expect(
-                handler.throwIfCannotBeApplied(businessUpdateTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(BusinessIsNotRegisteredError);
+            await expect(handler.throwIfCannotBeApplied(businessUpdateTransaction, senderWallet)).rejects.toThrow(
+                BusinessIsNotRegisteredError,
+            );
         });
 
         it("should throw if business is resigned", async () => {
             senderWallet.setAttribute("business.resigned", true);
-            await expect(
-                handler.throwIfCannotBeApplied(businessUpdateTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(BusinessIsResignedError);
+            await expect(handler.throwIfCannotBeApplied(businessUpdateTransaction, senderWallet)).rejects.toThrow(
+                BusinessIsResignedError,
+            );
         });
 
         it("should throw if wallet has insufficient balance", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
-            await expect(
-                handler.throwIfCannotBeApplied(businessUpdateTransaction, senderWallet, walletRepository),
-            ).rejects.toThrowError(InsufficientBalanceError);
+            await expect(handler.throwIfCannotBeApplied(businessUpdateTransaction, senderWallet)).rejects.toThrowError(
+                InsufficientBalanceError,
+            );
         });
     });
 
@@ -180,7 +178,7 @@ describe("BusinessRegistration", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
 
-            await handler.apply(businessUpdateTransaction, walletRepository);
+            await handler.apply(businessUpdateTransaction);
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessUpdateAsset);
 
@@ -195,7 +193,7 @@ describe("BusinessRegistration", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
 
-            await handler.apply(businessUpdateTransaction, walletRepository);
+            await handler.apply(businessUpdateTransaction);
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessUpdateAsset);
 
@@ -207,7 +205,7 @@ describe("BusinessRegistration", () => {
 
             transactionHistoryService.findManyByCriteria.mockResolvedValue([businessRegistrationTransaction.data]);
 
-            await handler.revert(businessUpdateTransaction, walletRepository);
+            await handler.revert(businessUpdateTransaction);
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessRegistrationAsset);
             expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
@@ -240,7 +238,7 @@ describe("BusinessRegistration", () => {
                 .sign(passphrases[0])
                 .build();
 
-            await handler.apply(secondBusinessUpdateTransaction, walletRepository);
+            await handler.apply(secondBusinessUpdateTransaction);
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual({
                 ...businessRegistrationAsset,
@@ -254,7 +252,7 @@ describe("BusinessRegistration", () => {
                 secondBusinessUpdateTransaction.data,
             ]);
 
-            await handler.revert(secondBusinessUpdateTransaction, walletRepository);
+            await handler.revert(secondBusinessUpdateTransaction);
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual({
                 ...businessRegistrationAsset,

@@ -16,7 +16,6 @@ export abstract class MagistrateTransactionHandler extends Handlers.TransactionH
     public async throwIfCannotBeApplied(
         transaction: CryptoInterfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (Utils.isException(transaction.data.id)) {
             return;
@@ -27,6 +26,6 @@ export abstract class MagistrateTransactionHandler extends Handlers.TransactionH
             throw new StaticFeeMismatchError(staticFee.toFixed());
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet);
     }
 }

@@ -123,29 +123,27 @@ describe("BusinessRegistration", () => {
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(
-                handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet, walletRepository),
-            ).toResolve();
+            await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).toResolve();
         });
 
         it("should throw if business is not registered", async () => {
             senderWallet.forgetAttribute("business");
-            await expect(
-                handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(BusinessIsNotRegisteredError);
+            await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).rejects.toThrow(
+                BusinessIsNotRegisteredError,
+            );
         });
 
         it("should throw if business is resigned", async () => {
             senderWallet.setAttribute("business.resigned", true);
-            await expect(
-                handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet, walletRepository),
-            ).rejects.toThrow(BusinessIsResignedError);
+            await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).rejects.toThrow(
+                BusinessIsResignedError,
+            );
         });
 
         it("should throw if wallet has insufficient balance", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
             await expect(
-                handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet, walletRepository),
+                handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet),
             ).rejects.toThrowError(InsufficientBalanceError);
         });
     });
@@ -172,7 +170,7 @@ describe("BusinessRegistration", () => {
                 senderWallet,
             );
 
-            await handler.apply(businessResignationTransaction, walletRepository);
+            await handler.apply(businessResignationTransaction);
 
             expect(senderWallet.hasAttribute("business")).toBeTrue();
             expect(senderWallet.getAttribute("business.resigned")).toBeTrue();
@@ -193,11 +191,11 @@ describe("BusinessRegistration", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
 
-            await handler.apply(businessResignationTransaction, walletRepository);
+            await handler.apply(businessResignationTransaction);
 
             expect(senderWallet.getAttribute("business.resigned")).toBeTrue();
 
-            await handler.revert(businessResignationTransaction, walletRepository);
+            await handler.revert(businessResignationTransaction);
 
             expect(senderWallet.hasAttribute("business.resigned")).toBeFalse();
             expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));

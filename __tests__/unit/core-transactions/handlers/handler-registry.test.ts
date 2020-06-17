@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Contracts, Services } from "@packages/core-kernel";
+import { Services } from "@packages/core-kernel";
 import { Application } from "@packages/core-kernel/src/application";
 import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import {
@@ -81,15 +81,9 @@ class TestTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    async applyToRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 
-    async revertForRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 }
 
 class TestWithDependencyTransactionHandler extends TransactionHandler {
@@ -113,15 +107,9 @@ class TestWithDependencyTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    async applyToRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 
-    async revertForRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
 }
 
 beforeEach(() => {
