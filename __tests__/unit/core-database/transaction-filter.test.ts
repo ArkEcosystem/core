@@ -44,7 +44,7 @@ describe("TransactionFilter.getExpression", () => {
                         expressions: [
                             { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
                             { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
-                            { property: "asset", op: "contains", value: { payment: [{ recipientId: "123" }] } },
+                            { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
                         ],
                     },
                     {
@@ -73,7 +73,7 @@ describe("TransactionFilter.getExpression", () => {
                         expressions: [
                             { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
                             { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
-                            { property: "asset", op: "contains", value: { payment: [{ recipientId: "123" }] } },
+                            { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
                         ],
                     },
                 ],
@@ -122,7 +122,7 @@ describe("TransactionFilter.getExpression", () => {
                         expressions: [
                             { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
                             { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
-                            { property: "asset", op: "contains", value: { payment: [{ recipientId: "123" }] } },
+                            { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
                         ],
                     },
                     {
@@ -151,7 +151,7 @@ describe("TransactionFilter.getExpression", () => {
                         expressions: [
                             { property: "typeGroup", op: "equal", value: Enums.TransactionTypeGroup.Core },
                             { property: "type", op: "equal", value: Enums.TransactionType.MultiPayment },
-                            { property: "asset", op: "contains", value: { payment: [{ recipientId: "123" }] } },
+                            { property: "asset", op: "contains", value: { payments: [{ recipientId: "123" }] } },
                         ],
                     },
                 ],
@@ -484,13 +484,13 @@ describe("TransactionFilter.getExpression", () => {
         it("should compare using contains expression", async () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({
-                asset: { payment: [{ recipientId: "123" }] },
+                asset: { payments: [{ recipientId: "123" }] },
             });
 
             expect(expression).toEqual({
                 property: "asset",
                 op: "contains",
-                value: { payment: [{ recipientId: "123" }] },
+                value: { payments: [{ recipientId: "123" }] },
             });
         });
     });
