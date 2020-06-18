@@ -5,7 +5,7 @@ import {
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces as CryptoInterfaces, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces as CryptoInterfaces, Interfaces, Transactions, Utils, Managers } from "@arkecosystem/crypto";
 
 import { EntityWrongSubTypeError, StaticFeeMismatchError } from "../errors";
 import { EntityRegisterSubHandler, EntityResignSubHandler, EntityUpdateSubHandler } from "./entity-subhandlers";
@@ -52,7 +52,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        return true;
+        return Managers.configManager.getMilestone().aip36 === true;
     }
 
     public dynamicFee({ height }: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
