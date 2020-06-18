@@ -1,9 +1,10 @@
 import { Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Crypto, Enums } from "@arkecosystem/crypto";
+import { Crypto, Enums } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { Brackets, EntityRepository, In } from "typeorm";
 
-import { Transaction } from "../models";
+import { Block } from "../models/block";
+import { Transaction } from "../models/transaction";
 import { AbstractRepository } from "./abstract-repository";
 
 @EntityRepository(Transaction)
@@ -116,7 +117,7 @@ export class TransactionRepository extends AbstractRepository<Transaction> {
             .addSelect('blocks.height as "blockHeight"')
             .addSelect('blocks.generatorPublicKey as "blockGeneratorPublicKey"')
             .addSelect('blocks.reward as "reward"')
-            .addFrom(Blocks.Block, "blocks")
+            .addFrom(Block, "blocks")
             .where("block_id = blocks.id")
             .andWhere("type = :type", { type })
             .andWhere("type_group = :typeGroup", { typeGroup })
