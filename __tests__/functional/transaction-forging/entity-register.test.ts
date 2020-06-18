@@ -33,7 +33,7 @@ describe("Transaction Forging - Entity registration", () => {
             await snoozeForBlock(1);
             await expect(entityRegistration.id).not.toBeForged();
 
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 25; i++) {
                 await snoozeForBlock(1); // wait for aip36 to kick in, todo better way without waiting ? (snapshot ?)
             }
 
