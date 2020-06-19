@@ -8,7 +8,7 @@ export class RoundRepository extends Repository<Round> {
     public async findById(id: string): Promise<Round[]> {
         return this.find({
             where: {
-                id,
+                round: id,
             },
         });
     }
