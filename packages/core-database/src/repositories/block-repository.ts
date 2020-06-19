@@ -181,6 +181,14 @@ export class BlockRepository extends AbstractRepository<Block> {
     }
 
     public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
+        const continuousChunk = blocks.every((block, i, arr) => {
+            return i === 0 ? true : block.height - arr[i - 1].height === 1;
+        });
+
+        if (!continuousChunk) {
+            throw new Error("Blocks chunk to delete isn't continuous");
+        }
+
         return this.manager.transaction(async (manager) => {
             const lastBlockHeight: number = blocks[blocks.length - 1].height;
             const targetBlockHeight: number = blocks[0].height - 1;
@@ -206,12 +214,16 @@ export class BlockRepository extends AbstractRepository<Block> {
                 .where("block_id IN (:...blockIds)", { blockIds })
                 .execute();
 
-            await manager
+            const deleteBlocksResult = await manager
                 .createQueryBuilder()
                 .delete()
                 .from(Block)
                 .where("id IN (:...blockIds)", { blockIds })
                 .execute();
+
+            if (deleteBlocksResult.affected !== blockIds.length) {
+                throw new Error("Failed to delete all blocks from database");
+            }
 
             await manager
                 .createQueryBuilder()
