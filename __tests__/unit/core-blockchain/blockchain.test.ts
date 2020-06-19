@@ -58,6 +58,7 @@ describe("Blockchain", () => {
         logService.warning = jest.fn();
         logService.info = jest.fn();
         logService.error = jest.fn();
+        logService.debug = jest.fn();
 
         stateStore.started = false;
         stateStore.clearWakeUpTimeout = jest.fn();
