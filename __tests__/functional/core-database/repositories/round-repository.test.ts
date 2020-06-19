@@ -47,19 +47,19 @@ describe("RoundRepository.findById", () => {
             new DelegateWalletMock("delegate2 public key", 1, Utils.BigNumber.make("200")),
         ] as unknown) as Contracts.State.Wallet[]);
 
-        const round1Delegates = await roundRepository.findById("1");
+        const round1Delegates = await roundRepository.getRound(1);
 
         expect(round1Delegates.length).toBe(2);
         expect(round1Delegates).toMatchObject([
             {
                 round: Utils.BigNumber.make("1"),
-                publicKey: "delegate1 public key",
-                balance: Utils.BigNumber.make("100"),
+                publicKey: "delegate2 public key",
+                balance: Utils.BigNumber.make("200"),
             },
             {
                 round: Utils.BigNumber.make("1"),
-                publicKey: "delegate2 public key",
-                balance: Utils.BigNumber.make("200"),
+                publicKey: "delegate1 public key",
+                balance: Utils.BigNumber.make("100"),
             },
         ]);
     });
