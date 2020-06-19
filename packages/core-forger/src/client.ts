@@ -217,7 +217,7 @@ export class Client {
                 payload,
             };
 
-            const response = await this.host.socket.request(options);
+            const response: any = await this.host.socket.request(options);
 
             return response.payload;
         } catch (error) {

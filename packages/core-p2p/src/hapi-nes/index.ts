@@ -1,16 +1,14 @@
+/* tslint:disable */
 'use strict';
 
-const Cryptiles = require('@hapi/cryptiles');
-const Hoek = require('@hapi/hoek');
-const Iron = require('@hapi/iron');
-const Joi = require('@hapi/joi');
-const Ws = require('ws');
+import Cryptiles from "@hapi/cryptiles";
+import Hoek from "@hapi/hoek";
+import Iron from "@hapi/iron";
+import Joi from "@hapi/joi";
+import { Client } from "./client";
+import { Listener } from "./listener";
 
-const Client = require('./client');
-const Listener = require('./listener');
-
-
-const internals = {
+const internals: any = {
     defaults: {
         auth: {
             endpoint: '/nes/auth',
@@ -88,14 +86,14 @@ internals.schema = Joi.object({
 });
 
 
-exports.plugin = {
+const plugin = {
     pkg: require('../package.json'),
     requirements: {
         hapi: '>=19.0.0'
     },
     register: function (server, options) {
 
-        const settings = Hoek.applyToDefaults(internals.defaults, options);
+        const settings: any = Hoek.applyToDefaults(internals.defaults, options);
 
         if (Array.isArray(settings.headers)) {
             settings.headers = settings.headers.map((field) => field.toLowerCase());
@@ -134,17 +132,19 @@ exports.plugin = {
 
         // Decorate server and request
 
-        server.decorate('server', 'broadcast', Listener.broadcast);
-        server.decorate('server', 'subscription', Listener.subscription);
-        server.decorate('server', 'publish', Listener.publish);
-        server.decorate('server', 'eachSocket', Listener.eachSocket);
+        server.decorate('server', 'broadcast', listener.broadcast);
+        server.decorate('server', 'subscription', listener.subscription);
+        server.decorate('server', 'publish', listener.publish);
+        server.decorate('server', 'eachSocket', listener.eachSocket);
         server.decorate('request', 'socket', internals.socket, { apply: true });
     }
 };
 
 
-Client.Client.WebSocket = Ws;
-exports.Client = Client.Client;
+export {
+    plugin,
+    Client
+}
 
 
 internals.auth = function (server, settings) {
@@ -199,7 +199,7 @@ internals.auth = function (server, settings) {
                     return credentials;
                 }
 
-                const result = { status: 'authenticated' };
+                const result: any = { status: 'authenticated' };
 
                 if (config.type === 'cookie') {
                     return h.response(result).state(config.cookie, credentials);

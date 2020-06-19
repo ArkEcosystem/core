@@ -1,4 +1,4 @@
-import Nes from "./hapi-nes";
+import * as Nes from "./hapi-nes";
 
 export * from "./enums";
 export * from "./network-state";
