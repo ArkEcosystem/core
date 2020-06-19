@@ -1,5 +1,5 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import Nes from "@hapi/nes";
+import Nes from "./hapi-nes";
 
 // todo: review the implementation
 @Container.injectable()

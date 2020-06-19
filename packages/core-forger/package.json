@@ -29,8 +29,7 @@
         "node-forge": "^0.9.1",
         "otplib": "^12.0.0",
         "wif": "^2.0.6",
-        "@hapi/hapi": "^19.0.0",
-        "@hapi/nes": "air1one/nes#fix/remoteAddress"
+        "@hapi/hapi": "^19.0.0"
     },
     "devDependencies": {
         "@types/node-forge": "^0.9.0",

@@ -1,14 +1,13 @@
-// todo: we need to get rid of this dependency as it is big and doesn't concern core-kernel
-import Nes from "@hapi/nes";
+import { Client } from "./nes-client";
 
 import { Peer } from "./peer";
 
 export interface PeerConnector {
-    all(): Nes.Client[];
+    all(): Client[];
 
-    connection(peer: Peer): Nes.Client | undefined;
+    connection(peer: Peer): Client | undefined;
 
-    connect(peer: Peer, maxPayload?: number): Promise<Nes.Client>;
+    connect(peer: Peer, maxPayload?: number): Promise<Client>;
 
     disconnect(peer: Peer): void;
 
