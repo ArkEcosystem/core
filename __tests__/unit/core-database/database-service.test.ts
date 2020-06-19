@@ -41,7 +41,7 @@ const transactionRepository = {
 };
 
 const roundRepository = {
-    find: jest.fn(),
+    getRound: jest.fn(),
     save: jest.fn(),
     delete: jest.fn(),
 };
@@ -146,7 +146,7 @@ beforeEach(() => {
     transactionRepository.findByBlockIds.mockReset();
     transactionRepository.getStatistics.mockReset();
 
-    roundRepository.find.mockReset();
+    roundRepository.getRound.mockReset();
     roundRepository.save.mockReset();
     roundRepository.delete.mockReset();
 
@@ -573,7 +573,7 @@ describe("DatabaseService.getActiveDelegates", () => {
         const delegatePublicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
         const delegateVoteBalance = Utils.BigNumber.make("100");
         const roundDelegateModel = { publicKey: delegatePublicKey, balance: delegateVoteBalance };
-        roundRepository.find.mockResolvedValueOnce([roundDelegateModel]);
+        roundRepository.getRound.mockResolvedValueOnce([roundDelegateModel]);
 
         const newDelegateWallet = { setAttribute: jest.fn(), clone: jest.fn() };
         walletRepository.createWallet.mockReturnValueOnce(newDelegateWallet);
