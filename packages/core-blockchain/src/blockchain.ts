@@ -354,7 +354,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Process the given block.
      */
     public async processBlocks(blocks: Interfaces.IBlockData[]): Promise<Interfaces.IBlock[] | undefined> {
-        if (blocks[0]) {
+        if (blocks.length) {
             const lastHeight = this.getLastBlock().data.height;
             const fromHeight = blocks[0].height;
             const toHeight = blocks[blocks.length - 1].height;
