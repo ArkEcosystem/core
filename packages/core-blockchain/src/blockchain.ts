@@ -354,6 +354,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Process the given block.
      */
     public async processBlocks(blocks: Interfaces.IBlockData[]): Promise<Interfaces.IBlock[] | undefined> {
+        if (blocks[0]) {
+            const lastHeight = this.getLastBlock().data.height;
+            const fromHeight = blocks[0].height;
+            const toHeight = blocks[blocks.length - 1].height;
+            this.app.log.debug(`Processing chunk of blocks [${fromHeight}, ${toHeight}] on top of ${lastHeight}`);
+        }
+
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blocks[0].height);
 
         const acceptedBlocks: Interfaces.IBlock[] = [];
