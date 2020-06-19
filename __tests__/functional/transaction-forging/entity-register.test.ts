@@ -29,6 +29,14 @@ describe("Transaction Forging - Entity registration", () => {
                 .withPassphrase(secrets[0])
                 .createOne();
 
+            await expect(entityRegistration).not.toBeAccepted(); // aip36 not here yet
+            await snoozeForBlock(1);
+            await expect(entityRegistration.id).not.toBeForged();
+
+            for (let i = 0; i < 25; i++) {
+                await snoozeForBlock(1); // wait for aip36 to kick in, todo better way without waiting ? (snapshot ?)
+            }
+
             await expect(entityRegistration).toBeAccepted();
             await snoozeForBlock(1);
             await expect(entityRegistration.id).toBeForged();
