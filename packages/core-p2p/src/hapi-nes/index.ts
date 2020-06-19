@@ -85,7 +85,7 @@ internals.schema = Joi.object({
 });
 
 const plugin = {
-    pkg: require("../package.json"),
+    pkg: require("../../package.json"),
     requirements: {
         hapi: ">=19.0.0",
     },
