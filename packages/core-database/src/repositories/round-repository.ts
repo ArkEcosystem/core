@@ -18,6 +18,7 @@ export class RoundRepository extends Repository<Round> {
             .select()
             .where("round = :round", { round })
             .orderBy("balance", "DESC")
+            .addOrderBy("public_key", "ASC")
             .getMany();
     }
 
