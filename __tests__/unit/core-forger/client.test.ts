@@ -1,14 +1,14 @@
 import "jest-extended";
 
-import { Client } from "@packages/core-forger/src/client";
-import { Application, Container } from "@packages/core-kernel";
-import { NetworkStateStatus } from "@packages/core-p2p";
+import { Client } from "@arkecosystem/core-forger/src/client";
+import { Application, Container } from "@arkecosystem/core-kernel";
+import { NetworkStateStatus, Nes } from "@arkecosystem/core-p2p";
 
 import { forgedBlockWithTransactions } from "./__utils__/create-block-with-transactions";
 
-import Nes, { nesClient } from "./mocks/nes";
+import { nesClient } from "./mocks/nes";
 
-jest.mock("@hapi/nes", () => require("./mocks/nes"));
+jest.spyOn(Nes, "Client").mockImplementation((url) => nesClient as any);
 
 let app: Application;
 const logger = {
