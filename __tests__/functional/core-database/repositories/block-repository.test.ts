@@ -226,6 +226,31 @@ describe("BlockRepository.deleteBlocks", () => {
         const promise = blockRepository.deleteBlocks([block2.data]);
         await expect(promise).rejects.toThrow("Removing blocks from the middle");
     });
+
+    it("should throw when deleting non-continuous chunk (order in reverse)", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const promise = blockRepository.deleteBlocks([block3.data, block2.data, block1.data]);
+        await expect(promise).rejects.toThrow("Blocks chunk to delete isn't continuous");
+    });
+
+    it("should throw when deleting non-continuous chunk (missing block)", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const promise = blockRepository.deleteBlocks([block3.data, block1.data]);
+        await expect(promise).rejects.toThrow("Blocks chunk to delete isn't continuous");
+    });
+
+    it("should throw when deleted count doesn't match expected", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+        const promise = blockRepository.deleteBlocks([
+            block1.data,
+            block2.data,
+            { ...block3.data, id: "non-existing" },
+        ]);
+        await expect(promise).rejects.toThrow("Failed to delete all blocks from database");
+    });
 });
 
 describe("BlockRepository.findManyByExpression", () => {

@@ -209,7 +209,7 @@ export class DatabaseService {
 
         // When called during applyRound we already know the delegates, so we don't have to query the database.
         if (!delegates) {
-            delegates = (await this.roundRepository.find({ round })).map(({ publicKey, balance }) => {
+            delegates = (await this.roundRepository.getRound(round)).map(({ publicKey, balance }) => {
                 // ! find wallet by public key and clone it
                 const wallet = this.walletRepository.createWallet(Identities.Address.fromPublicKey(publicKey));
                 wallet.publicKey = publicKey;
