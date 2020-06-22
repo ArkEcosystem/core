@@ -1,5 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import Nes from "@hapi/nes";
+import { Nes } from "@arkecosystem/core-p2p";
 
 /**
  * @export

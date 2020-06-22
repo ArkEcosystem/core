@@ -1,5 +1,5 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import Nes from "@hapi/nes";
+import { Client } from "./hapi-nes";
 
 // todo: review the implementation
 @Container.injectable()
@@ -7,20 +7,20 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    private readonly connections: Map<string, Nes.Client> = new Map<string, Nes.Client>();
+    private readonly connections: Map<string, Client> = new Map<string, Client>();
     private readonly errors: Map<string, string> = new Map<string, string>();
 
-    public all(): Nes.Client[] {
+    public all(): Client[] {
         return Array.from(this.connections, ([key, value]) => value);
     }
 
-    public connection(peer: Contracts.P2P.Peer): Nes.Client | undefined {
-        const connection: Nes.Client | undefined = this.connections.get(peer.ip);
+    public connection(peer: Contracts.P2P.Peer): Client | undefined {
+        const connection: Client | undefined = this.connections.get(peer.ip);
 
         return connection;
     }
 
-    public async connect(peer: Contracts.P2P.Peer, maxPayload?: number): Promise<Nes.Client> {
+    public async connect(peer: Contracts.P2P.Peer, maxPayload?: number): Promise<Client> {
         const connection = this.connection(peer) || (await this.create(peer));
 
         this.connections.set(peer.ip, connection);
@@ -39,7 +39,7 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
     }
 
     public async emit(peer: Contracts.P2P.Peer, event: string, payload: any): Promise<any> {
-        const connection: Nes.Client = await this.connect(peer);
+        const connection: Client = await this.connect(peer);
         const options = {
             path: event,
             headers: {},
@@ -66,8 +66,8 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         this.errors.delete(peer.ip);
     }
 
-    private async create(peer: Contracts.P2P.Peer): Promise<Nes.Client> {
-        const connection = new Nes.Client(`ws://${peer.ip}:${peer.port}`);
+    private async create(peer: Contracts.P2P.Peer): Promise<Client> {
+        const connection = new Client(`ws://${peer.ip}:${peer.port}`);
 
         connection.onError = (error) => {
             this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);

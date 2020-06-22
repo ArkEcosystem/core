@@ -4,11 +4,11 @@ import { Container } from "@arkecosystem/core-kernel";
 
 import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
 import { Peer } from "../../../packages/core-p2p/src/peer";
+import * as Nes from "../../../packages/core-p2p/src/hapi-nes";
 
 import { NesClient } from "./mocks/nes";
 
-jest.mock("@hapi/nes", () => require("./mocks/nes"));
-
+jest.spyOn(Nes, "Client").mockImplementation((url) => new (NesClient as any)());
 
 describe("PeerConnector", () => {
     let peerConnector: PeerConnector;
@@ -105,6 +105,7 @@ describe("PeerConnector", () => {
             const peerConnection = await peerConnector.connect(peer);
 
             const mockResponse = { payload: "mock payload" };
+            // @ts-ignore
             const spyRequest = jest.spyOn(peerConnection, "request").mockReturnValue(mockResponse);
 
             const response = await peerConnector.emit(peer, "p2p.peer.getStatus", {});

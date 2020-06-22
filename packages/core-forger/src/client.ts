@@ -1,7 +1,6 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
+import { NetworkState, NetworkStateStatus, Nes } from "@arkecosystem/core-p2p";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
-import Nes from "@hapi/nes";
 
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 import { RelayHost } from "./interfaces";
@@ -218,7 +217,7 @@ export class Client {
                 payload,
             };
 
-            const response = await this.host.socket.request(options);
+            const response: any = await this.host.socket.request(options);
 
             return response.payload;
         } catch (error) {

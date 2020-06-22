@@ -2,6 +2,11 @@ import hapi from "@hapi/hapi";
 import { Container } from "@arkecosystem/core-kernel";
 
 import { Server } from "@arkecosystem/core-p2p/src/socket-server/server";
+import * as Nes from "@arkecosystem/core-p2p/src/hapi-nes";
+
+import { NesClient } from "../mocks/nes";
+
+jest.spyOn(Nes, "Client").mockImplementation((url) => new (NesClient as any)());
 
 const hapiServer = {
     start: jest.fn(),
@@ -12,7 +17,6 @@ const hapiServer = {
     app: {},
 };
 const spyHapiServer = jest.spyOn(hapi, "Server").mockReturnValue(hapiServer);
-jest.mock("@hapi/nes", () => require("../mocks/nes"));
 
 describe("Server", () => {
     const serverSymbol = Symbol.for("P2P<Server>");
