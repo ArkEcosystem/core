@@ -31,7 +31,7 @@
         "@types/bytebuffer": "^5.0.40",
         "ajv": "^6.10.2",
         "ajv-keywords": "^3.4.1",
-        "bcrypto": "^4.1.0",
+        "bcrypto": "^5.2.0",
         "bip32": "^2.0.3",
         "bip39": "^3.0.2",
         "browserify-aes": "^1.2.0",
