@@ -5,7 +5,7 @@ export interface PeerPorts {
 }
 
 export interface PeerPlugins {
-    [name: string]: { enabled: boolean; port: number };
+    [name: string]: { enabled: boolean; port: number; estimateTotalCount?: number };
 }
 
 export interface Peer {
