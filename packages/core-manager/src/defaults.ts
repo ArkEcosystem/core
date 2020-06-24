@@ -5,15 +5,14 @@ export const defaults = {
         storage: `${process.env.CORE_PATH_DATA}/events.sqlite`,
         watch: {
             blocks: !process.env.CORE_WATCH_BLOCKS_DISABLED,
-            transactions: !process.env.CORE_WATCH_TRANSACTIONS_DISABLED,
-            wallets: !process.env.CORE_WATCH_WALLETS_DISABLED,
-            rounds: !process.env.CORE_WATCH_ROUNDS_DISABLED,
             errors: !process.env.CORE_WATCH_ERRORS_DISABLED,
             logs: !process.env.CORE_WATCH_LOGS_DISABLED,
             queries: !process.env.CORE_WATCH_QUERIES_DISABLED,
-            jobs: !process.env.CORE_WATCH_JOBS_DISABLED,
             queues: !process.env.CORE_WATCH_QUEUES_DISABLED,
+            rounds: !process.env.CORE_WATCH_ROUNDS_DISABLED,
             schedules: !process.env.CORE_WATCH_SCHEDULES_DISABLED,
+            transactions: !process.env.CORE_WATCH_TRANSACTIONS_DISABLED,
+            wallets: !process.env.CORE_WATCH_WALLETS_DISABLED,
             webhooks: !process.env.CORE_WATCH_WEBHOOKS_DISABLED,
         },
     },
@@ -29,6 +28,7 @@ export const defaults = {
             host: process.env.CORE_MONITOR_SSL_HOST || "0.0.0.0",
             port: process.env.CORE_MONITOR_SSL_PORT || 8445,
             tls: {
+                // TODO: Take from CORE_API_SSL_KEY if not provided
                 key: process.env.CORE_MONITOR_SSL_KEY,
                 cert: process.env.CORE_MONITOR_SSL_CERT,
             },
