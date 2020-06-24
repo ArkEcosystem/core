@@ -744,9 +744,7 @@ export class DatabaseService {
         this.forgingDelegates = undefined;
 
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
-        const prevRoundDelegates: Contracts.State.Wallet[] = await this.calcPreviousActiveDelegates(roundInfo);
-
-        await this.setForgingDelegatesOfRound(roundInfo, prevRoundDelegates);
+        await this.setForgingDelegatesOfRound(roundInfo);
     }
 
     private async setForgingDelegatesOfRound(
