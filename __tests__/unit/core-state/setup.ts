@@ -278,7 +278,7 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
         Container.Identifiers.DposPreviousRoundStateProvider,
     );
 
-    const blockState = sandbox.app.get<BlockState>(Container.Identifiers.BlockState);
+    const blockState = sandbox.app.getTagged<BlockState>(Container.Identifiers.BlockState, "state", "blockchain");
 
     const dPosState = sandbox.app.getTagged<DposState>(Container.Identifiers.DposState, "state", "blockchain");
 

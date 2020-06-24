@@ -5,12 +5,7 @@ import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 // todo: review the implementation and make use of ioc
 @Container.injectable()
 export class BlockState {
-    // @Container.inject(Container.Identifiers.Application)
-    // private readonly app!: Contracts.Kernel.Application;
-
     @Container.inject(Container.Identifiers.WalletRepository)
-    @Container.tagged("state", "blockchain") // TODO: Without this line - and despite
-    // being intialised in the same way as the service provider - the tests fail to find a correct binding
     private walletRepository!: Contracts.State.WalletRepository;
 
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
