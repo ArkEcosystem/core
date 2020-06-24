@@ -1,5 +1,5 @@
 import { Utils } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { EntityRepository, In } from "typeorm";
 
 import { Block, Round, Transaction } from "../models";
@@ -75,10 +75,10 @@ export class BlockRepository extends AbstractRepository<Block> {
             return this.rawToEntity(
                 block,
                 // @ts-ignore
-                (entity: Block & { transactions: Interfaces.ITransactionData[] }, _, value: Buffer[] | undefined) => {
+                (entity: Block & { transactions: string[] }, _, value: Buffer[] | undefined) => {
                     if (value && value.length) {
                         entity.transactions = value.map(
-                            (buffer) => Transactions.TransactionFactory.fromBytesUnsafe(buffer).data,
+                            (buffer) => buffer.toString("hex"),
                         );
                     } else {
                         entity.transactions = [];
