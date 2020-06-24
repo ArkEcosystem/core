@@ -308,24 +308,11 @@ describe("DatabaseService.restoreCurrentRound", () => {
         stateStore.getLastBlocksByHeight.mockReturnValueOnce(lastBlocksByHeight);
         blockRepository.findByHeightRangeWithTransactions.mockReturnValueOnce(lastBlocksByHeight);
 
-        const prevRoundState = { getAllDelegates: jest.fn(), getRoundDelegates: jest.fn() };
+        const prevRoundState = { getAllDelegates: jest.fn(), getRoundDelegates: jest.fn(), revert: jest.fn() };
         getDposPreviousRoundState.mockReturnValueOnce(prevRoundState);
-
-        const prevRoundDelegateWallet = { getAttribute: jest.fn() };
-        const prevRoundDposStateAllDelegates = [prevRoundDelegateWallet];
-        prevRoundState.getAllDelegates.mockReturnValueOnce(prevRoundDposStateAllDelegates);
-
-        const prevRoundDelegateUsername = "test_delegate";
-        prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateUsername);
 
         const delegateWallet = { setAttribute: jest.fn(), getAttribute: jest.fn() };
         walletRepository.findByUsername.mockReturnValueOnce(delegateWallet);
-
-        const prevRoundDelegateRank = 1;
-        prevRoundDelegateWallet.getAttribute.mockReturnValueOnce(prevRoundDelegateRank);
-
-        const prevRoundDposStateRoundDelegates = [prevRoundDelegateWallet];
-        prevRoundState.getRoundDelegates.mockReturnValueOnce(prevRoundDposStateRoundDelegates);
 
         const dposStateRoundDelegates = [delegateWallet];
         dposState.getRoundDelegates.mockReturnValueOnce(dposStateRoundDelegates);
@@ -336,9 +323,9 @@ describe("DatabaseService.restoreCurrentRound", () => {
 
         await databaseService.restoreCurrentRound(1760000);
 
-        expect(getDposPreviousRoundState).toBeCalled();
-        expect(walletRepository.findByUsername).toBeCalledWith(prevRoundDelegateUsername);
-        expect(delegateWallet.setAttribute).toBeCalledWith("delegate.rank", prevRoundDelegateRank);
+        expect(getDposPreviousRoundState).not.toBeCalled(); // restoring current round should not need previous round state
+        // important: getActiveDelegates should be called with only roundInfo (restoreCurrentRound does *not* provide delegates to it)
+        expect(triggers.call).toHaveBeenLastCalledWith("getActiveDelegates", { roundInfo: expect.anything(), delegates: undefined });
         expect(databaseService.forgingDelegates).toEqual(forgingDelegates);
     });
 });
@@ -985,8 +972,8 @@ describe("DatabaseService.revertRound", () => {
         stateStore.getLastBlocksByHeight.mockReturnValueOnce([lastBlock.data]);
         blockRepository.findByHeightRangeWithTransactions.mockReturnValueOnce([lastBlock.data]);
 
-        const prevRoundState = { getAllDelegates: jest.fn(), getRoundDelegates: jest.fn() };
-        getDposPreviousRoundState.mockReturnValueOnce(prevRoundState);
+        const prevRoundState = { getAllDelegates: jest.fn(), getRoundDelegates: jest.fn(), revert: jest.fn() };
+        getDposPreviousRoundState.mockReturnValueOnce(prevRoundState).mockReturnValueOnce(prevRoundState);
 
         const prevRoundDelegateWallet = { getAttribute: jest.fn() };
         const prevRoundDposStateAllDelegates = [prevRoundDelegateWallet];
