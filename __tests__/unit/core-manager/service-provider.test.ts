@@ -113,6 +113,31 @@ describe("ServiceProvider", () => {
         await expect(serviceProvider.dispose()).toResolve();
     });
 
+    it("should boot event listener", async () => {
+        const usedDefaults = { ...defaults };
+
+        usedDefaults.watcher.enabled = true;
+
+        setPluginConfiguration(app, serviceProvider, usedDefaults);
+
+        await expect(serviceProvider.register()).toResolve();
+
+        const mockEventListener = {
+            boot: jest.fn(),
+        };
+
+        app.unbind(Identifiers.EventsListener);
+
+        app.bind(Identifiers.EventsListener).toConstantValue(mockEventListener);
+
+        await expect(serviceProvider.boot()).toResolve();
+
+        expect(app.isBound(Identifiers.EventsListener)).toBeTrue();
+        expect(mockEventListener.boot).toHaveBeenCalledTimes(1);
+
+        await expect(serviceProvider.dispose()).toResolve();
+    });
+
     it("should not be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeFalse();
     });

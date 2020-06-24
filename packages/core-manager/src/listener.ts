@@ -41,13 +41,10 @@ export class Listener {
         if (name.startsWith("round") && !this.configuration.getRequired<boolean>("watcher.watch.rounds")) {
             return false;
         }
-        if (name.startsWith("schedule") && !this.configuration.getRequired<boolean>("watcher.watch.schedule")) {
+        if (name.startsWith("schedule") && !this.configuration.getRequired<boolean>("watcher.watch.schedules")) {
             return false;
         }
         if (name.startsWith("transaction") && !this.configuration.getRequired<boolean>("watcher.watch.transactions")) {
-            return false;
-        }
-        if (name.startsWith("wallet") && !this.configuration.getRequired<boolean>("watcher.watch.wallets")) {
             return false;
         }
         if (name.startsWith("webhooks") && !this.configuration.getRequired<boolean>("watcher.watch.webhooks")) {
