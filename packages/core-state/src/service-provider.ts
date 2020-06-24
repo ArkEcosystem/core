@@ -1,5 +1,4 @@
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
 
 import { BuildDelegateRankingAction } from "./actions";
 import { BlockState } from "./block-state";
@@ -13,14 +12,7 @@ import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } 
 import { registerFactories, registerIndexers } from "./wallets/indexers";
 
 export const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
-    return async (
-        blocks: Interfaces.IBlock[],
-        roundInfo: Contracts.Shared.RoundInfo,
-    ): Promise<Contracts.State.DposPreviousRoundState> => {
-        const previousRound = context.container.resolve(DposPreviousRoundState);
-        await previousRound.revert(blocks, roundInfo);
-        return previousRound;
-    };
+    return async () => context.container.resolve(DposPreviousRoundState);
 };
 
 export class ServiceProvider extends Providers.ServiceProvider {

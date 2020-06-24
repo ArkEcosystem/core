@@ -497,8 +497,10 @@ export class DatabaseService {
 
             await this.setForgingDelegatesOfRound(
                 roundInfo,
-                await this.calcPreviousActiveDelegates(roundInfo, this.blocksInCurrentRound),
+                await this.calcPreviousActiveDelegates(),
             );
+            const previousRoundState = this.getDposPreviousRoundState();
+            await previousRoundState.revert(this.blocksInCurrentRound, roundInfo);
 
             // ! this will only delete one round
             await this.deleteRound(nextRound);
@@ -744,9 +746,7 @@ export class DatabaseService {
         this.forgingDelegates = undefined;
 
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
-        const prevRoundDelegates: Contracts.State.Wallet[] = await this.calcPreviousActiveDelegates(roundInfo);
-
-        await this.setForgingDelegatesOfRound(roundInfo, prevRoundDelegates);
+        await this.setForgingDelegatesOfRound(roundInfo);
     }
 
     private async setForgingDelegatesOfRound(
@@ -759,14 +759,8 @@ export class DatabaseService {
         this.forgingDelegates = result as Contracts.State.Wallet[];
     }
 
-    private async calcPreviousActiveDelegates(
-        roundInfo: Contracts.Shared.RoundInfo,
-        blocks?: Interfaces.IBlock[],
-    ): Promise<Contracts.State.Wallet[]> {
-        // ! make blocks required parameter forcing caller to specify blocks explicitly
-        blocks = blocks || (await this.getBlocksForRound(roundInfo));
-
-        const prevRoundState = await this.getDposPreviousRoundState(blocks, roundInfo);
+    private async calcPreviousActiveDelegates(): Promise<Contracts.State.Wallet[]> {
+        const prevRoundState = await this.getDposPreviousRoundState();
         for (const prevRoundDelegateWallet of prevRoundState.getAllDelegates()) {
             // ! name suggest that this is pure function
             // ! when in fact it is manipulating current wallet repository setting delegate ranks

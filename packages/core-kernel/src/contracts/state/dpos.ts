@@ -1,7 +1,6 @@
-import { Interfaces } from "@arkecosystem/crypto";
-
 import { RoundInfo } from "../shared/rounds";
 import { Wallet } from "./wallets";
+import { Interfaces } from "@arkecosystem/crypto";
 
 export interface DposState {
     getRoundInfo(): RoundInfo;
@@ -16,9 +15,7 @@ export interface DposState {
 export interface DposPreviousRoundState {
     getAllDelegates(): readonly Wallet[];
     getRoundDelegates(): readonly Wallet[];
+    revert(blocks: Interfaces.IBlock[], roundInfo: RoundInfo): Promise<void>;
 }
 
-export type DposPreviousRoundStateProvider = (
-    revertBlocks: Interfaces.IBlock[],
-    roundInfo: RoundInfo,
-) => Promise<DposPreviousRoundState>;
+export type DposPreviousRoundStateProvider = () => DposPreviousRoundState;
