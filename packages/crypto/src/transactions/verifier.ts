@@ -1,6 +1,6 @@
 import { Hash } from "../crypto/hash";
 import { DuplicateParticipantInMultiSignatureError, InvalidMultiSignatureAssetError } from "../errors";
-import { IMultiSignatureAsset, ISchemaValidationResult, ITransactionData } from "../interfaces";
+import { IMultiSignatureAsset, ISchemaValidationResult, ITransactionData, IVerifyOptions } from "../interfaces";
 import { configManager } from "../managers";
 import { isException } from "../utils";
 import { validator } from "../validation";
@@ -8,7 +8,7 @@ import { TransactionTypeFactory } from "./types/factory";
 import { Utils } from "./utils";
 
 export class Verifier {
-    public static verify(data: ITransactionData): boolean {
+    public static verify(data: ITransactionData, options?: IVerifyOptions): boolean {
         if (isException(data.id)) {
             return true;
         }
@@ -17,17 +17,24 @@ export class Verifier {
             return false;
         }
 
-        return Verifier.verifyHash(data);
+        return Verifier.verifyHash(data, options?.versionSpecified);
     }
 
-    public static verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {
+    public static verifySecondSignature(
+        transaction: ITransactionData,
+        publicKey: string,
+        options?: IVerifyOptions,
+    ): boolean {
         const secondSignature: string | undefined = transaction.secondSignature || transaction.signSignature;
 
         if (!secondSignature) {
             return false;
         }
 
-        const hash: Buffer = Utils.toHash(transaction, { excludeSecondSignature: true });
+        const hash: Buffer = Utils.toHash(transaction, {
+            versionSpecified: options?.versionSpecified,
+            excludeSecondSignature: true,
+        });
         return this.internalVerifySignature(hash, secondSignature, publicKey);
     }
 
@@ -79,7 +86,7 @@ export class Verifier {
         return verified;
     }
 
-    public static verifyHash(data: ITransactionData): boolean {
+    public static verifyHash(data: ITransactionData, versionSpecified = false): boolean {
         const { signature, senderPublicKey } = data;
 
         if (!signature || !senderPublicKey) {
@@ -87,6 +94,7 @@ export class Verifier {
         }
 
         const hash: Buffer = Utils.toHash(data, {
+            versionSpecified,
             excludeSignature: true,
             excludeSecondSignature: true,
         });

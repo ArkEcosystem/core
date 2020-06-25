@@ -3,7 +3,13 @@ import ByteBuffer from "bytebuffer";
 import { TransactionTypeGroup } from "../../enums";
 import { NotImplemented } from "../../errors";
 import { Address } from "../../identities";
-import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
+import {
+    ISchemaValidationResult,
+    ISerializeOptions,
+    ITransaction,
+    ITransactionData,
+    ITransactionJson,
+} from "../../interfaces";
 import { configManager } from "../../managers/config";
 import { BigNumber } from "../../utils/bignum";
 import { Verifier } from "../verifier";
@@ -42,8 +48,8 @@ export abstract class Transaction implements ITransaction {
         return this.defaultStaticFee;
     }
 
-    public verify(): boolean {
-        return Verifier.verify(this.data);
+    public verify(options?: ISerializeOptions): boolean {
+        return Verifier.verify(this.data, options);
     }
 
     public verifySecondSignature(publicKey: string): boolean {

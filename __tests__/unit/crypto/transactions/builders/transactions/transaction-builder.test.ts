@@ -1,5 +1,7 @@
 import { Factories, Generators } from "@packages/core-test-framework/src";
+import { TransactionVersionError } from "@packages/crypto/src/errors";
 import { Keys } from "@packages/crypto/src/identities";
+import { Address } from "@packages/crypto/src/identities";
 import { configManager } from "@packages/crypto/src/managers";
 import { BuilderFactory, Signer } from "@packages/crypto/src/transactions";
 import { BigNumber } from "@packages/crypto/src/utils";
@@ -158,7 +160,9 @@ describe.each([
                 builder.sign(identity.bip39);
 
                 expect(spyKeys).toHaveBeenCalledWith(identity.bip39);
-                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys);
+                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys, {
+                    versionSpecified: false,
+                });
             });
 
             it("establishes the public key of the sender", () => {
@@ -170,7 +174,9 @@ describe.each([
 
                 expect(builder.data.senderPublicKey).toBe(identity.keys.publicKey);
                 expect(spyKeys).toHaveBeenCalledWith(identity.bip39);
-                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys);
+                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys, {
+                    versionSpecified: false,
+                });
             });
         });
 
@@ -185,7 +191,9 @@ describe.each([
                 expect(spyKeys).toHaveBeenCalledWith(identity.bip39, {
                     wif: 186,
                 });
-                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys);
+                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys, {
+                    versionSpecified: false,
+                });
             });
 
             it("establishes the public key of the sender", () => {
@@ -195,7 +203,9 @@ describe.each([
                 builder.signWithWif(identity.wif);
 
                 expect(builder.data.senderPublicKey).toBe(identity.publicKey);
-                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys);
+                expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys, {
+                    versionSpecified: false,
+                });
             });
         });
 
@@ -242,5 +252,91 @@ describe.each([
                 expect(spyMultiSign).toHaveBeenCalledWith((builder as any).getSigningObject(), identitySecond.keys, 0);
             });
         });
+    });
+});
+
+describe("Setting the version number explicitly", () => {
+    it("should not throw transaction version error when specifically setting version 1 and aip11 is false", () => {
+        configManager.setFromPreset("devnet");
+        configManager.getMilestone().aip11 = false;
+
+        const recipientAddress = Address.fromPassphrase("recipient's secret");
+        const transaction = BuilderFactory.transfer().version(1).amount("100").recipientId(recipientAddress);
+
+        let signedTransaction;
+        expect(() => (signedTransaction = transaction.sign("sender's secret"))).not.toThrowError(
+            TransactionVersionError,
+        );
+        expect(signedTransaction.data.version).toEqual(1);
+        expect(() => signedTransaction.build()).not.toThrowError(TransactionVersionError);
+    });
+    it("should not throw transaction version error when specifically setting version 1 and aip11 is true", () => {
+        configManager.setFromPreset("devnet");
+        configManager.getMilestone().aip11 = true;
+
+        const recipientAddress = Address.fromPassphrase("recipient's secret");
+        const transaction = BuilderFactory.transfer().version(1).amount("100").recipientId(recipientAddress);
+
+        let signedTransaction;
+        expect(() => (signedTransaction = transaction.sign("sender's secret"))).not.toThrowError(
+            TransactionVersionError,
+        );
+        expect(signedTransaction.data.version).toEqual(1);
+        expect(() => signedTransaction.build()).not.toThrowError(TransactionVersionError);
+    });
+
+    it("should not throw transaction version error when specifically setting version 2 and aip11 is false", () => {
+        configManager.setFromPreset("devnet");
+        configManager.getMilestone().aip11 = false;
+
+        const recipientAddress = Address.fromPassphrase("recipient's secret");
+        const transaction = BuilderFactory.transfer().version(2).amount("100").recipientId(recipientAddress);
+
+        let signedTransaction;
+
+        expect(() => (signedTransaction = transaction.sign("sender's secret"))).not.toThrowError(
+            TransactionVersionError,
+        );
+        expect(signedTransaction.data.version).toEqual(2);
+        expect(() => signedTransaction.build()).not.toThrowError(TransactionVersionError);
+    });
+
+    it("should not throw transaction version error when specifically setting version 2 and aip11 is true", () => {
+        configManager.setFromPreset("devnet");
+        configManager.getMilestone().aip11 = true;
+
+        const recipientAddress = Address.fromPassphrase("recipient's secret");
+        const transaction = BuilderFactory.transfer().version(2).amount("100").recipientId(recipientAddress);
+
+        let signedTransaction;
+
+        expect(() => (signedTransaction = transaction.sign("sender's secret"))).not.toThrowError(
+            TransactionVersionError,
+        );
+        expect(signedTransaction.data.version).toEqual(2);
+
+        expect(() => signedTransaction.build()).not.toThrowError(TransactionVersionError);
+    });
+
+    it("should throw transaction version error when no version is specified, but it is version 1 and we have reached aip11", () => {
+        configManager.setFromPreset("devnet");
+        configManager.getMilestone().aip11 = false;
+
+        const recipientAddress = Address.fromPassphrase("recipient's secret");
+        const transaction = BuilderFactory.transfer().amount("100").recipientId(recipientAddress);
+        configManager.getMilestone().aip11 = true;
+
+        expect(() => transaction.sign("sender's secret")).toThrowError(TransactionVersionError);
+    });
+
+    it("should throw transaction version error when no version is specified, but it is version 2 and we have not reached aip11", () => {
+        configManager.setFromPreset("devnet");
+        configManager.getMilestone().aip11 = true;
+
+        const recipientAddress = Address.fromPassphrase("recipient's secret");
+        const transaction = BuilderFactory.transfer().amount("100").recipientId(recipientAddress);
+        configManager.getMilestone().aip11 = false;
+
+        expect(() => transaction.sign("sender's secret")).toThrowError(TransactionVersionError);
     });
 });
