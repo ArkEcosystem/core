@@ -20,32 +20,39 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService).boot();
 
         if (this.config().getRequired<{ enabled: boolean }>("watcher").enabled) {
-            this.app.bind(Container.Identifiers.DatabaseLogger).to(DatabaseLogger).inSingletonScope();
             this.app.bind(Identifiers.EventsListener).to(Listener).inSingletonScope();
 
-            const logService = this.app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService);
-            this.app
-                .rebind(Container.Identifiers.LogService)
-                .toConstantValue(
-                    new LogServiceWrapper(
-                        logService,
-                        this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService),
-                    ),
-                );
+            if (this.config().getRequired<boolean>("watcher.watch.queries")) {
+                this.app.bind(Container.Identifiers.DatabaseLogger).to(DatabaseLogger).inSingletonScope();
+            }
 
-            this.app
-                .bind(Container.Identifiers.WalletFactory)
-                .toFactory<Contracts.State.Wallet>((context: Container.interfaces.Context) => (address: string) =>
-                    new WatcherWallet(
-                        context.container.get(Container.Identifiers.Application),
-                        address,
-                        new Services.Attributes.AttributeMap(
-                            context.container.get<Services.Attributes.AttributeSet>(
-                                Container.Identifiers.WalletAttributes,
+            if (this.config().getRequired<boolean>("watcher.watch.logs")) {
+                const logService = this.app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService);
+                this.app
+                    .rebind(Container.Identifiers.LogService)
+                    .toConstantValue(
+                        new LogServiceWrapper(
+                            logService,
+                            this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService),
+                        ),
+                    );
+            }
+
+            if (this.config().getRequired<boolean>("watcher.watch.wallets")) {
+                this.app
+                    .bind(Container.Identifiers.WalletFactory)
+                    .toFactory<Contracts.State.Wallet>((context: Container.interfaces.Context) => (address: string) =>
+                        new WatcherWallet(
+                            context.container.get(Container.Identifiers.Application),
+                            address,
+                            new Services.Attributes.AttributeMap(
+                                context.container.get<Services.Attributes.AttributeSet>(
+                                    Container.Identifiers.WalletAttributes,
+                                ),
                             ),
                         ),
-                    ),
-                );
+                    );
+            }
         }
 
         this.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
