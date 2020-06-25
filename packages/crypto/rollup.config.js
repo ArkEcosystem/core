@@ -1,47 +1,147 @@
-import pkg from "./package.json";
+import commonjs from "@rollup/plugin-commonjs";
+import inject from "@rollup/plugin-inject";
+import json from "@rollup/plugin-json";
+import resolve from "@rollup/plugin-node-resolve";
+import ts from "@wessberg/rollup-plugin-ts";
+import builtinModules from "builtin-modules";
+import nodePolyfills from "rollup-plugin-node-polyfills";
 import { terser } from "rollup-plugin-terser";
-import commonjs from "rollup-plugin-commonjs";
-import nodeResolve from "rollup-plugin-node-resolve";
-import json from "rollup-plugin-json";
 
-export default {
-    input: "dist/index.js", // our source file
+import pkg from "./package.json";
+
+const dependencies = Object.keys(pkg.dependencies);
+const allModules = [...dependencies, ...builtinModules];
+
+const polyfillsPlugins = [
+    inject({
+        modules: {
+            BigInt: require.resolve("big-integer"),
+            process: "process-es6",
+            Buffer: ["buffer-es6", "Buffer"],
+            global: require.resolve("rollup-plugin-node-polyfills/polyfills/global.js"),
+        },
+        include: undefined,
+    }),
+    {
+        ...nodePolyfills(),
+        transform: null,
+    },
+];
+
+/** Compatible code for bundlers (webpack, rollup) */
+const moduleConfig = {
+    input: "src/index.ts",
+    output: {
+        file: pkg.module,
+        format: "esm",
+    },
+    plugins: [
+        json(),
+        commonjs({ include: /node_modules/ }),
+        ts({
+            transpileOnly: true,
+            tsconfig: {
+                target: "es2015",
+                module: "esnext",
+                allowSyntheticDefaultImports: true,
+                resolveJsonModule: true,
+            },
+        }),
+    ],
+    external: allModules,
+};
+
+/** Remove Node's builtin packages and optimize to run in modern browsers */
+const browserConfig = {
+    input: "src/index.ts",
     output: [
         {
-            file: pkg.main,
-            format: "cjs"
-        },
-        {
-            file: pkg.module,
-            format: "es" // the preferred format
-        },
-        {
             file: pkg.browser,
-            format: "iife",
-            name: "ArkCrypto" // the global which can be used in a browser
-        }
-    ],
-    external: [
-        ...Object.keys(pkg.dependencies || {})
+            format: "esm",
+        },
     ],
     plugins: [
-        json({
-            // for tree-shaking, properties will be declared as
-            // variables, using either `var` or `const`
-            preferConst: true, // Default: false
-
-            // ignores indent and generates the smallest code
-            compact: true, // Default: false
+        json(),
+        resolve({ preferBuiltins: false, browser: true }),
+        commonjs({ include: /node_modules/ }),
+        ts({
+            transpiler: "babel",
+            transpileOnly: true,
+            tsconfig: {
+                declaration: false,
+            },
+            babelConfig: {
+                presets: [["@babel/preset-env", { loose: false, modules: false, targets: { esmodules: true } }]],
+            },
         }),
-        nodeResolve({
-            jsnext: true,
-            main: true
-        }),
-        commonjs({
-            namedExports: {
-                "dist/index.js": ["__moduleExports"]
-            }
-        }),
-        terser() // minifies generated bundles
-    ]
+        ...polyfillsPlugins,
+    ],
+    external: dependencies,
 };
+
+/** Full version with all polyfills and dependencies attached to the file */
+const unpkgConfig = {
+    input: "src/index.ts",
+    output: [
+        {
+            file: pkg.unpkg,
+            format: "esm",
+            plugins: [
+                terser(),
+            ]
+        },
+        {
+            file: pkg.unpkg.replace(".min", ""),
+            format: "esm",
+        },
+    ],
+    plugins: [
+        json(),
+        resolve({ preferBuiltins: false, browser: true }),
+        commonjs({ include: /node_modules/ }),
+        ts({
+            transpiler: "babel",
+            transpileOnly: true,
+            tsconfig: {
+                declaration: false,
+            },
+            babelConfig: {
+                presets: [["@babel/preset-env", { loose: false, modules: false, targets: { esmodules: true } }]],
+            },
+        }),
+        ...polyfillsPlugins,
+    ],
+};
+
+/** Universal code to be used as a standalone package */
+const umdConfig = {
+    input: "src/index.ts",
+    output: {
+        file: pkg["umd:main"],
+        format: "iife",
+        name: "ArkCrypto",
+    },
+    plugins: [
+        json(),
+        resolve({ preferBuiltins: false, browser: true }),
+        commonjs({ include: /node_modules/ }),
+        ts({
+            transpiler: "babel",
+            transpileOnly: true,
+            tsconfig: {
+                declaration: false,
+            },
+            babelConfig: {
+                presets: [
+                    [
+                        "@babel/preset-env",
+                        { loose: false, modules: false, targets: { browsers: [">0.25%", "not op_mini all"] } },
+                    ],
+                ],
+            },
+        }),
+        ...polyfillsPlugins,
+    ],
+};
+
+export default [moduleConfig, browserConfig, unpkgConfig, umdConfig];
