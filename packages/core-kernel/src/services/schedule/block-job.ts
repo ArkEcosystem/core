@@ -1,7 +1,6 @@
 import { Managers } from "@arkecosystem/crypto";
 import { performance } from "perf_hooks";
 
-import { Application } from "../../contracts/kernel";
 import { EventDispatcher } from "../../contracts/kernel/events";
 import { BlockEvent, ScheduleEvent } from "../../enums";
 import { Identifiers, inject, injectable } from "../../ioc";
@@ -15,9 +14,6 @@ import { ExecuteCallbackWhenReady } from "./listeners";
  */
 @injectable()
 export class BlockJob implements Job {
-    @inject(Identifiers.Application)
-    protected readonly app!: Application;
-
     /**
      * @private
      * @type {EventDispatcher}
@@ -43,7 +39,7 @@ export class BlockJob implements Job {
 
             await callback();
 
-            await this.app.events.dispatch(ScheduleEvent.BlockJobFinished, {
+            await this.events.dispatch(ScheduleEvent.BlockJobFinished, {
                 executionTime: performance.now() - start,
                 blockCount: this.blockCount,
             });

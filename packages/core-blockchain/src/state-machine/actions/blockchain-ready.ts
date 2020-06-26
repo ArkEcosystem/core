@@ -11,13 +11,13 @@ export class BlockchainReady implements Action {
     private readonly stateStore!: Contracts.State.StateStore;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly eventDispatcher!: Contracts.Kernel.EventDispatcher;
+    private readonly events!: Contracts.Kernel.EventDispatcher;
 
     public async handle(): Promise<void> {
         if (!this.stateStore.started) {
             this.stateStore.started = true;
 
-            this.eventDispatcher.dispatch(Enums.StateEvent.Started, true);
+            this.events.dispatch(Enums.StateEvent.Started, true);
         }
     }
 }

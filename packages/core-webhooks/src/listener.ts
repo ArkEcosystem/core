@@ -16,14 +16,23 @@ export class Listener {
     /**
      * @private
      * @type {Contracts.Kernel.Application}
-     * @memberof Server
+     * @memberof Listener
      */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
+
+    /**
+     * @private
+     * @type {Contracts.Kernel.EventDispatcher}
+     * @memberof Listener
+     */
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly events!: Contracts.Kernel.EventDispatcher;
+
     /**
      * @private
      * @type {Contracts.Kernel.Logger}
-     * @memberof Broadcaster
+     * @memberof Listener
      */
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
@@ -81,14 +90,14 @@ export class Listener {
 
     private async dispatchWebhookEvent(start: number, webhook: Webhook, payload: object, err?: Error) {
         if (err) {
-            this.app.events.dispatch(WebhookEvent.Failed, {
+            this.events.dispatch(WebhookEvent.Failed, {
                 executionTime: performance.now() - start,
                 webhook: webhook,
                 payload: payload,
                 error: err,
             });
         } else {
-            this.app.events.dispatch(WebhookEvent.Broadcasted, {
+            this.events.dispatch(WebhookEvent.Broadcasted, {
                 executionTime: performance.now() - start,
                 webhook: webhook,
                 payload: payload,

@@ -1,7 +1,6 @@
 import { Exception } from "../../exceptions/base";
 import { JsonObject } from "../../types";
 import { Container } from "./container";
-import { EventDispatcher } from "./events";
 
 // todo: remove this interface as it serves no purpose. Every package depends on core-kernel so it can import the application directly.
 export interface Application {
@@ -9,11 +8,6 @@ export interface Application {
      * Get an instance of the application container.
      */
     readonly container: Container.Container;
-
-    /**
-     * Get an instance of the application event dispatcher.
-     */
-    readonly events: EventDispatcher;
 
     /**
      * Bootstrap the application with the given configuration.

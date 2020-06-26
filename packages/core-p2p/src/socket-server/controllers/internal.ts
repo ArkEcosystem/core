@@ -12,18 +12,18 @@ export class InternalController extends Controller {
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
     private readonly peerNetworkMonitor!: Contracts.P2P.NetworkMonitor;
 
-    @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly eventDispatcher!: Contracts.Kernel.EventDispatcher;
-
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;
+
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly events!: Contracts.Kernel.EventDispatcher;
 
     public async acceptNewPeer(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<void> {
         return this.peerProcessor.validateAndAcceptPeer({ ip: (request.payload as any).ip } as Contracts.P2P.Peer);
     }
 
     public emitEvent(request: Hapi.Request, h: Hapi.ResponseToolkit): boolean {
-        this.eventDispatcher.dispatch((request.payload as any).event, (request.payload as any).body);
+        this.events.dispatch((request.payload as any).event, (request.payload as any).body);
         return true;
     }
 

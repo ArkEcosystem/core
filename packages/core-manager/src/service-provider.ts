@@ -43,7 +43,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     .bind(Container.Identifiers.WalletFactory)
                     .toFactory<Contracts.State.Wallet>((context: Container.interfaces.Context) => (address: string) =>
                         new WatcherWallet(
-                            context.container.get(Container.Identifiers.Application),
+                            context.container.get(Container.Identifiers.EventDispatcherService),
                             address,
                             new Services.Attributes.AttributeMap(
                                 context.container.get<Services.Attributes.AttributeSet>(

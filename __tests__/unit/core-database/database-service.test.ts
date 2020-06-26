@@ -91,16 +91,16 @@ const triggers = {
     call: jest.fn(),
 };
 
+const events = {
+    call: jest.fn(),
+    dispatch: jest.fn(),
+};
+
 const logger = {
     error: jest.fn(),
     warning: jest.fn(),
     info: jest.fn(),
     debug: jest.fn(),
-};
-
-const emitter = {
-    call: jest.fn(),
-    dispatch: jest.fn(),
 };
 
 const container = new Container.Container();
@@ -118,8 +118,8 @@ container.bind(Container.Identifiers.BlockState).toConstantValue(blockState);
 container.bind(Container.Identifiers.DposState).toConstantValue(dposState);
 container.bind(Container.Identifiers.DposPreviousRoundStateProvider).toConstantValue(getDposPreviousRoundState);
 container.bind(Container.Identifiers.TriggerService).toConstantValue(triggers);
+container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(events);
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
 
 beforeEach(() => {
     app.get.mockReset();
@@ -183,15 +183,15 @@ beforeEach(() => {
     logger.info.mockReset();
     logger.debug.mockReset();
 
-    emitter.call.mockReset();
-    emitter.dispatch.mockReset();
+    events.call.mockReset();
+    events.dispatch.mockReset();
 });
 
 describe("DatabaseService.initialize", () => {
     it("should dispatch starting event", async () => {
         const databaseService = container.resolve(DatabaseService);
         await databaseService.initialize();
-        expect(emitter.dispatch).toBeCalledWith(Enums.StateEvent.Starting);
+        expect(events.dispatch).toBeCalledWith(Enums.StateEvent.Starting);
     });
 
     it("should reset database when CORE_RESET_DATABASE variable is set", async () => {
@@ -292,8 +292,8 @@ describe("DatabaseService.disconnect", () => {
     it("should emit disconnect events", async () => {
         const databaseService = container.resolve(DatabaseService);
         await databaseService.disconnect();
-        expect(emitter.dispatch).toBeCalledWith("database.preDisconnect");
-        expect(emitter.dispatch).toBeCalledWith("database.postDisconnect");
+        expect(events.dispatch).toBeCalledWith("database.preDisconnect");
+        expect(events.dispatch).toBeCalledWith("database.postDisconnect");
     });
 });
 
@@ -325,7 +325,10 @@ describe("DatabaseService.restoreCurrentRound", () => {
 
         expect(getDposPreviousRoundState).not.toBeCalled(); // restoring current round should not need previous round state
         // important: getActiveDelegates should be called with only roundInfo (restoreCurrentRound does *not* provide delegates to it)
-        expect(triggers.call).toHaveBeenLastCalledWith("getActiveDelegates", { roundInfo: expect.anything(), delegates: undefined });
+        expect(triggers.call).toHaveBeenLastCalledWith("getActiveDelegates", {
+            roundInfo: expect.anything(),
+            delegates: undefined,
+        });
         expect(databaseService.forgingDelegates).toEqual(forgingDelegates);
     });
 });
@@ -371,9 +374,9 @@ describe("DatabaseService.applyBlock", () => {
         expect(stateStore.getLastBlock).toBeCalledTimes(1);
         expect(blockState.applyBlock).toBeCalledWith(block);
         expect(databaseService.blocksInCurrentRound).toEqual([block]);
-        expect(emitter.dispatch).toBeCalledWith("forger.missing", { delegate: delegateWallet });
-        expect(handler.emitEvents).toBeCalledWith(transaction, emitter);
-        expect(emitter.dispatch).toBeCalledWith("block.applied", block.data);
+        expect(events.dispatch).toBeCalledWith("forger.missing", { delegate: delegateWallet });
+        expect(handler.emitEvents).toBeCalledWith(transaction, events);
+        expect(events.dispatch).toBeCalledWith("block.applied", block.data);
     });
 
     it("should apply block, not apply round, and not detect missed blocks when last block height is 1", async () => {
@@ -393,8 +396,8 @@ describe("DatabaseService.applyBlock", () => {
         await databaseService.applyBlock(block as any);
 
         expect(stateStore.getLastBlock).toBeCalledTimes(1);
-        expect(handler.emitEvents).toBeCalledWith(transaction, emitter);
-        expect(emitter.dispatch).toBeCalledWith("block.applied", block.data);
+        expect(handler.emitEvents).toBeCalledWith(transaction, events);
+        expect(events.dispatch).toBeCalledWith("block.applied", block.data);
     });
 });
 
@@ -433,7 +436,7 @@ describe("DatabaseService.applyRound", () => {
             maxDelegates: 51,
         });
         expect(roundRepository.save).toBeCalledWith(dposStateRoundDelegates);
-        expect(emitter.dispatch).toBeCalledWith("round.applied");
+        expect(events.dispatch).toBeCalledWith("round.applied");
     });
 
     it("should build delegates, save round, dispatch events when height is 1", async () => {
@@ -470,7 +473,7 @@ describe("DatabaseService.applyRound", () => {
             maxDelegates: 51,
         });
         expect(roundRepository.save).toBeCalledWith(dposStateRoundDelegates);
-        expect(emitter.dispatch).toBeCalledWith("round.applied");
+        expect(events.dispatch).toBeCalledWith("round.applied");
     });
 
     it("should build delegates, save round, dispatch events, and skip missing round checks when first round has genesis block only", async () => {
@@ -507,7 +510,7 @@ describe("DatabaseService.applyRound", () => {
             maxDelegates: 51,
         });
         expect(roundRepository.save).toBeCalledWith(dposStateRoundDelegates);
-        expect(emitter.dispatch).toBeCalledWith("round.applied");
+        expect(events.dispatch).toBeCalledWith("round.applied");
     });
 
     it("should delete round and rethrow error when error was thrown", async () => {
@@ -957,9 +960,9 @@ describe("DatabaseService.revertBlock", () => {
         await databaseService.revertBlock(block as any);
 
         expect(blockState.revertBlock).toBeCalledWith(block);
-        expect(emitter.dispatch).toBeCalledWith("transaction.reverted", transaction1.data);
-        expect(emitter.dispatch).toBeCalledWith("transaction.reverted", transaction2.data);
-        expect(emitter.dispatch).toBeCalledWith("block.reverted", block.data);
+        expect(events.dispatch).toBeCalledWith("transaction.reverted", transaction1.data);
+        expect(events.dispatch).toBeCalledWith("transaction.reverted", transaction2.data);
+        expect(events.dispatch).toBeCalledWith("block.reverted", block.data);
     });
 });
 
@@ -1022,7 +1025,7 @@ describe("DatabaseService.saveRound", () => {
 
         expect(delegate1.getAttribute).toBeCalledWith("delegate.round");
         expect(roundRepository.save).toBeCalledWith(activeDelegates);
-        expect(emitter.dispatch).toBeCalledWith("round.created", activeDelegates);
+        expect(events.dispatch).toBeCalledWith("round.created", activeDelegates);
     });
 });
 

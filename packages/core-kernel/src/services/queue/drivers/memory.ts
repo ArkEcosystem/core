@@ -1,6 +1,6 @@
 import { performance } from "perf_hooks";
 
-import { Application } from "../../../contracts/kernel/application";
+import { EventDispatcher } from "../../../contracts/kernel/events";
 import { Queue, QueueJob } from "../../../contracts/kernel/queue";
 import { QueueEvent } from "../../../enums";
 import { Identifiers, inject, injectable } from "../../../ioc";
@@ -12,8 +12,8 @@ import { Identifiers, inject, injectable } from "../../../ioc";
  */
 @injectable()
 export class MemoryQueue implements Queue {
-    @inject(Identifiers.Application)
-    protected readonly app!: Application;
+    @inject(Identifiers.EventDispatcherService)
+    private readonly events!: EventDispatcher;
 
     /**
      * @private
@@ -185,7 +185,7 @@ export class MemoryQueue implements Queue {
                 try {
                     lastResults.push(await this.jobs[from].handle());
 
-                    await this.app.events.dispatch(QueueEvent.Finished, {
+                    await this.events.dispatch(QueueEvent.Finished, {
                         driver: "memory",
                         executionTime: performance.now() - start,
                     });
@@ -194,7 +194,7 @@ export class MemoryQueue implements Queue {
                 } catch (error) {
                     this.isRunning = false;
 
-                    await this.app.events.dispatch(QueueEvent.Failed, {
+                    await this.events.dispatch(QueueEvent.Failed, {
                         driver: "memory",
                         executionTime: performance.now() - start,
                         error: error,

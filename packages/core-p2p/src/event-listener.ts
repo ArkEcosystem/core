@@ -9,9 +9,9 @@ export class EventListener {
     protected readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.EventDispatcher;
+    private readonly events!: Contracts.Kernel.EventDispatcher;
 
-    public initialize() {
-        this.emitter.listen(Enums.PeerEvent.Disconnect, this.app.resolve(DisconnectPeer));
+    public initialize(): void {
+        this.events.listen(Enums.PeerEvent.Disconnect, this.app.resolve(DisconnectPeer));
     }
 }
