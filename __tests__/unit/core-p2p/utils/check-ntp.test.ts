@@ -11,8 +11,9 @@ jest.mock("@hapi/sntp", () => {
     };
 });
 
+const logger = { error: jest.fn() };
 const app = {
-    log: { error: jest.fn() },
+    get: () => logger,
 } as any;
 
 describe("Check NTP", () => {
