@@ -20,6 +20,14 @@ export class Server {
 
     /**
      * @private
+     * @type {Contracts.Kernel.Logger}
+     * @memberof Server
+     */
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    /**
+     * @private
      * @type {HapiServer}
      * @memberof Server
      */
@@ -60,7 +68,7 @@ export class Server {
         try {
             await this.server.start();
 
-            this.app.log.info(`${this.name} P2P server started at ${this.server.info.uri}`);
+            this.logger.info(`${this.name} P2P server started at ${this.server.info.uri}`);
         } catch {
             await this.app.terminate(`Failed to start ${this.name} Server!`);
         }
@@ -74,7 +82,7 @@ export class Server {
         try {
             await this.server.stop();
 
-            this.app.log.info(`${this.name} Server stopped at ${this.server.info.uri}`);
+            this.logger.info(`${this.name} Server stopped at ${this.server.info.uri}`);
         } catch {
             await this.app.terminate(`Failed to stop ${this.name} Server!`);
         }

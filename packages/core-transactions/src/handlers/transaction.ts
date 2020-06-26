@@ -31,6 +31,9 @@ export abstract class TransactionHandler {
     @Container.inject(Container.Identifiers.WalletRepository)
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
+    @Container.inject(Container.Identifiers.LogService)
+    protected readonly logger!: Contracts.Kernel.Logger;
+
     public async verify(transaction: Interfaces.ITransaction): Promise<boolean> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -93,7 +96,7 @@ export abstract class TransactionHandler {
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data.id)) {
-            this.app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
+            this.logger.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
         await this.throwIfCannotBeApplied(transaction, sender);

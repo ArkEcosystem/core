@@ -293,7 +293,7 @@ export class Application implements Contracts.Kernel.Application {
     public enableMaintenance(): void {
         writeFileSync(this.tempPath("maintenance"), JSON.stringify({ time: +new Date() }));
 
-        this.log.notice("Application is now in maintenance mode.");
+        this.get<Contracts.Kernel.Logger>(Identifiers.LogService).notice("Application is now in maintenance mode.");
 
         this.events.dispatch("kernel.maintenance", true);
     }
@@ -304,7 +304,7 @@ export class Application implements Contracts.Kernel.Application {
     public disableMaintenance(): void {
         removeSync(this.tempPath("maintenance"));
 
-        this.log.notice("Application is now live.");
+        this.get<Contracts.Kernel.Logger>(Identifiers.LogService).notice("Application is now live.");
 
         this.events.dispatch("kernel.maintenance", false);
     }
@@ -327,25 +327,14 @@ export class Application implements Contracts.Kernel.Application {
         this.booted = false;
 
         if (reason) {
-            this.log.notice(reason);
+            this.get<Contracts.Kernel.Logger>(Identifiers.LogService).notice(reason);
         }
 
         if (error) {
-            this.log.notice(error.message);
+            this.get<Contracts.Kernel.Logger>(Identifiers.LogService).notice(error.message);
         }
 
         await this.disposeServiceProviders();
-    }
-
-    /**
-     * todo: remove after initial migration - ioc/injection should be used to access those
-     *
-     * @readonly
-     * @type {Contracts.Kernel.Logger}
-     * @memberof Application
-     */
-    public get log(): Contracts.Kernel.Logger {
-        return this.get<Contracts.Kernel.Logger>(Identifiers.LogService);
     }
 
     /**
@@ -482,7 +471,7 @@ export class Application implements Contracts.Kernel.Application {
         ).allLoadedProviders();
 
         for (const serviceProvider of serviceProviders.reverse()) {
-            this.log.debug(`Disposing ${serviceProvider.name()}...`);
+            this.get<Contracts.Kernel.Logger>(Identifiers.LogService).debug(`Disposing ${serviceProvider.name()}...`);
 
             try {
                 await serviceProvider.dispose();

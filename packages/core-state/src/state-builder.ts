@@ -33,7 +33,6 @@ export class StateBuilder {
     private readonly configRepository!: Services.Config.ConfigRepository;
 
     public async run(): Promise<void> {
-        this.logger = this.app.log;
         this.emitter = this.app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
         const registeredHandlers = this.app
