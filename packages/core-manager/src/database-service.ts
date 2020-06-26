@@ -174,6 +174,7 @@ export class DatabaseService {
     private extractConditions(data: any, property: string): ConditionLine[] {
         let result: ConditionLine[] = [];
 
+        /* istanbul ignore next */
         if (!data) {
             /* istanbul ignore next */
             return [];

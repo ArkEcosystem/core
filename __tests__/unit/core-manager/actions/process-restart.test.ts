@@ -9,11 +9,16 @@ let sandbox: Sandbox;
 let action: Action;
 
 let mockCli;
+let mockProcessManagerStatus;
 
 beforeEach(() => {
+    mockProcessManagerStatus = ProcessState.Online;
+
     mockCli = {
         get: jest.fn().mockReturnValue({
-            status: jest.fn().mockReturnValue(ProcessState.Online),
+            status: jest.fn().mockImplementation(() => {
+                return mockProcessManagerStatus;
+            }),
             restart: jest.fn(),
         }),
     };
@@ -39,5 +44,13 @@ describe("Process:Restart", () => {
         const result = await action.execute({ name: "ark-core" });
 
         expect(result).toEqual({ name: "ark-core", status: "online" });
+    });
+
+    it("should return status undefined if processManager status is undefined", async () => {
+        mockProcessManagerStatus = undefined;
+
+        const result = await action.execute({ name: "ark-core" });
+
+        expect(result).toEqual({ name: "ark-core", status: "undefined" });
     });
 });
