@@ -164,16 +164,16 @@ export interface IHtlcExpiration {
 
 export interface IDeserializeOptions {
     acceptLegacyVersion?: boolean;
-    versionSpecified?: boolean;
+    disableVersionCheck?: boolean;
 }
 
 export interface IVerifyOptions {
-    versionSpecified?: boolean;
+    disableVersionCheck?: boolean;
 }
 
 export interface ISerializeOptions {
     acceptLegacyVersion?: boolean;
-    versionSpecified?: boolean;
+    disableVersionCheck?: boolean;
     excludeSignature?: boolean;
     excludeSecondSignature?: boolean;
     excludeMultiSignature?: boolean;

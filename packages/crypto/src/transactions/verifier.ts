@@ -17,7 +17,7 @@ export class Verifier {
             return false;
         }
 
-        return Verifier.verifyHash(data, options?.versionSpecified);
+        return Verifier.verifyHash(data, options?.disableVersionCheck);
     }
 
     public static verifySecondSignature(
@@ -32,7 +32,7 @@ export class Verifier {
         }
 
         const hash: Buffer = Utils.toHash(transaction, {
-            versionSpecified: options?.versionSpecified,
+            disableVersionCheck: options?.disableVersionCheck,
             excludeSecondSignature: true,
         });
         return this.internalVerifySignature(hash, secondSignature, publicKey);
@@ -86,7 +86,7 @@ export class Verifier {
         return verified;
     }
 
-    public static verifyHash(data: ITransactionData, versionSpecified = false): boolean {
+    public static verifyHash(data: ITransactionData, disableVersionCheck = false): boolean {
         const { signature, senderPublicKey } = data;
 
         if (!signature || !senderPublicKey) {
@@ -94,7 +94,7 @@ export class Verifier {
         }
 
         const hash: Buffer = Utils.toHash(data, {
-            versionSpecified,
+            disableVersionCheck,
             excludeSignature: true,
             excludeSecondSignature: true,
         });

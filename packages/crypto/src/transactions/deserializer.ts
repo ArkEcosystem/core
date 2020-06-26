@@ -47,7 +47,7 @@ export class Deserializer {
         if (data.version) {
             if (
                 options.acceptLegacyVersion ||
-                options.versionSpecified ||
+                options.disableVersionCheck ||
                 isSupportedTransactionVersion(data.version)
             ) {
                 if (data.version === 1) {

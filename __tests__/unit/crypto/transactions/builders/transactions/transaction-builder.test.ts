@@ -161,7 +161,7 @@ describe.each([
 
                 expect(spyKeys).toHaveBeenCalledWith(identity.bip39);
                 expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys, {
-                    versionSpecified: false,
+                    disableVersionCheck: false,
                 });
             });
 
@@ -175,7 +175,7 @@ describe.each([
                 expect(builder.data.senderPublicKey).toBe(identity.keys.publicKey);
                 expect(spyKeys).toHaveBeenCalledWith(identity.bip39);
                 expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys, {
-                    versionSpecified: false,
+                    disableVersionCheck: false,
                 });
             });
         });
@@ -192,7 +192,7 @@ describe.each([
                     wif: 186,
                 });
                 expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys, {
-                    versionSpecified: false,
+                    disableVersionCheck: false,
                 });
             });
 
@@ -204,7 +204,7 @@ describe.each([
 
                 expect(builder.data.senderPublicKey).toBe(identity.publicKey);
                 expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys, {
-                    versionSpecified: false,
+                    disableVersionCheck: false,
                 });
             });
         });
