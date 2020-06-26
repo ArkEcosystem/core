@@ -1,5 +1,3 @@
-import "@arkecosystem/core-test-framework/src/matchers";
-
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 
