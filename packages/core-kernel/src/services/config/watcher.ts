@@ -37,6 +37,7 @@ export class Watcher {
             for (const event of events) {
                 if (event.action === ActionType.MODIFIED && configFiles.includes(event.file)) {
                     this.app.reboot();
+                    break;
                 }
             }
         });
