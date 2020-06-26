@@ -1,44 +1,46 @@
 import "jest-extended";
 
-import { Validation } from "@packages/crypto";
-import { Container } from "@packages/core-kernel";
-import { Sandbox } from "@packages/core-test-framework";
-import { Identifiers } from "@packages/core-manager/src/ioc";
-import { Actions } from "@packages/core-manager/src/contracts";
-import { Server } from "@packages/core-manager/src/server/server";
+import { Container, Providers } from "@packages/core-kernel";
 import { ActionReader } from "@packages/core-manager/src/action-reader";
-import { PluginFactory } from "@packages/core-manager/src/server/plugins/plugin-factory";
-import { Argon2id, SimpleTokenValidator } from "@packages/core-manager/src/server/validators";
+import { Actions } from "@packages/core-manager/src/contracts";
 import { defaults } from "@packages/core-manager/src/defaults";
+import { Identifiers } from "@packages/core-manager/src/ioc";
+import { PluginFactory } from "@packages/core-manager/src/server/plugins/plugin-factory";
+import { Server } from "@packages/core-manager/src/server/server";
+import { Argon2id, SimpleTokenValidator } from "@packages/core-manager/src/server/validators";
+import { Sandbox } from "@packages/core-test-framework";
+import { cloneDeep } from "lodash";
+import { Validation } from "@packages/crypto";
+
 import { Assets } from "../__fixtures__";
 
 let sandbox: Sandbox;
 let server: Server;
 let spyOnMethod: jest.SpyInstance;
 
-let logger = {
+const logger = {
     info: jest.fn(),
     notice: jest.fn(),
     error: jest.fn(),
 };
 
-let pluginsConfiguration;
+let configuration;
 
 beforeEach(() => {
-    let dummyMethod = { ...Assets.dummyMethod };
+    const dummyMethod = { ...Assets.dummyMethod };
     // @ts-ignore
     spyOnMethod = jest.spyOn(dummyMethod, "method");
 
-    let actionReader: Partial<ActionReader> = {
+    const actionReader: Partial<ActionReader> = {
         discoverActions(): Actions.Method[] {
             return [dummyMethod];
         },
     };
 
-    pluginsConfiguration = { ...defaults.plugins };
+    configuration = cloneDeep(defaults);
 
-    pluginsConfiguration.basicAuthentication.enabled = false;
-    pluginsConfiguration.tokenAuthentication.enabled = false;
+    configuration.plugins.basicAuthentication.enabled = false;
+    configuration.plugins.tokenAuthentication.enabled = false;
 
     sandbox = new Sandbox();
 
@@ -49,9 +51,11 @@ beforeEach(() => {
     sandbox.app.bind(Identifiers.TokenValidator).to(SimpleTokenValidator).inSingletonScope();
 
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-    sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
-        get: jest.fn().mockReturnValue(pluginsConfiguration),
-    });
+
+    sandbox.app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+    sandbox.app
+        .get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration)
+        .from("@arkecosystem/core-monitor", configuration);
 
     sandbox.app.terminate = jest.fn();
 
@@ -202,7 +206,7 @@ describe("Server", () => {
 
     describe("Whitelist", () => {
         it("should return RCP error if whitelisted", async () => {
-            pluginsConfiguration.whitelist = [];
+            configuration.plugins.whitelist = [];
 
             await server.initialize("serverName", {});
             await server.boot();
@@ -239,8 +243,9 @@ describe("Server", () => {
         let injectOptions;
 
         beforeEach(() => {
-            pluginsConfiguration.basicAuthentication.enabled = true;
-            pluginsConfiguration.basicAuthentication.users = [
+            configuration.plugins.tokenAuthentication.enabled = false;
+            configuration.plugins.basicAuthentication.enabled = true;
+            configuration.plugins.basicAuthentication.users = [
                 {
                     username: "username",
                     password:
@@ -261,6 +266,19 @@ describe("Server", () => {
                     "content-type": "application/vnd.api+json",
                 },
             };
+        });
+
+        it("should be ok with valid username and password", async () => {
+            await server.initialize("serverName", {});
+            await server.boot();
+
+            // Data in header: { username: "username", password: "password" }
+            injectOptions.headers.Authorization = "Basic dXNlcm5hbWU6cGFzc3dvcmQ=";
+
+            const response = await server.inject(injectOptions);
+            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
+
+            expect(parsedResponse).toEqual({ body: { id: "1", jsonrpc: "2.0", result: {} }, statusCode: 200 });
         });
 
         it("should return RCP error if no username and password in header", async () => {
@@ -301,7 +319,7 @@ describe("Server", () => {
         });
 
         it("should return RCP error user not found", async () => {
-            pluginsConfiguration.basicAuthentication.users = [];
+            configuration.plugins.basicAuthentication.users = [];
 
             await server.initialize("serverName", {});
             await server.boot();
@@ -321,27 +339,14 @@ describe("Server", () => {
                 statusCode: 200,
             });
         });
-
-        it("should be ok with valid username and password", async () => {
-            await server.initialize("serverName", {});
-            await server.boot();
-
-            // Data in header: { username: "username", password: "password" }
-            injectOptions.headers.Authorization = "Basic dXNlcm5hbWU6cGFzc3dvcmQ=";
-
-            const response = await server.inject(injectOptions);
-            const parsedResponse: Record<string, any> = { body: response.result, statusCode: response.statusCode };
-
-            expect(parsedResponse).toEqual({ body: { id: "1", jsonrpc: "2.0", result: {} }, statusCode: 200 });
-        });
     });
 
     describe("Token Authentication", () => {
         let injectOptions;
 
         beforeEach(() => {
-            pluginsConfiguration.tokenAuthentication.enabled = true;
-            pluginsConfiguration.tokenAuthentication.token = "secret_token";
+            configuration.plugins.tokenAuthentication.enabled = true;
+            configuration.plugins.tokenAuthentication.token = "secret_token";
 
             injectOptions = {
                 method: "POST",
@@ -390,7 +395,7 @@ describe("Server", () => {
         });
 
         it("should return RCP error if token configuration is missing", async () => {
-            delete pluginsConfiguration.tokenAuthentication.token;
+            delete configuration.plugins.tokenAuthentication.token;
 
             await server.initialize("serverName", {});
             await server.boot();
@@ -411,7 +416,7 @@ describe("Server", () => {
         });
 
         it("should return RCP error if no Authentication in headers", async () => {
-            delete pluginsConfiguration.tokenAuthentication.token;
+            delete configuration.plugins.tokenAuthentication.token;
 
             await server.initialize("serverName", {});
             await server.boot();
