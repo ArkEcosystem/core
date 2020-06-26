@@ -138,7 +138,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public verify(): boolean {
-        return Verifier.verifyHash(this.data);
+        return Verifier.verifyHash(this.data, this.versionSpecified);
     }
 
     public getStruct(): ITransactionData {
