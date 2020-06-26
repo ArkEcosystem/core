@@ -11,7 +11,7 @@ import {
 } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
-import { Database, EventEmitter, State } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { EntityWrongSubTypeError, StaticFeeMismatchError } from "../errors";
 import { EntityRegisterSubHandler, EntityResignSubHandler, EntityUpdateSubHandler } from "./entity-subhandlers";
 import { BridgechainSubHandlers } from "./entity-subhandlers/bridgechain";
@@ -120,6 +120,14 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
         }
 
         return this.getHandler(transaction)!.throwIfCannotBeApplied(transaction, wallet, walletManager);
+    }
+
+    public async canEnterTransactionPool(
+        data: Interfaces.ITransactionData,
+        pool: TransactionPool.IConnection,
+        processor: TransactionPool.IProcessor,
+    ): Promise<{ type: string; message: string } | null> {
+        return null;
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
