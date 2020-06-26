@@ -157,6 +157,13 @@ export class TransactionFactory {
         return new TransactionFactory(bridgechainUpdateBuilder);
     }
 
+    public static entity(entityAsset: MagistrateInterfaces.IEntityAsset): TransactionFactory {
+        const entityBuilder = new MagistrateBuilders.EntityBuilder();
+        entityBuilder.asset(entityAsset);
+
+        return new TransactionFactory(entityBuilder);
+    }
+
     public static getNonce(publicKey: string): Utils.BigNumber {
         try {
             return app.resolvePlugin<Database.IDatabaseService>("database").walletManager.getNonce(publicKey);
