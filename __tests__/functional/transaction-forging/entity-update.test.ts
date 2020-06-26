@@ -14,7 +14,7 @@ afterAll(async () => await support.tearDown());
 describe("Transaction Forging - Entity update", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
-            for (let i = 0; i < 25; i++) {
+            for (let i = 0; i < 30; i++) {
                 await support.snoozeForBlock(1); // wait for aip36 to kick in, todo better way without waiting ? (snapshot ?)
             }
 
