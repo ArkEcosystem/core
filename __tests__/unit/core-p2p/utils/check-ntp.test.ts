@@ -1,3 +1,4 @@
+import { Container } from "@arkecosystem/core-kernel";
 import { checkNTP } from "@arkecosystem/core-p2p/src/utils/check-ntp";
 
 jest.mock("@hapi/sntp", () => {
@@ -11,8 +12,12 @@ jest.mock("@hapi/sntp", () => {
     };
 });
 
+const logger = { error: jest.fn() };
+const appGet = {
+    [Container.Identifiers.LogService]: logger,
+};
 const app = {
-    log: { error: jest.fn() },
+    get: (id: any) => appGet[id],
 } as any;
 
 describe("Check NTP", () => {

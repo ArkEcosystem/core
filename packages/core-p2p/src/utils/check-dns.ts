@@ -1,4 +1,4 @@
-import { Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import dns from "dns";
 import util from "util";
 
@@ -13,7 +13,7 @@ export const checkDNS = async (app: Contracts.Kernel.Application, hosts: string[
 
             return Promise.resolve(hosts[i]);
         } catch (err) {
-            app.log.error(err.message);
+            app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService).error(err.message);
         }
     }
 

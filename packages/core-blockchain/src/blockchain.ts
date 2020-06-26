@@ -30,6 +30,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     // todo: make this private
     public isStopped!: boolean;
     // todo: make this private
@@ -55,7 +58,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         this.state.networkStart = !!options.networkStart;
 
         if (this.state.networkStart) {
-            this.app.log.warning(
+            this.logger.warning(
                 "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );
         }
@@ -66,11 +69,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             try {
                 return await this.processBlocks(blockList.blocks);
             } catch (error) {
-                this.app.log.error(
+                this.logger.error(
                     `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
                 );
 
-                this.app.log.error(error.stack);
+                this.logger.error(error.stack);
                 return undefined;
             }
         }, 1);
@@ -95,7 +98,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public async boot(skipStartedCheck = false): Promise<boolean> {
-        this.app.log.info("Starting Blockchain Manager :chains:");
+        this.logger.info("Starting Blockchain Manager :chains:");
 
         this.dispatch("START");
 
@@ -121,7 +124,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
     public async dispose(): Promise<void> {
         if (!this.isStopped) {
-            this.app.log.info("Stopping Blockchain Manager :chains:");
+            this.logger.info("Stopping Blockchain Manager :chains:");
 
             this.isStopped = true;
             this.state.clearWakeUpTimeout();
@@ -191,7 +194,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         const receivedSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, block.timestamp);
 
         if (receivedSlot > currentSlot) {
-            this.app.log.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
+            this.logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
             return;
         }
 
@@ -201,7 +204,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             this.app.events.dispatch(Enums.BlockEvent.Received, block);
         } else {
-            this.app.log.info(`Block disregarded because blockchain is not ready`);
+            this.logger.info(`Block disregarded because blockchain is not ready`);
 
             this.app.events.dispatch(Enums.BlockEvent.Disregarded, block);
         }
@@ -311,7 +314,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
-            this.app.log.info(`Undoing block ${lastBlock.data.height.toLocaleString()}`);
+            this.logger.info(`Undoing block ${lastBlock.data.height.toLocaleString()}`);
 
             await revertLastBlock();
             await __removeBlocks(numberOfBlocks - 1);
@@ -322,7 +325,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         }
 
         const resetHeight: number = lastBlock.data.height - nblocks;
-        this.app.log.info(
+        this.logger.info(
             `Removing ${Utils.pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`,
         );
 
@@ -344,7 +347,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public async removeTopBlocks(count: number): Promise<void> {
-        this.app.log.info(`Removing top ${Utils.pluralize("block", count, true)}`);
+        this.logger.info(`Removing top ${Utils.pluralize("block", count, true)}`);
 
         await this.blockRepository.deleteTopBlocks(count);
         await this.database.loadBlocksFromCurrentRound();
@@ -358,7 +361,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const lastHeight = this.getLastBlock().data.height;
             const fromHeight = blocks[0].height;
             const toHeight = blocks[blocks.length - 1].height;
-            this.app.log.debug(`Processing chunk of blocks [${fromHeight}, ${toHeight}] on top of ${lastHeight}`);
+            this.logger.debug(`Processing chunk of blocks [${fromHeight}, ${toHeight}] on top of ${lastHeight}`);
         }
 
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blocks[0].height);
@@ -371,7 +374,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             !Utils.isBlockChained(this.getLastBlock().data, blocks[0], blockTimeLookup) &&
             !CryptoUtils.isException(blocks[0].id)
         ) {
-            this.app.log.warning(
+            this.logger.warning(
                 Utils.getBlockNotChainedErrorMessage(this.getLastBlock().data, blocks[0], blockTimeLookup),
             );
             // Discard remaining blocks as it won't go anywhere anyway.
@@ -406,7 +409,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             try {
                 await this.blockRepository.saveBlocks(acceptedBlocks);
             } catch (error) {
-                this.app.log.error(`Could not save ${acceptedBlocks.length} blocks to database : ${error.stack}`);
+                this.logger.error(`Could not save ${acceptedBlocks.length} blocks to database : ${error.stack}`);
 
                 this.clearQueue();
 
@@ -417,7 +420,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 const lastHeight: number = lastBlock.data.height;
                 const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
 
-                this.app.log.info(
+                this.logger.info(
                     `Reverting ${Utils.pluralize(
                         "block",
                         acceptedBlocks.length,

@@ -37,6 +37,14 @@ export class BootServiceProviders implements Bootstrapper {
     private readonly serviceProviders!: ServiceProviderRepository;
 
     /**
+     * @private
+     * @type {Contracts.Kernel.Logger}
+     * @memberof BootServiceProviders
+     */
+    @inject(Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    /**
      * @returns {Promise<void>}
      * @memberof RegisterProviders
      */
@@ -50,7 +58,7 @@ export class BootServiceProviders implements Bootstrapper {
                 try {
                     await this.serviceProviders.boot(name);
                 } catch (error) {
-                    this.app.log.error(error.stack);
+                    this.logger.error(error.stack);
                     const isRequired: boolean = await serviceProvider.required();
 
                     if (isRequired) {

@@ -19,6 +19,7 @@ beforeEach(() => {
     container.snapshot();
 
     app = new Application(container);
+    app.bind(Identifiers.LogService).toConstantValue({});
     app.bind(Identifiers.EventDispatcherService).toConstantValue(new MemoryEventDispatcher());
     app.bind("path.config").toConstantValue(configPath);
 

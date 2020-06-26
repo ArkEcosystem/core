@@ -14,11 +14,13 @@ import { SnakeNamingStrategy } from "./utils/snake-naming-strategy";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        this.app.log.info("Connecting to database: " + (this.config().all().connection as any).database);
+        const logger: Contracts.Kernel.Logger = this.app.get(Container.Identifiers.LogService);
+
+        logger.info("Connecting to database: " + (this.config().all().connection as any).database);
 
         this.app.bind(Container.Identifiers.DatabaseConnection).toConstantValue(await this.connect());
 
-        this.app.log.debug("Connection established.");
+        logger.debug("Connection established.");
 
         this.app.bind(Container.Identifiers.DatabaseRoundRepository).toConstantValue(this.getRoundRepository());
 

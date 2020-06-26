@@ -44,6 +44,7 @@ describe("NetworkMonitor", () => {
         [Container.Identifiers.TriggerService]: triggerService,
         [Container.Identifiers.StateStore]: stateStore,
         [Container.Identifiers.BlockchainService]: blockchain,
+        [Container.Identifiers.LogService]: logger,
     };
     const appConfigPeers = {
         list: [],
@@ -79,14 +80,14 @@ describe("NetworkMonitor", () => {
     describe.each([[true], [false]])("boot", (dnsAndNtpFail) => {
         beforeEach(() => {
             if (dnsAndNtpFail) {
-                config.ntp = ["nontp.notworking.com"]
-                config.dns = ["nodns.notworking.com"]
+                config.ntp = ["nontp.notworking.com"];
+                config.dns = ["nodns.notworking.com"];
             }
-        })
+        });
         afterEach(() => {
             config.dns = ["1.1.1.1"];
             config.ntp = ["time.google.com"];
-        })
+        });
 
         describe("when peer discovery is disabled", () => {
             beforeEach(() => {
@@ -269,9 +270,9 @@ describe("NetworkMonitor", () => {
             it("should fall back to seed peers when after discovering we are below minimum peers", async () => {
                 config.minimumNetworkReach = 5;
                 storage.getPeers.mockReturnValue([]);
-    
+
                 await networkMonitor.updateNetworkStatus();
-    
+
                 expect(logger.info).toBeCalledWith("Couldn't find enough peers. Falling back to seed peers.");
             });
 
@@ -279,21 +280,22 @@ describe("NetworkMonitor", () => {
                 config.minimumNetworkReach = 5;
                 config.ignoreMinimumNetworkReach = true;
                 storage.getPeers.mockReturnValue([]);
-    
+
                 await networkMonitor.updateNetworkStatus();
-    
+
                 expect(logger.info).not.toBeCalledWith("Couldn't find enough peers. Falling back to seed peers.");
             });
-        })
-        
+        });
 
         it("should schedule the next updateNetworkStatus only once", async () => {
             storage.getPeers.mockReturnValue([]);
 
             let sleeping = true;
             const mockSleep = async () => {
-                while(sleeping) { await delay(10) }
-            }
+                while (sleeping) {
+                    await delay(10);
+                }
+            };
             const spySleep = jest.spyOn(Utils, "sleep").mockImplementationOnce(mockSleep);
             await networkMonitor.updateNetworkStatus();
 
@@ -430,7 +432,7 @@ describe("NetworkMonitor", () => {
             networkMonitor.completeColdStart();
             expect(networkMonitor.isColdStart()).toBeFalse();
         });
-    })
+    });
 
     describe("getNetworkHeight", () => {
         it.each([
@@ -640,7 +642,9 @@ describe("NetworkMonitor", () => {
 
             expect(await networkMonitor.downloadBlocksFromHeight(1, maxParallelDownloads)).toEqual([]);
             expect(logger.error).toBeCalledTimes(1);
-            expect(logger.error).toBeCalledWith("Could not download blocks: We have 1 peer(s) but all of them are on a different chain than us");
+            expect(logger.error).toBeCalledWith(
+                "Could not download blocks: We have 1 peer(s) but all of them are on a different chain than us",
+            );
         });
 
         it("should download blocks from 1 peer", async () => {

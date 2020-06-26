@@ -34,6 +34,14 @@ export class RegisterServiceProviders implements Bootstrapper {
     private readonly app!: Application;
 
     /**
+     * @private
+     * @type {Contracts.Kernel.Logger}
+     * @memberof Local
+     */
+    @inject(Identifiers.LogService)
+    private readonly logger!: Kernel.Logger;
+
+    /**
      * @returns {Promise<void>}
      * @memberof RegisterProviders
      */
@@ -139,7 +147,7 @@ export class RegisterServiceProviders implements Bootstrapper {
                     name,
                 );
 
-                this.app.log.warning(error.message);
+                this.logger.warning(error.message);
 
                 serviceProviders.fail(serviceProviderName);
 
@@ -162,7 +170,7 @@ export class RegisterServiceProviders implements Bootstrapper {
                         await this.app.terminate(error.message, error);
                     }
 
-                    this.app.log.warning(error.message);
+                    this.logger.warning(error.message);
 
                     serviceProviders.fail(serviceProviderName);
                 }

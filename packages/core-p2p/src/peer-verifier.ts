@@ -34,9 +34,11 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     @Container.inject(Container.Identifiers.DposState)
     private readonly dposState!: Contracts.State.DposState;
 
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     // todo: make use of ioc
     private database!: DatabaseService;
-    private logger!: Contracts.Kernel.Logger;
     private logPrefix!: string;
 
     private communicator!: Contracts.P2P.PeerCommunicator;
@@ -54,7 +56,6 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         this.communicator = communicator;
         this.peer = peer;
         this.database = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
-        this.logger = this.app.log;
 
         this.logPrefix = `Peer verify ${peer.ip}:`;
 

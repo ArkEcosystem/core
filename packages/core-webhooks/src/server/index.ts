@@ -35,6 +35,14 @@ export class Server {
 
     /**
      * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof Server
+     */
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    /**
+     * @private
      * @type {HapiServer}
      * @memberof Server
      */
@@ -72,7 +80,7 @@ export class Server {
         try {
             await this.server.start();
 
-            this.app.log.info(`Webhook Server started at ${this.server.info.uri}`);
+            this.logger.info(`Webhook Server started at ${this.server.info.uri}`);
         } catch (error) {
             await this.app.terminate(`Failed to start Webhook Server!`, error);
         }
@@ -86,7 +94,7 @@ export class Server {
         try {
             await this.server.stop();
 
-            this.app.log.info(`Webhook Server stopped at ${this.server.info.uri}`);
+            this.logger.info(`Webhook Server stopped at ${this.server.info.uri}`);
         } catch (error) {
             await this.app.terminate(`Failed to stop Webhook Server!`, error);
         }

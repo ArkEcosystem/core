@@ -52,6 +52,7 @@ export const initApp = (): Application => {
     const app = new Application(new Container.Container());
 
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+    app.bind(Container.Identifiers.LogService).toConstantValue({});
     app.bind(Container.Identifiers.StateStore).toConstantValue({});
     app.bind(Container.Identifiers.BlockchainService).toConstantValue({});
     app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue({});
