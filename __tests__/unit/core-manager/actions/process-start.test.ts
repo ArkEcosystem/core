@@ -14,14 +14,18 @@ const mockCoreStart = {
     run: jest.fn(),
 };
 
-const mockCommands = {
-    ["core:start"]: mockCoreStart,
-};
+let mockCommands;
 
 beforeEach(() => {
+    mockCommands = {
+        ["core:start"]: mockCoreStart,
+    };
+
     mockCli = {
         resolve: jest.fn().mockReturnValue({
-            within: jest.fn().mockReturnValue(mockCommands),
+            within: jest.fn().mockImplementation(() => {
+                return mockCommands;
+            }),
         }),
     };
 
@@ -46,6 +50,14 @@ describe("Process:Start", () => {
         const result = await action.execute({ name: "core", args: "--network=testnet --env=test" });
 
         expect(result).toEqual({});
+    });
+
+    it("should throw error if name is command cannot be found ", async () => {
+        mockCommands = {
+            ["core:invalid"]: mockCoreStart,
+        };
+
+        await expect(action.execute({ name: "core", args: "--network=testnet --env=test" })).rejects.toThrowError();
     });
 
     it("should throw error if name is invalid ", async () => {
