@@ -60,3 +60,45 @@ export class PortKeyMustBeValidPackageNameError extends Errors.TransactionError 
         super("Failed to apply transaction, because the package name(s) defined in ports is not valid.");
     }
 }
+
+export class StaticFeeMismatchError extends Errors.TransactionError {
+    public constructor(staticFee: string) {
+        super(`Failed to apply transaction, because fee doesn't match static fee ${staticFee}.`);
+    }
+}
+
+export class EntityAlreadyRegisteredError extends Errors.TransactionError {
+    public constructor() {
+        super("Failed to apply transaction, because the entity is already registered for the wallet.");
+    }
+}
+
+export class EntityNameAlreadyRegisteredError extends Errors.TransactionError {
+    public constructor() {
+        super("Failed to apply transaction, because the entity name is already registered.");
+    }
+}
+
+export class EntityNotRegisteredError extends Errors.TransactionError {
+    public constructor() {
+        super("Failed to apply transaction, because the entity is not registered for the wallet.");
+    }
+}
+
+export class EntityAlreadyResignedError extends Errors.TransactionError {
+    public constructor() {
+        super("Failed to apply transaction, because the entity is already resigned for the wallet.");
+    }
+}
+
+export class EntityWrongTypeError extends Errors.TransactionError {
+    public constructor() {
+        super("Failed to apply transaction, because the entity asset type does not match the wallet one.");
+    }
+}
+
+export class EntityWrongSubTypeError extends Errors.TransactionError {
+    public constructor() {
+        super("Failed to apply transaction, because the entity asset subtype does not match the wallet one.");
+    }
+}
