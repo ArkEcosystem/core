@@ -16,6 +16,7 @@ beforeEach(() => {
     container.snapshot();
 
     app = new Application(container);
+    app.bind(Identifiers.EventDispatcherService).to(MemoryEventDispatcher);
 
     scheduleService = app.resolve<Schedule>(Schedule);
 });
@@ -26,10 +27,6 @@ describe("Schedule", () => {
     });
 
     it("should return a block job instance", () => {
-        app.bind(Identifiers.EventDispatcherService).toConstantValue(
-            app.resolve<MemoryEventDispatcher>(MemoryEventDispatcher),
-        );
-
         expect(scheduleService.block()).toBeInstanceOf(BlockJob);
     });
 });
