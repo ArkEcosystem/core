@@ -35,6 +35,6 @@ export class Action implements Actions.Action {
 
         processManager.stop(name);
 
-        return processManager.status(name)?.toString() || "undefined";
+        return processManager.status(name) || "undefined";
     }
 }

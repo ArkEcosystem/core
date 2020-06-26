@@ -5,6 +5,7 @@ import { defaults } from "@packages/core-manager/src/defaults";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import { ServiceProvider } from "@packages/core-manager/src/service-provider";
 import { WatcherWallet } from "@packages/core-manager/src/watcher-wallet";
+import { cloneDeep } from "lodash";
 import path from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
 
@@ -53,7 +54,7 @@ describe("ServiceProvider", () => {
     });
 
     it("should register", async () => {
-        const usedDefaults = { ...defaults };
+        const usedDefaults = cloneDeep(defaults);
 
         setPluginConfiguration(app, serviceProvider, usedDefaults);
 
@@ -138,14 +139,44 @@ describe("ServiceProvider", () => {
         await expect(serviceProvider.dispose()).toResolve();
     });
 
+    it("should boot with disabled individual watchers", async () => {
+        const usedDefaults = { ...defaults };
+
+        usedDefaults.watcher.enabled = true;
+
+        usedDefaults.watcher.watch.queries = false;
+        usedDefaults.watcher.watch.logs = false;
+        usedDefaults.watcher.watch.wallets = false;
+
+        setPluginConfiguration(app, serviceProvider, usedDefaults);
+
+        await expect(serviceProvider.register()).toResolve();
+
+        const mockEventListener = {
+            boot: jest.fn(),
+        };
+
+        app.unbind(Identifiers.EventsListener);
+
+        app.bind(Identifiers.EventsListener).toConstantValue(mockEventListener);
+
+        await expect(serviceProvider.boot()).toResolve();
+
+        expect(app.isBound(Identifiers.EventsListener)).toBeTrue();
+        expect(mockEventListener.boot).toHaveBeenCalledTimes(1);
+
+        await expect(serviceProvider.dispose()).toResolve();
+    });
+
     it("should not be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeFalse();
     });
 
     it("should create wallet", async () => {
-        const usedDefaults = { ...defaults };
+        const usedDefaults = cloneDeep(defaults);
 
         usedDefaults.watcher.enabled = true;
+        usedDefaults.watcher.watch.wallets = true;
 
         setPluginConfiguration(app, serviceProvider, usedDefaults);
 

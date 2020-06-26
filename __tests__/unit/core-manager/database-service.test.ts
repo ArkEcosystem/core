@@ -18,7 +18,9 @@ beforeEach(() => {
     sandbox.app.bind(Container.Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
 
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
-        getRequired: jest.fn().mockReturnValue({ storage: storagePath, resetDatabase: true }),
+        getRequired: jest.fn().mockImplementation(() => {
+            return { storage: storagePath, resetDatabase: true };
+        }),
     });
 
     database = sandbox.app.get(Container.Identifiers.WatcherDatabaseService);
@@ -33,7 +35,14 @@ describe("DatabaseService", () => {
         it("should boot and create file", async () => {
             database.boot();
 
-            expect(existsSync(storagePath)).toBeTrue();
+            expect(existsSync(storagePath!)).toBeTrue();
+        });
+
+        it("should boot without watcher storage in defaults", async () => {
+            // @ts-ignore
+            storagePath = undefined;
+
+            database.boot();
         });
     });
 
@@ -76,6 +85,24 @@ describe("DatabaseService", () => {
                 id: 1,
                 event: "dummy_event",
                 data: { data: "dummy_data" },
+            });
+
+            expect(result[0].timestamp).toBeDefined();
+        });
+
+        it("should add event with empty data", async () => {
+            database.boot();
+            expect(existsSync(storagePath)).toBeTrue();
+
+            database.addEvent("dummy_event", undefined);
+
+            const result = database.getAllEvents();
+
+            expect(result).toBeArray();
+            expect(result[0]).toMatchObject({
+                id: 1,
+                event: "dummy_event",
+                data: {},
             });
 
             expect(result[0].timestamp).toBeDefined();
@@ -130,6 +157,16 @@ describe("DatabaseService", () => {
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(100);
+        });
+
+        it("should not return events if searching by number", async () => {
+            const result = database.queryEvents({ $limit: 1000, event: 1 });
+
+            expect(result.total).toBe(0);
+            expect(result.limit).toBe(1000);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(0);
         });
     });
 
