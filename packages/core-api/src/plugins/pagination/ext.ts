@@ -20,6 +20,8 @@ export class Ext {
         { method: "get", path: "/businesses" },
         { method: "get", path: "/businesses/{id}/bridgechains" },
         { method: "post", path: "/businesses/search" },
+        { method: "get", path: "/entities" },
+        { method: "post", path: "/entities/search" },
         { method: "get", path: "/delegates" },
         { method: "get", path: "/delegates/{id}/blocks" },
         { method: "get", path: "/delegates/{id}/voters" },

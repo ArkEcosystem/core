@@ -19,6 +19,8 @@ export const bridgechainIteratees = [
 
 export const businessIteratees = ["address", "isResigned", "name", "publicKey", "repository", "vat", "website"];
 
+export const entityIteratees = ["address", "isResigned", "id", "publicKey", "type", "subType"];
+
 export const delegateIteratees = [
     "approval",
     "forgedFees",
