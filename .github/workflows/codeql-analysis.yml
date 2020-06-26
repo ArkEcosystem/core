@@ -28,11 +28,8 @@ jobs:
               with:
                   languages: javascript
 
-            - name: Install
-              run: yarn install --immutable --immutable-cache
-
-            - name: Build
-              run: yarn run build
+            - name: Install & Build
+              run: yarn setup
 
             - name: Perform CodeQL Analysis
               uses: github/codeql-action/analyze@v1
