@@ -1,4 +1,5 @@
 import "./accepted";
+import "./entity";
 import "./forged";
 import "./rejected";
 import "./unconfirmed";

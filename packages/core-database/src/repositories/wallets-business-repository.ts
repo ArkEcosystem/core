@@ -49,6 +49,10 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                 searchContext = this.searchBusinesses(params);
                 break;
             }
+            case Database.SearchScope.Entities: {
+                searchContext = this.searchEntities(params);
+                break;
+            }
         }
 
         return searchEntries(params, searchContext.query, searchContext.entries, searchContext.defaultOrder);
@@ -290,6 +294,38 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             query,
             entries,
             defaultOrder: ["name", "asc"],
+        };
+    }
+
+    private searchEntities(params: Database.IParameters = {}): ISearchContext<any> {
+        const query: Record<string, string[]> = {
+            exact: ["id", "isResigned", "publicKey", "type", "subType"],
+            like: ["name"],
+        };
+
+        const entries: any[] = this.databaseServiceProvider()
+            .walletManager.getIndex("entities")
+            .entries()
+            .reduce((acc: any, [id, wallet]) => {
+                const entities = wallet.getAttribute("entities", {});
+                if (entities && entities[id]) {
+                    const entity: any = entities[id];
+                    acc.push({
+                        id,
+                        publicKey: wallet.publicKey,
+                        address: wallet.address,
+                        ...entity,
+                        isResigned: !!entity.resigned,
+                    });
+                }
+
+                return acc;
+            }, []);
+
+        return {
+            query,
+            entries,
+            defaultOrder: ["id", "asc"],
         };
     }
 }

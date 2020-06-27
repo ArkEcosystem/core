@@ -2,6 +2,7 @@ import { transformBlock } from "../handlers/blocks/transformer";
 import { transformBridgechain } from "../handlers/bridgechains/transformer";
 import { transformBusiness } from "../handlers/businesses/transformer";
 import { transformDelegate } from "../handlers/delegates/transformer";
+import { transformEntity } from "../handlers/entities/transformer";
 import { transformLock } from "../handlers/locks/transformer";
 import { transformPeer } from "../handlers/peers/transformer";
 import { transformRoundDelegate } from "../handlers/rounds/transformer";
@@ -15,6 +16,7 @@ class Transformer {
         block: transformBlock,
         bridgechain: transformBridgechain,
         business: transformBusiness,
+        entity: transformEntity,
         delegate: transformDelegate,
         "fee-statistics": transformFeeStatistics,
         peer: transformPeer,

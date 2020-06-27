@@ -10,7 +10,8 @@ import {
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
 } from "./handlers";
-import { businessIndexer, MagistrateIndex } from "./wallet-manager";
+import { EntityTransactionHandler } from "./handlers/entity";
+import { businessIndexer, entityIndexer, MagistrateIndex } from "./wallet-manager";
 
 export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
@@ -26,6 +27,7 @@ export const plugin: Container.IPluginDescriptor = {
             .once(ApplicationEvents.StateStarting, (database: Database.IDatabaseService) => {
                 const walletManager = database.walletManager;
                 walletManager.registerIndex(MagistrateIndex.Businesses, businessIndexer);
+                walletManager.registerIndex(MagistrateIndex.Entities, entityIndexer);
             });
 
         Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
@@ -34,6 +36,7 @@ export const plugin: Container.IPluginDescriptor = {
         Handlers.Registry.registerTransactionHandler(BridgechainRegistrationTransactionHandler);
         Handlers.Registry.registerTransactionHandler(BridgechainResignationTransactionHandler);
         Handlers.Registry.registerTransactionHandler(BridgechainUpdateTransactionHandler);
+        Handlers.Registry.registerTransactionHandler(EntityTransactionHandler);
     },
 
     // tslint:disable-next-line: no-empty

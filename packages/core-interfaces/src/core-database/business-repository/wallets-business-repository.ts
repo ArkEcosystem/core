@@ -12,6 +12,7 @@ export enum SearchScope {
     Locks,
     Businesses,
     Bridgechains,
+    Entities,
 }
 
 export interface IWalletsBusinessRepository {

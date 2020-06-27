@@ -3,6 +3,7 @@ import { Managers } from "@arkecosystem/crypto";
 
 export abstract class MagistrateTransactionHandler extends Handlers.TransactionHandler {
     public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
+        const milestone = Managers.configManager.getMilestone();
+        return milestone.aip11 === true && !milestone.aip36;
     }
 }
