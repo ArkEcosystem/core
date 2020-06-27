@@ -17,17 +17,17 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     @Container.tagged("plugin", "@arkecosystem/core-p2p")
     private readonly configuration!: Providers.PluginConfiguration;
 
-    @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
-
-    @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.EventDispatcher;
-
     @Container.inject(Container.Identifiers.PeerCommunicator)
     private readonly communicator!: PeerCommunicator;
 
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
+
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly events!: Contracts.Kernel.EventDispatcher;
+
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
 
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean | undefined;
@@ -141,8 +141,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                     peerErrors[error] = peerErrors[error] || [];
                     peerErrors[error].push(peer);
 
-                    this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
-                    this.emitter.dispatch(Enums.PeerEvent.Removed, peer);
+                    this.events.dispatch("internal.p2p.disconnectPeer", { peer });
+                    this.events.dispatch(Enums.PeerEvent.Removed, peer);
 
                     return undefined;
                 }

@@ -38,6 +38,14 @@ export class BootServiceProviders implements Bootstrapper {
 
     /**
      * @private
+     * @type {Contracts.Kernel.EventDispatcher}
+     * @memberof BootServiceProviders
+     */
+    @inject(Identifiers.EventDispatcherService)
+    private readonly events!: Contracts.Kernel.EventDispatcher;
+
+    /**
+     * @private
      * @type {Contracts.Kernel.Logger}
      * @memberof BootServiceProviders
      */
@@ -76,10 +84,10 @@ export class BootServiceProviders implements Bootstrapper {
                 .initialize(serviceProviderName, serviceProvider);
 
             // Register the "enable/disposeWhen" listeners to be triggered on every block. Use with care!
-            this.app.events.listen(BlockEvent.Applied, eventListener);
+            this.events.listen(BlockEvent.Applied, eventListener);
 
             // We only want to trigger this if another service provider has been booted to avoid an infinite loop.
-            this.app.events.listen(KernelEvent.ServiceProviderBooted, eventListener);
+            this.events.listen(KernelEvent.ServiceProviderBooted, eventListener);
         }
     }
 }

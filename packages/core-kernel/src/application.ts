@@ -295,7 +295,10 @@ export class Application implements Contracts.Kernel.Application {
 
         this.get<Contracts.Kernel.Logger>(Identifiers.LogService).notice("Application is now in maintenance mode.");
 
-        this.events.dispatch("kernel.maintenance", true);
+        this.get<Contracts.Kernel.EventDispatcher>(Identifiers.EventDispatcherService).dispatch(
+            "kernel.maintenance",
+            true,
+        );
     }
 
     /**
@@ -306,7 +309,10 @@ export class Application implements Contracts.Kernel.Application {
 
         this.get<Contracts.Kernel.Logger>(Identifiers.LogService).notice("Application is now live.");
 
-        this.events.dispatch("kernel.maintenance", false);
+        this.get<Contracts.Kernel.EventDispatcher>(Identifiers.EventDispatcherService).dispatch(
+            "kernel.maintenance",
+            false,
+        );
     }
 
     /**
@@ -335,17 +341,6 @@ export class Application implements Contracts.Kernel.Application {
         }
 
         await this.disposeServiceProviders();
-    }
-
-    /**
-     * todo: remove after initial migration - ioc/injection should be used to access those
-     *
-     * @readonly
-     * @type {Contracts.Kernel.EventDispatcher}
-     * @memberof Application
-     */
-    public get events(): Contracts.Kernel.EventDispatcher {
-        return this.get<Contracts.Kernel.EventDispatcher>(Identifiers.EventDispatcherService);
     }
 
     /**
@@ -441,13 +436,14 @@ export class Application implements Contracts.Kernel.Application {
      */
     private async bootstrapWith(type: string): Promise<void> {
         const bootstrappers: Array<Constructor<Bootstrapper>> = Object.values(Bootstrappers[type]);
+        const events: Contracts.Kernel.EventDispatcher = this.get(Identifiers.EventDispatcherService);
 
         for (const bootstrapper of bootstrappers) {
-            this.events.dispatch(KernelEvent.Bootstrapping, { bootstrapper: bootstrapper.name });
+            events.dispatch(KernelEvent.Bootstrapping, { bootstrapper: bootstrapper.name });
 
             await this.resolve<Bootstrapper>(bootstrapper).bootstrap();
 
-            this.events.dispatch(KernelEvent.Bootstrapped, { bootstrapper: bootstrapper.name });
+            events.dispatch(KernelEvent.Bootstrapped, { bootstrapper: bootstrapper.name });
         }
     }
 

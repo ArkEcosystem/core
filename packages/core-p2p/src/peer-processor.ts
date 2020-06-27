@@ -14,12 +14,6 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     @Container.tagged("plugin", "@arkecosystem/core-p2p")
     private readonly configuration!: Providers.PluginConfiguration;
 
-    @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
-
-    @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.EventDispatcher;
-
     @Container.inject(Container.Identifiers.PeerCommunicator)
     private readonly communicator!: Contracts.P2P.PeerCommunicator;
 
@@ -29,11 +23,17 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
 
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly events!: Contracts.Kernel.EventDispatcher;
+
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     public server: any;
     public nextUpdateNetworkStatusScheduled: boolean = false;
 
     public initialize() {
-        this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, this.app.resolve(DisconnectInvalidPeers));
+        this.events.listen(Enums.CryptoEvent.MilestoneChanged, this.app.resolve(DisconnectInvalidPeers));
     }
 
     public async validateAndAcceptPeer(
@@ -94,7 +94,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
                 this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port} (v${newPeer.version})`);
             }
 
-            this.emitter.dispatch(Enums.PeerEvent.Added, newPeer);
+            this.events.dispatch(Enums.PeerEvent.Added, newPeer);
         } catch (error) {
             this.connector.disconnect(newPeer);
         } finally {

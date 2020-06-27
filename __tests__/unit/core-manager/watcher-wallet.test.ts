@@ -1,24 +1,19 @@
 import "jest-extended";
 
-import { Container, Services } from "@arkecosystem/core-kernel";
+import { Services } from "@arkecosystem/core-kernel";
 import { WatcherWallet } from "@arkecosystem/core-manager/src/watcher-wallet";
 import { Utils } from "@arkecosystem/crypto";
-import { Sandbox } from "@packages/core-test-framework";
 import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 
-let sandbox: Sandbox;
 let wallet: WatcherWallet;
 const mockEventDispatcher = {
     dispatchSync: jest.fn(),
 };
 
 beforeEach(() => {
-    sandbox = new Sandbox();
-    sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(mockEventDispatcher);
-
     const attributeMap = new Services.Attributes.AttributeMap(getWalletAttributeSet());
 
-    wallet = new WatcherWallet(sandbox.app, "123", attributeMap);
+    wallet = new WatcherWallet(mockEventDispatcher as any, "123", attributeMap);
 });
 
 afterEach(() => {

@@ -22,21 +22,21 @@ export class ProgressRenderer {
     public constructor(spinner: Ora, app: Contracts.Kernel.Application) {
         this.spinner = spinner;
 
-        const emitter = app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
+        const events = app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
-        emitter.listen(SnapshotApplicationEvents.SnapshotStart, {
+        events.listen(SnapshotApplicationEvents.SnapshotStart, {
             handle: (data) => {
                 this.handleStart(data.data);
             },
         });
 
-        emitter.listen(SnapshotApplicationEvents.SnapshotProgress, {
+        events.listen(SnapshotApplicationEvents.SnapshotProgress, {
             handle: (data) => {
                 this.handleUpdate(data.data);
             },
         });
 
-        emitter.listen(SnapshotApplicationEvents.SnapshotComplete, {
+        events.listen(SnapshotApplicationEvents.SnapshotComplete, {
             handle: (data) => {
                 this.handleComplete(data.data);
             },

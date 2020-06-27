@@ -1,7 +1,7 @@
 import { CronCommand, CronJob as Cron } from "cron";
 import { performance } from "perf_hooks";
 
-import { Application } from "../../contracts/kernel";
+import { EventDispatcher } from "../../contracts/kernel/events";
 import { ScheduleEvent } from "../../enums";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { Job } from "./interfaces";
@@ -17,8 +17,13 @@ import { Job } from "./interfaces";
  */
 @injectable()
 export class CronJob implements Job {
-    @inject(Identifiers.Application)
-    protected readonly app!: Application;
+    /**
+     * @private
+     * @type {EventDispatcher}
+     * @memberof CronJob
+     */
+    @inject(Identifiers.EventDispatcherService)
+    private readonly events!: EventDispatcher;
 
     /**
      * @private
@@ -37,7 +42,7 @@ export class CronJob implements Job {
             // @ts-ignore
             callback();
 
-            this.app.events.dispatch(ScheduleEvent.CronJobFinished, {
+            this.events.dispatch(ScheduleEvent.CronJobFinished, {
                 executionTime: performance.now() - start,
                 expression: this.expression,
             });

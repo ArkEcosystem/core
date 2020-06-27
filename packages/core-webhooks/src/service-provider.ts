@@ -1,4 +1,4 @@
-import { Providers, Types } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
 
 import { Database } from "./database";
 import { Identifiers } from "./identifiers";
@@ -59,6 +59,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     private startListeners(): void {
-        this.app.events.listen("*", this.app.resolve(Listener));
+        this.app
+            .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
+            .listen("*", this.app.resolve(Listener));
     }
 }

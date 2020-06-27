@@ -21,18 +21,18 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     @Container.tagged("plugin", "@arkecosystem/core-p2p")
     private readonly configuration!: Providers.PluginConfiguration;
 
-    @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
-
-    @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.EventDispatcher;
-
     @Container.inject(Container.Identifiers.PeerConnector)
     private readonly connector!: Contracts.P2P.PeerConnector;
 
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly events!: Contracts.Kernel.EventDispatcher;
+
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     private outgoingRateLimiter!: RateLimiter;
 
-    public initialize() {
+    public initialize(): void {
         this.outgoingRateLimiter = buildRateLimiter({
             // White listing anybody here means we would not throttle ourselves when sending
             // them requests, ie we could spam them.
@@ -129,7 +129,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                                     `Disconnecting from ${peerHostPort}: ` +
                                         `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
                                 );
-                                this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
+                                this.events.dispatch("internal.p2p.disconnectPeer", { peer });
                             }
                         }
                     } else {
@@ -311,7 +311,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 }
-                this.emitter.dispatch(Enums.PeerEvent.Disconnect, { peer });
+                this.events.dispatch(Enums.PeerEvent.Disconnect, { peer });
         }
     }
 }

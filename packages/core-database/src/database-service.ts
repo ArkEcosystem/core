@@ -64,7 +64,7 @@ export class DatabaseService {
     private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.EventDispatcher;
+    private readonly events!: Contracts.Kernel.EventDispatcher;
 
     // TODO: make private readonly
     public blocksInCurrentRound: Interfaces.IBlock[] | undefined = undefined;
@@ -75,7 +75,7 @@ export class DatabaseService {
 
     public async initialize(): Promise<void> {
         try {
-            this.emitter.dispatch(Enums.StateEvent.Starting);
+            this.events.dispatch(Enums.StateEvent.Starting);
 
             const genesisBlockJson = Managers.configManager.get("genesisBlock");
             const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(
@@ -100,11 +100,11 @@ export class DatabaseService {
     public async disconnect(): Promise<void> {
         this.logger.debug("Disconnecting from database");
 
-        this.emitter.dispatch(DatabaseEvent.PRE_DISCONNECT);
+        this.events.dispatch(DatabaseEvent.PRE_DISCONNECT);
 
         await this.connection.close();
 
-        this.emitter.dispatch(DatabaseEvent.POST_DISCONNECT);
+        this.events.dispatch(DatabaseEvent.POST_DISCONNECT);
         this.logger.debug("Disconnected from database");
     }
 
@@ -134,7 +134,7 @@ export class DatabaseService {
             await this.emitTransactionEvents(transaction);
         }
 
-        this.emitter.dispatch(Enums.BlockEvent.Applied, block.data);
+        this.events.dispatch(Enums.BlockEvent.Applied, block.data);
     }
 
     // TODO: move out of core-database to get rid of WalletState dependency
@@ -169,7 +169,7 @@ export class DatabaseService {
                     // ! set it to empty array and why it can be undefined at all?
                     this.blocksInCurrentRound!.length = 0;
 
-                    this.emitter.dispatch(Enums.RoundEvent.Applied);
+                    this.events.dispatch(Enums.RoundEvent.Applied);
                 } catch (error) {
                     // trying to leave database state has it was
                     // ! this.saveRound may not have been called
@@ -479,10 +479,10 @@ export class DatabaseService {
         assert(this.blocksInCurrentRound!.pop()!.data.id === block.data.id);
 
         for (let i = block.transactions.length - 1; i >= 0; i--) {
-            this.emitter.dispatch(Enums.TransactionEvent.Reverted, block.transactions[i].data);
+            this.events.dispatch(Enums.TransactionEvent.Reverted, block.transactions[i].data);
         }
 
-        this.emitter.dispatch(Enums.BlockEvent.Reverted, block.data);
+        this.events.dispatch(Enums.BlockEvent.Reverted, block.data);
     }
 
     public async revertRound(height: number): Promise<void> {
@@ -510,7 +510,7 @@ export class DatabaseService {
 
         await this.roundRepository.save(activeDelegates);
 
-        this.emitter.dispatch(Enums.RoundEvent.Created, activeDelegates);
+        this.events.dispatch(Enums.RoundEvent.Created, activeDelegates);
     }
 
     public async deleteRound(round: number): Promise<void> {
@@ -605,7 +605,7 @@ export class DatabaseService {
                 `Delegate ${delegate.getAttribute("delegate.username")} (${delegate.publicKey}) just missed a block.`,
             );
 
-            this.emitter.dispatch(Enums.ForgerEvent.Missing, {
+            this.events.dispatch(Enums.ForgerEvent.Missing, {
                 delegate,
             });
         }
@@ -732,7 +732,7 @@ export class DatabaseService {
                     `Delegate ${wallet.getAttribute("delegate.username")} (${wallet.publicKey}) just missed a round.`,
                 );
 
-                this.emitter.dispatch(Enums.RoundEvent.Missed, {
+                this.events.dispatch(Enums.RoundEvent.Missed, {
                     delegate: wallet,
                 });
             }
@@ -778,9 +778,9 @@ export class DatabaseService {
     }
 
     private async emitTransactionEvents(transaction: Interfaces.ITransaction): Promise<void> {
-        this.emitter.dispatch(Enums.TransactionEvent.Applied, transaction.data);
+        this.events.dispatch(Enums.TransactionEvent.Applied, transaction.data);
         const handler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
         // ! no reason to pass this.emitter
-        handler.emitEvents(transaction, this.emitter);
+        handler.emitEvents(transaction, this.events);
     }
 }

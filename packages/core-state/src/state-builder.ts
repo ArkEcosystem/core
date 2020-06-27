@@ -23,17 +23,17 @@ export class StateBuilder {
     @Container.tagged("state", "blockchain")
     private dposState!: Contracts.State.DposState;
 
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private events!: Contracts.Kernel.EventDispatcher;
+
     @Container.inject(Container.Identifiers.LogService)
     private logger!: Contracts.Kernel.Logger;
-
-    @Container.inject(Container.Identifiers.EventDispatcherService)
-    private emitter!: Contracts.Kernel.EventDispatcher;
 
     @Container.inject(Container.Identifiers.ConfigRepository)
     private readonly configRepository!: Services.Config.ConfigRepository;
 
     public async run(): Promise<void> {
-        this.emitter = this.app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
+        this.events = this.app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
         const registeredHandlers = this.app
             .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
@@ -68,7 +68,7 @@ export class StateBuilder {
 
             this.verifyWalletsConsistency();
 
-            this.emitter.dispatch(Enums.StateEvent.BuilderFinished);
+            this.events.dispatch(Enums.StateEvent.BuilderFinished);
         } catch (ex) {
             this.logger.error(ex.stack);
         }

@@ -5,7 +5,7 @@ import { SnapshotApplicationEvents } from "./events";
 @Container.injectable()
 export class ProgressDispatcher {
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.EventDispatcher;
+    private readonly events!: Contracts.Kernel.EventDispatcher;
 
     private table: string = "";
     private count: number = 0;
@@ -14,21 +14,21 @@ export class ProgressDispatcher {
         this.table = table;
         this.count = count;
 
-        await this.emitter.dispatch(SnapshotApplicationEvents.SnapshotStart, {
+        await this.events.dispatch(SnapshotApplicationEvents.SnapshotStart, {
             table: this.table,
             count: this.count,
         });
     }
 
     public async update(count: number): Promise<void> {
-        await this.emitter.dispatch(SnapshotApplicationEvents.SnapshotProgress, {
+        await this.events.dispatch(SnapshotApplicationEvents.SnapshotProgress, {
             table: this.table,
             value: count,
         });
     }
 
     public async end(): Promise<void> {
-        await this.emitter.dispatch(SnapshotApplicationEvents.SnapshotComplete, {
+        await this.events.dispatch(SnapshotApplicationEvents.SnapshotComplete, {
             table: this.table,
         });
     }

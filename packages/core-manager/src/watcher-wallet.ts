@@ -6,15 +6,15 @@ import { WalletEvent } from "./events";
 
 export class WatcherWallet extends Wallets.Wallet {
     public constructor(
-        private app: Contracts.Kernel.Application,
+        private readonly events: Contracts.Kernel.EventDispatcher,
         address: string,
         attributes: Services.Attributes.AttributeMap,
     ) {
         super(address, attributes);
 
         const handler: ProxyHandler<WatcherWallet> = {
-            set(target, key, value) {
-                target.app.events.dispatchSync(WalletEvent.PropertySet, {
+            set: (target, key, value) => {
+                this.events.dispatchSync(WalletEvent.PropertySet, {
                     publicKey: target.publicKey,
                     key: key,
                     value: value,
@@ -33,7 +33,7 @@ export class WatcherWallet extends Wallets.Wallet {
     public setAttribute<T = any>(key: string, value: T): boolean {
         const isSet = super.setAttribute(key, value);
 
-        this.app.events.dispatchSync(WalletEvent.AttributeSet, {
+        this.events.dispatchSync(WalletEvent.AttributeSet, {
             publicKey: this.publicKey,
             isSet: isSet,
             key: key,
@@ -48,7 +48,7 @@ export class WatcherWallet extends Wallets.Wallet {
         const previousValue = super.getAttribute(key);
         const isForget = super.forgetAttribute(key);
 
-        this.app.events.dispatchSync(WalletEvent.AttributeForget, {
+        this.events.dispatchSync(WalletEvent.AttributeForget, {
             publicKey: this.publicKey,
             isForget: isForget,
             key: key,
@@ -60,10 +60,10 @@ export class WatcherWallet extends Wallets.Wallet {
     }
 
     public clone(): WatcherWallet {
-        const clone = new WatcherWallet(this.app, this.address, cloneDeep(this.attributes));
+        const clone = new WatcherWallet(this.events, this.address, cloneDeep(this.attributes));
 
         for (const key of Object.keys(this)) {
-            if (key === "app") {
+            if (key === "events") {
                 continue;
             }
 

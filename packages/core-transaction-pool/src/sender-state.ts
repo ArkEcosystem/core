@@ -29,7 +29,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
     private readonly triggers!: Services.Triggers.Triggers;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.EventDispatcher;
+    private readonly events!: Contracts.Kernel.EventDispatcher;
 
     private corrupt = false;
 
@@ -51,7 +51,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         }
 
         if (await this.expirationService.isExpired(transaction)) {
-            this.emitter.dispatch(Enums.TransactionEvent.Expired, transaction.data);
+            this.events.dispatch(Enums.TransactionEvent.Expired, transaction.data);
             const expirationHeight: number = await this.expirationService.getExpirationHeight(transaction);
             throw new TransactionHasExpiredError(transaction, expirationHeight);
         }

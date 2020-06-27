@@ -28,7 +28,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     private readonly stateMachine!: StateMachine;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.EventDispatcher;
+    private readonly events!: Contracts.Kernel.EventDispatcher;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
@@ -115,9 +115,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             peerCount: 10,
         });
 
-        this.emitter.listen(Enums.ForgerEvent.Missing, { handle: this.checkMissingBlocks });
+        this.events.listen(Enums.ForgerEvent.Missing, { handle: this.checkMissingBlocks });
 
-        this.emitter.listen(Enums.RoundEvent.Applied, { handle: this.resetMissedBlocks });
+        this.events.listen(Enums.RoundEvent.Applied, { handle: this.resetMissedBlocks });
 
         return true;
     }
@@ -202,11 +202,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
 
-            this.app.events.dispatch(Enums.BlockEvent.Received, block);
+            this.events.dispatch(Enums.BlockEvent.Received, block);
         } else {
             this.logger.info(`Block disregarded because blockchain is not ready`);
 
-            this.app.events.dispatch(Enums.BlockEvent.Disregarded, block);
+            this.events.dispatch(Enums.BlockEvent.Disregarded, block);
         }
     }
 

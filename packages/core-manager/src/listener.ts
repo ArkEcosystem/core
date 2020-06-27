@@ -8,14 +8,14 @@ export class Listener {
     @Container.tagged("plugin", "@arkecosystem/core-manager")
     private readonly configuration!: Providers.PluginConfiguration;
 
-    @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly eventDispatcher!: Contracts.Kernel.EventDispatcher;
-
     @Container.inject(Container.Identifiers.WatcherDatabaseService)
     private readonly databaseService!: DatabaseService;
 
-    public boot() {
-        this.eventDispatcher.listen("*", {
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly events!: Contracts.Kernel.EventDispatcher;
+
+    public boot(): void {
+        this.events.listen("*", {
             handle: (data: any) => {
                 this.handleEvents(data);
             },
