@@ -14,10 +14,13 @@
     "files": [
         "dist"
     ],
-    "main": "dist/index",
-    "module": "dist/index",
-    "browser": "dist/index-browser",
-    "types": "dist/index",
+    "main": "dist/index.js",
+    "umd:main": "dist/index.umd.js",
+    "browser": "dist/index.browser.js",
+    "module": "dist/index.esm.js",
+    "unpkg": "dist/index.bundled.min.js",
+    "jsdelivr": "dist/index.bundled.min.js",
+    "types": "dist/index.d.ts",
     "scripts": {
         "build": "yarn clean && tsc",
         "build:rollup": "yarn clean && tsc && rollup -c",
@@ -31,7 +34,7 @@
         "@types/bytebuffer": "^5.0.40",
         "ajv": "^6.10.2",
         "ajv-keywords": "^3.4.1",
-        "bcrypto": "^4.1.0",
+        "bcrypto": "^5.2.0",
         "bip32": "^2.0.3",
         "bip39": "^3.0.2",
         "browserify-aes": "^1.2.0",
@@ -49,6 +52,11 @@
         "wif": "^2.0.6"
     },
     "devDependencies": {
+        "@rollup/plugin-babel": "^5.0.4",
+        "@rollup/plugin-commonjs": "^13.0.0",
+        "@rollup/plugin-inject": "^4.0.2",
+        "@rollup/plugin-json": "^4.1.0",
+        "@rollup/plugin-node-resolve": "^8.1.0",
         "@types/bip32": "^1.0.2",
         "@types/bip39": "^2.4.2",
         "@types/buffer-xor": "^2.0.0",
@@ -56,11 +64,14 @@
         "@types/lodash.set": "^4.3.6",
         "@types/lodash.sumby": "^4.6.6",
         "@types/wif": "^2.0.1",
-        "rollup": "^1.17.0",
-        "rollup-plugin-commonjs": "^10.0.1",
-        "rollup-plugin-json": "^4.0.0",
-        "rollup-plugin-node-resolve": "^5.2.0",
-        "rollup-plugin-terser": "^5.1.1"
+        "@wessberg/rollup-plugin-ts": "^1.2.26",
+        "big-integer": "^1.6.48",
+        "buffer-es6": "^4.9.3",
+        "process-es6": "^0.11.6",
+        "rollup": "^2.18.0",
+        "rollup-plugin-node-polyfills": "^0.2.1",
+        "rollup-plugin-terser": "^6.1.0",
+        "util": "^0.12.3"
     },
     "publishConfig": {
         "access": "public"
