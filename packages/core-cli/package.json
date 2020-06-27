@@ -39,7 +39,7 @@
         "listr": "^0.14.3",
         "ora": "^4.0.3",
         "semver": "^6.3.0",
-        "type-fest": "^0.14.0",
+        "type-fest": "^0.16.0",
         "yargs-parser": "^18.0.0"
     },
     "devDependencies": {
