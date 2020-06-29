@@ -1,6 +1,5 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import {
@@ -17,10 +16,8 @@ import { IEntitiesWallet } from "../../interfaces";
 export class EntityResignSubHandler {
     public async bootstrap(
         walletRepository: Contracts.State.WalletRepository,
-        reader: TransactionReader,
+        transactions: Models.Transaction[],
     ): Promise<void> {
-        const transactions: Models.Transaction[] = await reader.read();
-
         for (const transaction of transactions) {
             const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
             const entities: IEntitiesWallet = wallet.getAttribute<IEntitiesWallet>("entities");
