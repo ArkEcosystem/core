@@ -2,8 +2,6 @@ import { app } from "@arkecosystem/core-container";
 import Hapi from "@hapi/hapi";
 import * as Blockchain from "./blockchain";
 import * as Blocks from "./blocks";
-import * as Bridgechains from "./bridgechains";
-import * as Businesses from "./businesses";
 import * as Delegates from "./delegates";
 import * as Entities from "./entities";
 import * as Locks from "./locks";
@@ -24,8 +22,6 @@ export = {
 
         // TODO: hook into core-api instead in V3
         if (app.has("core-magistrate-transactions")) {
-            Businesses.register(server);
-            Bridgechains.register(server);
             Entities.register(server);
         }
     },
