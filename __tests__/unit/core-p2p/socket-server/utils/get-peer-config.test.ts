@@ -1,6 +1,6 @@
-import { Managers } from "@arkecosystem/crypto";
-import { getPeerConfig } from "@arkecosystem/core-p2p/src/socket-server/utils/get-peer-config";
 import { Container } from "@arkecosystem/core-kernel";
+import { getPeerConfig } from "@arkecosystem/core-p2p/src/socket-server/utils/get-peer-config";
+import { Managers } from "@arkecosystem/crypto";
 
 describe("getPeerConfig", () => {
     const mockConfig = {
@@ -17,27 +17,33 @@ describe("getPeerConfig", () => {
     const appPlugins = [
         { package: "@arkecosystem/core-api", options: {} },
         { package: "@arkecosystem/core-webhooks" },
+        { package: "@arkecosystem/core-p2p" },
     ];
     const coreApiServiceProvider = {
         name: () => "core-api",
         configDefaults: () => ({
-            server: { http: { port: 4003 } }
+            server: { http: { port: 4003 } },
         }),
     };
     const coreWebhooksServiceProvider = {
         name: () => "core-webhooks",
         configDefaults: () => ({}),
     };
+    const coreP2PServiceProvider = {
+        name: () => "core-p2p",
+        configDefaults: () => ({}),
+    };
     const serviceProviders = {
         "@arkecosystem/core-api": coreApiServiceProvider,
         "@arkecosystem/core-webhooks": coreWebhooksServiceProvider,
-    }
+        "@arkecosystem/core-p2p": coreP2PServiceProvider,
+    };
     const configRepository = { get: () => appPlugins }; // get("app.plugins")
     const serviceProviderRepository = { get: (plugin) => serviceProviders[plugin] };
     const appGet = {
         [Container.Identifiers.ConfigRepository]: configRepository,
         [Container.Identifiers.ServiceProviderRepository]: serviceProviderRepository,
-    }
+    };
     const app = {
         version: () => version,
         get: (key) => appGet[key],
@@ -47,22 +53,25 @@ describe("getPeerConfig", () => {
                     all: () => ({
                         server: {
                             http: {
-                                port: "4003"
-                            }
-                        }
-                    })
-                })
+                                port: "4003",
+                            },
+                        },
+                        options: {
+                            estimateTotalCount: true,
+                        },
+                    }),
+                }),
             }),
             discover: () => ({
                 merge: () => ({
                     all: () => ({
                         server: {
-                            port: "4004"
-                        }
-                    })
-                })
-            })
-        })
+                            port: "4004",
+                        },
+                    }),
+                }),
+            }),
+        }),
     };
 
     it("should return own config from config manager", () => {
@@ -81,12 +90,13 @@ describe("getPeerConfig", () => {
             plugins: {
                 "@arkecosystem/core-api": {
                     enabled: true,
-                    port: 4003
+                    estimateTotalCount: true,
+                    port: 4003,
                 },
                 "@arkecosystem/core-webhooks": {
                     enabled: true,
-                    port: 4004
-                }
+                    port: 4004,
+                },
             },
         });
     });
