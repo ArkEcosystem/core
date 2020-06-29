@@ -86,5 +86,9 @@
         "p2p": {
             "minimumVersions": ["^2.6 || ^2.6.0-next.9"]
         }
+    },
+    {
+        "height": 5636000,
+        "aip36": true
     }
 ]
