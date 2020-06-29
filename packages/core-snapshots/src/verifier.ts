@@ -60,7 +60,12 @@ export class Verifier {
 
         let isVerified = false;
         try {
-            isVerified = Transactions.TransactionFactory.fromBytes(transaction.serialized).isVerified;
+            const transactionDeserialized = Transactions.TransactionFactory.fromBytes(transaction.serialized);
+            if (transactionDeserialized.data.signatures) {
+                return;
+            } else {
+                isVerified = transactionDeserialized.isVerified;
+            }
         } catch (err) {
             throw new Exceptions.TransactionVerifyException(transaction.id, err.message);
         }

@@ -61,8 +61,26 @@ describe("Verifier", () => {
             Verifier.verifyTransaction(Assets.transactions[0]);
         });
 
+        it("should pass if transaction is  signed with multisignature", async () => {
+            Transactions.TransactionFactory.fromBytes = jest.fn().mockReturnValue({ isVerified: true, data: { signatures: [] } });
+            let transaction = { ...Assets.transactions[0] };
+
+            transaction.timestamp = 100;
+
+            Verifier.verifyTransaction(transaction);
+        });
+
+        it("should pass if transaction is valid", async () => {
+            Transactions.TransactionFactory.fromBytes = jest.fn().mockReturnValue({ isVerified: true, data: {} });
+            let transaction = { ...Assets.transactions[0] };
+
+            transaction.timestamp = 100;
+
+            Verifier.verifyTransaction(transaction);
+        });
+
         it("should throw if transaction is not valid", async () => {
-            Transactions.TransactionFactory.fromBytes = jest.fn().mockReturnValue(false);
+            Transactions.TransactionFactory.fromBytes = jest.fn().mockReturnValue({ isVerified: false, data: {} });
             let transaction = { ...Assets.transactions[0] };
 
             transaction.timestamp = 100;
