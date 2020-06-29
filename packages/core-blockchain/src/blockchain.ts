@@ -84,7 +84,7 @@ export class Blockchain implements blockchain.IBlockchain {
         this.actions = stateMachine.actionMap(this);
         this.blockProcessor = new BlockProcessor(this);
 
-        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }) => {
+        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }): Promise<Interfaces.IBlock[] | undefined> => {
             try {
                 return await this.processBlocks(blockList.blocks);
             } catch (error) {
