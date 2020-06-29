@@ -23,8 +23,8 @@ export class TransactionFactory {
         return this.fromSerialized(hex);
     }
 
-    public static fromBytes(buffer: Buffer, strict = true): ITransaction {
-        return this.fromSerialized(buffer.toString("hex"), strict);
+    public static fromBytes(buffer: Buffer, strict = true, options: IDeserializeOptions = {}): ITransaction {
+        return this.fromSerialized(buffer.toString("hex"), strict, options);
     }
 
     /**
@@ -55,7 +55,7 @@ export class TransactionFactory {
         return this.fromData(data);
     }
 
-    public static fromData(data: ITransactionData, strict = true): ITransaction {
+    public static fromData(data: ITransactionData, strict = true, options: IDeserializeOptions = {}): ITransaction {
         const { value, error } = Verifier.verifySchema(data, strict);
 
         if (error && !isException(value.id)) {
@@ -71,13 +71,13 @@ export class TransactionFactory {
 
         Serializer.serialize(transaction);
 
-        return this.fromBytes(transaction.serialized, strict);
+        return this.fromBytes(transaction.serialized, strict, options);
     }
 
-    private static fromSerialized(serialized: string, strict = true): ITransaction {
+    private static fromSerialized(serialized: string, strict = true, options: IDeserializeOptions = {}): ITransaction {
         try {
-            const transaction = Deserializer.deserialize(serialized);
-            transaction.data.id = Utils.getId(transaction.data);
+            const transaction = Deserializer.deserialize(serialized, options);
+            transaction.data.id = Utils.getId(transaction.data, options);
 
             const { value, error } = Verifier.verifySchema(transaction.data, strict);
 
@@ -85,7 +85,7 @@ export class TransactionFactory {
                 throw new TransactionSchemaError(error);
             }
 
-            transaction.isVerified = transaction.verify();
+            transaction.isVerified = transaction.verify(options);
 
             return transaction;
         } catch (error) {

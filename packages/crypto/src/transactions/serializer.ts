@@ -15,7 +15,7 @@ export class Serializer {
     public static getBytes(transaction: ITransactionData, options: ISerializeOptions = {}): Buffer {
         const version: number = transaction.version || 1;
 
-        if (options.acceptLegacyVersion || isSupportedTransactionVersion(version)) {
+        if (options.acceptLegacyVersion || options.disableVersionCheck || isSupportedTransactionVersion(version)) {
             if (version === 1) {
                 return this.getBytesV1(transaction, options);
             }

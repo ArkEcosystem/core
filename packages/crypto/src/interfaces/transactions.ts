@@ -21,7 +21,7 @@ export interface ITransaction {
     serialize(options?: ISerializeOptions): ByteBuffer | undefined;
     deserialize(buf: ByteBuffer): void;
 
-    verify(): boolean;
+    verify(options?: IVerifyOptions): boolean;
     verifySchema(strict?: boolean): ISchemaValidationResult;
 
     toJson(): ITransactionJson;
@@ -164,10 +164,16 @@ export interface IHtlcExpiration {
 
 export interface IDeserializeOptions {
     acceptLegacyVersion?: boolean;
+    disableVersionCheck?: boolean;
+}
+
+export interface IVerifyOptions {
+    disableVersionCheck?: boolean;
 }
 
 export interface ISerializeOptions {
     acceptLegacyVersion?: boolean;
+    disableVersionCheck?: boolean;
     excludeSignature?: boolean;
     excludeSecondSignature?: boolean;
     excludeMultiSignature?: boolean;
