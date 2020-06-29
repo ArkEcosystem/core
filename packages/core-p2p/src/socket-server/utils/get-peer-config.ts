@@ -27,7 +27,7 @@ const transformPlugins = (plugins: PluginConfig[]): Contracts.P2P.PeerPlugins =>
         };
 
         if (name.includes("core-api")) {
-            result[name].estimateTotalCount = pluginConfig.options?.options?.estimateTotalCount || true;
+            result[name].estimateTotalCount = pluginConfig.options.options.estimateTotalCount;
         }
     }
 
