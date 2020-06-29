@@ -1,4 +1,3 @@
-import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums, Identities, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
@@ -8,13 +7,15 @@ import {
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
 } from "../../errors";
-import { TransactionReader } from "../../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
 export class MultiSignatureRegistrationTransactionHandler extends TransactionHandler {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
+
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
@@ -29,9 +30,15 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     }
 
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
-        for (const transaction of transactions) {
+        const criteria = {
+            version: this.getConstructor().version,
+            typeGroup: this.getConstructor().typeGroup,
+            type: this.getConstructor().type,
+        };
+
+        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+            AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.asset?.multiSignature);
+
             const multiSignature: Contracts.State.WalletMultiSignatureAttributes = transaction.asset.multiSignature!;
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
                 Identities.PublicKey.fromMultiSignatureAsset(multiSignature),
@@ -43,7 +50,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
             wallet.setAttribute("multiSignature", multiSignature);
             this.walletRepository.index(wallet);
-        }
+        });
     }
 
     public async isActivated(): Promise<boolean> {

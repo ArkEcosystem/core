@@ -1,7 +1,6 @@
-import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
@@ -14,6 +13,9 @@ import { MagistrateTransactionHandler } from "./magistrate-handler";
 export class BusinessResignationTransactionHandler extends MagistrateTransactionHandler {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
+
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BusinessRegistrationTransactionHandler];
@@ -28,14 +30,18 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
     }
 
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
+        const criteria = {
+            typeGroup: this.getConstructor().typeGroup,
+            type: this.getConstructor().type,
+        };
 
-        for (const transaction of transactions) {
+        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+            AppUtils.assert.defined<string>(transaction.senderPublicKey);
+
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             wallet.setAttribute("business.resigned", true);
             this.walletRepository.index(wallet);
-        }
+        });
     }
 
     public async throwIfCannotBeApplied(

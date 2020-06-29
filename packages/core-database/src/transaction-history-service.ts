@@ -37,6 +37,17 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
         return data;
     }
 
+    public async streamManyByCriteria(
+        criteria: Contracts.Search.OrCriteria<Contracts.Shared.TransactionCriteria>,
+        cb: (transaction: Interfaces.ITransactionData) => void,
+    ): Promise<void> {
+        const expression = await this.transactionFilter.getExpression(criteria);
+        await this.transactionRepository.streamManyByExpression(expression, (model) => {
+            const data = this.modelConverter.getTransactionData([model]);
+            cb(data[0]);
+        });
+    }
+
     public async listByCriteria(
         criteria: Contracts.Shared.OrTransactionCriteria,
         order: Contracts.Search.ListOrder,

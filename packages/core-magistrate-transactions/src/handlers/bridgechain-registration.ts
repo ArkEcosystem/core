@@ -1,10 +1,9 @@
-import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import {
@@ -23,6 +22,9 @@ import { packageNameRegex } from "./utils";
 
 @Container.injectable()
 export class BridgechainRegistrationTransactionHandler extends MagistrateTransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
+
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BusinessRegistrationTransactionHandler];
     }
@@ -36,10 +38,17 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
     }
 
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
+        const criteria = {
+            typeGroup: this.getConstructor().typeGroup,
+            type: this.getConstructor().type,
+        };
 
-        for (const transaction of transactions) {
+        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+            AppUtils.assert.defined<string>(transaction.senderPublicKey);
+            AppUtils.assert.defined<MagistrateInterfaces.IBridgechainRegistrationAsset>(
+                transaction.asset?.bridgechainRegistration,
+            );
+
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
                 "business",
@@ -55,7 +64,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
             this.walletRepository.index(wallet);
-        }
+        });
     }
 
     public async throwIfCannotBeApplied(

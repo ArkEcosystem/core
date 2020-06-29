@@ -1,6 +1,4 @@
-import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import {
@@ -17,11 +15,14 @@ import { IEntitiesWallet } from "../../interfaces";
 export class EntityResignSubHandler {
     public async bootstrap(
         walletRepository: Contracts.State.WalletRepository,
-        reader: TransactionReader,
+        transactionHistoryService: Contracts.Shared.TransactionHistoryService,
+        criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<void> {
-        const transactions: Models.Transaction[] = await reader.read();
+        await transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+            Utils.assert.defined<string>(transaction.senderPublicKey);
+            Utils.assert.defined<object>(transaction.asset);
+            // Utils.assert.defined<IEntityAsset>(transaction.asset); // WTF?
 
-        for (const transaction of transactions) {
             const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
             const entities: IEntitiesWallet = wallet.getAttribute<IEntitiesWallet>("entities");
 
@@ -33,7 +34,7 @@ export class EntityResignSubHandler {
             wallet.setAttribute("entities", entities);
 
             walletRepository.index(wallet);
-        }
+        });
     }
 
     public async throwIfCannotBeApplied(

@@ -1,10 +1,9 @@
-import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { BusinessAlreadyRegisteredError } from "../errors";
@@ -17,6 +16,9 @@ import { MagistrateTransactionHandler } from "./magistrate-handler";
 export class BusinessRegistrationTransactionHandler extends MagistrateTransactionHandler {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
+
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [];
@@ -37,10 +39,17 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
     }
 
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
+        const criteria = {
+            typeGroup: this.getConstructor().typeGroup,
+            type: this.getConstructor().type,
+        };
 
-        for (const transaction of transactions) {
+        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+            AppUtils.assert.defined<string>(transaction.senderPublicKey);
+            AppUtils.assert.defined<MagistrateInterfaces.IBusinessRegistrationAsset>(
+                transaction.asset?.businessRegistration,
+            );
+
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             const asset: IBusinessWalletAttributes = {
                 businessAsset: transaction.asset.businessRegistration,
@@ -48,7 +57,7 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", asset);
             this.walletRepository.index(wallet);
-        }
+        });
     }
 
     public async throwIfCannotBeApplied(

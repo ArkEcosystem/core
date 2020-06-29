@@ -1,21 +1,28 @@
-import { Models } from "@arkecosystem/core-database";
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
 
-import { TransactionReader } from "../../transaction-reader";
 import { One } from "../index";
 
 @Container.injectable()
 export class DelegateRegistrationTransactionHandler extends One.DelegateRegistrationTransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
+
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.Two.DelegateRegistrationTransaction;
     }
 
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
+        const criteria = {
+            typeGroup: this.getConstructor().typeGroup,
+            type: this.getConstructor().type,
+        };
 
-        for (const transaction of transactions) {
+        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+            AppUtils.assert.defined<string>(transaction.senderPublicKey);
+            AppUtils.assert.defined<string>(transaction.asset?.delegate?.username);
+
             const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
 
             wallet.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
@@ -28,7 +35,7 @@ export class DelegateRegistrationTransactionHandler extends One.DelegateRegistra
             });
 
             this.walletRepository.index(wallet);
-        }
+        });
 
         const forgedBlocks = await this.blockRepository.getDelegatesForgedBlocks();
         const lastForgedBlocks = await this.blockRepository.getLastForgedBlocks();

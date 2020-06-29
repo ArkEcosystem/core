@@ -43,6 +43,11 @@ export interface TransactionHistoryService {
 
     findManyByCriteria(criteria: OrTransactionCriteria): Promise<Interfaces.ITransactionData[]>;
 
+    streamManyByCriteria(
+        criteria: OrTransactionCriteria,
+        cb: (transaction: Interfaces.ITransactionData) => void,
+    ): Promise<void>;
+
     listByCriteria(
         criteria: OrTransactionCriteria,
         order: ListOrder,

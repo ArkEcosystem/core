@@ -1,13 +1,14 @@
-import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { InsufficientBalanceError } from "../../errors";
-import { TransactionReader } from "../../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
 export class MultiPaymentTransactionHandler extends TransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
+
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
     }
@@ -21,16 +22,22 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
-        for (const transaction of transactions) {
+        const criteria = {
+            typeGroup: this.getConstructor().typeGroup,
+            type: this.getConstructor().type,
+        };
+
+        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+            AppUtils.assert.defined<string>(transaction.senderPublicKey);
+            AppUtils.assert.defined<object>(transaction.asset?.payments);
+
             const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-            for (const payment of transaction.asset.payments!) {
+            for (const payment of transaction.asset.payments) {
                 const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(payment.recipientId);
                 recipient.balance = recipient.balance.plus(payment.amount);
                 sender.balance = sender.balance.minus(payment.amount);
             }
-        }
+        });
     }
 
     public async isActivated(): Promise<boolean> {

@@ -14,7 +14,6 @@ import {
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "../errors";
-import { TransactionReader } from "../transaction-reader";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 @Container.injectable()
@@ -178,10 +177,6 @@ export abstract class TransactionHandler {
             transaction,
             multiSignature || wallet.getAttribute("multiSignature"),
         );
-    }
-
-    protected getTransactionReader(): TransactionReader {
-        return this.app.resolve<TransactionReader>(TransactionReader).initialize(this.getConstructor());
     }
 
     protected async performGenericWalletChecks(

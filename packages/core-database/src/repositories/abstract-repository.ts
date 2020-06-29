@@ -18,6 +18,42 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         return queryBuilder.getMany();
     }
 
+    public async streamManyByExpression(
+        expression: Contracts.Search.Expression<TEntity>,
+        cb: (entity: TEntity) => void,
+    ): Promise<void> {
+        const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select("*");
+        const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
+        queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
+
+        const stream = await queryBuilder.stream();
+
+        await new Promise((resolve, reject) => {
+            let err: Error | undefined;
+
+            const onData = (raw: Record<string, any>) => {
+                try {
+                    cb(this.rawToEntity(raw));
+                } catch (error) {
+                    err = error;
+                    throw err;
+                }
+            };
+
+            const onError = (error: Error) => {
+                if (!err) {
+                    err = error;
+                }
+            };
+
+            const onEnd = () => {
+                err ? reject(err) : resolve();
+            };
+
+            stream.on("data", onData).on("error", onError).on("end", onEnd).resume();
+        });
+    }
+
     public async listByExpression(
         expression: Contracts.Search.Expression<TEntity>,
         order: Contracts.Search.ListOrder,
@@ -61,7 +97,7 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
 
     protected rawToEntity(
         rawEntity: Record<string, any>,
-        customPropertyHandler: (entity: { [P in keyof TEntity]?: TEntity[P] }, key: string, value: any) => void,
+        customPropertyHandler?: (entity: { [P in keyof TEntity]?: TEntity[P] }, key: string, value: any) => void,
     ): TEntity {
         const entity: TEntity = this.create();
         for (const [key, value] of Object.entries(rawEntity)) {
@@ -85,8 +121,10 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
                 }
 
                 entity[columnMetadata.propertyName as keyof TEntity] = propertyValue;
-            } else {
+            } else if (customPropertyHandler) {
                 customPropertyHandler(entity, key, value);
+            } else {
+                throw new Error(`Entity column ${columnName} isn't handled`);
             }
         }
 
