@@ -27,7 +27,7 @@
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
         "compile": "../../node_modules/typescript/bin/tsc",
-        "prepublishOnly": "yarn build"
+        "prepublishOnly": "yarn build:rollup"
     },
     "dependencies": {
         "@arkecosystem/utils": "^1.1",
