@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.42] - 2020-06-29
+
+### Added
+
+-   Add rollup config for browsers ([#3830]) (da0d8d5a, @luciorubeens)
+
+### Changed
+
+-   Update `bcrypto` dependency to v5 ([#3823]) (0b510429, @faustbrian)
+
+### Fixed
+
+-   Use incremental timestamps for `make:block` ([#3818]) (4612cd24, @deanpress)
+
 ## [2.6.39] - 2020-06-17
 
 ### Fixed
@@ -1543,6 +1557,9 @@ Closed security vulnerabilities:
 [#3695]: https://github.com/ARKEcosystem/core/pull/3695
 [#3746]: https://github.com/ARKEcosystem/core/pull/3746
 [#3806]: https://github.com/ARKEcosystem/core/pull/3806
+[#3818]: https://github.com/ARKEcosystem/core/pull/3818
+[#3823]: https://github.com/ARKEcosystem/core/pull/3823
+[#3830]: https://github.com/ARKEcosystem/core/pull/3830
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
