@@ -4,12 +4,16 @@ const testUtils = require("../../../../lib/utils/test-utils");
 const utils = require("./utils");
 
 describe("Check that the bridgechain was resigned", () => {
-    it("should have the bridgechain resigned", async () => {
-        const bridgechainResponse = await testUtils.GET("bridgechains");
-        testUtils.expectSuccessful(bridgechainResponse);
+    it("should have the wallet bridgechain attribute resigned", async () => {
+        const walletResponse = await testUtils.GET(`wallets/${utils.wallets.businessRegistration.publicKey}`);
+        testUtils.expectSuccessful(walletResponse);
 
-        const bridgechains = bridgechainResponse.data.data;
-        expect(bridgechains).toBeArrayOfSize(1);
-        expect(bridgechains[0].isResigned).toBeTrue();
+        const wallet = walletResponse.data.data;
+        expect(wallet).toBeObject();
+
+        const business = wallet.attributes.business;
+        expect(business).toBeObject();
+        expect(business.bridgechains[utils.bridgechainRegistrationAsset.genesisHash]).toBeObject();
+        expect(business.bridgechains[utils.bridgechainRegistrationAsset.genesisHash].resigned).toBeTrue();
     });
 });

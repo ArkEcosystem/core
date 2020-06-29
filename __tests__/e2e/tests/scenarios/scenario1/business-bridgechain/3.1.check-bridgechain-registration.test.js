@@ -4,17 +4,26 @@ const testUtils = require("../../../../lib/utils/test-utils");
 const utils = require("./utils");
 
 describe("Check that the bridgechain was registered", () => {
-    it("should have the bridgechain registered", async () => {
-        const bridgechainResponse = await testUtils.GET("bridgechains");
-        testUtils.expectSuccessful(bridgechainResponse);
+    it("should have set the wallet bridgechain attribute", async () => {
+        const walletResponse = await testUtils.GET(`wallets/${utils.wallets.businessRegistration.publicKey}`);
+        testUtils.expectSuccessful(walletResponse);
 
-        const bridgechains = bridgechainResponse.data.data;
-        expect(bridgechains).toBeArrayOfSize(1);
-        expect(bridgechains[0].name).toBe(utils.bridgechainRegistrationAsset.name);
-        expect(bridgechains[0].seedNodes).toEqual(utils.bridgechainRegistrationAsset.seedNodes);
-        expect(bridgechains[0].bridgechainRepository).toBe(utils.bridgechainRegistrationAsset.bridgechainRepository);
-        expect(bridgechains[0].bridgechainAssetRepository).toBe(utils.bridgechainRegistrationAsset.bridgechainAssetRepository);
-        expect(bridgechains[0].genesisHash).toBe(utils.bridgechainRegistrationAsset.genesisHash);
-        expect(bridgechains[0].ports).toEqual(utils.bridgechainRegistrationAsset.ports);
+        const wallet = walletResponse.data.data;
+        expect(wallet).toBeObject();
+
+        const business = wallet.attributes.business;
+        expect(business).toBeObject();
+        expect(business.bridgechains).toEqual({
+            [utils.bridgechainRegistrationAsset.genesisHash]: {
+                bridgechainAsset: {
+                    name: utils.bridgechainRegistrationAsset.name,
+                    seedNodes: utils.bridgechainRegistrationAsset.seedNodes,
+                    genesisHash: utils.bridgechainRegistrationAsset.genesisHash,
+                    bridgechainRepository: utils.bridgechainRegistrationAsset.bridgechainRepository,
+                    ports: utils.bridgechainRegistrationAsset.ports,
+                    bridgechainAssetRepository: utils.bridgechainRegistrationAsset.bridgechainAssetRepository,
+                }
+            }
+        });
     });
 });
