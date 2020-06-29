@@ -15,12 +15,14 @@ describe("Check that the bridgechain was registered", () => {
         expect(business).toBeObject();
         expect(business.bridgechains).toEqual({
             [utils.bridgechainRegistrationAsset.genesisHash]: {
-                name: utils.bridgechainRegistrationAsset.name,
-                seedNodes: utils.bridgechainRegistrationAsset.seedNodes,
-                genesisHash: utils.bridgechainRegistrationAsset.genesisHash,
-                bridgechainRepository: utils.bridgechainRegistrationAsset.bridgechainRepository,
-                ports: utils.bridgechainRegistrationAsset.ports,
-                bridgechainAssetRepository: utils.bridgechainRegistrationAsset.bridgechainAssetRepository,
+                bridgechainAsset: {
+                    name: utils.bridgechainRegistrationAsset.name,
+                    seedNodes: utils.bridgechainRegistrationAsset.seedNodes,
+                    genesisHash: utils.bridgechainRegistrationAsset.genesisHash,
+                    bridgechainRepository: utils.bridgechainRegistrationAsset.bridgechainRepository,
+                    ports: utils.bridgechainRegistrationAsset.ports,
+                    bridgechainAssetRepository: utils.bridgechainRegistrationAsset.bridgechainAssetRepository,
+                }
             }
         });
     });
