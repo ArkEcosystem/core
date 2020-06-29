@@ -56,6 +56,9 @@ describe("getPeerConfig", () => {
                                 port: "4003",
                             },
                         },
+                        options: {
+                            estimateTotalCount: true,
+                        },
                     }),
                 }),
             }),
