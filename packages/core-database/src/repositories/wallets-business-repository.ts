@@ -41,14 +41,6 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                 searchContext = this.searchLocks(params);
                 break;
             }
-            case Database.SearchScope.Bridgechains: {
-                searchContext = this.searchBridgechains(params);
-                break;
-            }
-            case Database.SearchScope.Businesses: {
-                searchContext = this.searchBusinesses(params);
-                break;
-            }
             case Database.SearchScope.Entities: {
                 searchContext = this.searchEntities(params);
                 break;
@@ -228,72 +220,6 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             query,
             entries,
             defaultOrder: ["lockId", "asc"],
-        };
-    }
-
-    private searchBusinesses(params: Database.IParameters = {}): ISearchContext<any> {
-        const query: Record<string, string[]> = {
-            exact: ["address", "isResigned", "publicKey", "vat"],
-            like: ["name", "repository", "website"],
-        };
-
-        const entries: any[] = this.databaseServiceProvider()
-            .walletManager.getIndex("businesses")
-            .values()
-            .map(wallet => {
-                const business: any = wallet.getAttribute("business");
-                return params.transform
-                    ? {
-                          address: wallet.address,
-                          publicKey: wallet.publicKey,
-                          ...business.businessAsset,
-                          isResigned: !!business.resigned,
-                      }
-                    : wallet;
-            });
-
-        return {
-            query,
-            entries,
-            defaultOrder: ["name", "asc"],
-        };
-    }
-
-    private searchBridgechains(params: Database.IParameters = {}): ISearchContext<any> {
-        const query: Record<string, string[]> = {
-            exact: ["genesisHash", "isResigned", "publicKey"],
-            like: ["bridgechainRepository", "name"],
-            every: ["seedNodes"],
-        };
-
-        const entries: any[] = this.databaseServiceProvider()
-            .walletManager.getIndex("businesses")
-            .values()
-            .reduce((acc, wallet) => {
-                const bridgechains: Record<
-                    string,
-                    {
-                        bridgechainAsset: object;
-                        resigned?: boolean;
-                    }
-                > = wallet.getAttribute("business.bridgechains") || {};
-
-                acc.push(
-                    ...Object.values(bridgechains).map(bridgechain => ({
-                        publicKey: wallet.publicKey,
-                        address: wallet.address,
-                        ...bridgechain.bridgechainAsset,
-                        isResigned: !!bridgechain.resigned,
-                    })),
-                );
-
-                return acc;
-            }, []);
-
-        return {
-            query,
-            entries,
-            defaultOrder: ["name", "asc"],
         };
     }
 
