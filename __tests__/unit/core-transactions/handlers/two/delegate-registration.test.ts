@@ -5,7 +5,7 @@ import { DelegateEvent } from "@packages/core-kernel/src/enums";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
-import { Mapper, Mocks } from "@packages/core-test-framework";
+import { Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -108,22 +108,22 @@ describe("DelegateRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         afterEach(() => {
-            Mocks.TransactionRepository.setTransactions([]);
             Mocks.BlockRepository.setDelegateForgedBlocks([]);
             Mocks.BlockRepository.setLastForgedBlocks([]);
         });
 
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(delegateRegistrationTransaction),
-            ]);
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                cb(delegateRegistrationTransaction.data);
+            });
             await expect(handler.bootstrap()).toResolve();
+            // TODO: assert wallet repository
         });
 
         it("should resolve with bocks", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(delegateRegistrationTransaction),
-            ]);
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                cb(delegateRegistrationTransaction.data);
+            });
 
             Mocks.BlockRepository.setDelegateForgedBlocks([
                 {
@@ -144,6 +144,7 @@ describe("DelegateRegistrationTransaction", () => {
             ]);
 
             await expect(handler.bootstrap()).toResolve();
+            // TODO: assert wallet repository
         });
 
         it("should resolve with bocks and genesis wallet", async () => {
@@ -166,6 +167,7 @@ describe("DelegateRegistrationTransaction", () => {
             ]);
 
             await expect(handler.bootstrap()).toResolve();
+            // TODO: assert wallet repository
         });
     });
 
