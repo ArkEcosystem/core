@@ -4,7 +4,7 @@ import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers } from "@arkecosystem/core-transactions";
+import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces as CryptoInterfaces, Interfaces, Transactions, Utils, Managers } from "@arkecosystem/crypto";
 
 import { EntityWrongSubTypeError, StaticFeeMismatchError } from "../errors";
@@ -14,6 +14,7 @@ import BusinessSubHandlers from "./entity-subhandlers/business";
 import DeveloperSubHandlers from "./entity-subhandlers/developer";
 import PluginCoreSubHandlers from "./entity-subhandlers/plugin-core";
 import PluginDesktopSubHandlers from "./entity-subhandlers/plugin-desktop";
+import { Models } from "@arkecosystem/core-database";
 
 type SubHandlers = {
     [Enums.EntityAction.Register]: EntityRegisterSubHandler;
@@ -63,7 +64,31 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         return ["entities"];
     }
 
-    public async bootstrap(): Promise<void> {}
+    public async bootstrap(): Promise<void> {
+        const reader: TransactionReader = this.getTransactionReader();
+        const transactions: Models.Transaction[] = await reader.read();
+
+        const registerTransactions: Models.Transaction[] = [];
+        const updateTransactions: Models.Transaction[] = [];
+        const resignTransactions: Models.Transaction[] = [];
+        for (const transaction of transactions) {
+            switch (transaction.asset.action) {
+                case Enums.EntityAction.Register:
+                    registerTransactions.push(transaction);
+                    break;
+                case Enums.EntityAction.Update:
+                    updateTransactions.push(transaction);
+                    break;
+                case Enums.EntityAction.Resign:
+                    resignTransactions.push(transaction);
+                    break;
+            }
+        }
+
+        await this.app.resolve(EntityRegisterSubHandler).bootstrap(this.walletRepository, registerTransactions);
+        await this.app.resolve(EntityUpdateSubHandler).bootstrap(this.walletRepository, updateTransactions);
+        await this.app.resolve(EntityResignSubHandler).bootstrap(this.walletRepository, resignTransactions);
+    }
 
     public async throwIfCannotBeApplied(
         transaction: CryptoInterfaces.ITransaction,
