@@ -1,7 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { IEntityAsset } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
-import { TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { EntityAlreadyRegisteredError, EntityNameAlreadyRegisteredError } from "../../errors";
@@ -14,18 +13,16 @@ import { MagistrateIndex } from "../../wallet-indexes";
 export class EntityRegisterSubHandler {
     public async bootstrap(
         walletRepository: Contracts.State.WalletRepository,
-        reader: TransactionReader,
+        transactions: Models.Transaction[],
     ): Promise<void> {
-        const transactions: Models.Transaction[] = await reader.read();
-
         for (const transaction of transactions) {
             const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
             const entities: IEntitiesWallet = wallet.getAttribute<IEntitiesWallet>("entities", {});
 
             entities[transaction.id] = {
-                type: entities[transaction.asset.registrationId].type,
-                subType: entities[transaction.asset.registrationId].subType,
-                data: entities[transaction.asset.registrationId].data,
+                type: transaction.asset.type,
+                subType: transaction.asset.subType,
+                data: transaction.asset.data,
             };
 
             wallet.setAttribute("entities", entities);
