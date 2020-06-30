@@ -133,12 +133,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
     describe("bootstrap", () => {
         it("should resolve", async () => {
             transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                try {
-                    cb(multiSignatureTransaction.data);
-                } catch (error) {
-                    console.log(error.stack);
-                    throw error;
-                }
+                cb(multiSignatureTransaction.data);
             });
             await expect(handler.bootstrap()).toResolve();
         });
