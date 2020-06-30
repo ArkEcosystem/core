@@ -199,7 +199,7 @@ describe("Htlc claim", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
-                transactionHistoryService.streamManyByCriteria.mockResolvedValueOnce((cb: Function) => {
+                transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
                     cb(htlcLockTransaction);
                 });
                 await expect(handler.bootstrap()).toResolve();
