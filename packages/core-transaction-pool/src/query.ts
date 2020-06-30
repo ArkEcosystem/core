@@ -31,7 +31,7 @@ export class QueryIterable implements Contracts.TransactionPool.QueryIterable {
         return this.wherePredicate((t) => t.id === id);
     }
 
-    public whereType(type: Enums.TransactionType): QueryIterable {
+    public whereType(type: Enums.TransactionType | number): QueryIterable {
         return this.wherePredicate((t) => t.type === type);
     }
 
