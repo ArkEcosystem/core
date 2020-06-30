@@ -1,18 +1,18 @@
 import "jest-extended";
-import { dirSync, setGracefulCleanup } from "tmp";
 
+import { Container, Providers } from "@packages/core-kernel";
+import { LocalFilesystem } from "@packages/core-kernel/src/services/filesystem/drivers/local";
+import { SnapshotDatabaseService } from "@packages/core-snapshots/src/database-service";
+import { Filesystem } from "@packages/core-snapshots/src/filesystem/filesystem";
+import { Identifiers } from "@packages/core-snapshots/src/ioc";
+import { ProgressDispatcher } from "@packages/core-snapshots/src/progress-dispatcher";
+import { BlockRepository, RoundRepository, TransactionRepository } from "@packages/core-snapshots/src/repositories";
+import { Sandbox } from "@packages/core-test-framework";
+import { EventEmitter } from "events";
+import { dirSync, setGracefulCleanup } from "tmp";
+import { Connection } from "typeorm";
 // @ts-ignore
 import * as workerThreads from "worker_threads";
-import { EventEmitter } from "events";
-import { Connection } from "typeorm";
-import { Container, Providers } from "@packages/core-kernel";
-import { Sandbox } from "@packages/core-test-framework";
-import { SnapshotDatabaseService } from "@packages/core-snapshots/src/database-service";
-import { Identifiers } from "@packages/core-snapshots/src/ioc";
-import { Filesystem } from "@packages/core-snapshots/src/filesystem/filesystem";
-import { LocalFilesystem } from "@packages/core-kernel/src/services/filesystem/drivers/local";
-import { ProgressDispatcher } from "@packages/core-snapshots/src/progress-dispatcher";
-import { BlockRepository, TransactionRepository, RoundRepository } from "@packages/core-snapshots/src/repositories";
 
 import { Assets } from "./__fixtures__";
 
@@ -72,7 +72,7 @@ beforeEach(() => {
         isConnected: true,
     };
 
-    let lastBlock = Assets.blocksBigNumber[0];
+    const lastBlock = Assets.blocksBigNumber[0];
     lastBlock.height = 100;
 
     blockRepository = {
@@ -132,7 +132,7 @@ beforeEach(() => {
 
     sandbox.app.bind(Identifiers.SnapshotDatabaseService).to(SnapshotDatabaseService).inSingletonScope();
 
-    let pluginConfiguration = sandbox.app.getTagged<Providers.PluginConfiguration>(
+    const pluginConfiguration = sandbox.app.getTagged<Providers.PluginConfiguration>(
         Container.Identifiers.PluginConfiguration,
         "plugin",
         "@arkecosystem/core-snapshots",
@@ -153,7 +153,11 @@ afterEach(() => {
 describe("DatabaseService", () => {
     describe("init", () => {
         it("should be ok", async () => {
-            database.init("default", false);
+            database.init("default", false, false);
+        });
+
+        it("should be ok with default parameters", async () => {
+            database.init();
         });
     });
 
@@ -175,7 +179,7 @@ describe("DatabaseService", () => {
 
     describe("rollbackChain", () => {
         it("should rollback chain to specific height", async () => {
-            let roundInfo = {
+            const roundInfo = {
                 round: 1,
                 nextRound: 2,
                 maxDelegates: 51,
@@ -193,13 +197,13 @@ describe("DatabaseService", () => {
 
             filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
 
-            let dumpOptions = {
+            const dumpOptions = {
                 network: "testnet",
                 skipCompression: false,
                 codec: "default",
             };
 
-            let promise = database.dump(dumpOptions);
+            const promise = database.dump(dumpOptions);
 
             await expect(promise).toResolve();
         });
@@ -212,13 +216,13 @@ describe("DatabaseService", () => {
 
             filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
 
-            let dumpOptions = {
+            const dumpOptions = {
                 network: "testnet",
                 skipCompression: false,
                 codec: "default",
             };
 
-            let promise = database.dump(dumpOptions);
+            const promise = database.dump(dumpOptions);
 
             await expect(promise).rejects.toThrow();
         });
@@ -231,13 +235,13 @@ describe("DatabaseService", () => {
 
             filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
 
-            let dumpOptions = {
+            const dumpOptions = {
                 network: "testnet",
                 skipCompression: false,
                 codec: "default",
             };
 
-            let promise = database.dump(dumpOptions);
+            const promise = database.dump(dumpOptions);
 
             await expect(promise).rejects.toThrow();
         });
@@ -248,7 +252,7 @@ describe("DatabaseService", () => {
 
             filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
 
-            let dumpOptions = {
+            const dumpOptions = {
                 network: "testnet",
                 skipCompression: false,
                 codec: "default",
@@ -256,7 +260,7 @@ describe("DatabaseService", () => {
 
             mockWorkerWrapper.start = jest.fn().mockRejectedValue(new Error());
 
-            let promise = database.dump(dumpOptions);
+            const promise = database.dump(dumpOptions);
 
             await expect(promise).rejects.toThrow();
         });
@@ -269,7 +273,18 @@ describe("DatabaseService", () => {
 
             filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
 
-            let promise = database.restore(Assets.metaData, { truncate: true });
+            const promise = database.restore(Assets.metaData, { truncate: true });
+
+            await expect(promise).toResolve();
+        });
+
+        it("should resolve without truncate", async () => {
+            const dir: string = dirSync().name;
+            const subdir: string = `${dir}/sub`;
+
+            filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
+
+            const promise = database.restore(Assets.metaData, { truncate: false });
 
             await expect(promise).toResolve();
         });
@@ -282,7 +297,7 @@ describe("DatabaseService", () => {
 
             mockWorkerWrapper.sync = jest.fn();
 
-            let promise = database.restore(Assets.metaData, { truncate: true });
+            const promise = database.restore(Assets.metaData, { truncate: true });
 
             await expect(promise).toResolve();
         });
@@ -295,7 +310,7 @@ describe("DatabaseService", () => {
 
             mockWorkerWrapper.start = jest.fn().mockRejectedValue(new Error());
 
-            let promise = database.restore(Assets.metaData, { truncate: true });
+            const promise = database.restore(Assets.metaData, { truncate: true });
 
             await expect(promise).rejects.toThrow();
         });
@@ -308,7 +323,7 @@ describe("DatabaseService", () => {
 
             filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
 
-            let promise = database.verify(Assets.metaData);
+            const promise = database.verify(Assets.metaData);
 
             await expect(promise).toResolve();
         });
@@ -321,7 +336,7 @@ describe("DatabaseService", () => {
 
             mockWorkerWrapper.start = jest.fn().mockRejectedValue(new Error());
 
-            let promise = database.verify(Assets.metaData);
+            const promise = database.verify(Assets.metaData);
 
             await expect(promise).rejects.toThrow();
         });

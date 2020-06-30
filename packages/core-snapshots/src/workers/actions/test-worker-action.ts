@@ -13,6 +13,7 @@ export class TestWorkerAction implements WorkerAction {
     }
 
     public sync(data: any): void {
+        /* istanbul ignore next */
         if (this.resume) {
             this.resume();
         }
@@ -28,7 +29,7 @@ export class TestWorkerAction implements WorkerAction {
         }
 
         if (this.options.table === "wait") {
-            parentPort?.postMessage({
+            parentPort!.postMessage({
                 action: "started",
             });
 

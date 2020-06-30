@@ -8,7 +8,7 @@ export class VerifyWorkerAction extends AbstractWorkerAction {
     private readProcessor: ReadProcessor | undefined = undefined;
 
     public sync(data: any): void {
-        this.readProcessor?.sync(data);
+        this.readProcessor!.sync(data);
     }
 
     public async start() {

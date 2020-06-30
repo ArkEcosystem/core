@@ -1,13 +1,14 @@
-import { Readable } from "stream";
-import { decamelize } from "xcase";
-import { Assets } from "../../../__fixtures__";
 import { WorkerAction } from "@packages/core-snapshots/src/contracts";
+import { Readable } from "stream";
 import WorkerThreads from "worker_threads";
+import { decamelize } from "xcase";
+
+import { Assets } from "../../../__fixtures__";
 
 export class ReadableStream extends Readable {
     private count = 0;
 
-    constructor(private prefix: string, private table: string) {
+    public constructor(private prefix: string, private table: string) {
         super({ objectMode: true });
     }
 
@@ -21,11 +22,11 @@ export class ReadableStream extends Readable {
     }
 
     private appendPrefix(entity: any) {
-        let itemToReturn = {};
+        const itemToReturn = {};
 
-        let item = entity;
+        const item = entity;
 
-        for (let key of Object.keys(item)) {
+        for (const key of Object.keys(item)) {
             itemToReturn[this.prefix + decamelize(key)] = item[key];
         }
 

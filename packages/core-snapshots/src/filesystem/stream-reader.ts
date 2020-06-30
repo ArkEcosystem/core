@@ -138,6 +138,7 @@ export class StreamReader {
             }
 
             let copyLength = 0;
+            /* istanbul ignore next */
             if (this.offset + remaining <= this.length) {
                 copyLength = remaining;
             } else {

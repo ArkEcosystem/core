@@ -36,8 +36,8 @@ export const init = async () => {
 
     app = new Application(new Container.Container());
 
+    /* istanbul ignore next */
     if (_workerData.connection) {
-        /* istanbul ignore next */
         app.bind(Identifiers.SnapshotDatabaseConnection).toConstantValue(
             await connect({ connection: _workerData.connection }),
         );
