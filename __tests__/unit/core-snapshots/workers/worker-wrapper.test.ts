@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { Worker } from "worker_threads";
 import { WorkerWrapper } from "@packages/core-snapshots/src/workers/worker-wrapper";
 import { EventEmitter } from "events";
+import { Worker } from "worker_threads";
 
 let mockWorker: any;
 
@@ -27,7 +27,7 @@ afterEach(() => {
 describe("WorkerWrapper", () => {
     describe("Terminate", () => {
         it("should call terminate", async () => {
-            let workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({});
 
             await workerWrapper.terminate();
 
@@ -37,9 +37,9 @@ describe("WorkerWrapper", () => {
 
     describe("Start", () => {
         it("should resolve on [started] event", async () => {
-            let workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({});
 
-            let promise = workerWrapper.start();
+            const promise = workerWrapper.start();
 
             await new Promise((resolve) => {
                 setTimeout(() => {
@@ -55,9 +55,9 @@ describe("WorkerWrapper", () => {
         });
 
         it("should resolve on [exit] event", async () => {
-            let workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({});
 
-            let promise = workerWrapper.start();
+            const promise = workerWrapper.start();
 
             await new Promise((resolve) => {
                 setTimeout(() => {
@@ -70,9 +70,9 @@ describe("WorkerWrapper", () => {
         });
 
         it("should reject on [exception] message event", async () => {
-            let workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({});
 
-            let promise = workerWrapper.start();
+            const promise = workerWrapper.start();
 
             await new Promise((resolve) => {
                 setTimeout(() => {
@@ -88,9 +88,9 @@ describe("WorkerWrapper", () => {
         });
 
         it("should reject on [any] message event", async () => {
-            let workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({});
 
-            let promise = workerWrapper.start();
+            const promise = workerWrapper.start();
 
             await new Promise((resolve) => {
                 setTimeout(() => {
@@ -106,9 +106,9 @@ describe("WorkerWrapper", () => {
         });
 
         it("should reject on [error] event", async () => {
-            let workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({});
 
-            let promise = workerWrapper.start();
+            const promise = workerWrapper.start();
 
             await new Promise((resolve) => {
                 setTimeout(() => {
@@ -123,11 +123,11 @@ describe("WorkerWrapper", () => {
 
     describe("Sync", () => {
         it("should resolve on [synced] event", async () => {
-            let workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({});
 
-            let promise = workerWrapper.sync({});
+            const promise = workerWrapper.sync({});
 
-            let data = {
+            const data = {
                 dummy: "dummy_data",
             };
 
@@ -145,9 +145,9 @@ describe("WorkerWrapper", () => {
         });
 
         it("should resolve with undefined on [exit] event", async () => {
-            let workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({});
 
-            let promise = workerWrapper.sync({});
+            const promise = workerWrapper.sync({});
 
             await new Promise((resolve) => {
                 setTimeout(() => {
@@ -159,10 +159,21 @@ describe("WorkerWrapper", () => {
             await expect(promise).resolves.toBeUndefined();
         });
 
-        it("should reject on [exception] message event", async () => {
-            let workerWrapper = new WorkerWrapper({});
+        it("should resolve if worker already exit", async () => {
+            const workerWrapper = new WorkerWrapper({});
 
-            let promise = workerWrapper.sync({});
+            // @ts-ignore
+            workerWrapper.isDone = true;
+
+            const promise = workerWrapper.sync({});
+
+            await expect(promise).resolves.toBeUndefined();
+        });
+
+        it("should reject on [exception] message event", async () => {
+            const workerWrapper = new WorkerWrapper({});
+
+            const promise = workerWrapper.sync({});
 
             await new Promise((resolve) => {
                 setTimeout(() => {
@@ -178,9 +189,9 @@ describe("WorkerWrapper", () => {
         });
 
         it("should reject on [any] message event", async () => {
-            let workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({});
 
-            let promise = workerWrapper.sync({});
+            const promise = workerWrapper.sync({});
 
             await new Promise((resolve) => {
                 setTimeout(() => {
@@ -196,9 +207,9 @@ describe("WorkerWrapper", () => {
         });
 
         it("should reject on [error] event", async () => {
-            let workerWrapper = new WorkerWrapper({});
+            const workerWrapper = new WorkerWrapper({});
 
-            let promise = workerWrapper.sync({});
+            const promise = workerWrapper.sync({});
 
             await new Promise((resolve) => {
                 setTimeout(() => {
