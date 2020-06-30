@@ -43,12 +43,12 @@ jobs:
             - name: Download code coverage
               uses: actions/download-artifact@v2
               with:
-                    name: unit-codecov
+                  path: .artifacts
 
             - name: Upload code coverage to codecov.io
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/unit/**/lcov.info
+                  file: .artifacts/unit-*-coverage/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -78,13 +78,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test __tests__/unit/core/ --coverage --coverageDirectory .coverage/unit/core
+              run: yarn test __tests__/unit/core/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-api:
         runs-on: ubuntu-latest
@@ -112,13 +112,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-api/ --coverage --coverageDirectory .coverage/unit/core-api
+              run: yarn test:parallel __tests__/unit/core-api/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-api/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-blockchain:
         runs-on: ubuntu-latest
@@ -146,13 +146,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-blockchain/ --coverage --coverageDirectory .coverage/unit/core-blockchain
+              run: yarn test:parallel __tests__/unit/core-blockchain/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-blockchain/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-cli:
         runs-on: ubuntu-latest
@@ -180,13 +180,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-cli/ --coverage --coverageDirectory .coverage/unit/core-cli
+              run: yarn test:parallel __tests__/unit/core-cli/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-cli/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-database:
         runs-on: ubuntu-latest
@@ -214,13 +214,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-database/ --coverage --coverageDirectory .coverage/unit/core-database
+              run: yarn test:parallel __tests__/unit/core-database/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-database/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-forger:
         runs-on: ubuntu-latest
@@ -248,13 +248,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-forger/ --coverage --coverageDirectory .coverage/unit/core-forger
+              run: yarn test:parallel __tests__/unit/core-forger/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-forger/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-kernel:
         runs-on: ubuntu-latest
@@ -282,13 +282,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-kernel/ --coverage --coverageDirectory .coverage/unit/core-kernel
+              run: yarn test:parallel __tests__/unit/core-kernel/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-kernel/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-logger-pino:
         runs-on: ubuntu-latest
@@ -316,13 +316,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-logger-pino/ --coverage --coverageDirectory .coverage/unit/core-logger-pino
+              run: yarn test:parallel __tests__/unit/core-logger-pino/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-logger-pino/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-magistrate-api:
         runs-on: ubuntu-latest
@@ -350,13 +350,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-magistrate-api/ --coverage --coverageDirectory .coverage/unit/core-magistrate-api
+              run: yarn test:parallel __tests__/unit/core-magistrate-api/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-magistrate-api/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-magistrate-crypto:
         runs-on: ubuntu-latest
@@ -384,13 +384,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-magistrate-crypto/ --coverage --coverageDirectory .coverage/unit/core-magistrate-crypto
+              run: yarn test:parallel __tests__/unit/core-magistrate-crypto/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-magistrate-crypto/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-magistrate-transactions:
         runs-on: ubuntu-latest
@@ -418,13 +418,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-magistrate-transactions/ --coverage --coverageDirectory .coverage/unit/core-magistrate-transactions
+              run: yarn test:parallel __tests__/unit/core-magistrate-transactions/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-magistrate-transactions/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-manager:
         runs-on: ubuntu-latest
@@ -452,13 +452,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-manager/ --coverage --coverageDirectory .coverage/unit/core-manager
+              run: yarn test:parallel __tests__/unit/core-manager/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-manager/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-p2p:
         runs-on: ubuntu-latest
@@ -486,13 +486,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-p2p/ --coverage --coverageDirectory .coverage/unit/core-p2p
+              run: yarn test:parallel __tests__/unit/core-p2p/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-p2p/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-snapshots:
         runs-on: ubuntu-latest
@@ -520,13 +520,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-snapshots/ --coverage --coverageDirectory .coverage/unit/core-snapshots
+              run: yarn test:parallel __tests__/unit/core-snapshots/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-snapshots/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-state:
         runs-on: ubuntu-latest
@@ -554,13 +554,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-state/ --coverage --coverageDirectory .coverage/unit/core-state
+              run: yarn test:parallel __tests__/unit/core-state/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-state/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-test-framework:
         runs-on: ubuntu-latest
@@ -588,13 +588,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-test-framework/ --coverage --coverageDirectory .coverage/unit/core-test-framework
+              run: yarn test:parallel __tests__/unit/core-test-framework/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-test-framework/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-transaction-pool:
         runs-on: ubuntu-latest
@@ -622,13 +622,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-transaction-pool/ --coverage --coverageDirectory .coverage/unit/core-transaction-pool
+              run: yarn test:parallel __tests__/unit/core-transaction-pool/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-transaction-pool/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-transactions:
         runs-on: ubuntu-latest
@@ -656,13 +656,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-transactions/ --coverage --coverageDirectory .coverage/unit/core-transactions
+              run: yarn test:parallel __tests__/unit/core-transactions/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-transactions/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-webhooks:
         runs-on: ubuntu-latest
@@ -690,13 +690,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-webhooks/ --coverage --coverageDirectory .coverage/unit/core-webhooks
+              run: yarn test:parallel __tests__/unit/core-webhooks/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/core-webhooks/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     crypto:
         runs-on: ubuntu-latest
@@ -724,10 +724,9 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/crypto/ --coverage --coverage --coverageDirectory .coverage/unit/crypto
-
+              run: yarn test:parallel __tests__/unit/crypto/ --coverage --coverage --coverageDirectory .coverage/unit/${{ github.job }}
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-codecov
-                  path: .coverage/unit/crypto/lcov.info
+                  name: unit-${{ github.job }}-codecov
+                  path: .coverage/unit/${{ github.job }}/lcov.info
