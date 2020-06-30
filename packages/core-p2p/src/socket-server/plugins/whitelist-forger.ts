@@ -1,7 +1,7 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 
-import { PeerRoute } from "../routes/peer";
+import { InternalRoute } from "../routes/internal";
 
 @Container.injectable()
 export class WhitelistForgerPlugin {
@@ -12,7 +12,7 @@ export class WhitelistForgerPlugin {
     private readonly peerProcessor!: Contracts.P2P.PeerProcessor;
 
     public register(server) {
-        const peerRoutesConfigByPath = this.app.resolve(PeerRoute).getRoutesConfigByPath();
+        const peerRoutesConfigByPath = this.app.resolve(InternalRoute).getRoutesConfigByPath();
         const peerProcessor = this.peerProcessor;
 
         server.ext({
