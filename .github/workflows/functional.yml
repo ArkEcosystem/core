@@ -43,7 +43,7 @@ jobs:
             - name: Download code coverage
               uses: actions/download-artifact@v2
               with:
-                  path: .artifacts-codecov
+                  path: .artifacts
 
             - name: Upload code coverage to codecov.io
               uses: codecov/codecov-action@v1
