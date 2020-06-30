@@ -241,7 +241,7 @@ export abstract class TransactionHandler {
                 throw new UnexpectedMultiSignatureError();
             }
 
-            if (dbSender.getAttribute<any>("multiSignature").legacy) {
+            if (dbSender.getAttribute<boolean>("multiSignature.legacy")) {
                 throw new LegacyMultiSignatureError();
             }
 

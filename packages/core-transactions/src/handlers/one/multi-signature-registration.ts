@@ -16,7 +16,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     }
 
     public walletAttributes(): ReadonlyArray<string> {
-        return ["multiSignature"];
+        return ["multiSignature", "multiSignature.legacy"];
     }
 
     public getConstructor(): Transactions.TransactionConstructor {
@@ -36,13 +36,13 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             const multiSignatureLegacy: Interfaces.IMultiSignatureLegacyAsset = transaction.asset.multiSignatureLegacy;
-            multiSignatureLegacy["legacy"] = true;
 
             if (wallet.hasMultiSignature()) {
                 throw new MultiSignatureAlreadyRegisteredError();
             }
 
             wallet.setAttribute("multiSignature", multiSignatureLegacy);
+            wallet.setAttribute("multiSignature.legacy", true);
             this.walletRepository.index(wallet);
         });
     }

@@ -4,6 +4,7 @@ import { Application, Contracts, Services } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -16,8 +17,8 @@ import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import {
     buildMultiSignatureWallet,
@@ -26,7 +27,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -42,7 +42,13 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const transactionHistoryService = {
+    streamManyByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
+    transactionHistoryService.streamManyByCriteria.mockReset();
+
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
@@ -50,6 +56,7 @@ beforeEach(() => {
     Managers.configManager.getMilestone().aip11 = false;
 
     app = initApp();
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
@@ -114,22 +121,33 @@ describe("MultiSignatureRegistrationTransaction", () => {
             .senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]))
             .nonce("1")
             .recipientId(recipientWallet.publicKey!)
-            .multiSign(passphrases[0], 0)
+            .multiSign(passphrases[0], 0) // ! implicitly sets version to 2
             .multiSign(passphrases[1], 1)
             .multiSign(passphrases[2], 2)
             .sign(passphrases[0])
             .build();
+
+        multiSignatureTransaction.data.asset.multiSignatureLegacy = "multiSignatureLegacy mock" as any;
     });
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(multiSignatureTransaction)]);
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                try {
+                    cb(multiSignatureTransaction.data);
+                } catch (error) {
+                    console.log(error.stack);
+                    throw error;
+                }
+            });
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should throw when wallet has multi signature", async () => {
             senderWallet.setAttribute("multiSignature", multiSignatureAsset);
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(multiSignatureTransaction)]);
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                cb(multiSignatureTransaction.data);
+            });
             await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
         });
     });
