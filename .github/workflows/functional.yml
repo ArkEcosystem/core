@@ -247,7 +247,7 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
-       business-registration:
+    business-registration:
         runs-on: ubuntu-latest
 
         services:
