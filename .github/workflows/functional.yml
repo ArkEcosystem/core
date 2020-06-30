@@ -48,7 +48,7 @@ jobs:
             - name: Upload code coverage to codecov.io
               uses: codecov/codecov-action@v1
               with:
-                  file: .artifacts/functional-*-coverage/lcov.info
+                  file: .artifacts/*-coverage/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -108,7 +108,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     bridgechain-registration:
@@ -163,7 +163,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     bridgechain-resignation:
@@ -218,7 +218,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     bridgechain-update:
@@ -273,7 +273,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     business-registration:
@@ -328,7 +328,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     business-resignation:
@@ -383,7 +383,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     business-update:
@@ -438,7 +438,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     delegate-registration:
@@ -493,7 +493,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     delegate-resignation:
@@ -548,7 +548,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     htlc-claim:
@@ -603,7 +603,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     htlc-lock:
@@ -658,7 +658,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     htlc-refund:
@@ -713,7 +713,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     ipfs:
@@ -768,7 +768,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     multi-payment:
@@ -823,7 +823,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: functional-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/functional/${{ github.job }}/lcov.info
 
     multi-signature-registration:

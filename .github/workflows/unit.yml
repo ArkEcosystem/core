@@ -48,7 +48,7 @@ jobs:
             - name: Upload code coverage to codecov.io
               uses: codecov/codecov-action@v1
               with:
-                  file: .artifacts/unit-*-coverage/lcov.info
+                  file: .artifacts/*-coverage/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -83,7 +83,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-api:
@@ -117,7 +117,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-blockchain:
@@ -151,7 +151,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-cli:
@@ -185,7 +185,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-database:
@@ -219,7 +219,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-forger:
@@ -253,7 +253,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-kernel:
@@ -287,7 +287,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-logger-pino:
@@ -321,7 +321,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-magistrate-api:
@@ -355,7 +355,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-magistrate-crypto:
@@ -389,7 +389,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-magistrate-transactions:
@@ -423,7 +423,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-manager:
@@ -457,7 +457,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-p2p:
@@ -491,7 +491,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-snapshots:
@@ -525,7 +525,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-state:
@@ -559,7 +559,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-test-framework:
@@ -593,7 +593,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-transaction-pool:
@@ -627,7 +627,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-transactions:
@@ -661,7 +661,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-webhooks:
@@ -695,7 +695,7 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     crypto:
@@ -728,5 +728,5 @@ jobs:
             - name: Archive code coverage
               uses: actions/upload-artifact@v2
               with:
-                  name: unit-${{ github.job }}-codecov
+                  name: ${{ github.job }}-coverage
                   path: .coverage/unit/${{ github.job }}/lcov.info
