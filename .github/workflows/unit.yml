@@ -40,10 +40,15 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - name: Codecov
+            - name: Download code coverage
+              uses: actions/download-artifact@v2
+              with:
+                    name: unit-codecov
+
+            - name: Upload code coverage to codecov.io
               uses: codecov/codecov-action@v1
               with:
-                  file: '.coverage/unit/**/lcov.info'
+                  file: .coverage/unit/**/lcov.info
                   flags: unit
                   fail_ci_if_error: true
 
@@ -75,6 +80,12 @@ jobs:
             - name: Test
               run: yarn test __tests__/unit/core/ --coverage --coverageDirectory .coverage/unit/core
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core/lcov.info
+
     core-api:
         runs-on: ubuntu-latest
 
@@ -102,6 +113,12 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-api/ --coverage --coverageDirectory .coverage/unit/core-api
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-api/lcov.info
 
     core-blockchain:
         runs-on: ubuntu-latest
@@ -131,6 +148,12 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-blockchain/ --coverage --coverageDirectory .coverage/unit/core-blockchain
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-blockchain/lcov.info
+
     core-cli:
         runs-on: ubuntu-latest
 
@@ -158,6 +181,12 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-cli/ --coverage --coverageDirectory .coverage/unit/core-cli
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-cli/lcov.info
 
     core-database:
         runs-on: ubuntu-latest
@@ -187,6 +216,12 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-database/ --coverage --coverageDirectory .coverage/unit/core-database
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-database/lcov.info
+
     core-forger:
         runs-on: ubuntu-latest
 
@@ -214,6 +249,12 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-forger/ --coverage --coverageDirectory .coverage/unit/core-forger
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-forger/lcov.info
 
     core-kernel:
         runs-on: ubuntu-latest
@@ -243,6 +284,12 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-kernel/ --coverage --coverageDirectory .coverage/unit/core-kernel
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-kernel/lcov.info
+
     core-logger-pino:
         runs-on: ubuntu-latest
 
@@ -270,6 +317,12 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-logger-pino/ --coverage --coverageDirectory .coverage/unit/core-logger-pino
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-logger-pino/lcov.info
 
     core-magistrate-api:
         runs-on: ubuntu-latest
@@ -299,6 +352,12 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-magistrate-api/ --coverage --coverageDirectory .coverage/unit/core-magistrate-api
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-magistrate-api/lcov.info
+
     core-magistrate-crypto:
         runs-on: ubuntu-latest
 
@@ -326,6 +385,12 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-magistrate-crypto/ --coverage --coverageDirectory .coverage/unit/core-magistrate-crypto
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-magistrate-crypto/lcov.info
 
     core-magistrate-transactions:
         runs-on: ubuntu-latest
@@ -355,6 +420,12 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-magistrate-transactions/ --coverage --coverageDirectory .coverage/unit/core-magistrate-transactions
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-magistrate-transactions/lcov.info
+
     core-manager:
         runs-on: ubuntu-latest
 
@@ -382,6 +453,12 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-manager/ --coverage --coverageDirectory .coverage/unit/core-manager
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-manager/lcov.info
 
     core-p2p:
         runs-on: ubuntu-latest
@@ -411,6 +488,12 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-p2p/ --coverage --coverageDirectory .coverage/unit/core-p2p
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-p2p/lcov.info
+
     core-snapshots:
         runs-on: ubuntu-latest
 
@@ -438,6 +521,12 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-snapshots/ --coverage --coverageDirectory .coverage/unit/core-snapshots
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-snapshots/lcov.info
 
     core-state:
         runs-on: ubuntu-latest
@@ -467,6 +556,12 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-state/ --coverage --coverageDirectory .coverage/unit/core-state
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-state/lcov.info
+
     core-test-framework:
         runs-on: ubuntu-latest
 
@@ -494,6 +589,12 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-test-framework/ --coverage --coverageDirectory .coverage/unit/core-test-framework
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-test-framework/lcov.info
 
     core-transaction-pool:
         runs-on: ubuntu-latest
@@ -523,6 +624,12 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-transaction-pool/ --coverage --coverageDirectory .coverage/unit/core-transaction-pool
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-transaction-pool/lcov.info
+
     core-transactions:
         runs-on: ubuntu-latest
 
@@ -550,6 +657,12 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-transactions/ --coverage --coverageDirectory .coverage/unit/core-transactions
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-transactions/lcov.info
 
     core-webhooks:
         runs-on: ubuntu-latest
@@ -579,6 +692,12 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-webhooks/ --coverage --coverageDirectory .coverage/unit/core-webhooks
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/core-webhooks/lcov.info
+
     crypto:
         runs-on: ubuntu-latest
 
@@ -606,3 +725,9 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/crypto/ --coverage --coverage --coverageDirectory .coverage/unit/crypto
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: unit-codecov
+                  path: .coverage/unit/crypto/lcov.info

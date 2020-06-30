@@ -40,10 +40,15 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - name: Codecov
+            - name: Download code coverage
+              uses: actions/download-artifact@v2
+              with:
+                    name: functional-codecov
+
+            - name: Upload code coverage to codecov.io
               uses: codecov/codecov-action@v1
               with:
-                  file: '.coverage/functional/**/lcov.info'
+                  file: .coverage/functional/**/lcov.info
                   flags: functional
                   fail_ci_if_error: true
 
@@ -100,6 +105,12 @@ jobs:
             - name: Functional tests
               run: yarn test __tests__/functional/core-database/ --coverage --coverageDirectory .coverage/functional/core-database/
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/core-database/lcov.info
+
     bridgechain-registration:
         runs-on: ubuntu-latest
 
@@ -148,6 +159,12 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/bridgechain-registration/lcov.info
 
     bridgechain-resignation:
         runs-on: ubuntu-latest
@@ -198,6 +215,12 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/bridgechain-resignation/lcov.info
+
     bridgechain-update:
         runs-on: ubuntu-latest
 
@@ -246,6 +269,12 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/bridgechain-update/lcov.info
 
     business-registration:
         runs-on: ubuntu-latest
@@ -296,6 +325,12 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/business-registration/lcov.info
+
     business-resignation:
         runs-on: ubuntu-latest
 
@@ -344,6 +379,12 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/business-resignation/lcov.info
 
     business-update:
         runs-on: ubuntu-latest
@@ -394,6 +435,12 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/business-update/lcov.info
+
     delegate-registration:
         runs-on: ubuntu-latest
 
@@ -442,6 +489,12 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/delegate-registration/lcov.info
 
     delegate-resignation:
         runs-on: ubuntu-latest
@@ -492,6 +545,12 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/delegate-resignation/lcov.info
+
     htlc-claim:
         runs-on: ubuntu-latest
 
@@ -540,6 +599,12 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/htlc-claim/lcov.info
 
     htlc-lock:
         runs-on: ubuntu-latest
@@ -590,6 +655,12 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/htlc-lock/lcov.info
+
     htlc-refund:
         runs-on: ubuntu-latest
 
@@ -638,6 +709,12 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/htlc-refund/lcov.info
 
     ipfs:
         runs-on: ubuntu-latest
@@ -688,6 +765,12 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/ipfs/lcov.info
+
     multi-payment:
         runs-on: ubuntu-latest
 
@@ -736,6 +819,12 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: functional-codecov
+                  path: .coverage/functional/transaction-forging/multi-payment/lcov.info
 
     multi-signature-registration:
         runs-on: ubuntu-latest
@@ -786,6 +875,12 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: codecov-functional
+                  path: .coverage/functional/transaction-forging/multi-signature-registration/lcov.info
+
     second-signature-registration:
         runs-on: ubuntu-latest
 
@@ -834,6 +929,12 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: codecov-functional
+                  path: .coverage/functional/transaction-forging/second-signature-registration/lcov.info
 
     transfer:
         runs-on: ubuntu-latest
@@ -884,6 +985,12 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: codecov-functional
+                  path: .coverage/functional/transaction-forging/transfer/lcov.info
+
     vote:
         runs-on: ubuntu-latest
 
@@ -932,6 +1039,12 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: codecov-functional
+                  path: .coverage/functional/transaction-forging/vote/lcov.info
 
     entity-register:
         runs-on: ubuntu-latest
@@ -982,6 +1095,12 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: codecov-functional
+                  path: .coverage/functional/transaction-forging/entity-register/lcov.info
+
     entity-resign:
         runs-on: ubuntu-latest
 
@@ -1031,6 +1150,12 @@ jobs:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
 
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: codecov-functional
+                  path: .coverage/functional/transaction-forging/entity-resign/lcov.info
+
     entity-update:
         runs-on: ubuntu-latest
 
@@ -1079,3 +1204,9 @@ jobs:
               env:
                   CORE_DB_DATABASE: ark_unitnet
                   CORE_DB_USERNAME: ark
+
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
+              with:
+                  name: codecov-functional
+                  path: .coverage/functional/transaction-forging/entity-update/lcov.info
