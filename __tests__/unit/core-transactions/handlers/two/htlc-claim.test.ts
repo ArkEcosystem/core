@@ -203,6 +203,7 @@ describe("Htlc claim", () => {
                     cb(htlcLockTransaction);
                 });
                 await expect(handler.bootstrap()).toResolve();
+                // TODO: assert wallet repository
             });
         });
 
