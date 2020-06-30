@@ -40,6 +40,8 @@ jobs:
                 node-version: [12.x]
 
         steps:
+            - uses: actions/checkout@v1
+
             - name: Download code coverage
               uses: actions/download-artifact@v2
               with:
