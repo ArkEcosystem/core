@@ -43,7 +43,7 @@ jobs:
             - name: Codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: .coverage/functional/**/lcov.info
+                  file: '.coverage/functional/**/lcov.info'
                   flags: functional
                   fail_ci_if_error: true
 
