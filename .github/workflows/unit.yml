@@ -9,6 +9,44 @@ on:
         types: [ready_for_review, synchronize, opened]
 
 jobs:
+    codecov:
+        needs:
+            - core
+            - core-api
+            - core-blockchain
+            - core-cli
+            - core-database
+            - core-forger
+            - core-kernel
+            - core-logger-pino
+            - core-magistrate-api
+            - core-magistrate-crypto
+            - core-magistrate-transactions
+            - core-manager
+            - core-p2p
+            - core-snapshots
+            - core-state
+            - core-test-framework
+            - core-transaction-pool
+            - core-transactions
+            - core-webhooks
+            - crypto
+
+
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - name: Codecov
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .coverage/unit/**/lcov.info
+                  flags: unit
+                  fail_ci_if_error: true
+
     core:
         runs-on: ubuntu-latest
 
@@ -36,13 +74,6 @@ jobs:
 
             - name: Test
               run: yarn test __tests__/unit/core/ --coverage --coverageDirectory .coverage/unit/core
-
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
 
     core-api:
         runs-on: ubuntu-latest
@@ -72,13 +103,6 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-api/ --coverage --coverageDirectory .coverage/unit/core-api
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-api/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
-
     core-blockchain:
         runs-on: ubuntu-latest
 
@@ -106,13 +130,6 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-blockchain/ --coverage --coverageDirectory .coverage/unit/core-blockchain
-
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-blockchain/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
 
     core-cli:
         runs-on: ubuntu-latest
@@ -142,13 +159,6 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-cli/ --coverage --coverageDirectory .coverage/unit/core-cli
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-cli/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
-
     core-database:
         runs-on: ubuntu-latest
 
@@ -176,13 +186,6 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-database/ --coverage --coverageDirectory .coverage/unit/core-database
-
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-database/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
 
     core-forger:
         runs-on: ubuntu-latest
@@ -212,13 +215,6 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-forger/ --coverage --coverageDirectory .coverage/unit/core-forger
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-forger/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
-
     core-kernel:
         runs-on: ubuntu-latest
 
@@ -246,13 +242,6 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-kernel/ --coverage --coverageDirectory .coverage/unit/core-kernel
-
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-kernel/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
 
     core-logger-pino:
         runs-on: ubuntu-latest
@@ -282,13 +271,6 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-logger-pino/ --coverage --coverageDirectory .coverage/unit/core-logger-pino
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-logger-pino/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
-
     core-magistrate-api:
         runs-on: ubuntu-latest
 
@@ -316,13 +298,6 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-magistrate-api/ --coverage --coverageDirectory .coverage/unit/core-magistrate-api
-
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-magistrate-api/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
 
     core-magistrate-crypto:
         runs-on: ubuntu-latest
@@ -352,13 +327,6 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-magistrate-crypto/ --coverage --coverageDirectory .coverage/unit/core-magistrate-crypto
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-magistrate-crypto/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
-
     core-magistrate-transactions:
         runs-on: ubuntu-latest
 
@@ -386,13 +354,6 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-magistrate-transactions/ --coverage --coverageDirectory .coverage/unit/core-magistrate-transactions
-
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-magistrate-transactions/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
 
     core-manager:
         runs-on: ubuntu-latest
@@ -422,13 +383,6 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-manager/ --coverage --coverageDirectory .coverage/unit/core-manager
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-manager/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
-
     core-p2p:
         runs-on: ubuntu-latest
 
@@ -456,13 +410,6 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-p2p/ --coverage --coverageDirectory .coverage/unit/core-p2p
-
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-p2p/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
 
     core-snapshots:
         runs-on: ubuntu-latest
@@ -492,13 +439,6 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-snapshots/ --coverage --coverageDirectory .coverage/unit/core-snapshots
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-snapshots/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
-
     core-state:
         runs-on: ubuntu-latest
 
@@ -526,13 +466,6 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-state/ --coverage --coverageDirectory .coverage/unit/core-state
-
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-state/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
 
     core-test-framework:
         runs-on: ubuntu-latest
@@ -562,13 +495,6 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-test-framework/ --coverage --coverageDirectory .coverage/unit/core-test-framework
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-test-framework/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
-
     core-transaction-pool:
         runs-on: ubuntu-latest
 
@@ -596,13 +522,6 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/core-transaction-pool/ --coverage --coverageDirectory .coverage/unit/core-transaction-pool
-
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-transaction-pool/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
 
     core-transactions:
         runs-on: ubuntu-latest
@@ -632,13 +551,6 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-transactions/ --coverage --coverageDirectory .coverage/unit/core-transactions
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-transactions/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
-
     core-webhooks:
         runs-on: ubuntu-latest
 
@@ -667,13 +579,6 @@ jobs:
             - name: Test
               run: yarn test:parallel __tests__/unit/core-webhooks/ --coverage --coverageDirectory .coverage/unit/core-webhooks
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/core-webhooks/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
-
     crypto:
         runs-on: ubuntu-latest
 
@@ -701,10 +606,3 @@ jobs:
 
             - name: Test
               run: yarn test:parallel __tests__/unit/crypto/ --coverage --coverage --coverageDirectory .coverage/unit/crypto
-
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/unit/crypto/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
