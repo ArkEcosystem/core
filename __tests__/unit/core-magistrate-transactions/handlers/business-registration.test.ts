@@ -19,11 +19,10 @@ import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
+import _ from "lodash";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 import { Assets } from "./__fixtures__";
-import _ from "lodash";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -36,15 +35,20 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const transactionHistoryService = {
+    streamManyByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
+    transactionHistoryService.streamManyByCriteria.mockReset();
+
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    Mocks.TransactionRepository.setTransactions([]);
-
     app = initApp();
 
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
@@ -90,9 +94,9 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(businessRegistrationTransaction),
-            ]);
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                cb(businessRegistrationTransaction.data);
+            });
 
             await expect(handler.bootstrap()).toResolve();
 
