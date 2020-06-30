@@ -8,13 +8,13 @@ import { Repository } from "../contracts";
 export class BlockRepository extends Repositories.AbstractRepository<Models.Block> implements Repository {
     public async getReadStream(start: number, end: number): Promise<NodeJS.ReadableStream> {
         return this.createQueryBuilder()
-            .where("height >= :start AND height < :end", { start, end })
+            .where("height >= :start AND height <= :end", { start, end })
             .orderBy("height", "ASC")
             .stream();
     }
 
     public async countInRange(start: number, end: number): Promise<number> {
-        return this.createQueryBuilder().where("height >= :start AND height < :end", { start, end }).getCount();
+        return this.createQueryBuilder().where("height >= :start AND height <= :end", { start, end }).getCount();
     }
 
     public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<void> {
