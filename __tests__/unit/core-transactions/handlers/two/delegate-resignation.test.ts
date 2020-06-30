@@ -49,6 +49,8 @@ const transactionHistoryService = {
 };
 
 beforeEach(() => {
+    transactionHistoryService.streamManyByCriteria.mockReset();
+
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);

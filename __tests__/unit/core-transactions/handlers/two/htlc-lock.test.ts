@@ -45,12 +45,19 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const transactionHistoryService = {
+    streamManyByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
+    transactionHistoryService.streamManyByCriteria.mockReset();
+
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
@@ -142,18 +149,25 @@ describe("Htlc lock", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
-                Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
+                transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                    cb(htlcLockTransaction);
+                });
+
                 await expect(handler.bootstrap()).toResolve();
+                // TODO: assert wallet repository
             });
 
             it("should resolve with open transaction", async () => {
-                const mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
+                const mockHtlcLockTransaction = Mapper.mapTransactionToModel(htlcLockTransaction);
                 // @ts-ignore
-                mockHtlcLockTransacton.open = true;
+                mockHtlcLockTransaction.open = true;
 
-                Mocks.TransactionRepository.setTransactions([mockHtlcLockTransacton]);
+                transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                    cb(mockHtlcLockTransaction);
+                });
 
                 await expect(handler.bootstrap()).toResolve();
+                // TODO: assert wallet repository
             });
 
             it("should resolve with open transaction using vendor field", async () => {
@@ -169,12 +183,16 @@ describe("Htlc lock", () => {
                     .sign(passphrases[0])
                     .build();
 
-                const mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
+                const mockHtlcLockTransaction = Mapper.mapTransactionToModel(htlcLockTransaction);
                 // @ts-ignore
-                mockHtlcLockTransacton.open = true;
+                mockHtlcLockTransaction.open = true;
 
-                Mocks.TransactionRepository.setTransactions([mockHtlcLockTransacton]);
+                transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                    cb(mockHtlcLockTransaction);
+                });
+
                 await expect(handler.bootstrap()).toResolve();
+                // TODO: assert wallet repository
             });
         });
 
