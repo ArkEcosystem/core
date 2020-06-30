@@ -102,6 +102,18 @@ describe("BusinessRegistration", () => {
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessRegistrationAsset);
         });
+
+        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
+            await expect(handler.bootstrap()).toResolve();
+
+            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
+                {
+                    typeGroup: Enums.MagistrateTransactionGroup,
+                    type: Enums.MagistrateTransactionType.BusinessRegistration,
+                },
+                expect.any(Function),
+            );
+        });
     });
 
     describe("emitEvents", () => {

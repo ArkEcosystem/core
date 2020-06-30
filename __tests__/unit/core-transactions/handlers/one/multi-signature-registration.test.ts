@@ -135,7 +135,21 @@ describe("MultiSignatureRegistrationTransaction", () => {
             transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
                 cb(multiSignatureTransaction.data);
             });
+
             await expect(handler.bootstrap()).toResolve();
+        });
+
+        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
+            await expect(handler.bootstrap()).toResolve();
+
+            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
+                {
+                    typeGroup: Enums.TransactionTypeGroup.Core,
+                    type: Enums.TransactionType.MultiSignature,
+                    version: 1,
+                },
+                expect.any(Function),
+            );
         });
 
         it("should throw when wallet has multi signature", async () => {

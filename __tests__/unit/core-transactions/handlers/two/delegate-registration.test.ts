@@ -112,12 +112,26 @@ describe("DelegateRegistrationTransaction", () => {
             Mocks.BlockRepository.setLastForgedBlocks([]);
         });
 
+        // TODO: assert wallet repository
+
         it("should resolve", async () => {
             transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
                 cb(delegateRegistrationTransaction.data);
             });
+
             await expect(handler.bootstrap()).toResolve();
-            // TODO: assert wallet repository
+        });
+
+        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
+            await expect(handler.bootstrap()).toResolve();
+
+            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
+                {
+                    typeGroup: Enums.TransactionTypeGroup.Core,
+                    type: Enums.TransactionType.DelegateRegistration,
+                },
+                expect.any(Function),
+            );
         });
 
         it("should resolve with bocks", async () => {

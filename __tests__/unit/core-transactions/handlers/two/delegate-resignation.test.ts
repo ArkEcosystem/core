@@ -142,13 +142,26 @@ describe("DelegateResignationTransaction", () => {
     });
 
     describe("bootstrap", () => {
+        // TODO: assert wallet repository
+
         it("should resolve", async () => {
             transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
                 cb(delegateResignationTransaction.data);
             });
 
             await expect(handler.bootstrap()).toResolve();
-            // TODO: assert wallet repository
+        });
+
+        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
+            await expect(handler.bootstrap()).toResolve();
+
+            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
+                {
+                    typeGroup: Enums.TransactionTypeGroup.Core,
+                    type: Enums.TransactionType.DelegateResignation,
+                },
+                expect.any(Function),
+            );
         });
 
         it("should resolve - simulate genesis wallet", async () => {
@@ -161,7 +174,6 @@ describe("DelegateResignationTransaction", () => {
             });
 
             await expect(handler.bootstrap()).toResolve();
-            // TODO: assert wallet repository
         });
     });
 
