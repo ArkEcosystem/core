@@ -25,9 +25,9 @@ export class EntityRegisterSubHandler {
             const entities: IEntitiesWallet = wallet.getAttribute<IEntitiesWallet>("entities", {});
 
             entities[transaction.id] = {
-                type: entities[transaction.asset.registrationId].type,
-                subType: entities[transaction.asset.registrationId].subType,
-                data: entities[transaction.asset.registrationId].data,
+                type: transaction.asset.type,
+                subType: transaction.asset.subType,
+                data: transaction.asset.data,
             };
 
             wallet.setAttribute("entities", entities);

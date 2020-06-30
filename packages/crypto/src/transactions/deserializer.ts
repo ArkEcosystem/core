@@ -45,7 +45,11 @@ export class Deserializer {
         this.deserializeSignatures(data, buffer);
 
         if (data.version) {
-            if (options.acceptLegacyVersion || isSupportedTransactionVersion(data.version)) {
+            if (
+                options.acceptLegacyVersion ||
+                options.disableVersionCheck ||
+                isSupportedTransactionVersion(data.version)
+            ) {
                 if (data.version === 1) {
                     this.applyV1Compatibility(data);
                 }

@@ -1,11 +1,10 @@
-import { Crypto, Blocks, Utils, Networks, Transactions, Identities, Managers } from "@arkecosystem/crypto";
 import { Container } from "@arkecosystem/core-kernel";
-
-import { PeerController } from "@arkecosystem/core-p2p/src/socket-server/controllers/peer";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { MissingCommonBlockError } from "@arkecosystem/core-p2p/src/errors";
-import { getPeerConfig } from "@arkecosystem/core-p2p/src/socket-server/utils/get-peer-config";
+import { Peer } from "@arkecosystem/core-p2p/src/peer";
+import { PeerController } from "@arkecosystem/core-p2p/src/socket-server/controllers/peer";
 import { TooManyTransactionsError, UnchainedBlockError } from "@arkecosystem/core-p2p/src/socket-server/errors";
+import { getPeerConfig } from "@arkecosystem/core-p2p/src/socket-server/utils/get-peer-config";
+import { Blocks, Crypto, Identities, Managers, Networks, Transactions, Utils } from "@arkecosystem/crypto";
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
 
@@ -24,14 +23,14 @@ describe("PeerController", () => {
         getLastDownloadedBlock: jest.fn(),
     };
     const createProcessor = jest.fn();
-    const appPlugins = [ { package: "@arkecosystem/core-api", options: {} } ];
+    const appPlugins = [{ package: "@arkecosystem/core-api", options: {} }];
     const coreApiServiceProvider = {
         name: () => "core-api",
         configDefaults: () => ({
-            server: { http: { port: 4003 } }
+            server: { http: { port: 4003 } },
         }),
     };
-    const serviceProviders = { "@arkecosystem/core-api": coreApiServiceProvider, };
+    const serviceProviders = { "@arkecosystem/core-api": coreApiServiceProvider };
     const configRepository = { get: () => appPlugins }; // get("app.plugins")
     const serviceProviderRepository = { get: (plugin) => serviceProviders[plugin] };
     const appGet = {
@@ -48,10 +47,15 @@ describe("PeerController", () => {
         resolve: () => ({
             from: () => ({
                 merge: () => ({
-                    all: () => ({ server: { http: { port: "4003" } } })
-                })
-            })
-        })
+                    all: () => ({
+                        server: { http: { port: "4003" } },
+                        options: {
+                            estimateTotalCount: true,
+                        },
+                    }),
+                }),
+            }),
+        }),
     };
 
     beforeAll(() => {
@@ -191,7 +195,7 @@ describe("PeerController", () => {
                     .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
                     .fee("100")
                     .sign("sender's secret")
-                    .build()
+                    .build(),
             ],
         } as Blocks.Block;
         const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
@@ -202,7 +206,7 @@ describe("PeerController", () => {
                 blockTooManyTxs.data.numberOfTransactions = 350;
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions({
                     ...blockTooManyTxs.data,
-                    transactions: blockTooManyTxs.transactions.map(tx => tx.data)
+                    transactions: blockTooManyTxs.transactions.map((tx) => tx.data),
                 });
 
                 await expect(
@@ -215,16 +219,16 @@ describe("PeerController", () => {
                 const blockTooManyTxs = deepClone(block);
 
                 const transactions = [];
-                for(let i = 0; i < 2; i++) {
+                for (let i = 0; i < 2; i++) {
                     transactions.push(
                         Transactions.BuilderFactory.transfer()
                             .version(2)
                             .amount("100")
                             .recipientId(Identities.Address.fromPassphrase(`recipient secret ${i}`))
                             .fee("100")
-                            .nonce(`${i+1}`)
+                            .nonce(`${i + 1}`)
                             .sign(`sender secret ${i}`)
-                            .build()
+                            .build(),
                     );
                 }
                 blockTooManyTxs.transactions = transactions;
@@ -232,38 +236,38 @@ describe("PeerController", () => {
 
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions({
                     ...blockTooManyTxs.data,
-                    transactions: transactions.map(tx => tx.data),
+                    transactions: transactions.map((tx) => tx.data),
                 });
 
                 // this is a trick to make the first numberOfTransactions check pass
                 // but then transactions.length fail
                 // probably some unreachable code though...
                 const milestone = Managers.configManager.getMilestone();
-                const spyGetMilestone = jest.spyOn(Managers.configManager, "getMilestone")
+                const spyGetMilestone = jest.spyOn(Managers.configManager, "getMilestone");
                 for (let i = 0; i < 71; i++) {
                     // yeah 71 times :wtf: before the one we are interested to mock kicks in
                     spyGetMilestone.mockReturnValueOnce({
                         ...milestone,
                         block: {
-                            maxTransactions: 150
-                        }
-                    })
+                            maxTransactions: 150,
+                        },
+                    });
                 }
                 spyGetMilestone.mockReturnValueOnce({
                     ...milestone,
                     block: {
-                        maxTransactions: 1
-                    }
-                })
+                        maxTransactions: 1,
+                    },
+                });
 
                 await expect(
                     peerController.postBlock(
                         {
                             payload: { block: { data: blockSerialized } },
-                            info: { remoteAddress: "187.55.33.22" }
+                            info: { remoteAddress: "187.55.33.22" },
                         },
-                        {}
-                    )
+                        {},
+                    ),
                 ).rejects.toBeInstanceOf(TooManyTransactionsError);
 
                 spyGetMilestone.mockRestore();
@@ -271,40 +275,42 @@ describe("PeerController", () => {
         });
 
         describe("when block is not chained", () => {
-            it.each([[true], [false]])
-            ("should throw UnchainedBlockError only if block is not known", async (blockPing) => {
-                blockchain.getLastDownloadedBlock = jest.fn().mockReturnValueOnce(Networks.testnet.genesisBlock);
-                const blockUnchained = deepClone(block);
-                blockUnchained.data.height = 9;
-                const blockSerialized = Blocks.Serializer.serializeWithTransactions({
-                    ...blockUnchained.data,
-                    transactions: blockUnchained.transactions.map(tx => tx.data)
-                });
+            it.each([[true], [false]])(
+                "should throw UnchainedBlockError only if block is not known",
+                async (blockPing) => {
+                    blockchain.getLastDownloadedBlock = jest.fn().mockReturnValueOnce(Networks.testnet.genesisBlock);
+                    const blockUnchained = deepClone(block);
+                    blockUnchained.data.height = 9;
+                    const blockSerialized = Blocks.Serializer.serializeWithTransactions({
+                        ...blockUnchained.data,
+                        transactions: blockUnchained.transactions.map((tx) => tx.data),
+                    });
 
-                if (blockPing) {
-                    blockchain.pingBlock = jest.fn().mockReturnValueOnce(true);
-                    await expect(
-                        peerController.postBlock(
-                            {
-                                payload: { block: { data: blockSerialized } },
-                                info: { remoteAddress: "187.55.33.22" },
-                            },
-                            {},
-                        ),
-                    ).toResolve();
-                    expect(blockchain.handleIncomingBlock).toBeCalledTimes(0);
-                } else {
-                    await expect(
-                        peerController.postBlock(
-                            {
-                                payload: { block: { data: blockSerialized } },
-                                info: { remoteAddress: "187.55.33.22" },
-                            },
-                            {},
-                        ),
-                    ).rejects.toBeInstanceOf(UnchainedBlockError);
-                }
-            });
+                    if (blockPing) {
+                        blockchain.pingBlock = jest.fn().mockReturnValueOnce(true);
+                        await expect(
+                            peerController.postBlock(
+                                {
+                                    payload: { block: { data: blockSerialized } },
+                                    info: { remoteAddress: "187.55.33.22" },
+                                },
+                                {},
+                            ),
+                        ).toResolve();
+                        expect(blockchain.handleIncomingBlock).toBeCalledTimes(0);
+                    } else {
+                        await expect(
+                            peerController.postBlock(
+                                {
+                                    payload: { block: { data: blockSerialized } },
+                                    info: { remoteAddress: "187.55.33.22" },
+                                },
+                                {},
+                            ),
+                        ).rejects.toBeInstanceOf(UnchainedBlockError);
+                    }
+                },
+            );
         });
 
         describe("when block comes from forger", () => {
@@ -315,7 +321,7 @@ describe("PeerController", () => {
 
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
-                    transactions: block.transactions.map(tx => tx.data)
+                    transactions: block.transactions.map((tx) => tx.data),
                 });
                 await peerController.postBlock(
                     {
@@ -339,7 +345,7 @@ describe("PeerController", () => {
 
                 const blockSerialized = Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
-                    transactions: block.transactions.map(tx => tx.data)
+                    transactions: block.transactions.map((tx) => tx.data),
                 });
                 await peerController.postBlock(
                     {

@@ -15,6 +15,8 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
     protected signWithSenderAsRecipient = false;
 
+    private disableVersionCheck = false;
+
     public constructor() {
         this.data = {
             id: undefined,
@@ -26,12 +28,14 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public build(data: Partial<ITransactionData> = {}): ITransaction {
-        return TransactionFactory.fromData({ ...this.data, ...data }, false);
+        return TransactionFactory.fromData({ ...this.data, ...data }, false, {
+            disableVersionCheck: this.disableVersionCheck,
+        });
     }
 
     public version(version: number): TBuilder {
         this.data.version = version;
-
+        this.disableVersionCheck = true;
         return this.instance();
     }
 
@@ -134,7 +138,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public verify(): boolean {
-        return Verifier.verifyHash(this.data);
+        return Verifier.verifyHash(this.data, this.disableVersionCheck);
     }
 
     public getStruct(): ITransactionData {
@@ -174,7 +178,9 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             this.data.recipientId = Address.fromPublicKey(keys.publicKey, this.data.network);
         }
 
-        this.data.signature = Signer.sign(this.getSigningObject(), keys);
+        this.data.signature = Signer.sign(this.getSigningObject(), keys, {
+            disableVersionCheck: this.disableVersionCheck,
+        });
 
         return this.instance();
     }

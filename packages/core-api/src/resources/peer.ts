@@ -30,6 +30,7 @@ export class PeerResource implements Resource {
             version: resource.version,
             height: resource.state ? resource.state.height : resource.height,
             latency: resource.latency,
+            plugins: resource.plugins,
         };
     }
 }
