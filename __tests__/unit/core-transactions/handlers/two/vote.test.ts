@@ -18,8 +18,8 @@ import {
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import {
     buildMultiSignatureWallet,
@@ -28,7 +28,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -44,12 +43,19 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const transactionHistoryService = {
+    streamManyByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
+    transactionHistoryService.streamManyByCriteria.mockReset();
+
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
@@ -66,10 +72,6 @@ beforeEach(() => {
     walletRepository.index(secondSignatureWallet);
     walletRepository.index(multiSignatureWallet);
     walletRepository.index(recipientWallet);
-});
-
-afterEach(() => {
-    Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("VoteTransaction", () => {
@@ -150,26 +152,32 @@ describe("VoteTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(voteTransaction)]);
-            await expect(handler.bootstrap()).toResolve();
-
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(unvoteTransaction)]);
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                cb(voteTransaction.data);
+                cb(unvoteTransaction.data);
+            });
             await expect(handler.bootstrap()).toResolve();
         });
 
         it("should throw on vote if wallet already voted", async () => {
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(voteTransaction)]);
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                cb(voteTransaction.data);
+            });
             senderWallet.setAttribute("vote", delegateWallet.publicKey);
             await expect(handler.bootstrap()).rejects.toThrow(AlreadyVotedError);
         });
 
         it("should throw on unvote if wallet did not vote", async () => {
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(unvoteTransaction)]);
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                cb(unvoteTransaction.data);
+            });
             await expect(handler.bootstrap()).rejects.toThrow(NoVoteError);
         });
 
         it("should throw on unvote if wallet vote is mismatch", async () => {
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(unvoteTransaction)]);
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                cb(unvoteTransaction.data);
+            });
             senderWallet.setAttribute("vote", "no_a_public_key");
             await expect(handler.bootstrap()).rejects.toThrow(UnvoteMismatchError);
         });

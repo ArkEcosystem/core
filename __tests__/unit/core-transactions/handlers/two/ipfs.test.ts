@@ -11,8 +11,9 @@ import { InsufficientBalanceError, IpfsHashAlreadyExists } from "@packages/core-
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+
 import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
@@ -20,7 +21,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -36,12 +36,19 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const transactionHistoryService = {
+    streamManyByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
+    transactionHistoryService.streamManyByCriteria.mockReset();
+
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
@@ -58,10 +65,6 @@ beforeEach(() => {
     walletRepository.index(secondSignatureWallet);
     walletRepository.index(multiSignatureWallet);
     walletRepository.index(recipientWallet);
-});
-
-afterEach(() => {
-    Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("Ipfs", () => {
@@ -104,7 +107,9 @@ describe("Ipfs", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(ipfsTransaction)]);
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                cb(ipfsTransaction.data);
+            });
             await expect(handler.bootstrap()).toResolve();
         });
     });

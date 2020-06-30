@@ -21,11 +21,10 @@ import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset, IMultiSignatureLegacyAsset } from "@packages/crypto/src/interfaces";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { buildRecipientWallet, buildSecondSignatureWallet, buildSenderWallet, initApp } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -40,12 +39,19 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const transactionHistoryService = {
+    streamManyByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
+    transactionHistoryService.streamManyByCriteria.mockReset();
+
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
@@ -60,10 +66,6 @@ beforeEach(() => {
     walletRepository.index(senderWallet);
     walletRepository.index(secondSignatureWallet);
     walletRepository.index(recipientWallet);
-});
-
-afterEach(() => {
-    Mocks.TransactionRepository.setTransactions([]);
 });
 
 describe("MultiSignatureRegistrationTransaction", () => {
@@ -135,12 +137,16 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(multiSignatureTransaction)]);
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                cb(multiSignatureTransaction.data);
+            });
             await expect(handler.bootstrap()).toResolve();
         });
 
-        it("should throw if wallet is mutli signature", async () => {
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(multiSignatureTransaction)]);
+        it("should throw if wallet is multi signature", async () => {
+            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
+                cb(multiSignatureTransaction.data);
+            });
             recipientWallet.setAttribute("multiSignature", multiSignatureTransaction.data.asset!.multiSignature);
             await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
         });
