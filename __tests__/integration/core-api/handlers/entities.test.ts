@@ -59,6 +59,22 @@ describe("API 2.0 - Entities", () => {
             expect(response.data.data[0]).toEqual(expectedApiEntity);
         });
 
+        it("should GET all entities - when entity is resigned", async () => {
+            wallet = walletManager.findByPublicKey(walletPublicKey);
+            wallet.setAttribute("entities", {
+                [registrationTxId]: { ...entityRegistrationAsset, resigned: true },
+            });
+            walletManager.reindex(wallet);
+
+            const response = await utils.request("GET", `entities`);
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(1);
+
+            expect(response.data.meta.totalCount).toBe(1);
+            expect(response.data.data[0]).toEqual({ ...expectedApiEntity, isResigned: true });
+        });
+
         it("should give correct meta data", async () => {
             const response = await utils.request("GET", "entities");
             expect(response).toBeSuccessfulResponse();
@@ -83,6 +99,19 @@ describe("API 2.0 - Entities", () => {
             expect(response).toBeSuccessfulResponse();
 
             expect(response.data.data).toEqual(expectedApiEntity);
+        });
+
+        it("should return wallet with registered entity - when entity is resigned", async () => {
+            wallet = walletManager.findByPublicKey(walletPublicKey);
+            wallet.setAttribute("entities", {
+                [registrationTxId]: { ...entityRegistrationAsset, resigned: true },
+            });
+            walletManager.reindex(wallet);
+
+            const response = await utils.request("GET", `entities/${registrationTxId}`);
+            expect(response).toBeSuccessfulResponse();
+
+            expect(response.data.data).toEqual({ ...expectedApiEntity, isResigned: true });
         });
 
         it("should return error if entity not found", async () => {
