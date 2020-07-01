@@ -193,6 +193,23 @@ describe("BlocksController", () => {
             expect(response.data).toBeDefined();
             expect(response.data).toEqual(mockBlockJson);
         });
+
+        it("should return first block from store using transform option", async () => {
+            Mocks.StateStore.setBlock({ data: mockBlock } as Partial<Interfaces.IBlock>);
+
+            const request: Hapi.Request = {
+                query: {
+                    page: 1,
+                    limit: 100,
+                    transform: true,
+                },
+            };
+
+            const response = (await controller.first(request, undefined)) as ItemResponse;
+
+            expect(response.data).toBeDefined();
+            expect(response.data).toEqual(mockBlockJson);
+        });
     });
 
     describe("last", () => {
