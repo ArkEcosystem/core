@@ -19,7 +19,6 @@ export class EntityRegisterSubHandler {
             Utils.assert.defined<string>(transaction.id);
             Utils.assert.defined<string>(transaction.senderPublicKey);
             Utils.assert.defined<object>(transaction.asset);
-            // Utils.assert.defined<IEntityAsset>(transaction.asset); // WTF?
 
             const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
             const entities: IEntitiesWallet = wallet.getAttribute<IEntitiesWallet>("entities", {});
