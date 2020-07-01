@@ -36,7 +36,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.asset?.multiSignature);
 
             const multiSignature: Contracts.State.WalletMultiSignatureAttributes = transaction.asset.multiSignature!;
@@ -50,7 +50,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
             wallet.setAttribute("multiSignature", multiSignature);
             this.walletRepository.index(wallet);
-        });
+        }
     }
 
     public async isActivated(): Promise<boolean> {

@@ -43,11 +43,11 @@ StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 const transactionHistoryService = {
-    streamManyByCriteria: jest.fn(),
+    streamByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
-    transactionHistoryService.streamManyByCriteria.mockReset();
+    transactionHistoryService.streamByCriteria.mockReset();
 
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
@@ -98,22 +98,16 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(secondSignatureTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield secondSignatureTransaction.data;
             });
-            await expect(handler.bootstrap()).toResolve();
-        });
 
-        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
             await expect(handler.bootstrap()).toResolve();
 
-            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
-                {
-                    typeGroup: Enums.TransactionTypeGroup.Core,
-                    type: Enums.TransactionType.SecondSignature,
-                },
-                expect.any(Function),
-            );
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.SecondSignature,
+            });
         });
     });
 

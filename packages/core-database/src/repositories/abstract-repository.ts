@@ -18,40 +18,16 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         return queryBuilder.getMany();
     }
 
-    public async streamManyByExpression(
-        expression: Contracts.Search.Expression<TEntity>,
-        cb: (entity: TEntity) => void,
-    ): Promise<void> {
-        const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select("*");
+    public async *streamByExpression(expression: Contracts.Search.Expression<TEntity>): AsyncIterable<TEntity> {
         const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
-        queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
+        const stream = await this.createQueryBuilder()
+            .select("*")
+            .where(sqlExpression.query, sqlExpression.parameters)
+            .stream();
 
-        const stream = await queryBuilder.stream();
-
-        await new Promise((resolve, reject) => {
-            let err: Error | undefined;
-
-            const onData = (raw: Record<string, any>) => {
-                try {
-                    cb(this.rawToEntity(raw));
-                } catch (error) {
-                    err = error;
-                    throw err;
-                }
-            };
-
-            const onError = (error: Error) => {
-                if (!err) {
-                    err = error;
-                }
-            };
-
-            const onEnd = () => {
-                err ? reject(err) : resolve();
-            };
-
-            stream.on("data", onData).on("error", onError).on("end", onEnd).resume();
-        });
+        for await (const raw of stream) {
+            yield this.rawToEntity(raw);
+        }
     }
 
     public async listByExpression(

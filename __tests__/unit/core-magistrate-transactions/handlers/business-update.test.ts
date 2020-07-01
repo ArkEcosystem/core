@@ -43,7 +43,7 @@ mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 const transactionHistoryService = {
     findManyByCriteria: jest.fn(),
-    streamManyByCriteria: jest.fn(),
+    streamByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
@@ -111,25 +111,17 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(businessUpdateTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield businessUpdateTransaction.data;
             });
 
             await expect(handler.bootstrap()).toResolve();
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessUpdateAsset);
-        });
-
-        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
-            await expect(handler.bootstrap()).toResolve();
-
-            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
-                {
-                    typeGroup: Enums.MagistrateTransactionGroup,
-                    type: Enums.MagistrateTransactionType.BusinessUpdate,
-                },
-                expect.any(Function),
-            );
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.MagistrateTransactionGroup,
+                type: Enums.MagistrateTransactionType.BusinessUpdate,
+            });
         });
     });
 

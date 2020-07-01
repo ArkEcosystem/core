@@ -19,7 +19,7 @@ export class DelegateRegistrationTransactionHandler extends One.DelegateRegistra
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
             AppUtils.assert.defined<string>(transaction.asset?.delegate?.username);
 
@@ -35,7 +35,7 @@ export class DelegateRegistrationTransactionHandler extends One.DelegateRegistra
             });
 
             this.walletRepository.index(wallet);
-        });
+        }
 
         const forgedBlocks = await this.blockRepository.getDelegatesForgedBlocks();
         const lastForgedBlocks = await this.blockRepository.getLastForgedBlocks();

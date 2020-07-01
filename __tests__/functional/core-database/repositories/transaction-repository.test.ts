@@ -478,18 +478,19 @@ describe("TransactionRepository.streamManyByExpression", () => {
         const transactionRepository = getCustomRepository(TransactionRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
 
+        const expression: Contracts.Search.Expression<Contracts.Database.TransactionModel> = {
+            op: "or",
+            expressions: [
+                { property: "id", op: "equal", value: transaction1.id },
+                { property: "id", op: "equal", value: transaction2.id },
+                { property: "id", op: "equal", value: transaction3.id },
+            ],
+        };
         const transactions1And2And3: Contracts.Database.TransactionModel[] = [];
-        await transactionRepository.streamManyByExpression(
-            {
-                op: "or",
-                expressions: [
-                    { property: "id", op: "equal", value: transaction1.id },
-                    { property: "id", op: "equal", value: transaction2.id },
-                    { property: "id", op: "equal", value: transaction3.id },
-                ],
-            },
-            (data) => transactions1And2And3.push(data),
-        );
+        for await (const data of transactionRepository.streamByExpression(expression)) {
+            transactions1And2And3.push(data);
+        }
+
         expect(transactions1And2And3[0].serialized).toEqual(transaction1.serialized);
         expect(transactions1And2And3[1].serialized).toEqual(transaction2.serialized);
         expect(transactions1And2And3[2].serialized).toEqual(transaction3.serialized);

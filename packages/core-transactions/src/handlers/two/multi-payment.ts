@@ -27,7 +27,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
             AppUtils.assert.defined<object>(transaction.asset?.payments);
 
@@ -37,7 +37,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
                 recipient.balance = recipient.balance.plus(payment.amount);
                 sender.balance = sender.balance.minus(payment.amount);
             }
-        });
+        }
     }
 
     public async isActivated(): Promise<boolean> {

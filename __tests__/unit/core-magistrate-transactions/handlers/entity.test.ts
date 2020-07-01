@@ -39,14 +39,14 @@ describe("Entity handler", () => {
 
     const container = new Container.Container();
 
-    const transactionService = {
+    const transactionHistoryService = {
         findOneByCriteria: jest.fn(),
         findManyByCriteria: jest.fn(),
     };
 
     beforeAll(() => {
         container.unbindAll();
-        container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionService);
+        container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
     });
 
     let wallet, walletAttributes;
@@ -338,8 +338,8 @@ describe("Entity handler", () => {
                     },
                     transaction, // the transaction that we are reverting
                 ];
-                transactionService.findOneByCriteria = jest.fn().mockReturnValueOnce(registrationTx);
-                transactionService.findManyByCriteria = jest.fn().mockReturnValueOnce(updateTxs);
+                transactionHistoryService.findOneByCriteria = jest.fn().mockReturnValueOnce(registrationTx);
+                transactionHistoryService.findManyByCriteria = jest.fn().mockReturnValueOnce(updateTxs);
 
                 entityHandler = container.resolve(EntityTransactionHandler);
                 await entityHandler.revertForSender(transaction);

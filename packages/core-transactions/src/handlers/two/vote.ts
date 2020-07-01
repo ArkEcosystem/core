@@ -25,7 +25,7 @@ export class VoteTransactionHandler extends One.VoteTransactionHandler {
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
             AppUtils.assert.defined<string[]>(transaction.asset?.votes);
 
@@ -46,6 +46,6 @@ export class VoteTransactionHandler extends One.VoteTransactionHandler {
                 }
                 wallet.forgetAttribute("vote");
             }
-        });
+        }
     }
 }

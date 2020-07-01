@@ -15,7 +15,7 @@ export class EntityRegisterSubHandler {
         transactionHistoryService: Contracts.Shared.TransactionHistoryService,
         criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<void> {
-        await transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of transactionHistoryService.streamByCriteria(criteria)) {
             Utils.assert.defined<string>(transaction.id);
             Utils.assert.defined<string>(transaction.senderPublicKey);
             Utils.assert.defined<object>(transaction.asset);
@@ -33,7 +33,7 @@ export class EntityRegisterSubHandler {
             wallet.setAttribute("entities", entities);
 
             walletRepository.index(wallet);
-        });
+        }
     }
 
     public async throwIfCannotBeApplied(

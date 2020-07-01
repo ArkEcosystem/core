@@ -18,7 +18,7 @@ export class EntityResignSubHandler {
         transactionHistoryService: Contracts.Shared.TransactionHistoryService,
         criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<void> {
-        await transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of transactionHistoryService.streamByCriteria(criteria)) {
             Utils.assert.defined<string>(transaction.senderPublicKey);
             Utils.assert.defined<object>(transaction.asset);
             // Utils.assert.defined<IEntityAsset>(transaction.asset); // WTF?
@@ -34,7 +34,7 @@ export class EntityResignSubHandler {
             wallet.setAttribute("entities", entities);
 
             walletRepository.index(wallet);
-        });
+        }
     }
 
     public async throwIfCannotBeApplied(

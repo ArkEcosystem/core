@@ -43,11 +43,11 @@ StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 const transactionHistoryService = {
-    streamManyByCriteria: jest.fn(),
+    streamByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
-    transactionHistoryService.streamManyByCriteria.mockReset();
+    transactionHistoryService.streamByCriteria.mockReset();
 
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
@@ -132,31 +132,25 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(multiSignatureTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield multiSignatureTransaction.data;
             });
 
             await expect(handler.bootstrap()).toResolve();
-        });
 
-        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
-            await expect(handler.bootstrap()).toResolve();
-
-            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
-                {
-                    typeGroup: Enums.TransactionTypeGroup.Core,
-                    type: Enums.TransactionType.MultiSignature,
-                    version: 1,
-                },
-                expect.any(Function),
-            );
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.MultiSignature,
+                version: 1,
+            });
         });
 
         it("should throw when wallet has multi signature", async () => {
-            senderWallet.setAttribute("multiSignature", multiSignatureAsset);
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(multiSignatureTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield multiSignatureTransaction.data;
             });
+            senderWallet.setAttribute("multiSignature", multiSignatureAsset);
+
             await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
         });
     });

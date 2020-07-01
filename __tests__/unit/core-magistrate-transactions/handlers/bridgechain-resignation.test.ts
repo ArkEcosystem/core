@@ -44,11 +44,11 @@ StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 const transactionHistoryService = {
-    streamManyByCriteria: jest.fn(),
+    streamByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
-    transactionHistoryService.streamManyByCriteria.mockReset();
+    transactionHistoryService.streamByCriteria.mockReset();
 
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
@@ -125,8 +125,8 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(bridgechainResignationTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield bridgechainResignationTransaction.data;
             });
 
             await expect(handler.bootstrap()).toResolve();
@@ -134,18 +134,11 @@ describe("BusinessRegistration", () => {
             expect(
                 senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].resigned,
             ).toBeTrue();
-        });
 
-        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
-            await expect(handler.bootstrap()).toResolve();
-
-            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
-                {
-                    typeGroup: Enums.MagistrateTransactionGroup,
-                    type: Enums.MagistrateTransactionType.BridgechainResignation,
-                },
-                expect.any(Function),
-            );
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.MagistrateTransactionGroup,
+                type: Enums.MagistrateTransactionType.BridgechainResignation,
+            });
         });
     });
 

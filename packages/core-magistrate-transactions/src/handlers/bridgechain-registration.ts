@@ -43,7 +43,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
             AppUtils.assert.defined<MagistrateInterfaces.IBridgechainRegistrationAsset>(
                 transaction.asset?.bridgechainRegistration,
@@ -64,7 +64,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
             this.walletRepository.index(wallet);
-        });
+        }
     }
 
     public async throwIfCannotBeApplied(

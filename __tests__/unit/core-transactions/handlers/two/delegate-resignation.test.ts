@@ -45,11 +45,11 @@ StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 const transactionHistoryService = {
-    streamManyByCriteria: jest.fn(),
+    streamByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
-    transactionHistoryService.streamManyByCriteria.mockReset();
+    transactionHistoryService.streamByCriteria.mockReset();
 
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
@@ -145,33 +145,24 @@ describe("DelegateResignationTransaction", () => {
         // TODO: assert wallet repository
 
         it("should resolve", async () => {
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(delegateResignationTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield delegateResignationTransaction.data;
             });
 
             await expect(handler.bootstrap()).toResolve();
-        });
 
-        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
-            await expect(handler.bootstrap()).toResolve();
-
-            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
-                {
-                    typeGroup: Enums.TransactionTypeGroup.Core,
-                    type: Enums.TransactionType.DelegateResignation,
-                },
-                expect.any(Function),
-            );
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.DelegateResignation,
+            });
         });
 
         it("should resolve - simulate genesis wallet", async () => {
-            allDelegates[0].forgetAttribute("delegate");
-
-            walletRepository.index(allDelegates[0]);
-
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(delegateResignationTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield delegateResignationTransaction.data;
             });
+            allDelegates[0].forgetAttribute("delegate");
+            walletRepository.index(allDelegates[0]);
 
             await expect(handler.bootstrap()).toResolve();
         });

@@ -39,7 +39,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
             AppUtils.assert.defined<MagistrateInterfaces.IBusinessUpdateAsset>(transaction.asset?.businessUpdate);
 
@@ -54,7 +54,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
                 ...businessWalletAsset,
                 ...businessUpdate,
             });
-        });
+        }
     }
 
     public async throwIfCannotBeApplied(

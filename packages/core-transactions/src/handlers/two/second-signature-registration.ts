@@ -18,12 +18,12 @@ export class SecondSignatureRegistrationTransactionHandler extends One.SecondSig
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
             AppUtils.assert.defined<string>(transaction.asset?.signature?.publicKey);
 
             const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             wallet.setAttribute("secondPublicKey", transaction.asset.signature.publicKey);
-        });
+        }
     }
 }

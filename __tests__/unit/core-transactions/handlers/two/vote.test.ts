@@ -44,11 +44,11 @@ StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 const transactionHistoryService = {
-    streamManyByCriteria: jest.fn(),
+    streamByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
-    transactionHistoryService.streamManyByCriteria.mockReset();
+    transactionHistoryService.streamByCriteria.mockReset();
 
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
@@ -152,43 +152,37 @@ describe("VoteTransaction", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(voteTransaction.data);
-                cb(unvoteTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield voteTransaction.data;
+                yield unvoteTransaction.data;
             });
-            await expect(handler.bootstrap()).toResolve();
-        });
 
-        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
             await expect(handler.bootstrap()).toResolve();
 
-            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
-                {
-                    typeGroup: Enums.TransactionTypeGroup.Core,
-                    type: Enums.TransactionType.Vote,
-                },
-                expect.any(Function),
-            );
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.Vote,
+            });
         });
 
         it("should throw on vote if wallet already voted", async () => {
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(voteTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield voteTransaction.data;
             });
             senderWallet.setAttribute("vote", delegateWallet.publicKey);
             await expect(handler.bootstrap()).rejects.toThrow(AlreadyVotedError);
         });
 
         it("should throw on unvote if wallet did not vote", async () => {
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(unvoteTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield unvoteTransaction.data;
             });
             await expect(handler.bootstrap()).rejects.toThrow(NoVoteError);
         });
 
         it("should throw on unvote if wallet vote is mismatch", async () => {
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(unvoteTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield unvoteTransaction.data;
             });
             senderWallet.setAttribute("vote", "no_a_public_key");
             await expect(handler.bootstrap()).rejects.toThrow(UnvoteMismatchError);

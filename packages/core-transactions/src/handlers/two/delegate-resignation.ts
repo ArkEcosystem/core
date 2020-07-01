@@ -33,13 +33,13 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
 
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             wallet.setAttribute("delegate.resigned", true);
             this.walletRepository.index(wallet);
-        });
+        }
     }
     public async isActivated(): Promise<boolean> {
         return Managers.configManager.getMilestone().aip11 === true;

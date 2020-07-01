@@ -36,11 +36,11 @@ StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 const transactionHistoryService = {
-    streamManyByCriteria: jest.fn(),
+    streamByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
-    transactionHistoryService.streamManyByCriteria.mockReset();
+    transactionHistoryService.streamByCriteria.mockReset();
 
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
@@ -94,25 +94,17 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(businessRegistrationTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield businessRegistrationTransaction.data;
             });
 
             await expect(handler.bootstrap()).toResolve();
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessRegistrationAsset);
-        });
-
-        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
-            await expect(handler.bootstrap()).toResolve();
-
-            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
-                {
-                    typeGroup: Enums.MagistrateTransactionGroup,
-                    type: Enums.MagistrateTransactionType.BusinessRegistration,
-                },
-                expect.any(Function),
-            );
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.MagistrateTransactionGroup,
+                type: Enums.MagistrateTransactionType.BusinessRegistration,
+            });
         });
     });
 

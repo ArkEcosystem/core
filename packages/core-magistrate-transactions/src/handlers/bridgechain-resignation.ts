@@ -41,7 +41,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
             AppUtils.assert.defined<MagistrateInterfaces.IBridgechainResignationAsset>(
                 transaction.asset?.bridgechainResignation,
@@ -59,7 +59,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
             this.walletRepository.index(wallet);
-        });
+        }
     }
 
     public async throwIfCannotBeApplied(

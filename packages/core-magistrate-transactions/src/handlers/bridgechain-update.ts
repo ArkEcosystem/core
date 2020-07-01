@@ -46,7 +46,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
             AppUtils.assert.defined<MagistrateInterfaces.IBridgechainUpdateAsset>(transaction.asset?.bridgechainUpdate);
 
@@ -65,7 +65,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             };
 
             this.walletRepository.index(wallet);
-        });
+        }
     }
 
     public async throwIfCannotBeApplied(

@@ -35,13 +35,13 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
 
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             wallet.setAttribute("business.resigned", true);
             this.walletRepository.index(wallet);
-        });
+        }
     }
 
     public async throwIfCannotBeApplied(

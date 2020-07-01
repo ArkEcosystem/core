@@ -29,7 +29,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
             type: this.getConstructor().type,
         };
 
-        await this.transactionHistoryService.streamManyByCriteria(criteria, (transaction) => {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<string>(transaction.senderPublicKey);
             AppUtils.assert.defined<string>(transaction.asset?.ipfs);
 
@@ -41,7 +41,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
             const ipfsHashes: Contracts.State.WalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
             ipfsHashes[transaction.asset.ipfs!] = true;
             this.walletRepository.index(wallet);
-        });
+        }
     }
 
     public async isActivated(): Promise<boolean> {

@@ -53,12 +53,12 @@ mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 const transactionHistoryService = {
     findManyByCriteria: jest.fn(),
-    streamManyByCriteria: jest.fn(),
+    streamByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
     transactionHistoryService.findManyByCriteria.mockReset();
-    transactionHistoryService.streamManyByCriteria.mockReset();
+    transactionHistoryService.streamByCriteria.mockReset();
 
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
@@ -147,8 +147,8 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            transactionHistoryService.streamManyByCriteria.mockImplementationOnce(async (_, cb: Function) => {
-                cb(bridgechainUpdateTransaction.data);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield bridgechainUpdateTransaction.data;
             });
 
             await expect(handler.bootstrap()).toResolve();
@@ -163,18 +163,11 @@ describe("BusinessRegistration", () => {
                 ...bridgechainRegistrationAsset,
                 ...bridgechainUpdateAssetClone,
             });
-        });
 
-        it("should call transactionHistoryService.streamManyByCriteria with correct criteria", async () => {
-            await expect(handler.bootstrap()).toResolve();
-
-            expect(transactionHistoryService.streamManyByCriteria).toBeCalledWith(
-                {
-                    typeGroup: Enums.MagistrateTransactionGroup,
-                    type: Enums.MagistrateTransactionType.BridgechainUpdate,
-                },
-                expect.any(Function),
-            );
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.MagistrateTransactionGroup,
+                type: Enums.MagistrateTransactionType.BridgechainUpdate,
+            });
         });
     });
 
