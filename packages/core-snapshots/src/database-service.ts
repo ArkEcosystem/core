@@ -37,10 +37,10 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
     private skipCompression: boolean = false;
     private verifyData: boolean = false;
 
-    public init(codec?: string, skipCompression?: boolean, verify: boolean = false): void {
-        this.codec = codec || "default";
-        this.skipCompression = skipCompression || false;
-        this.verifyData = verify || false;
+    public init(codec: string = "default", skipCompression: boolean = false, verify: boolean = false): void {
+        this.codec = codec;
+        this.skipCompression = skipCompression;
+        this.verifyData = verify;
     }
 
     public async truncate(): Promise<void> {
@@ -101,9 +101,9 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
             throw err;
         } finally {
-            await blocksWorker?.terminate();
-            await transactionsWorker?.terminate();
-            await roundsWorker?.terminate();
+            await blocksWorker.terminate();
+            await transactionsWorker.terminate();
+            await roundsWorker.terminate();
         }
     }
 
@@ -166,13 +166,9 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             for (const height of milestoneHeights) {
                 const promises = [] as any;
 
-                // console.log("Run blocks with: ",{ nextValue: height, nextField: "height"})
                 promises.push(blocksWorker.sync({ nextValue: height, nextField: "height" }));
 
                 if (result && result.height > 0) {
-                    // console.log("Run transactions with: ", { nextCount: result.numberOfTransactions, height: result.height - 1  })
-                    // console.log("Run rounds with: ", { nextCount: Utils.roundCalculator.calculateRound(result.height).round, height: result.height - 1  })
-
                     promises.push(
                         transactionsWorker.sync({ nextCount: result.numberOfTransactions, height: result.height - 1 }),
                     );
@@ -186,8 +182,6 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
                 result = (await Promise.all(promises))[0];
 
-                // console.log("Result: ", result)
-
                 if (!result) {
                     break;
                 }
@@ -199,9 +193,9 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
             throw err;
         } finally {
-            await blocksWorker?.terminate();
-            await transactionsWorker?.terminate();
-            await roundsWorker?.terminate();
+            await blocksWorker.terminate();
+            await transactionsWorker.terminate();
+            await roundsWorker.terminate();
         }
     }
 
@@ -212,18 +206,18 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
             throw new Error("Database is empty");
         }
 
-        const firstHeight = start || 1;
-        const lastHeight = end || lastBlock?.height || 1;
+        const firstRound = Utils.roundCalculator.calculateRound(start || 1);
+        const lastRound = Utils.roundCalculator.calculateRound(end || lastBlock.height);
 
-        const firstRound = Utils.roundCalculator.calculateRound(firstHeight);
-        const lastRound = Utils.roundCalculator.calculateRound(lastHeight);
+        const startHeight = firstRound.roundHeight;
+        const endHeight = lastRound.roundHeight - 1;
 
-        if (firstRound.roundHeight >= lastRound.roundHeight) {
+        if (startHeight >= endHeight) {
             throw new Error("Start round is greater or equal to end round");
         }
 
-        const firstBlock = await this.blockRepository.findByHeight(firstRound.roundHeight);
-        lastBlock = await this.blockRepository.findByHeight(lastRound.roundHeight);
+        const firstBlock = await this.blockRepository.findByHeight(startHeight);
+        lastBlock = await this.blockRepository.findByHeight(endHeight);
 
         Utils.assert.defined<Models.Block>(firstBlock);
         Utils.assert.defined<Models.Block>(lastBlock);
@@ -235,7 +229,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
             firstRoundRound: firstRound.round,
             lastRoundRound: lastRound.round,
-            roundsCount: await this.roundRepository.countInRange(firstRound.round, lastRound.round),
+            roundsCount: await this.roundRepository.countInRange(firstRound.round, lastRound.round - 1),
 
             firstTransactionTimestamp: firstBlock.timestamp,
             lastTransactionTimestamp: lastBlock.timestamp,

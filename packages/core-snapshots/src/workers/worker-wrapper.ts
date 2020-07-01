@@ -45,9 +45,7 @@ export class WorkerWrapper extends EventEmitter {
     public sync(data: any): Promise<any> {
         return new Promise((resolve, reject) => {
             if (this.isDone) {
-                /* istanbul ignore next */
                 resolve();
-                /* istanbul ignore next */
                 return;
             }
 
@@ -77,6 +75,7 @@ export class WorkerWrapper extends EventEmitter {
     private handleMessage(data) {
         // Actions: count, started, synced, exit, error
         this.emit(data.action, data.data);
+        /* istanbul ignore next */
         if (data.action !== "count" && data.action !== "log") {
             this.emit("*", { name: data.action, data: data.data });
         }

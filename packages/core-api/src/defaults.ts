@@ -23,7 +23,7 @@ export const defaults = {
             checkperiod: 120,
         },
         rateLimit: {
-            enabled: !process.env.CORE_API_RATE_LIMIT,
+            enabled: !process.env.CORE_API_RATE_LIMIT_DISABLED,
             points: process.env.CORE_API_RATE_LIMIT_USER_LIMIT || 300,
             duration: process.env.CORE_API_RATE_LIMIT_USER_EXPIRES || 60000,
             whitelist: process.env.CORE_API_RATE_LIMIT_WHITELIST

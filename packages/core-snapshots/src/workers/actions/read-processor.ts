@@ -24,31 +24,24 @@ export class ReadProcessor {
     ) {}
 
     public sync(data: any): void {
-        // console.log("Sync", data);
-
         this.nextField = data.nextField;
         this.nextValue = data.nextValue;
         this.nextCount = data.nextCount;
 
         if (data.height) {
-            /* istanbul ignore next */
             Managers.configManager.setHeight(data.height);
         }
 
+        /* istanbul ignore next */
         if (this.onResume) {
-            /* istanbul ignore next */
             this.onResume();
         }
         this.isRunning = true;
 
         this.emitCount();
 
-        // parentPort?.postMessage({
-        //     action: "log",
-        //     data: "Resume: " + JSON.stringify(data)
-        // })
-
         // On first message is not defined
+        /* istanbul ignore next */
         if (this.callOnMessage) {
             this.callOnMessage();
         }
@@ -57,15 +50,15 @@ export class ReadProcessor {
     public async start() {
         await this.streamReader.open();
 
-        parentPort?.postMessage({
+        parentPort!.postMessage({
             action: "started",
         });
 
         await this.waitForSynchronization(false);
 
         const interval = setInterval(() => {
+            /* istanbul ignore next */
             if (this.isRunning) {
-                /* istanbul ignore next */
                 this.emitCount();
             }
         }, 500);
@@ -75,11 +68,6 @@ export class ReadProcessor {
 
         while ((entity = await this.streamReader.readNext())) {
             this.count++;
-
-            // parentPort?.postMessage({
-            //     action: "log",
-            //     data: "count: " + this.count
-            // })
 
             if (this.nextValue && entity[this.nextField] > this.nextValue!) {
                 await this.waitOrContinue(this.count, previousEntity, entity);
@@ -110,7 +98,7 @@ export class ReadProcessor {
     }
 
     private emitCount(): void {
-        parentPort?.postMessage({
+        parentPort!.postMessage({
             action: "count",
             data: this.count,
         });
@@ -137,11 +125,6 @@ export class ReadProcessor {
 
     private waitForSynchronization(emit: boolean = true): Promise<void> {
         return new Promise<void>(async (resolve) => {
-            // parentPort?.postMessage({
-            //     action: "log",
-            //     data: "Wait: "
-            // })
-
             if (this.onWait) {
                 await this.onWait();
             }
@@ -159,11 +142,6 @@ export class ReadProcessor {
     }
 
     private emitSynchronized() {
-        // parentPort?.postMessage({
-        //     action: "log",
-        //     data: "wait"
-        // })
-
         parentPort!.postMessage({
             action: "synchronized",
             data: {

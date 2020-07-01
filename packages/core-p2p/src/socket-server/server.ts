@@ -1,9 +1,10 @@
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
-import { plugin } from "../hapi-nes";
 
+import { plugin } from "../hapi-nes";
 import { AcceptPeerPlugin } from "./plugins/accept-peer";
 import { ValidatePlugin } from "./plugins/validate";
+import { WhitelistForgerPlugin } from "./plugins/whitelist-forger";
 import { InternalRoute } from "./routes/internal";
 import { PeerRoute } from "./routes/peer";
 
@@ -58,6 +59,7 @@ export class Server {
 
         this.app.resolve(ValidatePlugin).register(this.server);
         this.app.resolve(AcceptPeerPlugin).register(this.server);
+        this.app.resolve(WhitelistForgerPlugin).register(this.server);
     }
 
     /**

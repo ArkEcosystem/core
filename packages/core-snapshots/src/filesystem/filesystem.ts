@@ -42,11 +42,11 @@ export class Filesystem {
     }
 
     private validateMetaData(meta: Meta.MetaData): void {
-        Utils.assert.defined(meta?.codec);
-        Utils.assert.defined(meta?.skipCompression);
+        Utils.assert.defined(meta.codec);
+        Utils.assert.defined(meta.skipCompression);
 
-        Utils.assert.defined(meta?.blocks?.count);
-        Utils.assert.defined(meta?.transactions?.count);
-        Utils.assert.defined(meta?.rounds?.count);
+        Utils.assert.defined(meta.blocks?.count);
+        Utils.assert.defined(meta.transactions?.count);
+        Utils.assert.defined(meta.rounds?.count);
     }
 }

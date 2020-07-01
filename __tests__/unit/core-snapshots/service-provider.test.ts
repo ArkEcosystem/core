@@ -22,8 +22,10 @@ beforeEach(() => {
     sandbox = new Sandbox();
 
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue({});
+});
 
-    sandbox.app.bind(Container.Identifiers.DatabaseConnection).toConstantValue({});
+afterEach(() => {
+    jest.clearAllMocks();
 });
 
 describe("ServiceProvider", () => {
@@ -34,6 +36,14 @@ describe("ServiceProvider", () => {
     });
 
     it("should register", async () => {
+        await expect(serviceProvider.register()).toResolve();
+        expect(spyOnGetCustomRepository).toHaveBeenCalledTimes(3);
+        expect(spyOnCreateConnection).toHaveBeenCalled();
+    });
+
+    it("should register is default connection is already active", async () => {
+        sandbox.app.bind(Container.Identifiers.DatabaseConnection).toConstantValue({});
+
         await expect(serviceProvider.register()).toResolve();
         expect(spyOnGetCustomRepository).toHaveBeenCalledTimes(3);
         expect(spyOnCreateConnection).toHaveBeenCalled();

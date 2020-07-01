@@ -1,11 +1,12 @@
 import "jest-extended";
-import { dirSync, setGracefulCleanup } from "tmp";
 
 import { Container } from "@arkecosystem/core-kernel";
-import { Sandbox } from "@packages/core-test-framework";
-import { Identifiers } from "@packages/core-snapshots/src/ioc";
-import { Filesystem } from "@packages/core-snapshots/src/filesystem/filesystem";
 import { LocalFilesystem } from "@packages/core-kernel/src/services/filesystem/drivers/local";
+import { Filesystem } from "@packages/core-snapshots/src/filesystem/filesystem";
+import { Identifiers } from "@packages/core-snapshots/src/ioc";
+import { Sandbox } from "@packages/core-test-framework";
+import { cloneDeep } from "lodash";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 import { metaData } from "../__fixtures__/assets";
 
@@ -66,6 +67,83 @@ describe("Filesystem", () => {
             await expect(filesystem.writeMetaData(metaData)).toResolve();
 
             await expect(filesystem.readMetaData()).resolves.toEqual(metaData);
+        });
+    });
+
+    describe("validateMetaData", () => {
+        let tmpMeta;
+
+        beforeEach(() => {
+            const dir: string = dirSync().name;
+            const subdir: string = `${dir}/sub`;
+
+            filesystem.getSnapshotPath = jest.fn().mockReturnValue(subdir);
+
+            tmpMeta = cloneDeep(metaData);
+        });
+
+        it("should throw if codec is missing", async () => {
+            delete tmpMeta.codec;
+
+            await expect(filesystem.writeMetaData(tmpMeta)).toResolve();
+
+            await expect(filesystem.readMetaData()).rejects.toThrowError();
+        });
+
+        it("should throw if skipCompression is missing", async () => {
+            delete tmpMeta.skipCompression;
+
+            await expect(filesystem.writeMetaData(tmpMeta)).toResolve();
+
+            await expect(filesystem.readMetaData()).rejects.toThrowError();
+        });
+
+        it("should throw if blocks is missing", async () => {
+            delete tmpMeta.blocks;
+
+            await expect(filesystem.writeMetaData(tmpMeta)).toResolve();
+
+            await expect(filesystem.readMetaData()).rejects.toThrowError();
+        });
+
+        it("should throw if blocks.count is missing", async () => {
+            delete tmpMeta.blocks.count;
+
+            await expect(filesystem.writeMetaData(tmpMeta)).toResolve();
+
+            await expect(filesystem.readMetaData()).rejects.toThrowError();
+        });
+
+        it("should throw if transactions is missing", async () => {
+            delete tmpMeta.transactions;
+
+            await expect(filesystem.writeMetaData(tmpMeta)).toResolve();
+
+            await expect(filesystem.readMetaData()).rejects.toThrowError();
+        });
+
+        it("should throw if transactions.count is missing", async () => {
+            delete tmpMeta.transactions.count;
+
+            await expect(filesystem.writeMetaData(tmpMeta)).toResolve();
+
+            await expect(filesystem.readMetaData()).rejects.toThrowError();
+        });
+
+        it("should throw if rounds is missing", async () => {
+            delete tmpMeta.rounds;
+
+            await expect(filesystem.writeMetaData(tmpMeta)).toResolve();
+
+            await expect(filesystem.readMetaData()).rejects.toThrowError();
+        });
+
+        it("should throw if rounds.count is missing", async () => {
+            delete tmpMeta.rounds.count;
+
+            await expect(filesystem.writeMetaData(tmpMeta)).toResolve();
+
+            await expect(filesystem.readMetaData()).rejects.toThrowError();
         });
     });
 });

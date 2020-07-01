@@ -8,17 +8,17 @@ import { Repository } from "../contracts";
 export class BlockRepository extends Repositories.AbstractRepository<Models.Block> implements Repository {
     public async getReadStream(start: number, end: number): Promise<NodeJS.ReadableStream> {
         return this.createQueryBuilder()
-            .where("height >= :start AND height < :end", { start, end })
+            .where("height >= :start AND height <= :end", { start, end })
             .orderBy("height", "ASC")
             .stream();
     }
 
     public async countInRange(start: number, end: number): Promise<number> {
-        return this.createQueryBuilder().where("height >= :start AND height < :end", { start, end }).getCount();
+        return this.createQueryBuilder().where("height >= :start AND height <= :end", { start, end }).getCount();
     }
 
     public async rollback(roundInfo: Contracts.Shared.RoundInfo): Promise<void> {
-        const block = await this.findByHeight(roundInfo.roundHeight);
+        const block = await this.findByHeight(roundInfo.roundHeight - 1);
 
         if (!block) {
             throw new Error("Cannot find block on height " + roundInfo.roundHeight);
@@ -43,7 +43,7 @@ export class BlockRepository extends Repositories.AbstractRepository<Models.Bloc
                 .createQueryBuilder()
                 .delete()
                 .from(Models.Round)
-                .where("round > :round", { round: roundInfo.round })
+                .where("round > :round", { round: roundInfo.round - 1 })
                 .execute();
         });
     }

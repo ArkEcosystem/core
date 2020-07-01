@@ -9,6 +9,51 @@ on:
         types: [ready_for_review, synchronize, opened]
 
 jobs:
+    codecov:
+        needs:
+            - core
+            - core-api
+            - core-blockchain
+            - core-cli
+            - core-database
+            - core-forger
+            - core-kernel
+            - core-logger-pino
+            - core-magistrate-api
+            - core-magistrate-crypto
+            - core-magistrate-transactions
+            - core-manager
+            - core-p2p
+            - core-snapshots
+            - core-state
+            - core-test-framework
+            - core-transaction-pool
+            - core-transactions
+            - core-webhooks
+            - crypto
+
+
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Download code coverage
+              uses: actions/download-artifact@v2
+              with:
+                  path: .artifacts
+
+            - name: Upload code coverage to codecov.io
+              uses: codecov/codecov-action@v1
+              with:
+                  file: .artifacts/*-coverage/lcov.info
+                  flags: unit
+                  fail_ci_if_error: true
+
     core:
         runs-on: ubuntu-latest
 
@@ -35,14 +80,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test __tests__/unit/core/ --coverage --coverageDirectory .coverage/unit/core
+              run: yarn test __tests__/unit/core/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-api:
         runs-on: ubuntu-latest
@@ -70,14 +114,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-api/ --coverage --coverageDirectory .coverage/unit/core-api
+              run: yarn test:parallel __tests__/unit/core-api/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-api/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-blockchain:
         runs-on: ubuntu-latest
@@ -105,14 +148,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-blockchain/ --coverage --coverageDirectory .coverage/unit/core-blockchain
+              run: yarn test:parallel __tests__/unit/core-blockchain/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-blockchain/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-cli:
         runs-on: ubuntu-latest
@@ -140,14 +182,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-cli/ --coverage --coverageDirectory .coverage/unit/core-cli
+              run: yarn test:parallel __tests__/unit/core-cli/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-cli/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-database:
         runs-on: ubuntu-latest
@@ -175,14 +216,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-database/ --coverage --coverageDirectory .coverage/unit/core-database
+              run: yarn test:parallel __tests__/unit/core-database/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-database/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-forger:
         runs-on: ubuntu-latest
@@ -210,14 +250,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-forger/ --coverage --coverageDirectory .coverage/unit/core-forger
+              run: yarn test:parallel __tests__/unit/core-forger/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-forger/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-kernel:
         runs-on: ubuntu-latest
@@ -245,14 +284,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-kernel/ --coverage --coverageDirectory .coverage/unit/core-kernel
+              run: yarn test:parallel __tests__/unit/core-kernel/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-kernel/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-logger-pino:
         runs-on: ubuntu-latest
@@ -280,14 +318,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-logger-pino/ --coverage --coverageDirectory .coverage/unit/core-logger-pino
+              run: yarn test:parallel __tests__/unit/core-logger-pino/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-logger-pino/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-magistrate-api:
         runs-on: ubuntu-latest
@@ -315,14 +352,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-magistrate-api/ --coverage --coverageDirectory .coverage/unit/core-magistrate-api
+              run: yarn test:parallel __tests__/unit/core-magistrate-api/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-magistrate-api/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-magistrate-crypto:
         runs-on: ubuntu-latest
@@ -350,14 +386,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-magistrate-crypto/ --coverage --coverageDirectory .coverage/unit/core-magistrate-crypto
+              run: yarn test:parallel __tests__/unit/core-magistrate-crypto/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-magistrate-crypto/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-magistrate-transactions:
         runs-on: ubuntu-latest
@@ -385,14 +420,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-magistrate-transactions/ --coverage --coverageDirectory .coverage/unit/core-magistrate-transactions
+              run: yarn test:parallel __tests__/unit/core-magistrate-transactions/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-magistrate-transactions/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-manager:
         runs-on: ubuntu-latest
@@ -420,14 +454,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-manager/ --coverage --coverageDirectory .coverage/unit/core-manager
+              run: yarn test:parallel __tests__/unit/core-manager/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-manager/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-p2p:
         runs-on: ubuntu-latest
@@ -455,14 +488,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-p2p/ --coverage --coverageDirectory .coverage/unit/core-p2p
+              run: yarn test:parallel __tests__/unit/core-p2p/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-p2p/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-snapshots:
         runs-on: ubuntu-latest
@@ -490,14 +522,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-snapshots/ --coverage --coverageDirectory .coverage/unit/core-snapshots
+              run: yarn test:parallel __tests__/unit/core-snapshots/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-snapshots/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-state:
         runs-on: ubuntu-latest
@@ -525,14 +556,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-state/ --coverage --coverageDirectory .coverage/unit/core-state
+              run: yarn test:parallel __tests__/unit/core-state/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-state/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-test-framework:
         runs-on: ubuntu-latest
@@ -560,14 +590,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-test-framework/ --coverage --coverageDirectory .coverage/unit/core-test-framework
+              run: yarn test:parallel __tests__/unit/core-test-framework/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-test-framework/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-transaction-pool:
         runs-on: ubuntu-latest
@@ -595,14 +624,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-transaction-pool/ --coverage --coverageDirectory .coverage/unit/core-transaction-pool
+              run: yarn test:parallel __tests__/unit/core-transaction-pool/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-transaction-pool/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-transactions:
         runs-on: ubuntu-latest
@@ -630,14 +658,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-transactions/ --coverage --coverageDirectory .coverage/unit/core-transactions
+              run: yarn test:parallel __tests__/unit/core-transactions/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-transactions/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-webhooks:
         runs-on: ubuntu-latest
@@ -665,14 +692,13 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-webhooks/ --coverage --coverageDirectory .coverage/unit/core-webhooks
+              run: yarn test:parallel __tests__/unit/core-webhooks/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/core-webhooks/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
 
     crypto:
         runs-on: ubuntu-latest
@@ -700,11 +726,9 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/crypto/ --coverage --coverage --coverageDirectory .coverage/unit/crypto
-
-            - name: Codecov
-              uses: codecov/codecov-action@v1
+              run: yarn test:parallel __tests__/unit/crypto/ --coverage --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+            - name: Archive code coverage
+              uses: actions/upload-artifact@v2
               with:
-                  file: .coverage/unit/crypto/lcov.info
-                  flags: unit
-                  fail_ci_if_error: true
+                  name: ${{ github.job }}-coverage
+                  path: .coverage/unit/${{ github.job }}/lcov.info
