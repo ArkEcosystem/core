@@ -13,7 +13,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     }
 
     public walletAttributes(): ReadonlyArray<string> {
-        return ["htlc.locks", "htlc.lockedBalance"];
+        return ["htlc", "htlc.locks", "htlc.lockedBalance"];
     }
 
     public getConstructor(): Transactions.TransactionConstructor {

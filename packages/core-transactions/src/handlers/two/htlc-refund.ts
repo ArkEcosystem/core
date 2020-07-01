@@ -143,7 +143,14 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
 
         assert(!newLockedBalance.isNegative());
-        lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
+
+        if (newLockedBalance.isZero()) {
+            lockWallet.forgetAttribute("htlc.lockedBalance");
+            lockWallet.forgetAttribute("htlc.locks"); // zero lockedBalance means no pending locks
+            lockWallet.forgetAttribute("htlc");
+        } else {
+            lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
+        }
 
         delete locks[lockId];
 
@@ -173,10 +180,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         lockWallet.balance = lockWallet.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
 
-        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
+        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
 
-        const locks: Interfaces.IHtlcLocks | undefined = lockWallet.getAttribute("htlc.locks");
+        const locks: Interfaces.IHtlcLocks | undefined = lockWallet.getAttribute("htlc.locks", {});
 
         AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(lockTransaction.asset?.lock);
 
