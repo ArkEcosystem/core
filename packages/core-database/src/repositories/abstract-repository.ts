@@ -4,6 +4,8 @@ import { ColumnMetadata } from "typeorm/metadata/ColumnMetadata";
 
 import { QueryHelper } from "../utils/query-helper";
 
+export type CustomPropertyHandler<TEntity> = (entity: Partial<TEntity>, key: string, value: unknown) => void;
+
 export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends Repository<TEntity> {
     private readonly queryHelper = new QueryHelper<TEntity>();
 
@@ -16,6 +18,18 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
         queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
         return queryBuilder.getMany();
+    }
+
+    public async *streamByExpression(expression: Contracts.Search.Expression<TEntity>): AsyncIterable<TEntity> {
+        const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
+        const stream = await this.createQueryBuilder()
+            .select("*")
+            .where(sqlExpression.query, sqlExpression.parameters)
+            .stream();
+
+        for await (const raw of stream) {
+            yield this.rawToEntity(raw);
+        }
     }
 
     public async listByExpression(
@@ -61,7 +75,7 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
 
     protected rawToEntity(
         rawEntity: Record<string, any>,
-        customPropertyHandler: (entity: { [P in keyof TEntity]?: TEntity[P] }, key: string, value: any) => void,
+        customPropertyHandler?: CustomPropertyHandler<TEntity>,
     ): TEntity {
         const entity: TEntity = this.create();
         for (const [key, value] of Object.entries(rawEntity)) {
@@ -86,6 +100,7 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
 
                 entity[columnMetadata.propertyName as keyof TEntity] = propertyValue;
             } else {
+                Utils.assert.defined<CustomPropertyHandler<TEntity>>(customPropertyHandler);
                 customPropertyHandler(entity, key, value);
             }
         }

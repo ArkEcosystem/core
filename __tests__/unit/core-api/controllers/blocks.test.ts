@@ -30,11 +30,11 @@ const transactionHistoryService = {
 
 beforeEach(() => {
     app = initApp();
+    app.bind(Identifiers.BlockHistoryService).toConstantValue(blockHistoryService);
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-    app.bind(Identifiers.BlockHistoryService).toConstantValue(blockHistoryService);
-    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     controller = app.resolve<BlocksController>(BlocksController);
 

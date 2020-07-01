@@ -24,10 +24,11 @@ const blockHistoryService = {
 
 beforeEach(() => {
     app = initApp();
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(null);
+    app.bind(Identifiers.BlockHistoryService).toConstantValue(blockHistoryService);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-    app.bind(Identifiers.BlockHistoryService).toConstantValue(blockHistoryService);
 
     controller = app.resolve<DelegatesController>(DelegatesController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);

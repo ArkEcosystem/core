@@ -1,24 +1,22 @@
 import "jest-extended";
 
+import { Container } from "@packages/core-kernel";
+import * as Codecs from "@packages/core-snapshots/src/codecs";
+import { StreamReader, StreamWriter } from "@packages/core-snapshots/src/codecs";
+import { Identifiers } from "@packages/core-snapshots/src/ioc";
+import * as Actions from "@packages/core-snapshots/src/workers/actions";
+import { Sandbox } from "@packages/core-test-framework";
+import { Types } from "@packages/crypto";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { Connection } from "typeorm";
+
 import { Assets } from "../../__fixtures__";
-import { Types } from "@packages/crypto";
-import { Container } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-snapshots/src/ioc";
-import { Sandbox } from "@packages/core-test-framework";
-import * as Codecs from "@packages/core-snapshots/src/codecs";
-import * as Actions from "@packages/core-snapshots/src/workers/actions";
-import { StreamReader, StreamWriter } from "@packages/core-snapshots/src/codecs";
 import { ReadableStream, waitForMessage } from "./__support__";
-// @ts-ignore
-import * as WorkerThreads from "worker_threads";
 
 jest.mock("worker_threads", () => {
     const { EventEmitter } = require("events");
-    // @ts-ignore
     class ParentPort extends EventEmitter {
-        constructor() {
+        public constructor() {
             super();
         }
 
@@ -42,11 +40,25 @@ let blockRepository: any;
 let transactionRepository: any;
 let roundRepository: any;
 
-let stream = new ReadableStream("Block_", "blocks");
+const blocksStream = new ReadableStream("Block_", "blocks");
+const transactionsStream = new ReadableStream("Transaction_", "transactions");
+const roundsStream = new ReadableStream("Round_", "rounds");
 
 class Repository {
-    getReadStream = jest.fn().mockResolvedValue(stream);
-    async save(val) {}
+    public constructor(private table: string) {}
+
+    // public getReadStream = jest.fn().mockResolvedValue(stream);
+    public getReadStream() {
+        if (this.table === "blocks") {
+            return blocksStream;
+        }
+        if (this.table === "transactions") {
+            return transactionsStream;
+        }
+
+        return roundsStream;
+    }
+    public async save(val) {}
 }
 
 beforeEach(() => {
@@ -54,11 +66,11 @@ beforeEach(() => {
         isConnected: true,
     };
 
-    blockRepository = new Repository();
+    blockRepository = new Repository("blocks");
 
-    transactionRepository = new Repository();
+    transactionRepository = new Repository("transactions");
 
-    roundRepository = new Repository();
+    roundRepository = new Repository("rounds");
 
     sandbox = new Sandbox();
 
@@ -159,14 +171,14 @@ describe("WorkerAction", () => {
         ["rounds", "json", false],
     ];
 
-    describe.each(cases)("Blocks with [%s] codec and compression: [%s]", (table, codec, skipCompression) => {
+    describe.each(cases)("Table [%s] with codec [%s] and compression: [%s]", (table, codec, skipCompression) => {
         let dir: string;
-        let genesisBlockId = Assets.blocks[1].previousBlock;
+        const genesisBlockId = Assets.blocks[1].previousBlock;
 
         it(`should DUMP with [${codec}] codec`, async () => {
             dir = dirSync({ mode: 0o777 }).name;
 
-            let options = {
+            const options = {
                 action: "dump",
                 table: table as string,
                 codec: codec as string,
@@ -186,8 +198,8 @@ describe("WorkerAction", () => {
         });
 
         it(`should VERIFY with [${codec}] codec`, async () => {
-            let options = {
-                action: "dump",
+            const options = {
+                action: "verify",
                 table: table as string,
                 codec: codec as string,
                 start: 1,
@@ -218,8 +230,8 @@ describe("WorkerAction", () => {
         });
 
         it(`should RESTORE with [${codec}] codec`, async () => {
-            let options = {
-                action: "dump",
+            const options = {
+                action: "restore",
                 table: table as string,
                 codec: codec as string,
                 start: 1,
@@ -245,6 +257,39 @@ describe("WorkerAction", () => {
             await expect(
                 waitForMessage(restoreWorkerAction, "sync", {
                     nextCount: Number.POSITIVE_INFINITY,
+                }),
+            ).toResolve();
+        });
+
+        it(`should RESTORE with [${codec}] codec - without verify`, async () => {
+            const options = {
+                action: "restore",
+                table: table as string,
+                codec: codec as string,
+                start: 1,
+                end: 100,
+                skipCompression: skipCompression as boolean,
+                filePath: dir + "/" + table,
+                genesisBlockId: genesisBlockId,
+                updateStep: 2,
+                verify: false,
+                network: "testnet" as Types.NetworkName,
+            };
+
+            restoreWorkerAction.init(options);
+
+            await expect(waitForMessage(restoreWorkerAction, "start", undefined)).toResolve();
+
+            await new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, 10);
+            });
+
+            await expect(
+                waitForMessage(restoreWorkerAction, "sync", {
+                    nextCount: Number.POSITIVE_INFINITY,
+                    height: 1,
                 }),
             ).toResolve();
         });

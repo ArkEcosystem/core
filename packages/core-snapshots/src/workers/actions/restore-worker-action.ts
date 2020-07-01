@@ -9,7 +9,7 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
     private entities = [] as any[];
 
     public sync(data: any): void {
-        this.readProcessor?.sync(data);
+        this.readProcessor!.sync(data);
     }
 
     public async start() {
@@ -26,7 +26,6 @@ export class RestoreWorkerAction extends AbstractWorkerAction {
                 }
 
                 if (this.options!.verify) {
-                    /* istanbul ignore next */
                     verify(entity, previousEntity);
                 }
 

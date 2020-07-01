@@ -1,3 +1,4 @@
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Enums, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { Connection } from "typeorm";
 import { getCustomRepository } from "typeorm";
@@ -468,5 +469,30 @@ describe("TransactionRepository.listByExpression", () => {
         expect(listResult.rows.length).toBe(2);
         expect(listResult.rows[0].serialized).toEqual(transaction1.serialized);
         expect(listResult.rows[1].serialized).toEqual(transaction2.serialized);
+    });
+});
+
+describe("TransactionRepository.streamManyByExpression", () => {
+    it("should return single entity by id equal expression", async () => {
+        const blockRepository = getCustomRepository(BlockRepository);
+        const transactionRepository = getCustomRepository(TransactionRepository);
+        await blockRepository.saveBlocks([block1, block2, block3]);
+
+        const expression: Contracts.Search.Expression<Contracts.Database.TransactionModel> = {
+            op: "or",
+            expressions: [
+                { property: "id", op: "equal", value: transaction1.id },
+                { property: "id", op: "equal", value: transaction2.id },
+                { property: "id", op: "equal", value: transaction3.id },
+            ],
+        };
+        const transactions1And2And3: Contracts.Database.TransactionModel[] = [];
+        for await (const data of transactionRepository.streamByExpression(expression)) {
+            transactions1And2And3.push(data);
+        }
+
+        expect(transactions1And2And3[0].serialized).toEqual(transaction1.serialized);
+        expect(transactions1And2And3[1].serialized).toEqual(transaction2.serialized);
+        expect(transactions1And2And3[2].serialized).toEqual(transaction3.serialized);
     });
 });

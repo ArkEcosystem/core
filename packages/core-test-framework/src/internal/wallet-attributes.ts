@@ -19,6 +19,7 @@ export function getWalletAttributeSet(): Services.Attributes.AttributeSet {
     attributes.set("ipfs.hashes");
     attributes.set("ipfs");
     attributes.set("multiSignature");
+    attributes.set("multiSignature.legacy");
     attributes.set("secondPublicKey");
     attributes.set("vote");
 

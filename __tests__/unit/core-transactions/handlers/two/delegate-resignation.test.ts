@@ -19,8 +19,8 @@ import {
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import {
     buildMultiSignatureWallet,
@@ -29,7 +29,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -45,12 +44,19 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const transactionHistoryService = {
+    streamByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
+    transactionHistoryService.streamByCriteria.mockReset();
+
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
@@ -136,17 +142,28 @@ describe("DelegateResignationTransaction", () => {
     });
 
     describe("bootstrap", () => {
+        // TODO: assert wallet repository
+
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(delegateResignationTransaction)]);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield delegateResignationTransaction.data;
+            });
+
             await expect(handler.bootstrap()).toResolve();
+
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.DelegateResignation,
+            });
         });
 
         it("should resolve - simulate genesis wallet", async () => {
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield delegateResignationTransaction.data;
+            });
             allDelegates[0].forgetAttribute("delegate");
-
             walletRepository.index(allDelegates[0]);
 
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(delegateResignationTransaction)]);
             await expect(handler.bootstrap()).toResolve();
         });
     });

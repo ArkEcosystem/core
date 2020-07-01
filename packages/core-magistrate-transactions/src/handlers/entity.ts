@@ -4,8 +4,8 @@ import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces as CryptoInterfaces, Interfaces, Transactions, Utils, Managers } from "@arkecosystem/crypto";
+import { Handlers } from "@arkecosystem/core-transactions";
+import { Interfaces as CryptoInterfaces, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { EntityWrongSubTypeError, StaticFeeMismatchError } from "../errors";
 import { EntityRegisterSubHandler, EntityResignSubHandler, EntityUpdateSubHandler } from "./entity-subhandlers";
@@ -14,7 +14,6 @@ import BusinessSubHandlers from "./entity-subhandlers/business";
 import DeveloperSubHandlers from "./entity-subhandlers/developer";
 import PluginCoreSubHandlers from "./entity-subhandlers/plugin-core";
 import PluginDesktopSubHandlers from "./entity-subhandlers/plugin-desktop";
-import { Models } from "@arkecosystem/core-database";
 
 type SubHandlers = {
     [Enums.EntityAction.Register]: EntityRegisterSubHandler;
@@ -65,29 +64,34 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     }
 
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
-
-        const registerTransactions: Models.Transaction[] = [];
-        const updateTransactions: Models.Transaction[] = [];
-        const resignTransactions: Models.Transaction[] = [];
-        for (const transaction of transactions) {
-            switch (transaction.asset.action) {
-                case Enums.EntityAction.Register:
-                    registerTransactions.push(transaction);
-                    break;
-                case Enums.EntityAction.Update:
-                    updateTransactions.push(transaction);
-                    break;
-                case Enums.EntityAction.Resign:
-                    resignTransactions.push(transaction);
-                    break;
-            }
+        if (!this.handlers) {
+            this.initializeHandlers();
         }
 
-        await this.app.resolve(EntityRegisterSubHandler).bootstrap(this.walletRepository, registerTransactions);
-        await this.app.resolve(EntityUpdateSubHandler).bootstrap(this.walletRepository, updateTransactions);
-        await this.app.resolve(EntityResignSubHandler).bootstrap(this.walletRepository, resignTransactions);
+        for (const entityType of Object.keys(this.handlers)) {
+            for (const entitySubType of Object.keys(this.handlers[entityType])) {
+                const entityActions = [
+                    Enums.EntityAction.Register,
+                    Enums.EntityAction.Update,
+                    Enums.EntityAction.Resign,
+                ];
+
+                for (const entityAction of entityActions) {
+                    const criteria = {
+                        typeGroup: this.getConstructor().typeGroup,
+                        type: this.getConstructor().type,
+                        asset: { type: entityType, subType: entitySubType, action: entityAction },
+                    };
+
+                    const handler = this.handlers[entityType][entitySubType][entityAction] as
+                        | EntityRegisterSubHandler
+                        | EntityUpdateSubHandler
+                        | EntityResignSubHandler;
+
+                    await handler.bootstrap(this.walletRepository, this.transactionHistoryService, criteria);
+                }
+            }
+        }
     }
 
     public async throwIfCannotBeApplied(
@@ -170,8 +174,8 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
             [Enums.EntityType.Business]: {
                 [Enums.EntitySubType.None]: {
                     [Enums.EntityAction.Register]: this.app.resolve(BusinessSubHandlers.BusinessRegisterSubHandler),
-                    [Enums.EntityAction.Resign]: this.app.resolve(BusinessSubHandlers.BusinessResignSubHandler),
                     [Enums.EntityAction.Update]: this.app.resolve(BusinessSubHandlers.BusinessUpdateSubHandler),
+                    [Enums.EntityAction.Resign]: this.app.resolve(BusinessSubHandlers.BusinessResignSubHandler),
                 },
             },
             [Enums.EntityType.Bridgechain]: {
@@ -179,32 +183,32 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                     [Enums.EntityAction.Register]: this.app.resolve(
                         BridgechainSubHandlers.BridgechainRegisterSubHandler,
                     ),
-                    [Enums.EntityAction.Resign]: this.app.resolve(BridgechainSubHandlers.BridgechainResignSubHandler),
                     [Enums.EntityAction.Update]: this.app.resolve(BridgechainSubHandlers.BridgechainUpdateSubHandler),
+                    [Enums.EntityAction.Resign]: this.app.resolve(BridgechainSubHandlers.BridgechainResignSubHandler),
                 },
             },
             [Enums.EntityType.Developer]: {
                 [Enums.EntitySubType.None]: {
                     [Enums.EntityAction.Register]: this.app.resolve(DeveloperSubHandlers.DeveloperRegisterSubHandler),
-                    [Enums.EntityAction.Resign]: this.app.resolve(DeveloperSubHandlers.DeveloperResignSubHandler),
                     [Enums.EntityAction.Update]: this.app.resolve(DeveloperSubHandlers.DeveloperUpdateSubHandler),
+                    [Enums.EntityAction.Resign]: this.app.resolve(DeveloperSubHandlers.DeveloperResignSubHandler),
                 },
             },
             [Enums.EntityType.Plugin]: {
                 [Enums.EntitySubType.PluginCore]: {
                     [Enums.EntityAction.Register]: this.app.resolve(PluginCoreSubHandlers.PluginCoreRegisterSubHandler),
-                    [Enums.EntityAction.Resign]: this.app.resolve(PluginCoreSubHandlers.PluginCoreResignSubHandler),
                     [Enums.EntityAction.Update]: this.app.resolve(PluginCoreSubHandlers.PluginCoreUpdateSubHandler),
+                    [Enums.EntityAction.Resign]: this.app.resolve(PluginCoreSubHandlers.PluginCoreResignSubHandler),
                 },
                 [Enums.EntitySubType.PluginDesktop]: {
                     [Enums.EntityAction.Register]: this.app.resolve(
                         PluginDesktopSubHandlers.PluginDesktopRegisterSubHandler,
                     ),
-                    [Enums.EntityAction.Resign]: this.app.resolve(
-                        PluginDesktopSubHandlers.PluginDesktopResignSubHandler,
-                    ),
                     [Enums.EntityAction.Update]: this.app.resolve(
                         PluginDesktopSubHandlers.PluginDesktopUpdateSubHandler,
+                    ),
+                    [Enums.EntityAction.Resign]: this.app.resolve(
+                        PluginDesktopSubHandlers.PluginDesktopResignSubHandler,
                     ),
                 },
             },

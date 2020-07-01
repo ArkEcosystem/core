@@ -36,6 +36,10 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         this.events.listen(Enums.CryptoEvent.MilestoneChanged, this.app.resolve(DisconnectInvalidPeers));
     }
 
+    public isWhitelisted(peer: Contracts.P2P.Peer): boolean {
+        return KernelUtils.isWhitelisted(this.configuration.getOptional<string[]>("remoteAccess", []), peer.ip);
+    }
+
     public async validateAndAcceptPeer(
         peer: Contracts.P2P.Peer,
         options: Contracts.P2P.AcceptNewPeerOptions = {},

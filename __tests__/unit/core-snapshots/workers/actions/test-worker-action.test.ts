@@ -1,7 +1,25 @@
 import "jest-extended";
+
 import { TestWorkerAction } from "@packages/core-snapshots/src/workers/actions";
 
-let testWorkerAction = new TestWorkerAction();
+const testWorkerAction = new TestWorkerAction();
+
+jest.mock("worker_threads", () => {
+    const { EventEmitter } = require("events");
+    class ParentPort extends EventEmitter {
+        public constructor() {
+            super();
+        }
+
+        public postMessage(data) {
+            this.emit("message", data);
+        }
+    }
+
+    return {
+        parentPort: new ParentPort(),
+    };
+});
 
 describe("TestWorkerAction", () => {
     it("should start with no action", async () => {
@@ -25,7 +43,7 @@ describe("TestWorkerAction", () => {
             table: "wait",
         });
 
-        let promise = testWorkerAction.start();
+        const promise = testWorkerAction.start();
 
         await new Promise((resolve) => {
             setTimeout(() => {
