@@ -1,11 +1,10 @@
-import { Models } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
     Enums,
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
@@ -35,10 +34,15 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
     }
 
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
+        const criteria = {
+            typeGroup: this.getConstructor().typeGroup,
+            type: this.getConstructor().type,
+        };
 
-        for (const transaction of transactions) {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
+            AppUtils.assert.defined<string>(transaction.senderPublicKey);
+            AppUtils.assert.defined<MagistrateInterfaces.IBusinessUpdateAsset>(transaction.asset?.businessUpdate);
+
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
 
             const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = wallet.getAttribute<
@@ -73,7 +77,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
     }
 
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const hasSender: boolean = this.poolQuery
             .getAllBySender(transaction.data.senderPublicKey)
@@ -88,7 +92,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
     public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
         await super.applyToSender(transaction);
 
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
@@ -96,7 +100,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
             IBusinessWalletAttributes
         >("business").businessAsset;
 
-        Utils.assert.defined<MagistrateInterfaces.IBusinessUpdateAsset>(transaction.data.asset?.businessUpdate);
+        AppUtils.assert.defined<MagistrateInterfaces.IBusinessUpdateAsset>(transaction.data.asset?.businessUpdate);
 
         const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = transaction.data.asset.businessUpdate;
 
@@ -109,13 +113,13 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
     public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
         await super.revertForSender(transaction);
 
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
-        Utils.assert.defined<number>(transaction.data.typeGroup);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<number>(transaction.data.typeGroup);
 
         // Here we have to "replay" all business registration and update transactions
         // (except the current one being reverted) to rebuild previous wallet state.
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
-        Utils.assert.defined<string>(sender.publicKey);
+        AppUtils.assert.defined<string>(sender.publicKey);
 
         const businessTransactions = await this.transactionHistoryService.findManyByCriteria([
             {

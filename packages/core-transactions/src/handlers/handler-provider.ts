@@ -19,7 +19,7 @@ export class TransactionHandlerProvider {
         return this.registered === false;
     }
 
-    public registerHandlers() {
+    public registerHandlers(): void {
         for (const handler of this.handlers) {
             this.registerHandler(handler);
         }

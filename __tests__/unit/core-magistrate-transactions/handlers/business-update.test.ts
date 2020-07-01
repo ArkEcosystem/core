@@ -16,7 +16,6 @@ import {
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
-import { Mapper, Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -44,21 +43,21 @@ mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 const transactionHistoryService = {
     findManyByCriteria: jest.fn(),
+    streamByCriteria: jest.fn(),
 };
 
 beforeEach(() => {
+    transactionHistoryService.findManyByCriteria.mockReset();
+
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
-    Mocks.TransactionRepository.setTransactions([]);
-    transactionHistoryService.findManyByCriteria.mockReset();
-
     app = initApp();
 
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BusinessUpdateTransactionHandler);
-    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -112,10 +111,17 @@ describe("BusinessRegistration", () => {
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(businessUpdateTransaction)]);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield businessUpdateTransaction.data;
+            });
+
             await expect(handler.bootstrap()).toResolve();
 
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessUpdateAsset);
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.MagistrateTransactionGroup,
+                type: Enums.MagistrateTransactionType.BusinessUpdate,
+            });
         });
     });
 

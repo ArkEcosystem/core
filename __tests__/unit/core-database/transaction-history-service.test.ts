@@ -1,40 +1,40 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Repositories } from "@arkecosystem/core-database";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import { TransactionHistoryService } from "../../../packages/core-database/src/transaction-history-service";
 
-const blockRepository = {
-    findManyByExpression: jest.fn(),
-    listByExpression: jest.fn(),
+const jestfn = <T extends (...args: unknown[]) => unknown>(
+    implementation?: (...args: Parameters<T>) => ReturnType<T>,
+) => {
+    return jest.fn(implementation);
 };
 
+const blockRepository = {};
+
 const transactionRepository = {
-    findManyByExpression: jest.fn(),
-    listByExpression: jest.fn(),
+    findManyByExpression: jestfn<Repositories.TransactionRepository["findManyByExpression"]>(),
+    streamByExpression: jestfn<Repositories.TransactionRepository["streamByExpression"]>(),
+    listByExpression: jestfn<Repositories.TransactionRepository["listByExpression"]>(),
 };
 
 const blockFilter = {
-    getExpression: jest.fn(),
+    getExpression: jestfn<Contracts.Database.BlockFilter["getExpression"]>(),
 };
 
 const transactionFilter = {
-    getExpression: jest.fn(),
+    getExpression: jestfn<Contracts.Database.TransactionFilter["getExpression"]>(),
 };
 
 const modelConverter = {
-    getTransactionData: jest.fn(),
+    getTransactionData: jestfn<Contracts.Database.ModelConverter["getTransactionData"]>(),
 };
 
 beforeEach(() => {
-    blockRepository.findManyByExpression.mockReset();
-    blockRepository.listByExpression.mockReset();
-
     transactionRepository.findManyByExpression.mockReset();
     transactionRepository.listByExpression.mockReset();
-
     blockFilter.getExpression.mockReset();
-
     transactionFilter.getExpression.mockReset();
-
     modelConverter.getTransactionData.mockReset();
 });
 
@@ -47,8 +47,8 @@ container.bind(Container.Identifiers.DatabaseModelConverter).toConstantValue(mod
 
 describe("TransactionHistoryService.findOneByCriteria", () => {
     it("should return undefined when model wasn't found in repository", async () => {
-        const criteria = {},
-            expression = {};
+        const criteria: Contracts.Shared.OrTransactionCriteria = Symbol.for("criteria") as any;
+        const expression: Contracts.Search.Expression<Contracts.Database.TransactionModel> = Symbol.for("expr") as any;
 
         transactionFilter.getExpression.mockResolvedValueOnce(expression);
         transactionRepository.findManyByExpression.mockResolvedValueOnce([]);
@@ -64,10 +64,10 @@ describe("TransactionHistoryService.findOneByCriteria", () => {
     });
 
     it("should return block data when model was found in repository", async () => {
-        const criteria = {};
-        const expression = {};
-        const model = {};
-        const data = {};
+        const criteria: Contracts.Shared.OrTransactionCriteria = Symbol.for("criteria") as any;
+        const expression: Contracts.Search.Expression<Contracts.Database.TransactionModel> = Symbol.for("expr") as any;
+        const model: Contracts.Database.TransactionModel = Symbol.for("model") as any;
+        const data: Interfaces.ITransactionData = Symbol.for("data") as any;
 
         transactionFilter.getExpression.mockResolvedValueOnce(expression);
         transactionRepository.findManyByExpression.mockResolvedValueOnce([model]);
@@ -86,19 +86,19 @@ describe("TransactionHistoryService.findOneByCriteria", () => {
 
 describe("TransactionHistoryService.findManyByCriteria", () => {
     it("should return array of block data", async () => {
-        const criteria = {},
-            expression = {},
-            model1 = {},
-            model2 = {},
-            data1 = {},
-            data2 = {};
+        const criteria: Contracts.Shared.OrTransactionCriteria = Symbol.for("criteria") as any;
+        const expression: Contracts.Search.Expression<Contracts.Database.TransactionModel> = Symbol.for("expr") as any;
+        const model1: Contracts.Database.TransactionModel = Symbol.for("model") as any;
+        const model2: Contracts.Database.TransactionModel = Symbol.for("model") as any;
+        const data1: Interfaces.ITransactionData = Symbol.for("data") as any;
+        const data2: Interfaces.ITransactionData = Symbol.for("data") as any;
 
         transactionFilter.getExpression.mockResolvedValueOnce(expression);
         transactionRepository.findManyByExpression.mockResolvedValueOnce([model1, model2]);
         modelConverter.getTransactionData.mockReturnValueOnce([data1, data2]);
 
-        const blockHistoryService = container.resolve(TransactionHistoryService);
-        const result = await blockHistoryService.findManyByCriteria(criteria);
+        const transactionHistoryService = container.resolve(TransactionHistoryService);
+        const result = await transactionHistoryService.findManyByCriteria(criteria);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
         expect(transactionRepository.findManyByExpression).toBeCalledWith(expression);
@@ -110,16 +110,50 @@ describe("TransactionHistoryService.findManyByCriteria", () => {
     });
 });
 
+describe("TransactionHistoryService.streamByCriteria", () => {
+    it("should yield array of block data", async () => {
+        const criteria: Contracts.Shared.OrTransactionCriteria = Symbol.for("criteria") as any;
+        const expression: Contracts.Search.Expression<Contracts.Database.TransactionModel> = Symbol.for("expr") as any;
+        const model1: Contracts.Database.TransactionModel = Symbol.for("model") as any;
+        const model2: Contracts.Database.TransactionModel = Symbol.for("model") as any;
+        const data1: Interfaces.ITransactionData = Symbol.for("data") as any;
+        const data2: Interfaces.ITransactionData = Symbol.for("data") as any;
+
+        transactionFilter.getExpression.mockResolvedValueOnce(expression);
+        transactionRepository.streamByExpression.mockImplementationOnce(async function* () {
+            yield model1;
+            yield model2;
+        });
+        modelConverter.getTransactionData.mockReturnValueOnce([data1]);
+        modelConverter.getTransactionData.mockReturnValueOnce([data2]);
+
+        const transactionHistoryService = container.resolve(TransactionHistoryService);
+        const result: Interfaces.ITransactionData[] = [];
+        for await (const data of transactionHistoryService.streamByCriteria(criteria)) {
+            result.push(data);
+        }
+
+        expect(transactionFilter.getExpression).toBeCalledWith(criteria);
+        expect(transactionRepository.streamByExpression).toBeCalledWith(expression);
+        expect(modelConverter.getTransactionData).toBeCalledWith([model1]);
+        expect(modelConverter.getTransactionData).toBeCalledWith([model2]);
+
+        expect(result.length).toBe(2);
+        expect(result[0]).toBe(data1);
+        expect(result[1]).toBe(data2);
+    });
+});
+
 describe("TransactionHistoryService.listByCriteria", () => {
     it("should return search result", async () => {
-        const criteria = {},
-            expression = {},
-            model1 = {},
-            model2 = {},
-            data1 = {},
-            data2 = {},
-            order = [],
-            page = { offset: 0, limit: 100 };
+        const criteria: Contracts.Shared.OrTransactionCriteria = Symbol.for("criteria") as any;
+        const expression: Contracts.Search.Expression<Contracts.Database.TransactionModel> = Symbol.for("expr") as any;
+        const model1: Contracts.Database.TransactionModel = Symbol.for("model") as any;
+        const model2: Contracts.Database.TransactionModel = Symbol.for("model") as any;
+        const data1: Interfaces.ITransactionData = Symbol.for("data") as any;
+        const data2: Interfaces.ITransactionData = Symbol.for("data") as any;
+        const order: Contracts.Search.ListOrder = Symbol.for("order") as any;
+        const page: Contracts.Search.ListPage = Symbol.for("page") as any;
 
         transactionFilter.getExpression.mockResolvedValueOnce(expression);
         transactionRepository.listByExpression.mockResolvedValueOnce({
