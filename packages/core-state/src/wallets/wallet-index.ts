@@ -21,6 +21,11 @@ export class WalletIndex implements Contracts.State.WalletIndex {
     }
 
     public index(wallet: Contracts.State.Wallet): void {
+        for (const [key, indexedWallet] of Object.entries(this.walletIndex)) {
+            if (indexedWallet === wallet) {
+                delete this.walletIndex[key];
+            }
+        }
         this.indexer(this, wallet);
     }
 
