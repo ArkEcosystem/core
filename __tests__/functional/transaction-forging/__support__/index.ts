@@ -9,7 +9,7 @@ jest.setTimeout(1200000);
 
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Sandbox } from "@packages/core-test-framework/src";
-import { StateBuilder } from "@arkecosystem/core-state/dist/state-builder";
+import { StateBuilder } from "@arkecosystem/core-state/src/state-builder";
 
 const sandbox: Sandbox = new Sandbox();
 
@@ -115,7 +115,7 @@ export const tearDown = async (): Promise<void> => {
             attributes: walletAttributes,
         }
     };
-    const sortWallets = (a: Contracts.State.Wallet, b: Contracts.State.Wallet) => a.publicKey! > b.publicKey! ? 1 : -1;
+    const sortWallets = (a: Contracts.State.Wallet, b: Contracts.State.Wallet) => a.publicKey!.localeCompare(b.publicKey!);
 
     const allByPublicKey = walletRepository.allByPublicKey().map(w => w.clone()).sort(sortWallets).map(mapWallets);
 

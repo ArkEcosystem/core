@@ -404,7 +404,7 @@ describe("Htlc claim", () => {
 
                 await handler.apply(htlcClaimTransaction);
 
-                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
+                expect(lockWallet.hasAttribute("htlc")).toBe(false);
                 expect(claimWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
@@ -447,7 +447,7 @@ describe("Htlc claim", () => {
 
                 await handler.apply(htlcClaimTransaction);
 
-                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
+                expect(lockWallet.hasAttribute("htlc")).toBe(false);
                 expect(claimWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
@@ -464,7 +464,7 @@ describe("Htlc claim", () => {
 
                 await handler.apply(htlcClaimTransaction);
 
-                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
+                expect(lockWallet.hasAttribute("htlc")).toBe(false);
                 expect(claimWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
@@ -499,7 +499,7 @@ describe("Htlc claim", () => {
 
                 await handler.apply(htlcClaimTransaction);
 
-                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
+                expect(lockWallet.hasAttribute("htlc")).toBe(false);
                 expect(claimWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );

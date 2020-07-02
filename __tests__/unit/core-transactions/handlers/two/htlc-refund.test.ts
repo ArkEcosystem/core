@@ -349,7 +349,7 @@ describe("Htlc refund", () => {
 
                 await handler.apply(htlcRefundTransaction);
 
-                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
+                expect(lockWallet.hasAttribute("htlc")).toBe(false);
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
@@ -392,7 +392,7 @@ describe("Htlc refund", () => {
 
                 await handler.apply(htlcRefundTransaction);
 
-                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
+                expect(lockWallet.hasAttribute("htlc")).toBe(false);
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
@@ -409,7 +409,7 @@ describe("Htlc refund", () => {
                 await handler.apply(htlcRefundTransaction);
 
                 // @ts-ignore
-                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
+                expect(lockWallet.hasAttribute("htlc")).toBe(false);
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
@@ -442,7 +442,7 @@ describe("Htlc refund", () => {
                 await handler.apply(htlcRefundTransaction);
 
                 // @ts-ignore
-                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
+                expect(lockWallet.hasAttribute("htlc")).toBe(false);
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
