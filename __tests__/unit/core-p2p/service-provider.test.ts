@@ -1,7 +1,6 @@
-import { Container, Application, Providers, Services } from "@arkecosystem/core-kernel";
-
-import { ServiceProvider } from "@arkecosystem/core-p2p/src/service-provider";
+import { Application, Container, Providers, Services } from "@arkecosystem/core-kernel";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
+import { ServiceProvider } from "@arkecosystem/core-p2p/src/service-provider";
 
 describe("ServiceProvider", () => {
     const serverSymbol = Symbol.for("P2P<Server>");
@@ -19,10 +18,12 @@ describe("ServiceProvider", () => {
         [serverSymbol]: mockServer,
         [Container.Identifiers.TriggerService]: triggerService,
     };
-    let factoryBound; 
+    let factoryBound;
     const appBind = {
         to: () => ({ inSingletonScope: () => {} }),
-        toFactory: (factoryFn) => { factoryBound = factoryFn },
+        toFactory: (factoryFn) => {
+            factoryBound = factoryFn;
+        },
     };
     let application = {
         bind: (key) => appBind,
@@ -49,7 +50,9 @@ describe("ServiceProvider", () => {
         const pluginConfiguration = app.resolve<Providers.PluginConfiguration>(Providers.PluginConfiguration);
         pluginConfiguration.from("core-p2p", {
             // @ts-ignore
-            server: {},
+            server: {
+                port: "4005",
+            },
         });
         serviceProvider.setConfig(pluginConfiguration);
 
@@ -137,6 +140,16 @@ describe("ServiceProvider", () => {
     describe("required", () => {
         it("should return true", async () => {
             expect(await serviceProvider.required()).toBeTrue();
+        });
+    });
+    describe("peerFactory", () => {
+        it("should create a peer with integer port number, when using string config", async () => {
+            await serviceProvider.register();
+            const ip = "188.133.1.2";
+            const testPeer = factoryBound()(ip);
+            expect(testPeer).toBeInstanceOf(Peer);
+            expect(typeof testPeer.port).toBe("number");
+            expect(testPeer.port).toEqual(4005);
         });
     });
 });

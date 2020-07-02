@@ -3,7 +3,7 @@ import "jest-extended";
 import Hapi from "@hapi/hapi";
 import { BlocksController } from "@packages/core-api/src/controllers/blocks";
 import { Block } from "@packages/core-database/src/models";
-import { Application } from "@packages/core-kernel";
+import {Application, Container} from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { Wallets } from "@packages/core-state";
@@ -23,6 +23,7 @@ const blockHistoryService = {
     findOneByCriteria: jest.fn(),
     listByCriteria: jest.fn(),
     listByCriteriaJoinTransactions: jest.fn(),
+    findOneByCriteriaJoinTransactions: jest.fn(),
 };
 const transactionHistoryService = {
     listByCriteria: jest.fn(),
@@ -62,7 +63,8 @@ afterEach(() => {
 
 describe("BlocksController", () => {
     let mockBlock: Partial<Block>;
-    let mockBlockJson: object;
+    let mockBlockJson;
+    let mockBlockTransformed;
 
     beforeEach(() => {
         mockBlock = {
@@ -74,6 +76,36 @@ describe("BlocksController", () => {
             totalFee: Utils.BigNumber.make("200"),
             totalAmount: Utils.BigNumber.make("300"),
             generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+        };
+
+        mockBlockTransformed = {
+            confirmations: 0,
+            forged: {
+                amount: "300",
+                fee: "200",
+                reward: "100",
+                total: "300",
+            },
+            generator: {
+                address: "DBYyh2vXcigrJGUHfvmYxVxEqeH7vomw6x",
+                publicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
+                username: "delegate",
+            },
+            height: 2,
+            id: "17184958558311101492",
+            payload: {
+                hash: undefined,
+                length: undefined,
+            },
+            previous: undefined,
+            signature: undefined,
+            timestamp: {
+                epoch: 2,
+                human: "2017-03-21T13:00:02.000Z",
+                unix: 1490101202,
+            },
+            transactions: undefined,
+            version: 2,
         };
 
         mockBlockJson = {
@@ -193,6 +225,21 @@ describe("BlocksController", () => {
             expect(response.data).toBeDefined();
             expect(response.data).toEqual(mockBlockJson);
         });
+
+        it("should return first block from store using transform option", async () => {
+            Mocks.StateStore.setBlock({ data: mockBlock, transactions: [] } as Partial<Interfaces.IBlock>);
+
+            const request: Hapi.Request = {
+                query: {
+                    transform: true,
+                },
+            };
+
+            const response = (await controller.first(request, undefined)) as ItemResponse;
+
+            expect(response.data).toBeDefined();
+            expect(response.data).toEqual(mockBlockTransformed);
+        });
     });
 
     describe("last", () => {
@@ -201,8 +248,6 @@ describe("BlocksController", () => {
 
             const request: Hapi.Request = {
                 query: {
-                    page: 1,
-                    limit: 100,
                     transform: false,
                 },
             };
@@ -212,11 +257,48 @@ describe("BlocksController", () => {
             expect(response.data).toBeDefined();
             expect(response.data).toEqual(mockBlockJson);
         });
+
+        it("should return last block from store using transform option", async () => {
+            Mocks.Blockchain.setBlock({ data: mockBlock, transactions: [] } as Partial<Interfaces.IBlock>);
+
+            const request: Hapi.Request = {
+                query: {
+                    transform: true,
+                },
+            };
+
+            const response = (await controller.last(request, undefined)) as ItemResponse;
+
+            expect(response.data).toBeDefined();
+            expect(response.data).toEqual(mockBlockTransformed);
+        });
     });
 
     describe("show", () => {
         it("should return found block from store", async () => {
             blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock);
+
+            const request: Hapi.Request = {
+                params: {
+                    id: mockBlock.id,
+                },
+                query: {
+                    transform: false,
+                },
+            };
+
+            const response = (await controller.show(request, undefined)) as ItemResponse;
+
+            expect(response.data).toBeDefined();
+            expect(response.data).toEqual(mockBlockJson);
+        });
+
+        it("should return found block from store and last height is defined", async () => {
+            blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock);
+
+            const mockBlockchain = app.get(Container.Identifiers.BlockchainService);
+            // @ts-ignore
+            mockBlockchain.getLastHeight = jest.fn().mockReturnValue(17184958558311102010);
 
             const request: Hapi.Request = {
                 params: {
@@ -240,6 +322,40 @@ describe("BlocksController", () => {
                 },
                 query: {
                     transform: false,
+                },
+            };
+
+            await expect(controller.show(request, undefined)).resolves.toThrowError("Block not found");
+        });
+
+        it("should return found block from store using transform option", async () => {
+            blockHistoryService.findOneByCriteriaJoinTransactions.mockResolvedValueOnce({
+                data: mockBlock,
+                transactions: [],
+            });
+
+            const request: Hapi.Request = {
+                params: {
+                    id: mockBlock.id,
+                },
+                query: {
+                    transform: true,
+                },
+            };
+
+            const response = (await controller.show(request, undefined)) as ItemResponse;
+
+            expect(response.data).toBeDefined();
+            expect(response.data).toEqual(mockBlockTransformed);
+        });
+
+        it("should return error if block not found using transform option", async () => {
+            const request: Hapi.Request = {
+                params: {
+                    id: mockBlock.id,
+                },
+                query: {
+                    transform: true,
                 },
             };
 
@@ -339,6 +455,35 @@ describe("BlocksController", () => {
             expect(response.meta).toBeDefined();
             expect(response.results).toBeDefined();
             expect(response.results[0]).toEqual(mockBlockJson);
+        });
+
+        it("should return found blocks from store using transform", async () => {
+            blockHistoryService.listByCriteriaJoinTransactions.mockResolvedValue({
+                rows: [
+                    {
+                        data: mockBlock,
+                        transactions: [],
+                    },
+                ],
+                count: 1,
+                countIsEstimate: false,
+            });
+
+            const request: Hapi.Request = {
+                params: {
+                    id: mockBlock.id,
+                },
+                query: {
+                    transform: true,
+                },
+            };
+
+            const response = (await controller.search(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toBeDefined();
+            expect(response.meta).toBeDefined();
+            expect(response.results).toBeDefined();
+            expect(response.results[0]).toEqual(mockBlockTransformed);
         });
     });
 });

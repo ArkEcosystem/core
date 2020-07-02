@@ -7,13 +7,15 @@ export const getHeaders = (app: Contracts.Kernel.Application) => {
         height: number | undefined;
     } = {
         version: app.version(),
-        port: app
-            .getTagged<Providers.PluginConfiguration>(
-                Container.Identifiers.PluginConfiguration,
-                "plugin",
-                "@arkecosystem/core-p2p",
-            )
-            .get<number>("port"),
+        port: Number(
+            app
+                .getTagged<Providers.PluginConfiguration>(
+                    Container.Identifiers.PluginConfiguration,
+                    "plugin",
+                    "@arkecosystem/core-p2p",
+                )
+                .get<number>("port"),
+        ),
         height: undefined,
     };
 

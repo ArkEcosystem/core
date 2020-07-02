@@ -48,6 +48,7 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue({});
 
+    defaults.server.http.enabled = true;
     defaults.server.https.enabled = "enabled";
     defaults.server.https.tls.key = path.resolve(__dirname, "./__fixtures__/key.pem");
     defaults.server.https.tls.cert = path.resolve(__dirname, "./__fixtures__/server.crt");
@@ -78,6 +79,26 @@ describe("ServiceProvider", () => {
         await expect(coreApiServiceProvider.register()).toResolve();
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
+        expect(app.isBound<Server>(Identifiers.HTTPS)).toBeTrue();
+
+        await expect(coreApiServiceProvider.boot()).toResolve();
+    });
+
+    it("should boot if HTTP and HTTPS server are disabled", async () => {
+        defaults.server.http.enabled = false;
+        defaults.server.https.enabled = undefined;
+
+        const coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
+
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-api", defaults);
+
+        coreApiServiceProvider.setConfig(instance);
+
+        await expect(coreApiServiceProvider.register()).toResolve();
+
+        expect(app.isBound<Server>(Identifiers.HTTP)).toBeFalse();
+        expect(app.isBound<Server>(Identifiers.HTTPS)).toBeFalse();
 
         await expect(coreApiServiceProvider.boot()).toResolve();
     });
@@ -93,6 +114,28 @@ describe("ServiceProvider", () => {
         await expect(coreApiServiceProvider.register()).toResolve();
 
         expect(app.isBound<Server>(Identifiers.HTTP)).toBeTrue();
+        expect(app.isBound<Server>(Identifiers.HTTPS)).toBeTrue();
+
+        await expect(coreApiServiceProvider.boot()).toResolve();
+
+        await expect(coreApiServiceProvider.dispose()).toResolve();
+    });
+
+    it("should dispose if HTTP and HTTPS server are disabled", async () => {
+        defaults.server.http.enabled = false;
+        defaults.server.https.enabled = undefined;
+
+        const coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
+
+        const pluginConfiguration = app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration);
+        const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-api", defaults);
+
+        coreApiServiceProvider.setConfig(instance);
+
+        await expect(coreApiServiceProvider.register()).toResolve();
+
+        expect(app.isBound<Server>(Identifiers.HTTP)).toBeFalse();
+        expect(app.isBound<Server>(Identifiers.HTTPS)).toBeFalse();
 
         await expect(coreApiServiceProvider.boot()).toResolve();
 
