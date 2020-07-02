@@ -179,7 +179,7 @@ describe("NodeController", () => {
                 sum: "500",
             };
 
-            Mocks.TransactionRepository.setFeeStatistics([feeStatistics]);
+            Mocks.TransactionRepository.setFeeStatistics([feeStatistics, feeStatistics]);
 
             const request: Hapi.Request = {
                 query: {

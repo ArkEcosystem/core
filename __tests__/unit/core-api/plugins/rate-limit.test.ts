@@ -51,7 +51,7 @@ describe("Rate limit", () => {
         };
     });
 
-    it("shod resolve if rate limit is disabled", async () => {
+    it("should resolve if rate limit is disabled", async () => {
         defaults.plugins.rateLimit.enabled = false;
         const server = await initServer(app, defaults, customRoute);
 
@@ -60,7 +60,7 @@ describe("Rate limit", () => {
         expect(payload.data).toBe("ok");
     });
 
-    it("shod return error if rate limit is exceeded", async () => {
+    it("should return error if rate limit is exceeded", async () => {
         defaults.plugins.rateLimit.whitelist = [];
         defaults.plugins.rateLimit.blacklist = [];
         const server = await initServer(app, defaults, customRoute);
@@ -74,8 +74,9 @@ describe("Rate limit", () => {
         expect(payload.statusCode).toBe(429);
     });
 
-    it("shod resolve if whitelisted", async () => {
+    it("should resolve if whitelisted", async () => {
         defaults.plugins.rateLimit.whitelist = ["127.0.0.1"];
+        defaults.plugins.rateLimit.blacklist = ["*"];
         const server = await initServer(app, defaults, customRoute);
 
         const response = await server.inject(injectOptions);
@@ -83,7 +84,7 @@ describe("Rate limit", () => {
         expect(payload.data).toBe("ok");
     });
 
-    it("shod resolve if whitelisted as pattern", async () => {
+    it("should resolve if whitelisted as pattern", async () => {
         defaults.plugins.rateLimit.whitelist = ["*"];
         const server = await initServer(app, defaults, customRoute);
 
@@ -92,7 +93,7 @@ describe("Rate limit", () => {
         expect(payload.data).toBe("ok");
     });
 
-    it("shod return error if blacklisted", async () => {
+    it("should return error if blacklisted", async () => {
         defaults.plugins.rateLimit.whitelist = [];
         defaults.plugins.rateLimit.blacklist = ["127.0.0.1"];
         const server = await initServer(app, defaults, customRoute);
@@ -102,7 +103,17 @@ describe("Rate limit", () => {
         expect(payload.statusCode).toBe(429);
     });
 
-    it("shod return boom if consume throws error", async () => {
+    it("should return error if blacklisted with *", async () => {
+        defaults.plugins.rateLimit.whitelist = ["127.0.0.2", "127.0.0.3"];
+        defaults.plugins.rateLimit.blacklist = ["*"];
+        const server = await initServer(app, defaults, customRoute);
+
+        const response = await server.inject(injectOptions);
+        const payload = JSON.parse(response.payload || {});
+        expect(payload.statusCode).toBe(429);
+    });
+
+    it("should return boom if consume throws error", async () => {
         RLWrapperBlackAndWhite.prototype.consume = (key, pointsToConsume) => {
             throw new Error();
         };

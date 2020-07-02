@@ -65,6 +65,7 @@ export = {
                     }
 
                     const tooManyRequests = Boom.tooManyRequests();
+                    /* istanbul ignore next */
                     tooManyRequests.output.headers["Retry-After"] = `${Math.round(error.msBeforeNext / 1000) || 1}`;
 
                     return tooManyRequests;

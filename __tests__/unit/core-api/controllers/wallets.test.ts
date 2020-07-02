@@ -31,6 +31,26 @@ const makeNotExpiredTimestamp = (type) =>
 
 const transactionHistoryService = {
     listByCriteria: jest.fn(),
+    listByCriteriaJoinBlock: jest.fn(),
+};
+
+const block: Interfaces.IBlockData = {
+    version: 0,
+    timestamp: 103497376,
+    height: 152,
+    previousBlockHex: "23d6352eb4450dfb",
+    previousBlock: "2582309911052750331",
+    numberOfTransactions: 0,
+    totalAmount: Utils.BigNumber.make("0"),
+    totalFee: Utils.BigNumber.make("0"),
+    reward: Utils.BigNumber.make("0"),
+    payloadLength: 0,
+    payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    generatorPublicKey: "021770413ad01c60b94e1d3ed44c00e0145fe7897e40f5f6265e220f4e65cf427f",
+    blockSignature:
+        "3045022100f43e1133e74eca9fa8090c9b581fb1727d1e007818a53247ff9272b6bb64242e02201473233d08829d9ee6c35fee462a62911d675f1dc3ab66798882475b5acabb86",
+    idHex: "420d4f574229b758",
+    id: "4759547617391261528",
 };
 
 beforeEach(() => {
@@ -145,6 +165,23 @@ describe("WalletsController", () => {
                 }),
             );
         });
+
+        it("should return wallet not found", async () => {
+            walletRepository.findByScope = jest.fn();
+
+            const request: Hapi.Request = {
+                params: {
+                    id: senderWallet.publicKey,
+                },
+                query: {
+                    transform: false,
+                },
+            };
+
+            const response = (await controller.show(request, undefined)) as ItemResponse;
+
+            expect(response).toEqual(new Error("Wallet not found"));
+        });
     });
 
     describe("transactions", () => {
@@ -163,6 +200,36 @@ describe("WalletsController", () => {
                     page: 1,
                     limit: 100,
                     transform: false,
+                },
+            };
+
+            const response = (await controller.transactions(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toBeDefined();
+            expect(response.meta).toBeDefined();
+            expect(response.results).toBeDefined();
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
+        });
+
+        it("should return list of transactions using transform", async () => {
+            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
+                rows: [{ data: transferTransaction.data, block: block }],
+                count: 1,
+                countIsEstimate: false,
+            });
+
+            const request: Hapi.Request = {
+                params: {
+                    id: senderWallet.publicKey,
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    transform: true,
                 },
             };
 
@@ -234,6 +301,36 @@ describe("WalletsController", () => {
             );
         });
 
+        it("should return list of transactions using transform", async () => {
+            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
+                rows: [{ data: transferTransaction.data, block: block }],
+                count: 1,
+                countIsEstimate: false,
+            });
+
+            const request: Hapi.Request = {
+                params: {
+                    id: senderWallet.publicKey,
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    transform: true,
+                },
+            };
+
+            const response = (await controller.transactionsSent(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toBeDefined();
+            expect(response.meta).toBeDefined();
+            expect(response.results).toBeDefined();
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
+        });
+
         it("should return empty list of transactions when wallet is cold wallet", async () => {
             walletRepository.findByAddress("01234567890123456789");
 
@@ -285,6 +382,36 @@ describe("WalletsController", () => {
             );
         });
 
+        it("should return list of transactions using transform", async () => {
+            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
+                rows: [{ data: transferTransaction.data, block: block}],
+                count: 1,
+                countIsEstimate: false,
+            });
+
+            const request: Hapi.Request = {
+                params: {
+                    id: senderWallet.publicKey,
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    transform: true,
+                },
+            };
+
+            const response = (await controller.transactionsReceived(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toBeDefined();
+            expect(response.meta).toBeDefined();
+            expect(response.results).toBeDefined();
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
+        });
+
         it("should return error if wallet does not exists", async () => {
             const request: Hapi.Request = {
                 params: {
@@ -312,6 +439,36 @@ describe("WalletsController", () => {
                     page: 1,
                     limit: 100,
                     transform: false,
+                },
+            };
+
+            const response = (await controller.votes(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toBeDefined();
+            expect(response.meta).toBeDefined();
+            expect(response.results).toBeDefined();
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
+        });
+
+        it("should return list of transactions using transform", async () => {
+            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
+                rows: [{ data: transferTransaction.data, block: block }],
+                count: 1,
+                countIsEstimate: false,
+            });
+
+            const request: Hapi.Request = {
+                params: {
+                    id: senderWallet.publicKey,
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    transform: true,
                 },
             };
 
