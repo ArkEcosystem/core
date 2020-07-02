@@ -26,6 +26,7 @@ let controller: TestController;
 
 beforeEach(() => {
     app = initApp();
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(null);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);

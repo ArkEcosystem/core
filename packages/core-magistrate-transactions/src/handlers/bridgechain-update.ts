@@ -1,11 +1,10 @@
-import { Models } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
     Enums,
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import {
@@ -42,10 +41,15 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
     }
 
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
+        const criteria = {
+            typeGroup: this.getConstructor().typeGroup,
+            type: this.getConstructor().type,
+        };
 
-        for (const transaction of transactions) {
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
+            AppUtils.assert.defined<string>(transaction.senderPublicKey);
+            AppUtils.assert.defined<MagistrateInterfaces.IBridgechainUpdateAsset>(transaction.asset?.bridgechainUpdate);
+
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
                 "business",
@@ -76,7 +80,9 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             throw new BusinessIsResignedError();
         }
 
-        Utils.assert.defined<MagistrateInterfaces.IBridgechainUpdateAsset>(transaction.data.asset?.bridgechainUpdate);
+        AppUtils.assert.defined<MagistrateInterfaces.IBridgechainUpdateAsset>(
+            transaction.data.asset?.bridgechainUpdate,
+        );
 
         const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
             "business",
@@ -89,7 +95,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset =
             transaction.data.asset.bridgechainUpdate;
 
-        Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
+        AppUtils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
             businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
@@ -116,7 +122,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
     }
 
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const bridgechainId: string = transaction.data.asset!.bridgechainUpdate.bridgechainId;
         const hasUpdate: boolean = this.poolQuery
@@ -136,7 +142,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
     public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
         await super.applyToSender(transaction);
 
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
@@ -144,12 +150,14 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             "business",
         );
 
-        Utils.assert.defined<MagistrateInterfaces.IBridgechainUpdateAsset>(transaction.data.asset?.bridgechainUpdate);
+        AppUtils.assert.defined<MagistrateInterfaces.IBridgechainUpdateAsset>(
+            transaction.data.asset?.bridgechainUpdate,
+        );
 
         const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset =
             transaction.data.asset.bridgechainUpdate;
 
-        Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
+        AppUtils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
             businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
@@ -167,14 +175,14 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
     public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
         await super.revertForSender(transaction);
 
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
-        Utils.assert.defined<object>(transaction.data.asset);
-        Utils.assert.defined<number>(transaction.data.typeGroup);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<object>(transaction.data.asset);
+        AppUtils.assert.defined<number>(transaction.data.typeGroup);
 
         // Here we have to "replay" all bridgechain registration and update transactions for this bridgechain id
         // (except the current one being reverted) to rebuild previous wallet state.
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
-        Utils.assert.defined<string>(sender.publicKey);
+        AppUtils.assert.defined<string>(sender.publicKey);
 
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
@@ -205,7 +213,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         }
         delete bridgechainAsset.bridgechainId;
 
-        Utils.assert.defined<object>(businessAttributes.bridgechains);
+        AppUtils.assert.defined<object>(businessAttributes.bridgechains);
         businessAttributes.bridgechains[bridgechainId] = { bridgechainAsset };
 
         this.walletRepository.index(sender);

@@ -5,6 +5,7 @@ import { DelegateEvent } from "@packages/core-kernel/src/enums";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
+import { Mocks } from "@packages/core-test-framework";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
@@ -19,8 +20,8 @@ import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import {
     buildMultiSignatureWallet,
@@ -29,7 +30,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Mocks, Mapper } from "@packages/core-test-framework";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -44,12 +44,19 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+const transactionHistoryService = {
+    streamByCriteria: jest.fn(),
+};
+
 beforeEach(() => {
+    transactionHistoryService.streamByCriteria.mockReset();
+
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
@@ -101,22 +108,29 @@ describe("DelegateRegistrationTransaction", () => {
 
     describe("bootstrap", () => {
         afterEach(() => {
-            Mocks.TransactionRepository.setTransactions([]);
             Mocks.BlockRepository.setDelegateForgedBlocks([]);
             Mocks.BlockRepository.setLastForgedBlocks([]);
         });
 
+        // TODO: assert wallet repository
+
         it("should resolve", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(delegateRegistrationTransaction),
-            ]);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield delegateRegistrationTransaction.data;
+            });
+
             await expect(handler.bootstrap()).toResolve();
+
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.DelegateRegistration,
+            });
         });
 
         it("should resolve with bocks", async () => {
-            Mocks.TransactionRepository.setTransactions([
-                Mapper.mapTransactionToModel(delegateRegistrationTransaction),
-            ]);
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield delegateRegistrationTransaction.data;
+            });
 
             Mocks.BlockRepository.setDelegateForgedBlocks([
                 {
@@ -137,9 +151,12 @@ describe("DelegateRegistrationTransaction", () => {
             ]);
 
             await expect(handler.bootstrap()).toResolve();
+            // TODO: assert wallet repository
         });
 
         it("should resolve with bocks and genesis wallet", async () => {
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {});
+
             Mocks.BlockRepository.setDelegateForgedBlocks([
                 {
                     generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
@@ -159,6 +176,7 @@ describe("DelegateRegistrationTransaction", () => {
             ]);
 
             await expect(handler.bootstrap()).toResolve();
+            // TODO: assert wallet repository
         });
     });
 

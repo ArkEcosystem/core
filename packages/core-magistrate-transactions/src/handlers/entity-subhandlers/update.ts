@@ -1,4 +1,3 @@
-import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/core-magistrate-crypto";
 import { IEntityAsset, IEntityAssetData } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
@@ -21,9 +20,13 @@ export class EntityUpdateSubHandler {
 
     public async bootstrap(
         walletRepository: Contracts.State.WalletRepository,
-        transactions: Models.Transaction[],
+        transactionHistoryService: Contracts.Shared.TransactionHistoryService,
+        criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<void> {
-        for (const transaction of transactions) {
+        for await (const transaction of transactionHistoryService.streamByCriteria(criteria)) {
+            Utils.assert.defined<string>(transaction.senderPublicKey);
+            Utils.assert.defined<object>(transaction.asset);
+
             const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
             const entities: IEntitiesWallet = wallet.getAttribute<IEntitiesWallet>("entities");
 

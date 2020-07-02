@@ -51,6 +51,7 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(null);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 

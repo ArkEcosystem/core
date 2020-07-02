@@ -1,9 +1,7 @@
-import { Models } from "@arkecosystem/core-database";
-import { Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { NotEnoughDelegatesError, WalletAlreadyResignedError, WalletNotADelegateError } from "../../errors";
-import { TransactionReader } from "../../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 
@@ -13,6 +11,9 @@ import { DelegateRegistrationTransactionHandler } from "./delegate-registration"
 export class DelegateResignationTransactionHandler extends TransactionHandler {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
+
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [DelegateRegistrationTransactionHandler];
@@ -27,9 +28,14 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
-        for (const transaction of transactions) {
+        const criteria = {
+            typeGroup: this.getConstructor().typeGroup,
+            type: this.getConstructor().type,
+        };
+
+        for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
+            AppUtils.assert.defined<string>(transaction.senderPublicKey);
+
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             wallet.setAttribute("delegate.resigned", true);
             this.walletRepository.index(wallet);
@@ -64,11 +70,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
-        emitter.dispatch(Enums.DelegateEvent.Resigned, transaction.data);
+        emitter.dispatch(AppEnums.DelegateEvent.Resigned, transaction.data);
     }
 
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const hasSender: boolean = this.poolQuery
             .getAllBySender(transaction.data.senderPublicKey)
@@ -89,7 +95,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     public async applyToSender(transaction: Interfaces.ITransaction): Promise<void> {
         await super.applyToSender(transaction);
 
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
             transaction.data.senderPublicKey,
@@ -103,7 +109,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
         await super.revertForSender(transaction);
 
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         this.walletRepository.findByPublicKey(transaction.data.senderPublicKey).forgetAttribute("delegate.resigned");
     }

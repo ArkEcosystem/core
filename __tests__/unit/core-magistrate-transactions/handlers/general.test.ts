@@ -15,10 +15,10 @@ import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
+import _ from "lodash";
 
 import { buildSenderWallet, initApp } from "../__support__/app";
 import { Assets } from "./__fixtures__";
-import _ from "lodash";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -38,6 +38,7 @@ beforeEach(() => {
 
     app = initApp();
 
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(null);
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);

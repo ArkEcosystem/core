@@ -55,10 +55,10 @@ const block: Interfaces.IBlockData = {
 
 beforeEach(() => {
     app = initApp();
+    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     controller = app.resolve<WalletsController>(WalletsController);
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);

@@ -37,6 +37,15 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
         return data;
     }
 
+    public async *streamByCriteria(
+        criteria: Contracts.Search.OrCriteria<Contracts.Shared.TransactionCriteria>,
+    ): AsyncIterable<Interfaces.ITransactionData> {
+        const expression = await this.transactionFilter.getExpression(criteria);
+        for await (const model of this.transactionRepository.streamByExpression(expression)) {
+            yield this.modelConverter.getTransactionData([model])[0];
+        }
+    }
+
     public async listByCriteria(
         criteria: Contracts.Shared.OrTransactionCriteria,
         order: Contracts.Search.ListOrder,
