@@ -99,6 +99,29 @@ describe("PeersController", () => {
             );
         });
 
+        it("should return list of peers if version in request is not set", async () => {
+            Mocks.PeerStorage.setPeers([peer, anotherPeer]);
+
+            const request: Hapi.Request = {
+                query: {
+                    page: 1,
+                    limit: 100,
+                    transform: false,
+                },
+            };
+
+            const response = (await controller.index(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toBeDefined();
+            expect(response.meta).toBeDefined();
+            expect(response.results).toBeDefined();
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    ip: peer.ip,
+                }),
+            );
+        });
+
         it("should return error if version in request is invalid", async () => {
             const request: Hapi.Request = {
                 query: {
