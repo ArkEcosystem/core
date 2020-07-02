@@ -45,6 +45,28 @@ afterEach(() => {
 });
 
 describe("Controller", () => {
+    describe("getListingOrder", () => {
+        it("should parse order", async () => {
+            const request = {
+                query: {
+                    orderBy: "test:desc,test2:asc",
+                },
+            };
+
+            // @ts-ignore
+            expect(controller.getListingOrder(request)).toEqual([{"direction": "desc", "property": "test"}, {"direction": "asc", "property": "test2"}]);
+        });
+
+        it("should return empty array if orderBy is not present", async () => {
+            const request = {
+                query: {},
+            };
+
+            // @ts-ignore
+            expect(controller.getListingOrder(request)).toEqual([]);
+        });
+    });
+
     describe("respondWithResource", () => {
         it("should return error if data is undefined", async () => {
             expect(controller.runRespondWithResource(undefined, undefined)).toBeInstanceOf(Error);
