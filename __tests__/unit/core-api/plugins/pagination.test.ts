@@ -87,7 +87,7 @@ describe("Pagination", () => {
 
         const response = await server.inject(injectOptions);
         const payload = JSON.parse(response.payload || {});
-        expect(payload.data).toEqual(customResponse);
+        expect(payload.data).toEqual(customResponse.results);
         expect(payload.meta).toEqual(
             expect.objectContaining({
                 count: 3,
