@@ -68,8 +68,8 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
             this.initializeHandlers();
         }
 
-        for (const entityType of Object.keys(this.handlers)) {
-            for (const entitySubType of Object.keys(this.handlers[entityType])) {
+        for (const entityTypeStr of Object.keys(this.handlers)) { // entityTypeStr is a string because used as object key
+            for (const entitySubTypeStr of Object.keys(this.handlers[entityTypeStr])) { // entitySubTypeStr is a string because object key
                 const entityActions = [
                     Enums.EntityAction.Register,
                     Enums.EntityAction.Update,
@@ -80,10 +80,14 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                     const criteria = {
                         typeGroup: this.getConstructor().typeGroup,
                         type: this.getConstructor().type,
-                        asset: { type: entityType, subType: entitySubType, action: entityAction },
+                        asset: {
+                            type: Number(entityTypeStr), // entity type is integer in database
+                            subType: Number(entitySubTypeStr), // entity subType is integer in database
+                            action: entityAction
+                        },
                     };
 
-                    const handler = this.handlers[entityType][entitySubType][entityAction] as
+                    const handler = this.handlers[entityTypeStr][entitySubTypeStr][entityAction] as
                         | EntityRegisterSubHandler
                         | EntityUpdateSubHandler
                         | EntityResignSubHandler;

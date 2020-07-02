@@ -16,7 +16,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     }
 
     public walletAttributes(): ReadonlyArray<string> {
-        return [];
+        return ["htlc", "htlc.locks", "htlc.lockedBalance"];
     }
 
     public getConstructor(): Transactions.TransactionConstructor {
@@ -152,7 +152,13 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         strict(!newLockedBalance.isNegative());
 
-        lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
+        if (newLockedBalance.isZero()) {
+            lockWallet.forgetAttribute("htlc.lockedBalance");
+            lockWallet.forgetAttribute("htlc.locks"); // zero lockedBalance means no pending locks
+            lockWallet.forgetAttribute("htlc");
+        } else {
+            lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
+        }
 
         delete locks[lockId];
 
@@ -191,10 +197,10 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const lockWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
             lockTransaction.senderPublicKey,
         );
-        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
+        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
 
-        const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
+        const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks", {});
 
         AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(lockTransaction.asset?.lock);
 
@@ -209,6 +215,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
                 : undefined,
             ...lockTransaction.asset.lock,
         };
+        lockWallet.setAttribute("htlc.locks", locks);
 
         this.walletRepository.index(sender);
         this.walletRepository.index(lockWallet);
