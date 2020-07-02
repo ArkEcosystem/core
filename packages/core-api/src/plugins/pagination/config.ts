@@ -11,5 +11,6 @@ export const getConfig = (options) => {
         }),
     }).validate(options);
 
+    /* istanbul ignore next */
     return { error: error || undefined, config: error ? undefined : value };
 };

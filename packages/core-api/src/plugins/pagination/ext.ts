@@ -106,10 +106,12 @@ export class Ext {
 
         let pageCount: number = 1;
         if (totalCount) {
+            /* istanbul ignore next */
             pageCount = Math.trunc(totalCount / currentLimit) + (totalCount % currentLimit === 0 ? 0 : 1);
         }
 
         const getUri = (page: number | null): string | null =>
+            /* istanbul ignore next */
             // tslint:disable-next-line: no-null-keyword
             page ? baseUri + Qs.stringify(Hoek.applyToDefaults({ ...query, ...request.orig.query }, { page })) : null;
 
@@ -122,6 +124,7 @@ export class Ext {
                     totalCount: totalCount ? totalCount : 0,
 
                     // tslint:disable-next-line: no-null-keyword
+                    /* istanbul ignore next */
                     next: totalCount && currentPage < pageCount ? getUri(currentPage + 1) : null,
                     previous:
                         // tslint:disable-next-line: no-null-keyword
@@ -139,6 +142,7 @@ export class Ext {
             const keys = Object.keys(source.response);
 
             for (const key of keys) {
+                /* istanbul ignore next */
                 if (key !== "meta" && key !== "data") {
                     newSource[key] = source.response[key];
                 }

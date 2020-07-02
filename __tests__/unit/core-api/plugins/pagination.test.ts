@@ -57,6 +57,45 @@ describe("Pagination", () => {
         );
     });
 
+    it("should return paginated payload - with query limit 1", async () => {
+        injectOptions.url = injectOptions.url + "?limit=1";
+
+        customResponse = {
+            totalCount: 100,
+            results: customResponse,
+        };
+
+        const server = await initServer(app, defaults, customRoute);
+
+        const response = await server.inject(injectOptions);
+        const payload = JSON.parse(response.payload || {});
+        expect(payload.data).toEqual(customResponse.results);
+        expect(payload.meta).toEqual(
+            expect.objectContaining({
+                count: 3,
+                pageCount: 100,
+            }),
+        );
+    });
+
+    it("should return paginated payload with data in results", async () => {
+        customResponse = {
+            results: customResponse,
+        };
+
+        const server = await initServer(app, defaults, customRoute);
+
+        const response = await server.inject(injectOptions);
+        const payload = JSON.parse(response.payload || {});
+        expect(payload.data).toEqual(customResponse);
+        expect(payload.meta).toEqual(
+            expect.objectContaining({
+                count: 3,
+                pageCount: 1,
+            }),
+        );
+    });
+
     it("should not return paginated payload if disabled on route", async () => {
         customRoute.options = {
             plugins: {
