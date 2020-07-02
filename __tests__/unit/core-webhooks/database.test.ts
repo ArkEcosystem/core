@@ -38,6 +38,10 @@ beforeEach(() => {
 afterAll(() => setGracefulCleanup());
 
 describe("Database", () => {
+    it("should boot second time", () => {
+        database.boot();
+    });
+
     it("should return all webhooks", () => {
         database.create(dummyWebhook);
 
