@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.11] - 2020-02-26
+
+### Fixed
+
+-   Only accept valid http path (SC http server) ([#3537])
+
 ## [2.6.10] - 2020-02-20
 
 ### Fixed
@@ -874,6 +880,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.6.11]: https://github.com/ARKEcosystem/core/compare/2.6.10...2.6.11
 [2.6.10]: https://github.com/ARKEcosystem/core/compare/2.6.9...2.6.10
 [2.6.9]: https://github.com/ARKEcosystem/core/compare/2.6.1...2.6.9
 [2.6.1]: https://github.com/ARKEcosystem/core/compare/2.6.0...2.6.1
@@ -1394,6 +1401,7 @@ Closed security vulnerabilities:
 [#3507]: https://github.com/ARKEcosystem/core/pull/3507
 [#3510]: https://github.com/ARKEcosystem/core/pull/3510
 [#3518]: https://github.com/ARKEcosystem/core/pull/3518
+[#3537]: https://github.com/ARKEcosystem/core/pull/3537
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a

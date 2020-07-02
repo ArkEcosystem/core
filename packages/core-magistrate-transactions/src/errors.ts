@@ -30,6 +30,11 @@ export class BusinessIsResignedError extends Errors.TransactionError {
 //         super(`Failed to apply transaction, because bridgechain is not registered.`);
 //     }
 // }
+export class BridechainsAreNotResignedError extends Errors.TransactionError {
+    constructor() {
+        super("Failed to apply transaction, because the business bridgechain(s) are not resigned.");
+    }
+}
 
 export class BridgechainAlreadyRegisteredError extends Errors.TransactionError {
     public constructor() {
