@@ -16,7 +16,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     }
 
     public walletAttributes(): ReadonlyArray<string> {
-        return [];
+        return ["htlc", "htlc.locks", "htlc.lockedBalance"];
     }
 
     public getConstructor(): Transactions.TransactionConstructor {
@@ -199,6 +199,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
                     : undefined,
                 ...lockTransaction.asset.lock,
             };
+            lockWallet.setAttribute("htlc.locks", locks);
         }
 
         this.walletRepository.index(lockWallet);
