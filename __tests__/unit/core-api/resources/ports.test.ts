@@ -46,8 +46,10 @@ describe("PortsResource", () => {
     });
 
     describe("transform", () => {
+        let coreApiServiceProvider;
+
         beforeEach(async () => {
-            const coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
+            coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
 
             const pluginConfiguration = app.get<Providers.PluginConfiguration>(
                 Container.Identifiers.PluginConfiguration,
@@ -80,6 +82,22 @@ describe("PortsResource", () => {
             defaults.server.port = 4003;
 
             expect(resource.transform({})).toEqual({ "@arkecosystem/core-api": 4003 });
+        });
+
+        it("should not include port if disabled", async () => {
+            const pluginConfiguration = app.get<Providers.PluginConfiguration>(
+                Container.Identifiers.PluginConfiguration,
+            );
+
+            // @ts-ignore
+            defaults.enabled = false;
+            // @ts-ignore
+            defaults.port = 4003;
+            const instance: Providers.PluginConfiguration = pluginConfiguration.from("core-api", defaults);
+
+            coreApiServiceProvider.setConfig(instance);
+
+            expect(resource.transform({})).toEqual({});
         });
     });
 });
