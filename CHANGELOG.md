@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.21] - 2020-03-04
+
+## Fixed
+
+-   Set height 1 on config manager for processing genesis block (blockchain replay) ([#3561])
+-   Handle multiple installations of jemalloc ([#3562])
+-   jemalloc compatibility for ubuntu 16.04 ([#3567])
+-   Always call applyToRecipient ([#3570])
+
+## Changed
+
+-   Allow multiple ports in bridgechain schema ([#3504])
+-   Allow to resign business only when bridgechains are resigned ([#3524])
+-   Make bridgechain genesis hash only unique per wallet ([#3523])
+-   Add exceptions for business resignation ([#3551])
+-   No default addonBytes for magistrate transactions ([#3560])
+-   Use jemalloc as the memory allocator ([#3541])
+
 ## [2.6.11] - 2020-02-26
 
 ### Fixed
@@ -880,6 +898,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.6.21]: https://github.com/ARKEcosystem/core/compare/2.6.11...2.6.21
 [2.6.11]: https://github.com/ARKEcosystem/core/compare/2.6.10...2.6.11
 [2.6.10]: https://github.com/ARKEcosystem/core/compare/2.6.9...2.6.10
 [2.6.9]: https://github.com/ARKEcosystem/core/compare/2.6.1...2.6.9
@@ -1397,11 +1416,21 @@ Closed security vulnerabilities:
 [#3489]: https://github.com/ARKEcosystem/core/pull/3489
 [#3498]: https://github.com/ARKEcosystem/core/pull/3498
 [#3502]: https://github.com/ARKEcosystem/core/pull/3502
+[#3504]: https://github.com/ARKEcosystem/core/pull/3504
 [#3505]: https://github.com/ARKEcosystem/core/pull/3505
 [#3507]: https://github.com/ARKEcosystem/core/pull/3507
 [#3510]: https://github.com/ARKEcosystem/core/pull/3510
 [#3518]: https://github.com/ARKEcosystem/core/pull/3518
+[#3523]: https://github.com/ARKEcosystem/core/pull/3523
+[#3524]: https://github.com/ARKEcosystem/core/pull/3524
 [#3537]: https://github.com/ARKEcosystem/core/pull/3537
+[#3541]: https://github.com/ARKEcosystem/core/pull/3541
+[#3551]: https://github.com/ARKEcosystem/core/pull/3551
+[#3560]: https://github.com/ARKEcosystem/core/pull/3560
+[#3561]: https://github.com/ARKEcosystem/core/pull/3561
+[#3562]: https://github.com/ARKEcosystem/core/pull/3562
+[#3567]: https://github.com/ARKEcosystem/core/pull/3567
+[#3570]: https://github.com/ARKEcosystem/core/pull/3570
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
