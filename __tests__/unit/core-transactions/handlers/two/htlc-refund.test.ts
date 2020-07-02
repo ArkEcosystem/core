@@ -349,8 +349,7 @@ describe("Htlc refund", () => {
 
                 await handler.apply(htlcRefundTransaction);
 
-                expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
@@ -393,8 +392,7 @@ describe("Htlc refund", () => {
 
                 await handler.apply(htlcRefundTransaction);
 
-                expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
@@ -411,8 +409,7 @@ describe("Htlc refund", () => {
                 await handler.apply(htlcRefundTransaction);
 
                 // @ts-ignore
-                expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeUndefined();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );
@@ -445,8 +442,7 @@ describe("Htlc refund", () => {
                 await handler.apply(htlcRefundTransaction);
 
                 // @ts-ignore
-                expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeUndefined();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
                 );

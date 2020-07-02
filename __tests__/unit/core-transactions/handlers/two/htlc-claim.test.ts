@@ -337,6 +337,17 @@ describe("Htlc claim", () => {
             it("should throw if transaction by sender already in pool", async () => {
                 await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(htlcClaimTransaction);
 
+                lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(6 * 1e8));
+
+                lockWallet.setAttribute("htlc.locks", {
+                    [htlcLockTransaction.id!]: {
+                        amount: htlcLockTransaction.data.amount,
+                        recipientId: htlcLockTransaction.data.recipientId,
+                        ...htlcLockTransaction.data.asset!.lock,
+                    },
+                });
+                walletRepository.index(lockWallet);
+
                 await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(
                     Contracts.TransactionPool.PoolError,
                 );
@@ -363,6 +374,7 @@ describe("Htlc claim", () => {
                         ...htlcLockTransaction.data.asset!.lock,
                     },
                 });
+                walletRepository.index(lockWallet);
 
                 await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(
                     Contracts.TransactionPool.PoolError,
@@ -392,8 +404,7 @@ describe("Htlc claim", () => {
 
                 await handler.apply(htlcClaimTransaction);
 
-                expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
                 expect(claimWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
@@ -436,8 +447,7 @@ describe("Htlc claim", () => {
 
                 await handler.apply(htlcClaimTransaction);
 
-                expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
                 expect(claimWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
@@ -454,8 +464,7 @@ describe("Htlc claim", () => {
 
                 await handler.apply(htlcClaimTransaction);
 
-                expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
                 expect(claimWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
@@ -490,8 +499,7 @@ describe("Htlc claim", () => {
 
                 await handler.apply(htlcClaimTransaction);
 
-                expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect((lockWallet.getAttributes() as any).htlc).toBeUndefined();
                 expect(claimWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
                 );
