@@ -2,7 +2,7 @@ import "jest-extended";
 
 import Hapi from "@hapi/hapi";
 import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
-import { Application } from "@packages/core-kernel";
+import { Application, Utils } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { Mocks } from "@packages/core-test-framework";
@@ -22,6 +22,26 @@ let controller: TransactionsController;
 const transactionHistoryService = {
     findOneByCriteria: jest.fn(),
     listByCriteria: jest.fn(),
+    listByCriteriaJoinBlock: jest.fn(),
+};
+
+const block: Interfaces.IBlockData = {
+    version: 0,
+    timestamp: 103497376,
+    height: 152,
+    previousBlockHex: "23d6352eb4450dfb",
+    previousBlock: "2582309911052750331",
+    numberOfTransactions: 0,
+    totalAmount: Utils.BigNumber.make("0"),
+    totalFee: Utils.BigNumber.make("0"),
+    reward: Utils.BigNumber.make("0"),
+    payloadLength: 0,
+    payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    generatorPublicKey: "021770413ad01c60b94e1d3ed44c00e0145fe7897e40f5f6265e220f4e65cf427f",
+    blockSignature:
+        "3045022100f43e1133e74eca9fa8090c9b581fb1727d1e007818a53247ff9272b6bb64242e02201473233d08829d9ee6c35fee462a62911d675f1dc3ab66798882475b5acabb86",
+    idHex: "420d4f574229b758",
+    id: "4759547617391261528",
 };
 
 beforeEach(() => {
@@ -80,6 +100,33 @@ describe("TransactionsController", () => {
                     page: 1,
                     limit: 100,
                     transform: false,
+                },
+            };
+
+            const response = (await controller.index(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toBeDefined();
+            expect(response.meta).toBeDefined();
+            expect(response.results).toBeDefined();
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
+        });
+
+        it("should return list of transactions using transform", async () => {
+            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
+                rows: [{ data: transferTransaction.data, block: block }],
+                count: 1,
+                countIsEstimate: false,
+            });
+
+            const request: Hapi.Request = {
+                query: {
+                    page: 1,
+                    limit: 100,
+                    transform: true,
                 },
             };
 
@@ -232,6 +279,36 @@ describe("TransactionsController", () => {
                     page: 1,
                     limit: 100,
                     transform: false,
+                },
+            };
+
+            const response = (await controller.search(request, undefined)) as PaginatedResponse;
+
+            expect(response.totalCount).toBeDefined();
+            expect(response.meta).toBeDefined();
+            expect(response.results).toBeDefined();
+            expect(response.results[0]).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
+        });
+
+        it("should return list of transactions using transform", async () => {
+            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
+                rows: [{ data: transferTransaction.data, block: block }],
+                count: 1,
+                countIsEstimate: false,
+            });
+
+            const request: Hapi.Request = {
+                params: {
+                    id: transferTransaction.id,
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    transform: true,
                 },
             };
 
