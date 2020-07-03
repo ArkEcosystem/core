@@ -33,6 +33,8 @@ expect.extend({
         return {
             pass,
             message: () =>
+                /* istanbul ignore next */
+                // @ts-ignore
                 `expected ${transaction.id} ${this.isNot ? "not" : ""} to be unconfirmed (in the pool) ${
                     error ? "(error: " + error + ")" : ""
                 }`,
