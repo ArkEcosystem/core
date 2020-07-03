@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { NetworkState, NetworkStateStatus, Nes } from "@arkecosystem/core-p2p";
+import { Nes, NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 
 import { HostNoResponseError, RelayCommunicationError } from "./errors";

@@ -56,7 +56,7 @@ export class StaticFeeMismatchError extends Errors.TransactionError {
 }
 
 export class BridgechainsAreNotResignedError extends Errors.TransactionError {
-    constructor() {
+    public constructor() {
         super("Failed to apply transaction, because the business bridgechain(s) are not resigned.");
     }
 }

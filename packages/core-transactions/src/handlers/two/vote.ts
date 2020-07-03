@@ -30,7 +30,7 @@ export class VoteTransactionHandler extends One.VoteTransactionHandler {
             AppUtils.assert.defined<string[]>(transaction.asset?.votes);
 
             const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-            const vote = transaction.asset.votes![0];
+            const vote = transaction.asset.votes[0];
             const hasVoted: boolean = wallet.hasAttribute("vote");
 
             if (vote.startsWith("+")) {

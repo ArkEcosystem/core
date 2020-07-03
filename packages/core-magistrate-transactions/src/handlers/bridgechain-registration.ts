@@ -85,13 +85,16 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
 
         const { data }: Interfaces.ITransaction = transaction;
         if (wallet.hasAttribute("business.bridgechains")) {
-            const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains");
+            const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute(
+                "business.bridgechains",
+            );
 
-            if (Object.values(bridgechains).some(
-                    bridgechain =>
+            if (
+                Object.values(bridgechains).some(
+                    (bridgechain) =>
                         data.asset &&
                         bridgechain.bridgechainAsset.name.toLowerCase() ===
-                        data.asset.bridgechainRegistration.name.toLowerCase(),
+                            data.asset.bridgechainRegistration.name.toLowerCase(),
                 )
             ) {
                 throw new BridgechainAlreadyRegisteredError();

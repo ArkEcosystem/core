@@ -137,7 +137,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         // in that case we want to keep on with our program execution while ping promises can finish in the background
         await Promise.race([
             Promise.all(
-                peers.map(async peer => {
+                peers.map(async (peer) => {
                     try {
                         await this.communicator.ping(peer, pingDelay, forcePing);
                     } catch (error) {

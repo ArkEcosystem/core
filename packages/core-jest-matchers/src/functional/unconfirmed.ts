@@ -22,7 +22,7 @@ expect.extend({
 
             const parsedBody = JSON.parse(body);
 
-            pass = !!(parsedBody.data as any[]).find(tx => tx.id === transaction.id);
+            pass = !!(parsedBody.data as any[]).find((tx) => tx.id === transaction.id);
 
             error = JSON.stringify(parsedBody.errors);
         } catch (e) {
