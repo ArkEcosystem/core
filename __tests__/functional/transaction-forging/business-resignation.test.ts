@@ -97,10 +97,11 @@ describe("Transaction Forging - Business resignation", () => {
 
         it("should reject business resignation, because bridgechain is not resigned [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            const businessRegistration = TransactionFactory.initialize(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(secrets[2])
                 .createOne();
 
@@ -108,14 +109,15 @@ describe("Transaction Forging - Business resignation", () => {
             await snoozeForBlock(1);
             await expect(businessRegistration.id).toBeForged();
 
-            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
-                name: "cryptoProject2",
-                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                genesisHash: "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
-                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
-                bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
-                ports: { "@arkecosystem/core-api": 12345 },
-            })
+            const bridgechainRegistration = TransactionFactory.initialize(app)
+                .bridgechainRegistration({
+                    name: "cryptoProject2",
+                    seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                    genesisHash: "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+                    bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                    bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
+                    ports: { "@arkecosystem/core-api": 12345 },
+                })
                 .withPassphrase(secrets[2])
                 .createOne();
 
@@ -123,7 +125,8 @@ describe("Transaction Forging - Business resignation", () => {
             await snoozeForBlock(1);
             await expect(bridgechainRegistration.id).toBeForged();
 
-            const businessResignation = TransactionFactory.businessResignation()
+            const businessResignation = TransactionFactory.initialize(app)
+                .businessResignation()
                 .withPassphrase(secrets[2])
                 .createOne();
 
