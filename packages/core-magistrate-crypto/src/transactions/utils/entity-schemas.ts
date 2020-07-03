@@ -2,12 +2,7 @@ export const update = {
     type: "object",
     additionalProperties: false,
     properties: {
-        ipfsData: {
-            allOf: [
-                { $ref: "base58" },
-                { type: "string", minLength: 1, maxLength: 128 }, // 128 should be more than enough for all variations of ipfs hashes
-            ],
-        },
+        ipfsData: { type: "string", pattern: "^Qm[A-HJ-NP-Za-km-z1-9]{44}$", minLength: 46, maxLength: 46 },
     },
 };
 
