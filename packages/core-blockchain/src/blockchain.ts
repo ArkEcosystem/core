@@ -66,15 +66,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.blockProcessor = this.app.get<BlockProcessor>(Container.Identifiers.BlockProcessor);
 
-        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }) => {
+        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }): Promise<Interfaces.IBlock[] | undefined> => {
             try {
                 return await this.processBlocks(blockList.blocks);
             } catch (error) {
                 this.logger.error(
                     `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
                 );
-
-                this.logger.error(error.stack);
                 return undefined;
             }
         }, 1);
@@ -198,7 +196,16 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const minimumMs: number = 2000;
             const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
             if (currentSlot !== receivedSlot || timeLeftInMs < minimumMs) {
-                logger.info(`Discarded block ${block.height.toLocaleString()} because it was received too late.`);
+                this.logger.info(`Discarded block ${block.height.toLocaleString()} because it was received too late.`);
+                return;
+            }
+        }
+
+        if (fromForger) {
+            const minimumMs: number = 2000;
+            const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
+            if (currentSlot !== receivedSlot || timeLeftInMs < minimumMs) {
+                this.logger.info(`Discarded block ${block.height.toLocaleString()} because it was received too late.`);
                 return;
             }
         }
@@ -256,8 +263,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             }
         }
         this.queue.push({ blocks: currentBlocksChunk });
-
-        this.state.lastDownloadedBlock = blocks.slice(-1)[0];
     }
 
     /**
@@ -406,9 +411,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
                 acceptedBlocks.push(blockInstance);
+                this.state.lastDownloadedBlock = blockInstance.data;
             } else {
                 if (lastProcessResult === BlockProcessorResult.Rollback) {
                     forkBlock = blockInstance;
+                    this.state.lastDownloadedBlock = blockInstance.data;
                 }
 
                 break; // if one block is not accepted, the other ones won't be chained anyway
@@ -587,6 +594,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const networkStatus = await this.app
                 .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                 .checkNetworkHealth();
+
             if (networkStatus.forked) {
                 this.state.numberOfBlocksToRollback = networkStatus.blocksToRollback;
                 this.dispatch("FORK");
