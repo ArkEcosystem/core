@@ -207,8 +207,6 @@ export enum SearchScope {
     Wallets,
     Delegates,
     Locks,
-    Businesses,
-    Bridgechains,
     Entities,
 }
 

@@ -186,14 +186,6 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                 searchContext = this.searchLocks(params);
                 break;
             }
-            case Contracts.State.SearchScope.Bridgechains: {
-                searchContext = this.searchBridgechains(params);
-                break;
-            }
-            case Contracts.State.SearchScope.Businesses: {
-                searchContext = this.searchBusinesses(params);
-                break;
-            }
             case Contracts.State.SearchScope.Entities: {
                 searchContext = this.searchEntities(params);
                 break;
@@ -390,64 +382,6 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             query,
             entries,
             defaultOrder: ["lockId", "asc"],
-        };
-    }
-
-    private searchBusinesses(params: Contracts.Database.QueryParameters): Contracts.State.SearchContext<any> {
-        const query: Record<string, string[]> = {
-            exact: ["address", "isResigned", "publicKey", "vat"],
-            like: ["name", "repository", "website"],
-        };
-
-        const entries: any[] = this.getIndex("businesses")
-            .values()
-            .map((wallet) => {
-                const business: any = wallet.getAttribute("business");
-                return params.transform
-                    ? {
-                          address: wallet.address,
-                          publicKey: business.publicKey,
-                          ...business.businessAsset,
-                          isResigned: !!business.isResigned,
-                      }
-                    : wallet;
-            });
-
-        return {
-            query,
-            entries,
-            defaultOrder: ["name", "asc"],
-        };
-    }
-
-    private searchBridgechains(params: Contracts.Database.QueryParameters): Contracts.State.SearchContext<any> {
-        const query: Record<string, string[]> = {
-            exact: ["isResigned", "genesisHash", "publicKey"],
-            like: ["bridgechainRepository", "name"],
-            every: ["seedNodes"],
-        };
-
-        const entries: any[] = this.getIndex("bridgechains")
-            .entries()
-            .reduce((acc: any, [genesisHash, wallet]) => {
-                const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
-                if (bridgechains && bridgechains[genesisHash]) {
-                    const bridgechain: any = bridgechains[genesisHash];
-                    acc.push({
-                        publicKey: wallet.publicKey,
-                        address: wallet.address,
-                        ...bridgechain.bridgechainAsset,
-                        isResigned: !!bridgechain.resigned,
-                    });
-                }
-
-                return acc;
-            }, []);
-
-        return {
-            query,
-            entries,
-            defaultOrder: ["name", "asc"],
         };
     }
 
