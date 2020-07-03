@@ -6,8 +6,8 @@ export const defaults = {
     // only accepted if its fee is higher than the transaction with the lowest
     // fee in the pool. In this case the transaction with the lowest fee is removed
     // from the pool in order to accommodate the new one.
-    maxTransactionsInPool: process.env.CORE_MAX_TRANSACTIONS_IN_POOL || 100000,
-    maxTransactionsPerSender: process.env.CORE_TRANSACTION_POOL_MAX_PER_SENDER || 300,
+    maxTransactionsInPool: process.env.CORE_MAX_TRANSACTIONS_IN_POOL || 15000,
+    maxTransactionsPerSender: process.env.CORE_TRANSACTION_POOL_MAX_PER_SENDER || 150,
     allowedSenders: [],
     maxTransactionsPerRequest: process.env.CORE_TRANSACTION_POOL_MAX_PER_REQUEST || 40,
     // Max transaction age in number of blocks produced since the transaction was created.

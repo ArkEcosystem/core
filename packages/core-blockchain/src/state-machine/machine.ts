@@ -81,6 +81,7 @@ export const blockchainMachine: any = Machine({
                 WAKEUP: "syncWithNetwork",
                 NEWBLOCK: "newBlock",
                 STOP: "stopped",
+                FORK: "fork",
             },
         },
         newBlock: {

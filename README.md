@@ -4,7 +4,7 @@
     <img src="https://raw.githubusercontent.com/ARKEcosystem/core/master/banner.png" />
 </p>
 
-[![Build Status](https://badgen.now.sh/circleci/github/ARKEcosystem/core)](https://circleci.com/gh/ARKEcosystem/core)
+[![Build Status](https://badgen.now.sh/github/status/ArkEcosystem/core/master)](https://github.com/ArkEcosystem/core/actions)
 [![Codecov](https://badgen.now.sh/codecov/c/github/arkecosystem/core)](https://codecov.io/gh/arkecosystem/core)
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
 

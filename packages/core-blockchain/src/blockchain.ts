@@ -45,6 +45,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     protected blockProcessor: BlockProcessor;
 
     private missedBlocks: number = 0;
+    private lastCheckNetworkHealthTs: number = 0;
 
     /**
      * Create a new blockchain manager instance.
@@ -192,6 +193,15 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         const currentSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup);
         const receivedSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, block.timestamp);
+
+        if (fromForger) {
+            const minimumMs: number = 2000;
+            const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
+            if (currentSlot !== receivedSlot || timeLeftInMs < minimumMs) {
+                logger.info(`Discarded block ${block.height.toLocaleString()} because it was received too late.`);
+                return;
+            }
+        }
 
         if (receivedSlot > currentSlot) {
             this.logger.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
@@ -565,6 +575,15 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.missedBlocks >= Managers.configManager.getMilestone().activeDelegates / 3 - 1 &&
             Math.random() <= 0.8
         ) {
+            this.resetMissedBlocks();
+
+            // do not check network health here more than every 10 minutes
+            const nowTs = Date.now();
+            if (nowTs - this.lastCheckNetworkHealthTs < 10 * 60 * 1000) {
+                return;
+            }
+            this.lastCheckNetworkHealthTs = nowTs;
+
             const networkStatus = await this.app
                 .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                 .checkNetworkHealth();
@@ -572,8 +591,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 this.state.numberOfBlocksToRollback = networkStatus.blocksToRollback;
                 this.dispatch("FORK");
             }
-
-            this.resetMissedBlocks();
         }
     }
 
