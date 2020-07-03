@@ -60,6 +60,12 @@ export class StaticFeeMismatchError extends Errors.TransactionError {
     }
 }
 
+export class BridgechainsAreNotResignedError extends Errors.TransactionError {
+    constructor() {
+        super("Failed to apply transaction, because the business bridgechain(s) are not resigned.");
+    }
+}
+
 export class GenesisHashAlreadyRegisteredError extends Errors.TransactionError {
     public constructor() {
         super(`Failed to apply transaction, because genesis hash is already registered by another bridgechain.`);
