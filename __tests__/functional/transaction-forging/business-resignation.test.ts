@@ -105,7 +105,7 @@ describe("Transaction Forging - Business resignation", () => {
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessRegistration.id).toBeForged();
 
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
@@ -120,7 +120,7 @@ describe("Transaction Forging - Business resignation", () => {
                 .createOne();
 
             await expect(bridgechainRegistration).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(bridgechainRegistration.id).toBeForged();
 
             const businessResignation = TransactionFactory.businessResignation()
@@ -128,7 +128,7 @@ describe("Transaction Forging - Business resignation", () => {
                 .createOne();
 
             await expect(businessResignation).not.toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessResignation.id).not.toBeForged();
         });
     });
