@@ -9,7 +9,7 @@ import { Utils } from "./utils";
 
 export class Verifier {
     public static verify(data: ITransactionData, options?: IVerifyOptions): boolean {
-        if (isException(data.id)) {
+        if (isException(data)) {
             return true;
         }
 

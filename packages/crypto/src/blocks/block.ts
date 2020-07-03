@@ -71,7 +71,7 @@ export class Block implements IBlock {
 
             const match = err.dataPath.match(/\.transactions\[([0-9]+)\]/);
             if (match === null) {
-                if (!isException(data.id)) {
+                if (!isException(data)) {
                     fatal = true;
                 }
             } else {
@@ -80,7 +80,7 @@ export class Block implements IBlock {
                 if (data.transactions) {
                     const tx = data.transactions[txIndex];
 
-                    if (tx.id === undefined || !isException(tx.id)) {
+                    if (tx.id === undefined || !isException(tx)) {
                         fatal = true;
                     }
                 }

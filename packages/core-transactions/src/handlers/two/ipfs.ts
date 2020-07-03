@@ -52,7 +52,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
     ): Promise<void> {
-        if (Utils.isException(transaction.data.id)) {
+        if (Utils.isException(transaction.data)) {
             return;
         }
 

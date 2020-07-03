@@ -57,7 +57,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
-        if (Utils.isException(data.id)) {
+        if (Utils.isException(data)) {
             return;
         }
 

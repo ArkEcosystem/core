@@ -194,16 +194,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         if (fromForger) {
             const minimumMs: number = 2000;
-            const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
-            if (currentSlot !== receivedSlot || timeLeftInMs < minimumMs) {
-                this.logger.info(`Discarded block ${block.height.toLocaleString()} because it was received too late.`);
-                return;
-            }
-        }
-
-        if (fromForger) {
-            const minimumMs: number = 2000;
-            const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
+            const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup);
             if (currentSlot !== receivedSlot || timeLeftInMs < minimumMs) {
                 this.logger.info(`Discarded block ${block.height.toLocaleString()} because it was received too late.`);
                 return;
@@ -387,7 +378,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         if (
             blocks[0] &&
             !Utils.isBlockChained(this.getLastBlock().data, blocks[0], blockTimeLookup) &&
-            !CryptoUtils.isException(blocks[0].id)
+            !CryptoUtils.isException(blocks[0])
         ) {
             this.logger.warning(
                 Utils.getBlockNotChainedErrorMessage(this.getLastBlock().data, blocks[0], blockTimeLookup),

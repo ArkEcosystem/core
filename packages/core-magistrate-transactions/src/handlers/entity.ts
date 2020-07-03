@@ -98,7 +98,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         transaction: CryptoInterfaces.ITransaction,
         wallet: Contracts.State.Wallet,
     ): Promise<void> {
-        if (Utils.isException(transaction.data.id)) {
+        if (Utils.isException(transaction.data)) {
             return;
         }
 

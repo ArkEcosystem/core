@@ -42,7 +42,7 @@ export class DownloadBlocks implements Action {
         const chained: boolean =
             !empty &&
             (AppUtils.isBlockChained(lastDownloadedBlock, blocks[0], blockTimeLookup) ||
-                Utils.isException(blocks[0].id));
+                Utils.isException(blocks[0]));
 
         if (chained) {
             this.logger.info(

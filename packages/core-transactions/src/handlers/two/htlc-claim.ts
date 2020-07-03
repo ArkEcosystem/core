@@ -114,7 +114,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const data: Interfaces.ITransactionData = transaction.data;
 
-        if (Utils.isException(data.id)) {
+        if (Utils.isException(data)) {
             this.logger.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
