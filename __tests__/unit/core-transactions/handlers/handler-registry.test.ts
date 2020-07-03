@@ -17,7 +17,7 @@ import ByteBuffer from "bytebuffer";
 let app: Application;
 
 const NUMBER_OF_REGISTERED_CORE_HANDLERS = 16;
-const NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_FALSE = 8; // TODO: Check if correct
+const NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_FALSE = 9; // TODO: Check if correct
 const NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_TRUE = 12;
 
 const TEST_TRANSACTION_TYPE = 100;
