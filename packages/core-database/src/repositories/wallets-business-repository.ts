@@ -235,14 +235,16 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             .reduce((acc: any, [id, wallet]) => {
                 const entities = wallet.getAttribute("entities", {});
                 if (entities && entities[id]) {
-                    const entity: any = entities[id];
-                    acc.push({
+                    const entity: any = {
                         id,
                         publicKey: wallet.publicKey,
                         address: wallet.address,
-                        ...entity,
-                        isResigned: !!entity.resigned,
-                    });
+                        ...entities[id],
+                    };
+                    entity.isResigned = !!entity.resigned;
+                    delete entity.resigned;
+
+                    acc.push(entity);
                 }
 
                 return acc;
