@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { LegacyMultiSignatureError, MultiSignatureAlreadyRegisteredError } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
@@ -48,7 +48,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     }
 
     public async isActivated(): Promise<boolean> {
-        return false;
+        return !Managers.configManager.getMilestone().aip11;
     }
 
     public async throwIfCannotBeApplied(

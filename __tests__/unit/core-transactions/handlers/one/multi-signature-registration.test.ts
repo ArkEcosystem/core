@@ -188,4 +188,19 @@ describe("MultiSignatureRegistrationTransaction", () => {
             );
         });
     });
+
+    describe("isActivated", () => {
+        it("should return true when aip11 is false", async () => {
+            configManager.getMilestone().aip11 = false;
+            await expect(handler.isActivated()).resolves.toBe(true);
+        });
+        it("should return true when aip11 is undefined", async () => {
+            configManager.getMilestone().aip11 = undefined;
+            await expect(handler.isActivated()).resolves.toBe(true);
+        });
+        it("should return false when aip11 is true", async () => {
+            configManager.getMilestone().aip11 = true;
+            await expect(handler.isActivated()).resolves.toBe(false);
+        });
+    });
 });
