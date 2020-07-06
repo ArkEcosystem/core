@@ -1,5 +1,5 @@
 import { Enums } from "@arkecosystem/core-magistrate-crypto";
-import { Identities } from "@arkecosystem/crypto";
+import { Identities, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
@@ -12,31 +12,42 @@ afterAll(async () => await support.tearDown());
 describe("Transaction Forging - Entity registration", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
-            // Registering a desktop wallet plugin
-            const entityRegistration = TransactionFactory.entity({
-                type: Enums.EntityType.Plugin,
-                subType: Enums.EntitySubType.PluginDesktop,
-                action: Enums.EntityAction.Register,
-                data: {
-                    name: "my_plugin_for_desktop_wallet",
-                },
-            })
-                .withPassphrase(secrets[0])
-                .createOne();
+            // Registering all possible entity types/subTypes
+            const registrations = [];
+            let nonce = Utils.BigNumber.make(2);
+            for (const { type, subType, name } of [
+                { type: Enums.EntityType.Bridgechain, subType: Enums.EntitySubType.None, name: "brdge" },
+                { type: Enums.EntityType.Business, subType: Enums.EntitySubType.None, name: "bzness" },
+                { type: Enums.EntityType.Delegate, subType: Enums.EntitySubType.None, name: "genesis_1" },
+                { type: Enums.EntityType.Developer, subType: Enums.EntitySubType.None, name: "dvloper" },
+                { type: Enums.EntityType.Plugin, subType: Enums.EntitySubType.PluginCore, name: "plgincore" },
+                { type: Enums.EntityType.Plugin, subType: Enums.EntitySubType.PluginDesktop, name: "plgindskt" },
+            ]) {
+                registrations.push(
+                    TransactionFactory.entity({ type, subType, action: Enums.EntityAction.Register, data: { name } })
+                        .withPassphrase(secrets[0])
+                        .withNonce(nonce)
+                        .createOne(),
+                );
+                nonce = nonce.plus(1);
+            }
 
-            await expect(entityRegistration).not.toBeAccepted(); // aip36 not here yet
+            await expect(registrations[0]).not.toBeAccepted(); // aip36 not here yet
             await support.snoozeForBlock(1);
-            await expect(entityRegistration.id).not.toBeForged();
+            for (const entityRegistration of registrations) {
+                await expect(entityRegistration.id).not.toBeForged();
+            }
 
             for (let i = 0; i < 30; i++) {
                 await support.snoozeForBlock(1); // wait for aip36 to kick in, todo better way without waiting ? (snapshot ?)
             }
 
-            await expect(entityRegistration).toBeAccepted();
+            await expect(registrations).toBeAllAccepted();
             await support.snoozeForBlock(1);
-            await expect(entityRegistration.id).toBeForged();
-
-            await expect(entityRegistration).entityRegistered();
+            for (const entityRegistration of registrations) {
+                await expect(entityRegistration.id).toBeForged();
+                await expect(entityRegistration).entityRegistered();
+            }
         });
 
         it("should reject entity registration, because entity name contains unicode control characters [Signed with 1 Passphrase]", async () => {

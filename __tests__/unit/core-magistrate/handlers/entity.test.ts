@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Database, State } from "@arkecosystem/core-interfaces";
 import { Builders as MagistrateBuilders, Enums } from "@arkecosystem/core-magistrate-crypto";
-import { EntitySubType, EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
+import { EntityAction, EntitySubType, EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
 import {
     EntityAlreadyRegisteredError,
     EntityAlreadyResignedError,
@@ -11,6 +11,10 @@ import {
     EntityWrongTypeError,
 } from "@arkecosystem/core-magistrate-transactions/src/errors";
 import { EntityTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers";
+import {
+    EntityNameDoesNotMatchDelegateError,
+    EntitySenderIsNotDelegateError,
+} from "@arkecosystem/core-magistrate-transactions/src/handlers/entity-subhandlers/delegate/errors";
 import { entityIndexer, MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-manager";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
@@ -58,7 +62,7 @@ const connection: Database.IConnection = {
     } as any,
 } as Database.IConnection;
 
-describe("Business update handler", () => {
+describe("Entity handler", () => {
     // Manager configurations
     Managers.configManager.setFromPreset("testnet");
     Managers.configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
@@ -156,6 +160,48 @@ describe("Business update handler", () => {
                 await expect(
                     entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
                 ).toResolve();
+            });
+
+            describe("Entity delegate", () => {
+                const createEntityDelegateTx = name =>
+                    entityBuilder
+                        .asset({
+                            type: EntityType.Delegate,
+                            subType: EntitySubType.None,
+                            action: EntityAction.Register,
+                            data: { name },
+                        })
+                        .sign(senderPassphrase)
+                        .build();
+
+                it("should throw when the sender wallet is not a delegate", async () => {
+                    const transaction = createEntityDelegateTx("anyname");
+
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
+                    ).rejects.toBeInstanceOf(EntitySenderIsNotDelegateError);
+                });
+
+                it("should throw when the sender delegate name does not match the entity name", async () => {
+                    const transaction = createEntityDelegateTx("thedelegate");
+
+                    senderWallet.setAttribute("delegate.username", "nothedelegatename");
+
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
+                    ).rejects.toBeInstanceOf(EntityNameDoesNotMatchDelegateError);
+                });
+
+                it("should not throw otherwise", async () => {
+                    const delegateName = "therealdelegate";
+                    const transaction = createEntityDelegateTx(delegateName);
+
+                    senderWallet.setAttribute("delegate.username", delegateName);
+
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
+                    ).toResolve();
+                });
             });
         });
     });
