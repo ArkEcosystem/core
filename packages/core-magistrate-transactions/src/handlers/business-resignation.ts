@@ -60,8 +60,8 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
             throw new BusinessIsResignedError();
         }
 
-        const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains");
-        if (bridgechains && Object.values(bridgechains).some((bridgechain) => !bridgechain.resigned)) {
+        const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains", {});
+        if (Object.values(bridgechains).some((bridgechain) => !bridgechain.resigned)) {
             throw new BridgechainsAreNotResignedError();
         }
 
