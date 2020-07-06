@@ -142,16 +142,16 @@ export class Listener {
         }, this._settings.heartbeat.interval);
     }
 
-    public broadcast(message, options) {
-        options = options || {};
+    // public broadcast(message, options) {
+    //     options = options || {};
 
-        const update = {
-            type: "update",
-            message,
-        };
+    //     const update = {
+    //         type: "update",
+    //         message,
+    //     };
 
-        return this._broadcast(update, options);
-    }
+    //     return this._broadcast(update, options);
+    // }
 
     public _generateId() {
         const id = Date.now() + ":" + this._server.info.id + ":" + this._socketCounter++;
@@ -384,29 +384,29 @@ export class Listener {
         });
     }
 
-    private _broadcast(update, options) {
-        Hoek.assert(
-            !options.user || (this._settings.auth && this._settings.auth.index),
-            "Socket auth indexing is disabled",
-        );
+    // private _broadcast(update, options) {
+    //     Hoek.assert(
+    //         !options.user || (this._settings.auth && this._settings.auth.index),
+    //         "Socket auth indexing is disabled",
+    //     );
 
-        if (this._stopped) {
-            return;
-        }
+    //     if (this._stopped) {
+    //         return;
+    //     }
 
-        const each = (socket: Socket) => socket._send(update).catch(Hoek.ignore); // Ignore errors
+    //     const each = (socket: Socket) => socket._send(update).catch(Hoek.ignore); // Ignore errors
 
-        if (options.user) {
-            const sockets = this._sockets._byUser[options.user];
-            if (!sockets) {
-                return;
-            }
+    //     if (options.user) {
+    //         const sockets = this._sockets._byUser[options.user];
+    //         if (!sockets) {
+    //             return;
+    //         }
 
-            return sockets.forEach(each);
-        }
+    //         return sockets.forEach(each);
+    //     }
 
-        return this._sockets._forEach(each);
-    }
+    //     return this._sockets._forEach(each);
+    // }
 }
 
 // Sockets manager

@@ -128,7 +128,7 @@ const plugin = {
 
         // Decorate server and request
 
-        server.decorate("server", "broadcast", listener.broadcast);
+        // server.decorate("server", "broadcast", listener.broadcast);
         // server.decorate("server", "subscription", listener.subscription);
         // server.decorate("server", "publish", listener.publish);
         // server.decorate("server", "eachSocket", listener.eachSocket);
