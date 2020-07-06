@@ -4,7 +4,6 @@ import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { BusinessRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
-import { StaticFeeMismatchError } from "@packages/core-magistrate-transactions/src/errors";
 import { BusinessRegistrationTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -105,13 +104,6 @@ describe("BusinessRegistration", () => {
 
             await expect(handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet)).toResolve();
         });
-
-        it("should throw on fee mismatch", async () => {
-            businessRegistrationTransaction.data.fee = Utils.BigNumber.ZERO;
-            await expect(
-                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet),
-            ).rejects.toThrowError(StaticFeeMismatchError);
-        });
     });
 
     describe("dynamicFees", () => {
@@ -123,7 +115,15 @@ describe("BusinessRegistration", () => {
                     satoshiPerByte: 3,
                     height: 1,
                 }),
-            ).toEqual(Utils.BigNumber.make("5000000000"));
+            ).toEqual(Utils.BigNumber.make("846"));
+            expect(
+                handler.dynamicFee({
+                    transaction: businessRegistrationTransaction,
+                    addonBytes: 278,
+                    satoshiPerByte: 4,
+                    height: 1,
+                }),
+            ).toEqual(Utils.BigNumber.make("1528"));
         });
     });
 });
