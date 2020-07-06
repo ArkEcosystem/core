@@ -84,15 +84,15 @@ export class Socket {
         return this._send(response);
     }
 
-    public publish(path, update) {
-        const message = {
-            type: "pub",
-            path,
-            message: update,
-        };
+    // public publish(path, update) {
+    //     const message = {
+    //         type: "pub",
+    //         path,
+    //         message: update,
+    //     };
 
-        return this._send(message);
-    }
+    //     return this._send(message);
+    // }
 
     public async revoke(path, update, options: any = {}) {
         // await this._unsubscribe(path);
@@ -307,9 +307,9 @@ export class Socket {
 
         // Custom message request
 
-        if (request.type === "message") {
-            return this._processMessage(request);
-        }
+        // if (request.type === "message") {
+        //     return this._processMessage(request);
+        // }
 
         // Subscriptions
 
@@ -460,20 +460,20 @@ export class Socket {
         return { response, options };
     }
 
-    private async _processMessage(request) {
-        if (!this._listener._settings.onMessage) {
-            throw Boom.notImplemented();
-        }
+    // private async _processMessage(request) {
+    //     if (!this._listener._settings.onMessage) {
+    //         throw Boom.notImplemented();
+    //     }
 
-        const message = await this._listener._settings.onMessage(this, request.message);
-        const response = {
-            type: "message",
-            id: request.id,
-            message,
-        };
+    //     const message = await this._listener._settings.onMessage(this, request.message);
+    //     const response = {
+    //         type: "message",
+    //         id: request.id,
+    //         message,
+    //     };
 
-        return { response };
-    }
+    //     return { response };
+    // }
 
     // private async _processSubscription(request) {
     //     await this._listener._subscribe(request.path, this);
