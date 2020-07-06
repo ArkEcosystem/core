@@ -18,7 +18,7 @@ export class Socket {
     public auth;
     public info;
 
-    public _subscriptions;
+    // public _subscriptions;
     public _removed;
     public _pinged;
 
@@ -37,7 +37,7 @@ export class Socket {
         this._helloed = false;
         this._pinged = true;
         this._processingCount = 0;
-        this._subscriptions = {};
+        // this._subscriptions = {};
         this._packets = [];
         this._sending = false;
         this._removed = new Teamwork.Team();
@@ -95,7 +95,7 @@ export class Socket {
     }
 
     public async revoke(path, update, options: any = {}) {
-        await this._unsubscribe(path);
+        // await this._unsubscribe(path);
 
         const message: any = {
             type: "revoke",
@@ -313,13 +313,13 @@ export class Socket {
 
         // Subscriptions
 
-        if (request.type === "sub") {
-            return this._processSubscription(request);
-        }
+        // if (request.type === "sub") {
+        //     return this._processSubscription(request);
+        // }
 
-        if (request.type === "unsub") {
-            return this._processUnsub(request);
-        }
+        // if (request.type === "unsub") {
+        //     return this._processUnsub(request);
+        // }
 
         // Unknown
 
@@ -348,17 +348,17 @@ export class Socket {
             await this._listener._settings.onConnection(this);
         }
 
-        if (request.subs) {
-            for (let i = 0; i < request.subs.length; ++i) {
-                const path = request.subs[i];
-                try {
-                    await this._listener._subscribe(path, this);
-                } catch (err) {
-                    err.path = path;
-                    throw err;
-                }
-            }
-        }
+        // if (request.subs) {
+        //     for (let i = 0; i < request.subs.length; ++i) {
+        //         const path = request.subs[i];
+        //         try {
+        //             await this._listener._subscribe(path, this);
+        //         } catch (err) {
+        //             err.path = path;
+        //             throw err;
+        //         }
+        //     }
+        // }
 
         const response = {
             type: "hello",
@@ -475,36 +475,36 @@ export class Socket {
         return { response };
     }
 
-    private async _processSubscription(request) {
-        await this._listener._subscribe(request.path, this);
+    // private async _processSubscription(request) {
+    //     await this._listener._subscribe(request.path, this);
 
-        const response = {
-            type: "sub",
-            id: request.id,
-            path: request.path,
-        };
+    //     const response = {
+    //         type: "sub",
+    //         id: request.id,
+    //         path: request.path,
+    //     };
 
-        return { response };
-    }
+    //     return { response };
+    // }
 
-    private async _processUnsub(request) {
-        await this._unsubscribe(request.path);
+    // private async _processUnsub(request) {
+    //     await this._unsubscribe(request.path);
 
-        const response = {
-            type: "unsub",
-            id: request.id,
-        };
+    //     const response = {
+    //         type: "unsub",
+    //         id: request.id,
+    //     };
 
-        return { response };
-    }
+    //     return { response };
+    // }
 
-    private _unsubscribe(path) {
-        const sub = this._subscriptions[path];
-        if (sub) {
-            delete this._subscriptions[path];
-            return sub.remove(this, path);
-        }
-    }
+    // private _unsubscribe(path) {
+    //     const sub = this._subscriptions[path];
+    //     if (sub) {
+    //         delete this._subscriptions[path];
+    //         return sub.remove(this, path);
+    //     }
+    // }
 
     private async _authenticate(request) {
         await this._authByCookie();
