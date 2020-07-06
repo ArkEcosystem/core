@@ -223,14 +223,14 @@ export class Client {
         return this._send(request, true);
     }
 
-    public message(message) {
-        const request = {
-            type: "message",
-            message,
-        };
+    // public message(message) {
+    //     const request = {
+    //         type: "message",
+    //         message,
+    //     };
 
-        return this._send(request, true);
-    }
+    //     return this._send(request, true);
+    // }
 
     public _isReady() {
         return this._ws && this._ws.readyState === WebSocket.OPEN;
