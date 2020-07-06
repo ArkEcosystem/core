@@ -5,8 +5,12 @@ import { isException } from "../../../../packages/crypto/src/utils";
 import { IBlockData } from "../../../../packages/crypto/src/interfaces";
 
 describe("IsException", () => {
-    const spyConfigGet = jest.spyOn(configManager, "get");
-    spyConfigGet.mockReturnValue(["d82ef1452ed61d9217c9b6a7328afa833586fdb19390c9c5e61b7801447428a5"]);
+    let spyConfigGet;
+
+    beforeEach(() => {
+        jest.restoreAllMocks();
+        spyConfigGet = jest.spyOn(configManager, "get");
+    })
 
     describe("when id is 64 bytes long", () => {
         it("should return true when id is defined as an exception", () => {
@@ -49,9 +53,10 @@ describe("IsException", () => {
             "should return true when block id is defined as an exception along with its transactions",
             (blockId: string, txs: string[]) => {
                 spyConfigGet
-                    .mockReturnValueOnce([blockId])
-                    .mockReturnValueOnce({ [blockId]: txs })
-                    .mockReturnValueOnce([blockId]);
+                    .mockReturnValueOnce({ [blockId]: txs }) // exceptions.blocksTransactions
+                    .mockReturnValueOnce(blockId) // network.pubKeyHash
+                    .mockReturnValueOnce([blockId]) // exceptions.blocks
+                    .mockReturnValueOnce([]); // exceptions.transactions
 
                 expect(isException({ id: blockId, transactions: txs.map(id => ({ id })) } as IBlockData)).toBeTrue();
             },
@@ -67,9 +72,10 @@ describe("IsException", () => {
             const txsShuffled = [txs[1], txs[0], txs[2]];
 
             spyConfigGet
-                .mockReturnValueOnce([blockId])
-                .mockReturnValueOnce({ [blockId]: txs })
-                .mockReturnValueOnce([blockId]);
+                .mockReturnValueOnce({ [blockId]: txs }) // exceptions.blocksTransactions
+                .mockReturnValueOnce(blockId) // network.pubKeyHash
+                .mockReturnValueOnce([blockId]) // exceptions.blocks
+                .mockReturnValueOnce([]); // exceptions.transactions
 
             expect(
                 isException({ id: blockId, transactions: txsShuffled.map(id => ({ id })) } as IBlockData),
@@ -80,9 +86,10 @@ describe("IsException", () => {
             const blockId = "63d9217c9b6a7328afa833586fdb19390c9c5e61b7801447428a5";
 
             spyConfigGet
-                .mockReturnValueOnce([blockId])
-                .mockReturnValueOnce({ [blockId]: [] })
-                .mockReturnValueOnce([blockId]);
+                .mockReturnValueOnce({ [blockId]: [] }) // exceptions.blocksTransactions
+                .mockReturnValueOnce(blockId) // network.pubKeyHash
+                .mockReturnValueOnce([blockId]) // exceptions.blocks
+                .mockReturnValueOnce([]); // exceptions.transactions
 
             expect(isException({ id: blockId, transactions: undefined } as IBlockData)).toBeTrue();
         });
@@ -91,11 +98,10 @@ describe("IsException", () => {
             const blockId = "63d9217c9b6a7328afa833586fdb19390c9c5e61b7801447428a5";
 
             spyConfigGet
-                .mockReturnValueOnce([blockId])
-                .mockReturnValueOnce({
-                    [blockId]: ["b9fdb54270ac2334790942345784066875db70d5564598dbd714681bb02e3034"],
-                })
-                .mockReturnValueOnce([blockId]);
+                .mockReturnValueOnce({ [blockId]: ["b9fdb54270ac2334790942345784066875db70d5564598dbd714681bb02e3034"] }) // exceptions.blocksTransactions
+                .mockReturnValueOnce(blockId) // network.pubKeyHash
+                .mockReturnValueOnce([blockId]) // exceptions.blocks
+                .mockReturnValueOnce([]); // exceptions.transactions
 
             expect(isException({ id: blockId, transactions: undefined } as IBlockData)).toBeFalse();
         });
@@ -108,9 +114,10 @@ describe("IsException", () => {
             ];
 
             spyConfigGet
-                .mockReturnValueOnce([blockId])
-                .mockReturnValueOnce({ [blockId]: transactions })
-                .mockReturnValueOnce([blockId]);
+                .mockReturnValueOnce({ [blockId]: transactions }) // exceptions.blocksTransactions
+                .mockReturnValueOnce(blockId) // network.pubKeyHash
+                .mockReturnValueOnce([blockId]) // exceptions.blocks
+                .mockReturnValueOnce([]); // exceptions.transactions
 
             expect(isException({ id: blockId, transactions: [{ id: transactions[0] }] } as IBlockData)).toBeFalse();
         });
