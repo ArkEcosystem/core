@@ -1,6 +1,6 @@
 "use strict";
 
-import Boom from "@hapi/boom";
+// import Boom from "@hapi/boom";
 // import Bounce from "@hapi/bounce";
 // import Call from "@hapi/call";
 import Hoek from "@hapi/hoek";
@@ -35,7 +35,7 @@ export class Listener {
     private _settings;
     private _sockets;
     // private _router;
-    private _authRoute;
+    // private _authRoute;
     private _socketCounter;
     private _heartbeat;
     private _beatTimeout;
@@ -46,7 +46,7 @@ export class Listener {
         this._settings = settings;
         this._sockets = new Sockets(this);
         // this._router = new Call.Router();
-        this._authRoute = this._settings.auth && this._server.lookup(this._settings.auth.id);
+        // this._authRoute = this._settings.auth && this._server.lookup(this._settings.auth.id);
         this._socketCounter = internals.counter.min;
         this._heartbeat = null;
         this._beatTimeout = null;
@@ -91,18 +91,18 @@ export class Listener {
         this._wss.close();
     }
 
-    public _authRequired() {
-        if (!this._authRoute) {
-            return false;
-        }
+    // public _authRequired() {
+    //     if (!this._authRoute) {
+    //         return false;
+    //     }
 
-        const auth = this._server.auth.lookup(this._authRoute);
-        if (!auth) {
-            return false;
-        }
+    //     const auth = this._server.auth.lookup(this._authRoute);
+    //     if (!auth) {
+    //         return false;
+    //     }
 
-        return auth.mode === "required";
-    }
+    //     return auth.mode === "required";
+    // }
 
     public _beat() {
         if (!this._settings.heartbeat) {
@@ -364,8 +364,8 @@ export class Listener {
 
         ws.once("close", async (code, message) => {
             this._sockets.remove(socket);
-            clearTimeout(socket.auth._initialAuthTimeout);
-            socket.auth._initialAuthTimeout = null;
+            // clearTimeout(socket.auth._initialAuthTimeout);
+            // socket.auth._initialAuthTimeout = null;
 
             // const subs = Object.keys(socket._subscriptions);
             // for (let i = 0; i < subs.length; ++i) {
@@ -412,54 +412,54 @@ export class Listener {
 // Sockets manager
 
 class Sockets {
-    private _listener;
+    // private _listener;
     private _items;
-    private _byUser;
+    // private _byUser;
 
     public constructor(listener) {
-        this._listener = listener;
+        // this._listener = listener;
         this._items = {};
-        this._byUser = {}; // user -> [sockets]
+        // this._byUser = {}; // user -> [sockets]
     }
 
     public add(socket) {
         this._items[socket.id] = socket;
     }
 
-    public auth(socket) {
-        if (!this._listener._settings.auth.index) {
-            return;
-        }
+    // public auth(socket) {
+    //     if (!this._listener._settings.auth.index) {
+    //         return;
+    //     }
 
-        if (!socket.auth.credentials.user) {
-            return;
-        }
+    //     if (!socket.auth.credentials.user) {
+    //         return;
+    //     }
 
-        const user = socket.auth.credentials.user;
-        if (
-            this._listener._settings.auth.maxConnectionsPerUser &&
-            this._byUser[user] &&
-            this._byUser[user].length >= this._listener._settings.auth.maxConnectionsPerUser
-        ) {
-            throw Boom.serverUnavailable("Too many connections for the authenticated user");
-        }
+    //     const user = socket.auth.credentials.user;
+    //     if (
+    //         this._listener._settings.auth.maxConnectionsPerUser &&
+    //         this._byUser[user] &&
+    //         this._byUser[user].length >= this._listener._settings.auth.maxConnectionsPerUser
+    //     ) {
+    //         throw Boom.serverUnavailable("Too many connections for the authenticated user");
+    //     }
 
-        this._byUser[user] = this._byUser[user] || [];
-        this._byUser[user].push(socket);
-    }
+    //     this._byUser[user] = this._byUser[user] || [];
+    //     this._byUser[user].push(socket);
+    // }
 
     public remove(socket) {
         delete this._items[socket.id];
 
-        if (socket.auth.credentials && socket.auth.credentials.user) {
-            const user = socket.auth.credentials.user;
-            if (this._byUser[user]) {
-                this._byUser[user] = this._byUser[user].filter((item) => item !== socket);
-                if (!this._byUser[user].length) {
-                    delete this._byUser[user];
-                }
-            }
-        }
+        // if (socket.auth.credentials && socket.auth.credentials.user) {
+        //     const user = socket.auth.credentials.user;
+        //     if (this._byUser[user]) {
+        //         this._byUser[user] = this._byUser[user].filter((item) => item !== socket);
+        //         if (!this._byUser[user].length) {
+        //             delete this._byUser[user];
+        //         }
+        //     }
+        // }
     }
 
     public length() {

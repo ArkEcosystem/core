@@ -4,7 +4,7 @@ import Boom from "@hapi/boom";
 import Bounce from "@hapi/bounce";
 import Cryptiles from "@hapi/cryptiles";
 import Hoek from "@hapi/hoek";
-import Iron from "@hapi/iron";
+// import Iron from "@hapi/iron";
 import Teamwork from "@hapi/teamwork";
 
 const internals = {
@@ -15,7 +15,7 @@ export class Socket {
     public server;
     public id;
     public app;
-    public auth;
+    // public auth;
     public info;
 
     // public _subscriptions;
@@ -23,7 +23,7 @@ export class Socket {
     public _pinged;
 
     private _ws;
-    private _cookies;
+    // private _cookies;
     private _listener;
     private _helloed;
     private _processingCount;
@@ -32,7 +32,7 @@ export class Socket {
 
     public constructor(ws, req, listener) {
         this._ws = ws;
-        this._cookies = req.headers.cookie;
+        // this._cookies = req.headers.cookie;
         this._listener = listener;
         this._helloed = false;
         this._pinged = true;
@@ -45,14 +45,14 @@ export class Socket {
         this.server = this._listener._server;
         this.id = this._listener._generateId();
         this.app = {};
-        this.auth = {
-            isAuthenticated: false,
-            credentials: null,
-            artifacts: null,
-            _error: null,
-            _initialAuthTimeout: null,
-            _verified: 0,
-        };
+        // this.auth = {
+        //     isAuthenticated: false,
+        //     credentials: null,
+        //     artifacts: null,
+        //     _error: null,
+        //     _initialAuthTimeout: null,
+        //     _verified: 0,
+        // };
 
         this.info = {
             remoteAddress: req.socket.remoteAddress,
@@ -60,16 +60,16 @@ export class Socket {
             "x-forwarded-for": req.headers["x-forwarded-for"],
         };
 
-        if (this._listener._settings.auth && this._listener._settings.auth.timeout) {
-            this.auth._initialAuthTimeout = setTimeout(() => this.disconnect(), this._listener._settings.auth.timeout);
-        }
+        // if (this._listener._settings.auth && this._listener._settings.auth.timeout) {
+        //     this.auth._initialAuthTimeout = setTimeout(() => this.disconnect(), this._listener._settings.auth.timeout);
+        // }
 
         this._ws.on("message", (message) => this._onMessage(message));
     }
 
     public disconnect() {
-        clearTimeout(this.auth._initialAuthTimeout);
-        this.auth._initialAuthTimeout = null;
+        // clearTimeout(this.auth._initialAuthTimeout);
+        // this.auth._initialAuthTimeout = null;
 
         this._ws.close();
         return this._removed;
@@ -279,7 +279,7 @@ export class Socket {
             throw Boom.badRequest("Message missing id");
         }
 
-        await this._verifyAuth();
+        // await this._verifyAuth();
 
         // Initialization and Authentication
 
@@ -295,9 +295,9 @@ export class Socket {
             throw Boom.badRequest("Connection is not initialized");
         }
 
-        if (request.type === "reauth") {
-            return this._processReauth(request);
-        }
+        // if (request.type === "reauth") {
+        //     return this._processReauth(request);
+        // }
 
         // Endpoint request
 
@@ -342,7 +342,7 @@ export class Socket {
         }
 
         this._helloed = true; // Prevents the client from reusing the socket if erred (leaves socket open to ensure client gets the error response)
-        await this._authenticate(request);
+        // await this._authenticate(request);
 
         if (this._listener._settings.onConnection) {
             await this._listener._settings.onConnection(this);
@@ -370,22 +370,22 @@ export class Socket {
         return { response };
     }
 
-    private async _processReauth(request) {
-        try {
-            await this._authenticate(request);
-        } catch (err) {
-            Bounce.rethrow(err, "system");
-            setTimeout(() => this.disconnect(), 0); // disconnect after sending the response to the client
-            throw err;
-        }
+    // private async _processReauth(request) {
+    //     try {
+    //         await this._authenticate(request);
+    //     } catch (err) {
+    //         Bounce.rethrow(err, "system");
+    //         setTimeout(() => this.disconnect(), 0); // disconnect after sending the response to the client
+    //         throw err;
+    //     }
 
-        const response = {
-            type: "reauth",
-            id: request.id,
-        };
+    //     const response = {
+    //         type: "reauth",
+    //         id: request.id,
+    //     };
 
-        return { response };
-    }
+    //     return { response };
+    // }
 
     private async _processRequest(request) {
         let method = request.method;
@@ -417,16 +417,16 @@ export class Socket {
             }
         }
 
-        if (this._listener._settings.auth && path === this._listener._settings.auth.endpoint) {
-            throw Boom.notFound();
-        }
+        // if (this._listener._settings.auth && path === this._listener._settings.auth.endpoint) {
+        //     throw Boom.notFound();
+        // }
 
         const shot = {
             method,
             url: path,
             payload: request.payload,
             headers: request.headers,
-            auth: this.auth.isAuthenticated ? this.auth : null,
+            auth: null,
             validate: false,
             plugins: {
                 nes: {
@@ -506,112 +506,112 @@ export class Socket {
     //     }
     // }
 
-    private async _authenticate(request) {
-        await this._authByCookie();
+    // private async _authenticate(request) {
+    //     await this._authByCookie();
 
-        if (!request.auth && !this.auth.isAuthenticated && this._listener._authRequired()) {
-            throw Boom.unauthorized("Connection requires authentication");
-        }
+    //     if (!request.auth && !this.auth.isAuthenticated && this._listener._authRequired()) {
+    //         throw Boom.unauthorized("Connection requires authentication");
+    //     }
 
-        if (request.auth && request.type !== "reauth" && this.auth.isAuthenticated) {
-            // Authenticated using a cookie during upgrade
+    //     if (request.auth && request.type !== "reauth" && this.auth.isAuthenticated) {
+    //         // Authenticated using a cookie during upgrade
 
-            throw Boom.badRequest("Connection already authenticated");
-        }
+    //         throw Boom.badRequest("Connection already authenticated");
+    //     }
 
-        clearTimeout(this.auth._initialAuthTimeout);
-        this.auth._initialAuthTimeout = null;
+    //     clearTimeout(this.auth._initialAuthTimeout);
+    //     this.auth._initialAuthTimeout = null;
 
-        if (request.auth) {
-            const config = this._listener._settings.auth;
-            if (config.type === "direct") {
-                const route = this.server.lookup(config.id);
-                request.auth.headers = request.auth.headers || {};
-                request.auth.headers["x-forwarded-for"] = this.info["x-forwarded-for"];
-                const res = await this.server.inject({
-                    url: route.path,
-                    method: "auth",
-                    headers: request.auth.headers,
-                    remoteAddress: this.info.remoteAddress,
-                    allowInternals: true,
-                    validate: false,
-                });
-                if (res.statusCode !== 200) {
-                    throw Boom.unauthorized(res.result.message);
-                }
+    //     if (request.auth) {
+    //         const config = this._listener._settings.auth;
+    //         if (config.type === "direct") {
+    //             const route = this.server.lookup(config.id);
+    //             request.auth.headers = request.auth.headers || {};
+    //             request.auth.headers["x-forwarded-for"] = this.info["x-forwarded-for"];
+    //             const res = await this.server.inject({
+    //                 url: route.path,
+    //                 method: "auth",
+    //                 headers: request.auth.headers,
+    //                 remoteAddress: this.info.remoteAddress,
+    //                 allowInternals: true,
+    //                 validate: false,
+    //             });
+    //             if (res.statusCode !== 200) {
+    //                 throw Boom.unauthorized(res.result.message);
+    //             }
 
-                if (!res.result.credentials) {
-                    return;
-                }
+    //             if (!res.result.credentials) {
+    //                 return;
+    //             }
 
-                this._setCredentials(res.result);
-                return;
-            }
+    //             this._setCredentials(res.result);
+    //             return;
+    //         }
 
-            try {
-                const auth = await Iron.unseal(request.auth, config.password, config.iron || Iron.defaults);
-                this._setCredentials(auth);
-            } catch (err) {
-                throw Boom.unauthorized("Invalid token");
-            }
-        }
-    }
+    //         try {
+    //             const auth = await Iron.unseal(request.auth, config.password, config.iron || Iron.defaults);
+    //             this._setCredentials(auth);
+    //         } catch (err) {
+    //             throw Boom.unauthorized("Invalid token");
+    //         }
+    //     }
+    // }
 
-    private async _authByCookie() {
-        const config = this._listener._settings.auth;
-        if (!config) {
-            return;
-        }
+    // private async _authByCookie() {
+    //     const config = this._listener._settings.auth;
+    //     if (!config) {
+    //         return;
+    //     }
 
-        const cookies = this._cookies;
-        if (!cookies) {
-            return;
-        }
+    //     const cookies = this._cookies;
+    //     if (!cookies) {
+    //         return;
+    //     }
 
-        let states;
-        try {
-            states = (await this.server.states.parse(cookies)).states;
-        } catch (err) {
-            throw Boom.unauthorized("Invalid nes authentication cookie");
-        }
+    //     let states;
+    //     try {
+    //         states = (await this.server.states.parse(cookies)).states;
+    //     } catch (err) {
+    //         throw Boom.unauthorized("Invalid nes authentication cookie");
+    //     }
 
-        const auth = states[config.cookie];
-        if (auth) {
-            this._setCredentials(auth);
-        }
-    }
+    //     const auth = states[config.cookie];
+    //     if (auth) {
+    //         this._setCredentials(auth);
+    //     }
+    // }
 
-    private _setCredentials(auth) {
-        this.auth.isAuthenticated = true;
-        this.auth.credentials = auth.credentials;
-        this.auth.artifacts = auth.artifacts;
-        this.auth.strategy = auth.strategy;
+    // private _setCredentials(auth) {
+    //     this.auth.isAuthenticated = true;
+    //     this.auth.credentials = auth.credentials;
+    //     this.auth.artifacts = auth.artifacts;
+    //     this.auth.strategy = auth.strategy;
 
-        this.auth._verified = Date.now();
+    //     this.auth._verified = Date.now();
 
-        this._listener._sockets.auth(this);
-    }
+    //     this._listener._sockets.auth(this);
+    // }
 
-    private async _verifyAuth() {
-        const now = Date.now();
+    // private async _verifyAuth() {
+    //     const now = Date.now();
 
-        if (
-            !this._listener._settings.auth.minAuthVerifyInterval ||
-            now - this.auth._verified < this._listener._settings.auth.minAuthVerifyInterval
-        ) {
-            return;
-        }
+    //     if (
+    //         !this._listener._settings.auth.minAuthVerifyInterval ||
+    //         now - this.auth._verified < this._listener._settings.auth.minAuthVerifyInterval
+    //     ) {
+    //         return;
+    //     }
 
-        this.auth._verified = now;
+    //     this.auth._verified = now;
 
-        try {
-            await this.server.auth.verify(this);
-        } catch (err) {
-            Bounce.rethrow(err, "system");
-            setImmediate(() => this.disconnect());
-            throw Boom.forbidden("Credential verification failed");
-        }
-    }
+    //     try {
+    //         await this.server.auth.verify(this);
+    //     } catch (err) {
+    //         Bounce.rethrow(err, "system");
+    //         setImmediate(() => this.disconnect());
+    //         throw Boom.forbidden("Credential verification failed");
+    //     }
+    // }
 
     private _filterHeaders(headers) {
         const filter = this._listener._settings.headers;
