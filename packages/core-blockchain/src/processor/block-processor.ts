@@ -36,7 +36,7 @@ export class BlockProcessor {
     private readonly transactionRepository!: Repositories.TransactionRepository;
 
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
-        if (Utils.isException(block.data.id)) {
+        if (Utils.isException({ ...block.data, transactions: block.transactions.map((tx) => tx.data) })) {
             return this.app.resolve<ExceptionHandler>(ExceptionHandler).execute(block);
         }
 

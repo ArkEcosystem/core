@@ -94,7 +94,7 @@ export abstract class TransactionHandler {
 
         const data: Interfaces.ITransactionData = transaction.data;
 
-        if (Utils.isException(data.id)) {
+        if (Utils.isException(data)) {
             this.logger.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
@@ -113,7 +113,7 @@ export abstract class TransactionHandler {
 
         const newBalance: Utils.BigNumber = sender.balance.minus(data.amount).minus(data.fee);
 
-        assert(Utils.isException(transaction.data.id) || !newBalance.isNegative());
+        assert(Utils.isException(transaction.data) || !newBalance.isNegative());
 
         // negativeBalanceExceptions check is never executed, because performGenericWalletChecks already checks balance
         // if (process.env.CORE_ENV === "test") {
@@ -185,7 +185,7 @@ export abstract class TransactionHandler {
     ): Promise<void> {
         const data: Interfaces.ITransactionData = transaction.data;
 
-        if (Utils.isException(data.id)) {
+        if (Utils.isException(data)) {
             return;
         }
 

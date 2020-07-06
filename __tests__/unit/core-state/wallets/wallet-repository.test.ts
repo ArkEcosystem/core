@@ -116,13 +116,7 @@ describe("Wallet Repository", () => {
         });
 
         // TODO: is this expected behaviour that you cannot search by these scopes
-        it("should throw when looking up via bridgechain, business or locks scope", () => {
-            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Bridgechains, "1")).toThrowError(
-                `Unknown scope ${Contracts.State.SearchScope.Bridgechains}`,
-            );
-            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Businesses, "1")).toThrowError(
-                `Unknown scope ${Contracts.State.SearchScope.Businesses}`,
-            );
+        it("should throw when looking up via locks scope", () => {
             expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Locks, "1")).toThrowError(
                 `Unknown scope ${Contracts.State.SearchScope.Locks}`,
             );
@@ -675,74 +669,6 @@ describe("Search", () => {
             expect(wallets.length).not.toEqual(0);
             expect(delegates.count).toEqual(1);
             expect(delegates.rows).toEqual([wallets[0]]);
-        });
-    });
-
-    describe("BridgeChains", () => {
-        it("should search return all businesses", () => {
-            const wallets = fixtureGenerator.generateBridgeChainWallets();
-            walletRepo.index(wallets);
-
-            const bridgechains = walletRepo.search(Contracts.State.SearchScope.Bridgechains);
-            expect(wallets.length).not.toEqual(0);
-            expect(bridgechains.rows).toHaveLength(wallets.length);
-        });
-
-        it("should ignore bridgechains with the wrong key", () => {
-            const wallets = fixtureGenerator.generateBridgeChainWallets();
-            walletRepo.index(wallets);
-            wallets[0].setAttribute("business.bridgechains", { differentKey: {} });
-            const bridgechains = walletRepo.search(Contracts.State.SearchScope.Bridgechains);
-            expect(wallets.length).not.toEqual(0);
-            expect(bridgechains.rows).toHaveLength(wallets.length - 1);
-        });
-    });
-
-    describe("Businesses", () => {
-        it("should search return all businesses", () => {
-            const wallets = fixtureGenerator.generateBusinesses();
-            walletRepo.index(wallets);
-
-            const businesses = walletRepo.search(Contracts.State.SearchScope.Businesses);
-            expect(wallets.length).not.toEqual(0);
-            expect(businesses.rows).toHaveLength(wallets.length);
-        });
-
-        it("should search by address", () => {
-            const wallets = fixtureGenerator.generateBusinesses();
-            walletRepo.index(wallets);
-
-            const businesses = walletRepo.search(Contracts.State.SearchScope.Businesses, {
-                address: wallets[0].address,
-            });
-
-            expect(wallets.length).not.toEqual(0);
-            expect(businesses.count).toEqual(1);
-            expect(businesses.rows).toEqual([wallets[0]]);
-        });
-
-        it("should transform params", () => {
-            const wallets = fixtureGenerator.generateBusinesses();
-            walletRepo.index(wallets);
-
-            const businesses = walletRepo.search(Contracts.State.SearchScope.Businesses, {
-                address: wallets[0].address,
-                transform: true,
-            });
-
-            const expected = {
-                address: wallets[0].address,
-                isResigned: false,
-                name: "DummyBusiness",
-                publicKey: wallets[0].publicKey,
-                website: "https://www.dummy.example",
-                vat: "EX1234567890",
-                repository: "https://www.dummy.example/repo",
-            };
-
-            expect(wallets.length).not.toEqual(0);
-            expect(businesses.count).toEqual(1);
-            expect(businesses.rows).toEqual([expected]);
         });
     });
 

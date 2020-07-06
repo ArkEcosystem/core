@@ -1,5 +1,6 @@
 import { Container, Contracts, Enums, Providers, Services, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
+import delay from "delay";
 import prettyMs from "pretty-ms";
 
 import { NetworkState } from "./network-state";
@@ -131,23 +132,27 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         this.logger.info(`Checking ${max} peers`);
         const peerErrors = {};
-        await Promise.all(
-            peers.map(async (peer) => {
-                try {
-                    return await this.communicator.ping(peer, pingDelay, forcePing);
-                } catch (error) {
-                    unresponsivePeers++;
 
-                    peerErrors[error] = peerErrors[error] || [];
-                    peerErrors[error].push(peer);
+        // we use Promise.race to cut loose in case some communicator.ping() does not resolve within the delay
+        // in that case we want to keep on with our program execution while ping promises can finish in the background
+        await Promise.race([
+            Promise.all(
+                peers.map(async (peer) => {
+                    try {
+                        await this.communicator.ping(peer, pingDelay, forcePing);
+                    } catch (error) {
+                        unresponsivePeers++;
 
-                    this.events.dispatch("internal.p2p.disconnectPeer", { peer });
-                    this.events.dispatch(Enums.PeerEvent.Removed, peer);
+                        peerErrors[error] = peerErrors[error] || [];
+                        peerErrors[error].push(peer);
 
-                    return undefined;
-                }
-            }),
-        );
+                        this.events.dispatch("internal.p2p.disconnectPeer", { peer });
+                        this.events.dispatch(Enums.PeerEvent.Removed, peer);
+                    }
+                }),
+            ),
+            delay(pingDelay),
+        ]);
 
         for (const key of Object.keys(peerErrors)) {
             const peerCount = peerErrors[key].length;

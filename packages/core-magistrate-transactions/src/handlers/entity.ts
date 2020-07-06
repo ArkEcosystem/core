@@ -68,8 +68,10 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
             this.initializeHandlers();
         }
 
-        for (const entityTypeStr of Object.keys(this.handlers)) { // entityTypeStr is a string because used as object key
-            for (const entitySubTypeStr of Object.keys(this.handlers[entityTypeStr])) { // entitySubTypeStr is a string because object key
+        for (const entityTypeStr of Object.keys(this.handlers)) {
+            // entityTypeStr is a string because used as object key
+            for (const entitySubTypeStr of Object.keys(this.handlers[entityTypeStr])) {
+                // entitySubTypeStr is a string because object key
                 const entityActions = [
                     Enums.EntityAction.Register,
                     Enums.EntityAction.Update,
@@ -83,7 +85,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
                         asset: {
                             type: Number(entityTypeStr), // entity type is integer in database
                             subType: Number(entitySubTypeStr), // entity subType is integer in database
-                            action: entityAction
+                            action: entityAction,
                         },
                     };
 
@@ -102,7 +104,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         transaction: CryptoInterfaces.ITransaction,
         wallet: Contracts.State.Wallet,
     ): Promise<void> {
-        if (Utils.isException(transaction.data.id)) {
+        if (Utils.isException(transaction.data)) {
             return;
         }
 

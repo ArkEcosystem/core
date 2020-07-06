@@ -39,7 +39,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         for await (const transaction of this.transactionHistoryService.streamByCriteria(criteria)) {
             AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.asset?.multiSignature);
 
-            const multiSignature: Contracts.State.WalletMultiSignatureAttributes = transaction.asset.multiSignature!;
+            const multiSignature: Contracts.State.WalletMultiSignatureAttributes = transaction.asset.multiSignature;
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
                 Identities.PublicKey.fromMultiSignatureAsset(multiSignature),
             );

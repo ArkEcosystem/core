@@ -26,7 +26,7 @@ export class DelegateRegistrationTransactionHandler extends One.DelegateRegistra
             const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
 
             wallet.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
-                username: transaction.asset.delegate!.username,
+                username: transaction.asset.delegate.username,
                 voteBalance: Utils.BigNumber.ZERO,
                 forgedFees: Utils.BigNumber.ZERO,
                 forgedRewards: Utils.BigNumber.ZERO,

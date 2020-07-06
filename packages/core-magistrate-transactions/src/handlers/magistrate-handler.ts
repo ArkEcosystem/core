@@ -18,7 +18,7 @@ export abstract class MagistrateTransactionHandler extends Handlers.TransactionH
         transaction: CryptoInterfaces.ITransaction,
         wallet: Contracts.State.Wallet,
     ): Promise<void> {
-        if (Utils.isException(transaction.data.id)) {
+        if (Utils.isException(transaction.data)) {
             return;
         }
 

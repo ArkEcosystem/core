@@ -1,0 +1,35 @@
+name: "CodeQL Analysis"
+
+on:
+    push:
+        branches:
+            - "master"
+            - "develop"
+    pull_request:
+        types: [ready_for_review, synchronize, opened]
+    schedule:
+        - cron: "0 14 * * 3"
+
+jobs:
+    scan:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+              with:
+                  fetch-depth: 2
+
+            - run: git checkout HEAD^2
+              if: ${{ github.event_name == 'pull_request' }}
+
+            - name: Initialize CodeQL
+              uses: github/codeql-action/init@v1
+              with:
+                  languages: javascript
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Perform CodeQL Analysis
+              uses: github/codeql-action/analyze@v1

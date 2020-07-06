@@ -96,7 +96,7 @@ describe("BusinessRegistration", () => {
             configManager.set("exceptions.transactions", []);
             configManager.set("network.pubKeyHash", pubKeyHash);
             // Trigger whitelistedBlockAndTransactionIds recalculation
-            Utils.isException(businessRegistrationTransaction.data.id);
+            Utils.isException(businessRegistrationTransaction.data);
         });
 
         it("should not throw defined as exception", async () => {

@@ -28,7 +28,7 @@ export abstract class MultiSignatureRegistrationTransaction extends Transaction 
     }
 
     public verify(): boolean {
-        return isException(this.data.id);
+        return isException(this.data);
     }
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {

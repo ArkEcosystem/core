@@ -42,7 +42,7 @@ expect.extend({
         return {
             pass,
             message: /* istanbul ignore next */ () =>
-            // @ts-ignore
+                // @ts-ignore
                 `expected entity ${transaction.id} ${this.isNot ? "not" : ""} to be registered. ${errors}`,
         };
     },
@@ -69,7 +69,7 @@ expect.extend({
         return {
             pass,
             message: /* istanbul ignore next */ () =>
-            // @ts-ignore
+                // @ts-ignore
                 `expected entity ${registrationId} ${this.isNot ? "not" : ""} to be resigned. ${errors}`,
         };
     },
@@ -100,7 +100,7 @@ expect.extend({
         return {
             pass,
             message: /* istanbul ignore next */ () =>
-            // @ts-ignore
+                // @ts-ignore
                 `expected entity ${updateTransaction.id} ${this.isNot ? "not" : ""} to be updated. ${errors}`,
         };
     },
