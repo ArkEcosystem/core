@@ -1,7 +1,7 @@
 export interface Client {
     connect(options: any): Promise<any>;
-    overrideReconnectionAuth(auth: any): boolean;
-    reauthenticate(auth: any): Promise<any>;
+    // overrideReconnectionAuth(auth: any): boolean;s
+    // reauthenticate(auth: any): Promise<any>;
     disconnect(): Promise<any>;
     request(options: any): Promise<any>;
     // message(message: any): Promise<any>;

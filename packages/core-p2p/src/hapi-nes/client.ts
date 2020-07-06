@@ -180,25 +180,25 @@ export class Client {
         });
     }
 
-    public overrideReconnectionAuth(auth) {
-        if (!this._reconnection) {
-            return false;
-        }
+    // public overrideReconnectionAuth(auth) {
+    //     if (!this._reconnection) {
+    //         return false;
+    //     }
 
-        this._reconnection.settings.auth = auth;
-        return true;
-    }
+    //     this._reconnection.settings.auth = auth;
+    //     return true;
+    // }
 
-    public reauthenticate(auth) {
-        this.overrideReconnectionAuth(auth);
+    // public reauthenticate(auth) {
+    //     this.overrideReconnectionAuth(auth);
 
-        const request = {
-            type: "reauth",
-            auth,
-        };
+    //     const request = {
+    //         type: "reauth",
+    //         auth,
+    //     };
 
-        return this._send(request, true);
-    }
+    //     return this._send(request, true);
+    // }
 
     public disconnect() {
         return new Promise((resolve) => this._disconnect(resolve, false));
@@ -692,9 +692,9 @@ export class Client {
             return next(error);
         }
 
-        if (update.type === "reauth") {
-            return next(error, true);
-        }
+        // if (update.type === "reauth") {
+        //     return next(error, true);
+        // }
 
         // Subscriptions
 
