@@ -5,7 +5,7 @@ export interface Client {
     disconnect(): Promise<any>;
     request(options: any): Promise<any>;
     message(message: any): Promise<any>;
-    subscriptions(): string[];
-    subscribe(path: any, handler: any): Promise<any>;
-    unsubscribe(path: any, handler: any): Promise<any>;
+    // subscriptions(): string[];
+    // subscribe(path: any, handler: any): Promise<any>;
+    // unsubscribe(path: any, handler: any): Promise<any>;
 }
