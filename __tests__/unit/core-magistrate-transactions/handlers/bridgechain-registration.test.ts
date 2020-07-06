@@ -219,7 +219,7 @@ describe("BusinessRegistration", () => {
             };
 
             businessAttributes.bridgechains[bridgechainRegistrationAsset.genesisHash] = {
-                bridgechainAsset: bridgechainRegistrationAsset,
+                bridgechainAsset: { ...bridgechainRegistrationAsset, name: "adifferentname" },
             };
 
             senderWallet.setAttribute("business", businessAttributes);
