@@ -77,9 +77,7 @@ export class BlockRepository extends AbstractRepository<Block> {
                 // @ts-ignore
                 (entity: Block & { transactions: string[] }, _, value: Buffer[] | undefined) => {
                     if (value && value.length) {
-                        entity.transactions = value.map(
-                            (buffer) => buffer.toString("hex"),
-                        );
+                        entity.transactions = value.map((buffer) => buffer.toString("hex"));
                     } else {
                         entity.transactions = [];
                     }
@@ -164,6 +162,7 @@ export class BlockRepository extends AbstractRepository<Block> {
                     const transactions = block.transactions.map((tx) =>
                         Object.assign(new Transaction(), {
                             ...tx.data,
+                            blockHeight: block.data.height,
                             timestamp: tx.timestamp,
                             serialized: tx.serialized,
                         }),

@@ -1,5 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
+import assert from "assert";
 
 import { BlockRepository } from "./repositories/block-repository";
 import { TransactionRepository } from "./repositories/transaction-repository";
@@ -25,14 +26,15 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
         criteria: Contracts.Shared.OrBlockCriteria,
     ): Promise<Interfaces.IBlockData | undefined> {
         const data = await this.findManyByCriteria(criteria);
+        assert(data.length === 1);
         return data[0];
     }
 
     public async findManyByCriteria(criteria: Contracts.Shared.OrBlockCriteria): Promise<Interfaces.IBlockData[]> {
         const expression = await this.blockFilter.getExpression(criteria);
-        const models = await this.blockRepository.findManyByExpression(expression);
-        const data = this.modelConverter.getBlockData(models);
-        return data;
+        const order: Contracts.Search.ListOrder = [{ property: "height", direction: "asc" }];
+        const models = await this.blockRepository.findManyByExpression(expression, order);
+        return this.modelConverter.getBlockData(models);
     }
 
     public async listByCriteria(

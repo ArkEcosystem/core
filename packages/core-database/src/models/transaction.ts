@@ -35,6 +35,12 @@ export class Transaction implements Contracts.Database.TransactionModel {
     public blockId!: string;
 
     @Column({
+        type: "integer",
+        nullable: false,
+    })
+    public blockHeight!: number;
+
+    @Column({
         type: "smallint",
         nullable: false,
     })

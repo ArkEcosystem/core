@@ -20,6 +20,7 @@ export interface TransactionModel {
     id: string;
     version: number;
     blockId: string;
+    blockHeight: number;
     sequence: number;
     timestamp: number;
     nonce: Utils.BigNumber;

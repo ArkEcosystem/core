@@ -3,12 +3,14 @@ import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 export const mapTransactionToModel = (
     transaction: Interfaces.ITransaction,
+    blockHeight: number = 0,
     sequence: number = 0,
 ): Models.Transaction => {
     return {
         id: transaction.id!,
         version: transaction.data.version || 1,
         blockId: transaction.data.blockId || "",
+        blockHeight: blockHeight,
         sequence: sequence,
         timestamp: transaction.data.timestamp,
         nonce: transaction.data.nonce || Utils.BigNumber.make(1),

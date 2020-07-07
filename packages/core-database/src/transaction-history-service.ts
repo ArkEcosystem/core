@@ -1,5 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
+import assert from "assert";
 
 import { BlockRepository } from "./repositories/block-repository";
 import { TransactionRepository } from "./repositories/transaction-repository";
@@ -25,6 +26,7 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
         criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData | undefined> {
         const data = await this.findManyByCriteria(criteria);
+        assert(data.length === 1);
         return data[0];
     }
 
@@ -32,16 +34,23 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
         criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData[]> {
         const expression = await this.transactionFilter.getExpression(criteria);
-        const models = await this.transactionRepository.findManyByExpression(expression);
-        const data = this.modelConverter.getTransactionData(models);
-        return data;
+        const order: Contracts.Search.ListOrder = [
+            { property: "blockHeight", direction: "asc" },
+            { property: "sequence", direction: "asc" },
+        ];
+        const models = await this.transactionRepository.findManyByExpression(expression, order);
+        return this.modelConverter.getTransactionData(models);
     }
 
     public async *streamByCriteria(
         criteria: Contracts.Search.OrCriteria<Contracts.Shared.TransactionCriteria>,
     ): AsyncIterable<Interfaces.ITransactionData> {
         const expression = await this.transactionFilter.getExpression(criteria);
-        for await (const model of this.transactionRepository.streamByExpression(expression)) {
+        const order: Contracts.Search.ListOrder = [
+            { property: "blockHeight", direction: "asc" },
+            { property: "sequence", direction: "asc" },
+        ];
+        for await (const model of this.transactionRepository.streamByExpression(expression, order)) {
             yield this.modelConverter.getTransactionData([model])[0];
         }
     }
