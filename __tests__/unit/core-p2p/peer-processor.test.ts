@@ -75,6 +75,20 @@ describe("PeerProcessor", () => {
             expect(peerStorage.setPeer).toBeCalledTimes(1);
         });
 
+        it("should accept a new peer if whitelist is undefined", async () => {
+            // @ts-ignore
+            configGet.whitelist = undefined;
+
+            const peer = new Peer("178.165.55.55", 4000);
+            peerStorage.getSameSubnetPeers = jest.fn().mockReturnValueOnce([]);
+
+            await peerProcessor.validateAndAcceptPeer(peer);
+
+            expect(peerStorage.setPendingPeer).toBeCalledTimes(1);
+            expect(peerCommunicator.ping).toBeCalledTimes(1);
+            expect(peerStorage.setPeer).toBeCalledTimes(1);
+        });
+
         it("should disconnect the peer on any error", async () => {
             const peer = new Peer("178.165.55.55", 4000);
             peerStorage.getSameSubnetPeers = jest.fn().mockReturnValueOnce([]);

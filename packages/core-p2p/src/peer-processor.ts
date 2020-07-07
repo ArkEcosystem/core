@@ -44,6 +44,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         peer: Contracts.P2P.Peer,
         options: Contracts.P2P.AcceptNewPeerOptions = {},
     ): Promise<void> {
+        /* istanbul ignore else */
         if (this.validatePeerIp(peer, options)) {
             await this.acceptNewPeer(peer, options);
         }
@@ -66,6 +67,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         const maxSameSubnetPeers = this.configuration.getRequired<number>("maxSameSubnetPeers");
 
         if (this.storage.getSameSubnetPeers(peer.ip).length >= maxSameSubnetPeers && !options.seed) {
+            /* istanbul ignore else */
             if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                 this.logger.warning(
                     `Rejected ${peer.ip} because we are already at the ${maxSameSubnetPeers} limit for peers sharing the same /24 subnet.`,
@@ -94,6 +96,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
 
             this.storage.setPeer(newPeer);
 
+            /* istanbul ignore next */
             if (!options.lessVerbose || process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                 this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port} (v${newPeer.version})`);
             }
