@@ -1,12 +1,12 @@
-import { Container, Utils, Enums } from "@arkecosystem/core-kernel";
-
-import delay from "delay";
+import { Container, Enums, Utils } from "@arkecosystem/core-kernel";
 import { NetworkMonitor } from "@arkecosystem/core-p2p/src/network-monitor";
-import path from "path";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
+import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { PeerVerificationResult } from "@arkecosystem/core-p2p/src/peer-verifier";
 import { Blocks } from "@arkecosystem/crypto";
+import delay from "delay";
+import { cloneDeep } from "lodash";
+import path from "path";
 
 describe("NetworkMonitor", () => {
     let networkMonitor: NetworkMonitor;
@@ -126,6 +126,39 @@ describe("NetworkMonitor", () => {
                     { ip: "190.177.54.44", port: 4000 },
                     { ip: "191.177.54.44", port: 4000 },
                 ];
+                jest.spyOn(Utils.http, "get").mockResolvedValueOnce({ data: peers } as Utils.HttpResponse);
+
+                await networkMonitor.boot();
+
+                expect(triggerService.call).toBeCalledTimes(peers.length); // for each peer validateAndAcceptPeer is called
+                for (const peer of peers) {
+                    expect(triggerService.call).toBeCalledWith("validateAndAcceptPeer", {
+                        peer: expect.objectContaining(peer),
+                        options: { seed: true, lessVerbose: true },
+                    });
+                }
+            });
+
+            it("should handle as empty array if appConfigPeers.sources is undefined", async () => {
+                // @ts-ignore
+                appConfigPeers.sources = undefined;
+
+                await networkMonitor.boot();
+
+                expect(triggerService.call).toBeCalledTimes(0); // for each peer validateAndAcceptPeer is called
+            });
+
+            it("should populate peers only once if same peer is in list and sources", async () => {
+                appConfigPeers.sources = ["http://peers.someurl.com"];
+
+                const peers = [
+                    { ip: "187.177.54.44", port: 4000 },
+                ];
+
+                appConfigPeers.list = [
+                    { ip: "187.177.54.44", port: 4000 },
+                ];
+
                 jest.spyOn(Utils.http, "get").mockResolvedValueOnce({ data: peers } as Utils.HttpResponse);
 
                 await networkMonitor.boot();
@@ -325,10 +358,23 @@ describe("NetworkMonitor", () => {
             storage.getPeers = jest.fn().mockReturnValue(peers);
         });
         afterEach(() => {
+            jest.clearAllMocks();
             storage.getPeers = jest.fn();
         });
 
         it("should ping every peer when the peers length is <= <peerCount>", async () => {
+            await networkMonitor.cleansePeers({ peerCount: 5 });
+
+            expect(communicator.ping).toBeCalledTimes(peers.length);
+            for (const peer of peers) {
+                expect(communicator.ping).toBeCalledWith(peer, config.verifyTimeout, expect.anything());
+            }
+        });
+
+        it("should ping every peer when the peers length is <= <peerCount> - when initializing is false", async () => {
+            // @ts-ignore
+            networkMonitor.initializing = false;
+
             await networkMonitor.cleansePeers({ peerCount: 5 });
 
             expect(communicator.ping).toBeCalledTimes(peers.length);
@@ -660,6 +706,17 @@ describe("NetworkMonitor", () => {
             expect(await networkMonitor.downloadBlocksFromHeight(1, maxParallelDownloads)).toEqual([mockBlock]);
         });
 
+        it("should download blocks from 1 peer - peer returns zero blocks", async () => {
+            communicator.getPeerBlocks = jest.fn().mockReturnValue([]);
+
+            const peer = new Peer("1.1.1.1", 4000);
+            peer.state = { height: 2, currentSlot: 2, forgingAllowed: true, header: {} };
+            peer.verificationResult = { forked: false, hisHeight: 2, myHeight: 2, highestCommonHeight: 2 };
+            storage.getPeers = jest.fn().mockReturnValue([peer]);
+
+            expect(await networkMonitor.downloadBlocksFromHeight(1, maxParallelDownloads)).toEqual([]);
+        });
+
         it("should download blocks in parallel from N peers max", async () => {
             communicator.getPeerBlocks = jest.fn().mockImplementation(mockedGetPeerBlocks);
 
@@ -785,9 +842,9 @@ describe("NetworkMonitor", () => {
             storage.getPeers = jest.fn().mockReturnValue(peers);
 
             const chunksToDownload = 2;
-            let fromHeight = baseHeight - 1 - chunksToDownload * downloadChunkSize;
+            const fromHeight = baseHeight - 1 - chunksToDownload * downloadChunkSize;
 
-            let downloadedBlocks = await networkMonitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
+            const downloadedBlocks = await networkMonitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
 
             expect(downloadedBlocks).toEqual([]);
         });
@@ -881,6 +938,23 @@ describe("NetworkMonitor", () => {
                 await networkMonitor.broadcastBlock(block);
 
                 expect(communicator.postBlock).toBeCalledTimes(Math.ceil((peers.length * (4 - count)) / 4));
+            },
+        );
+
+        it.each([[0], [1], [2], [3]])(
+            "should broadcast to all of our peers when block.id doesnt match blockPing.id",
+            async (count) => {
+                const tmpBlock = cloneDeep(block);
+
+                tmpBlock.data.id = "random_id";
+
+                blockchain.getBlockPing = jest
+                    .fn()
+                    .mockReturnValue({ block: tmpBlock.data, last: 10900, first: 10200, count });
+
+                await networkMonitor.broadcastBlock(block);
+
+                expect(communicator.postBlock).toBeCalledTimes(5);
             },
         );
 
