@@ -90,7 +90,6 @@ export class Client {
     private _reconnectionTimer;
     private _ids;
     private _requests;
-    private _subscriptions;
     private _heartbeat;
     private _packets;
     private _disconnectListeners;
@@ -122,7 +121,6 @@ export class Client {
         this._reconnectionTimer = null;
         this._ids = 0; // Id counter
         this._requests = {}; // id -> { resolve, reject, timeout }
-        this._subscriptions = {}; // path -> [callbacks]
         this._heartbeat = null;
         this._packets = [];
         this._disconnectListeners = null;
@@ -180,26 +178,6 @@ export class Client {
         });
     }
 
-    public overrideReconnectionAuth(auth) {
-        if (!this._reconnection) {
-            return false;
-        }
-
-        this._reconnection.settings.auth = auth;
-        return true;
-    }
-
-    public reauthenticate(auth) {
-        this.overrideReconnectionAuth(auth);
-
-        const request = {
-            type: "reauth",
-            auth,
-        };
-
-        return this._send(request, true);
-    }
-
     public disconnect() {
         return new Promise((resolve) => this._disconnect(resolve, false));
     }
@@ -223,99 +201,8 @@ export class Client {
         return this._send(request, true);
     }
 
-    public message(message) {
-        const request = {
-            type: "message",
-            message,
-        };
-
-        return this._send(request, true);
-    }
-
     public _isReady() {
         return this._ws && this._ws.readyState === WebSocket.OPEN;
-    }
-
-    public subscriptions() {
-        return Object.keys(this._subscriptions);
-    }
-
-    public subscribe(path, handler) {
-        if (!path || path[0] !== "/") {
-            return Promise.reject(NesError("Invalid path", errorTypes.USER));
-        }
-
-        const subs = this._subscriptions[path];
-        if (subs) {
-            // Already subscribed
-
-            if (subs.indexOf(handler) === -1) {
-                subs.push(handler);
-            }
-
-            return Promise.resolve();
-        }
-
-        this._subscriptions[path] = [handler];
-
-        if (!this._isReady()) {
-            // Queued subscription
-
-            return Promise.resolve();
-        }
-
-        const request = {
-            type: "sub",
-            path,
-        };
-
-        const promise = this._send(request, true);
-        promise.catch((ignoreErr) => {
-            delete this._subscriptions[path];
-        });
-
-        return promise;
-    }
-
-    public unsubscribe(path, handler) {
-        if (!path || path[0] !== "/") {
-            return Promise.reject(NesError("Invalid path", errorTypes.USER));
-        }
-
-        const subs = this._subscriptions[path];
-        if (!subs) {
-            return Promise.resolve();
-        }
-
-        let sync = false;
-        if (!handler) {
-            delete this._subscriptions[path];
-            sync = true;
-        } else {
-            const pos = subs.indexOf(handler);
-            if (pos === -1) {
-                return Promise.resolve();
-            }
-
-            subs.splice(pos, 1);
-            if (!subs.length) {
-                delete this._subscriptions[path];
-                sync = true;
-            }
-        }
-
-        if (!sync || !this._isReady()) {
-            return Promise.resolve();
-        }
-
-        const request = {
-            type: "unsub",
-            path,
-        };
-
-        const promise = this._send(request, true);
-        promise.catch(ignore); // Ignoring errors as the subscription handlers are already removed
-        return promise;
     }
 
     private _connect(options, initial, next) {
@@ -382,10 +269,6 @@ export class Client {
                     finalize(undefined);
                 })
                 .catch((err) => {
-                    if (err.path) {
-                        delete this._subscriptions[err.path];
-                    }
-
                     this._disconnect(() => nextTick(finalize)(err), true); // Stop reconnection when the hello message returns error
                 });
         };
@@ -570,11 +453,6 @@ export class Client {
             request.auth = auth;
         }
 
-        const subs = this.subscriptions();
-        if (subs.length) {
-            request.subs = subs;
-        }
-
         return this._send(request, true);
     }
 
@@ -628,28 +506,6 @@ export class Client {
             return this.onUpdate(update.message);
         }
 
-        // Publish or Revoke
-
-        if (update.type === "pub" || update.type === "revoke") {
-            const handlers = this._subscriptions[update.path];
-            if (update.type === "revoke") {
-                delete this._subscriptions[update.path];
-            }
-
-            if (handlers && update.message !== undefined) {
-                const flags: any = {};
-                if (update.type === "revoke") {
-                    flags.revoked = true;
-                }
-
-                for (let i = 0; i < handlers.length; ++i) {
-                    handlers[i](update.message, flags);
-                }
-            }
-
-            return;
-        }
-
         // Lookup request (message must include an id from this point)
 
         const request = this._requests[update.id];
@@ -689,16 +545,6 @@ export class Client {
                 this._beat(); // Call again once timeout is set
             }
 
-            return next(error);
-        }
-
-        if (update.type === "reauth") {
-            return next(error, true);
-        }
-
-        // Subscriptions
-
-        if (update.type === "sub" || update.type === "unsub") {
             return next(error);
         }
 
