@@ -69,5 +69,25 @@ describe("ValidatePlugin", () => {
             message: "Validation failed",
             statusCode: 400,
         });
+
+        // try with another route
+        const testRoute = {
+            method: "POST",
+            path: "/p2p/peer/testroute",
+            config: {
+                handler: () => {
+                    return { status: "ok" };
+                },
+            },
+        };
+
+        server.route(testRoute);
+        const responseValidAnotherRoute = await server.inject({
+            method: "POST",
+            url: "/p2p/peer/testroute",
+            payload: {},
+        });
+        expect(JSON.parse(responseValidAnotherRoute.payload)).toEqual(responsePayload);
+        expect(responseValidAnotherRoute.statusCode).toBe(200);
     });
 });
