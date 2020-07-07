@@ -25,6 +25,7 @@ export enum EntityType {
     Bridgechain = 1,
     Developer = 2,
     Plugin = 3,
+    Delegate = 4,
 }
 
 export enum EntitySubType {

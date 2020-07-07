@@ -16,6 +16,7 @@ import { EntityWrongSubTypeError, StaticFeeMismatchError } from "../errors";
 import { EntityRegisterSubHandler, EntityResignSubHandler, EntityUpdateSubHandler } from "./entity-subhandlers";
 import { BridgechainSubHandlers } from "./entity-subhandlers/bridgechain";
 import { BusinessSubHandlers } from "./entity-subhandlers/business";
+import { DelegateSubHandlers } from "./entity-subhandlers/delegate";
 import { DeveloperSubHandlers } from "./entity-subhandlers/developer";
 import { PluginCoreSubHandlers } from "./entity-subhandlers/plugin-core";
 import { PluginDesktopSubHandlers } from "./entity-subhandlers/plugin-desktop";
@@ -38,6 +39,9 @@ interface IHandlers {
     [Enums.EntityType.Plugin]: {
         [Enums.EntitySubType.PluginCore]: ISubHandlers;
         [Enums.EntitySubType.PluginDesktop]: ISubHandlers;
+    };
+    [Enums.EntityType.Delegate]: {
+        [Enums.EntitySubType.None]: ISubHandlers;
     };
 }
 
@@ -222,6 +226,13 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
                     [Enums.EntityAction.Register]: new PluginDesktopSubHandlers.PluginDesktopRegisterSubHandler(),
                     [Enums.EntityAction.Resign]: new PluginDesktopSubHandlers.PluginDesktopResignSubHandler(),
                     [Enums.EntityAction.Update]: new PluginDesktopSubHandlers.PluginDesktopUpdateSubHandler(),
+                },
+            },
+            [Enums.EntityType.Delegate]: {
+                [Enums.EntitySubType.None]: {
+                    [Enums.EntityAction.Register]: new DelegateSubHandlers.DelegateRegisterSubHandler(),
+                    [Enums.EntityAction.Resign]: new DelegateSubHandlers.DelegateResignSubHandler(),
+                    [Enums.EntityAction.Update]: new DelegateSubHandlers.DelegateUpdateSubHandler(),
                 },
             },
         };

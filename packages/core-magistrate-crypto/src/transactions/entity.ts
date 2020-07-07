@@ -23,7 +23,15 @@ export class EntityTransaction extends Transactions.Transaction {
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         const baseAssetDataProps = {
-            type: { enum: [EntityType.Business, EntityType.Bridgechain, EntityType.Developer, EntityType.Plugin] },
+            type: {
+                enum: [
+                    EntityType.Business,
+                    EntityType.Bridgechain,
+                    EntityType.Developer,
+                    EntityType.Plugin,
+                    EntityType.Delegate,
+                ],
+            },
             subType: {
                 enum: [EntitySubType.None, EntitySubType.PluginCore, EntitySubType.PluginDesktop],
             }, // subType depends on type but the type/subType check is in handler
