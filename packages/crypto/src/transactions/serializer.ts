@@ -262,7 +262,7 @@ export class Serializer {
         }
 
         if (transaction.signatures) {
-            if (transaction.version === 1 && isException(transaction.id)) {
+            if (transaction.version === 1 && isException(transaction)) {
                 buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
                 buffer.append(transaction.signatures.join(""), "hex");
             } else if (!options.excludeMultiSignature) {

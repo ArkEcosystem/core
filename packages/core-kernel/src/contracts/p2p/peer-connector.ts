@@ -1,5 +1,4 @@
 import { Client } from "./nes-client";
-
 import { Peer } from "./peer";
 
 export interface PeerConnector {

@@ -20,6 +20,8 @@ const payments = [
     },
 ];
 
+process.env.CORE_TRANSACTION_POOL_MAX_PER_SENDER = "1500";
+
 let app: Contracts.Kernel.Application;
 beforeAll(async () => (app = await support.setUp()));
 afterAll(async () => await support.tearDown());

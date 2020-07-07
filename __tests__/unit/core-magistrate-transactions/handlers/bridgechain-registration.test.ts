@@ -160,7 +160,7 @@ describe("BusinessRegistration", () => {
             configManager.set("exceptions.transactions", []);
             configManager.set("network.pubKeyHash", pubKeyHash);
             // Trigger whitelistedBlockAndTransactionIds recalculation
-            Utils.isException(bridgechainRegistrationTransaction.data.id);
+            Utils.isException(bridgechainRegistrationTransaction.data);
         });
 
         it("should not throw", async () => {
@@ -219,7 +219,7 @@ describe("BusinessRegistration", () => {
             };
 
             businessAttributes.bridgechains[bridgechainRegistrationAsset.genesisHash] = {
-                bridgechainAsset: bridgechainRegistrationAsset,
+                bridgechainAsset: { ...bridgechainRegistrationAsset, name: "adifferentname" },
             };
 
             senderWallet.setAttribute("business", businessAttributes);

@@ -96,13 +96,7 @@ describe("Wallet Repository Copy On Write", () => {
         });
 
         // TODO: is this expected behaviour that you cannot search by these scopes
-        it("should throw when looking up via bridgechain, business or locks scope", () => {
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Bridgechains, "1")).toThrowError(
-                `Unknown scope ${Contracts.State.SearchScope.Bridgechains}`,
-            );
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Businesses, "1")).toThrowError(
-                `Unknown scope ${Contracts.State.SearchScope.Businesses}`,
-            );
+        it("should throw when looking up via locks scope", () => {
             expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Locks, "1")).toThrowError(
                 `Unknown scope ${Contracts.State.SearchScope.Locks}`,
             );

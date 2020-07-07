@@ -244,8 +244,8 @@ describe("PeerController", () => {
                 // probably some unreachable code though...
                 const milestone = Managers.configManager.getMilestone();
                 const spyGetMilestone = jest.spyOn(Managers.configManager, "getMilestone");
-                for (let i = 0; i < 71; i++) {
-                    // yeah 71 times :wtf: before the one we are interested to mock kicks in
+                for (let i = 0; i < 75; i++) {
+                    // yeah 75 times :wtf: before the one we are interested to mock kicks in
                     spyGetMilestone.mockReturnValueOnce({
                         ...milestone,
                         block: {

@@ -39,7 +39,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
             }
 
             const ipfsHashes: Contracts.State.WalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
-            ipfsHashes[transaction.asset.ipfs!] = true;
+            ipfsHashes[transaction.asset.ipfs] = true;
             this.walletRepository.index(wallet);
         }
     }
@@ -52,7 +52,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
     ): Promise<void> {
-        if (Utils.isException(transaction.data.id)) {
+        if (Utils.isException(transaction.data)) {
             return;
         }
 

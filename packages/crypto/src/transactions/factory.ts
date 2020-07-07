@@ -58,7 +58,7 @@ export class TransactionFactory {
     public static fromData(data: ITransactionData, strict = true, options: IDeserializeOptions = {}): ITransaction {
         const { value, error } = Verifier.verifySchema(data, strict);
 
-        if (error && !isException(value.id)) {
+        if (error && !isException(value)) {
             throw new TransactionSchemaError(error);
         }
 
@@ -81,7 +81,7 @@ export class TransactionFactory {
 
             const { value, error } = Verifier.verifySchema(transaction.data, strict);
 
-            if (error && !isException(value.id)) {
+            if (error && !isException(value)) {
                 throw new TransactionSchemaError(error);
             }
 

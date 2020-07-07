@@ -15,7 +15,6 @@ import {
 } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
-import { MagistrateIndex } from "../wallet-indexes";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 import { MagistrateTransactionHandler } from "./magistrate-handler";
 import { packageNameRegex } from "./utils";
@@ -71,7 +70,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
     ): Promise<void> {
-        if (Utils.isException(transaction.data.id)) {
+        if (Utils.isException(transaction.data)) {
             return;
         }
 
@@ -84,21 +83,24 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         }
 
         const { data }: Interfaces.ITransaction = transaction;
-
         if (wallet.hasAttribute("business.bridgechains")) {
             const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute(
                 "business.bridgechains",
             );
 
-            const bridgechainValues: IBridgechainWalletAttributes[] = Object.values(bridgechains);
+            if (
+                Object.values(bridgechains).some(
+                    (bridgechain) =>
+                        data.asset &&
+                        bridgechain.bridgechainAsset.name.toLowerCase() ===
+                            data.asset.bridgechainRegistration.name.toLowerCase(),
+                )
+            ) {
+                throw new BridgechainAlreadyRegisteredError();
+            }
 
-            for (const bridgechain of bridgechainValues) {
-                if (
-                    data.asset &&
-                    bridgechain.bridgechainAsset.genesisHash === data.asset.bridgechainRegistration.genesisHash
-                ) {
-                    throw new GenesisHashAlreadyRegisteredError();
-                }
+            if (data.asset && bridgechains[data.asset.bridgechainRegistration.genesisHash]) {
+                throw new GenesisHashAlreadyRegisteredError();
             }
         }
 
@@ -106,25 +108,6 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
             for (const portKey of Object.keys(data.asset.bridgechainRegistration.ports)) {
                 if (!packageNameRegex.test(portKey)) {
                     throw new PortKeyMustBeValidPackageNameError();
-                }
-            }
-        }
-
-        for (const wallet of this.walletRepository.getIndex(MagistrateIndex.Businesses).values()) {
-            if (wallet.hasAttribute("business.bridgechains")) {
-                const bridgechainValues: IBridgechainWalletAttributes[] = Object.values(
-                    wallet.getAttribute("business.bridgechains"),
-                );
-
-                if (
-                    bridgechainValues.some((bridgechain) => {
-                        return (
-                            bridgechain.bridgechainAsset.name.toLowerCase() ===
-                            data.asset!.bridgechainRegistration.name.toLowerCase()
-                        );
-                    })
-                ) {
-                    throw new BridgechainAlreadyRegisteredError();
                 }
             }
         }

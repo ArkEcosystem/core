@@ -80,7 +80,7 @@ jobs:
             POSTGRES_DB: ark_unitnet
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -132,7 +132,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -187,7 +187,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -242,7 +242,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -297,7 +297,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -352,7 +352,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -407,7 +407,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -462,7 +462,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -517,7 +517,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -572,7 +572,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -627,7 +627,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -682,7 +682,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -737,7 +737,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -792,7 +792,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -847,7 +847,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -902,7 +902,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -957,7 +957,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -1012,7 +1012,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -1067,7 +1067,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -1122,7 +1122,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
