@@ -224,7 +224,7 @@ describe("PeerCommunicator", () => {
                 configuration.getOptional = jest.fn().mockReturnValueOnce([baseGetStatusResponse.config.version]); // minimumVersions
                 peerVerifier.checkState = jest.fn().mockReturnValueOnce(new PeerVerificationResult(1, 1, 1));
 
-                const pingResult = await peerCommunicator.ping(peer, 1000);
+                const pingResult = await peerCommunicator.ping(peer, 6000);
 
                 expect(connector.emit).toBeCalledTimes(1);
                 expect(connector.emit).toBeCalledWith(peer, event, {});
@@ -275,6 +275,25 @@ describe("PeerCommunicator", () => {
 
             expect(peer.ports["core-api"]).toBe(4100);
             expect(peer.ports["custom-plugin"]).toBe(4200);
+        });
+
+        it("should ping the peer's plugins ports don't update peer.ports if statusCode is not 200", async () => {
+            const peer = new Peer("187.168.65.65", 4000);
+            peer.plugins = {
+                "core-api": { enabled: true, port: 4100 },
+                "custom-plugin": { enabled: true, port: 4200 },
+            };
+            jest.spyOn(KernelUtils.http, "get")
+                .mockResolvedValueOnce({
+                    data: { data: { nethash: Managers.configManager.get("network.nethash") } },
+                    statusCode: 500,
+                } as any)
+                .mockResolvedValueOnce({ data: {}, statusCode: 500 } as any);
+
+            await peerCommunicator.pingPorts(peer);
+
+            expect(peer.ports["core-api"]).toBeUndefined();
+            expect(peer.ports["custom-plugin"]).toBeUndefined();
         });
 
         it("should log a warning and emit internal.p2p.disconnectPeer when wrong nethash", async () => {
@@ -399,7 +418,7 @@ describe("PeerCommunicator", () => {
 
             const mockConnectorResponse = { payload: { common: { id: "1234567890", height: 123 } } };
             connector.emit = jest.fn().mockReturnValueOnce(mockConnectorResponse);
-            const hasCommonBlocksResult = await peerCommunicator.hasCommonBlocks(peer, payload.ids);
+            const hasCommonBlocksResult = await peerCommunicator.hasCommonBlocks(peer, payload.ids, 1000);
 
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event, payload);
@@ -413,7 +432,7 @@ describe("PeerCommunicator", () => {
 
             const mockConnectorResponse = { payload: { common: undefined } };
             connector.emit = jest.fn().mockReturnValueOnce(mockConnectorResponse);
-            const hasCommonBlocksResult = await peerCommunicator.hasCommonBlocks(peer, payload.ids);
+            const hasCommonBlocksResult = await peerCommunicator.hasCommonBlocks(peer, payload.ids, 6000);
 
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event, payload);
@@ -483,7 +502,7 @@ describe("PeerCommunicator", () => {
             const event = "p2p.peer.getBlocks";
             const options = {
                 fromBlockHeight: 1,
-                headersOnly: true,
+                headersOnly: false,
             };
             const peer = new Peer("187.168.65.65", 4000);
 
