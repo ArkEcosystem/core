@@ -71,6 +71,21 @@ describe("Mapper", () => {
             expect(mapTransactionToModel(transaction)).toEqual(transactionModel);
         });
 
+        it("should convert crypto transaction to database model replacing blockHeight", async () => {
+            expect(mapTransactionToModel(transaction, 100)).toEqual({ ...transactionModel, blockHeight: 100 });
+        });
+
+        it("should convert crypto transaction to database model replacing sequence", async () => {
+            expect(mapTransactionToModel(transaction, undefined, 10)).toEqual({ ...transactionModel, sequence: 10 });
+        });
+
+        it("should convert crypto transaction to database model without blockHeight or sequence", async () => {
+            const clone = { ...transaction, data: { ...transaction.data } };
+            delete clone.data.blockHeight;
+            delete clone.data.sequence;
+            expect(mapTransactionToModel(clone)).toEqual({ ...transactionModel, blockHeight: 0, sequence: 0 });
+        });
+
         it("should convert crypto transaction to database model without optional parameters", async () => {
             delete transaction.data.version;
             delete transaction.data.blockId;
