@@ -162,7 +162,6 @@ export class BlockRepository extends AbstractRepository<Block> {
                     const transactions = block.transactions.map((tx) =>
                         Object.assign(new Transaction(), {
                             ...tx.data,
-                            blockHeight: block.data.height,
                             timestamp: tx.timestamp,
                             serialized: tx.serialized,
                         }),
