@@ -179,10 +179,6 @@ export class Socket {
             message.id = request.id;
         }
 
-        // if (err.path) {
-        //     message.path = err.path;
-        // }
-
         return this._send(message);
     }
 
