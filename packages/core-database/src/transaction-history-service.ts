@@ -26,7 +26,7 @@ export class TransactionHistoryService implements Contracts.Shared.TransactionHi
         criteria: Contracts.Shared.OrTransactionCriteria,
     ): Promise<Interfaces.ITransactionData | undefined> {
         const data = await this.findManyByCriteria(criteria);
-        assert(data.length === 1);
+        assert(data.length <= 1);
         return data[0];
     }
 

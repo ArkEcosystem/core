@@ -26,7 +26,7 @@ export class BlockHistoryService implements Contracts.Shared.BlockHistoryService
         criteria: Contracts.Shared.OrBlockCriteria,
     ): Promise<Interfaces.IBlockData | undefined> {
         const data = await this.findManyByCriteria(criteria);
-        assert(data.length === 1);
+        assert(data.length <= 1);
         return data[0];
     }
 
