@@ -100,6 +100,7 @@ export class Client {
 
         this._isBrowser = false;
 
+        /* istanbul ignore else */
         if (!this._isBrowser) {
             options.ws = options.ws || {};
 
@@ -274,6 +275,7 @@ export class Client {
         };
 
         ws.onerror = (event) => {
+            /* istanbul ignore next */
             if (timeout) {
                 clearTimeout(timeout);
             }
@@ -423,6 +425,7 @@ export class Client {
             record.reject = reject;
         });
 
+        /* istanbul ignore next */
         if (this._settings.timeout) {
             record.timeout = setTimeout(() => {
                 record.timeout = null;
@@ -449,10 +452,6 @@ export class Client {
             version,
         };
 
-        if (auth) {
-            request.auth = auth;
-        }
-
         return this._send(request, true);
     }
 
@@ -463,11 +462,14 @@ export class Client {
         const prefix = data[0];
         if (prefix !== "{") {
             this._packets.push(data.slice(1));
+            /* istanbul ignore else */
             if (prefix !== "!") {
                 return;
             }
 
+            /* istanbul ignore next */
             data = this._packets.join("");
+            /* istanbul ignore next */
             this._packets = [];
         }
 
@@ -487,6 +489,7 @@ export class Client {
 
         let error: any = null;
         if (update.statusCode && update.statusCode >= 400) {
+            /* istanbul ignore next */
             error = NesError(update.payload.message || update.payload.error || "Error", errorTypes.SERVER);
             error.statusCode = update.statusCode;
             error.data = update.payload;
@@ -528,12 +531,6 @@ export class Client {
 
         if (update.type === "request") {
             return next(error, { payload: update.payload, statusCode: update.statusCode, headers: update.headers });
-        }
-
-        // Custom message
-
-        if (update.type === "message") {
-            return next(error, { payload: update.message });
         }
 
         // Authentication

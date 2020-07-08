@@ -49,6 +49,7 @@ class QuorumDetails {
     public getQuorum() {
         const quorum = this.peersQuorum / (this.peersQuorum + this.peersNoQuorum);
 
+        /* istanbul ignore next */
         return isFinite(quorum) ? quorum : 0;
     }
 }

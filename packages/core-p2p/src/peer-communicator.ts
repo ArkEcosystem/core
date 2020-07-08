@@ -242,6 +242,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
         const { error } = Validation.validator.validate(schema, reply);
         if (error) {
+            /* istanbul ignore else */
             if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                 this.logger.debug(`Got unexpected reply from ${peer.url}/${endpoint}: ${error}`);
             }
@@ -306,11 +307,13 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 this.logger.debug(`Socket data validation error (peer ${peer.ip}) : ${error.message}`);
                 break;
             case "Error":
+                /* istanbul ignore else */
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Response error (peer ${peer.ip}/${event}) : ${error.message}`);
                 }
                 break;
             default:
+                /* istanbul ignore else */
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 }

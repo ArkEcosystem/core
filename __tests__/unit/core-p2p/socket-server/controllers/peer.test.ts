@@ -398,5 +398,27 @@ describe("PeerController", () => {
                 payload.headersOnly,
             );
         });
+
+        it("should use database.getBlocksForDownload to get the blocks according to the request params with default block limit", async () => {
+            // request parameters: lastBlockHeight, blockLimit, headersOnly
+            const mockBlocks = [Networks.testnet.genesisBlock];
+            database.getBlocksForDownload = jest.fn().mockReturnValueOnce(mockBlocks);
+            const payload = {
+                lastBlockHeight: 1,
+                blockLimit: null,
+                headersOnly: true,
+            };
+            const ip = "187.55.33.22";
+
+            const blocks = await peerController.getBlocks({ payload, info: { remoteAddress: ip } }, {});
+
+            expect(blocks).toEqual(mockBlocks);
+            expect(database.getBlocksForDownload).toBeCalledTimes(1);
+            expect(database.getBlocksForDownload).toBeCalledWith(
+                payload.lastBlockHeight + 1,
+                400,
+                payload.headersOnly,
+            );
+        });
     });
 });

@@ -63,24 +63,6 @@ export class Socket {
         return this._send(response);
     }
 
-    public async revoke(path, update, options: any = {}) {
-        const message: any = {
-            type: "revoke",
-            path,
-        };
-
-        if (update !== null) {
-            // Allow sending falsy values
-            message.message = update;
-        }
-
-        if (options.ignoreClose && !this.isOpen()) {
-            return Promise.resolve();
-        }
-
-        return this._send(message);
-    }
-
     public isOpen() {
         return this._ws.readyState === 1;
     }
@@ -110,10 +92,12 @@ export class Socket {
         } catch (err) {
             this.server.log(["nes", "serialization", "error"], message.type);
 
+            /* istanbul ignore else */
             if (message.id) {
                 return this._error(Boom.internal("Failed serializing message"), message);
             }
 
+            /* istanbul ignore next */
             return Promise.reject(err);
         }
 
@@ -195,10 +179,6 @@ export class Socket {
             message.id = request.id;
         }
 
-        if (err.path) {
-            message.path = err.path;
-        }
-
         return this._send(message);
     }
 
@@ -272,6 +252,7 @@ export class Socket {
     }
 
     private async _processHello(request) {
+        /* istanbul ignore next */
         if (this._helloed) {
             throw Boom.badRequest("Connection already initialized");
         }

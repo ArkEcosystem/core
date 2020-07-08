@@ -589,6 +589,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         const fullMsg = `${this.logPrefix} ${msg}`;
         switch (severity) {
             case Severity.DEBUG_EXTRA:
+                /* istanbul ignore else */
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(fullMsg);
                 }

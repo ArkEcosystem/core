@@ -1,4 +1,5 @@
 import { RateLimiter } from "@arkecosystem/core-p2p/src/rate-limiter";
+import { cloneDeep } from "lodash";
 
 describe("RateLimiter", () => {
     let rateLimiter: RateLimiter;
@@ -29,6 +30,15 @@ describe("RateLimiter", () => {
         rateLimiter = new RateLimiter(rateLimitConfig);
     });
 
+    describe("constructor", () => {
+        it("should create RateLimiter if configurations.endpoints is empty", async () => {
+            const tmpRateLimitConfig = cloneDeep(rateLimitConfig);
+            delete tmpRateLimitConfig.configurations.endpoints;
+
+            rateLimiter = new RateLimiter(tmpRateLimitConfig);
+        });
+    });
+
     describe("hasExceededRateLimit", () => {
         it("should return true until it hits global rate limit", async () => {
             const ip = "187.155.66.55";
@@ -36,7 +46,7 @@ describe("RateLimiter", () => {
                 expect(await rateLimiter.hasExceededRateLimit(ip)).toBeFalse();
             }
             expect(await rateLimiter.hasExceededRateLimit(ip)).toBeTrue();
-        })
+        });
 
         it("should return true until it hits endpoint rate limit", async () => {
             const ip = "187.155.66.55";
@@ -45,7 +55,7 @@ describe("RateLimiter", () => {
                 expect(await rateLimiter.hasExceededRateLimit(ip, endpoint)).toBeFalse();
             }
             expect(await rateLimiter.hasExceededRateLimit(ip, endpoint)).toBeTrue();
-        })
+        });
     });
 
     describe("getRateLimitedEndpoints", () => {
@@ -66,9 +76,9 @@ describe("RateLimiter", () => {
 
             expect(await rateLimiter.hasExceededRateLimit(ip)).toBeFalse();
             expect(await rateLimiter.isBlocked(ip)).toBeTrue(); // no remaining points
-            
+
             expect(await rateLimiter.hasExceededRateLimit(ip)).toBeTrue();
             expect(await rateLimiter.isBlocked(ip)).toBeTrue();
-        })
+        });
     });
 });

@@ -4,6 +4,10 @@ import { Container } from "@arkecosystem/core-kernel";
 
 import { AcceptPeerPlugin } from "@arkecosystem/core-p2p/src/socket-server/plugins/accept-peer";
 
+afterEach(() => {
+    jest.clearAllMocks();
+});
+
 describe("AcceptPeerPlugin", () => {
     let acceptPeerPlugin: AcceptPeerPlugin;
 
@@ -63,5 +67,39 @@ describe("AcceptPeerPlugin", () => {
         expect(responseValid.statusCode).toBe(200);
         expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
         expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip: remoteAddress });
+    });
+
+    it("should not be called on another route", async () => {
+        const testRoute = {
+            method: "POST",
+            path: "/p2p/peer/testroute",
+            config: {
+                handler: () => {
+                    return { status: "ok" };
+                },
+            },
+        };
+
+        const server = new Server({ port: 4100 });
+        server.route(testRoute);
+        server.route(mockRoute);
+
+        const spyExt = jest.spyOn(server, "ext");
+
+        acceptPeerPlugin.register(server);
+
+        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreHandler" }));
+
+        // try the route with a valid payload
+        const remoteAddress = "187.166.55.44";
+        const responseValid = await server.inject({
+            method: "POST",
+            url: "/p2p/peer/testroute",
+            payload: {},
+            remoteAddress,
+        });
+        expect(JSON.parse(responseValid.payload)).toEqual(responsePayload);
+        expect(responseValid.statusCode).toBe(200);
+        expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(0);
     });
 });

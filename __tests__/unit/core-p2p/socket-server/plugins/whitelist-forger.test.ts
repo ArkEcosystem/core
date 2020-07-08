@@ -117,4 +117,38 @@ describe("WhitelistForgerPlugin", () => {
         expect(spyPeerProcessorWhitelisted).toBeCalledTimes(1);
         expect(spyPeerProcessorWhitelisted).toBeCalledWith({ ip: remoteAddress });
     });
+
+    it("should not be called on another route", async () => {
+        const testRoute = {
+            method: "POST",
+            path: "/p2p/peer/testroute",
+            config: {
+                handler: () => {
+                    return { status: "ok" };
+                },
+            },
+        };
+
+        const server = new Server({ port: 4100 });
+        server.route(testRoute);
+        server.route(mockRoute);
+
+        const spyExt = jest.spyOn(server, "ext");
+
+        whitelistForgerPlugin.register(server);
+
+        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreHandler" }));
+
+        // try the route with a valid remoteAddress
+        const remoteAddress = defaults.remoteAccess[0];
+        const responseValid = await server.inject({
+            method: "POST",
+            url: "/p2p/peer/testroute",
+            payload: {},
+            remoteAddress,
+        });
+        expect(JSON.parse(responseValid.payload)).toEqual(responsePayload);
+        expect(responseValid.statusCode).toBe(200);
+        expect(spyPeerProcessorWhitelisted).toBeCalledTimes(0);
+    });
 });
