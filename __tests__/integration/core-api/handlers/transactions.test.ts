@@ -133,6 +133,7 @@ describe("API 2.0 - Transactions", () => {
                 fee: "0",
                 amount: "300000000000000",
                 blockId: expect.anything(), // ? how is that blockId isn't constant
+                blockHeight: expect.anything(),
                 recipientId: genesisTransaction.recipientId,
                 senderPublicKey: genesisTransaction.senderPublicKey,
                 expiration: 0,
