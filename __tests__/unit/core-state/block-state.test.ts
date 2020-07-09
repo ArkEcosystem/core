@@ -580,11 +580,11 @@ describe("BlockState", () => {
                 await expect(blockState.applyTransaction(transaction)).toResolve();
             });
 
-            it("fail to revert transaction if the recipient doesn't exist", async () => {
+            it("not fail to revert transaction if the recipient doesn't exist", async () => {
                 transaction.data.recipientId = "don'tExist";
                 walletRepo.forgetByAddress(recipientWallet.address);
 
-                await expect(blockState.revertTransaction(transaction)).toReject();
+                await expect(blockState.revertTransaction(transaction)).toResolve();
             });
         });
 
