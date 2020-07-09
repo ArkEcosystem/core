@@ -135,7 +135,17 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         // we use Promise.race to cut loose in case some communicator.ping() does not resolve within the delay
         // in that case we want to keep on with our program execution while ping promises can finish in the background
-        await Promise.race([
+        await new Promise((resolve) => {
+            let isResolved = false;
+
+            // Simulates Promise.race, but doesn't cause "multipleResolvers" process error
+            const resolvesFirst = () => {
+                if (!isResolved) {
+                    isResolved = true;
+                    resolve();
+                }
+            };
+
             Promise.all(
                 peers.map(async (peer) => {
                     try {
@@ -150,9 +160,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                         this.events.dispatch(Enums.PeerEvent.Removed, peer);
                     }
                 }),
-            ),
-            delay(pingDelay),
-        ]);
+            ).then(resolvesFirst);
+
+            delay(pingDelay).finally(resolvesFirst);
+        });
 
         for (const key of Object.keys(peerErrors)) {
             const peerCount = peerErrors[key].length;
