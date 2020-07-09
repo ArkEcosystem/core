@@ -13,19 +13,24 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         return (await this.findByIds([id]))[0];
     }
 
-    public async findManyByExpression(expression: Contracts.Search.Expression<TEntity>): Promise<TEntity[]> {
+    public async findManyByExpression(
+        expression: Contracts.Search.Expression<TEntity>,
+        order: Contracts.Search.ListOrder = [],
+    ): Promise<TEntity[]> {
         const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
-        const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
-        queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
+        this.addWhere(queryBuilder, expression);
+        this.addOrderBy(queryBuilder, order);
         return queryBuilder.getMany();
     }
 
-    public async *streamByExpression(expression: Contracts.Search.Expression<TEntity>): AsyncIterable<TEntity> {
-        const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
-        const stream = await this.createQueryBuilder()
-            .select("*")
-            .where(sqlExpression.query, sqlExpression.parameters)
-            .stream();
+    public async *streamByExpression(
+        expression: Contracts.Search.Expression<TEntity>,
+        order: Contracts.Search.ListOrder = [],
+    ): AsyncIterable<TEntity> {
+        const queryBuilder = this.createQueryBuilder().select("*");
+        this.addWhere(queryBuilder, expression);
+        this.addOrderBy(queryBuilder, order);
+        const stream = await queryBuilder.stream();
 
         for await (const raw of stream) {
             yield this.rawToEntity(raw);
@@ -38,20 +43,10 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         page: Contracts.Search.ListPage,
         options?: Contracts.Search.ListOptions,
     ): Promise<Contracts.Search.ListResult<TEntity>> {
-        const queryBuilder = this.createQueryBuilder().select().skip(page.offset).take(page.limit);
-
-        const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
-        queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
-
-        if (order.length) {
-            const column = this.queryHelper.getColumnName(this.metadata, order[0].property);
-            queryBuilder.orderBy(column, order[0].direction === "desc" ? "DESC" : "ASC");
-
-            for (const item of order.slice(1)) {
-                const column = this.queryHelper.getColumnName(this.metadata, item.property);
-                queryBuilder.addOrderBy(column, item.direction === "desc" ? "DESC" : "ASC");
-            }
-        }
+        const queryBuilder = this.createQueryBuilder().select();
+        this.addWhere(queryBuilder, expression);
+        this.addOrderBy(queryBuilder, order);
+        this.addSkipOffset(queryBuilder, page);
 
         if (options?.estimateTotalCount === false) {
             const [rows, count]: [TEntity[], number] = await queryBuilder.getManyAndCount();
@@ -106,5 +101,29 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         }
 
         return entity;
+    }
+
+    private addWhere(
+        queryBuilder: SelectQueryBuilder<TEntity>,
+        expression: Contracts.Search.Expression<TEntity>,
+    ): void {
+        const sqlExpression = this.queryHelper.getWhereExpressionSql(this.metadata, expression);
+        queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
+    }
+
+    private addOrderBy(queryBuilder: SelectQueryBuilder<TEntity>, order: Contracts.Search.ListOrder): void {
+        if (order.length) {
+            const column = this.queryHelper.getColumnName(this.metadata, order[0].property);
+            queryBuilder.orderBy(column, order[0].direction === "desc" ? "DESC" : "ASC");
+
+            for (const item of order.slice(1)) {
+                const column = this.queryHelper.getColumnName(this.metadata, item.property);
+                queryBuilder.addOrderBy(column, item.direction === "desc" ? "DESC" : "ASC");
+            }
+        }
+    }
+
+    private addSkipOffset(queryBuilder: SelectQueryBuilder<TEntity>, page: Contracts.Search.ListPage): void {
+        queryBuilder.skip(page.offset).take(page.limit);
     }
 }

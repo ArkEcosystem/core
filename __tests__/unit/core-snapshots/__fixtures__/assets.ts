@@ -1,6 +1,6 @@
-import { Meta } from "@packages/core-snapshots/src/contracts";
 import { Models } from "@arkecosystem/core-database";
 import { BigNumber } from "@arkecosystem/utils";
+import { Meta } from "@packages/core-snapshots/src/contracts";
 
 export const metaData: Meta.MetaData = {
     blocks: {
@@ -112,6 +112,7 @@ export const transactions: Models.Transaction[] = [
         id: "db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd",
         version: 1,
         blockId: "17184958558311101492",
+        blockHeight: 1,
         sequence: 0,
         timestamp: 0,
         nonce: BigNumber.make(1),

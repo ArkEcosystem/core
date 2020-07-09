@@ -49,32 +49,33 @@ export interface ITransactionAsset {
 }
 
 export interface ITransactionData {
-    version?: number | undefined;
-    network?: number | undefined;
+    version?: number;
+    network?: number;
 
-    typeGroup?: number | undefined;
+    typeGroup?: number;
     type: number;
     timestamp: number;
-    nonce?: BigNumber | undefined;
+    nonce?: BigNumber;
     senderPublicKey: string | undefined;
 
     fee: BigNumber;
     amount: BigNumber;
 
-    expiration?: number | undefined;
-    recipientId?: string | undefined;
+    expiration?: number;
+    recipientId?: string;
 
-    asset?: ITransactionAsset | undefined;
-    vendorField?: string | undefined;
+    asset?: ITransactionAsset;
+    vendorField?: string;
 
-    id?: string | undefined;
-    signature?: string | undefined;
-    secondSignature?: string | undefined;
-    signSignature?: string | undefined;
-    signatures?: string[] | undefined;
+    id?: string;
+    signature?: string;
+    secondSignature?: string;
+    signSignature?: string;
+    signatures?: string[];
 
-    blockId?: string | undefined;
-    sequence?: number | undefined;
+    blockId?: string;
+    blockHeight?: number;
+    sequence?: number;
 }
 
 export interface ITransactionJson {

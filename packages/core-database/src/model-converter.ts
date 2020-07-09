@@ -47,6 +47,7 @@ export class ModelConverter implements Contracts.Database.ModelConverter {
 
             // block constructor
             data.blockId = model.blockId;
+            data.blockHeight = model.blockHeight;
             data.sequence = model.sequence;
 
             return data;

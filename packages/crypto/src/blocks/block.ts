@@ -33,8 +33,9 @@ export class Block implements IBlock {
         // also add sequence to keep database sequence
         this.transactions = transactions.map((transaction, index) => {
             transaction.data.blockId = this.data.id;
-            transaction.timestamp = this.data.timestamp;
+            transaction.data.blockHeight = this.data.height;
             transaction.data.sequence = index;
+            transaction.timestamp = this.data.timestamp;
             return transaction;
         });
 

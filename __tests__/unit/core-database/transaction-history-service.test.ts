@@ -10,6 +10,11 @@ const jestfn = <T extends (...args: unknown[]) => unknown>(
     return jest.fn(implementation);
 };
 
+const defaultTransactionOrder: Contracts.Search.ListOrder = [
+    { property: "blockHeight", direction: "asc" },
+    { property: "sequence", direction: "asc" },
+];
+
 const blockRepository = {};
 
 const transactionRepository = {
@@ -58,7 +63,7 @@ describe("TransactionHistoryService.findOneByCriteria", () => {
         const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
-        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression);
+        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression, defaultTransactionOrder);
         expect(modelConverter.getTransactionData).toBeCalledWith([]);
         expect(result).toBeUndefined();
     });
@@ -77,7 +82,7 @@ describe("TransactionHistoryService.findOneByCriteria", () => {
         const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
-        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression);
+        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression, defaultTransactionOrder);
         expect(modelConverter.getTransactionData).toBeCalledWith([model]);
 
         expect(result).toBe(data);
@@ -101,7 +106,7 @@ describe("TransactionHistoryService.findManyByCriteria", () => {
         const result = await transactionHistoryService.findManyByCriteria(criteria);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
-        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression);
+        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression, defaultTransactionOrder);
         expect(modelConverter.getTransactionData).toBeCalledWith([model1, model2]);
 
         expect(result.length).toBe(2);
@@ -134,7 +139,7 @@ describe("TransactionHistoryService.streamByCriteria", () => {
         }
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
-        expect(transactionRepository.streamByExpression).toBeCalledWith(expression);
+        expect(transactionRepository.streamByExpression).toBeCalledWith(expression, defaultTransactionOrder);
         expect(modelConverter.getTransactionData).toBeCalledWith([model1]);
         expect(modelConverter.getTransactionData).toBeCalledWith([model2]);
 

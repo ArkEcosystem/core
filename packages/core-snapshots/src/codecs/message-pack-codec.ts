@@ -42,6 +42,7 @@ export class MessagePackCodec implements Codec {
             return encode([
                 transaction.Transaction_id,
                 transaction.Transaction_block_id,
+                transaction.Transaction_block_height,
                 transaction.Transaction_sequence,
                 transaction.Transaction_timestamp,
                 transaction.Transaction_serialized,
@@ -54,7 +55,7 @@ export class MessagePackCodec implements Codec {
     public decodeTransaction(buffer: Buffer): Models.Transaction {
         let transactionId = undefined;
         try {
-            const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
+            const [id, blockId, blockHeight, sequence, timestamp, serialized] = decode(buffer);
             transactionId = id;
 
             const transaction: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytesUnsafe(
@@ -67,6 +68,7 @@ export class MessagePackCodec implements Codec {
                 id: id,
                 version: transaction.data.version!,
                 blockId: blockId,
+                blockHeight: blockHeight,
                 sequence: sequence,
                 timestamp: timestamp,
                 senderPublicKey: transaction.data.senderPublicKey!,
