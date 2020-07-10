@@ -1,3 +1,5 @@
+import "jest-extended";
+
 import { Application, Container, Providers, Services } from "@arkecosystem/core-kernel";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { ServiceProvider } from "@arkecosystem/core-p2p/src/service-provider";
@@ -15,6 +17,7 @@ describe("ServiceProvider", () => {
         [Container.Identifiers.PeerNetworkMonitor]: { initialize: jest.fn() },
         [Container.Identifiers.PeerProcessor]: { initialize: jest.fn() },
         [Container.Identifiers.PeerCommunicator]: { initialize: jest.fn() },
+        [Container.Identifiers.PeerEventListener]: { initialize: jest.fn() },
         [serverSymbol]: mockServer,
         [Container.Identifiers.TriggerService]: triggerService,
     };
@@ -74,7 +77,7 @@ describe("ServiceProvider", () => {
                 Identifiers.PeerProcessor,
                 Identifiers.PeerNetworkMonitor,
                 Identifiers.PeerTransactionBroadcaster,
-                "p2p.event-listener",
+                Identifiers.PeerEventListener,
             ]) {
                 expect(spyBind).toBeCalledWith(identifier);
             }

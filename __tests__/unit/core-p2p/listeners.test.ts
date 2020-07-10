@@ -1,5 +1,4 @@
 import { Container } from "@arkecosystem/core-kernel";
-
 import { DisconnectInvalidPeers, DisconnectPeer } from "@arkecosystem/core-p2p/src/listeners";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
 
@@ -77,7 +76,7 @@ describe("DisconnectPeer", () => {
     describe("handle", () => {
         it("should disconnect the peer provided", async () => {
             const peer = new Peer("187.176.1.1", 4000);
-            await disconnectPeer.handle({ data: peer });
+            await disconnectPeer.handle({ data: { peer: peer } });
 
             expect(storage.forgetPeer).toBeCalledTimes(1);
             expect(storage.forgetPeer).toBeCalledWith(peer);
