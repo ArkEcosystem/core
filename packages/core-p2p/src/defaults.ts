@@ -30,7 +30,7 @@ export const defaults = {
      */
     maxSameSubnetPeers: process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET || 5,
     /**
-     * The maximum peer consecutive errors before peer is foget from peer store. 
+     * The maximum peer consecutive errors before peer is forget from peer store.
      */
     maxPeerSequentialErrors: process.env.CORE_P2P_MAX_PEER_SEQUENTIAL_ERRORS || 3,
     /**
