@@ -21,6 +21,7 @@ export interface Peer {
     state: PeerState;
     plugins: PeerPlugins;
     lastPinged: Dayjs | undefined;
+    sequentialErrorCounter: number;
     verificationResult: PeerVerificationResult | undefined;
 
     isVerified(): boolean;

@@ -34,6 +34,12 @@ export class Peer implements Contracts.P2P.Peer {
     public lastPinged: Dayjs | undefined;
 
     /**
+     * @type {(number)}
+     * @memberof Peer
+     */
+    public sequentialErrorCounter: number = 0;
+
+    /**
      * @type {(PeerVerificationResult | undefined)}
      * @memberof Peer
      */
