@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AddBlocksAndTransactionsIndexes20200713100000 implements MigrationInterface {
+export class AddBlocksAndTransactionsIndexes20200317000000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`
             CREATE INDEX transactions_asset ON transactions(asset);
