@@ -41,6 +41,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async boot(): Promise<void> {
+        this.app.get<EventListener>(Container.Identifiers.PeerEventListener).initialize();
+
         return this.app.get<Server>(this.serverSymbol).boot();
     }
 
@@ -79,7 +81,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.get<PeerProcessor>(Container.Identifiers.PeerProcessor).initialize();
 
-        this.app.bind("p2p.event-listener").to(EventListener).inSingletonScope();
+        this.app.bind(Container.Identifiers.PeerEventListener).to(EventListener).inSingletonScope();
 
         this.app.bind(Container.Identifiers.PeerTransactionBroadcaster).to(TransactionBroadcaster);
     }

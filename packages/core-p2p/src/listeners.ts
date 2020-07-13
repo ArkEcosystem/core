@@ -71,13 +71,13 @@ export class DisconnectPeer implements Contracts.Kernel.EventListener {
     private readonly storage!: Contracts.P2P.PeerStorage;
 
     /**
-     * @param {*} {data}
+     * @param {*} {peer}
      * @returns {Promise<void>}
      * @memberof DisconnectPeer
      */
     public async handle({ data }): Promise<void> {
-        this.connector.disconnect(data);
+        this.connector.disconnect(data.peer);
 
-        this.storage.forgetPeer(data);
+        this.storage.forgetPeer(data.peer);
     }
 }

@@ -267,6 +267,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
             response = await this.connector.emit(peer, event, payload);
 
+            peer.sequentialErrorCounter = 0;
             peer.latency = new Date().getTime() - timeBeforeSocketCall;
             this.parseHeaders(peer, response.payload);
 
@@ -301,6 +302,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         }
 
         this.connector.setError(peer, error.name);
+        peer.sequentialErrorCounter++;
 
         switch (error.name) {
             case SocketErrors.Validation:
@@ -310,6 +312,10 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 /* istanbul ignore else */
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Response error (peer ${peer.ip}/${event}) : ${error.message}`);
+                }
+
+                if (peer.sequentialErrorCounter >= this.configuration.getRequired<number>("maxPeerSequentialErrors")) {
+                    this.events.dispatch(Enums.PeerEvent.Disconnect, { peer });
                 }
                 break;
             default:
