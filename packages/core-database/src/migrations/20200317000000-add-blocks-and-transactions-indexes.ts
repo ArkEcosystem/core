@@ -63,11 +63,11 @@ export class AddBlocksAndTransactionsIndexes20200317000000 implements MigrationI
             DROP INDEX transactions_vendor_field_asc_sequence;
             DROP INDEX transactions_version_asc_sequence;
 
-            CREATE INDEX blocks_number_of_transactions;
-            CREATE INDEX blocks_reward;
-            CREATE INDEX blocks_total_amount;
-            CREATE INDEX blocks_total_fee;
-            CREATE INDEX blocks_version;
+            DROP INDEX blocks_number_of_transactions;
+            DROP INDEX blocks_reward;
+            DROP INDEX blocks_total_amount;
+            DROP INDEX blocks_total_fee;
+            DROP INDEX blocks_version;
         `);
     }
 }
