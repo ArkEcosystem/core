@@ -1,15 +1,14 @@
 import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
-import delay from "delay";
 
 import { constants } from "./constants";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerVerifier } from "./peer-verifier";
-import { RateLimiter } from "./rate-limiter";
 import { replySchemas } from "./schemas";
-import { buildRateLimiter, isValidVersion } from "./utils";
+import { isValidVersion } from "./utils";
+import { getAllPeerPorts, getPeerPortForEvent } from "./socket-server/utils/get-peer-port";
 
 // todo: review the implementation
 @Container.injectable()
@@ -30,23 +29,14 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    private outgoingRateLimiter!: RateLimiter;
-
     public initialize(): void {
-        this.outgoingRateLimiter = buildRateLimiter({
-            // White listing anybody here means we would not throttle ourselves when sending
-            // them requests, ie we could spam them.
-            whitelist: [],
-            remoteAccess: [],
-            rateLimit: this.configuration.getOptional<boolean>("rateLimit", false),
-        });
     }
 
     public async postBlock(peer: Contracts.P2P.Peer, block: Interfaces.IBlock) {
         const postBlockTimeout = 10000;
         return this.emit(
             peer,
-            "p2p.peer.postBlock",
+            "p2p.blocks.postBlock",
             {
                 block: Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
@@ -59,7 +49,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
     public async postTransactions(peer: Contracts.P2P.Peer, transactions: Interfaces.ITransactionJson[]): Promise<any> {
         const postTransactionsTimeout = 10000;
-        return this.emit(peer, "p2p.peer.postTransactions", { transactions }, postTransactionsTimeout);
+        return this.emit(peer, "p2p.transactions.postTransactions", { transactions }, postTransactionsTimeout);
     }
 
     // ! do not rely on parameter timeoutMsec as guarantee that ping method will resolve within it !
@@ -132,7 +122,9 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                                     `Disconnecting from ${peerHostPort}: ` +
                                         `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
                                 );
-                                this.events.dispatch("internal.p2p.disconnectPeer", { peer });
+                                for (const port of getAllPeerPorts(peer)) {
+                                    this.events.dispatch("internal.p2p.disconnectPeer", { peer, port });
+                                }
                             }
                         }
                     } else {
@@ -180,7 +172,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
         const peerBlocks = await this.emit(
             peer,
-            "p2p.peer.getBlocks",
+            "p2p.blocks.getBlocks",
             {
                 lastBlockHeight: fromBlockHeight,
                 blockLimit,
@@ -254,8 +246,8 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     }
 
     private async emit(peer: Contracts.P2P.Peer, event: string, payload: any, timeout?: number, maxPayload?: number) {
-        await this.throttle(peer, event);
-
+        const port = getPeerPortForEvent(peer, event);
+        
         let response;
         try {
             this.connector.forgetError(peer);
@@ -263,11 +255,12 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             const timeBeforeSocketCall: number = new Date().getTime();
 
             maxPayload = maxPayload || 100 * constants.KILOBYTE; // 100KB by default, enough for most requests
-            await this.connector.connect(peer, maxPayload);
+            await this.connector.connect(peer, port);
 
-            response = await this.connector.emit(peer, event, payload);
+            peer.sequentialErrorCounter = 0; // only counts connection errors
 
-            peer.sequentialErrorCounter = 0;
+            response = await this.connector.emit(peer, port, event, payload);
+
             peer.latency = new Date().getTime() - timeBeforeSocketCall;
             this.parseHeaders(peer, response.payload);
 
@@ -286,16 +279,6 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         return response.payload;
     }
 
-    private async throttle(peer: Contracts.P2P.Peer, event: string): Promise<void> {
-        const msBeforeReCheck = 1000;
-        while (await this.outgoingRateLimiter.hasExceededRateLimit(peer.ip, event)) {
-            this.logger.debug(
-                `Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`,
-            );
-            await delay(msBeforeReCheck);
-        }
-    }
-
     private handleSocketError(peer: Contracts.P2P.Peer, event: string, error: Error): void {
         if (!error.name) {
             return;
@@ -303,6 +286,9 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
         this.connector.setError(peer, error.name);
         peer.sequentialErrorCounter++;
+        if (peer.sequentialErrorCounter >= this.configuration.getRequired<number>("maxPeerSequentialErrors")) {
+            this.events.dispatch(Enums.PeerEvent.Disconnect, { peer });
+        }
 
         switch (error.name) {
             case SocketErrors.Validation:
@@ -312,10 +298,6 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 /* istanbul ignore else */
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Response error (peer ${peer.ip}/${event}) : ${error.message}`);
-                }
-
-                if (peer.sequentialErrorCounter >= this.configuration.getRequired<number>("maxPeerSequentialErrors")) {
-                    this.events.dispatch(Enums.PeerEvent.Disconnect, { peer });
                 }
                 break;
             default:

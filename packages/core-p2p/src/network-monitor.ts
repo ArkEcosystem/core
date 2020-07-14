@@ -7,6 +7,7 @@ import { NetworkState } from "./network-state";
 import { Peer } from "./peer";
 import { PeerCommunicator } from "./peer-communicator";
 import { checkDNS, checkNTP } from "./utils";
+import { getAllPeerPorts } from "./socket-server/utils/get-peer-port";
 
 // todo: review the implementation
 @Container.injectable()
@@ -156,7 +157,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                         peerErrors[error] = peerErrors[error] || [];
                         peerErrors[error].push(peer);
 
-                        this.events.dispatch("internal.p2p.disconnectPeer", { peer });
+                        for (const port of getAllPeerPorts(peer)) {
+                            this.events.dispatch("internal.p2p.disconnectPeer", { peer, port });
+                        }
+
                         this.events.dispatch(Enums.PeerEvent.Removed, peer);
                     }
                 }),

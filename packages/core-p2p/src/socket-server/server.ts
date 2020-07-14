@@ -7,6 +7,9 @@ import { ValidatePlugin } from "./plugins/validate";
 import { WhitelistForgerPlugin } from "./plugins/whitelist-forger";
 import { InternalRoute } from "./routes/internal";
 import { PeerRoute } from "./routes/peer";
+import { PortsOffset } from "../enums";
+import { BlocksRoute } from "./routes/blocks";
+import { TransactionsRoute } from "./routes/transactions";
 
 // todo: review the implementation
 @Container.injectable()
@@ -32,7 +35,21 @@ export class Server {
      * @type {HapiServer}
      * @memberof Server
      */
-    private server!: HapiServer;
+    private peerServer!: HapiServer;
+
+    /**
+     * @private
+     * @type {HapiServer}
+     * @memberof Server
+     */
+    private blocksServer!: HapiServer;
+
+    /**
+     * @private
+     * @type {HapiServer}
+     * @memberof Server
+     */
+    private transactionsServer!: HapiServer;
 
     /**
      * @private
@@ -49,17 +66,29 @@ export class Server {
      */
     public async initialize(name: string, optionsServer: Types.JsonObject): Promise<void> {
         this.name = name;
-        this.server = new HapiServer({ address: optionsServer.hostname, port: optionsServer.port });
-        (this.server.app as any).app = this.app;
 
-        await this.server.register({ plugin });
+        const address = optionsServer.hostname;
+        const basePort = Number(optionsServer.port);
 
-        this.app.resolve(InternalRoute).register(this.server);
-        this.app.resolve(PeerRoute).register(this.server);
+        this.peerServer = new HapiServer({ address, port: basePort + PortsOffset.Peer });
+        this.blocksServer = new HapiServer({ address, port: basePort + PortsOffset.Blocks });
+        this.transactionsServer = new HapiServer({ address, port: basePort + PortsOffset.Transactions });
+        
+        for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
+            (server.app as any).app = this.app;
+            await server.register({ plugin });
 
-        this.app.resolve(ValidatePlugin).register(this.server);
-        this.app.resolve(AcceptPeerPlugin).register(this.server);
-        this.app.resolve(WhitelistForgerPlugin).register(this.server);
+            this.app.resolve(ValidatePlugin).register(server);
+        };
+
+        this.app.resolve(InternalRoute).register(this.peerServer);
+        this.app.resolve(PeerRoute).register(this.peerServer);
+        this.app.resolve(WhitelistForgerPlugin).register(this.peerServer);
+        this.app.resolve(AcceptPeerPlugin).register(this.peerServer);
+
+        this.app.resolve(BlocksRoute).register(this.blocksServer);
+
+        this.app.resolve(TransactionsRoute).register(this.transactionsServer);
     }
 
     /**
@@ -68,9 +97,14 @@ export class Server {
      */
     public async boot(): Promise<void> {
         try {
-            await this.server.start();
+            await this.peerServer.start();
+            this.logger.info(`${this.name} P2P peer server started at ${this.peerServer.info.uri}`);
 
-            this.logger.info(`${this.name} P2P server started at ${this.server.info.uri}`);
+            await this.blocksServer.start();
+            this.logger.info(`${this.name} P2P blocks server started at ${this.blocksServer.info.uri}`);
+
+            await this.transactionsServer.start();
+            this.logger.info(`${this.name} P2P transactions server started at ${this.transactionsServer.info.uri}`);
         } catch {
             await this.app.terminate(`Failed to start ${this.name} Server!`);
         }
@@ -82,9 +116,14 @@ export class Server {
      */
     public async dispose(): Promise<void> {
         try {
-            await this.server.stop();
+            await this.peerServer.stop();
+            this.logger.info(`${this.name} P2P peer server stopped at ${this.peerServer.info.uri}`);
 
-            this.logger.info(`${this.name} Server stopped at ${this.server.info.uri}`);
+            await this.blocksServer.stop();
+            this.logger.info(`${this.name} P2P blocks server stopped at ${this.blocksServer.info.uri}`);
+
+            await this.transactionsServer.stop();
+            this.logger.info(`${this.name} P2P transactions server stopped at ${this.transactionsServer.info.uri}`);
         } catch {
             await this.app.terminate(`Failed to stop ${this.name} Server!`);
         }
@@ -97,7 +136,9 @@ export class Server {
      */
     // @todo: add proper types
     public async register(plugins: any | any[]): Promise<void> {
-        return this.server.register(plugins);
+        for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
+            await server.register(plugins);
+        }
     }
 
     /**
@@ -106,7 +147,9 @@ export class Server {
      * @memberof Server
      */
     public async route(routes: ServerRoute | ServerRoute[]): Promise<void> {
-        return this.server.route(routes);
+        for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
+            await server.route(routes);
+        }
     }
 
     /**
@@ -115,6 +158,8 @@ export class Server {
      * @memberof Server
      */
     public async inject(options: string | ServerInjectOptions): Promise<ServerInjectResponse> {
-        return this.server.inject(options);
+        for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
+            await server.inject(options);
+        }
     }
 }

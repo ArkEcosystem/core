@@ -80,13 +80,6 @@ export const requestSchemas = {
 };
 
 export const replySchemas = {
-    "p2p.peer.getBlocks": {
-        type: "array",
-        maxItems: 400,
-        items: {
-            $ref: "blockHeader",
-        },
-    },
     "p2p.peer.getCommonBlocks": {
         type: "object",
         additionalProperties: false,
@@ -263,10 +256,17 @@ export const replySchemas = {
             },
         },
     },
-    "p2p.peer.postBlock": {
+    "p2p.blocks.getBlocks": {
+        type: "array",
+        maxItems: 400,
+        items: {
+            $ref: "blockHeader",
+        },
+    },
+    "p2p.blocks.postBlock": {
         type: "boolean",
     },
-    "p2p.peer.postTransactions": {
+    "p2p.transactions.postTransactions": {
         type: "array",
     },
 };
