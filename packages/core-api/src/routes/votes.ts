@@ -20,6 +20,11 @@ export const register = (server: Hapi.Server): void => {
                     transform: Joi.bool().default(true),
                 }),
             },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
+            },
         },
     });
 

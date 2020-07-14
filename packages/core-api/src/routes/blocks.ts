@@ -20,6 +20,11 @@ export const register = (server: Hapi.Server): void => {
                     transform: Joi.bool().default(true),
                 }),
             },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
+            },
         },
     });
 
@@ -81,6 +86,11 @@ export const register = (server: Hapi.Server): void => {
                     transform: Joi.bool().default(true),
                 }),
             },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
+            },
         },
     });
 
@@ -98,6 +108,11 @@ export const register = (server: Hapi.Server): void => {
                 payload: Joi.object({
                     ...server.app.schemas.blockCriteriaSchemas,
                 }),
+            },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
             },
         },
     });

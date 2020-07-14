@@ -28,6 +28,11 @@ export const register = (server: Hapi.Server): void => {
                     },
                 }),
             },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
+            },
         },
     });
 
@@ -51,6 +56,11 @@ export const register = (server: Hapi.Server): void => {
                         producedBlocks: Joi.number().integer().min(0),
                     },
                 }),
+            },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
             },
         },
     });
@@ -84,6 +94,11 @@ export const register = (server: Hapi.Server): void => {
                     transform: Joi.bool().default(true),
                 }),
             },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
+            },
         },
     });
 
@@ -102,6 +117,11 @@ export const register = (server: Hapi.Server): void => {
                     orderBy: server.app.schemas.transactionsOrderBy,
                     transform: Joi.bool().default(true),
                 }),
+            },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
             },
         },
     });
@@ -122,6 +142,11 @@ export const register = (server: Hapi.Server): void => {
                     transform: Joi.bool().default(true),
                 }),
             },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
+            },
         },
     });
 
@@ -141,6 +166,11 @@ export const register = (server: Hapi.Server): void => {
                     transform: Joi.bool().default(true),
                 }),
             },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
+            },
         },
     });
 
@@ -159,6 +189,11 @@ export const register = (server: Hapi.Server): void => {
                     orderBy: server.app.schemas.transactionsOrderBy,
                     transform: Joi.bool().default(true),
                 }),
+            },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
             },
         },
     });
@@ -196,6 +231,11 @@ export const register = (server: Hapi.Server): void => {
                         to: Joi.number().integer().min(0),
                     }),
                 }),
+            },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
             },
         },
     });
