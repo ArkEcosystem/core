@@ -7,6 +7,7 @@ import { Blocks } from "@arkecosystem/crypto";
 import delay from "delay";
 import { cloneDeep } from "lodash";
 import path from "path";
+import { PortsOffset } from "@arkecosystem/core-p2p/src/enums";
 
 describe("NetworkMonitor", () => {
     let networkMonitor: NetworkMonitor;
@@ -394,8 +395,10 @@ describe("NetworkMonitor", () => {
             await networkMonitor.cleansePeers({ peerCount: 5 });
 
             expect(communicator.ping).toBeCalledTimes(peers.length);
-            expect(emitter.dispatch).toBeCalledTimes(2);
-            expect(emitter.dispatch).toBeCalledWith("internal.p2p.disconnectPeer", { peer: expect.toBeOneOf(peers) });
+            expect(emitter.dispatch).toBeCalledTimes(4); // 3 for disconnecting each peer port + 1 for peer removed event
+            for (const port of [4000 + PortsOffset.Peer, 4000 +  PortsOffset.Blocks, 4000 +  PortsOffset.Transactions]) {
+                expect(emitter.dispatch).toBeCalledWith("internal.p2p.disconnectPeer", { peer: expect.toBeOneOf(peers), port });
+            }
             expect(emitter.dispatch).toBeCalledWith(Enums.PeerEvent.Removed, expect.toBeOneOf(peers));
         });
 
