@@ -35,6 +35,13 @@ describe("Pagination", () => {
             handler: () => {
                 return customResponse;
             },
+            options: {
+                plugins: {
+                    pagination: {
+                        enabled: true,
+                    },
+                },
+            },
         };
 
         injectOptions = {
@@ -96,11 +103,35 @@ describe("Pagination", () => {
         );
     });
 
+    it("should return paginated payload with data in results if pagination have not enabled property", async () => {
+        customResponse = {
+            results: customResponse,
+        };
+
+        customRoute.options = {
+            plugins: {
+                pagination: {},
+            },
+        };
+
+        const server = await initServer(app, defaults, customRoute);
+
+        const response = await server.inject(injectOptions);
+        const payload = JSON.parse(response.payload || {});
+        expect(payload.data).toEqual(customResponse.results);
+        expect(payload.meta).toEqual(
+            expect.objectContaining({
+                count: 3,
+                pageCount: 1,
+            }),
+        );
+    });
+
     it("should not return paginated payload if disabled on route", async () => {
         customRoute.options = {
             plugins: {
                 pagination: {
-                    pagination: false,
+                    enabled: false,
                 },
             },
         };

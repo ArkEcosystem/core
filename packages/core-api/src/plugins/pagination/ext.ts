@@ -4,57 +4,12 @@ import { Utils } from "@arkecosystem/core-kernel";
 import Hoek from "@hapi/hoek";
 import Qs from "querystring";
 
-interface IRoute {
-    method: string;
-    path: string;
-}
-
 export class Ext {
     private readonly routePathPrefix = "/api";
-    private readonly routes: IRoute[] = [
-        { method: "get", path: "/blocks" },
-        { method: "get", path: "/blocks/{id}/transactions" },
-        { method: "post", path: "/blocks/search" },
-        { method: "get", path: "/bridgechains" },
-        { method: "post", path: "/bridgechains/search" },
-        { method: "get", path: "/businesses" },
-        { method: "get", path: "/businesses/{id}/bridgechains" },
-        { method: "post", path: "/businesses/search" },
-        { method: "get", path: "/delegates" },
-        { method: "get", path: "/delegates/{id}/blocks" },
-        { method: "get", path: "/delegates/{id}/voters" },
-        { method: "post", path: "/delegates/search" },
-        { method: "get", path: "/locks" },
-        { method: "post", path: "/locks/search" },
-        { method: "post", path: "/locks/unlocked" },
-        { method: "get", path: "/peers" },
-        { method: "get", path: "/transactions" },
-        { method: "post", path: "/transactions/search" },
-        { method: "get", path: "/transactions/unconfirmed" },
-        { method: "get", path: "/votes" },
-        { method: "get", path: "/wallets" },
-        { method: "get", path: "/wallets/top" },
-        { method: "get", path: "/wallets/{id}/locks" },
-        { method: "get", path: "/wallets/{id}/transactions" },
-        { method: "get", path: "/wallets/{id}/transactions/received" },
-        { method: "get", path: "/wallets/{id}/transactions/sent" },
-        { method: "get", path: "/wallets/{id}/votes" },
-        { method: "post", path: "/wallets/search" },
-    ];
-
     public constructor(private readonly config) {}
 
     public isValidRoute(request) {
-        if (!this.hasPagination(request)) {
-            return false;
-        }
-
-        const { method, path } = request.route;
-
-        return (
-            this.routes.find((route) => route.method === method && `${this.routePathPrefix}${route.path}` === path) !==
-            undefined
-        );
+        return this.hasPagination(request);
     }
 
     public onPreHandler(request, h) {
@@ -155,12 +110,16 @@ export class Ext {
     }
 
     public hasPagination(request) {
-        const routeOptions = this.getRouteOptions(request);
+        const pagination = this.getRoutePaginationOptions(request);
 
-        return Object.prototype.hasOwnProperty.call(routeOptions, "pagination") ? routeOptions.pagination : true;
+        if (!pagination) {
+            return false;
+        }
+
+        return pagination.enabled !== undefined ? pagination.enabled : true;
     }
 
-    private getRouteOptions(request) {
-        return request.route.settings.plugins.pagination || {};
+    private getRoutePaginationOptions(request) {
+        return request.route.settings.plugins.pagination;
     }
 }

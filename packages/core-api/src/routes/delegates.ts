@@ -30,6 +30,11 @@ export const register = (server: Hapi.Server): void => {
                     },
                 }),
             },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
+            },
         },
     });
 
@@ -61,6 +66,11 @@ export const register = (server: Hapi.Server): void => {
                     orderBy: server.app.schemas.orderBy,
                     transform: Joi.bool().default(true),
                 }),
+            },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
             },
         },
     });
@@ -95,6 +105,11 @@ export const register = (server: Hapi.Server): void => {
                     },
                 }),
             },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
+            },
         },
     });
 
@@ -126,6 +141,11 @@ export const register = (server: Hapi.Server): void => {
                     producedBlocks: server.app.schemas.integerBetween,
                     voteBalance: server.app.schemas.integerBetween,
                 }),
+            },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
             },
         },
     });

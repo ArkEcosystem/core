@@ -29,6 +29,11 @@ export const register = (server: Hapi.Server): void => {
                     },
                 }),
             },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
+            },
         },
     });
 
@@ -79,6 +84,11 @@ export const register = (server: Hapi.Server): void => {
                     isExpired: Joi.bool(),
                 }),
             },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
+            },
         },
     });
 
@@ -95,6 +105,11 @@ export const register = (server: Hapi.Server): void => {
                 payload: Joi.object({
                     ids: Joi.array().unique().min(1).max(25).items(Joi.string().hex().length(64)),
                 }),
+            },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
             },
         },
     });
