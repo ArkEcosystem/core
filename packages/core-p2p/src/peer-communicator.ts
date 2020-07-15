@@ -168,8 +168,6 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             headersOnly,
         }: { fromBlockHeight: number; blockLimit?: number; headersOnly?: boolean },
     ): Promise<Interfaces.IBlockData[]> {
-        const maxPayload = headersOnly ? blockLimit * constants.KILOBYTE : constants.DEFAULT_MAX_PAYLOAD;
-
         const peerBlocks = await this.emit(
             peer,
             "p2p.blocks.getBlocks",
@@ -180,7 +178,6 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 serialized: true,
             },
             this.configuration.getRequired<number>("getBlocksTimeout"),
-            maxPayload,
         );
 
         if (!peerBlocks || !peerBlocks.length) {
@@ -245,7 +242,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         return true;
     }
 
-    private async emit(peer: Contracts.P2P.Peer, event: string, payload: any, timeout?: number, maxPayload?: number) {
+    private async emit(peer: Contracts.P2P.Peer, event: string, payload: any, timeout?: number) {
         const port = getPeerPortForEvent(peer, event);
         
         let response;
@@ -254,7 +251,6 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
             const timeBeforeSocketCall: number = new Date().getTime();
 
-            maxPayload = maxPayload || 100 * constants.KILOBYTE; // 100KB by default, enough for most requests
             await this.connector.connect(peer, port);
 
             peer.sequentialErrorCounter = 0; // only counts connection errors
