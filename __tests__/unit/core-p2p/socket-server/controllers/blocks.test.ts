@@ -140,8 +140,8 @@ describe("BlocksController", () => {
                 // probably some unreachable code though...
                 const milestone = Managers.configManager.getMilestone();
                 const spyGetMilestone = jest.spyOn(Managers.configManager, "getMilestone");
-                for (let i = 0; i < 75; i++) {
-                    // yeah 75 times :wtf: before the one we are interested to mock kicks in
+                for (let i = 0; i < 113; i++) {
+                    // yeah 113 times :wtf: before the one we are interested to mock kicks in
                     spyGetMilestone.mockReturnValueOnce({
                         ...milestone,
                         block: {
@@ -155,6 +155,7 @@ describe("BlocksController", () => {
                         maxTransactions: 1,
                     },
                 });
+
 
                 await expect(
                     blocksController.postBlock(
