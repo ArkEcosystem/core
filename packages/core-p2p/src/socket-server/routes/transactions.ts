@@ -1,6 +1,7 @@
 import { transactionsSchemas } from "../schemas/transactions";
 import { Route, RouteConfig } from "./route";
 import { TransactionsController } from "../controllers/transactions";
+import { constants } from "../../constants";
 
 export class TransactionsRoute extends Route {
     public getRoutesConfigByPath(): { [path: string]: RouteConfig } {
@@ -10,6 +11,7 @@ export class TransactionsRoute extends Route {
                 id: "p2p.transactions.postTransactions",
                 handler: controller.postTransactions,
                 validation: transactionsSchemas.postTransactions,
+                maxBytes: constants.DEFAULT_MAX_PAYLOAD,
             },
         };
     }

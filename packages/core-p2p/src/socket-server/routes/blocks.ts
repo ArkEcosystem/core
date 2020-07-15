@@ -1,6 +1,7 @@
 import { blocksSchemas } from "../schemas/blocks";
 import { Route, RouteConfig } from "./route";
 import { BlocksController } from "../controllers/blocks";
+import { constants } from "../../constants";
 
 export class BlocksRoute extends Route {
     public getRoutesConfigByPath(): { [path: string]: RouteConfig } {
@@ -15,6 +16,7 @@ export class BlocksRoute extends Route {
                 id: "p2p.blocks.postBlock",
                 handler: controller.postBlock,
                 validation: blocksSchemas.postBlock,
+                maxBytes: constants.DEFAULT_MAX_PAYLOAD,
             },
         };
     }
