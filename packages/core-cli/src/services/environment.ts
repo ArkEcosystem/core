@@ -1,6 +1,6 @@
 import envPaths, { Paths } from "env-paths";
-import { parseFileSync, stringifySync } from "envfile";
-import { existsSync, writeFileSync } from "fs-extra";
+import { parse, stringify } from "envfile";
+import { existsSync, writeFileSync, readFileSync } from "fs-extra";
 import { resolve } from "path";
 
 import { injectable } from "../ioc";
@@ -51,12 +51,12 @@ export class Environment {
             throw new Error(`No environment file found at ${envFile}.`);
         }
 
-        const env: object = parseFileSync(envFile);
+        const env: object = parse(readFileSync(envFile).toString());
 
         for (const [key, value] of Object.entries(variables)) {
             env[key] = value;
         }
 
-        writeFileSync(envFile, stringifySync(env).trim());
+        writeFileSync(envFile, stringify(env).trim());
     }
 }

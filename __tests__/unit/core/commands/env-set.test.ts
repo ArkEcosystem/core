@@ -1,7 +1,7 @@
 import { Console } from "@arkecosystem/core-test-framework";
 import { Command } from "@packages/core/src/commands/env-set";
 import envfile from "envfile";
-import { ensureFileSync, removeSync } from "fs-extra";
+import { ensureFileSync, removeSync, readFileSync } from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";
 
 let cli;
@@ -22,10 +22,10 @@ describe("SetCommand", () => {
 
         await cli.withFlags({ key: "key1", value: "value" }).execute(Command);
 
-        expect(envfile.parseFileSync(envFile)).toEqual({ key1: "value" });
+        expect(envfile.parse(readFileSync(envFile).toString())).toEqual({ key1: "value" });
 
         await cli.withFlags({ key: "key2", value: "value" }).execute(Command);
 
-        expect(envfile.parseFileSync(envFile)).toEqual({ key1: "value", key2: "value" });
+        expect(envfile.parse(readFileSync(envFile).toString())).toEqual({ key1: "value", key2: "value" });
     });
 });

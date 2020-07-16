@@ -29,7 +29,7 @@ describe("DatabaseCommand", () => {
         it("should set the database host", async () => {
             // Arrange
             const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
@@ -37,19 +37,19 @@ describe("DatabaseCommand", () => {
 
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
-            expect(parseFileSync).toHaveBeenCalledWith(envFile);
+            expect(parse).toHaveBeenCalledWith(envFile);
             expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_HOST=localhost");
 
             // Reset
             existsSync.mockReset();
-            parseFileSync.mockReset();
+            parse.mockReset();
             writeFileSync.mockReset();
         });
 
         it("should set the database port", async () => {
             // Arrange
             const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
@@ -57,19 +57,19 @@ describe("DatabaseCommand", () => {
 
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
-            expect(parseFileSync).toHaveBeenCalledWith(envFile);
+            expect(parse).toHaveBeenCalledWith(envFile);
             expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_PORT=5432");
 
             // Reset
             existsSync.mockReset();
-            parseFileSync.mockReset();
+            parse.mockReset();
             writeFileSync.mockReset();
         });
 
         it("should set the database name", async () => {
             // Arrange
             const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
@@ -77,19 +77,19 @@ describe("DatabaseCommand", () => {
 
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
-            expect(parseFileSync).toHaveBeenCalledWith(envFile);
+            expect(parse).toHaveBeenCalledWith(envFile);
             expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_DATABASE=ark_mainnet");
 
             // Reset
             existsSync.mockReset();
-            parseFileSync.mockReset();
+            parse.mockReset();
             writeFileSync.mockReset();
         });
 
         it("should set the name of the database user", async () => {
             // Arrange
             const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
@@ -97,19 +97,19 @@ describe("DatabaseCommand", () => {
 
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
-            expect(parseFileSync).toHaveBeenCalledWith(envFile);
+            expect(parse).toHaveBeenCalledWith(envFile);
             expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_USERNAME=ark");
 
             // Reset
             existsSync.mockReset();
-            parseFileSync.mockReset();
+            parse.mockReset();
             writeFileSync.mockReset();
         });
 
         it("should set the database password", async () => {
             // Arrange
             const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
@@ -117,12 +117,12 @@ describe("DatabaseCommand", () => {
 
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
-            expect(parseFileSync).toHaveBeenCalledWith(envFile);
+            expect(parse).toHaveBeenCalledWith(envFile);
             expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_PASSWORD=password");
 
             // Reset
             existsSync.mockReset();
-            parseFileSync.mockReset();
+            parse.mockReset();
             writeFileSync.mockReset();
         });
     });
@@ -137,7 +137,7 @@ describe("DatabaseCommand", () => {
         it("should set the database host", async () => {
             // Arrange
             const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
@@ -147,19 +147,19 @@ describe("DatabaseCommand", () => {
 
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
-            expect(parseFileSync).toHaveBeenCalledWith(envFile);
+            expect(parse).toHaveBeenCalledWith(envFile);
             expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_HOST=localhost");
 
             // Reset
             existsSync.mockReset();
-            parseFileSync.mockReset();
+            parse.mockReset();
             writeFileSync.mockReset();
         });
 
         it("should set the database port", async () => {
             // Arrange
             const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
@@ -169,19 +169,19 @@ describe("DatabaseCommand", () => {
 
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
-            expect(parseFileSync).toHaveBeenCalledWith(envFile);
+            expect(parse).toHaveBeenCalledWith(envFile);
             expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_PORT=5432");
 
             // Reset
             existsSync.mockReset();
-            parseFileSync.mockReset();
+            parse.mockReset();
             writeFileSync.mockReset();
         });
 
         it("should set the database name", async () => {
             // Arrange
             const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
@@ -191,19 +191,19 @@ describe("DatabaseCommand", () => {
 
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
-            expect(parseFileSync).toHaveBeenCalledWith(envFile);
+            expect(parse).toHaveBeenCalledWith(envFile);
             expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_DATABASE=ark_mainnet");
 
             // Reset
             existsSync.mockReset();
-            parseFileSync.mockReset();
+            parse.mockReset();
             writeFileSync.mockReset();
         });
 
         it("should set the name of the database user", async () => {
             // Arrange
             const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
@@ -213,19 +213,19 @@ describe("DatabaseCommand", () => {
 
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
-            expect(parseFileSync).toHaveBeenCalledWith(envFile);
+            expect(parse).toHaveBeenCalledWith(envFile);
             expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_USERNAME=ark");
 
             // Reset
             existsSync.mockReset();
-            parseFileSync.mockReset();
+            parse.mockReset();
             writeFileSync.mockReset();
         });
 
         it("should set the database password", async () => {
             // Arrange
             const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
@@ -235,19 +235,19 @@ describe("DatabaseCommand", () => {
 
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
-            expect(parseFileSync).toHaveBeenCalledWith(envFile);
+            expect(parse).toHaveBeenCalledWith(envFile);
             expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_PASSWORD=password");
 
             // Reset
             existsSync.mockReset();
-            parseFileSync.mockReset();
+            parse.mockReset();
             writeFileSync.mockReset();
         });
 
         it("should not update without a confirmation", async () => {
             // Arrange
             const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+            const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
@@ -257,12 +257,12 @@ describe("DatabaseCommand", () => {
 
             // Assert
             expect(existsSync).not.toHaveBeenCalled();
-            expect(parseFileSync).not.toHaveBeenCalled();
+            expect(parse).not.toHaveBeenCalled();
             expect(writeFileSync).not.toHaveBeenCalled();
 
             // Reset
             existsSync.mockReset();
-            parseFileSync.mockReset();
+            parse.mockReset();
             writeFileSync.mockReset();
         });
     });

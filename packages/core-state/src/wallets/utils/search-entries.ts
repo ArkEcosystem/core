@@ -66,6 +66,7 @@ export const searchEntries = <T extends Record<string, any>>(
     wallets = sortWallets(order, filterWallets(wallets, params, query));
 
     return {
+        // @ts-ignore
         rows: limitRows(wallets, params),
         count: wallets.length,
         countIsEstimate: false,

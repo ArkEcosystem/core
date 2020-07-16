@@ -42,7 +42,7 @@ describe("Environment", () => {
     it("should update the variables", async () => {
         // Arrange
         const existsSync = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-        const parseFileSync = jest.spyOn(envfile, "parseFileSync").mockImplementation(() => ({}));
+        const parse = jest.spyOn(envfile, "parse").mockImplementation(() => ({}));
         const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
         // Act
@@ -50,12 +50,12 @@ describe("Environment", () => {
 
         // Assert
         expect(existsSync).toHaveBeenCalledWith("stub");
-        expect(parseFileSync).toHaveBeenCalledWith("stub");
+        expect(parse).toHaveBeenCalledWith("stub");
         expect(writeFileSync).toHaveBeenCalledWith("stub", "key=value");
 
         // Reset
         existsSync.mockReset();
-        parseFileSync.mockReset();
+        parse.mockReset();
         writeFileSync.mockReset();
     });
 });

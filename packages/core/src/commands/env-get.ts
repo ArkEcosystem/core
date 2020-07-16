@@ -1,8 +1,8 @@
 import { Commands, Container } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
-import { parseFileSync } from "envfile";
-import { existsSync } from "fs-extra";
+import { parse } from "envfile";
+import { existsSync, readFileSync } from "fs-extra";
 
 /**
  * @export
@@ -53,7 +53,7 @@ export class Command extends Commands.Command {
             this.components.fatal(`No environment file found at ${envFile}.`);
         }
 
-        const env: object = parseFileSync(envFile);
+        const env: object = parse(readFileSync(envFile).toString());
         const key: string = this.getFlag("key");
 
         if (!env[key]) {

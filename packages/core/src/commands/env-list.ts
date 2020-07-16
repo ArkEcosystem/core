@@ -1,8 +1,8 @@
 import { Commands, Container } from "@arkecosystem/core-cli";
 import { Networks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
-import { parseFileSync } from "envfile";
-import { existsSync } from "fs-extra";
+import { parse } from "envfile";
+import { existsSync, readFileSync } from "fs-extra";
 
 /**
  * @export
@@ -53,7 +53,7 @@ export class Command extends Commands.Command {
         }
 
         this.components.table(["Key", "Value"], (table) => {
-            const env = parseFileSync(envFile);
+            const env: Record<string, unknown> = parse(readFileSync(envFile).toString());
 
             for (const [key, value] of Object.entries(env)) {
                 table.push([key, value]);

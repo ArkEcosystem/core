@@ -29,33 +29,33 @@
         "@arkecosystem/core-transaction-pool": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
         "@hapi/sntp": "^4.0.0",
-        "@hapi/hapi": "^19.0.0",
+        "@hapi/hapi": "^19.1.1",
         "@hapi/joi": "^17.1.1",
-        "@hapi/boom": "^9.0.0",
+        "@hapi/boom": "^9.1.0",
         "@hapi/bounce": "2.x.x",
         "@hapi/cryptiles": "5.x.x",
         "@hapi/hoek": "9.x.x",
         "@hapi/teamwork": "5.x.x",
         "ws": "7.x",
-        "ajv": "^6.10.2",
-        "better-sqlite3": "^7.0.0",
-        "dayjs": "^1.8.17",
+        "ajv": "^6.12.3",
+        "better-sqlite3": "^7.1.0",
+        "dayjs": "^1.8.29",
         "delay": "^4.3.0",
-        "fs-extra": "^8.1.0",
+        "fs-extra": "^9.0.1",
         "ip": "^1.1.5",
         "ipaddr.js": "^1.9.1",
         "nanomatch": "^1.2.13",
         "pluralize": "^8.0.0",
         "pretty-ms": "^7.0.0",
-        "rate-limiter-flexible": "^1.1.0",
-        "semver": "^6.3.0"
+        "rate-limiter-flexible": "^2.1.9",
+        "semver": "^7.3.2"
     },
     "devDependencies": {
         "@types/better-sqlite3": "^5.4.0",
-        "@types/fs-extra": "^8.0.1",
+        "@types/fs-extra": "^9.0.1",
         "@types/hapi__sntp": "^3.1.0",
         "@types/ip": "^1.1.0",
-        "@types/semver": "^6.2.0"
+        "@types/semver": "^7.3.1"
     },
     "engines": {
         "node": ">=10.x"

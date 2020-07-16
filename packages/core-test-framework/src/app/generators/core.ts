@@ -1,3 +1,4 @@
+import { stringify } from "envfile";
 import { copyFileSync, ensureDirSync, existsSync, writeFileSync, writeJSONSync } from "fs-extra";
 import { resolve } from "path";
 import { dirSync } from "tmp";
@@ -87,7 +88,7 @@ export class CoreGenerator extends Generator {
         const filePath: string = resolve(this.destination, ".env");
 
         if (this.options.core.environment) {
-            writeFileSync(filePath, this.options.core.environment);
+            writeFileSync(filePath, stringify(this.options.core.environment));
         } else {
             copyFileSync(resolve(__dirname, "../../../../core/bin/config/testnet/.env"), filePath);
         }

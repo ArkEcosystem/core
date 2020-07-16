@@ -66,7 +66,7 @@ export class LocalConfigLoader implements ConfigLoader {
      */
     public async loadEnvironmentVariables(): Promise<void> {
         try {
-            const config: Record<string, Primitive> = dotenv.parseFile(this.app.environmentFile());
+            const config: Record<string, Primitive> = dotenv.parse(readFileSync(this.app.environmentFile()).toString());
 
             for (const [key, value] of Object.entries(config)) {
                 set(process.env, key, value);

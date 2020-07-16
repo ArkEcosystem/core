@@ -22,29 +22,29 @@
     },
     "dependencies": {
         "@arkecosystem/crypto": "^3.0.0-next.0",
-        "@arkecosystem/utils": "^1.1.7",
-        "@hapi/joi": "^17.1.0",
+        "@arkecosystem/utils": "^1.1.8",
+        "@hapi/joi": "^17.1.1",
         "@pm2/io": "^4.3.5",
-        "chalk": "^4.0.0",
-        "cron": "^1.7.2",
-        "dayjs": "^1.8.17",
+        "chalk": "^4.1.0",
+        "cron": "^1.8.2",
+        "dayjs": "^1.8.29",
         "env-paths": "^2.2.0",
-        "fs-extra": "^8.1.0",
+        "fs-extra": "^9.0.1",
         "import-fresh": "^3.2.1",
         "inversify": "^5.0.1",
-        "log-process-errors": "^5.0.3",
+        "log-process-errors": "^6.1.1",
         "nanomatch": "^1.2.13",
         "nsfw": "^2.0.0",
         "reflect-metadata": "^0.1.13",
-        "semver": "^6.3.0",
+        "semver": "^7.3.2",
         "type-fest": "^0.16.0"
     },
     "devDependencies": {
-        "@types/cron": "^1.7.1",
-        "@types/fs-extra": "^8.0.1",
-        "@types/got": "^9.6.9",
+        "@types/cron": "^1.7.2",
+        "@types/fs-extra": "^9.0.1",
+        "@types/got": "^9.6.11",
         "@types/log-process-errors": "^4.1.0",
-        "@types/semver": "^6.2.0"
+        "@types/semver": "^7.3.1"
     },
     "publishConfig": {
         "access": "public"
