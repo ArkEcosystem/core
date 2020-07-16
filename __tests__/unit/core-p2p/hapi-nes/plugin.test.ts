@@ -4,7 +4,7 @@ import * as Hapi from "@hapi/hapi";
 import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 
-describe.skip("register()", () => {
+describe("register()", () => {
     it("adds websocket support", async () => {
         const server = Hapi.server();
         await server.register({ plugin: plugin, options: { headers: ["Content-Type"] } });

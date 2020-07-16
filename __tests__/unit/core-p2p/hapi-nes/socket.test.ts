@@ -6,7 +6,7 @@ import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 import { default as Ws } from "ws";
 
-describe.skip("Socket", () => {
+describe("Socket", () => {
     it("exposes app namespace", async () => {
         const server = Hapi.server();
 
