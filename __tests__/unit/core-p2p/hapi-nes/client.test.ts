@@ -5,7 +5,7 @@ import * as Hoek from "@hapi/hoek";
 import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 
-describe("Client", () => {
+describe.skip("Client", () => {
     it("defaults options.ws.maxPayload to zero (node)", () => {
         const client = new Client("http://localhost");
         // @ts-ignore

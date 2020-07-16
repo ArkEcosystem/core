@@ -6,7 +6,7 @@ import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 import { Socket } from "@packages/core-p2p/src/hapi-nes/socket";
 
-describe("Listener", () => {
+describe.skip("Listener", () => {
     it("refuses connection while stopping", async () => {
         const server = Hapi.server();
 
