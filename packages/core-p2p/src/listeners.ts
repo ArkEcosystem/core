@@ -2,6 +2,7 @@ import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import { PeerConnector } from "./peer-connector";
 import { isValidVersion } from "./utils";
+import { getAllPeerPorts } from "./socket-server/utils/get-peer-port";
 
 /**
  * @class DisconnectInvalidPeers
@@ -42,7 +43,9 @@ export class DisconnectInvalidPeers implements Contracts.Kernel.EventListener {
 
         for (const peer of peers) {
             if (!isValidVersion(this.app, peer)) {
-                this.events.dispatch("internal.p2p.disconnectPeer", { peer });
+                for (const port of getAllPeerPorts(peer)) {
+                    this.events.dispatch("internal.p2p.disconnectPeer", { peer, port });
+                }
             }
         }
     }
@@ -76,7 +79,7 @@ export class DisconnectPeer implements Contracts.Kernel.EventListener {
      * @memberof DisconnectPeer
      */
     public async handle({ data }): Promise<void> {
-        this.connector.disconnect(data.peer);
+        this.connector.disconnect(data.peer, data.port);
 
         this.storage.forgetPeer(data.peer);
     }

@@ -15,7 +15,7 @@ const hapiServer = {
     route: jest.fn(),
     register: jest.fn(),
     app: {},
-};
+} as any;
 const spyHapiServer = jest.spyOn(hapi, "Server").mockReturnValue(hapiServer);
 
 describe("Server", () => {
@@ -60,7 +60,7 @@ describe("Server", () => {
         it("should instantiate a new Hapi server", async () => {
             await server.initialize(name, options);
 
-            expect(spyHapiServer).toBeCalledTimes(1);
+            expect(spyHapiServer).toBeCalledTimes(3); // 3 servers listening on the 3 ports
         });
     });
 
@@ -103,40 +103,40 @@ describe("Server", () => {
     });
 
     describe("register", () => {
-        it("should call server.register() with the options provided", async () => {
+        it("should call server.register() with the options provided - for each server", async () => {
             await server.initialize(name, options);
             hapiServer.register.mockReset();
 
             const plugin = { name: "my plugin" };
             await server.register(plugin);
 
-            expect(hapiServer.register).toBeCalledTimes(1);
+            expect(hapiServer.register).toBeCalledTimes(3); // 3 servers listening on the 3 ports
             expect(hapiServer.register).toBeCalledWith(plugin);
         });
     });
 
     describe("route", () => {
-        it("should call server.register() with the options provided", async () => {
+        it("should call server.register() with the options provided - for each server", async () => {
             await server.initialize(name, options);
             hapiServer.route.mockReset();
 
             const route = { method: "POST", path: "/the/path" };
             await server.route(route);
 
-            expect(hapiServer.route).toBeCalledTimes(1);
+            expect(hapiServer.route).toBeCalledTimes(3); // 3 servers listening on the 3 ports
             expect(hapiServer.route).toBeCalledWith(route);
         });
     });
 
     describe("inject", () => {
-        it("should call server.register() with the options provided", async () => {
+        it("should call server.register() with the options provided - for each server", async () => {
             await server.initialize(name, options);
             hapiServer.inject.mockReset();
 
             const toInject = { name: "thing to inject" };
             await server.inject(toInject);
 
-            expect(hapiServer.inject).toBeCalledTimes(1);
+            expect(hapiServer.inject).toBeCalledTimes(3); // 3 servers listening on the 3 ports
             expect(hapiServer.inject).toBeCalledWith(toInject);
         });
     });

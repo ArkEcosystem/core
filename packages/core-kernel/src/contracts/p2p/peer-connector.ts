@@ -4,13 +4,13 @@ import { Peer } from "./peer";
 export interface PeerConnector {
     all(): Client[];
 
-    connection(peer: Peer): Client | undefined;
+    connection(peer: Peer, port: number): Client | undefined;
 
-    connect(peer: Peer, maxPayload?: number): Promise<Client>;
+    connect(peer: Peer, port: number): Promise<Client>;
 
-    disconnect(peer: Peer): void;
+    disconnect(peer: Peer, port: number): void;
 
-    emit(peer: Peer, event: string, payload: any): Promise<any>;
+    emit(peer: Peer, port: number, event: string, payload: any): Promise<any>;
 
     getError(peer: Peer): string | undefined;
 

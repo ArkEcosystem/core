@@ -3,6 +3,7 @@ import { Utils } from "@arkecosystem/crypto";
 
 import { PeerFactory } from "./contracts";
 import { DisconnectInvalidPeers } from "./listeners";
+import { getAllPeerPorts } from "./socket-server/utils/get-peer-port";
 
 // todo: review the implementation
 @Container.injectable()
@@ -103,7 +104,9 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
 
             this.events.dispatch(Enums.PeerEvent.Added, newPeer);
         } catch (error) {
-            this.connector.disconnect(newPeer);
+            for (const port of getAllPeerPorts(newPeer)) {
+                this.connector.disconnect(newPeer, port);
+            }
         } finally {
             this.storage.forgetPendingPeer(peer);
         }

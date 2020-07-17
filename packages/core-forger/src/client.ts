@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Nes, NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
+import { Nes, NetworkState, NetworkStateStatus, PortsOffset } from "@arkecosystem/core-p2p";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
@@ -40,14 +40,25 @@ export class Client {
      */
     public register(hosts: RelayHost[]) {
         this.hosts = hosts.map((host: RelayHost) => {
-            const connection = new Nes.Client(`ws://${host.hostname}:${host.port}`);
-            connection.connect().catch((e) => {}); // connect promise can fail when p2p is not ready, it's fine it will retry
+            const internalPort = Number(host.port) + Number(PortsOffset.Peer);
+            const internalConnection = new Nes.Client(`ws://${host.hostname}:${internalPort}`);
+            internalConnection.connect().catch((e) => {}); // connect promise can fail when p2p is not ready, it's fine it will retry
 
-            connection.onError = (e) => {
+            internalConnection.onError = (e) => {
                 this.logger.error(e.message);
             };
 
-            host.socket = connection;
+            host.internalSocket = internalConnection;
+
+            const blocksPort = Number(host.port) + Number(PortsOffset.Blocks);
+            const blocksConnection = new Nes.Client(`ws://${host.hostname}:${blocksPort}`);
+            blocksConnection.connect().catch((e) => {}); // connect promise can fail when p2p is not ready, it's fine it will retry
+
+            blocksConnection.onError = (e) => {
+                this.logger.error(e.message);
+            };
+
+            host.blocksSocket = blocksConnection;
 
             return host;
         });
@@ -60,10 +71,10 @@ export class Client {
      */
     public dispose(): void {
         for (const host of this.hosts) {
-            const socket: Nes.Client | undefined = host.socket;
-
-            if (socket) {
-                socket.disconnect();
+            for (const socket of [host.blocksSocket, host.internalSocket]) {
+                if (socket) {
+                    socket.disconnect();
+                }
             }
         }
     }
@@ -81,7 +92,7 @@ export class Client {
         );
 
         try {
-            await this.emit("p2p.peer.postBlock", {
+            await this.emit("p2p.blocks.postBlock", {
                 block: Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
                     transactions: block.transactions.map((tx) => tx.data),
@@ -179,7 +190,10 @@ export class Client {
     public async selectHost(): Promise<void> {
         for (let i = 0; i < 10; i++) {
             for (const host of this.hosts) {
-                if (host.socket && host.socket._isReady()) {
+                if (
+                    host.internalSocket && host.internalSocket._isReady()
+                    && host.blocksSocket && host.blocksSocket._isReady()
+                ) {
                     this.host = host;
                     return;
                 }
@@ -208,7 +222,9 @@ export class Client {
      */
     private async emit<T = object>(event: string, payload: Record<string, any> = {}, timeout = 4000): Promise<T> {
         try {
-            Utils.assert.defined<Nes.Client>(this.host.socket);
+            const socket = event === "p2p.blocks.postBlock" ? this.host.blocksSocket : this.host.internalSocket;
+            
+            Utils.assert.defined<Nes.Client>(socket);
 
             const options = {
                 path: event,
@@ -217,7 +233,7 @@ export class Client {
                 payload,
             };
 
-            const response: any = await this.host.socket.request(options);
+            const response: any = await socket.request(options);
 
             return response.payload;
         } catch (error) {

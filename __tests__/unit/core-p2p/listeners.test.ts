@@ -48,7 +48,7 @@ describe("DisconnectInvalidPeers", () => {
         it("should emit 'internal.p2p.disconnectPeer' for invalid version peers", async () => {
             await disconnectInvalidPeers.handle();
 
-            expect(emitter.dispatch).toBeCalledTimes(2); // 2 invalid peers version
+            expect(emitter.dispatch).toBeCalledTimes(2 * 3); // 2 invalid peers version * 3 sockets (ports) per peer
         });
     });
 });
@@ -76,12 +76,12 @@ describe("DisconnectPeer", () => {
     describe("handle", () => {
         it("should disconnect the peer provided", async () => {
             const peer = new Peer("187.176.1.1", 4000);
-            await disconnectPeer.handle({ data: { peer: peer } });
+            await disconnectPeer.handle({ data: { peer: peer, port: 4000 } });
 
             expect(storage.forgetPeer).toBeCalledTimes(1);
             expect(storage.forgetPeer).toBeCalledWith(peer);
             expect(connector.disconnect).toBeCalledTimes(1);
-            expect(connector.disconnect).toBeCalledWith(peer);
+            expect(connector.disconnect).toBeCalledWith(peer, 4000);
         });
     });
 });

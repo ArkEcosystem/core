@@ -28,7 +28,7 @@ afterEach(() => {
 describe("Client", () => {
     let client: Client;
 
-    const host = { hostname: "127.0.0.1", port: 4000, socket: undefined };
+    const host = { hostname: "127.0.0.1", port: 4000, blocksSocket: undefined, internalSocket: undefined };
     const hosts = [host];
 
     beforeEach(() => {
@@ -42,14 +42,19 @@ describe("Client", () => {
         it("should register hosts", async () => {
             client.register(hosts);
             expect(Nes.Client).toHaveBeenCalledWith(`ws://${host.hostname}:${host.port}`);
-            expect(client.hosts).toEqual([{ ...host, socket: expect.anything() }]);
+            expect(client.hosts).toEqual([{ ...host, blocksSocket: expect.anything(), internalSocket: expect.anything() }]);
         });
 
         it("on error the socket should call logger", () => {
             client.register(hosts);
 
             const fakeError = { message: "Fake Error" };
-            client.hosts[0].socket.onError(fakeError);
+            client.hosts[0].blocksSocket.onError(fakeError);
+
+            expect(logger.error).toHaveBeenCalledWith("Fake Error");
+
+            logger.error.mockReset();
+            client.hosts[0].internalSocket.onError(fakeError);
 
             expect(logger.error).toHaveBeenCalledWith("Fake Error");
         });
@@ -59,8 +64,10 @@ describe("Client", () => {
         it("should call disconnect on all sockets", () => {
             client.register([host, { hostname: "127.0.0.5", port: 4000 }]);
             client.dispose();
-            expect(client.hosts[0].socket.disconnect).toHaveBeenCalled();
-            expect(client.hosts[1].socket.disconnect).toHaveBeenCalled();
+            expect(client.hosts[0].blocksSocket.disconnect).toHaveBeenCalled();
+            expect(client.hosts[0].internalSocket.disconnect).toHaveBeenCalled();
+            expect(client.hosts[1].blocksSocket.disconnect).toHaveBeenCalled();
+            expect(client.hosts[1].internalSocket.disconnect).toHaveBeenCalled();
             expect(nesClient.disconnect).toBeCalled();
         });
     });
@@ -80,11 +87,11 @@ describe("Client", () => {
         it("should not broadcast block when there is an issue with socket", async () => {
             client.register(hosts);
 
-            host.socket = {};
+            host.blocksSocket = {};
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
 
             expect(logger.error).toHaveBeenCalledWith(
-                `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.peer.postBlock> failed, because of 'this.host.socket.request is not a function'.`,
+                `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.blocks.postBlock> failed, because of 'socket.request is not a function'.`,
             );
         });
 
@@ -93,7 +100,7 @@ describe("Client", () => {
 
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
             expect(nesClient.request).toHaveBeenCalledWith({
-                path: "p2p.peer.postBlock",
+                path: "p2p.blocks.postBlock",
                 headers: {},
                 method: "POST",
                 payload: { block: expect.anything() },
@@ -108,7 +115,7 @@ describe("Client", () => {
 
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
             expect(logger.error).toHaveBeenCalledWith(
-                `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.peer.postBlock> failed, because of 'oops'.`,
+                `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.blocks.postBlock> failed, because of 'oops'.`,
             );
         });
     });
@@ -121,7 +128,8 @@ describe("Client", () => {
         });
 
         it("should select the first open socket", async () => {
-            hosts[4].socket._isReady = () => true;
+            hosts[4].blocksSocket._isReady = () => true;
+            hosts[4].internalSocket._isReady = () => true;
 
             client.register(hosts);
             client.selectHost();
@@ -129,7 +137,10 @@ describe("Client", () => {
         });
 
         it("should log debug message when no sockets are open", async () => {
-            hosts.forEach((host) => (host.socket._isReady = () => false));
+            hosts.forEach((host) => {
+                host.internalSocket._isReady = () => false;
+                host.blocksSocket._isReady = () => false;
+            });
 
             client.register(hosts);
             await expect(client.selectHost()).rejects.toThrow(
@@ -159,7 +170,8 @@ describe("Client", () => {
     describe("getRound", () => {
         it("should broadcast internal getRound transaction", async () => {
             client.register([host]);
-            host.socket._isReady = () => true;
+            host.blocksSocket._isReady = () => true;
+            host.internalSocket._isReady = () => true;
 
             await client.getRound();
 
@@ -175,7 +187,8 @@ describe("Client", () => {
     describe("syncWithNetwork", () => {
         it("should broadcast internal getRound transaction", async () => {
             client.register([host]);
-            host.socket._isReady = () => true;
+            host.blocksSocket._isReady = () => true;
+            host.internalSocket._isReady = () => true;
             await client.syncWithNetwork();
 
             expect(nesClient.request).toHaveBeenCalledWith({
@@ -190,7 +203,8 @@ describe("Client", () => {
         it("should log error message if syncing fails", async () => {
             const errorMessage = "Fake Error";
             nesClient.request.mockRejectedValueOnce(new Error(errorMessage));
-            host.socket._isReady = () => true;
+            host.blocksSocket._isReady = () => true;
+            host.internalSocket._isReady = () => true;
             client.register([host]);
             await expect(client.syncWithNetwork()).toResolve();
             expect(logger.error).toHaveBeenCalledWith(

@@ -102,7 +102,7 @@ describe("EntityController", () => {
 
             const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.publicKey,
+                    id: registrationTxId,
                 },
             };
             
@@ -112,7 +112,7 @@ describe("EntityController", () => {
         it("should return error if entity is not found", async () => {
             const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.publicKey,
+                    id: registrationTxId,
                 },
             };
 
@@ -134,7 +134,7 @@ describe("EntityController", () => {
 
             const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.address,
+                    id: registrationTxId,
                 },
             };
 
