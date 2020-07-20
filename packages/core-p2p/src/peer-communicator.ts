@@ -7,8 +7,8 @@ import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./schemas";
-import { isValidVersion } from "./utils";
 import { getAllPeerPorts, getPeerPortForEvent } from "./socket-server/utils/get-peer-port";
+import { isValidVersion } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
@@ -29,8 +29,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    public initialize(): void {
-    }
+    public initialize(): void {}
 
     public async postBlock(peer: Contracts.P2P.Peer, block: Interfaces.IBlock) {
         const postBlockTimeout = 10000;
@@ -244,7 +243,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
     private async emit(peer: Contracts.P2P.Peer, event: string, payload: any, timeout?: number) {
         const port = getPeerPortForEvent(peer, event);
-        
+
         let response;
         try {
             this.connector.forgetError(peer);
@@ -253,9 +252,9 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
             await this.connector.connect(peer, port);
 
-            peer.sequentialErrorCounter = 0; // only counts connection errors
-
             response = await this.connector.emit(peer, port, event, payload);
+
+            peer.sequentialErrorCounter = 0; // reset counter if response is successful, keep it after emit
 
             peer.latency = new Date().getTime() - timeBeforeSocketCall;
             this.parseHeaders(peer, response.payload);
