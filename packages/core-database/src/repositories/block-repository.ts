@@ -159,13 +159,17 @@ export class BlockRepository extends AbstractRepository<Block> {
                 });
 
                 if (block.transactions.length > 0) {
-                    const transactions = block.transactions.map((tx) =>
-                        Object.assign(new Transaction(), {
-                            ...tx.data,
-                            timestamp: tx.timestamp,
-                            serialized: tx.serialized,
-                        }),
-                    );
+                    const transactions = block.transactions
+                        .map((tx) =>
+                            Object.assign(new Transaction(), {
+                                ...tx.data,
+                                timestamp: tx.timestamp,
+                                serialized: tx.serialized,
+                            }),
+                        )
+                        .sort((a: Transaction, b: Transaction) => {
+                            return a.sequence - b.sequence;
+                        });
 
                     transactionEntities.push(...transactions);
                 }
