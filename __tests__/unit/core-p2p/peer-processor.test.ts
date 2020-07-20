@@ -10,7 +10,7 @@ describe("PeerProcessor", () => {
 
     const logger = { warning: jest.fn(), debug: jest.fn() };
 
-    const configGet = { disableDiscovery: false, whitelist: ["*"] };
+    const configGet = { disableDiscovery: false, whitelist: ["*"], blacklist: [] as string[] };
     const configGetRequired = { verifyTimeout: false, maxSameSubnetPeers: 2 };
     const pluginConfiguration = {
         get: (key) => configGet[key],
@@ -89,6 +89,20 @@ describe("PeerProcessor", () => {
             expect(peerStorage.setPeer).toBeCalledTimes(1);
         });
 
+        it("should accept a new peer if blacklist is undefined", async () => {
+            // @ts-ignore
+            configGet.blacklist = undefined;
+
+            const peer = new Peer("178.165.55.55", 4000);
+            peerStorage.getSameSubnetPeers = jest.fn().mockReturnValueOnce([]);
+
+            await peerProcessor.validateAndAcceptPeer(peer);
+
+            expect(peerStorage.setPendingPeer).toBeCalledTimes(1);
+            expect(peerCommunicator.ping).toBeCalledTimes(1);
+            expect(peerStorage.setPeer).toBeCalledTimes(1);
+        });
+
         it("should disconnect the peer on any error", async () => {
             const peer = new Peer("178.165.55.55", 4000);
             peerStorage.getSameSubnetPeers = jest.fn().mockReturnValueOnce([]);
@@ -142,6 +156,12 @@ describe("PeerProcessor", () => {
             configGet.whitelist = ["127.0.0.1"];
             expect(peerProcessor.validatePeerIp(peer)).toBeFalse();
             configGet.whitelist = ["*"];
+        });
+
+        it("should return false when peer is blacklisted", () => {
+            configGet.blacklist = ["178.165.55.55"];
+            expect(peerProcessor.validatePeerIp(peer)).toBeFalse();
+            configGet.blacklist = [];
         });
 
         it("should return false when there are already too many peers on the peer subnet and not in seed mode", () => {
