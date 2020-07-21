@@ -11,9 +11,6 @@ import { TransactionRepository } from "./repositories/transaction-repository";
 // TODO: maybe we should introduce `BlockLike`, `TransactionLike`, `RoundLke` interfaces to remove the need to cast
 @Container.injectable()
 export class DatabaseService {
-    // TODO: make private readonly
-    public restoredDatabaseIntegrity: boolean = false;
-
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -68,6 +65,9 @@ export class DatabaseService {
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
+
+    // TODO: make private readonly
+    public restoredDatabaseIntegrity: boolean = false;
 
     private blocksInCurrentRound: Interfaces.IBlock[] = [];
 
