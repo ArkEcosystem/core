@@ -163,7 +163,6 @@ export class DatabaseService {
                     await this.setForgingDelegatesOfRound(roundInfo, this.dposState.getRoundDelegates().slice());
                     await this.saveRound(this.dposState.getRoundDelegates());
 
-                    // ! set it to empty array and why it can be undefined at all?
                     this.blocksInCurrentRound = [];
 
                     this.events.dispatch(Enums.RoundEvent.Applied);
