@@ -329,6 +329,7 @@ describe("DatabaseService.restoreCurrentRound", () => {
             roundInfo: expect.anything(),
             delegates: undefined,
         });
+        // @ts-ignore
         expect(databaseService.forgingDelegates).toEqual(forgingDelegates);
     });
 });
@@ -364,7 +365,9 @@ describe("DatabaseService.applyBlock", () => {
         // still previous last block!
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
 
+        // @ts-ignore
         databaseService.blocksInCurrentRound = [];
+        // @ts-ignore
         databaseService.forgingDelegates = [delegateWallet] as any;
 
         const transaction = {};
@@ -373,6 +376,7 @@ describe("DatabaseService.applyBlock", () => {
 
         expect(stateStore.getLastBlock).toBeCalledTimes(1);
         expect(blockState.applyBlock).toBeCalledWith(block);
+        // @ts-ignore
         expect(databaseService.blocksInCurrentRound).toEqual([block]);
         expect(events.dispatch).toBeCalledWith("forger.missing", { delegate: delegateWallet });
         expect(handler.emitEvents).toBeCalledWith(transaction, events);
@@ -408,8 +412,10 @@ describe("DatabaseService.applyRound", () => {
         const forgingDelegate = { getAttribute: jest.fn() };
         const forgingDelegateRound = 1;
         forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+        // @ts-ignore
         databaseService.forgingDelegates = [forgingDelegate] as any;
 
+        // @ts-ignore
         databaseService.blocksInCurrentRound = [{ data: { generatorPublicKey: "delegate public key" } }] as any;
 
         const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
@@ -445,8 +451,10 @@ describe("DatabaseService.applyRound", () => {
         const forgingDelegate = { getAttribute: jest.fn() };
         const forgingDelegateRound = 1;
         forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+        // @ts-ignore
         databaseService.forgingDelegates = [forgingDelegate] as any;
 
+        // @ts-ignore
         databaseService.blocksInCurrentRound = [];
 
         const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
@@ -482,8 +490,10 @@ describe("DatabaseService.applyRound", () => {
         const forgingDelegate = { getAttribute: jest.fn() };
         const forgingDelegateRound = 1;
         forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+        // @ts-ignore
         databaseService.forgingDelegates = [forgingDelegate] as any;
 
+        // @ts-ignore
         databaseService.blocksInCurrentRound = [{ data: { height: 1 } }] as any;
 
         const delegateWallet = { publicKey: "delegate public key", getAttribute: jest.fn() };
@@ -540,6 +550,7 @@ describe("DatabaseService.applyRound", () => {
         const forgingDelegate = { getAttribute: jest.fn() };
         const forgingDelegateRound = 2;
         forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+        // @ts-ignore
         databaseService.forgingDelegates = [forgingDelegate] as any;
 
         const height = 51;
@@ -557,7 +568,9 @@ describe("DatabaseService.getActiveDelegates", () => {
 
         const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
 
+        // @ts-ignore
         blockRepository.findLatest.mockResolvedValueOnce(lastBlock.data);
+        // @ts-ignore
         transactionRepository.findByBlockIds.mockResolvedValueOnce(lastBlock.transactions);
 
         const delegatePublicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
@@ -595,12 +608,14 @@ describe("DatabaseService.getActiveDelegates", () => {
         const forgingDelegate = { getAttribute: jest.fn() };
         const forgingDelegateRound = 2;
         forgingDelegate.getAttribute.mockReturnValueOnce(forgingDelegateRound);
+        // @ts-ignore
         databaseService.forgingDelegates = [forgingDelegate] as any;
 
         const roundInfo = { round: 2 };
         const result = await databaseService.getActiveDelegates(roundInfo as any);
 
         expect(forgingDelegate.getAttribute).toBeCalledWith("delegate.round");
+        // @ts-ignore
         expect(result).toBe(databaseService.forgingDelegates);
     });
 });
@@ -610,13 +625,19 @@ describe("DatabaseService.getBlock", () => {
         const databaseService = container.resolve(DatabaseService);
 
         const block = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        // @ts-ignore
         blockRepository.findOne.mockResolvedValueOnce({ ...block.data });
+        // @ts-ignore
         transactionRepository.find.mockResolvedValueOnce(block.transactions);
 
+        // @ts-ignore
         const result = await databaseService.getBlock(block.data.id);
+        // @ts-ignore
         Object.assign(result, { getBlockTimeStampLookup: block["getBlockTimeStampLookup"] });
 
+        // @ts-ignore
         expect(blockRepository.findOne).toBeCalledWith(block.data.id);
+        // @ts-ignore
         expect(transactionRepository.find).toBeCalledWith({ blockId: block.data.id });
         expect(result).toEqual(block);
     });
@@ -955,6 +976,7 @@ describe("DatabaseService.revertBlock", () => {
             data: { id: "123", height: 100 },
             transactions: [transaction1, transaction2],
         };
+        // @ts-ignore
         databaseService.blocksInCurrentRound = [block as any];
 
         await databaseService.revertBlock(block as any);
@@ -1006,6 +1028,7 @@ describe("DatabaseService.revertRound", () => {
         expect(getDposPreviousRoundState).toBeCalled();
         expect(walletRepository.findByUsername).toBeCalledWith(prevRoundDelegateUsername);
         expect(delegateWallet.setAttribute).toBeCalledWith("delegate.rank", prevRoundDelegateRank);
+        // @ts-ignore
         expect(databaseService.forgingDelegates).toEqual(forgingDelegates);
         expect(roundRepository.delete).toBeCalledWith({ round: 2 });
     });

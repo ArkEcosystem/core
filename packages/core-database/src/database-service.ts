@@ -11,6 +11,9 @@ import { TransactionRepository } from "./repositories/transaction-repository";
 // TODO: maybe we should introduce `BlockLike`, `TransactionLike`, `RoundLke` interfaces to remove the need to cast
 @Container.injectable()
 export class DatabaseService {
+    // TODO: make private readonly
+    public restoredDatabaseIntegrity: boolean = false;
+
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -66,12 +69,9 @@ export class DatabaseService {
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
 
-    // TODO: make private readonly
-    public blocksInCurrentRound: Interfaces.IBlock[] | undefined = undefined;
-    // TODO: make private readonly
-    public restoredDatabaseIntegrity: boolean = false;
-    // TODO: make private readonly
-    public forgingDelegates: Contracts.State.Wallet[] | undefined = undefined;
+    private blocksInCurrentRound: Interfaces.IBlock[] = [];
+
+    private forgingDelegates: Contracts.State.Wallet[] = [];
 
     public async initialize(): Promise<void> {
         try {
@@ -122,9 +122,7 @@ export class DatabaseService {
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         await this.blockState.applyBlock(block);
 
-        if (this.blocksInCurrentRound) {
-            this.blocksInCurrentRound.push(block);
-        }
+        this.blocksInCurrentRound.push(block);
 
         await this.detectMissedBlocks(block);
 
@@ -149,7 +147,6 @@ export class DatabaseService {
 
             if (
                 nextHeight === 1 ||
-                !this.forgingDelegates ||
                 this.forgingDelegates.length === 0 ||
                 this.forgingDelegates[0].getAttribute<number>("delegate.round") !== round
             ) {
@@ -157,7 +154,7 @@ export class DatabaseService {
 
                 try {
                     if (nextHeight > 1) {
-                        this.detectMissedRound(this.forgingDelegates!);
+                        this.detectMissedRound(this.forgingDelegates);
                     }
 
                     this.dposState.buildDelegateRanking();
@@ -167,7 +164,7 @@ export class DatabaseService {
                     await this.saveRound(this.dposState.getRoundDelegates());
 
                     // ! set it to empty array and why it can be undefined at all?
-                    this.blocksInCurrentRound!.length = 0;
+                    this.blocksInCurrentRound = [];
 
                     this.events.dispatch(Enums.RoundEvent.Applied);
                 } catch (error) {
@@ -199,11 +196,7 @@ export class DatabaseService {
 
         const { round } = roundInfo;
 
-        if (
-            this.forgingDelegates &&
-            this.forgingDelegates.length &&
-            this.forgingDelegates[0].getAttribute<number>("delegate.round") === round
-        ) {
+        if (this.forgingDelegates.length && this.forgingDelegates[0].getAttribute<number>("delegate.round") === round) {
             return this.forgingDelegates;
         }
 
@@ -476,7 +469,7 @@ export class DatabaseService {
         await this.blockState.revertBlock(block);
 
         // ! blockState is already reverted if this check fails
-        assert(this.blocksInCurrentRound!.pop()!.data.id === block.data.id);
+        assert(this.blocksInCurrentRound.pop()!.data.id === block.data.id);
 
         for (let i = block.transactions.length - 1; i >= 0; i--) {
             this.events.dispatch(Enums.TransactionEvent.Reverted, block.transactions[i].data);
@@ -596,10 +589,10 @@ export class DatabaseService {
         const lastSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, lastBlock.data.timestamp);
         const currentSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, block.data.timestamp);
 
-        const missedSlots: number = Math.min(currentSlot - lastSlot - 1, this.forgingDelegates!.length);
+        const missedSlots: number = Math.min(currentSlot - lastSlot - 1, this.forgingDelegates.length);
         for (let i = 0; i < missedSlots; i++) {
             const missedSlot: number = lastSlot + i + 1;
-            const delegate: Contracts.State.Wallet = this.forgingDelegates![missedSlot % this.forgingDelegates!.length];
+            const delegate: Contracts.State.Wallet = this.forgingDelegates[missedSlot % this.forgingDelegates.length];
 
             this.logger.debug(
                 `Delegate ${delegate.getAttribute("delegate.username")} (${delegate.publicKey}) just missed a block.`,
@@ -708,7 +701,7 @@ export class DatabaseService {
     }
 
     private detectMissedRound(delegates: Contracts.State.Wallet[]): void {
-        if (!delegates || !this.blocksInCurrentRound) {
+        if (!delegates || !this.blocksInCurrentRound.length) {
             // ! this.blocksInCurrentRound is impossible
             // ! otherwise this.blocksInCurrentRound!.length = 0 in applyRound will throw
             return;
@@ -741,7 +734,7 @@ export class DatabaseService {
 
     private async initializeActiveDelegates(height: number): Promise<void> {
         // ! may be set to undefined to early if error is raised
-        this.forgingDelegates = undefined;
+        this.forgingDelegates = [];
 
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
         await this.setForgingDelegatesOfRound(roundInfo);
@@ -754,7 +747,7 @@ export class DatabaseService {
         // ! it's this.getActiveDelegates(roundInfo, delegates);
         // ! only last part of that function which reshuffles delegates is used
         const result = await this.triggers.call("getActiveDelegates", { roundInfo, delegates });
-        this.forgingDelegates = result as Contracts.State.Wallet[];
+        this.forgingDelegates = (result as Contracts.State.Wallet[]) || [];
     }
 
     private async calcPreviousActiveDelegates(
