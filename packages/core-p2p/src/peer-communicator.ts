@@ -198,6 +198,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             },
             app.resolveOptions("p2p").getBlocksTimeout,
             maxPayload,
+            false,
         );
 
         if (!peerBlocks) {
@@ -247,7 +248,14 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return true;
     }
 
-    private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number, maxPayload?: number) {
+    private async emit(
+        peer: P2P.IPeer,
+        event: string,
+        data?: any,
+        timeout?: number,
+        maxPayload?: number,
+        disconnectOnError: boolean = true,
+    ) {
         await this.throttle(peer, event);
 
         let response;
@@ -276,7 +284,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 throw new Error(`Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.data)}`);
             }
         } catch (e) {
-            this.handleSocketError(peer, event, e);
+            this.handleSocketError(peer, event, e, disconnectOnError);
             return undefined;
         }
 
@@ -293,7 +301,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
     }
 
-    private handleSocketError(peer: P2P.IPeer, event: string, error: Error): void {
+    private handleSocketError(peer: P2P.IPeer, event: string, error: Error, disconnect: boolean = true): void {
         if (!error.name) {
             return;
         }
@@ -313,7 +321,9 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 }
-                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                if (disconnect) {
+                    this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                }
         }
     }
 }
