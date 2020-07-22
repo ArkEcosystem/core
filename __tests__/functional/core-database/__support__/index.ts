@@ -1,6 +1,6 @@
 import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@arkecosystem/core-test-framework";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { Connection, createConnection } from "typeorm";
 
 import { Block } from "../../../../packages/core-database/src/models/block";
@@ -58,7 +58,7 @@ export const toBlockModel = (block: Interfaces.IBlock): Block => {
 export const toBlockModelWithTransactions = (block: Interfaces.IBlock): Block => {
     const model = toBlockModel(block);
     const transactions = block.transactions.map(
-        (t) => t.serialized.toString("hex"),
+        (t) => Transactions.TransactionFactory.fromBytesUnsafe(t.serialized).data,
     );
     Object.assign(model, { transactions });
     return model;
