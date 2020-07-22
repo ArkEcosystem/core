@@ -144,7 +144,7 @@ describe("applyToRecipient - transfer and multipayment classic scenarios", () =>
     });
 });
 
-describe("Pool transactions when AcceptBlockHandler fails", () => {
+describe("Pool transactions when database applyBlock fails (forged block contains invalid tx)", () => {
     // just send funds to a new wallet, and try to send more than the funds from this new wallet
     const bobPassphrase = "bob pass phrase4";
     const bobAddress = Identities.Address.fromPassphrase(bobPassphrase, 23);
@@ -152,7 +152,7 @@ describe("Pool transactions when AcceptBlockHandler fails", () => {
 
     const randomAddress = Identities.Address.fromPassphrase(secrets[1], 23);
 
-    it("should keep transactions in the pool after AcceptBlockHandler fails to accept a block", async () => {
+    it("should keep transactions in the pool if applying txs from block to the pool did not fail", async () => {
         const initialTxToBob = TransactionFactory.transfer(bobAddress, bobInitialFund)
             .withPassphrase(secrets[1])
             .createOne();
@@ -167,14 +167,71 @@ describe("Pool transactions when AcceptBlockHandler fails", () => {
         await expect(bobTransfer).toBeAccepted();
         await expect(bobTransfer).toBeUnconfirmed();
 
-        // this one will make AcceptBlockHandler fail to accept the block
-        const bobBusinessResignation = TransactionFactory.businessResignation()
+        // this one is invalid and will make acceptChainedBlock tx fail and AcceptBlockHandler fail to accept the block
+        const bobTransfer2 = TransactionFactory.transfer(randomAddress, 33)
             .withPassphrase(bobPassphrase)
-            .withNonce(Utils.BigNumber.ZERO)
+            .withNonce(Utils.BigNumber.ONE) // makes it okay when applied to the pool (bob has nonce 1)
+            // but invalid when applied to db (bob has nonce 0)
             .createOne();
-        await support.forge([bobBusinessResignation]);
+        await support.forge([bobTransfer2]);
         await delay(1000);
 
         await expect(bobTransfer).toBeUnconfirmed();
+    });
+});
+
+describe("Pool transactions when acceptChainedBlock apply tx fails", () => {
+    // When we fail to apply the transactions in a valid forged block to the pool
+    // The transaction(s) that failed to apply should trigger reset existing transactions from sender in pool
+    // (these existing transactions are probably outdated then)
+    const bobPassphrase = "bob pass phrase5";
+    const bobAddress = Identities.Address.fromPassphrase(bobPassphrase, 23);
+    const bobInitialFund = 100 * 1e8; // 100 ARK
+
+    const alicePassphrase = "alice pass phrase5";
+    const aliceAddress = Identities.Address.fromPassphrase(alicePassphrase, 23);
+    const aliceInitialFund = 100 * 1e8; // 100 ARK
+
+    const randomAddress = Identities.Address.fromPassphrase(secrets[1], 23);
+
+    it("should remove transactions from sender in the pool after acceptChainedBlock fails to apply transaction from sender from a block to the pool", async () => {
+        const initialTxToBob = TransactionFactory.transfer(bobAddress, bobInitialFund)
+            .withPassphrase(secrets[1])
+            .createOne();
+        const initialTxToAlice = TransactionFactory.transfer(aliceAddress, aliceInitialFund)
+            .withPassphrase(secrets[2])
+            .createOne();
+        await support.forge([initialTxToBob, initialTxToAlice]);
+        await delay(1000);
+
+        // valid txs from Bob to accept in the pool - will be invalidated by forged block
+        const bobTransfers = TransactionFactory.transfer(randomAddress, 100)
+            .withPassphrase(bobPassphrase)
+            .create(5);
+        for (const bobTransfer of bobTransfers) {
+            await expect(bobTransfer).toBeAccepted();
+            await expect(bobTransfer).toBeUnconfirmed();
+        }
+
+        // a valid tx from Alice to accept in the pool - this one will still be valid after forged block
+        const aliceTransfer = TransactionFactory.transfer(randomAddress, 200)
+            .withPassphrase(alicePassphrase)
+            .createOne();
+        await expect(aliceTransfer).toBeAccepted();
+        await expect(aliceTransfer).toBeUnconfirmed();
+
+        // this one will make acceptChainedBlock fail to accept the tx from the block
+        const bobInvalidatingTx = TransactionFactory.transfer(randomAddress, 200)
+            .withPassphrase(bobPassphrase)
+            .withNonce(Utils.BigNumber.ZERO)
+            .createOne();
+        await support.forge([bobInvalidatingTx]);
+        await delay(1000);
+
+        // forged tx from Bob invalidated pending ones from pool
+        for (const bobTransfer of bobTransfers) {
+            await expect(bobTransfer).not.toBeUnconfirmed();
+        }
+        await expect(aliceTransfer).toBeUnconfirmed(); // alice tx was not invalidated by forged txs, so still in pool
     });
 });

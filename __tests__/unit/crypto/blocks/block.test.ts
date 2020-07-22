@@ -404,6 +404,90 @@ describe("Block", () => {
             expect(blockHighS.verification.errors).toEqual(["Failed to verify block signature"]);
         });
 
+        it("should fail to verify a block with wrong signature length", () => {
+            const block = BlockFactory.fromData({
+                id: "62b348a7aba2c60506929eec1311eaecb48ef232d4b154db2ede3f5e53700be9",
+                version: 0,
+                timestamp: 102041016,
+                height: 5470549,
+                reward: Utils.BigNumber.make("200000000"),
+                previousBlock: "2d270cae7e2bd9da27f6160b521859820f2c90315672e1774733bdd6415abb86",
+                numberOfTransactions: 0,
+                totalAmount: Utils.BigNumber.ZERO,
+                totalFee: Utils.BigNumber.ZERO,
+                payloadLength: 0,
+                payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                generatorPublicKey: "026a423b3323de175dd82788c7eab57850c6a37ea6a470308ebadd7007baf8ceb3",
+                blockSignature:
+                    "3045022100c92d7d0c3ea2ba72576f6494a81fc498d0420286896f806a7ead443d0b5d89720220501610f0d5498d028fd27676ea2597a5cb80cf5896e77fe2fa61623d31ff290c",
+            });
+
+            expect(block.verification.verified).toBeTrue();
+            expect(block.verification.errors).toEqual([]);
+
+            const blockInvalidSignatureLength = BlockFactory.fromData({
+                id: "62b348a7aba2c60506929eec1311eaecb48ef232d4b154db2ede3f5e53700be9",
+                version: 0,
+                timestamp: 102041016,
+                height: 5470549,
+                reward: Utils.BigNumber.make("200000000"),
+                previousBlock: "2d270cae7e2bd9da27f6160b521859820f2c90315672e1774733bdd6415abb86",
+                numberOfTransactions: 0,
+                totalAmount: Utils.BigNumber.ZERO,
+                totalFee: Utils.BigNumber.ZERO,
+                payloadLength: 0,
+                payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                generatorPublicKey: "026a423b3323de175dd82788c7eab57850c6a37ea6a470308ebadd7007baf8ceb3",
+                blockSignature:
+                    "3046022100c92d7d0c3ea2ba72576f6494a81fc498d0420286896f806a7ead443d0b5d89720220501610f0d5498d028fd27676ea2597a5cb80cf5896e77fe2fa61623d31ff290c00",
+            });
+
+            expect(blockInvalidSignatureLength.verification.verified).toBeFalse();
+            expect(blockInvalidSignatureLength.verification.errors).toEqual(["Failed to verify block signature"]);
+        });
+
+        it("should fail to verify a block with negative R", () => {
+            const block = BlockFactory.fromData({
+                id: "62b348a7aba2c60506929eec1311eaecb48ef232d4b154db2ede3f5e53700be9",
+                version: 0,
+                timestamp: 102041016,
+                height: 5470549,
+                reward: Utils.BigNumber.make("200000000"),
+                previousBlock: "2d270cae7e2bd9da27f6160b521859820f2c90315672e1774733bdd6415abb86",
+                numberOfTransactions: 0,
+                totalAmount: Utils.BigNumber.ZERO,
+                totalFee: Utils.BigNumber.ZERO,
+                payloadLength: 0,
+                payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                generatorPublicKey: "026a423b3323de175dd82788c7eab57850c6a37ea6a470308ebadd7007baf8ceb3",
+                blockSignature:
+                    "3045022100c92d7d0c3ea2ba72576f6494a81fc498d0420286896f806a7ead443d0b5d89720220501610f0d5498d028fd27676ea2597a5cb80cf5896e77fe2fa61623d31ff290c",
+            });
+
+            expect(block.verification.verified).toBeTrue();
+            expect(block.verification.errors).toEqual([]);
+
+            const blockInvalidR = BlockFactory.fromData({
+                id: "62b348a7aba2c60506929eec1311eaecb48ef232d4b154db2ede3f5e53700be9",
+                version: 0,
+                timestamp: 102041016,
+                height: 5470549,
+                reward: Utils.BigNumber.make("200000000"),
+                previousBlock: "2d270cae7e2bd9da27f6160b521859820f2c90315672e1774733bdd6415abb86",
+                numberOfTransactions: 0,
+                totalAmount: Utils.BigNumber.ZERO,
+                totalFee: Utils.BigNumber.ZERO,
+                payloadLength: 0,
+                payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                generatorPublicKey: "026a423b3323de175dd82788c7eab57850c6a37ea6a470308ebadd7007baf8ceb3",
+                blockSignature:
+                    "30440220c92d7d0c3ea2ba72576f6494a81fc498d0420286896f806a7ead443d0b5d89720220501610f0d5498d028fd27676ea2597a5cb80cf5896e77fe2fa61623d31ff290c",
+            });
+
+            expect(blockInvalidR.verification.verified).toBeFalse();
+            expect(blockInvalidR.verification.errors).toEqual(["Failed to verify block signature"]);
+        });
+
         it("should construct the block (header only)", () => {
             const block = BlockFactory.fromHex(dummyBlock2.serialized);
             const actual = block.toJson();
