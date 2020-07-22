@@ -22,6 +22,13 @@ export class Hash {
             return false;
         }
 
+        // check that first byte is positive, if it is then the whole R / S will be positive as required
+        const rFirstByte = bufferSignature.readInt8(4);
+        const sFirstByte = bufferSignature.readInt8(4 + rLength + 2);
+        if (rFirstByte < 0 || sFirstByte < 0) {
+            return false;
+        }
+
         return secp256k1.verify(
             hash,
             signatureRS,
