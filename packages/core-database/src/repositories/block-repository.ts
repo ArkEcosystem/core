@@ -68,7 +68,7 @@ export class BlockRepository extends AbstractRepository<Block> {
                     }
                 },
             );
-        });
+        }) as Contracts.Shared.DownloadBlock[];
     }
 
     public async findByHeightRangeWithTransactions(start: number, end: number): Promise<Interfaces.IBlockData[]> {
