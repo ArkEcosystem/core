@@ -297,7 +297,7 @@ export class DatabaseService {
         }
 
         // TODO: fix types
-        return (this.blockRepository.findByHeightRangeWithTransactions(
+        return (this.blockRepository.findByHeightRangeWithTransactionsForDownload(
             offset,
             offset + limit - 1,
         ) as unknown) as Promise<Contracts.Shared.DownloadBlock[]>;

@@ -1,5 +1,5 @@
-import { Utils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
+import {Contracts, Utils} from "@arkecosystem/core-kernel";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { EntityRepository, In } from "typeorm";
 
 import { Block, Round, Transaction } from "../models";
@@ -51,26 +51,11 @@ export class BlockRepository extends AbstractRepository<Block> {
             .getMany();
     }
 
-    public async findByHeightRangeWithTransactions(start: number, end: number): Promise<Interfaces.IBlockData[]> {
-        const [query, parameters] = this.manager.connection.driver.escapeQueryWithParameters(
-            `
-                SELECT *,
-                    ARRAY
-                        (SELECT serialized
-                        FROM transactions
-                        WHERE transactions.block_id = blocks.id
-                        ORDER BY transactions.sequence ASC
-                    ) AS transactions
-                FROM blocks
-                WHERE height
-                    BETWEEN :start AND :end
-                ORDER BY height ASC
-            `,
-            { start, end },
-            {},
-        );
-
-        const blocks = await this.query(query, parameters);
+    public async findByHeightRangeWithTransactionsForDownload(
+        start: number,
+        end: number,
+    ): Promise<Contracts.Shared.DownloadBlock[]> {
+        const blocks = await this.findByHeightRangeWithTransactionsRaw(start, end);
         return blocks.map((block) => {
             return this.rawToEntity(
                 block,
@@ -78,6 +63,23 @@ export class BlockRepository extends AbstractRepository<Block> {
                 (entity: Block & { transactions: string[] }, _, value: Buffer[] | undefined) => {
                     if (value && value.length) {
                         entity.transactions = value.map((buffer) => buffer.toString("hex"));
+                    } else {
+                        entity.transactions = [];
+                    }
+                },
+            );
+        });
+    }
+
+    public async findByHeightRangeWithTransactions(start: number, end: number): Promise<Interfaces.IBlockData[]> {
+        const blocks = await this.findByHeightRangeWithTransactionsRaw(start, end);
+        return blocks.map((block) => {
+            return this.rawToEntity(
+                block,
+                // @ts-ignore
+                (entity: Block & { transactions: Interfaces.ITransactionData[] }, _, value: Buffer[] | undefined) => {
+                    if (value && value.length) {
+                        entity.transactions = value.map((buffer) => Transactions.TransactionFactory.fromBytesUnsafe(buffer).data);
                     } else {
                         entity.transactions = [];
                     }
@@ -282,5 +284,27 @@ export class BlockRepository extends AbstractRepository<Block> {
                 .where("round > :targetRound", { targetRound })
                 .execute();
         });
+    }
+
+    private async findByHeightRangeWithTransactionsRaw(start: number, end: number): Promise<Interfaces.IBlockData[]> {
+        const [query, parameters] = this.manager.connection.driver.escapeQueryWithParameters(
+            `
+                SELECT *,
+                    ARRAY
+                        (SELECT serialized
+                        FROM transactions
+                        WHERE transactions.block_id = blocks.id
+                        ORDER BY transactions.sequence ASC
+                    ) AS transactions
+                FROM blocks
+                WHERE height
+                    BETWEEN :start AND :end
+                ORDER BY height ASC
+            `,
+            { start, end },
+            {},
+        );
+
+        return this.query(query, parameters);
     }
 }
