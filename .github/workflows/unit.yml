@@ -23,7 +23,7 @@ jobs:
             - core-magistrate-crypto
             - core-magistrate-transactions
             - core-manager
-            - core-p2p
+            # - core-p2p
             - core-snapshots
             - core-state
             - core-test-framework
@@ -31,7 +31,6 @@ jobs:
             - core-transactions
             - core-webhooks
             - crypto
-
 
         runs-on: ubuntu-latest
 
@@ -463,6 +462,8 @@ jobs:
                   path: .coverage/unit/${{ github.job }}/lcov.info
 
     core-p2p:
+        if: "false"
+
         runs-on: ubuntu-latest
 
         strategy:
