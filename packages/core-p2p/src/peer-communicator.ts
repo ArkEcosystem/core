@@ -7,7 +7,7 @@ import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./schemas";
-import { getAllPeerPorts, getPeerPortForEvent } from "./socket-server/utils/get-peer-port";
+import { getPeerPortForEvent } from "./socket-server/utils/get-peer-port";
 import { isValidVersion } from "./utils";
 
 // todo: review the implementation
@@ -121,9 +121,8 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                                     `Disconnecting from ${peerHostPort}: ` +
                                         `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
                                 );
-                                for (const port of getAllPeerPorts(peer)) {
-                                    this.events.dispatch("internal.p2p.disconnectPeer", { peer, port });
-                                }
+
+                                await this.events.dispatch(Enums.PeerEvent.Disconnect, { peer });
                             }
                         }
                     } else {
