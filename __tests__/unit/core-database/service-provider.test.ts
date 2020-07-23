@@ -1,8 +1,8 @@
-import { Application, Container, Providers } from "@arkecosystem/core-kernel";
+import { Application, Container, Providers } from "@packages/core-kernel";
 import { createConnection, getCustomRepository } from "typeorm";
 
-import { defaults } from "../../../packages/core-database/src/defaults";
-import { ServiceProvider } from "../../../packages/core-database/src/service-provider";
+import { defaults } from "@packages/core-database/src/defaults";
+import { ServiceProvider } from "@packages/core-database/src/service-provider";
 
 jest.mock("typeorm", () => {
     return Object.assign(jest.requireActual("typeorm"), {

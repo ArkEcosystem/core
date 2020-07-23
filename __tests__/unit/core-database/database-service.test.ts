@@ -22,6 +22,7 @@ const blockRepository = {
     findOne: jest.fn(),
     findByHeightRange: jest.fn(),
     findByHeightRangeWithTransactions: jest.fn(),
+    findByHeightRangeWithTransactionsForDownload: jest.fn(),
     findByHeights: jest.fn(),
     findLatest: jest.fn(),
     findByIds: jest.fn(),
@@ -130,6 +131,7 @@ beforeEach(() => {
 
     blockRepository.findOne.mockReset();
     blockRepository.findByHeightRange.mockReset();
+    blockRepository.findByHeightRangeWithTransactionsForDownload.mockReset();
     blockRepository.findByHeightRangeWithTransactions.mockReset();
     blockRepository.findByHeights.mockReset();
     blockRepository.findLatest.mockReset();
@@ -699,11 +701,11 @@ describe("DatabaseService.getBlocksForDownload", () => {
         const block101 = { height: 101, transactions: [] };
         const block102 = { height: 102, transactions: [] };
 
-        blockRepository.findByHeightRangeWithTransactions.mockResolvedValueOnce([block100, block101, block102]);
+        blockRepository.findByHeightRangeWithTransactionsForDownload.mockResolvedValueOnce([block100, block101, block102]);
 
         const result = await databaseService.getBlocksForDownload(100, 3);
 
-        expect(blockRepository.findByHeightRangeWithTransactions).toBeCalledWith(100, 102);
+        expect(blockRepository.findByHeightRangeWithTransactionsForDownload).toBeCalledWith(100, 102);
         expect(result).toEqual([block100, block101, block102]);
     });
 
