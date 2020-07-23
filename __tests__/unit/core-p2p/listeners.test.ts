@@ -48,7 +48,7 @@ describe("DisconnectInvalidPeers", () => {
         it("should emit 'internal.p2p.disconnectPeer' for invalid version peers", async () => {
             await disconnectInvalidPeers.handle();
 
-            expect(emitter.dispatch).toBeCalledTimes(2 * 3); // 2 invalid peers version * 3 sockets (ports) per peer
+            expect(emitter.dispatch).toBeCalledTimes(2); // 2 invalid peers version
         });
     });
 });
