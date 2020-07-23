@@ -7,7 +7,6 @@ import { Blocks } from "@arkecosystem/crypto";
 import delay from "delay";
 import { cloneDeep } from "lodash";
 import path from "path";
-import { PortsOffset } from "@arkecosystem/core-p2p/src/enums";
 
 describe("NetworkMonitor", () => {
     let networkMonitor: NetworkMonitor;
@@ -152,13 +151,9 @@ describe("NetworkMonitor", () => {
             it("should populate peers only once if same peer is in list and sources", async () => {
                 appConfigPeers.sources = ["http://peers.someurl.com"];
 
-                const peers = [
-                    { ip: "187.177.54.44", port: 4000 },
-                ];
+                const peers = [{ ip: "187.177.54.44", port: 4000 }];
 
-                appConfigPeers.list = [
-                    { ip: "187.177.54.44", port: 4000 },
-                ];
+                appConfigPeers.list = [{ ip: "187.177.54.44", port: 4000 }];
 
                 jest.spyOn(Utils.http, "get").mockResolvedValueOnce({ data: peers } as Utils.HttpResponse);
 
@@ -395,10 +390,8 @@ describe("NetworkMonitor", () => {
             await networkMonitor.cleansePeers({ peerCount: 5 });
 
             expect(communicator.ping).toBeCalledTimes(peers.length);
-            expect(emitter.dispatch).toBeCalledTimes(4); // 3 for disconnecting each peer port + 1 for peer removed event
-            for (const port of [4000 + PortsOffset.Peer, 4000 +  PortsOffset.Blocks, 4000 +  PortsOffset.Transactions]) {
-                expect(emitter.dispatch).toBeCalledWith("internal.p2p.disconnectPeer", { peer: expect.toBeOneOf(peers), port });
-            }
+            expect(emitter.dispatch).toBeCalledTimes(2); // 1 for disconnecting peer + 1 for peer removed event
+            expect(emitter.dispatch).toBeCalledWith(Enums.PeerEvent.Disconnect, { peer: expect.toBeOneOf(peers) });
             expect(emitter.dispatch).toBeCalledWith(Enums.PeerEvent.Removed, expect.toBeOneOf(peers));
         });
 
