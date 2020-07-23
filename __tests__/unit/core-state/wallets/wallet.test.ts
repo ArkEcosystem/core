@@ -52,7 +52,7 @@ describe("Models - Wallet", () => {
         wallet.setAttribute("delegate", {});
         wallet.setAttribute("vote", {});
 
-        expect(wallet.getAttributes()).toEqual({ delegate: {}, vote: {} });
+        expect(wallet.attributes).toEqual({ delegate: {}, vote: {} });
     });
 
     it("should return whether wallet is delegate", () => {

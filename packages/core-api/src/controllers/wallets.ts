@@ -15,24 +15,25 @@ export class WalletsController extends Controller {
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
-    public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        return this.toPagination(
-            this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
-                ...request.query,
-                ...this.getListingPage(request),
-            }),
-            WalletResource,
-        );
+    public async index(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
+        const criteria = this.getListingCriteria(request);
+        const order = this.getListingOrder(request);
+        const page = this.getListingPage(request);
+        const wallets = this.walletRepository.listByCriteria(criteria, order, page);
+
+        return this.toPagination(wallets, WalletResource);
     }
 
-    public async top(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        return this.toPagination(
-            this.walletRepository.top(Contracts.State.SearchScope.Wallets, this.getListingPage(request)),
-            WalletResource,
-        );
+    public async top(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
+        const criteria = {};
+        const order: Contracts.Search.ListOrder = [{ property: "balance", direction: "desc" }];
+        const page = this.getListingPage(request);
+        const wallets = this.walletRepository.listByCriteria(criteria, order, page);
+
+        return this.toPagination(wallets, WalletResource);
     }
 
-    public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+    public async show(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
         const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
         if (!wallet) {
             return notFound("Wallet not found");
@@ -41,7 +42,7 @@ export class WalletsController extends Controller {
         return this.respondWithResource(wallet, WalletResource);
     }
 
-    public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+    public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
         const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
         if (!wallet) {
             return notFound("Wallet not found");
@@ -73,7 +74,7 @@ export class WalletsController extends Controller {
         }
     }
 
-    public async transactionsSent(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+    public async transactionsSent(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
         const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
         if (!wallet) {
             return notFound("Wallet not found");
@@ -108,7 +109,7 @@ export class WalletsController extends Controller {
         }
     }
 
-    public async transactionsReceived(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+    public async transactionsReceived(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
         const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
         if (!wallet) {
             return notFound("Wallet not found");
@@ -140,7 +141,7 @@ export class WalletsController extends Controller {
         }
     }
 
-    public async votes(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+    public async votes(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
         const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
         if (!wallet) {
             return notFound("Wallet not found");
@@ -180,7 +181,7 @@ export class WalletsController extends Controller {
         }
     }
 
-    public async locks(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+    public async locks(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
         const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
         if (!wallet) {
             return notFound("Wallet not found");
@@ -199,21 +200,20 @@ export class WalletsController extends Controller {
         return this.toPagination(lockListResult, LockResource);
     }
 
-    public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallets = this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
-            ...request.payload,
-            ...request.query,
-            ...this.getListingPage(request),
-        });
+    public async search(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
+        const criteria = request.payload;
+        const page = this.getListingPage(request);
+        const order = this.getListingOrder(request);
+        const wallets = this.walletRepository.listByCriteria(criteria, order, page);
 
         return this.toPagination(wallets, WalletResource);
     }
 
     private findWallet(id: string): Contracts.State.Wallet | undefined {
-        try {
-            return this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, id);
-        } catch (error) {
-            return undefined;
-        }
+        const addressCriteria = { address: id };
+        const publicKeyCriteria = { publicKey: id };
+        const delegateUsernameCriteria = { attributes: { delegate: { username: id } } };
+
+        return this.walletRepository.findOneByCriteria([addressCriteria, publicKeyCriteria, delegateUsernameCriteria]);
     }
 }

@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
 import { Resource } from "../interfaces";
@@ -12,7 +12,7 @@ export class WalletResource implements Resource {
      * @returns {object}
      * @memberof Resource
      */
-    public raw(resource): object {
+    public raw(resource: Contracts.State.Wallet): object {
         return resource;
     }
 
@@ -23,30 +23,13 @@ export class WalletResource implements Resource {
      * @returns {object}
      * @memberof Resource
      */
-    public transform(resource): object {
+    public transform(resource: Contracts.State.Wallet): object {
         return {
-            address: resource.address,
             publicKey: resource.publicKey,
+            address: resource.address,
             nonce: resource.nonce.toFixed(),
             balance: Utils.BigNumber.make(resource.balance).toFixed(),
-            attributes: resource.getAttributes(),
-
-            // TODO: remove with v3
-            lockedBalance: resource.hasAttribute("htlc.lockedBalance")
-                ? resource.getAttribute("htlc.lockedBalance").toFixed()
-                : undefined,
-            isDelegate: resource.hasAttribute("delegate.username"),
-            isResigned: resource.hasAttribute("delegate.resigned"),
-            vote: resource.hasAttribute("vote") ? resource.getAttribute("vote") : undefined,
-            multiSignature: resource.hasAttribute("multiSignature")
-                ? resource.getAttribute("multiSignature")
-                : undefined,
-            username: resource.hasAttribute("delegate.username")
-                ? resource.getAttribute("delegate.username")
-                : undefined,
-            secondPublicKey: resource.hasAttribute("secondPublicKey")
-                ? resource.getAttribute("secondPublicKey")
-                : undefined,
+            attributes: resource.attributes,
         };
     }
 }

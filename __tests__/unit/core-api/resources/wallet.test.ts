@@ -51,12 +51,11 @@ describe("WalletResource", () => {
 
         beforeEach(() => {
             expectedResult = expectedResult = {
-                address: Identities.Address.fromPassphrase(passphrases[0]),
-                balance: "7527654310",
-                isDelegate: false,
-                isResigned: false,
-                nonce: "0",
                 publicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                address: Identities.Address.fromPassphrase(passphrases[0]),
+                nonce: "0",
+                balance: "7527654310",
+                attributes: {},
             };
         });
 
@@ -66,23 +65,24 @@ describe("WalletResource", () => {
 
         it("should return transformed object when contains additional attributes", async () => {
             senderWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(100));
-            expectedResult.lockedBalance = "100";
-
             senderWallet.setAttribute("delegate.username", "Dummy");
-            expectedResult.isDelegate = true;
-            expectedResult.username = "Dummy";
-
             senderWallet.setAttribute("delegate.resigned", true);
-            expectedResult.isResigned = true;
-
-            senderWallet.setAttribute("vote", "+" + Identities.PublicKey.fromPassphrase(passphrases[1]));
-            expectedResult.vote = "+" + Identities.PublicKey.fromPassphrase(passphrases[1]);
-
+            senderWallet.setAttribute("vote", Identities.PublicKey.fromPassphrase(passphrases[1]));
             senderWallet.setAttribute("multiSignature", "dummy multiSignature");
-            expectedResult.multiSignature = "dummy multiSignature";
-
             senderWallet.setAttribute("secondPublicKey", Identities.PublicKey.fromPassphrase(passphrases[2]));
-            expectedResult.secondPublicKey = Identities.PublicKey.fromPassphrase(passphrases[2]);
+
+            expectedResult.attributes = {
+                htlc: {
+                    lockedBalance: "100",
+                },
+                delegate: {
+                    username: "Dummy",
+                    resigned: true,
+                },
+                vote: Identities.PublicKey.fromPassphrase(passphrases[1]),
+                multiSignature: "dummy multiSignature",
+                secondPublicKey: Identities.PublicKey.fromPassphrase(passphrases[2]),
+            };
 
             const result = parseObjectWithBigInt(resource.transform(senderWallet));
 

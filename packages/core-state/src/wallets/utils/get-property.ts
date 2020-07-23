@@ -21,7 +21,7 @@ export const getProperty = (wallet: any, prop: string): any => {
     }
 
     if (wallet instanceof Wallet) {
-        return getProperty(wallet.getAttributes(), prop);
+        return getProperty(wallet.attributes, prop);
     }
 
     return undefined;

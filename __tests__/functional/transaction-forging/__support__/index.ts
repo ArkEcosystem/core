@@ -1,15 +1,15 @@
 import "jest-extended";
 
-import delay from "delay";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
+import delay from "delay";
 
 jest.setTimeout(1200000);
 
 import { DatabaseService } from "@arkecosystem/core-database";
-import { Sandbox } from "@packages/core-test-framework/src";
 import { StateBuilder } from "@arkecosystem/core-state/src/state-builder";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 const sandbox: Sandbox = new Sandbox();
 
@@ -103,28 +103,36 @@ export const tearDown = async (): Promise<void> => {
     );
 
     const mapWallets = (wallet: Contracts.State.Wallet) => {
-        const walletAttributes = wallet.getAttributes();
-        if (walletAttributes.delegate) {
-            // we delete delegate attribute which is not built fully from StateBuilder
-            delete walletAttributes.delegate;
+        if (wallet.hasAttribute("delegate")) {
+            wallet.forgetAttribute("delegate");
         }
+
         return {
             publicKey: wallet.publicKey,
             balance: wallet.balance,
             nonce: wallet.nonce,
-            attributes: walletAttributes,
-        }
+            attributes: wallet.attributes,
+        };
     };
-    const sortWallets = (a: Contracts.State.Wallet, b: Contracts.State.Wallet) => a.publicKey!.localeCompare(b.publicKey!);
+    const sortWallets = (a: Contracts.State.Wallet, b: Contracts.State.Wallet) =>
+        a.publicKey!.localeCompare(b.publicKey!);
 
-    const allByPublicKey = walletRepository.allByPublicKey().map(w => w.clone()).sort(sortWallets).map(mapWallets);
+    const allByPublicKey = walletRepository
+        .allByPublicKey()
+        .map((w) => w.clone())
+        .sort(sortWallets)
+        .map(mapWallets);
 
     walletRepository.reset();
 
     await sandbox.app.resolve<StateBuilder>(StateBuilder).run();
     await delay(2000); // if there is an issue with state builder, we wait a bit to be sure to catch it in the logs
 
-    const allByPublicKeyBootstrapped = walletRepository.allByPublicKey().map(w => w.clone()).sort(sortWallets).map(mapWallets);
+    const allByPublicKeyBootstrapped = walletRepository
+        .allByPublicKey()
+        .map((w) => w.clone())
+        .sort(sortWallets)
+        .map(mapWallets);
     expect(allByPublicKeyBootstrapped).toEqual(allByPublicKey);
 };
 

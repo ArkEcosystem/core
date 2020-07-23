@@ -12,26 +12,10 @@ const username = "genesis_1";
 const publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
 const balance = 300000000000000;
 
+const publicKey2 = "02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d";
+
 let address;
 let address2;
-
-const validIdentifiers = {
-    username,
-    address,
-    publicKey,
-};
-
-const invalidIdentifiers = [
-    "invalid-username",
-    "invalidUsername",
-    "longAndInvalidUsername",
-    "AG8kwwk4TsYfA2HdwaWBVAJQBj6Vhdc__",
-    "AG8kwwk4TsYfA2HdwaWBVAJQBj6Vhdc___",
-    "AG8kwwk4TsYfA2HdwaWBVAJQBj6Vhdc____",
-    "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8fxx",
-    "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8fxxx",
-    "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8fxxxx",
-];
 
 let app: Contracts.Kernel.Application;
 let api: ApiHelpers;
@@ -41,9 +25,7 @@ beforeAll(async () => {
     api = new ApiHelpers(app);
 
     address = Identities.Address.fromPublicKey(publicKey);
-    address2 = Identities.Address.fromPublicKey("02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d");
-
-    validIdentifiers.address = address;
+    address2 = Identities.Address.fromPublicKey(publicKey2);
 });
 
 afterAll(async () => await tearDown());
@@ -52,62 +34,87 @@ describe("API 2.0 - Wallets", () => {
     describe("GET /wallets", () => {
         it("should GET all the wallets", async () => {
             const response = await api.request("GET", "wallets");
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
+            expect(response.data.data.length).toBe(52);
 
-            api.expectWallet(response.data.data[0]);
+            for (const wallet of response.data.data) {
+                api.expectWallet(wallet);
+            }
         });
 
         it("should GET all the wallets sorted by balance,asc", async () => {
             const response = await api.request("GET", "wallets", { orderBy: "balance:asc" });
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
+            expect(response.data.data.length).toBe(52);
 
-            // todo: remove this assertion, we don't care about the address but the balance
-            // expect(response.data.data[0].address).toBe("AXQ399XBPd3SJxbvsfFnmzkDT5Zc4Czimi");
-            expect(response.data.data[0].balance).toBe("-15300000000000000");
+            let prevBalance = Utils.BigNumber.make(response.data.data[0].balance);
+            for (const wallet of response.data.data.slice(1)) {
+                expect(prevBalance.isLessThanEqual(wallet.balance)).toBe(true);
+                prevBalance = Utils.BigNumber.make(wallet.balance);
+            }
         });
 
         it("should GET all the wallets sorted by balance,desc", async () => {
             const response = await api.request("GET", "wallets", { orderBy: "balance:desc" });
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
+            expect(response.data.data.length).toBe(52);
 
-            // todo: remove this assertion, we don't care about the address but the balance
-            // expect(response.data.data[0].address).toBe("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
-            expect(response.data.data[0].balance).toBe("300000000000000");
+            let prevBalance = Utils.BigNumber.make(response.data.data[0].balance);
+            for (const wallet of response.data.data.slice(1)) {
+                expect(prevBalance.isGreaterThanEqual(wallet.balance)).toBe(true);
+                prevBalance = Utils.BigNumber.make(wallet.balance);
+            }
         });
     });
 
     describe("GET /wallets/top", () => {
         it("should GET all the top wallets", async () => {
             const response = await api.request("GET", "wallets/top");
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
+            expect(response.data.data.length).toBe(52);
 
-            api.expectWallet(response.data.data[0]);
+            let prevBalance = Utils.BigNumber.make(response.data.data[0].balance);
+            for (const wallet of response.data.data.slice(1)) {
+                expect(prevBalance.isGreaterThanEqual(wallet.balance)).toBe(true);
+                prevBalance = Utils.BigNumber.make(wallet.balance);
+            }
         });
     });
 
     describe("GET /wallets/:id", () => {
-        it("should GET a wallet by the given valid identifier", async () => {
-            for (const [identifier, value] of Object.entries(validIdentifiers)) {
-                const response = await api.request("GET", `wallets/${value}`);
-                expect(response).toBeSuccessfulResponse();
-                expect(response.data.data).toBeObject();
+        it("should GET wallet by address", async () => {
+            const response = await api.request("GET", `wallets/${address}`);
 
-                const wallet = response.data.data;
-
-                api.expectWallet(wallet);
-
-                expect(wallet[identifier]).toBe(value);
-            }
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data.address).toBe(address);
+            expect(response.data.data.publicKey).toBe(publicKey);
+            expect(response.data.data.attributes.delegate.username).toBe(username);
         });
 
-        it("should fail to GET a wallet by the given invalid identifier", async () => {
-            for (const value of invalidIdentifiers) {
-                api.expectError(await api.request("GET", `wallets/${value}`), 400);
-            }
+        it("should GET wallet by publicKey", async () => {
+            const response = await api.request("GET", `wallets/${publicKey}`);
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data.address).toBe(address);
+            expect(response.data.data.publicKey).toBe(publicKey);
+            expect(response.data.data.attributes.delegate.username).toBe(username);
+        });
+
+        it("should GET wallet by publicKey", async () => {
+            const response = await api.request("GET", `wallets/${username}`);
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data.address).toBe(address);
+            expect(response.data.data.publicKey).toBe(publicKey);
+            expect(response.data.data.attributes.delegate.username).toBe(username);
         });
 
         describe("when requesting an unknown address", () => {
@@ -268,8 +275,9 @@ describe("API 2.0 - Wallets", () => {
 
         it("should POST a search for wallets with the any of the specified addresses", async () => {
             const response = await api.request("POST", "wallets/search", {
-                addresses: [address, address2],
+                address: [address, address2],
             });
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).toHaveLength(2);
@@ -278,8 +286,8 @@ describe("API 2.0 - Wallets", () => {
                 api.expectWallet(wallet);
             }
 
-            const addresses = response.data.data.map((wallet) => wallet.address).sort();
-            expect(addresses).toEqual([address, address2]);
+            expect(response.data.data.find((wallet) => wallet.address === address)).not.toBe(undefined);
+            expect(response.data.data.find((wallet) => wallet.address === address2)).not.toBe(undefined);
         });
 
         it("should POST a search for wallets with the exact specified publicKey", async () => {
@@ -298,20 +306,28 @@ describe("API 2.0 - Wallets", () => {
             expect(wallet.publicKey).toBe(publicKey);
         });
 
-        // it("should POST a search for wallets with the exact specified secondPublicKey", async () => {
-        //     const response = await api.request("POST", "wallets/search", {
-        //         address: addressSecondPassphrase,
-        //         secondPublicKey,
-        //     });
-        //     expect(response).toBeSuccessfulResponse();
-        //     expect(response.data.data).toBeArray();
+        it("should POST a search for wallets with the exact specified secondPublicKey", async () => {
+            const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
+                Container.Identifiers.WalletRepository,
+                "state",
+                "blockchain",
+            );
+            walletRepository.findOneByCriteria({ address }).setAttribute("secondPublicKey", publicKey2);
 
-        //     expect(response.data.data).toHaveLength(1);
+            const response = await api.request("POST", "wallets/search", {
+                address,
+                attributes: { secondPublicKey: publicKey2 },
+            });
 
-        //     const wallet = response.data.data[0];
-        //     api.expectWallet(wallet);
-        //     expect(wallet.address).toBe(addressSecondPassphrase);
-        // });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(1);
+
+            const wallet = response.data.data[0];
+            api.expectWallet(wallet);
+            expect(wallet.address).toBe(address);
+            expect(wallet.attributes.secondPublicKey).toBe(publicKey2);
+        });
 
         // it("should POST a search for wallets with the exact specified vote", async () => {
         //     const response = await api.request("POST", "wallets/search", { address: address, vote });
@@ -327,11 +343,11 @@ describe("API 2.0 - Wallets", () => {
 
         it("should POST a search for wallets with the exact specified username", async () => {
             const response = await api.request("POST", "wallets/search", {
-                username,
+                attributes: { delegate: { username } },
             });
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-
             expect(response.data.data).toHaveLength(1);
 
             const wallet = response.data.data[0];
@@ -342,14 +358,11 @@ describe("API 2.0 - Wallets", () => {
         it("should POST a search for wallets with the exact specified balance", async () => {
             const response = await api.request("POST", "wallets/search", {
                 address,
-                balance: {
-                    from: balance,
-                    to: balance,
-                },
+                balance: { from: balance, to: balance },
             });
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-
             expect(response.data.data).toHaveLength(1);
 
             const wallet = response.data.data[0];
@@ -361,14 +374,11 @@ describe("API 2.0 - Wallets", () => {
         it("should POST a search for wallets with the specified balance range", async () => {
             const response = await api.request("POST", "wallets/search", {
                 address,
-                balance: {
-                    from: balance - 1000,
-                    to: balance + 1000,
-                },
+                balance: { from: balance - 1000, to: balance + 1000 },
             });
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-
             expect(response.data.data).toHaveLength(1);
 
             const wallet = response.data.data[0];
@@ -399,15 +409,15 @@ describe("API 2.0 - Wallets", () => {
 
             const response = await api.request("POST", "wallets/search", {
                 address,
-                voteBalance: {
-                    from: balance,
-                    to: balance,
+                attributes: {
+                    delegate: {
+                        voteBalance: { from: balance, to: balance },
+                    },
                 },
             });
 
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-
             expect(response.data.data).toHaveLength(1);
 
             const wallet = response.data.data[0];
@@ -418,22 +428,22 @@ describe("API 2.0 - Wallets", () => {
         it("should POST a search for wallets with the wrong specified username", async () => {
             const response = await api.request("POST", "wallets/search", {
                 address,
-                username: "dummy",
+                attributes: { delegate: { username: "dummy" } },
             });
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-
             expect(response.data.data).toHaveLength(0);
         });
 
         it("should POST a search for wallets with the specific criteria", async () => {
             const response = await api.request("POST", "wallets/search", {
                 publicKey,
-                username,
+                attributes: { delegate: { username } },
             });
+
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-
             expect(response.data.data).toHaveLength(1);
 
             const wallet = response.data.data[0];

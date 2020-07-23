@@ -1,5 +1,6 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
+import assert from "assert";
 
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
 import { searchEntries } from "./utils/search-entries";
@@ -165,6 +166,26 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.clear();
         }
+    }
+
+    public findOneByCriteria(criteria: object): Contracts.State.Wallet | undefined {
+        const wallets = this.findManyByCriteria(criteria);
+        assert(wallets.length <= 1);
+        return wallets[0];
+    }
+
+    public findManyByCriteria(criteria: object): Contracts.State.Wallet[] {
+        return this.allByAddress().filter((wallet) => AppUtils.Search.matchesCriteria(wallet, criteria));
+    }
+
+    public listByCriteria(
+        criteria: object,
+        order: Contracts.Search.ListOrder,
+        page: Contracts.Search.ListPage,
+    ): Contracts.Search.ListResult<Contracts.State.Wallet> {
+        const wallets = this.findManyByCriteria(criteria);
+        wallets.sort((a, b) => AppUtils.Search.compareByOrder(a, b, order));
+        return AppUtils.Search.getResultPage(wallets, page);
     }
 
     public search<T>(

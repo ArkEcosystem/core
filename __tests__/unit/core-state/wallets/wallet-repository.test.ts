@@ -805,6 +805,9 @@ describe("Search", () => {
 
 describe("Delegate Wallets", () => {
     describe("search", () => {
+        const delegateAttributeSet = new Services.Attributes.AttributeSet();
+        delegateAttributeSet.set("delegate");
+
         const delegates = [
             { username: "delegate-0", forgedFees: Utils.BigNumber.make(10), forgedRewards: Utils.BigNumber.make(10) },
             { username: "delegate-1", forgedFees: Utils.BigNumber.make(20), forgedRewards: Utils.BigNumber.make(20) },
@@ -812,8 +815,9 @@ describe("Delegate Wallets", () => {
         ];
 
         const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map((delegate) => {
-            const wallet = new Wallet("", new Services.Attributes.AttributeMap(attributeSet));
-            return Object.assign(wallet, { attributes: { delegate } });
+            const wallet = new Wallet("", new Services.Attributes.AttributeMap(delegateAttributeSet));
+            wallet.setAttribute("delegate", delegate);
+            return wallet;
         });
 
         const search = (params = {}): Contracts.Search.ListResult<Wallet> => {

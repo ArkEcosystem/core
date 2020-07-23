@@ -1,5 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
+import { set } from "@arkecosystem/utils";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -15,7 +16,7 @@ export class DelegatesController extends Controller {
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
-    public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+    public async index(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
         const delegates = this.walletRepository.search(Contracts.State.SearchScope.Delegates, {
             ...request.query,
             ...this.getListingPage(request),
@@ -24,7 +25,7 @@ export class DelegatesController extends Controller {
         return this.toPagination(delegates, DelegateResource);
     }
 
-    public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+    public async show(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
         const delegate: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
 
         if (delegate instanceof Boom) {
@@ -34,7 +35,7 @@ export class DelegatesController extends Controller {
         return this.respondWithResource(delegate, DelegateResource);
     }
 
-    public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+    public async search(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
         const delegates = this.walletRepository.search(Contracts.State.SearchScope.Delegates, {
             ...request.payload,
             ...request.query,
@@ -44,7 +45,7 @@ export class DelegatesController extends Controller {
         return this.toPagination(delegates, DelegateResource);
     }
 
-    public async blocks(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+    public async blocks(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
         const delegate: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
         if (delegate instanceof Boom) {
             return delegate;
@@ -74,18 +75,20 @@ export class DelegatesController extends Controller {
         }
     }
 
-    public async voters(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+    public async voters(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
         const delegate: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
 
         if (delegate instanceof Boom) {
             return delegate;
         }
 
-        const wallets = this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
-            ...request.query,
-            ...{ vote: delegate.publicKey },
-            ...this.getListingPage(request),
-        });
+        const criteria = this.getListingCriteria(request);
+        const order = this.getListingOrder(request);
+        const page = this.getListingPage(request);
+
+        set(criteria, "attributes.vote", delegate.publicKey);
+
+        const wallets = this.walletRepository.listByCriteria(criteria, order, page);
 
         return this.toPagination(wallets, WalletResource);
     }

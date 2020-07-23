@@ -206,31 +206,10 @@ export const register = (server: Hapi.Server): void => {
             validate: {
                 query: Joi.object({
                     ...server.app.schemas.pagination,
-                    ...{
-                        orderBy: server.app.schemas.orderBy,
-                    },
+                    orderBy: server.app.schemas.transactionsOrderBy,
+                    transform: Joi.bool().default(true),
                 }),
-                payload: Joi.object({
-                    address: server.app.schemas.address,
-                    addresses: Joi.array().unique().min(1).max(50).items(server.app.schemas.address),
-                    publicKey: Joi.string().hex().length(66),
-                    secondPublicKey: Joi.string().hex().length(66),
-                    vote: Joi.string().hex().length(66),
-                    username: Joi.string(),
-                    producedBlocks: Joi.number().integer().min(0),
-                    balance: Joi.object().keys({
-                        from: Joi.number().integer(),
-                        to: Joi.number().integer(),
-                    }),
-                    voteBalance: Joi.object().keys({
-                        from: Joi.number().integer().min(0),
-                        to: Joi.number().integer().min(0),
-                    }),
-                    lockedBalance: Joi.object().keys({
-                        from: Joi.number().integer().min(0),
-                        to: Joi.number().integer().min(0),
-                    }),
-                }),
+                payload: Joi.alternatives(Joi.array(), Joi.object()),
             },
             plugins: {
                 pagination: {

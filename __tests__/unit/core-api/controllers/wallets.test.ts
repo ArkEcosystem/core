@@ -167,11 +167,9 @@ describe("WalletsController", () => {
         });
 
         it("should return wallet not found", async () => {
-            walletRepository.findByScope = jest.fn();
-
             const request: Hapi.Request = {
                 params: {
-                    id: senderWallet.publicKey,
+                    id: "nonsense",
                 },
                 query: {
                     transform: false,
@@ -384,7 +382,7 @@ describe("WalletsController", () => {
 
         it("should return list of transactions using transform", async () => {
             transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
-                rows: [{ data: transferTransaction.data, block: block}],
+                rows: [{ data: transferTransaction.data, block: block }],
                 count: 1,
                 countIsEstimate: false,
             });
@@ -589,8 +587,8 @@ describe("WalletsController", () => {
     describe("search", () => {
         it("should return found wallets", async () => {
             const request: Hapi.Request = {
-                params: {
-                    id: senderWallet.publicKey,
+                payload: {
+                    publicKey: senderWallet.publicKey,
                 },
                 query: {
                     transform: false,

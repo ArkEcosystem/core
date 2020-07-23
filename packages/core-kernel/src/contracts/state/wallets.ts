@@ -1,6 +1,6 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { ListResult } from "../search";
+import { ListOrder, ListPage, ListResult } from "../search";
 
 // todo: review all interfaces in here and document them properly. Remove ones that are no longer needed.
 
@@ -59,9 +59,10 @@ export interface Wallet {
     nonce: Utils.BigNumber;
 
     /**
+     * @type object
      * @memberof Wallet
      */
-    getAttributes();
+    attributes: object;
 
     /**
      * @template T
@@ -193,6 +194,12 @@ export interface WalletRepository {
     hasByPublicKey(publicKey: string): boolean;
 
     hasByUsername(username: string): boolean;
+
+    findOneByCriteria(criteria: object): Wallet | undefined;
+
+    findManyByCriteria(criteria: object): Wallet[];
+
+    listByCriteria(criteria: object, order: ListOrder, page: ListPage): ListResult<Wallet>;
 
     search<T>(scope: SearchScope, params: any): ListResult<T>;
 

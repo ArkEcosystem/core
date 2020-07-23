@@ -1,9 +1,17 @@
+import { Utils } from "@arkecosystem/crypto";
+
 import {
     everyOrCriteria,
     handleAndCriteria,
     handleNumericCriteria,
     handleOrCriteria,
     hasOrCriteria,
+    isNumeric,
+    isNumericEqual,
+    isNumericGreaterThanEqual,
+    isNumericLessThanEqual,
+    isStringLike,
+    matchesCriteria,
     optimizeExpression,
     someOrCriteria,
 } from "../../../../packages/core-kernel/src/utils/search";
@@ -309,5 +317,236 @@ describe("handleNumericCriteria", () => {
         const criteria = { age: { to: 45 } };
         const expression = await handleNumericCriteria<UserEntity, "age">("age", criteria.age);
         expect(expression).toEqual({ property: "age", op: "lessThanEqual", value: 45 });
+    });
+});
+
+describe("isNumeric", () => {
+    it("should return true when value is number", () => {
+        expect(isNumeric(1)).toBe(true);
+    });
+
+    it("should return true when value is BigInt", () => {
+        expect(isNumeric(BigInt(1))).toBe(true);
+    });
+
+    it("should return true when value is Utils.BigNumber", () => {
+        expect(isNumeric(Utils.BigNumber.make(1))).toBe(true);
+    });
+
+    it("should return false when value is string", () => {
+        expect(isNumeric("1")).toBe(false);
+    });
+});
+
+describe("isNumericEqual", () => {
+    it("should compare number to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericEqual(1, 1)).toBe(true);
+        expect(isNumericEqual(1, BigInt(1))).toBe(true);
+        expect(isNumericEqual(1, Utils.BigNumber.make(1))).toBe(true);
+        expect(isNumericEqual(1, "1")).toBe(true);
+
+        expect(isNumericEqual(1, 2)).toBe(false);
+        expect(isNumericEqual(1, BigInt(2))).toBe(false);
+        expect(isNumericEqual(1, Utils.BigNumber.make(2))).toBe(false);
+        expect(isNumericEqual(1, "2")).toBe(false);
+    });
+
+    it("should compare BigInt to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericEqual(BigInt(1), 1)).toBe(true);
+        expect(isNumericEqual(BigInt(1), BigInt(1))).toBe(true);
+        expect(isNumericEqual(BigInt(1), Utils.BigNumber.make(1))).toBe(true);
+        expect(isNumericEqual(BigInt(1), "1")).toBe(true);
+
+        expect(isNumericEqual(BigInt(1), 2)).toBe(false);
+        expect(isNumericEqual(BigInt(1), BigInt(2))).toBe(false);
+        expect(isNumericEqual(BigInt(1), Utils.BigNumber.make(2))).toBe(false);
+        expect(isNumericEqual(BigInt(1), "2")).toBe(false);
+    });
+
+    it("should compare Utils.BigNumber to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericEqual(Utils.BigNumber.make(1), 1)).toBe(true);
+        expect(isNumericEqual(Utils.BigNumber.make(1), BigInt(1))).toBe(true);
+        expect(isNumericEqual(Utils.BigNumber.make(1), Utils.BigNumber.make(1))).toBe(true);
+        expect(isNumericEqual(Utils.BigNumber.make(1), "1")).toBe(true);
+
+        expect(isNumericEqual(Utils.BigNumber.make(1), 2)).toBe(false);
+        expect(isNumericEqual(Utils.BigNumber.make(1), BigInt(2))).toBe(false);
+        expect(isNumericEqual(Utils.BigNumber.make(1), Utils.BigNumber.make(2))).toBe(false);
+        expect(isNumericEqual(Utils.BigNumber.make(1), "2")).toBe(false);
+    });
+
+    it("should compare string to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericEqual("1", 1)).toBe(true);
+        expect(isNumericEqual("1", BigInt(1))).toBe(true);
+        expect(isNumericEqual("1", Utils.BigNumber.make(1))).toBe(true);
+        expect(isNumericEqual("1", "1")).toBe(true);
+
+        expect(isNumericEqual("1", 2)).toBe(false);
+        expect(isNumericEqual("1", BigInt(2))).toBe(false);
+        expect(isNumericEqual("1", Utils.BigNumber.make(2))).toBe(false);
+        expect(isNumericEqual("1", "2")).toBe(false);
+    });
+});
+
+describe("isNumericGreaterThanEqual", () => {
+    it("should compare number to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericGreaterThanEqual(2, 1)).toBe(true);
+        expect(isNumericGreaterThanEqual(2, BigInt(1))).toBe(true);
+        expect(isNumericGreaterThanEqual(2, Utils.BigNumber.make(1))).toBe(true);
+        expect(isNumericGreaterThanEqual(2, "1")).toBe(true);
+
+        expect(isNumericGreaterThanEqual(2, 3)).toBe(false);
+        expect(isNumericGreaterThanEqual(2, BigInt(3))).toBe(false);
+        expect(isNumericGreaterThanEqual(2, Utils.BigNumber.make(3))).toBe(false);
+        expect(isNumericGreaterThanEqual(2, "3")).toBe(false);
+    });
+
+    it("should compare BigInt to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericGreaterThanEqual(BigInt(2), 1)).toBe(true);
+        expect(isNumericGreaterThanEqual(BigInt(2), BigInt(1))).toBe(true);
+        expect(isNumericGreaterThanEqual(BigInt(2), Utils.BigNumber.make(1))).toBe(true);
+        expect(isNumericGreaterThanEqual(BigInt(2), "1")).toBe(true);
+
+        expect(isNumericGreaterThanEqual(BigInt(2), 3)).toBe(false);
+        expect(isNumericGreaterThanEqual(BigInt(2), BigInt(3))).toBe(false);
+        expect(isNumericGreaterThanEqual(BigInt(2), Utils.BigNumber.make(3))).toBe(false);
+        expect(isNumericGreaterThanEqual(BigInt(2), "3")).toBe(false);
+    });
+
+    it("should compare Utils.BigNumber to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericGreaterThanEqual(Utils.BigNumber.make(2), 1)).toBe(true);
+        expect(isNumericGreaterThanEqual(Utils.BigNumber.make(2), BigInt(1))).toBe(true);
+        expect(isNumericGreaterThanEqual(Utils.BigNumber.make(2), Utils.BigNumber.make(1))).toBe(true);
+        expect(isNumericGreaterThanEqual(Utils.BigNumber.make(2), "1")).toBe(true);
+
+        expect(isNumericGreaterThanEqual(Utils.BigNumber.make(2), 3)).toBe(false);
+        expect(isNumericGreaterThanEqual(Utils.BigNumber.make(2), BigInt(3))).toBe(false);
+        expect(isNumericGreaterThanEqual(Utils.BigNumber.make(2), Utils.BigNumber.make(3))).toBe(false);
+        expect(isNumericGreaterThanEqual(Utils.BigNumber.make(2), "3")).toBe(false);
+    });
+
+    it("should compare string to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericGreaterThanEqual("2", 1)).toBe(true);
+        expect(isNumericGreaterThanEqual("2", BigInt(1))).toBe(true);
+        expect(isNumericGreaterThanEqual("2", Utils.BigNumber.make(1))).toBe(true);
+        expect(isNumericGreaterThanEqual("2", "1")).toBe(true);
+
+        expect(isNumericGreaterThanEqual("2", 3)).toBe(false);
+        expect(isNumericGreaterThanEqual("2", BigInt(3))).toBe(false);
+        expect(isNumericGreaterThanEqual("2", Utils.BigNumber.make(3))).toBe(false);
+        expect(isNumericGreaterThanEqual("2", "3")).toBe(false);
+    });
+});
+
+describe("isNumericLessThanEqual", () => {
+    it("should compare number to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericLessThanEqual(2, 3)).toBe(true);
+        expect(isNumericLessThanEqual(2, BigInt(3))).toBe(true);
+        expect(isNumericLessThanEqual(2, Utils.BigNumber.make(3))).toBe(true);
+        expect(isNumericLessThanEqual(2, "3")).toBe(true);
+
+        expect(isNumericLessThanEqual(2, 1)).toBe(false);
+        expect(isNumericLessThanEqual(2, BigInt(1))).toBe(false);
+        expect(isNumericLessThanEqual(2, Utils.BigNumber.make(1))).toBe(false);
+        expect(isNumericLessThanEqual(2, "1")).toBe(false);
+    });
+
+    it("should compare BigInt to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericLessThanEqual(BigInt(2), 3)).toBe(true);
+        expect(isNumericLessThanEqual(BigInt(2), BigInt(3))).toBe(true);
+        expect(isNumericLessThanEqual(BigInt(2), Utils.BigNumber.make(3))).toBe(true);
+        expect(isNumericLessThanEqual(BigInt(2), "3")).toBe(true);
+
+        expect(isNumericLessThanEqual(BigInt(2), 1)).toBe(false);
+        expect(isNumericLessThanEqual(BigInt(2), BigInt(1))).toBe(false);
+        expect(isNumericLessThanEqual(BigInt(2), Utils.BigNumber.make(1))).toBe(false);
+        expect(isNumericLessThanEqual(BigInt(2), "1")).toBe(false);
+    });
+
+    it("should compare Utils.BigNumber to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericLessThanEqual(Utils.BigNumber.make(2), 3)).toBe(true);
+        expect(isNumericLessThanEqual(Utils.BigNumber.make(2), BigInt(3))).toBe(true);
+        expect(isNumericLessThanEqual(Utils.BigNumber.make(2), Utils.BigNumber.make(3))).toBe(true);
+        expect(isNumericLessThanEqual(Utils.BigNumber.make(2), "3")).toBe(true);
+
+        expect(isNumericLessThanEqual(Utils.BigNumber.make(2), 1)).toBe(false);
+        expect(isNumericLessThanEqual(Utils.BigNumber.make(2), BigInt(1))).toBe(false);
+        expect(isNumericLessThanEqual(Utils.BigNumber.make(2), Utils.BigNumber.make(1))).toBe(false);
+        expect(isNumericLessThanEqual(Utils.BigNumber.make(2), "1")).toBe(false);
+    });
+
+    it("should compare string to number, BigInt, Utils.BigNumber, or string", () => {
+        expect(isNumericLessThanEqual("2", 3)).toBe(true);
+        expect(isNumericLessThanEqual("2", BigInt(3))).toBe(true);
+        expect(isNumericLessThanEqual("2", Utils.BigNumber.make(3))).toBe(true);
+        expect(isNumericLessThanEqual("2", "3")).toBe(true);
+
+        expect(isNumericLessThanEqual("2", 1)).toBe(false);
+        expect(isNumericLessThanEqual("2", BigInt(1))).toBe(false);
+        expect(isNumericLessThanEqual("2", Utils.BigNumber.make(1))).toBe(false);
+        expect(isNumericLessThanEqual("2", "1")).toBe(false);
+    });
+});
+
+describe("isStringLike", () => {
+    it("should compare string without pattern", () => {
+        expect(isStringLike("hello", "hello")).toBe(true);
+        expect(isStringLike("hello", "world")).toBe(false);
+    });
+
+    it("should compare string with pattern", () => {
+        expect(isStringLike("hello world", "hello %")).toBe(true);
+        expect(isStringLike("hello", "%hello%")).toBe(true);
+        expect(isStringLike("hello world", "%bye%")).toBe(false);
+    });
+});
+
+describe("matchesCriteria", () => {
+    it("should compare value to array criteria", () => {
+        expect(matchesCriteria(1, [1, 2])).toBe(true);
+        expect(matchesCriteria(3, [1, 2])).toBe(false);
+    });
+
+    it("should compare array value to array criteria", () => {
+        expect(matchesCriteria([1, 2, 3], [1, 3])).toBe(true);
+        expect(matchesCriteria([1, 2, 3], [4])).toBe(false);
+    });
+
+    it("should compare numeric value", () => {
+        expect(matchesCriteria(1, 1)).toBe(true);
+
+        expect(matchesCriteria(1, { from: 1 })).toBe(true);
+        expect(matchesCriteria(0, { from: 1 })).toBe(false);
+
+        expect(matchesCriteria(1, { to: 1 })).toBe(true);
+        expect(matchesCriteria(2, { to: 1 })).toBe(false);
+
+        expect(matchesCriteria(1, { from: 1, to: 2 })).toBe(true);
+        expect(matchesCriteria(2, { from: 1, to: 2 })).toBe(true);
+        expect(matchesCriteria(3, { from: 1, to: 2 })).toBe(false);
+    });
+
+    it("should compare string value", () => {
+        expect(matchesCriteria("hello world", "%hello%")).toBe(true);
+        expect(matchesCriteria("hello world", "%bye%")).toBe(false);
+    });
+
+    it("should compare every object property", () => {
+        expect(
+            matchesCriteria(
+                {
+                    n: 1,
+                    b: true,
+                    s: "hello world",
+                    a: [1, true, "hello world"],
+                },
+                {
+                    n: [1, 3],
+                    b: true,
+                    s: "%hello%",
+                    a: [true, 1],
+                },
+            ),
+        ).toBe(true);
     });
 });
