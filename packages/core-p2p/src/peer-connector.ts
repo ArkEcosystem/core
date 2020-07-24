@@ -74,7 +74,7 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
             this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
         };
 
-        await connection.connect();
+        await connection.connect({ retries: 1 });
 
         return connection;
     }
