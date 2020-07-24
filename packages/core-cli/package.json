@@ -31,7 +31,7 @@
         "env-paths": "^2.2.0",
         "envfile": "^5.0.0",
         "execa": "^3.4.0",
-        "fast-levenshtein": "^2.0.6",
+        "fast-levenshtein": "^3.0.0",
         "fs-extra": "^8.1.0",
         "is-ci": "^2.0.0",
         "kleur": "^4.0.0",
