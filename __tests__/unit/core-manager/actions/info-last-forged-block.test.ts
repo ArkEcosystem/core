@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { Action } from "@packages/core-manager/src/actions/info-last-forged-block";
 import { Identifiers } from "@packages/core-manager/src/ioc";
+import * as Utils from "@packages/core-manager/src/utils";
 import { Sandbox } from "@packages/core-test-framework";
 
 import { TriggerResponses } from "../__fixtures__";
@@ -13,6 +14,9 @@ let mockCli;
 let mockTrigger;
 
 beforeEach(() => {
+    jest.spyOn(Utils, "getCoreOrForgerProcessName").mockReturnValue("ark-core");
+    jest.spyOn(Utils, "getOnlineProcesses").mockReturnValue([]);
+
     mockTrigger = jest.fn().mockReturnValue({
         stdout: TriggerResponses.forgetLastForgedBlockResponse,
     });
