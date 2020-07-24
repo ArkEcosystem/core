@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Container, Utils as KernelUtils } from "@arkecosystem/core-kernel";
+import {Container, Enums, Utils as KernelUtils} from "@arkecosystem/core-kernel";
 import { constants } from "@arkecosystem/core-p2p/src/constants";
 import {
     PeerPingTimeoutError,
@@ -337,10 +337,8 @@ describe("PeerCommunicator", () => {
                     "network.nethash",
                 )}, his=${wrongNethash}.`,
             );
-            expect(emitter.dispatch).toBeCalledTimes(3);
-            for (const port of [4000 + PortsOffset.Peer, 4000 + PortsOffset.Blocks, 4000 + PortsOffset.Transactions]) {
-                expect(emitter.dispatch).toBeCalledWith("internal.p2p.disconnectPeer", { peer, port });
-            }
+            expect(emitter.dispatch).toBeCalledTimes(1);
+            expect(emitter.dispatch).toBeCalledWith(Enums.PeerEvent.Disconnect, { peer });
         });
 
         it("should set peer ports = -1 when pinging the port fails", async () => {
