@@ -53,8 +53,6 @@ export class Command extends Commands.Command {
         const flags: Contracts.AnyObject = { ...this.getFlags() };
         flags.processType = "forger";
 
-        this.actions.abortRunningProcess(`${flags.token}-forger`);
-
         await Utils.buildApplication({
             flags,
             plugins: {
