@@ -3,7 +3,7 @@ import { Application, Container } from "@arkecosystem/core-kernel";
 
 import { Actions } from "../contracts";
 import { Identifiers } from "../ioc";
-import { parseProcessActionResponse } from "../utils";
+import { getCoreOrForgerProcessName, getOnlineProcesses, parseProcessActionResponse } from "../utils";
 
 @Container.injectable()
 export class Action implements Actions.Action {
@@ -21,7 +21,9 @@ export class Action implements Actions.Action {
 
         const processManager = cli.get<Services.ProcessManager>(CliContainer.Identifiers.ProcessManager);
 
-        const response = processManager.trigger("ark-core", "forger.nextSlot");
+        const processName = getCoreOrForgerProcessName(getOnlineProcesses(processManager));
+
+        const response = processManager.trigger(processName, "forger.nextSlot");
 
         const result = parseProcessActionResponse(response);
 
