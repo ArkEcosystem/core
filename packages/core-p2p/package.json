@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-p2p",
-    "version": "3.0.0-next.0",
+    "version": "3.0.0-alpha.0",
     "description": "P2P API for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -24,19 +24,18 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-next.0",
-        "@arkecosystem/core-database": "^3.0.0-next.0",
-        "@arkecosystem/core-transaction-pool": "^3.0.0-next.0",
-        "@arkecosystem/crypto": "^3.0.0-next.0",
-        "@hapi/sntp": "^4.0.0",
-        "@hapi/hapi": "^19.0.0",
-        "@hapi/joi": "^17.1.1",
+        "@arkecosystem/core-database": "^3.0.0-alpha.0",
+        "@arkecosystem/core-kernel": "^3.0.0-alpha.0",
+        "@arkecosystem/core-transaction-pool": "^3.0.0-alpha.0",
+        "@arkecosystem/crypto": "^3.0.0-alpha.0",
         "@hapi/boom": "^9.0.0",
         "@hapi/bounce": "2.x.x",
         "@hapi/cryptiles": "5.x.x",
+        "@hapi/hapi": "^19.0.0",
         "@hapi/hoek": "9.x.x",
+        "@hapi/joi": "^17.1.1",
+        "@hapi/sntp": "^4.0.0",
         "@hapi/teamwork": "5.x.x",
-        "ws": "7.x",
         "ajv": "^6.10.2",
         "better-sqlite3": "^7.0.0",
         "dayjs": "^1.8.17",
@@ -48,7 +47,8 @@
         "pluralize": "^8.0.0",
         "pretty-ms": "^7.0.0",
         "rate-limiter-flexible": "^1.1.0",
-        "semver": "^6.3.0"
+        "semver": "^6.3.0",
+        "ws": "7.x"
     },
     "devDependencies": {
         "@types/better-sqlite3": "^5.4.0",
