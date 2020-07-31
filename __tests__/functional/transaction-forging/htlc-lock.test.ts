@@ -162,7 +162,7 @@ describe("Transaction Forging - HTLC Lock", () => {
         await expect(initialFunds.id).toBeForged();
 
         const delegateToVote = Identities.PublicKey.fromPassphrase(secrets[9]);
-        const { body } = await got.get(`http://localhost:4003/api/v2/delegates/${delegateToVote}`);
+        const { body } = await got.get(`http://localhost:4003/api/delegates/${delegateToVote}`);
         const parsedBody = JSON.parse(body);
         const initialDelegateVoteValance = Utils.BigNumber.make(parsedBody.data.votes);
 
