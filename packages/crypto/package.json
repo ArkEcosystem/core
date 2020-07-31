@@ -16,7 +16,7 @@
     ],
     "main": "dist/index.js",
     "umd:main": "dist/index.umd.js",
-    "browser": "dist/index.browser.js",
+    "browser": "dist/index.bundled.js",
     "module": "dist/index.esm.js",
     "unpkg": "dist/index.bundled.min.js",
     "jsdelivr": "dist/index.bundled.min.js",
@@ -50,15 +50,25 @@
         "wif": "^2.0.6"
     },
     "devDependencies": {
+        "@rollup/plugin-babel": "^5.0.4",
+        "@rollup/plugin-commonjs": "^13.0.0",
+        "@rollup/plugin-inject": "^4.0.2",
+        "@rollup/plugin-json": "^4.1.0",
+        "@rollup/plugin-node-resolve": "^8.1.0",
+        "@types/bip32": "^1.0.2",
+        "@types/bip39": "^2.4.2",
         "@types/buffer-xor": "^2.0.0",
         "@types/lodash.get": "^4.4.6",
         "@types/lodash.set": "^4.3.6",
         "@types/wif": "^2.0.1",
-        "rollup": "^1.27.8",
-        "rollup-plugin-commonjs": "^10.1.0",
-        "rollup-plugin-json": "^4.0.0",
-        "rollup-plugin-node-resolve": "^5.2.0",
-        "rollup-plugin-terser": "^5.1.2"
+        "@wessberg/rollup-plugin-ts": "^1.2.26",
+        "big-integer": "^1.6.48",
+        "buffer-es6": "^4.9.3",
+        "process-es6": "^0.11.6",
+        "rollup": "^2.18.0",
+        "rollup-plugin-node-polyfills": "^0.2.1",
+        "rollup-plugin-terser": "^6.1.0",
+        "util": "^0.12.3"
     },
     "publishConfig": {
         "access": "public"

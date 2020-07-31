@@ -16,6 +16,7 @@ export const buildRateLimiter = (options) =>
                 },
                 {
                     rateLimit: 1,
+                    duration: 2,
                     endpoint: "p2p.peer.getBlocks",
                 },
                 {

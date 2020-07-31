@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import {Container, Enums, Utils as KernelUtils} from "@arkecosystem/core-kernel";
+import {Container, Utils as KernelUtils} from "@arkecosystem/core-kernel";
 import { constants } from "@arkecosystem/core-p2p/src/constants";
 import {
     PeerPingTimeoutError,
@@ -306,11 +306,11 @@ describe("PeerCommunicator", () => {
 
             await peerCommunicator.pingPorts(peer);
 
-            expect(peer.ports["core-api"]).toBeUndefined();
-            expect(peer.ports["custom-plugin"]).toBeUndefined();
+            expect(peer.ports["core-api"]).toBe(-1);
+            expect(peer.ports["custom-plugin"]).toBe(-1);
         });
 
-        it("should log a warning and emit internal.p2p.disconnectPeer when wrong nethash", async () => {
+        it("should update peer.ports even when wrong nethash", async () => {
             const ip = "187.168.65.65";
             const port = 4000;
             const apiPort = 4100;
@@ -329,16 +329,10 @@ describe("PeerCommunicator", () => {
 
             await peerCommunicator.pingPorts(peer);
 
-            expect(peer.ports["core-api"]).toBeUndefined();
+            expect(peer.ports["core-api"]).toBe(apiPort);
             expect(peer.ports["custom-plugin"]).toBeDefined();
-            expect(logger.warning).toBeCalledTimes(1);
-            expect(logger.warning).toBeCalledWith(
-                `Disconnecting from ${ip}:${apiPort}: nethash mismatch: our=${Managers.configManager.get(
-                    "network.nethash",
-                )}, his=${wrongNethash}.`,
-            );
-            expect(emitter.dispatch).toBeCalledTimes(1);
-            expect(emitter.dispatch).toBeCalledWith(Enums.PeerEvent.Disconnect, { peer });
+            expect(logger.warning).toBeCalledTimes(0);
+            expect(emitter.dispatch).toBeCalledTimes(0);
         });
 
         it("should set peer ports = -1 when pinging the port fails", async () => {

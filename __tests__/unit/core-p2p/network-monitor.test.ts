@@ -857,6 +857,62 @@ describe("NetworkMonitor", () => {
 
             expect(await networkMonitor.downloadBlocksFromHeight(20, maxParallelDownloads)).toEqual([mockBlock]);
         });
+
+        it("should reduce download block chunk size after receiving no block", async () => {
+            communicator.getPeerBlocks = jest.fn().mockReturnValue([]);
+
+            const numPeers = maxParallelDownloads;
+            const peers = [];
+            for (let i = 0; i < maxParallelDownloads; i++) {
+                const peer = new Peer(`1.1.1.${i}`, 4000);
+                peer.state = { height: 1, currentSlot: 1, forgingAllowed: true, header: {} };
+                peer.state = {
+                    height: numPeers * downloadChunkSize,
+                    currentSlot: 2,
+                    forgingAllowed: true,
+                    header: {},
+                };
+                peer.verificationResult = { forked: false, hisHeight: 1, myHeight: 1, highestCommonHeight: 1 };
+                peers.push(peer);
+            }
+            storage.getPeers = jest.fn().mockReturnValue(peers);
+
+            const fromHeight = 1;
+
+            // first step, peers won't return any block: chunk size should be reduced by factor 10 for next download
+            for (const expectedBlockLimit of [400, 40, 4, 1, 1, 1]) {
+                // @ts-ignore
+                communicator.getPeerBlocks.mockReset();
+                const downloadedBlocks = await networkMonitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
+
+                expect(downloadedBlocks).toEqual([]);
+                expect(communicator.getPeerBlocks).toBeCalledTimes(maxParallelDownloads);
+                expect(communicator.getPeerBlocks).toBeCalledWith(expect.anything(), {
+                    fromBlockHeight: expect.any(Number),
+                    blockLimit: expectedBlockLimit,
+                });
+            }
+
+            // second step, peers return blocks: chunk size should be reset to default value (400) for next download
+            const mockGetPeerBlocks1Block = (_, { fromBlockHeight }) => [expectedBlocksFromHeight(fromBlockHeight)[0]];
+            for (const expectedBlockLimit of [1, 400]) {
+                communicator.getPeerBlocks = jest
+                    .fn()
+                    .mockImplementation(expectedBlockLimit === 1 ? mockGetPeerBlocks1Block : mockedGetPeerBlocks);
+
+                const downloadedBlocks = await networkMonitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
+
+                const expectedBlocks = expectedBlocksFromHeight(fromHeight).slice(0, numPeers * expectedBlockLimit);
+
+                expect(downloadedBlocks).toEqual(expectedBlocks);
+
+                expect(communicator.getPeerBlocks).toBeCalledTimes(maxParallelDownloads);
+                expect(communicator.getPeerBlocks).toBeCalledWith(expect.anything(), {
+                    fromBlockHeight: expect.any(Number),
+                    blockLimit: expectedBlockLimit,
+                });
+            }
+        });
     });
 
     describe("broadcastBlock", () => {

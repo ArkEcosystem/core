@@ -337,6 +337,93 @@ describe("Blockchain", () => {
                 expect(spyEnqueue).toBeCalledTimes(1);
                 expect(spyEnqueue).toHaveBeenLastCalledWith([blockData]);
             });
+
+            it("should not dispatch anything nor enqueue the block if receivedSlot > currentSlot", async () => {
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+                blockchain.initialize({});
+                const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
+                stateStore.started = true;
+                stateStore.getLastBlock = jest.fn().mockReturnValue({ data: blockData });
+
+                jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(2);
+
+                await blockchain.handleIncomingBlock(blockData);
+
+                expect(spyEnqueue).toBeCalledTimes(0);
+                expect(eventDispatcherService.dispatch).toBeCalledTimes(0);
+            });
+
+            it("should handle block from forger if in right slot", async () => {
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+                blockchain.initialize({});
+                const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
+                const spyDispatch = jest.spyOn(blockchain, "dispatch");
+                stateStore.started = true;
+                stateStore.getLastBlock = jest.fn().mockReturnValue({ data: blockData });
+
+                jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(1);
+                jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(5000);
+
+                await blockchain.handleIncomingBlock(blockData, true);
+
+                expect(spyEnqueue).toBeCalledTimes(1);
+                expect(spyEnqueue).toHaveBeenLastCalledWith([blockData]);
+                expect(spyDispatch).toBeCalledTimes(1);
+                expect(spyDispatch).toHaveBeenLastCalledWith("NEWBLOCK");
+            });
+
+            it.each([[true], [false]])("should not handle block if in wrong slot", async (fromForger) => {
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+                blockchain.initialize({});
+                const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
+                const spyDispatch = jest.spyOn(blockchain, "dispatch");
+                stateStore.started = true;
+                stateStore.getLastBlock = jest.fn().mockReturnValue({ data: blockData });
+                
+                jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(2);
+                jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(5000);
+
+                await blockchain.handleIncomingBlock(blockData, fromForger);
+
+                expect(spyEnqueue).toBeCalledTimes(0);
+                expect(spyDispatch).toBeCalledTimes(0);
+            });
+
+            it("should not handle block from forger if less than 2 seconds left in slot", async () => {
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+                blockchain.initialize({});
+                const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
+                const spyDispatch = jest.spyOn(blockchain, "dispatch");
+                stateStore.started = true;
+                stateStore.getLastBlock = jest.fn().mockReturnValue({ data: blockData });
+
+                jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(1);
+                jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(1500);
+
+                await blockchain.handleIncomingBlock(blockData, true);
+
+                expect(spyEnqueue).toBeCalledTimes(0);
+                expect(spyDispatch).toBeCalledTimes(0);
+            }, 10000);
+
+            it("should handle block if not from forger if less than 2 seconds left in slot", async () => {
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+                blockchain.initialize({});
+                const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
+                const spyDispatch = jest.spyOn(blockchain, "dispatch");
+                stateStore.started = true;
+                stateStore.getLastBlock = jest.fn().mockReturnValue({ data: blockData });
+
+                jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(1);
+                jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(1500);
+
+                await blockchain.handleIncomingBlock(blockData);
+
+                expect(spyEnqueue).toBeCalledTimes(1);
+                expect(spyEnqueue).toHaveBeenLastCalledWith([blockData]);
+                expect(spyDispatch).toBeCalledTimes(1);
+                expect(spyDispatch).toHaveBeenLastCalledWith("NEWBLOCK");
+            }, 10000);
         });
 
         describe("when state is not started", () => {
@@ -355,18 +442,6 @@ describe("Blockchain", () => {
 
                 expect(spyEnqueue).toBeCalledTimes(0);
             });
-        });
-
-        it("should not dispatch anything nor enqueue the block if receivedSlot > currentSlot", () => {
-            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-            const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
-
-            jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(2);
-
-            blockchain.handleIncomingBlock(blockData);
-
-            expect(spyEnqueue).toBeCalledTimes(0);
-            expect(eventDispatcherService.dispatch).toBeCalledTimes(0);
         });
     });
 
@@ -750,16 +825,6 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             peerStorage.hasPeers = jest.fn().mockReturnValue(false);
-
-            expect(blockchain.isSynced()).toBeTrue();
-        });
-
-        it("should return true if last block is less than 3 blocktimes away from current slot time", () => {
-            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-
-            peerStorage.hasPeers = jest.fn().mockReturnValue(true);
-            const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 16 } };
-            stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
 
             expect(blockchain.isSynced()).toBeTrue();
         });
