@@ -442,18 +442,18 @@ describe("Blockchain", () => {
 
                 expect(spyEnqueue).toBeCalledTimes(0);
             });
+        });
 
-            it("should not dispatch anything nor enqueue the block if receivedSlot > currentSlot", () => {
-                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-                const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
-    
-                jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(2);
-    
-                blockchain.handleIncomingBlock(blockData);
-    
-                expect(spyEnqueue).toBeCalledTimes(0);
-                expect(eventDispatcherService.dispatch).toBeCalledTimes(0);
-            });
+        it("should not dispatch anything nor enqueue the block if receivedSlot > currentSlot", () => {
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+            const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
+
+            jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(2);
+
+            blockchain.handleIncomingBlock(blockData);
+
+            expect(spyEnqueue).toBeCalledTimes(0);
+            expect(eventDispatcherService.dispatch).toBeCalledTimes(0);
         });
     });
 
