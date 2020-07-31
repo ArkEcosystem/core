@@ -442,6 +442,18 @@ describe("Blockchain", () => {
 
                 expect(spyEnqueue).toBeCalledTimes(0);
             });
+
+            it("should not dispatch anything nor enqueue the block if receivedSlot > currentSlot", () => {
+                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+                const spyEnqueue = jest.spyOn(blockchain, "enqueueBlocks");
+    
+                jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(2);
+    
+                blockchain.handleIncomingBlock(blockData);
+    
+                expect(spyEnqueue).toBeCalledTimes(0);
+                expect(eventDispatcherService.dispatch).toBeCalledTimes(0);
+            });
         });
     });
 
@@ -825,6 +837,16 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
             peerStorage.hasPeers = jest.fn().mockReturnValue(false);
+
+            expect(blockchain.isSynced()).toBeTrue();
+        });
+
+        it("should return true if last block is less than 3 blocktimes away from current slot time", () => {
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+
+            peerStorage.hasPeers = jest.fn().mockReturnValue(true);
+            const mockBlock = { data: { id: "123", height: 444, timestamp: Crypto.Slots.getTime() - 16 } };
+            stateStore.getLastBlock = jest.fn().mockReturnValue(mockBlock);
 
             expect(blockchain.isSynced()).toBeTrue();
         });
