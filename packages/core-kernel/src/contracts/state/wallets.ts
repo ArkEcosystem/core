@@ -1,7 +1,5 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { ListOrder, ListPage, ListResult } from "../search";
-
 // todo: review all interfaces in here and document them properly. Remove ones that are no longer needed.
 
 export interface WalletIndex {
@@ -194,44 +192,4 @@ export interface WalletRepository {
     hasByPublicKey(publicKey: string): boolean;
 
     hasByUsername(username: string): boolean;
-
-    findOneByCriteria(criteria: object): Wallet | undefined;
-
-    findManyByCriteria(criteria: object): Wallet[];
-
-    listByCriteria(criteria: object, order: ListOrder, page: ListPage): ListResult<Wallet>;
-
-    search<T>(scope: SearchScope, params: any): ListResult<T>;
-
-    findByScope(searchScope: SearchScope, id: string): Wallet;
-
-    count(searchScope: SearchScope): number;
-
-    top(searchScope: SearchScope, params?: Record<string, any>): ListResult<Wallet>;
-}
-
-export enum SearchScope {
-    Wallets,
-    Delegates,
-    Locks,
-    Entities,
-}
-
-export interface SearchContext<T = any> {
-    query: Record<string, string[]>;
-    entries: ReadonlyArray<T>;
-    defaultOrder: string[];
-}
-
-export interface UnwrappedHtlcLock {
-    lockId: string;
-    senderPublicKey: string;
-    amount: Utils.BigNumber;
-    recipientId: string;
-    secretHash: string;
-    timestamp: number;
-    expirationType: number;
-    expirationValue: number;
-    isExpired: boolean;
-    vendorField: string;
 }
