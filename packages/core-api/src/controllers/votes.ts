@@ -1,48 +1,44 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
-import Boom from "@hapi/boom";
+import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { TransactionResource } from "../resources";
+import { Identifiers } from "../identifiers";
+import {
+    SomeTransactionResource,
+    SomeTransactionResourcesPage,
+    TransactionCriteria,
+    TransactionService,
+} from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()
 export class VotesController extends Controller {
-    @Container.inject(Container.Identifiers.TransactionHistoryService)
-    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
+    @Container.inject(Identifiers.TransactionService)
+    private readonly transactionService!: TransactionService;
 
-    public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const criteria = {
-            ...request.query,
+    public async index(request: Hapi.Request): Promise<SomeTransactionResourcesPage> {
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const transform = request.query.transform as boolean;
+        const criteria = this.getCriteria(request) as TransactionCriteria;
+
+        return this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria, {
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
-        };
-
-        const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            criteria,
-            this.getListingOrder(request),
-            this.getListingPage(request),
-            this.getListingOptions(),
-        );
-
-        return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
+        });
     }
 
-    public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction = await this.transactionHistoryService.findOneByCriteria({
+    public async show(request: Hapi.Request): Promise<SomeTransactionResource | Boom> {
+        const transaction = await this.transactionService.getTransaction(request.query.transform, request.params.id, {
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
-            id: request.params.id,
         });
 
-        if (
-            !transaction ||
-            transaction.type !== Enums.TransactionType.Vote ||
-            transaction.typeGroup !== Enums.TransactionTypeGroup.Core
-        ) {
-            return Boom.notFound("Vote not found");
+        if (!transaction) {
+            return notFound("Vote not found");
         }
 
-        return this.respondWithResource(transaction, TransactionResource, request.query.transform);
+        return transaction;
     }
 }

@@ -1,71 +1,71 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
-import Boom from "@hapi/boom";
+import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { LockResource, TransactionResource } from "../resources";
+import { Identifiers } from "../identifiers";
+import {
+    HtlcLock,
+    HtlcLockCriteria,
+    HtlcLockService,
+    HtlcLocksPage,
+    SomeTransactionResourcesPage,
+    TransactionCriteria,
+    TransactionService,
+} from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()
 export class LocksController extends Controller {
-    @Container.inject(Container.Identifiers.TransactionHistoryService)
-    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
+    @Container.inject(Identifiers.HtlcLockService)
+    private readonly htlcService!: HtlcLockService;
 
-    @Container.inject(Container.Identifiers.WalletRepository)
-    @Container.tagged("state", "blockchain")
-    private readonly walletRepository!: Contracts.State.WalletRepository;
+    @Container.inject(Identifiers.TransactionService)
+    private readonly transactionService!: TransactionService;
 
-    public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
-            ...request.query,
-            ...this.getListingPage(request),
-        });
+    public index(request: Hapi.Request): HtlcLocksPage {
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const criteria = this.getCriteria(request) as HtlcLockCriteria;
 
-        return this.toPagination(locks, LockResource);
+        return this.htlcService.getLocksPage(pagination, ordering, criteria);
     }
 
-    public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const lock = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
-            lockId: request.params.id,
-        }).rows[0];
+    public search(request: Hapi.Request): HtlcLocksPage {
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const criteria = request.payload as HtlcLockCriteria;
 
+        return this.htlcService.getLocksPage(pagination, ordering, criteria);
+    }
+
+    public show(request: Hapi.Request): HtlcLock | Boom {
+        const lock = this.htlcService.getLock(request.params.id);
         if (!lock) {
-            return Boom.notFound("Lock not found");
+            return notFound("Lock not found");
         }
 
-        return this.respondWithResource(lock, LockResource);
+        return lock;
     }
 
-    public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
-            ...request.payload,
-            ...request.query,
-            ...this.getListingPage(request),
-        });
+    public async unlocked(request: Hapi.Request): Promise<SomeTransactionResourcesPage | Boom> {
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const transform = request.query.transform as boolean;
+        const criteria = this.getCriteria(request) as TransactionCriteria;
+        const lockIds = request.payload.ids as string[];
 
-        return this.toPagination(locks, LockResource);
-    }
-
-    public async unlocked(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const criteria = [
+        return this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria, [
             {
                 typeGroup: Enums.TransactionTypeGroup.Core,
                 type: Enums.TransactionType.HtlcClaim,
-                asset: request.payload.ids.map((lockId: string) => ({ claim: { lockTransactionId: lockId } })),
+                asset: lockIds.map((lockId) => ({ claim: { lockTransactionId: lockId } })),
             },
             {
                 typeGroup: Enums.TransactionTypeGroup.Core,
                 type: Enums.TransactionType.HtlcRefund,
-                asset: request.payload.ids.map((lockId: string) => ({ refund: { lockTransactionId: lockId } })),
+                asset: lockIds.map((lockId) => ({ refund: { lockTransactionId: lockId } })),
             },
-        ];
-        const transactionListResult = await this.transactionHistoryService.listByCriteria(
-            criteria,
-            this.getListingOrder(request),
-            this.getListingPage(request),
-            this.getListingOptions(),
-        );
-
-        return this.toPagination(transactionListResult, TransactionResource);
+        ]);
     }
 }

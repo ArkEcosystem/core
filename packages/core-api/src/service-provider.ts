@@ -4,9 +4,28 @@ import Handlers from "./handlers";
 import { Identifiers } from "./identifiers";
 import { preparePlugins } from "./plugins";
 import { Server } from "./server";
+import {
+    DbBlockResourceService,
+    DbBlockService,
+    DbTransactionService,
+    DposService,
+    HtlcLockService,
+    PoolTransactionService,
+    TransactionService,
+    WalletService,
+} from "./services";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
+        this.app.bind(Identifiers.DbBlockService).to(DbBlockService);
+        this.app.bind(Identifiers.DbTransactionService).to(DbTransactionService);
+        this.app.bind(Identifiers.DbBlockResourceService).to(DbBlockResourceService);
+        this.app.bind(Identifiers.TransactionService).to(TransactionService);
+        this.app.bind(Identifiers.WalletService).to(WalletService);
+        this.app.bind(Identifiers.DposDelegateService).to(DposService);
+        this.app.bind(Identifiers.HtlcLockService).to(HtlcLockService);
+        this.app.bind(Identifiers.PoolTransactionService).to(PoolTransactionService);
+
         if (this.config().get("server.http.enabled")) {
             await this.buildServer("http", Identifiers.HTTP);
         }

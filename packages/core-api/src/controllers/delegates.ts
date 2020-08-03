@@ -1,111 +1,94 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Enums } from "@arkecosystem/crypto";
-import { set } from "@arkecosystem/utils";
+import { Container } from "@arkecosystem/core-kernel";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { BlockResource, BlockWithTransactionsResource, DelegateResource, WalletResource } from "../resources";
+import { Identifiers } from "../identifiers";
+import {
+    BlockCriteria,
+    DbBlockResourceService,
+    DposDelegate,
+    DposDelegateCriteria,
+    DposDelegatesPage,
+    DposService,
+    SomeBlockResourcesPage,
+    WalletCriteria,
+    WalletService,
+    WalletsPage,
+} from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()
 export class DelegatesController extends Controller {
-    @Container.inject(Container.Identifiers.BlockHistoryService)
-    private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
+    @Container.inject(Identifiers.DposDelegateService)
+    private readonly dposDelegateService!: DposService;
 
-    @Container.inject(Container.Identifiers.WalletRepository)
-    @Container.tagged("state", "blockchain")
-    private readonly walletRepository!: Contracts.State.WalletRepository;
+    @Container.inject(Identifiers.WalletService)
+    private readonly walletService!: WalletService;
 
-    public async index(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const delegates = this.walletRepository.search(Contracts.State.SearchScope.Delegates, {
-            ...request.query,
-            ...this.getListingPage(request),
-        });
+    @Container.inject(Identifiers.DbBlockResourceService)
+    private readonly blockService!: DbBlockResourceService;
 
-        return this.toPagination(delegates, DelegateResource);
+    public index(request: Hapi.Request): DposDelegatesPage {
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const criteria = this.getCriteria(request) as DposDelegateCriteria;
+
+        return this.dposDelegateService.getDelegatesPage(pagination, ordering, criteria);
     }
 
-    public async show(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const delegate: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
+    public search(request: Hapi.Request): DposDelegatesPage {
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const criteria = request.payload as DposDelegateCriteria;
 
-        if (delegate instanceof Boom) {
-            return delegate;
-        }
-
-        return this.respondWithResource(delegate, DelegateResource);
+        return this.dposDelegateService.getDelegatesPage(pagination, ordering, criteria);
     }
 
-    public async search(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const delegates = this.walletRepository.search(Contracts.State.SearchScope.Delegates, {
-            ...request.payload,
-            ...request.query,
-            ...this.getListingPage(request),
-        });
+    public show(request: Hapi.Request): DposDelegate | Boom {
+        const delegateId = request.params.id as string;
+        const delegate = this.dposDelegateService.getDelegate(delegateId);
 
-        return this.toPagination(delegates, DelegateResource);
-    }
-
-    public async blocks(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const delegate: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-        if (delegate instanceof Boom) {
-            return delegate;
-        }
-
-        if (request.query.transform) {
-            const blockCriteria = { generatorPublicKey: delegate.publicKey };
-            const blockWithSomeTransactionsListResult = await this.blockHistoryService.listByCriteriaJoinTransactions(
-                blockCriteria,
-                { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
-                this.getListingOrder(request),
-                this.getListingPage(request),
-                this.getListingOptions(),
-            );
-
-            return this.toPagination(blockWithSomeTransactionsListResult, BlockWithTransactionsResource, true);
-        } else {
-            const blockCriteria = { generatorPublicKey: delegate.publicKey };
-            const blockListResult = await this.blockHistoryService.listByCriteria(
-                blockCriteria,
-                this.getListingOrder(request),
-                this.getListingPage(request),
-                this.getListingOptions(),
-            );
-
-            return this.toPagination(blockListResult, BlockResource, false);
-        }
-    }
-
-    public async voters(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const delegate: Contracts.State.Wallet | Boom<null> = this.findWallet(request.params.id);
-
-        if (delegate instanceof Boom) {
-            return delegate;
-        }
-
-        const criteria = this.getListingCriteria(request);
-        const order = this.getListingOrder(request);
-        const page = this.getListingPage(request);
-
-        set(criteria, "attributes.vote", delegate.publicKey);
-
-        const wallets = this.walletRepository.listByCriteria(criteria, order, page);
-
-        return this.toPagination(wallets, WalletResource);
-    }
-
-    private findWallet(id: string): Contracts.State.Wallet | Boom<null> {
-        let wallet: Contracts.State.Wallet | undefined;
-
-        try {
-            wallet = this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, id);
-        } catch (error) {
+        if (!delegate) {
             return notFound("Delegate not found");
         }
 
-        if (!wallet.hasAttribute("delegate.username")) {
+        return delegate;
+    }
+
+    public voters(request: Hapi.Request): WalletsPage | Boom {
+        const delegateId = request.params.id as string;
+        const delegate = this.dposDelegateService.getDelegate(delegateId);
+
+        if (!delegate) {
             return notFound("Delegate not found");
         }
 
-        return wallet;
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const criteria = this.getCriteria(request) as WalletCriteria;
+
+        return this.walletService.getActiveWalletsPage(pagination, ordering, criteria, {
+            attributes: {
+                vote: delegate.publicKey,
+            },
+        });
+    }
+
+    public async blocks(request: Hapi.Request): Promise<SomeBlockResourcesPage | Boom> {
+        const delegateId = request.params.id as string;
+        const delegate = this.dposDelegateService.getDelegate(delegateId);
+
+        if (!delegate) {
+            return notFound("Delegate not found");
+        }
+
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const transform = request.transform as boolean;
+        const criteria = this.getCriteria(request) as BlockCriteria;
+
+        return this.blockService.getBlocksPage(pagination, ordering, transform, criteria, {
+            generatorPublicKey: delegate.publicKey,
+        });
     }
 }

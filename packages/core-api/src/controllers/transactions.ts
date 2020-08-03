@@ -1,14 +1,36 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces } from "@arkecosystem/crypto";
-import Boom from "@hapi/boom";
+import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { TransactionResource, TransactionWithBlockResource } from "../resources";
+import { Identifiers } from "../identifiers";
+import {
+    PoolTransactionCriteria,
+    PoolTransactionService,
+    SomeTransactionResource,
+    SomeTransactionResourcesPage,
+    TransactionCriteria,
+    TransactionService,
+} from "../services";
 import { Controller } from "./controller";
+
+export type PoolAddTransactionsResult = {
+    data: {
+        accept: string[];
+        broadcast: string[];
+        excess: string[];
+        invalid: string[];
+    };
+    errors?: {
+        [id: string]: { type: string; message: string };
+    };
+};
 
 @Container.injectable()
 export class TransactionsController extends Controller {
+    @Container.inject(Container.Identifiers.TransactionPoolProcessorFactory)
+    private readonly createPoolProcessor!: Contracts.TransactionPool.ProcessorFactory;
+
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
     @Container.tagged("state", "null")
     private readonly nullHandlerRegistry!: Handlers.Registry;
@@ -16,114 +38,74 @@ export class TransactionsController extends Controller {
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
 
-    @Container.inject(Container.Identifiers.TransactionPoolQuery)
-    private readonly poolQuery!: Contracts.TransactionPool.Query;
+    @Container.inject(Identifiers.TransactionService)
+    private readonly transactionService!: TransactionService;
 
-    @Container.inject(Container.Identifiers.TransactionHistoryService)
-    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
+    @Container.inject(Identifiers.PoolTransactionService)
+    private readonly poolService!: PoolTransactionService;
 
-    @Container.inject(Container.Identifiers.TransactionPoolProcessorFactory)
-    private readonly createProcessor!: Contracts.TransactionPool.ProcessorFactory;
+    public async index(request: Hapi.Request): Promise<SomeTransactionResourcesPage> {
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const transform = request.query.transform as boolean;
+        const criteria = this.getCriteria(request) as TransactionCriteria;
 
-    public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const criteria: Contracts.Shared.TransactionCriteria = request.query;
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
-
-        if (request.query.transform) {
-            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
-                criteria,
-                order,
-                page,
-                options,
-            );
-
-            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
-        } else {
-            const transactionListResult = await this.transactionHistoryService.listByCriteria(
-                criteria,
-                order,
-                page,
-                options,
-            );
-            return this.toPagination(transactionListResult, TransactionResource, false);
-        }
+        return await this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria);
     }
 
-    public async store(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const processor: Contracts.TransactionPool.Processor = this.createProcessor();
-        await processor.process(request.payload.transactions);
+    public async search(request: Hapi.Request): Promise<SomeTransactionResourcesPage> {
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const transform = request.query.transform as boolean;
+        const criteria = request.payload;
+
+        return await this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria);
+    }
+
+    public async show(request: Hapi.Request): Promise<SomeTransactionResource | Boom> {
+        const transaction = await this.transactionService.getTransaction(request.query.transform, request.params.id);
+
+        if (!transaction) {
+            return notFound("Transaction not found");
+        }
+
+        return transaction;
+    }
+
+    public async store(request: Hapi.Request): Promise<PoolAddTransactionsResult> {
+        const poolProcessor = this.createPoolProcessor();
+        await poolProcessor.process(request.payload);
+
         return {
             data: {
-                accept: processor.accept,
-                broadcast: processor.broadcast,
-                excess: processor.excess,
-                invalid: processor.invalid,
+                accept: poolProcessor.accept,
+                broadcast: poolProcessor.broadcast,
+                excess: poolProcessor.excess,
+                invalid: poolProcessor.invalid,
             },
-            errors: processor.errors,
+            errors: poolProcessor.errors,
         };
     }
 
-    public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction = await this.transactionHistoryService.findOneByCriteria({ id: request.params.id });
+    public unconfirmed(request: Hapi.Request): SomeTransactionResourcesPage {
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const transform = request.query.transform as boolean;
+        const criteria = this.getCriteria(request) as PoolTransactionCriteria;
+
+        return this.poolService.getTransactionsPage(pagination, ordering, transform, criteria);
+    }
+
+    public showUnconfirmed(request: Hapi.Request): SomeTransactionResource | Boom {
+        const transform = request.query.transform as boolean;
+        const transactionId = request.params.id as string;
+        const transaction = this.poolService.getTransaction(transform, transactionId);
+
         if (!transaction) {
-            return Boom.notFound("Transaction not found");
-        }
-        return this.respondWithResource(transaction, TransactionResource, request.query.transform);
-    }
-
-    public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const page: Contracts.Search.ListPage = super.getListingPage(request);
-        const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getFromHighestPriority());
-        const transactions: Interfaces.ITransaction[] = all.slice(page.offset, page.offset + page.limit);
-        const rows = transactions.map((t) => t.data);
-
-        return super.toPagination(
-            { rows, count: all.length, countIsEstimate: false },
-            TransactionResource,
-            !!request.query.transform,
-        );
-    }
-
-    public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactionQuery: Contracts.TransactionPool.QueryIterable = this.poolQuery
-            .getFromHighestPriority()
-            .whereId(request.params.id);
-
-        if (transactionQuery.has() === false) {
-            return Boom.notFound("Transaction not found");
+            return notFound("Transaction not found");
         }
 
-        const transaction: Interfaces.ITransaction = transactionQuery.first();
-
-        return super.respondWithResource(transaction.data, TransactionResource, !!request.query.transform);
-    }
-
-    public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const criteria: Contracts.Shared.TransactionCriteria = request.payload;
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
-
-        if (request.query.transform) {
-            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
-                criteria,
-                order,
-                page,
-                options,
-            );
-
-            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
-        } else {
-            const transactionListResult = await this.transactionHistoryService.listByCriteria(
-                criteria,
-                order,
-                page,
-                options,
-            );
-            return this.toPagination(transactionListResult, TransactionResource, false);
-        }
+        return transaction;
     }
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {

@@ -14,23 +14,7 @@ export class Controller {
     @Container.tagged("plugin", "@arkecosystem/core-api")
     protected readonly apiConfiguration!: Providers.PluginConfiguration;
 
-    protected getListingCriteria(request: Hapi.Request): object {
-        const query = {};
-
-        for (const [key, value] of Object.entries(request.query)) {
-            if (key === "page") continue;
-            if (key === "limit") continue;
-            if (key === "offset") continue;
-            if (key === "orderBy") continue;
-            if (key === "transform") continue;
-
-            set(query, key, value);
-        }
-
-        return query;
-    }
-
-    protected getListingPage(request: Hapi.Request): Contracts.Search.ListPage {
+    protected getPagination(request: Hapi.Request): Contracts.Search.Pagination {
         const pagination = {
             offset: (request.query.page - 1) * request.query.limit || 0,
             limit: request.query.limit || 100,
@@ -43,23 +27,29 @@ export class Controller {
         return pagination;
     }
 
-    protected getListingOrder(request: Hapi.Request): Contracts.Search.ListOrder {
-        if (!request.query.orderBy) {
+    protected getOrdering(request: Hapi.Request): Contracts.Search.Ordering {
+        if (request.query.orderBy) {
+            return request.query.orderBy.split(",");
+        } else {
             return [];
         }
-
-        return request.query.orderBy.split(",").map((s: string) => ({
-            property: s.split(":")[0],
-            direction: s.split(":")[1] === "desc" ? "desc" : "asc",
-        }));
     }
 
-    protected getListingOptions(): Contracts.Search.ListOptions {
-        const options: Contracts.Search.ListOptions = {
-            estimateTotalCount: this.apiConfiguration.getOptional<boolean>("options.estimateTotalCount", true),
-        };
+    protected getCriteria(
+        request: Hapi.Request,
+        excludes = ["page", "limit", "offset", "orderBy", "transform"],
+    ): unknown {
+        const query = {};
 
-        return options;
+        for (const [key, value] of Object.entries(request.query)) {
+            if (excludes.includes(key)) {
+                continue;
+            }
+
+            set(query, key, value);
+        }
+
+        return query;
     }
 
     protected respondWithResource(data, transformer, transform = true): any {

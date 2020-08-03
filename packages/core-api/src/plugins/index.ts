@@ -1,5 +1,6 @@
 import { hapiAjv } from "./hapi-ajv";
 import { whitelist } from "./whitelist";
+import { wrapdata } from "./wrapdata";
 
 export const preparePlugins = (config) => [
     {
@@ -26,5 +27,9 @@ export const preparePlugins = (config) => [
                 },
             },
         },
+    },
+    {
+        plugin: wrapdata,
+        options: {},
     },
 ];

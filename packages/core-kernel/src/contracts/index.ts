@@ -1,3 +1,4 @@
+export * as Api from "./api";
 export * as Blockchain from "./blockchain";
 export * as Database from "./database";
 export * as Kernel from "./kernel";

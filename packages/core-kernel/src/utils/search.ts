@@ -1,22 +1,14 @@
 import { Utils } from "@arkecosystem/crypto";
 import { get } from "@arkecosystem/utils";
 
-import { ListOrder, ListPage, ListResult } from "../contracts/search";
-import { NumericCriteria, OrCriteria } from "../contracts/search/criteria";
-import {
-    AndExpression,
-    BetweenExpression,
-    EqualExpression,
-    Expression,
-    GreaterThanEqualExpression,
-    LessThanEqualExpression,
-    OrExpression,
-} from "../contracts/search/expressions";
+import { Ordering, Page, Pagination, ParsedOrdering } from "../contracts/search";
+import { NumericCriteria, StandardCriteriaOf, StandardCriteriaOfItem } from "../contracts/search/criteria";
+import { Expression } from "../contracts/search/expressions";
 
-export const optimizeExpression = <TEntity>(expression: Expression<TEntity>): Expression<TEntity> => {
+export const getOptimizedExpression = <TEntity>(expression: Expression<TEntity>): Expression<TEntity> => {
     switch (expression.op) {
         case "and": {
-            const optimized = expression.expressions.map(optimizeExpression);
+            const optimized = expression.expressions.map(getOptimizedExpression);
             const flattened = optimized.reduce((acc, e) => {
                 return e.op === "and" ? [...acc, ...e.expressions] : [...acc, e];
             }, [] as Expression<TEntity>[]);
@@ -33,7 +25,7 @@ export const optimizeExpression = <TEntity>(expression: Expression<TEntity>): Ex
         }
 
         case "or": {
-            const optimized = expression.expressions.map(optimizeExpression);
+            const optimized = expression.expressions.map(getOptimizedExpression);
             const flattened = optimized.reduce((acc, e) => {
                 return e.op === "or" ? [...acc, ...e.expressions] : [...acc, e];
             }, [] as Expression<TEntity>[]);
@@ -54,92 +46,83 @@ export const optimizeExpression = <TEntity>(expression: Expression<TEntity>): Ex
     }
 };
 
-export const someOrCriteria = <TCriteria>(
-    criteria: OrCriteria<TCriteria>,
-    predicate: (c: TCriteria) => boolean,
-): boolean => {
-    if (typeof criteria === "undefined") {
-        return false;
-    }
+export const getCriteriasExpression = <TEntity, TCriteria>(
+    criterias: TCriteria[],
+    cb: (criteria: TCriteria) => Expression<TEntity>,
+): Expression<TEntity> => {
+    return getOptimizedExpression({ op: "and", expressions: criterias.map(cb) });
+};
+
+export const getCriteriaExpression = <TEntity, TCriteriaItem>(
+    criteria: TCriteriaItem | TCriteriaItem[],
+    cb: (criteriaItem: TCriteriaItem) => Expression<TEntity>,
+): Expression<TEntity> => {
     if (Array.isArray(criteria)) {
-        return criteria.some(predicate);
-    }
-    return predicate(criteria);
-};
-
-export const everyOrCriteria = <TCriteria>(
-    criteria: OrCriteria<TCriteria>,
-    predicate: (c: TCriteria) => boolean,
-): boolean => {
-    if (typeof criteria === "undefined") {
-        return true;
-    }
-    if (Array.isArray(criteria)) {
-        return criteria.every(predicate);
-    }
-    return predicate(criteria);
-};
-
-export const hasOrCriteria = <TCriteria>(criteria: OrCriteria<TCriteria>): boolean => {
-    return someOrCriteria(criteria, () => true);
-};
-
-export const handleAndCriteria = async <TEntity, TCriteria>(
-    criteria: TCriteria,
-    cb: <K extends keyof TCriteria>(key: K) => Promise<Expression<TEntity>>,
-): Promise<AndExpression<TEntity>> => {
-    const promises = Object.keys(criteria)
-        .filter((key) => typeof criteria[key] !== "undefined")
-        .map((key) => cb(key as keyof TCriteria));
-    const expressions = await Promise.all(promises);
-    return { op: "and", expressions };
-};
-
-export const handleOrCriteria = async <TEntity, TCriteria>(
-    criteria: OrCriteria<TCriteria>,
-    cb: (criteria: TCriteria) => Promise<Expression<TEntity>>,
-): Promise<OrExpression<TEntity>> => {
-    if (Array.isArray(criteria)) {
-        const promises = criteria.map((c) => cb(c));
-        const expressions = await Promise.all(promises);
-        return { op: "or", expressions };
+        return getOptimizedExpression({ op: "or", expressions: criteria.map(cb) });
     } else {
-        const expression = await cb(criteria);
-        return { op: "or", expressions: [expression] };
+        return getOptimizedExpression(cb(criteria));
     }
 };
 
-export const handleNumericCriteria = async <TEntity, TProperty extends keyof TEntity>(
-    property: TProperty,
-    criteria: NumericCriteria<NonNullable<TEntity[TProperty]>>,
-): Promise<
-    | EqualExpression<TEntity>
-    | BetweenExpression<TEntity>
-    | GreaterThanEqualExpression<TEntity>
-    | LessThanEqualExpression<TEntity>
-> => {
-    if (typeof criteria === "object") {
-        if ("from" in criteria && "to" in criteria) {
-            return { op: "between", property, from: criteria.from, to: criteria.to };
-        }
-        if ("from" in criteria) {
-            return { op: "greaterThanEqual", property, value: criteria.from };
-        }
-        if ("to" in criteria) {
-            return { op: "lessThanEqual", property, value: criteria.to };
-        }
-    }
-
-    return { op: "equal", property, value: criteria };
+export const getObjectCriteriaItemExpression = <TEntity, TCriteriaItem extends object>(
+    criteriaItem: TCriteriaItem | TCriteriaItem[],
+    cb: (property: keyof TCriteriaItem) => Expression<TEntity>,
+): Expression<TEntity> => {
+    return { op: "and", expressions: Object.keys(criteriaItem).map((property) => cb(property as keyof TCriteriaItem)) };
 };
 
-export const isNumeric = (
-    value: unknown | number | BigInt | Utils.BigNumber,
-): value is number | BigInt | Utils.BigNumber => {
-    if (value instanceof Utils.BigNumber) return true;
-    if (typeof value === "bigint") return true;
-    if (typeof value === "number") return true;
-    return false;
+export const getObjectCriteriaExpression = <TEntity, TCriteriaItem extends object>(
+    criteria: TCriteriaItem | TCriteriaItem[],
+    cb: (criteriaItem: TCriteriaItem, property: keyof TCriteriaItem) => Expression<TEntity>,
+): Expression<TEntity> => {
+    return getCriteriaExpression(criteria, (criteriaItem) => {
+        return getObjectCriteriaItemExpression(criteriaItem, (property) => {
+            return cb(criteriaItem, property);
+        });
+    });
+};
+
+export const getEqualExpression = <TEntity, T>(property: keyof TEntity, criteria: T | T[]): Expression<TEntity> => {
+    return getCriteriaExpression(criteria, (criteriaItem) => {
+        return { property, op: "equal", value: criteriaItem };
+    });
+};
+
+export const getLikeExpression = <TEntity, T>(property: keyof TEntity, criteria: T | T[]): Expression<TEntity> => {
+    return getCriteriaExpression(criteria, (criteriaItem) => {
+        return { property, op: "like", pattern: criteriaItem };
+    });
+};
+
+export const getContainsExpression = <TEntity, T>(property: keyof TEntity, criteria: T | T[]): Expression<TEntity> => {
+    return getCriteriaExpression(criteria, (criteriaItem) => {
+        return { property, op: "contains", value: criteriaItem };
+    });
+};
+
+export const getNumericExpression = <TEntity, T>(
+    property: keyof TEntity,
+    criteria: NumericCriteria<T>,
+): Expression<TEntity> => {
+    return getCriteriaExpression(criteria, (criteriaItem) => {
+        if (typeof criteriaItem === "object") {
+            if ("from" in criteriaItem && "to" in criteriaItem) {
+                return { op: "between", property, from: criteriaItem.from, to: criteriaItem.to };
+            }
+            if ("from" in criteriaItem) {
+                return { op: "greaterThanEqual", property, value: criteriaItem.from };
+            }
+            if ("to" in criteriaItem) {
+                return { op: "lessThanEqual", property, value: criteriaItem.to };
+            }
+        }
+
+        return { op: "equal", property, value: criteriaItem };
+    });
+};
+
+export const isNumeric = (value: unknown): value is number | BigInt | Utils.BigNumber => {
+    return typeof value === "number" || typeof value === "bigint" || value instanceof Utils.BigNumber;
 };
 
 /**
@@ -265,83 +248,32 @@ export const isStringLike = (value: string, pattern: string): boolean => {
     return true;
 };
 
-export const matchesCriteria = (value: unknown, criteria: unknown): boolean => {
-    // most of examples below filter transactions even though this function is used to filter wallets
-
-    if (typeof criteria === "undefined") {
-        // ignoring undefined in criteria
-        return true;
+export const testCriteriaItem = <T>(value: T, criteriaItem: StandardCriteriaOfItem<T>): boolean => {
+    if (Array.isArray(value)) {
+        // unfortunately arrays are not supported
+        return false;
     }
 
-    if (Array.isArray(criteria)) {
-        // ! dangerously confusing logic
-        // meaning of array in criteria definition depends on value it's compared to (array or not)
-        // with pluralization of the key being the only hint of what kind of value it is (payments - plural; type - single)
-
-        if (Array.isArray(value)) {
-            // when both criteria and value are arrays then every criteria element should match some value element
-            // for example only multi-payment transaction that had both recipients (not just either one) will match criteria:
-            //
-            // const criteria = {
-            //   typeGroup: Enums.TransactionTypeGroup.Core,
-            //   type: Enums.TransactionType.MultiPayment
-            //   asset: {
-            //     payments: [
-            //       { recipientId: "AReY3W6nTv3utiG2em5nefKEsGQeqEVPN4" },
-            //       { recipientId: "AQEtL8akVZE5gMwxmHJpfFmnikpck2Fjm3" }
-            //     ]
-            //   }
-            // }
-
-            return criteria.every((itemCriteria) => {
-                return value.some((valueItem) => {
-                    return matchesCriteria(valueItem, itemCriteria);
-                });
-            });
-        } else {
-            // when criteria is array, but value isn't then some criteria element should match value
-            // for example either delegate registration or delegate resignation transaction will match criteria:
-            //
-            // const criteria = {
-            //   typeGroup: Enums.TransactionTypeGroup.Core,
-            //   type: [
-            //     Enums.TransactionType.DelegateRegistration,
-            //     Enums.TransactionType.DelegateResignation
-            //   ]
-            // }
-
-            return criteria.some((criteriaItem) => {
-                return matchesCriteria(value, criteriaItem);
-            });
+    if (typeof value === "boolean") {
+        if (value === true && (criteriaItem === true || criteriaItem === "true")) {
+            return true;
         }
+
+        if (value === false && (criteriaItem === false || criteriaItem === "false")) {
+            return true;
+        }
+
+        return false;
     }
 
     if (isNumeric(value)) {
-        if (isNumeric(criteria) || typeof criteria === "string") {
-            // when value is numeric and criteria is numeric or string then check if they are equal
-            // for example it's possible to compare Utils.BigNumber to string:
-            //
-            // const criteria = {
-            //   typeGroup: Enums.TransactionTypeGroup.Core,
-            //   type: Enums.TransactionType.Transfer,
-            //   amount: "1000000000000000"
-            // }
-
-            return isNumericEqual(criteria, value);
+        if (isNumeric(criteriaItem) || typeof criteriaItem === "string") {
+            return isNumericEqual(criteriaItem, value);
         }
 
-        if (typeof criteria === "object" && criteria !== null) {
-            // when value is numeric, but criteria is object check that it has 'from' or 'to' properties or both
-            // for example to match transactions with amount greater than 1000000:
-            //
-            // const criteria = {
-            //   typeGroup: Enums.TransactionTypeGroup.Core,
-            //   type: Enums.TransactionType.Transfer,
-            //   amount: { from: 1000000 }
-            // }
-
-            const from = "from" in criteria && isNumeric(criteria["from"]) ? criteria["from"] : null;
-            const to = "to" in criteria && isNumeric(criteria["to"]) ? criteria["to"] : null;
+        if (typeof criteriaItem === "object" && criteriaItem !== null) {
+            const from = "from" in criteriaItem && isNumeric(criteriaItem["from"]) ? criteriaItem["from"] : null;
+            const to = "to" in criteriaItem && isNumeric(criteriaItem["to"]) ? criteriaItem["to"] : null;
 
             if (from !== null && to !== null) {
                 return isNumericGreaterThanEqual(value, from) && isNumericLessThanEqual(value, to);
@@ -361,29 +293,23 @@ export const matchesCriteria = (value: unknown, criteria: unknown): boolean => {
         return false;
     }
 
-    if (typeof value === "object" && value !== null) {
-        if (typeof criteria === "object" && criteria !== null) {
-            // when both criteria and value are objects then each criteria property should match value property
-            // if criteria should match any value property, then there is a special '*' wildcard key:
-            //
-            // const criteria = {
-            //   attributes: {
-            //     locks: {
-            //       "*": {
-            //         recipientId: "AReY3W6nTv3utiG2em5nefKEsGQeqEVPN4"
-            //       }
-            //     }
-            //   }
-            // }
+    if (typeof value === "string") {
+        if (typeof criteriaItem === "string") {
+            return isStringLike(value, criteriaItem);
+        }
 
-            return Object.entries(criteria).every(([key, criteriaItem]) => {
+        return false;
+    }
+
+    if (typeof value === "object" && value !== null) {
+        if (typeof criteriaItem === "object" && criteriaItem !== null) {
+            return Object.entries(criteriaItem).every(([key, criteriaValue]) => {
                 if (key === "*") {
-                    return Object.values(value).some((valueItem) => {
-                        return matchesCriteria(valueItem, criteriaItem);
+                    return Object.values(value).some((valueValue) => {
+                        return testCriterias(valueValue, criteriaValue);
                     });
                 } else {
-                    const valueItem = value[key];
-                    return matchesCriteria(valueItem, criteriaItem);
+                    return testCriterias(value[key], criteriaItem);
                 }
             });
         }
@@ -391,39 +317,26 @@ export const matchesCriteria = (value: unknown, criteria: unknown): boolean => {
         return false;
     }
 
-    if (typeof value === "string") {
-        if (typeof criteria === "string") {
-            // when value and criteria are strings then compare using SQL-style LIKE pattern
-            // for example if there was set of 'dead' addresses:
-            //
-            // const criteria = {
-            //   recipientId: "%DEAD"
-            // }
-
-            return isStringLike(value, criteria);
-        }
-
-        return false;
-    }
-
-    if (typeof value === "boolean") {
-        if (value === criteria) {
-            return true;
-        }
-
-        if (value === true && criteria === "true") {
-            return true;
-        }
-
-        if (value === false && criteria === "false") {
-            return false;
-        }
-    }
-
     return false;
 };
 
-export const compareValues = (a: unknown, b: unknown): number => {
+export const testCriterias = <T>(value: T, ...criterias: StandardCriteriaOf<T>[]): boolean => {
+    for (const criteria of criterias) {
+        if (Array.isArray(criteria)) {
+            if (!criteria.some((criteriaItem) => testCriteriaItem(value, criteriaItem))) {
+                return false;
+            }
+        } else {
+            if (!testCriteriaItem(value, criteria)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+};
+
+export const compareValues = <T>(a: T, b: T): number => {
     if (a instanceof Utils.BigNumber) {
         if (isNumeric(b) || typeof b === "string") {
             return a.comparedTo(b);
@@ -465,18 +378,47 @@ export const compareValues = (a: unknown, b: unknown): number => {
     return 0;
 };
 
-export const compareByOrder = (a: unknown, b: unknown, order: ListOrder): number => {
-    for (const { property, direction } of order) {
-        const result = compareValues(get(a, property), get(b, property));
-        return direction === "asc" ? result : result * -1;
+export const parseOrdering = (ordering: Ordering): ParsedOrdering => {
+    return [ordering].flat(Number.MAX_VALUE).map((item) => {
+        const [dot, direction] = item.split(":");
+
+        if (direction !== "asc" && direction !== "desc") {
+            return { path: dot.split("."), direction };
+        } else {
+            return { path: dot.split("."), direction: "asc" };
+        }
+    });
+};
+
+export const compareValuesByOrdering = <T>(a: T, b: T, ordering: ParsedOrdering): number => {
+    for (const { path, direction } of ordering) {
+        if (direction === "asc") {
+            return compareValues(get(a, path), get(b, path));
+        } else {
+            return compareValues(get(a, path), get(b, path)) * -1;
+        }
     }
+
     return 0;
 };
 
-export const getResultPage = <T>(allRows: T[], page: ListPage): ListResult<T> => {
+export const getPage = <T>(pagination: Pagination, ordering: Ordering, items: Iterable<T>): Page<T> => {
+    // sorting can be done on the fly through search binary tree
+    // sorting needs to check for duplicate properties
+
+    const parsedOrdering = parseOrdering(ordering);
+    const total = Array.from(items);
+    const results = total
+        .sort((a, b) => compareValuesByOrdering(a, b, parsedOrdering))
+        .slice(pagination.offset, pagination.offset + pagination.limit);
+
     return {
-        count: allRows.length,
-        countIsEstimate: false,
-        rows: allRows.slice(page.offset, page.offset + page.limit),
+        results,
+        totalCount: total.length,
+        meta: { totalCountIsEstimate: false },
     };
+};
+
+export const getEmptyPage = (): Page<any> => {
+    return { results: [], totalCount: 0, meta: { totalCountIsEstimate: false } };
 };

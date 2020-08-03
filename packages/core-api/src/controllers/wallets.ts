@@ -1,219 +1,155 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
-import { notFound } from "@hapi/boom";
+import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { LockResource, TransactionResource, TransactionWithBlockResource, WalletResource } from "../resources";
+import { Identifiers } from "../identifiers";
+import {
+    HtlcLockCriteria,
+    HtlcLockService,
+    HtlcLocksPage,
+    SomeTransactionResourcesPage,
+    TransactionCriteria,
+    TransactionCriteriaItem,
+    TransactionService,
+    WalletCriteria,
+    WalletService,
+    WalletsPage,
+} from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()
 export class WalletsController extends Controller {
-    @Container.inject(Container.Identifiers.TransactionHistoryService)
-    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
+    @Container.inject(Identifiers.WalletService)
+    private readonly walletService!: WalletService;
 
-    @Container.inject(Container.Identifiers.WalletRepository)
-    @Container.tagged("state", "blockchain")
-    private readonly walletRepository!: Contracts.State.WalletRepository;
+    @Container.inject(Identifiers.WalletService)
+    private readonly transactionService!: TransactionService;
 
-    public async index(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const criteria = this.getListingCriteria(request);
-        const order = this.getListingOrder(request);
-        const page = this.getListingPage(request);
-        const wallets = this.walletRepository.listByCriteria(criteria, order, page);
+    @Container.inject(Identifiers.HtlcLockService)
+    private readonly htlcLockService!: HtlcLockService;
 
-        return this.toPagination(wallets, WalletResource);
+    public index(request: Hapi.Request): WalletsPage {
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const criteria = this.getCriteria(request) as WalletCriteria;
+
+        return this.walletService.getWalletsPage(pagination, ordering, criteria);
     }
 
-    public async top(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const criteria = {};
-        const order: Contracts.Search.ListOrder = [{ property: "balance", direction: "desc" }];
-        const page = this.getListingPage(request);
-        const wallets = this.walletRepository.listByCriteria(criteria, order, page);
+    public search(request: Hapi.Request): WalletsPage {
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const criteria = request.payload as WalletCriteria;
 
-        return this.toPagination(wallets, WalletResource);
+        return this.walletService.getWalletsPage(pagination, ordering, criteria);
     }
 
-    public async show(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+    public show(request: Hapi.Request): Contracts.State.Wallet | Boom {
+        const walletId = request.params.id as string;
+        const wallet = this.walletService.getWallet(walletId);
+
         if (!wallet) {
             return notFound("Wallet not found");
         }
 
-        return this.respondWithResource(wallet, WalletResource);
+        return wallet;
     }
 
-    public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+    public async transactions(request: Hapi.Request): Promise<SomeTransactionResourcesPage | Boom> {
+        const walletId = request.params.id as string;
+        const wallet = this.walletService.getWallet(walletId);
+
         if (!wallet) {
             return notFound("Wallet not found");
         }
 
-        const criteria: Contracts.Shared.TransactionCriteria = { ...request.query, address: wallet.address };
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const transform = request.query.transform as boolean;
+        const criteria = this.getCriteria(request) as TransactionCriteriaItem;
 
-        if (request.query.transform) {
-            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
-                criteria,
-                order,
-                page,
-                options,
-            );
-
-            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
-        } else {
-            const transactionListResult = await this.transactionHistoryService.listByCriteria(
-                criteria,
-                order,
-                page,
-                options,
-            );
-
-            return this.toPagination(transactionListResult, TransactionResource, false);
-        }
+        return this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria, {
+            address: wallet.address,
+        });
     }
 
-    public async transactionsSent(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+    public async transactionsSent(request: Hapi.Request): Promise<SomeTransactionResourcesPage | Boom> {
+        const walletId = request.params.id as string;
+        const wallet = this.walletService.getWallet(walletId);
+
         if (!wallet) {
             return notFound("Wallet not found");
         }
+
         if (!wallet.publicKey) {
-            return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
+            return AppUtils.Search.getEmptyPage();
         }
 
-        const criteria: Contracts.Shared.TransactionCriteria = { ...request.query, senderPublicKey: wallet.publicKey };
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const transform = request.query.transform as boolean;
+        const criteria = this.getCriteria(request) as TransactionCriteriaItem;
 
-        if (request.query.transform) {
-            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
-                criteria,
-                order,
-                page,
-                options,
-            );
-
-            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
-        } else {
-            const transactionListResult = await this.transactionHistoryService.listByCriteria(
-                criteria,
-                order,
-                page,
-                options,
-            );
-
-            return this.toPagination(transactionListResult, TransactionResource, false);
-        }
+        return this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria, {
+            senderPublicKey: wallet.publicKey,
+        });
     }
 
-    public async transactionsReceived(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+    public async transactionsReceived(request: Hapi.Request): Promise<SomeTransactionResourcesPage | Boom> {
+        const walletId = request.params.id as string;
+        const wallet = this.walletService.getWallet(walletId);
+
         if (!wallet) {
             return notFound("Wallet not found");
         }
 
-        const criteria: Contracts.Shared.TransactionCriteria = { ...request.query, recipientId: wallet.address };
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const transform = request.query.transform as boolean;
+        const criteria = this.getCriteria(request) as TransactionCriteria;
 
-        if (request.query.transform) {
-            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
-                criteria,
-                order,
-                page,
-                options,
-            );
-
-            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
-        } else {
-            const transactionListResult = await this.transactionHistoryService.listByCriteria(
-                criteria,
-                order,
-                page,
-                options,
-            );
-
-            return this.toPagination(transactionListResult, TransactionResource, false);
-        }
+        return this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria, {
+            recipientId: wallet.address,
+        });
     }
 
-    public async votes(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
+    public locks(request: Hapi.Request): HtlcLocksPage | Boom {
+        const walletId = request.params.id as string;
+        const wallet = this.walletService.getWallet(walletId);
+
         if (!wallet) {
             return notFound("Wallet not found");
         }
+
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const criteria = this.getCriteria(request) as HtlcLockCriteria;
+
+        return this.htlcLockService.getWalletLocksPage(pagination, ordering, walletId, criteria);
+    }
+
+    public async votes(request: Hapi.Request): Promise<SomeTransactionResourcesPage | Boom> {
+        const walletId = request.params.id as string;
+        const wallet = this.walletService.getWallet(walletId);
+
+        if (!wallet) {
+            return notFound("Wallet not found");
+        }
+
         if (!wallet.publicKey) {
-            return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, TransactionResource);
+            return AppUtils.Search.getEmptyPage();
         }
 
-        const criteria: Contracts.Shared.TransactionCriteria = {
-            ...request.query,
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const transform = request.query.transform as boolean;
+        const criteria = this.getCriteria(request) as TransactionCriteriaItem;
+
+        return this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria, {
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
             senderPublicKey: wallet.publicKey,
-        };
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
-
-        if (request.query.transform) {
-            const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
-                criteria,
-                order,
-                page,
-                options,
-            );
-
-            return this.toPagination(transactionListResult, TransactionWithBlockResource, true);
-        } else {
-            const transactionListResult = await this.transactionHistoryService.listByCriteria(
-                criteria,
-                order,
-                page,
-                options,
-            );
-
-            return this.toPagination(transactionListResult, TransactionResource, false);
-        }
-    }
-
-    public async locks(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const wallet: Contracts.State.Wallet | undefined = this.findWallet(request.params.id);
-        if (!wallet) {
-            return notFound("Wallet not found");
-        }
-        if (!wallet.publicKey) {
-            return this.toPagination({ rows: [], count: 0, countIsEstimate: false }, LockResource);
-        }
-
-        const lockListResult = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
-            ...request.params,
-            ...request.query,
-            ...this.getListingPage(request),
-            senderPublicKey: wallet.publicKey,
         });
-
-        return this.toPagination(lockListResult, LockResource);
-    }
-
-    public async search(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<object> {
-        const criteria = request.payload;
-        const page = this.getListingPage(request);
-        const order = this.getListingOrder(request);
-        const wallets = this.walletRepository.listByCriteria(criteria, order, page);
-
-        return this.toPagination(wallets, WalletResource);
-    }
-
-    private findWallet(id: string): Contracts.State.Wallet | undefined {
-        const addressCriteria = { address: id };
-        const publicKeyCriteria = { publicKey: id };
-        const delegateUsernameCriteria = { attributes: { delegate: { username: id } } };
-
-        return this.walletRepository.findOneByCriteria([addressCriteria, publicKeyCriteria, delegateUsernameCriteria]);
     }
 }

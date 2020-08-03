@@ -2,6 +2,11 @@ export const Identifiers = {
     // Config
     ConfigFlags: Symbol.for("Config<Flags>"),
     ConfigPlugins: Symbol.for("Config<Plugins>"),
+
+    // Api
+    ApiWalletAddressLocator: Symbol.for("ApiWalletAddressLocator"),
+    ApiWalletAddressLocatorComponent: Symbol.for("ApiWalletAddressLocatorComponent"),
+
     // Application
     Application: Symbol.for("Application<Instance>"),
     ApplicationDirPrefix: Symbol.for("Application<DirPrefix>"),

@@ -136,7 +136,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
             value: criteria,
         };
 
-        const multipaymentRecipientIdExpression: Contracts.Search.AndExpression<Transaction> = {
+        const multiPaymentRecipientIdExpression: Contracts.Search.AndExpression<Transaction> = {
             op: "and",
             expressions: [
                 { op: "equal", property: "typeGroup", value: Enums.TransactionTypeGroup.Core },
@@ -158,12 +158,12 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
 
             return {
                 op: "or",
-                expressions: [recipientIdExpression, multipaymentRecipientIdExpression, delegateRegistrationExpression],
+                expressions: [recipientIdExpression, multiPaymentRecipientIdExpression, delegateRegistrationExpression],
             };
         } else {
             return {
                 op: "or",
-                expressions: [recipientIdExpression, multipaymentRecipientIdExpression],
+                expressions: [recipientIdExpression, multiPaymentRecipientIdExpression],
             };
         }
     }
