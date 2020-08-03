@@ -278,9 +278,8 @@ describe("PeerCommunicator", () => {
                 "core-api": { enabled: true, port: 4100 },
                 "custom-plugin": { enabled: true, port: 4200 },
             };
-            jest.spyOn(KernelUtils.http, "get")
+            jest.spyOn(KernelUtils.http, "head")
                 .mockResolvedValueOnce({
-                    data: { data: { nethash: Managers.configManager.get("network.nethash") } },
                     statusCode: 200,
                 } as any)
                 .mockResolvedValueOnce({ data: {}, statusCode: 200 } as any);
@@ -297,9 +296,8 @@ describe("PeerCommunicator", () => {
                 "core-api": { enabled: true, port: 4100 },
                 "custom-plugin": { enabled: true, port: 4200 },
             };
-            jest.spyOn(KernelUtils.http, "get")
+            jest.spyOn(KernelUtils.http, "head")
                 .mockResolvedValueOnce({
-                    data: { data: { nethash: Managers.configManager.get("network.nethash") } },
                     statusCode: 500,
                 } as any)
                 .mockResolvedValueOnce({ data: {}, statusCode: 500 } as any);
@@ -310,30 +308,28 @@ describe("PeerCommunicator", () => {
             expect(peer.ports["custom-plugin"]).toBe(-1);
         });
 
-        it("should update peer.ports even when wrong nethash", async () => {
-            const ip = "187.168.65.65";
-            const port = 4000;
-            const apiPort = 4100;
-            const wrongNethash = "wrongNethash";
-            const peer = new Peer(ip, port);
-            peer.plugins = {
-                "core-api": { enabled: true, port: apiPort },
-                "custom-plugin": { enabled: true, port: 4200 },
-            };
-            jest.spyOn(KernelUtils.http, "get")
-                .mockResolvedValueOnce({
-                    data: { data: { nethash: wrongNethash } },
-                    statusCode: 200,
-                } as any)
-                .mockResolvedValueOnce({ data: {}, statusCode: 200 } as any);
-
-            await peerCommunicator.pingPorts(peer);
-
-            expect(peer.ports["core-api"]).toBe(apiPort);
-            expect(peer.ports["custom-plugin"]).toBeDefined();
-            expect(logger.warning).toBeCalledTimes(0);
-            expect(emitter.dispatch).toBeCalledTimes(0);
-        });
+        // it("should update peer.ports even when wrong nethash", async () => {
+        //     const ip = "187.168.65.65";
+        //     const port = 4000;
+        //     const apiPort = 4100;
+        //     const peer = new Peer(ip, port);
+        //     peer.plugins = {
+        //         "core-api": { enabled: true, port: apiPort },
+        //         "custom-plugin": { enabled: true, port: 4200 },
+        //     };
+        //     jest.spyOn(KernelUtils.http, "head")
+        //         .mockResolvedValueOnce({
+        //             statusCode: 200,
+        //         } as any)
+        //         .mockResolvedValueOnce({ data: {}, statusCode: 200 } as any);
+        //
+        //     await peerCommunicator.pingPorts(peer);
+        //
+        //     expect(peer.ports["core-api"]).toBe(apiPort);
+        //     expect(peer.ports["custom-plugin"]).toBeDefined();
+        //     expect(logger.warning).toBeCalledTimes(0);
+        //     expect(emitter.dispatch).toBeCalledTimes(0);
+        // });
 
         it("should set peer ports = -1 when pinging the port fails", async () => {
             const peer = new Peer("187.168.65.65", 4000);
