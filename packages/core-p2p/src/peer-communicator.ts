@@ -103,15 +103,12 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
                 peer.ports[name] = -1;
                 try {
-                    // TODO use HEAD and implement HEAD in @arkecosystem/utils
-                    const { statusCode } = await Utils.http.get(`http://${peer.ip}:${plugin.port}/`);
+                    const { statusCode } = await Utils.http.head(`http://${peer.ip}:${plugin.port}/`);
 
                     if (statusCode === 200) {
                         peer.ports[name] = plugin.port;
                     }
-                } catch {
-                    // tslint:disable-next-line: no-empty
-                }
+                } catch {}
             }),
         );
     }
