@@ -22,31 +22,3 @@ export type Page<T> = {
     totalCount: number;
     meta: { totalCountIsEstimate: boolean };
 };
-
-// LEGACY
-
-export type ListOrder = {
-    property: string;
-    direction: "asc" | "desc";
-}[];
-
-export type ListPage = {
-    offset: number;
-    limit: number;
-};
-
-export type ListOptions = {
-    estimateTotalCount?: boolean;
-};
-
-export type ListResult<T> = {
-    rows: T[];
-    count: number;
-    countIsEstimate: boolean;
-};
-
-export type ListResultPage<T> = {
-    results: T[];
-    totalCount: number;
-    meta: { totalCountIsEstimate: boolean };
-};

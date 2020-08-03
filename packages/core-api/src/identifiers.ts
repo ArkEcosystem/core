@@ -12,4 +12,5 @@ export const Identifiers = {
     WalletResourceProvider: Symbol.for("WalletResourceProvider"),
     DelegateResourceProvider: Symbol.for("DelegateResourceProvider"),
     LockResourceProvider: Symbol.for("LockResourceProvider"),
+    PeerResourceProvider: Symbol.for("PeerResourceProvider"),
 };

@@ -11,6 +11,7 @@ import {
     DbTransactionProvider,
     DelegateResourceProvider,
     LockResourceProvider,
+    PeerResourceProvider,
     TransactionResourceDbProvider,
     TransactionResourcePoolProvider,
     WalletResourceProvider,
@@ -27,6 +28,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Identifiers.WalletResourceProvider).to(WalletResourceProvider);
         this.app.bind(Identifiers.DelegateResourceProvider).to(DelegateResourceProvider);
         this.app.bind(Identifiers.LockResourceProvider).to(LockResourceProvider);
+        this.app.bind(Identifiers.PeerResourceProvider).to(PeerResourceProvider);
 
         if (this.config().get("server.http.enabled")) {
             await this.buildServer("http", Identifiers.HTTP);

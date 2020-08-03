@@ -3,6 +3,7 @@ import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 export type PoolTransactionCriteria = Contracts.Search.StandardCriteriaOf<Interfaces.ITransactionData>;
 
+export type TransactionCriteria = TransactionCriteriaItem | TransactionCriteriaItem[];
 export type TransactionCriteriaItem = {
     address?: string | string[];
     senderId?: string | string[];
@@ -21,8 +22,6 @@ export type TransactionCriteriaItem = {
     fee?: Contracts.Search.NumericCriteria<Utils.BigNumber>;
     asset?: object | object[];
 };
-
-export type TransactionCriteria = TransactionCriteriaItem | TransactionCriteriaItem[];
 
 export type TransformedTransactionResource = {
     id: string;

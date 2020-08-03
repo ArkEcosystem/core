@@ -7,6 +7,8 @@ export * from "./delegate-resource";
 export * from "./delegate-resource-provider";
 export * from "./lock-resource";
 export * from "./lock-resource-provider";
+export * from "./peer-resource";
+export * from "./peer-resource-provider";
 export * from "./transaction-resource";
 export * from "./transaction-resource-db-provider";
 export * from "./transaction-resource-pool-provider";
