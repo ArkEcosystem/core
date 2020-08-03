@@ -2,7 +2,7 @@ import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosyste
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { Identifiers } from "../identifiers";
-import { DbTransactionService } from "./db-transaction-service";
+import { DbTransactionProvider } from "./db-transaction-service";
 import {
     SomeTransactionResource,
     SomeTransactionResourcesPage,
@@ -11,7 +11,7 @@ import {
 } from "./transaction-resource";
 
 @Container.injectable()
-export class TransactionService {
+export class TransactionResourceDbProvider {
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-api")
     protected readonly apiConfiguration!: Providers.PluginConfiguration;
@@ -24,14 +24,14 @@ export class TransactionService {
     private readonly stateStore!: Contracts.State.StateStore;
 
     @Container.inject(Identifiers.DbTransactionService)
-    private readonly dbTransactionService!: DbTransactionService;
+    private readonly dbTransactionProvider!: DbTransactionProvider;
 
     public async getTransaction(
         transform: boolean,
         transactionId: string,
         ...criterias: TransactionCriteria[]
     ): Promise<SomeTransactionResource | undefined> {
-        const dbTransaction = await this.dbTransactionService.getTransaction({ id: transactionId }, ...criterias);
+        const dbTransaction = await this.dbTransactionProvider.getTransaction({ id: transactionId }, ...criterias);
 
         if (!dbTransaction) {
             return undefined;
@@ -54,7 +54,7 @@ export class TransactionService {
             ordering = ["blockHeight:desc", "sequence:desc"];
         }
 
-        const dbPage = await this.dbTransactionService.getTransactionsPage(pagination, ordering, ...criterias);
+        const dbPage = await this.dbTransactionProvider.getTransactionsPage(pagination, ordering, ...criterias);
 
         if (transform) {
             return { ...dbPage, results: dbPage.results.map((t) => this.getTransformedTransactionResource(t)) };

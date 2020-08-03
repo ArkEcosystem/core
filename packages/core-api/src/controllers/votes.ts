@@ -8,14 +8,14 @@ import {
     SomeTransactionResource,
     SomeTransactionResourcesPage,
     TransactionCriteria,
-    TransactionService,
+    TransactionResourceDbProvider,
 } from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()
 export class VotesController extends Controller {
-    @Container.inject(Identifiers.TransactionService)
-    private readonly transactionService!: TransactionService;
+    @Container.inject(Identifiers.TransactionResourceDbProvider)
+    private readonly transactionResourceDbProvider!: TransactionResourceDbProvider;
 
     public async index(request: Hapi.Request): Promise<SomeTransactionResourcesPage> {
         const pagination = this.getPagination(request);
@@ -23,14 +23,17 @@ export class VotesController extends Controller {
         const transform = request.query.transform as boolean;
         const criteria = this.getCriteria(request) as TransactionCriteria;
 
-        return this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria, {
+        return this.transactionResourceDbProvider.getTransactionsPage(pagination, ordering, transform, criteria, {
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
         });
     }
 
     public async show(request: Hapi.Request): Promise<SomeTransactionResource | Boom> {
-        const transaction = await this.transactionService.getTransaction(request.query.transform, request.params.id, {
+        const transform = request.query.transform as boolean;
+        const transactionId = request.params.id as string;
+
+        const transaction = await this.transactionResourceDbProvider.getTransaction(transform, transactionId, {
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
         });

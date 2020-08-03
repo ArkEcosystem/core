@@ -2,13 +2,14 @@ export const Identifiers = {
     HTTP: Symbol.for("API<HTTP>"),
     HTTPS: Symbol.for("API<HTTPS>"),
 
-    DbBlockService: Symbol.for("BlockExpressionBuilder"),
-    DbTransactionService: Symbol.for("TransactionExpressionBuilder"),
+    DbBlockService: Symbol.for("DbBlockService"),
+    DbTransactionService: Symbol.for("DbTransactionService"),
 
-    DbBlockResourceService: Symbol.for("BlockService"),
-    TransactionService: Symbol.for("TransactionService"),
-    PoolTransactionService: Symbol.for("PoolService"),
-    WalletService: Symbol.for("WalletService"),
-    DposDelegateService: Symbol.for("DposDelegateService"),
-    HtlcLockService: Symbol.for("HtlcService"),
+    BlockResourceDbProvider: Symbol.for("BlockResourceDbProvider"),
+    BlockResourceStateProvider: Symbol.for("BlockResourceStateProvider"),
+    TransactionResourceDbProvider: Symbol.for("TransactionResourceDbProvider"),
+    TransactionResourcePoolProvider: Symbol.for("TransactionResourcePoolProvider"),
+    WalletResourceProvider: Symbol.for("WalletResourceProvider"),
+    DelegateResourceProvider: Symbol.for("DelegateResourceProvider"),
+    LockResourceProvider: Symbol.for("LockResourceProvider"),
 };

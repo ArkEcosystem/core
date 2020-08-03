@@ -6,11 +6,11 @@ import Hapi from "@hapi/hapi";
 import { Identifiers } from "../identifiers";
 import {
     PoolTransactionCriteria,
-    PoolTransactionService,
     SomeTransactionResource,
     SomeTransactionResourcesPage,
     TransactionCriteria,
-    TransactionService,
+    TransactionResourceDbProvider,
+    TransactionResourcePoolProvider,
 } from "../services";
 import { Controller } from "./controller";
 
@@ -38,11 +38,11 @@ export class TransactionsController extends Controller {
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
 
-    @Container.inject(Identifiers.TransactionService)
-    private readonly transactionService!: TransactionService;
+    @Container.inject(Identifiers.TransactionResourceDbProvider)
+    private readonly transactionResourceDbProvider!: TransactionResourceDbProvider;
 
-    @Container.inject(Identifiers.PoolTransactionService)
-    private readonly poolService!: PoolTransactionService;
+    @Container.inject(Identifiers.TransactionResourcePoolProvider)
+    private readonly transactionResourcePoolProvider!: TransactionResourcePoolProvider;
 
     public async index(request: Hapi.Request): Promise<SomeTransactionResourcesPage> {
         const pagination = this.getPagination(request);
@@ -50,7 +50,7 @@ export class TransactionsController extends Controller {
         const transform = request.query.transform as boolean;
         const criteria = this.getCriteria(request) as TransactionCriteria;
 
-        return await this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria);
+        return await this.transactionResourceDbProvider.getTransactionsPage(pagination, ordering, transform, criteria);
     }
 
     public async search(request: Hapi.Request): Promise<SomeTransactionResourcesPage> {
@@ -59,11 +59,13 @@ export class TransactionsController extends Controller {
         const transform = request.query.transform as boolean;
         const criteria = request.payload;
 
-        return await this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria);
+        return await this.transactionResourceDbProvider.getTransactionsPage(pagination, ordering, transform, criteria);
     }
 
     public async show(request: Hapi.Request): Promise<SomeTransactionResource | Boom> {
-        const transaction = await this.transactionService.getTransaction(request.query.transform, request.params.id);
+        const transform = request.query.transform as boolean;
+        const transactionId = request.params.id as string;
+        const transaction = await this.transactionResourceDbProvider.getTransaction(transform, transactionId);
 
         if (!transaction) {
             return notFound("Transaction not found");
@@ -93,13 +95,13 @@ export class TransactionsController extends Controller {
         const transform = request.query.transform as boolean;
         const criteria = this.getCriteria(request) as PoolTransactionCriteria;
 
-        return this.poolService.getTransactionsPage(pagination, ordering, transform, criteria);
+        return this.transactionResourcePoolProvider.getTransactionsPage(pagination, ordering, transform, criteria);
     }
 
     public showUnconfirmed(request: Hapi.Request): SomeTransactionResource | Boom {
         const transform = request.query.transform as boolean;
         const transactionId = request.params.id as string;
-        const transaction = this.poolService.getTransaction(transform, transactionId);
+        const transaction = this.transactionResourcePoolProvider.getTransaction(transform, transactionId);
 
         if (!transaction) {
             return notFound("Transaction not found");

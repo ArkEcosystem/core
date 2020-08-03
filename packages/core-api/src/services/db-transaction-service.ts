@@ -14,7 +14,7 @@ const {
 } = AppUtils.Search;
 
 @Container.injectable()
-export class DbTransactionService {
+export class DbTransactionProvider {
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-api")
     protected readonly apiConfiguration!: Providers.PluginConfiguration;

@@ -5,26 +5,28 @@ import { Identifiers } from "./identifiers";
 import { preparePlugins } from "./plugins";
 import { Server } from "./server";
 import {
-    DbBlockResourceService,
+    BlockResourceDbProvider,
+    BlockResourceStateProvider,
     DbBlockService,
-    DbTransactionService,
-    DposService,
-    HtlcLockService,
-    PoolTransactionService,
-    TransactionService,
-    WalletService,
+    DbTransactionProvider,
+    DelegateResourceProvider,
+    LockResourceProvider,
+    TransactionResourceDbProvider,
+    TransactionResourcePoolProvider,
+    WalletResourceProvider,
 } from "./services";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.bind(Identifiers.DbBlockService).to(DbBlockService);
-        this.app.bind(Identifiers.DbTransactionService).to(DbTransactionService);
-        this.app.bind(Identifiers.DbBlockResourceService).to(DbBlockResourceService);
-        this.app.bind(Identifiers.TransactionService).to(TransactionService);
-        this.app.bind(Identifiers.WalletService).to(WalletService);
-        this.app.bind(Identifiers.DposDelegateService).to(DposService);
-        this.app.bind(Identifiers.HtlcLockService).to(HtlcLockService);
-        this.app.bind(Identifiers.PoolTransactionService).to(PoolTransactionService);
+        this.app.bind(Identifiers.DbTransactionService).to(DbTransactionProvider);
+        this.app.bind(Identifiers.BlockResourceDbProvider).to(BlockResourceDbProvider);
+        this.app.bind(Identifiers.BlockResourceStateProvider).to(BlockResourceStateProvider);
+        this.app.bind(Identifiers.TransactionResourceDbProvider).to(TransactionResourceDbProvider);
+        this.app.bind(Identifiers.TransactionResourcePoolProvider).to(TransactionResourcePoolProvider);
+        this.app.bind(Identifiers.WalletResourceProvider).to(WalletResourceProvider);
+        this.app.bind(Identifiers.DelegateResourceProvider).to(DelegateResourceProvider);
+        this.app.bind(Identifiers.LockResourceProvider).to(LockResourceProvider);
 
         if (this.config().get("server.http.enabled")) {
             await this.buildServer("http", Identifiers.HTTP);

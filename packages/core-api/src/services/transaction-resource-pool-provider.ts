@@ -1,15 +1,15 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { PoolTransactionCriteria } from "./pool-transaction";
 import {
+    PoolTransactionCriteria,
     SomeTransactionResource,
     SomeTransactionResourcesPage,
     TransformedTransactionResource,
 } from "./transaction-resource";
 
 @Container.injectable()
-export class PoolTransactionService {
+export class TransactionResourcePoolProvider {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 

@@ -1,13 +1,11 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
-export type DposDelegateLastBlock = {
-    id: string;
-    height: number;
-    timestamp: number;
-};
+export type DelegateCriteria = Contracts.Search.StandardCriteriaOf<DelegateResource>;
 
-export type DposDelegate = {
+export type DelegateResourcesPage = Contracts.Search.Page<DelegateResource>;
+
+export type DelegateResource = {
     username: string;
     address: string;
     publicKey: string;
@@ -16,7 +14,7 @@ export type DposDelegate = {
     isResigned: boolean;
     blocks: {
         produced: number;
-        last: DposDelegateLastBlock | undefined;
+        last: DelegateResourceLastBlock | undefined;
     };
     production: {
         approval: number;
@@ -28,5 +26,8 @@ export type DposDelegate = {
     };
 };
 
-export type DposDelegateCriteria = Contracts.Search.StandardCriteriaOf<DposDelegate>;
-export type DposDelegatesPage = Contracts.Search.Page<DposDelegate>;
+export type DelegateResourceLastBlock = {
+    id: string;
+    height: number;
+    timestamp: number;
+};

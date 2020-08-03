@@ -1,7 +1,11 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Utils } from "@arkecosystem/crypto";
 
-export type HtlcLock = {
+export type LockCriteria = Contracts.Search.StandardCriteriaOf<LockResource>;
+
+export type LockResourcesPage = Contracts.Search.Page<LockResource>;
+
+export type LockResource = {
     lockId: string;
     senderPublicKey: string;
     isExpired: boolean;
@@ -14,6 +18,3 @@ export type HtlcLock = {
     expirationValue: number;
     vendorField: string;
 };
-
-export type HtlcLockCriteria = Contracts.Search.StandardCriteriaOf<HtlcLock>;
-export type HtlcLocksPage = Contracts.Search.Page<HtlcLock>;

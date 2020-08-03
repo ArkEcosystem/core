@@ -2,19 +2,24 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Utils } from "@arkecosystem/crypto";
 
 import { Identifiers } from "../identifiers";
-import { DposDelegate, DposDelegateCriteria, DposDelegateLastBlock, DposDelegatesPage } from "./dpos-delegate";
-import { WalletService } from "./wallet-service";
+import {
+    DelegateCriteria,
+    DelegateResource,
+    DelegateResourceLastBlock,
+    DelegateResourcesPage,
+} from "./delegate-resource";
+import { WalletResourceProvider } from "./wallet-resource-provider";
 
 @Container.injectable()
-export class DposService {
+export class DelegateResourceProvider {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
-    @Container.inject(Identifiers.WalletService)
-    private readonly walletService!: WalletService;
+    @Container.inject(Identifiers.WalletResourceProvider)
+    private readonly walletService!: WalletResourceProvider;
 
-    public getDelegate(delegateId: string, ...criterias: DposDelegateCriteria[]): DposDelegate | undefined {
+    public getDelegate(delegateId: string, ...criterias: DelegateCriteria[]): DelegateResource | undefined {
         const walletDelegateCriteria = { attributes: { delegate: {} } };
         const wallet = this.walletService.getWallet(delegateId, walletDelegateCriteria);
         if (!wallet) {
@@ -29,7 +34,7 @@ export class DposService {
         return delegate;
     }
 
-    public *getDelegates(...criterias: DposDelegateCriteria[]): Iterable<DposDelegate> {
+    public *getDelegates(...criterias: DelegateCriteria[]): Iterable<DelegateResource> {
         for (const wallet of this.walletRepository.allByUsername()) {
             const delegate = this.getDelegateResource(wallet);
 
@@ -42,15 +47,15 @@ export class DposService {
     public getDelegatesPage(
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
-        ...criterias: DposDelegateCriteria[]
-    ): DposDelegatesPage {
+        ...criterias: DelegateCriteria[]
+    ): DelegateResourcesPage {
         return AppUtils.Search.getPage(pagination, [ordering, "rank:asc"], this.getDelegates(...criterias));
     }
 
-    private getDelegateResource(wallet: Contracts.State.Wallet): DposDelegate {
+    private getDelegateResource(wallet: Contracts.State.Wallet): DelegateResource {
         AppUtils.assert.defined<string>(wallet.publicKey);
 
-        let delegateLastBlock: DposDelegateLastBlock | undefined;
+        let delegateLastBlock: DelegateResourceLastBlock | undefined;
 
         if (wallet.hasAttribute("delegate.lastBlock")) {
             delegateLastBlock = {

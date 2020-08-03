@@ -5,48 +5,48 @@ import Hapi from "@hapi/hapi";
 import { Identifiers } from "../identifiers";
 import {
     BlockCriteria,
-    DbBlockResourceService,
-    DposDelegate,
-    DposDelegateCriteria,
-    DposDelegatesPage,
-    DposService,
+    BlockResourceDbProvider,
+    DelegateCriteria,
+    DelegateResource,
+    DelegateResourceProvider,
+    DelegateResourcesPage,
     SomeBlockResourcesPage,
     WalletCriteria,
-    WalletService,
-    WalletsPage,
+    WalletResourceProvider,
+    WalletResourcesPage,
 } from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()
 export class DelegatesController extends Controller {
-    @Container.inject(Identifiers.DposDelegateService)
-    private readonly dposDelegateService!: DposService;
+    @Container.inject(Identifiers.BlockResourceDbProvider)
+    private readonly blockResourceDbProvider!: BlockResourceDbProvider;
 
-    @Container.inject(Identifiers.WalletService)
-    private readonly walletService!: WalletService;
+    @Container.inject(Identifiers.WalletResourceProvider)
+    private readonly walletResourceProvider!: WalletResourceProvider;
 
-    @Container.inject(Identifiers.DbBlockResourceService)
-    private readonly blockService!: DbBlockResourceService;
+    @Container.inject(Identifiers.DelegateResourceProvider)
+    private readonly delegateResourceProvider!: DelegateResourceProvider;
 
-    public index(request: Hapi.Request): DposDelegatesPage {
+    public index(request: Hapi.Request): DelegateResourcesPage {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as DposDelegateCriteria;
+        const criteria = this.getCriteria(request) as DelegateCriteria;
 
-        return this.dposDelegateService.getDelegatesPage(pagination, ordering, criteria);
+        return this.delegateResourceProvider.getDelegatesPage(pagination, ordering, criteria);
     }
 
-    public search(request: Hapi.Request): DposDelegatesPage {
+    public search(request: Hapi.Request): DelegateResourcesPage {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = request.payload as DposDelegateCriteria;
+        const criteria = request.payload as DelegateCriteria;
 
-        return this.dposDelegateService.getDelegatesPage(pagination, ordering, criteria);
+        return this.delegateResourceProvider.getDelegatesPage(pagination, ordering, criteria);
     }
 
-    public show(request: Hapi.Request): DposDelegate | Boom {
+    public show(request: Hapi.Request): DelegateResource | Boom {
         const delegateId = request.params.id as string;
-        const delegate = this.dposDelegateService.getDelegate(delegateId);
+        const delegate = this.delegateResourceProvider.getDelegate(delegateId);
 
         if (!delegate) {
             return notFound("Delegate not found");
@@ -55,9 +55,9 @@ export class DelegatesController extends Controller {
         return delegate;
     }
 
-    public voters(request: Hapi.Request): WalletsPage | Boom {
+    public voters(request: Hapi.Request): WalletResourcesPage | Boom {
         const delegateId = request.params.id as string;
-        const delegate = this.dposDelegateService.getDelegate(delegateId);
+        const delegate = this.delegateResourceProvider.getDelegate(delegateId);
 
         if (!delegate) {
             return notFound("Delegate not found");
@@ -67,7 +67,7 @@ export class DelegatesController extends Controller {
         const ordering = this.getOrdering(request);
         const criteria = this.getCriteria(request) as WalletCriteria;
 
-        return this.walletService.getActiveWalletsPage(pagination, ordering, criteria, {
+        return this.walletResourceProvider.getActiveWalletsPage(pagination, ordering, criteria, {
             attributes: {
                 vote: delegate.publicKey,
             },
@@ -76,7 +76,7 @@ export class DelegatesController extends Controller {
 
     public async blocks(request: Hapi.Request): Promise<SomeBlockResourcesPage | Boom> {
         const delegateId = request.params.id as string;
-        const delegate = this.dposDelegateService.getDelegate(delegateId);
+        const delegate = this.delegateResourceProvider.getDelegate(delegateId);
 
         if (!delegate) {
             return notFound("Delegate not found");
@@ -87,7 +87,7 @@ export class DelegatesController extends Controller {
         const transform = request.transform as boolean;
         const criteria = this.getCriteria(request) as BlockCriteria;
 
-        return this.blockService.getBlocksPage(pagination, ordering, transform, criteria, {
+        return this.blockResourceDbProvider.getBlocksPage(pagination, ordering, transform, criteria, {
             generatorPublicKey: delegate.publicKey,
         });
     }

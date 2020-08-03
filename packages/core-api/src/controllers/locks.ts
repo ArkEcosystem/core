@@ -5,42 +5,44 @@ import Hapi from "@hapi/hapi";
 
 import { Identifiers } from "../identifiers";
 import {
-    HtlcLock,
-    HtlcLockCriteria,
-    HtlcLockService,
-    HtlcLocksPage,
+    LockCriteria,
+    LockResource,
+    LockResourceProvider,
+    LockResourcesPage,
     SomeTransactionResourcesPage,
     TransactionCriteria,
-    TransactionService,
+    TransactionResourceDbProvider,
 } from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()
 export class LocksController extends Controller {
-    @Container.inject(Identifiers.HtlcLockService)
-    private readonly htlcService!: HtlcLockService;
+    @Container.inject(Identifiers.TransactionResourceDbProvider)
+    private readonly transactionResourceDbProvider!: TransactionResourceDbProvider;
 
-    @Container.inject(Identifiers.TransactionService)
-    private readonly transactionService!: TransactionService;
+    @Container.inject(Identifiers.LockResourceProvider)
+    private readonly lockResourceProvider!: LockResourceProvider;
 
-    public index(request: Hapi.Request): HtlcLocksPage {
+    public index(request: Hapi.Request): LockResourcesPage {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as HtlcLockCriteria;
+        const criteria = this.getCriteria(request) as LockCriteria;
 
-        return this.htlcService.getLocksPage(pagination, ordering, criteria);
+        return this.lockResourceProvider.getLocksPage(pagination, ordering, criteria);
     }
 
-    public search(request: Hapi.Request): HtlcLocksPage {
+    public search(request: Hapi.Request): LockResourcesPage {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = request.payload as HtlcLockCriteria;
+        const criteria = request.payload as LockCriteria;
 
-        return this.htlcService.getLocksPage(pagination, ordering, criteria);
+        return this.lockResourceProvider.getLocksPage(pagination, ordering, criteria);
     }
 
-    public show(request: Hapi.Request): HtlcLock | Boom {
-        const lock = this.htlcService.getLock(request.params.id);
+    public show(request: Hapi.Request): LockResource | Boom {
+        const lockId = request.params.id as string;
+        const lock = this.lockResourceProvider.getLock(lockId);
+
         if (!lock) {
             return notFound("Lock not found");
         }
@@ -55,7 +57,7 @@ export class LocksController extends Controller {
         const criteria = this.getCriteria(request) as TransactionCriteria;
         const lockIds = request.payload.ids as string[];
 
-        return this.transactionService.getTransactionsPage(pagination, ordering, transform, criteria, [
+        return this.transactionResourceDbProvider.getTransactionsPage(pagination, ordering, transform, criteria, [
             {
                 typeGroup: Enums.TransactionTypeGroup.Core,
                 type: Enums.TransactionType.HtlcClaim,

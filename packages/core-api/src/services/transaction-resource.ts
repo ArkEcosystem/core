@@ -1,6 +1,8 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
+export type PoolTransactionCriteria = Contracts.Search.StandardCriteriaOf<Interfaces.ITransactionData>;
+
 export type TransactionCriteriaItem = {
     address?: string | string[];
     senderId?: string | string[];

@@ -4,7 +4,7 @@ import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import { SomeBlockResource, TransformedBlockResource } from "./block-resource";
 
 @Container.injectable()
-export class StateBlockService {
+export class BlockResourceStateProvider {
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
 

@@ -1,9 +1,9 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 
-import { WalletCriteria, WalletsPage } from "./wallet";
+import { WalletCriteria, WalletResourcesPage } from "./wallet-resource";
 
 @Container.injectable()
-export class WalletService {
+export class WalletResourceProvider {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
@@ -54,7 +54,7 @@ export class WalletService {
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
         ...criterias: WalletCriteria[]
-    ): WalletsPage {
+    ): WalletResourcesPage {
         return AppUtils.Search.getPage(pagination, [ordering, "balance:desc"], this.getWallets(...criterias));
     }
 
@@ -62,7 +62,7 @@ export class WalletService {
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
         ...criterias: WalletCriteria[]
-    ): WalletsPage {
+    ): WalletResourcesPage {
         return AppUtils.Search.getPage(pagination, [ordering, "balance:desc"], this.getActiveWallets(...criterias));
     }
 }

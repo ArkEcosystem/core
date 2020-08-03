@@ -2,11 +2,11 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { Identifiers } from "../identifiers";
-import { HtlcLock, HtlcLockCriteria, HtlcLocksPage } from "./htlc-lock";
-import { WalletService } from "./wallet-service";
+import { LockCriteria, LockResource, LockResourcesPage } from "./lock-resource";
+import { WalletResourceProvider } from "./wallet-resource-provider";
 
 @Container.injectable()
-export class HtlcLockService {
+export class LockResourceProvider {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
@@ -14,10 +14,10 @@ export class HtlcLockService {
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
 
-    @Container.inject(Identifiers.WalletService)
-    private readonly walletService!: WalletService;
+    @Container.inject(Identifiers.WalletResourceProvider)
+    private readonly walletService!: WalletResourceProvider;
 
-    public getLock(lockId: string): HtlcLock | undefined {
+    public getLock(lockId: string): LockResource | undefined {
         if (!this.walletRepository.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
             return undefined;
         }
@@ -27,7 +27,7 @@ export class HtlcLockService {
         return this.getLockResource(wallet, lockId);
     }
 
-    public *getLocks(...criterias: HtlcLockCriteria[]): Iterable<HtlcLock> {
+    public *getLocks(...criterias: LockCriteria[]): Iterable<LockResource> {
         for (const [lockId, wallet] of this.walletRepository.getIndex(Contracts.State.WalletIndexes.Locks).entries()) {
             const lock = this.getLockResource(wallet, lockId);
 
@@ -37,7 +37,7 @@ export class HtlcLockService {
         }
     }
 
-    public *getWalletLocks(walletId: string, ...criterias: HtlcLockCriteria[]): Iterable<HtlcLock> {
+    public *getWalletLocks(walletId: string, ...criterias: LockCriteria[]): Iterable<LockResource> {
         const wallet = this.walletService.getWallet(walletId);
 
         if (!wallet) {
@@ -56,8 +56,8 @@ export class HtlcLockService {
     public getLocksPage(
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
-        ...criterias: HtlcLockCriteria[]
-    ): HtlcLocksPage {
+        ...criterias: LockCriteria[]
+    ): LockResourcesPage {
         ordering = [ordering, "timestamp:desc"];
 
         return AppUtils.Search.getPage(pagination, ordering, this.getLocks(...criterias));
@@ -67,14 +67,14 @@ export class HtlcLockService {
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
         walletId: string,
-        ...criterias: HtlcLockCriteria[]
-    ): HtlcLocksPage {
+        ...criterias: LockCriteria[]
+    ): LockResourcesPage {
         ordering = [ordering, "timestamp:desc"];
 
         return AppUtils.Search.getPage(pagination, ordering, this.getWalletLocks(walletId, ...criterias));
     }
 
-    private getLockResource(wallet: Contracts.State.Wallet, lockId: string): HtlcLock {
+    private getLockResource(wallet: Contracts.State.Wallet, lockId: string): LockResource {
         const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks");
         const walletLock = walletLocks[lockId];
 

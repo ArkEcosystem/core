@@ -4,9 +4,9 @@ import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import { Identifiers } from "../identifiers";
 import { BlockCriteria, SomeBlockResource, SomeBlockResourcesPage, TransformedBlockResource } from "./block-resource";
 import { DbBlockService } from "./db-block-service";
-import { DbTransactionService } from "./db-transaction-service";
+import { DbTransactionProvider } from "./db-transaction-service";
 
-export class DbBlockResourceService {
+export class BlockResourceDbProvider {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
@@ -15,10 +15,10 @@ export class DbBlockResourceService {
     private readonly stateStore!: Contracts.State.StateStore;
 
     @Container.inject(Identifiers.DbBlockService)
-    private readonly dbBlockService!: DbBlockService;
+    private readonly dbBlockProvider!: DbBlockService;
 
     @Container.inject(Identifiers.DbTransactionService)
-    private readonly dbTransactionService!: DbTransactionService;
+    private readonly dbTransactionProvider!: DbTransactionProvider;
 
     public async getBlock(
         transform: boolean,
@@ -26,14 +26,14 @@ export class DbBlockResourceService {
         ...criterias: BlockCriteria[]
     ): Promise<SomeBlockResource | undefined> {
         const dbBlockCriteria = [{ id: blockIdOrHeight }, { height: parseFloat(blockIdOrHeight) }];
-        const dbBlock = await this.dbBlockService.getBlock(dbBlockCriteria, ...criterias);
+        const dbBlock = await this.dbBlockProvider.getBlock(dbBlockCriteria, ...criterias);
 
         if (!dbBlock) {
             return undefined;
         }
 
         if (transform) {
-            const dbBlockTransactions = await this.dbTransactionService.getTransactions("sequence:asc", {
+            const dbBlockTransactions = await this.dbTransactionProvider.getTransactions("sequence:asc", {
                 blockId: dbBlock.id,
             });
 
@@ -53,18 +53,19 @@ export class DbBlockResourceService {
             ordering = "blockHeight:desc";
         }
 
-        const dbBlocksPage = await this.dbBlockService.getBlocksPage(pagination, ordering, ...criterias);
+        const dbBlocksPage = await this.dbBlockProvider.getBlocksPage(pagination, ordering, ...criterias);
 
         if (transform) {
-            const dbBlockTransactions = await this.dbTransactionService.getTransactions("sequence:asc", {
+            const dbBlocksTransactions = await this.dbTransactionProvider.getTransactions("sequence:asc", {
                 blockId: dbBlocksPage.results.map((block) => block.id),
             });
 
-            const transformedBlocks = dbBlocksPage.results.map((block) => {
-                return this.getTransformedBlockResource(
-                    block,
-                    dbBlockTransactions.filter((transaction) => transaction.blockId === block.id),
+            const transformedBlocks = dbBlocksPage.results.map((dbBlock) => {
+                const dbBlockTransactions = dbBlocksTransactions.filter(
+                    (transaction) => transaction.blockId === dbBlock.id,
                 );
+
+                return this.getTransformedBlockResource(dbBlock, dbBlockTransactions);
             });
 
             return { ...dbBlocksPage, results: transformedBlocks };
