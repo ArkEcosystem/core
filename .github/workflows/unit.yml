@@ -32,7 +32,6 @@ jobs:
             - core-webhooks
             - crypto
 
-
         runs-on: ubuntu-latest
 
         strategy:
@@ -488,7 +487,7 @@ jobs:
               run: yarn setup
 
             - name: Test
-              run: yarn test:parallel __tests__/unit/core-p2p/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
+              run: yarn test __tests__/unit/core-p2p/ --coverage --coverageDirectory .coverage/unit/${{ github.job }}
 
             - name: Archive code coverage
               uses: actions/upload-artifact@v2

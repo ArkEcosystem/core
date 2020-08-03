@@ -22,6 +22,9 @@ export class TransactionsController extends Controller {
     @Container.inject(Container.Identifiers.TransactionHistoryService)
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
+    @Container.inject(Container.Identifiers.BlockHistoryService)
+    private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
+
     @Container.inject(Container.Identifiers.TransactionPoolProcessorFactory)
     private readonly createProcessor!: Contracts.TransactionPool.ProcessorFactory;
 
@@ -70,7 +73,18 @@ export class TransactionsController extends Controller {
         if (!transaction) {
             return Boom.notFound("Transaction not found");
         }
-        return this.respondWithResource(transaction, TransactionResource, request.query.transform);
+
+        if (request.query.transform) {
+            const blockData = await this.blockHistoryService.findOneByCriteria({ id: transaction.blockId! });
+
+            return this.respondWithResource(
+                { data: transaction, block: blockData },
+                TransactionWithBlockResource,
+                true,
+            );
+        } else {
+            return this.respondWithResource(transaction, TransactionResource, false);
+        }
     }
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
