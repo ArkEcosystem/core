@@ -8,6 +8,8 @@ import delay from "delay";
 import { cloneDeep } from "lodash";
 import path from "path";
 
+jest.setTimeout(60000);
+
 describe("NetworkMonitor", () => {
     let networkMonitor: NetworkMonitor;
 
