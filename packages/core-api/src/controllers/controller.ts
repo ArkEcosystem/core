@@ -76,12 +76,4 @@ export class Controller {
     protected toCollection<T>(data: T[], transformer, transform = true): object {
         return data.map((item) => this.toResource(item, transformer, transform));
     }
-
-    protected toPagination<T>(data: Contracts.Search.ListResult<T>, transformer, transform = true): object {
-        return {
-            results: this.toCollection(data.rows, transformer, transform),
-            totalCount: data.count,
-            meta: { totalCountIsEstimate: data.countIsEstimate },
-        };
-    }
 }
