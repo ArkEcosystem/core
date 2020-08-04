@@ -1,5 +1,6 @@
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 
 import { Action } from "../contracts";
@@ -23,6 +24,9 @@ export class Initialize implements Action {
 
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly databaseService!: DatabaseService;
+
+    @Container.inject(Container.Identifiers.DatabaseInteraction)
+    private readonly databaseInteraction!: DatabaseInteraction;
 
     public async handle(): Promise<void> {
         try {
@@ -61,7 +65,7 @@ export class Initialize implements Action {
             await this.databaseService.deleteRound(roundInfo.round + 1);
 
             if (this.stateStore.networkStart) {
-                await this.databaseService.restoreCurrentRound(block.data.height);
+                await this.databaseInteraction.restoreCurrentRound(block.data.height);
                 await this.transactionPool.readdTransactions();
                 await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
 
@@ -83,7 +87,7 @@ export class Initialize implements Action {
              ******************************* */
             // Integrity Verification
 
-            await this.databaseService.restoreCurrentRound(block.data.height);
+            await this.databaseInteraction.restoreCurrentRound(block.data.height);
             await this.transactionPool.readdTransactions();
 
             await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();

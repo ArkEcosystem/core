@@ -59,6 +59,7 @@ export const Identifiers = {
     DatabaseTransactionRepository: Symbol.for("Database<TransactionRepository>"),
     DatabaseTransactionFilter: Symbol.for("Database<TransactionFilter>"),
     DatabaseModelConverter: Symbol.for("Database<ModelConverter>"),
+    DatabaseInteraction: Symbol.for("Database<DatabaseInteraction>"),
 
     // Kernel
     ConfigRepository: Symbol.for("Repository<Config>"),
