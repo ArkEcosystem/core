@@ -30,7 +30,6 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 pagination: { enabled: true },
-                wrapdata: { enabled: true },
             },
         },
     });
@@ -46,7 +45,7 @@ export const register = (server: Hapi.Server): void => {
                 }),
             },
             plugins: {
-                wrapdata: { enabled: true },
+                wrapData: { enabled: true },
             },
         },
     });
@@ -69,7 +68,6 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 pagination: { enabled: true },
-                wrapdata: { enabled: true },
             },
         },
     });
@@ -114,7 +112,6 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 pagination: { enabled: true },
-                wrapdata: { enabled: true },
             },
         },
     });
@@ -137,7 +134,6 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 pagination: { enabled: true },
-                wrapdata: { enabled: true },
             },
         },
     });
@@ -160,7 +156,6 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 pagination: { enabled: true },
-                wrapdata: { enabled: true },
             },
         },
     });
@@ -180,7 +175,6 @@ export const register = (server: Hapi.Server): void => {
             },
             plugins: {
                 pagination: { enabled: true },
-                wrapdata: { enabled: true },
             },
         },
     });

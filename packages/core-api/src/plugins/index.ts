@@ -1,6 +1,6 @@
 import { hapiAjv } from "./hapi-ajv";
 import { whitelist } from "./whitelist";
-import { wrapdata } from "./wrapdata";
+import { wrapData } from "./wrap-data";
 
 export const preparePlugins = (config) => [
     {
@@ -19,6 +19,10 @@ export const preparePlugins = (config) => [
         options: config.rateLimit,
     },
     {
+        plugin: wrapData,
+        options: {},
+    },
+    {
         plugin: require("./pagination"),
         options: {
             query: {
@@ -27,9 +31,5 @@ export const preparePlugins = (config) => [
                 },
             },
         },
-    },
-    {
-        plugin: wrapdata,
-        options: {},
     },
 ];
