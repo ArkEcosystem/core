@@ -1,7 +1,9 @@
-import { Identifiers, Server } from "@arkecosystem/core-api";
+import * as CoreApi from "@arkecosystem/core-api";
 import { Providers } from "@arkecosystem/core-kernel";
 
 import Handlers from "./handlers";
+import { Identifiers } from "./identifiers";
+import { EntityResourceProvider } from "./services";
 
 /**
  * @export
@@ -14,9 +16,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        for (const identifier of [Identifiers.HTTP, Identifiers.HTTPS]) {
-            if (this.app.isBound<Server>(identifier)) {
-                await this.app.get<Server>(identifier).register({
+        this.app.bind(Identifiers.EntityResourceProvider).to(EntityResourceProvider);
+
+        for (const identifier of [CoreApi.Identifiers.HTTP, CoreApi.Identifiers.HTTPS]) {
+            if (this.app.isBound<CoreApi.Server>(identifier)) {
+                await this.app.get<CoreApi.Server>(identifier).register({
                     plugin: Handlers,
                     routes: { prefix: "/api" }, // todo: add magistrate prefix?
                 });

@@ -17,14 +17,19 @@ export class LockResourceProvider {
     @Container.inject(Identifiers.WalletResourceProvider)
     private readonly walletService!: WalletResourceProvider;
 
-    public getLock(lockId: string): LockResource | undefined {
+    public getLock(lockId: string, ...criterias: LockCriteria[]): LockResource | undefined {
         if (!this.walletRepository.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
             return undefined;
         }
 
         const wallet = this.walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
+        const lock = this.getLockResource(wallet, lockId);
 
-        return this.getLockResource(wallet, lockId);
+        if (!AppUtils.Search.testCriterias(lock, ...criterias)) {
+            return undefined;
+        }
+
+        return lock;
     }
 
     public *getLocks(...criterias: LockCriteria[]): Iterable<LockResource> {
