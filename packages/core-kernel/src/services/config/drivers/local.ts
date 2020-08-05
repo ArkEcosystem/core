@@ -69,7 +69,9 @@ export class LocalConfigLoader implements ConfigLoader {
             const config: Record<string, Primitive> = dotenv.parseFile(this.app.environmentFile());
 
             for (const [key, value] of Object.entries(config)) {
-                set(process.env, key, value);
+                if (process.env[key] === undefined) {
+                    set(process.env, key, value);
+                }
             }
         } catch (error) {
             throw new EnvironmentConfigurationCannotBeLoaded(error.message);
