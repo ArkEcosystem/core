@@ -1,6 +1,6 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
-import { HtlcLockCriteria, HtlcLock } from "./interfaces";
+import { HtlcLockCriteria, HtlcLock } from "../interfaces";
 
 @Container.injectable()
 export class HtlcLockSearchService {
@@ -48,8 +48,12 @@ export class HtlcLockSearchService {
 
     private *getLocks(...criterias: HtlcLockCriteria[]): Iterable<HtlcLock> {
         for (const [lockId, wallet] of this.walletRepository.getIndex(Contracts.State.WalletIndexes.Locks).entries()) {
-            const lock = this.getLockResource(wallet, lockId);
+            if (!wallet.hasAttribute(`htlc.locks.${lockId}`)) {
+                // todo: fix index, so `htlc.locks.${lockId}` is guaranteed to exist
+                continue;
+            }
 
+            const lock = this.getLockResource(wallet, lockId);
             if (AppUtils.Search.testStandardCriterias(lock, ...criterias)) {
                 yield lock;
             }
@@ -58,7 +62,6 @@ export class HtlcLockSearchService {
 
     private *getWalletLocks(walletId: string, ...criterias: HtlcLockCriteria[]): Iterable<HtlcLock> {
         const wallet = this.walletSearchService.getWallet(walletId);
-
         if (!wallet) {
             throw new Error("Wallet not found");
         }
@@ -76,7 +79,6 @@ export class HtlcLockSearchService {
         const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks");
         const walletLock = walletLocks[lockId];
 
-        // todo: fix index, so walletLocks[lockId] is guaranteed to exist
         AppUtils.assert.defined<Interfaces.IHtlcLock>(walletLock);
         AppUtils.assert.defined<string>(walletLock.recipientId);
         AppUtils.assert.defined<string>(wallet.publicKey);

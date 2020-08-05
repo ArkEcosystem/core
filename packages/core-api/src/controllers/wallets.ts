@@ -207,9 +207,6 @@ export class WalletsController extends Controller {
         if (!wallet) {
             return notFound("Wallet not found");
         }
-        if (!wallet.publicKey) {
-            return AppUtils.Search.getEmptyPage();
-        }
 
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);

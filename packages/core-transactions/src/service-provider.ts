@@ -4,8 +4,7 @@ import { One, Two } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
 import { Identifiers } from "./identifiers";
-import { DelegateSearchService } from "./delegate-search-service";
-import { HtlcLockSearchService } from "./htlc-lock-search-service";
+import { DelegateSearchService, HtlcLockSearchService } from "./services";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     /**

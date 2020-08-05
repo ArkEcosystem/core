@@ -1,6 +1,6 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 
-import { Entity, EntityCriteria, IEntitiesWallet, IEntityWallet } from "./interfaces";
+import { Entity, EntityCriteria, IEntitiesWallet, IEntityWallet } from "../interfaces";
 
 @Container.injectable()
 export class EntitySearchService {
@@ -49,10 +49,15 @@ export class EntitySearchService {
 
     private *getEntities(...criterias: EntityCriteria[]): Iterable<Entity> {
         for (const [entityId, wallet] of this.walletRepository.getIndex("entities").entries()) {
-            const lock = this.getEntityResource(wallet, entityId);
+            if (!wallet.hasAttribute(`entities.${entityId}`)) {
+                // todo: fix index, so `entities.${entityId}` is guaranteed to exist
+                continue;
+            }
 
-            if (AppUtils.Search.testStandardCriterias(lock, ...criterias)) {
-                yield lock;
+            const entity = this.getEntityResource(wallet, entityId);
+
+            if (AppUtils.Search.testStandardCriterias(entity, ...criterias)) {
+                yield entity;
             }
         }
     }

@@ -7,9 +7,11 @@ import {
     BusinessRegistrationTransactionHandler,
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
+    EntityTransactionHandler,
 } from "./handlers";
-import { EntityTransactionHandler } from "./handlers/entity";
 import { bridgechainIndexer, businessIndexer, entityIndexer, MagistrateIndex } from "./wallet-indexes";
+import { Identifiers } from "./identifiers";
+import { EntitySearchService } from "./services";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -36,5 +38,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
             .toConstantValue({ name: MagistrateIndex.Entities, indexer: entityIndexer });
+
+        this.app.bind(Identifiers.EntitySearchService).to(EntitySearchService);
     }
 }

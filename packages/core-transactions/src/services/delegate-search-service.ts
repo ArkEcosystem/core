@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils as AppUtils, Utils } from "@arkecosystem/core-kernel";
-import { DelegateCriteria, Delegate, DelegateLastBlock } from "./interfaces";
+import { DelegateCriteria, Delegate, DelegateLastBlock } from "../interfaces";
 
 @Container.injectable()
 export class DelegateSearchService {
@@ -12,13 +12,11 @@ export class DelegateSearchService {
 
     public getDelegate(delegateId: string, ...criterias: DelegateCriteria[]): Delegate | undefined {
         const wallet = this.walletSearchService.getWallet(delegateId, { attributes: { delegate: {} } });
-
         if (!wallet) {
             return undefined;
         }
 
         const delegate = this.getDelegateResource(wallet);
-
         if (!AppUtils.Search.testStandardCriterias(delegate, ...criterias)) {
             return undefined;
         }
