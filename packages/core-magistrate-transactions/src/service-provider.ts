@@ -9,9 +9,9 @@ import {
     BusinessUpdateTransactionHandler,
     EntityTransactionHandler,
 } from "./handlers";
-import { bridgechainIndexer, businessIndexer, entityIndexer, MagistrateIndex } from "./wallet-indexes";
 import { Identifiers } from "./identifiers";
 import { EntitySearchService } from "./services";
+import { bridgechainIndexer, businessIndexer, entityIndexer, MagistrateIndex } from "./wallet-indexes";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {

@@ -1,8 +1,8 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import * as Transactions from "@arkecosystem/core-transactions";
 import { Enums } from "@arkecosystem/crypto";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
-import * as Transactions from "@arkecosystem/core-transactions";
 
 import { TransactionResource, TransactionWithBlockResource } from "../resources";
 import { Controller } from "./controller";
@@ -37,7 +37,7 @@ export class WalletsController extends Controller {
     public search(request: Hapi.Request): Contracts.Search.Page<Contracts.State.Wallet> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as Contracts.State.WalletCriteria;
+        const criteria = request.payload as Contracts.State.WalletCriteria;
 
         return this.walletSearchService.getWalletsPage(pagination, ordering, criteria);
     }

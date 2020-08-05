@@ -1,6 +1,7 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
-import { HtlcLockCriteria, HtlcLock } from "../interfaces";
+
+import { HtlcLock, HtlcLockCriteria } from "../interfaces";
 
 @Container.injectable()
 export class HtlcLockSearchService {

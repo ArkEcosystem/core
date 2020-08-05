@@ -1,8 +1,8 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import * as Transactions from "@arkecosystem/core-transactions";
 import { Enums } from "@arkecosystem/crypto";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
-import * as Transactions from "@arkecosystem/core-transactions";
 
 import { BlockResource, BlockWithTransactionsResource } from "../resources";
 import { Controller } from "./controller";
@@ -29,7 +29,7 @@ export class DelegatesController extends Controller {
     public search(request: Hapi.Request): Contracts.Search.Page<Transactions.Delegate> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = request.payload;
+        const criteria = request.payload as Transactions.DelegateCriteria;
 
         return this.delegateSearchService.getDelegatesPage(pagination, ordering, criteria);
     }

@@ -1,5 +1,6 @@
 import { Container, Contracts, Utils as AppUtils, Utils } from "@arkecosystem/core-kernel";
-import { DelegateCriteria, Delegate, DelegateLastBlock } from "../interfaces";
+
+import { Delegate, DelegateCriteria, DelegateLastBlock } from "../interfaces";
 
 @Container.injectable()
 export class DelegateSearchService {
