@@ -12,7 +12,7 @@ export class WalletSearchService {
     ): Contracts.State.Wallet | undefined {
         let wallet: Contracts.State.Wallet | undefined;
 
-        if (!wallet && this.walletRepository.hasByAddress(walletId)) {
+        if (this.walletRepository.hasByAddress(walletId)) {
             wallet = this.walletRepository.findByAddress(walletId);
         }
 
