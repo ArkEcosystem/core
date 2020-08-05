@@ -1,3 +1,4 @@
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces } from "@arkecosystem/core-magistrate-crypto";
 
 export interface IBusinessWalletAttributes {
@@ -21,3 +22,15 @@ export interface IEntityWallet {
 export interface IEntitiesWallet {
     [registrationId: string]: IEntityWallet;
 }
+
+export type EntityCriteria = Contracts.Search.StandardCriteriaOf<Entity>;
+
+export type Entity = {
+    id: string;
+    publicKey: string;
+    address: string;
+    isResigned: boolean;
+    type: Enums.EntityType;
+    subType: Enums.EntitySubType;
+    data: Interfaces.IEntityAssetData;
+};

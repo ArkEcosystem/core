@@ -1,4 +1,5 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { set } from "@arkecosystem/utils";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -12,6 +13,44 @@ export class Controller {
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-api")
     protected readonly apiConfiguration!: Providers.PluginConfiguration;
+
+    protected getPagination(request: Hapi.Request): Contracts.Search.Pagination {
+        const pagination = {
+            offset: (request.query.page - 1) * request.query.limit || 0,
+            limit: request.query.limit || 100,
+        };
+
+        if (request.query.offset) {
+            pagination.offset = request.query.offset;
+        }
+
+        return pagination;
+    }
+
+    protected getOrdering(request: Hapi.Request): Contracts.Search.Ordering {
+        if (request.query.orderBy) {
+            return request.query.orderBy.split(",");
+        } else {
+            return [];
+        }
+    }
+
+    protected getCriteria(
+        request: Hapi.Request,
+        excludes = ["page", "limit", "offset", "orderBy", "transform"],
+    ): unknown {
+        const query = {};
+
+        for (const [key, value] of Object.entries(request.query)) {
+            if (excludes.includes(key)) {
+                continue;
+            }
+
+            set(query, key, value);
+        }
+
+        return query;
+    }
 
     protected getListingPage(request: Hapi.Request): Contracts.Search.ListPage {
         const pagination = {

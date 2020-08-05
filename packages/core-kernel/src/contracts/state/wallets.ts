@@ -1,8 +1,18 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { ListResult } from "../search";
+import { Ordering, Page, Pagination, StandardCriteriaOf } from "../search";
 
 // todo: review all interfaces in here and document them properly. Remove ones that are no longer needed.
+
+export type WalletCriteria = StandardCriteriaOf<Wallet>;
+
+export interface WalletSearchService {
+    getWallet(walletId: string, ...criterias: WalletCriteria[]): Wallet | undefined;
+
+    getWalletsPage(pagination: Pagination, ordering: Ordering, ...criterias: WalletCriteria[]): Page<Wallet>;
+
+    getActiveWalletsPage(pagination: Pagination, ordering: Ordering, ...criterias: WalletCriteria[]): Page<Wallet>;
+}
 
 export interface WalletIndex {
     readonly indexer: WalletIndexer;
@@ -59,9 +69,10 @@ export interface Wallet {
     nonce: Utils.BigNumber;
 
     /**
+     * @type {object}
      * @memberof Wallet
      */
-    getAttributes();
+    attributes: object;
 
     /**
      * @template T
@@ -178,7 +189,7 @@ export interface WalletRepository {
 
     getNonce(publicKey: string): Utils.BigNumber;
 
-    index(wallets: Wallet | ReadonlyArray<Wallet>): void;
+    index(wallet: Wallet): void;
 
     forgetByAddress(address: string): void;
 
@@ -193,14 +204,6 @@ export interface WalletRepository {
     hasByPublicKey(publicKey: string): boolean;
 
     hasByUsername(username: string): boolean;
-
-    search<T>(scope: SearchScope, params: any): ListResult<T>;
-
-    findByScope(searchScope: SearchScope, id: string): Wallet;
-
-    count(searchScope: SearchScope): number;
-
-    top(searchScope: SearchScope, params?: Record<string, any>): ListResult<Wallet>;
 }
 
 export enum SearchScope {

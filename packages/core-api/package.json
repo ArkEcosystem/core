@@ -24,8 +24,10 @@
     "dependencies": {
         "@arkecosystem/core-database": "^3.0.0-alpha.0",
         "@arkecosystem/core-kernel": "^3.0.0-alpha.0",
+        "@arkecosystem/core-transactions": "^3.0.0-alpha.0",
         "@arkecosystem/core-transaction-pool": "^3.0.0-alpha.0",
         "@arkecosystem/crypto": "^3.0.0-alpha.0",
+        "@arkecosystem/utils": "^1.1.7",
         "@hapi/boom": "^9.0.0",
         "@hapi/hapi": "^19.0.0",
         "@hapi/joi": "^17.1.0",
