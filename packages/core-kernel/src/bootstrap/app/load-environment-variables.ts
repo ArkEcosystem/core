@@ -1,4 +1,4 @@
-import { Application } from "../../contracts/kernel";
+import { Application, Logger } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { ConfigManager, ConfigRepository } from "../../services/config";
 import { Bootstrapper } from "../interfaces";
@@ -27,9 +27,13 @@ export class LoadEnvironmentVariables implements Bootstrapper {
     public async bootstrap(): Promise<void> {
         const configRepository: ConfigRepository = this.app.get<ConfigRepository>(Identifiers.ConfigRepository);
 
-        await this.app
-            .get<ConfigManager>(Identifiers.ConfigManager)
-            .driver(configRepository.get<string>("configLoader", "local"))
-            .loadEnvironmentVariables();
+        try {
+            await this.app
+                .get<ConfigManager>(Identifiers.ConfigManager)
+                .driver(configRepository.get<string>("configLoader", "local"))
+                .loadEnvironmentVariables();
+        } catch (error) {
+            this.app.get<Logger>(Identifiers.LogService).alert(error.message);
+        }
     }
 }
