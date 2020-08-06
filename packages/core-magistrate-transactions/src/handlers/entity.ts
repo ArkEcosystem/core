@@ -14,7 +14,6 @@ import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto"
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { EntityWrongSubTypeError, StaticFeeMismatchError } from "../errors";
 import { EntityRegisterSubHandler, EntityResignSubHandler, EntityUpdateSubHandler } from "./entity-subhandlers";
-import { BridgechainSubHandlers } from "./entity-subhandlers/bridgechain";
 import { BusinessSubHandlers } from "./entity-subhandlers/business";
 import { DelegateSubHandlers } from "./entity-subhandlers/delegate";
 import { DeveloperSubHandlers } from "./entity-subhandlers/developer";
@@ -28,9 +27,6 @@ interface ISubHandlers {
 }
 interface IHandlers {
     [Enums.EntityType.Business]: {
-        [Enums.EntitySubType.None]: ISubHandlers;
-    };
-    [Enums.EntityType.Bridgechain]: {
         [Enums.EntitySubType.None]: ISubHandlers;
     };
     [Enums.EntityType.Developer]: {
@@ -200,13 +196,6 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
                     [Enums.EntityAction.Register]: new BusinessSubHandlers.BusinessRegisterSubHandler(),
                     [Enums.EntityAction.Resign]: new BusinessSubHandlers.BusinessResignSubHandler(),
                     [Enums.EntityAction.Update]: new BusinessSubHandlers.BusinessUpdateSubHandler(),
-                },
-            },
-            [Enums.EntityType.Bridgechain]: {
-                [Enums.EntitySubType.None]: {
-                    [Enums.EntityAction.Register]: new BridgechainSubHandlers.BridgechainRegisterSubHandler(),
-                    [Enums.EntityAction.Resign]: new BridgechainSubHandlers.BridgechainResignSubHandler(),
-                    [Enums.EntityAction.Update]: new BridgechainSubHandlers.BridgechainUpdateSubHandler(),
                 },
             },
             [Enums.EntityType.Developer]: {

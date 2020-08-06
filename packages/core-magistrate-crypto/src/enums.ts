@@ -22,7 +22,7 @@ export enum MagistrateTransactionStaticFees {
 
 export enum EntityType {
     Business = 0,
-    Bridgechain = 1,
+    Bridgechain = 1, // not used anymore but type is kept in enum
     Developer = 2,
     Plugin = 3,
     Delegate = 4,
