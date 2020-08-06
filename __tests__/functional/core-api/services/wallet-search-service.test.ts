@@ -1,47 +1,17 @@
 import { WalletSearchService } from "@arkecosystem/core-api";
-import { Application, Container, Contracts, Services } from "@arkecosystem/core-kernel";
-import { ServiceProvider as StateServiceProvider } from "@arkecosystem/core-state";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
-const jestfn = <T extends (...args: unknown[]) => unknown>(
-    implementation?: (...args: Parameters<T>) => ReturnType<T>,
-) => {
-    return jest.fn(implementation);
-};
+import { setUp } from "./__support__/setup";
 
-const triggerService = {
-    bind: jestfn<Services.Triggers.Triggers["bind"]>(),
-};
-
-const walletAttributes = {
-    has: jestfn<Services.Attributes.AttributeSet["has"]>(),
-};
-
-let app: Application;
 let walletRepository: Contracts.State.WalletRepository;
 let walletSearchService: WalletSearchService;
 
 beforeEach(async () => {
-    triggerService.bind.mockReset();
-    walletAttributes.has.mockReset();
-    walletAttributes.has.mockImplementation((attribute: string) => {
-        return ["delegate.username", "delegate.resigned", "delegate", "htlc.locks", "ipfs.hashes"].includes(attribute);
-    });
+    const env = await setUp();
 
-    app = new Application(new Container.Container());
-
-    app.bind(Container.Identifiers.TriggerService).toConstantValue(triggerService);
-    app.bind(Container.Identifiers.WalletAttributes).toConstantValue(walletAttributes);
-
-    await app.resolve<StateServiceProvider>(StateServiceProvider).register();
-
-    walletRepository = app.getTagged<Contracts.State.WalletRepository>(
-        Container.Identifiers.WalletRepository,
-        "state",
-        "blockchain",
-    );
-
-    walletSearchService = app.resolve(WalletSearchService);
+    walletRepository = env.walletRepository;
+    walletSearchService = env.walletSearchService;
 });
 
 describe("WalletSearchService.getWalletResourceFromWallet", () => {
