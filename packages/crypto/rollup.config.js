@@ -51,36 +51,8 @@ const moduleConfig = {
     external: allModules,
 };
 
-/** Remove Node's builtin packages and optimize to run in modern browsers */
-const browserConfig = {
-    input: "src/index.ts",
-    output: [
-        {
-            file: pkg.browser,
-            format: "esm",
-        },
-    ],
-    plugins: [
-        json(),
-        resolve({ preferBuiltins: false, browser: true }),
-        commonjs({ include: /node_modules/ }),
-        ts({
-            transpiler: "babel",
-            transpileOnly: true,
-            tsconfig: {
-                declaration: false,
-            },
-            babelConfig: {
-                presets: [["@babel/preset-env", { loose: false, modules: false, targets: { esmodules: true } }]],
-            },
-        }),
-        ...polyfillsPlugins,
-    ],
-    external: dependencies,
-};
-
 /** Full version with all polyfills and dependencies attached to the file */
-const unpkgConfig = {
+const browserConfig = {
     input: "src/index.ts",
     output: [
         {
@@ -91,7 +63,7 @@ const unpkgConfig = {
             ]
         },
         {
-            file: pkg.unpkg.replace(".min", ""),
+            file: pkg.browser,
             format: "esm",
         },
     ],
@@ -144,4 +116,4 @@ const umdConfig = {
     ],
 };
 
-export default [moduleConfig, browserConfig, unpkgConfig, umdConfig];
+export default [moduleConfig, browserConfig, umdConfig];

@@ -16,6 +16,8 @@ import { NetworkState } from "./network-state";
 import { RateLimiter } from "./rate-limiter";
 import { buildRateLimiter, checkDNS, checkNTP } from "./utils";
 
+const defaultDownloadChunkSize = 400;
+
 export class NetworkMonitor implements P2P.INetworkMonitor {
     public server: SocketCluster;
     public config: any;
@@ -34,6 +36,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
      * At 400 blocks per chunk, 100 chunks would amount to 40k blocks.
      */
     private downloadedChunksCacheMax: number = 100;
+
+    private downloadChunkSize: number = defaultDownloadChunkSize;
 
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
@@ -344,12 +348,11 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         }
 
         const networkHeight: number = this.getNetworkHeight();
-        const chunkSize: number = 400;
         let chunksMissingToSync: number;
         if (!networkHeight || networkHeight <= fromBlockHeight) {
             chunksMissingToSync = 1;
         } else {
-            chunksMissingToSync = Math.ceil((networkHeight - fromBlockHeight) / chunkSize);
+            chunksMissingToSync = Math.ceil((networkHeight - fromBlockHeight) / this.downloadChunkSize);
         }
         const chunksToDownload: number = Math.min(chunksMissingToSync, peersNotForked.length, maxParallelDownloads);
 
@@ -362,9 +365,9 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         let chunksHumanReadable: string = "";
 
         for (let i = 0; i < chunksToDownload; i++) {
-            const height: number = fromBlockHeight + chunkSize * i;
+            const height: number = fromBlockHeight + this.downloadChunkSize * i;
             const isLastChunk: boolean = i === chunksToDownload - 1;
-            const blocksRange: string = `[${height + 1}, ${isLastChunk ? ".." : height + chunkSize}]`;
+            const blocksRange: string = `[${height + 1}, ${isLastChunk ? ".." : height + this.downloadChunkSize}]`;
 
             downloadJobs.push(async () => {
                 if (this.downloadedChunksCache[height] !== undefined) {
@@ -388,9 +391,12 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                 for (peer of peersToTry) {
                     peerPrint = `${peer.ip}:${peer.port}`;
                     try {
-                        blocks = await this.communicator.getPeerBlocks(peer, { fromBlockHeight: height });
+                        blocks = await this.communicator.getPeerBlocks(peer, {
+                            fromBlockHeight: height,
+                            blockLimit: this.downloadChunkSize,
+                        });
 
-                        if (blocks.length === chunkSize || (isLastChunk && blocks.length > 0)) {
+                        if (blocks.length === this.downloadChunkSize || (isLastChunk && blocks.length > 0)) {
                             this.logger.debug(
                                 `Downloaded blocks ${blocksRange} (${blocks.length}) ` + `from ${peerPrint}`,
                             );
@@ -457,9 +463,13 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                 downloadResults[i] !== undefined &&
                 Object.keys(this.downloadedChunksCache).length <= this.downloadedChunksCacheMax
             ) {
-                this.downloadedChunksCache[fromBlockHeight + chunkSize * i] = downloadResults[i];
+                this.downloadedChunksCache[fromBlockHeight + this.downloadChunkSize * i] = downloadResults[i];
             }
         }
+
+        // if we did not manage to download any block, reduce chunk size for next time
+        this.downloadChunkSize =
+            downloadedBlocks.length === 0 ? Math.ceil(this.downloadChunkSize / 10) : defaultDownloadChunkSize;
 
         return downloadedBlocks;
     }

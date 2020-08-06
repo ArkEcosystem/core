@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { httpie } from "@arkecosystem/core-utils";
-import { Blocks, Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import delay from "delay";
 import { SCClientSocket } from "socketcluster-client";
@@ -99,37 +99,15 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     public async pingPorts(peer: P2P.IPeer): Promise<void> {
         Promise.all(
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
+                peer.ports[name] = -1;
                 try {
-                    let valid: boolean = false;
+                    const { status } = await httpie.head(`http://${peer.ip}:${plugin.port}/`);
 
-                    const peerHostPort = `${peer.ip}:${plugin.port}`;
-
-                    if (name.includes("core-api") || name.includes("core-wallet-api")) {
-                        const { body, status } = await httpie.get(`http://${peerHostPort}/api/node/configuration`);
-
-                        if (status === 200) {
-                            const ourNethash = Managers.configManager.get("network.nethash");
-                            const hisNethash = body.data.nethash;
-                            if (ourNethash === hisNethash) {
-                                valid = true;
-                            } else {
-                                this.logger.warn(
-                                    `Disconnecting from ${peerHostPort}: ` +
-                                        `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
-                                );
-                                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
-                            }
-                        }
-                    } else {
-                        const { status } = await httpie.get(`http://${peerHostPort}/`);
-                        valid = status === 200;
-                    }
-
-                    if (valid) {
+                    if (status === 200) {
                         peer.ports[name] = plugin.port;
                     }
-                } catch (error) {
-                    peer.ports[name] = -1;
+                } catch {
+                    // tslint:disable-next-line: no-empty
                 }
             }),
         );
@@ -198,6 +176,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             },
             app.resolveOptions("p2p").getBlocksTimeout,
             maxPayload,
+            false,
         );
 
         if (!peerBlocks) {
@@ -247,7 +226,14 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return true;
     }
 
-    private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number, maxPayload?: number) {
+    private async emit(
+        peer: P2P.IPeer,
+        event: string,
+        data?: any,
+        timeout?: number,
+        maxPayload?: number,
+        disconnectOnError: boolean = true,
+    ) {
         await this.throttle(peer, event);
 
         let response;
@@ -276,7 +262,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 throw new Error(`Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.data)}`);
             }
         } catch (e) {
-            this.handleSocketError(peer, event, e);
+            this.handleSocketError(peer, event, e, disconnectOnError);
             return undefined;
         }
 
@@ -293,7 +279,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
     }
 
-    private handleSocketError(peer: P2P.IPeer, event: string, error: Error): void {
+    private handleSocketError(peer: P2P.IPeer, event: string, error: Error, disconnect: boolean = true): void {
         if (!error.name) {
             return;
         }
@@ -313,7 +299,9 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 }
-                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                if (disconnect) {
+                    this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                }
         }
     }
 }

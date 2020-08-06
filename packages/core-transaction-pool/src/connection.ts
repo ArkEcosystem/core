@@ -235,7 +235,7 @@ export class Connection implements TransactionPool.IConnection {
                     );
                     await transactionHandler.applyToSender(transaction, this.walletManager);
                 } catch (error) {
-                    this.walletManager.forget(data.senderPublicKey);
+                    this.purgeByPublicKey(data.senderPublicKey); // reset sender tx pool and wallet as it can be outdated
 
                     if (recipientWallet) {
                         recipientWallet.publicKey
@@ -386,7 +386,7 @@ export class Connection implements TransactionPool.IConnection {
         let i = 0;
         // Copy the returned array because validateTransactions() in the loop body we may remove entries.
         const allTransactions: Interfaces.ITransaction[] = [
-            ...this.memory.sortedByFee(start + size), // fetch only what we need
+            ...this.memory.sortedByFee(start + size * 10), // fetch 10 * the size requested because we may remove invalid txs
         ];
         for (const transaction of allTransactions) {
             if (data.length === size) {
