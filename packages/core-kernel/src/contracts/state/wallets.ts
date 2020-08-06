@@ -1,18 +1,6 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { Ordering, Page, Pagination, StandardCriteriaOf } from "../search";
-
 // todo: review all interfaces in here and document them properly. Remove ones that are no longer needed.
-
-export type WalletCriteria = StandardCriteriaOf<Wallet>;
-
-export interface WalletSearchService {
-    getWallet(walletId: string, ...criterias: WalletCriteria[]): Wallet | undefined;
-
-    getWalletsPage(pagination: Pagination, ordering: Ordering, ...criterias: WalletCriteria[]): Page<Wallet>;
-
-    getActiveWalletsPage(pagination: Pagination, ordering: Ordering, ...criterias: WalletCriteria[]): Page<Wallet>;
-}
 
 export interface WalletIndex {
     readonly indexer: WalletIndexer;
@@ -69,10 +57,10 @@ export interface Wallet {
     nonce: Utils.BigNumber;
 
     /**
-     * @type {object}
+     * @returns {object}
      * @memberof Wallet
      */
-    attributes: object;
+    getAttributes(): object;
 
     /**
      * @template T

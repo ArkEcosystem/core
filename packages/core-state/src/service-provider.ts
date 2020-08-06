@@ -9,7 +9,7 @@ import { BlockStore } from "./stores/blocks";
 import { StateStore } from "./stores/state";
 import { TransactionStore } from "./stores/transactions";
 import { TransactionValidator } from "./transaction-validator";
-import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite, WalletSearchService } from "./wallets";
+import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "./wallets";
 import { registerFactories, registerIndexers } from "./wallets/indexers";
 
 export const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
@@ -63,8 +63,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind(Container.Identifiers.TransactionValidatorFactory)
             .toAutoFactory(Container.Identifiers.TransactionValidator);
-
-        this.app.bind(Container.Identifiers.WalletSearchService).to(WalletSearchService);
 
         this.registerActions();
     }

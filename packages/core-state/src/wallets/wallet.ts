@@ -35,15 +35,15 @@ export class Wallet implements Contracts.State.Wallet {
      */
     public constructor(
         public readonly address: string,
-        protected readonly attributeMap: Services.Attributes.AttributeMap,
+        protected readonly attributes: Services.Attributes.AttributeMap,
     ) {}
 
     /**
-     * @returns
+     * @returns {object}
      * @memberof Wallet
      */
-    public get attributes(): object {
-        return this.attributeMap.all();
+    public getAttributes(): object {
+        return this.attributes.all();
     }
 
     /**
@@ -54,7 +54,7 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public getAttribute<T>(key: string, defaultValue?: T): T {
-        return this.attributeMap.get<T>(key, defaultValue);
+        return this.attributes.get<T>(key, defaultValue);
     }
 
     /**
@@ -65,7 +65,7 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public setAttribute<T = any>(key: string, value: T): boolean {
-        return this.attributeMap.set<T>(key, value);
+        return this.attributes.set<T>(key, value);
     }
 
     /**
@@ -74,7 +74,7 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public forgetAttribute(key: string): boolean {
-        return this.attributeMap.forget(key);
+        return this.attributes.forget(key);
     }
 
     /**
@@ -83,7 +83,7 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public hasAttribute(key: string): boolean {
-        return this.attributeMap.has(key);
+        return this.attributes.has(key);
     }
 
     /**

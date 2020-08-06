@@ -3,8 +3,6 @@ import { Container, Providers, Services } from "@arkecosystem/core-kernel";
 import { One, Two } from "./handlers";
 import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
-import { Identifiers } from "./identifiers";
-import { DelegateSearchService, HtlcLockSearchService } from "./services";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     /**
@@ -45,9 +43,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
 
         this.app.bind(Container.Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry);
-
-        this.app.bind(Identifiers.DelegateSearchService).to(DelegateSearchService);
-        this.app.bind(Identifiers.HtlcLockSearchService).to(HtlcLockSearchService);
     }
 
     /**

@@ -8,9 +8,9 @@ export class WatcherWallet extends Wallets.Wallet {
     public constructor(
         private readonly events: Contracts.Kernel.EventDispatcher,
         address: string,
-        attributeMap: Services.Attributes.AttributeMap,
+        attributes: Services.Attributes.AttributeMap,
     ) {
-        super(address, attributeMap);
+        super(address, attributes);
 
         const handler: ProxyHandler<WatcherWallet> = {
             set: (target, key, value) => {
@@ -60,7 +60,7 @@ export class WatcherWallet extends Wallets.Wallet {
     }
 
     public clone(): WatcherWallet {
-        const clone = new WatcherWallet(this.events, this.address, cloneDeep(this.attributeMap));
+        const clone = new WatcherWallet(this.events, this.address, cloneDeep(this.attributes));
 
         for (const key of Object.keys(this)) {
             if (key === "events") {

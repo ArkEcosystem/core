@@ -76,7 +76,6 @@ export const Identifiers = {
     WalletRepositoryIndexerIndex: Symbol.for("IndexerIndex<Repository<Wallet>>"),
     TransactionValidator: Symbol.for("State<TransactionValidator>"),
     TransactionValidatorFactory: Symbol.for("State<TransactionValidatorFactory>"),
-    WalletSearchService: Symbol.for("State<WalletSearchService>"),
 
     // Derived states
     DposState: Symbol.for("State<DposState>"),

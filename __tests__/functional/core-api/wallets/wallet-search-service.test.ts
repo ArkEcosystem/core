@@ -1,5 +1,6 @@
+import { WalletSearchService } from "@arkecosystem/core-api";
 import { Application, Container, Contracts, Services } from "@arkecosystem/core-kernel";
-import * as State from "@arkecosystem/core-state";
+import { ServiceProvider as StateServiceProvider } from "@arkecosystem/core-state";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
 const jestfn = <T extends (...args: unknown[]) => unknown>(
@@ -18,7 +19,7 @@ const walletAttributes = {
 
 let app: Application;
 let walletRepository: Contracts.State.WalletRepository;
-let walletSearchService: Contracts.State.WalletSearchService;
+let walletSearchService: WalletSearchService;
 
 beforeEach(async () => {
     triggerService.bind.mockReset();
@@ -30,7 +31,7 @@ beforeEach(async () => {
     app.bind(Container.Identifiers.TriggerService).toConstantValue(triggerService);
     app.bind(Container.Identifiers.WalletAttributes).toConstantValue(walletAttributes);
 
-    await app.resolve<State.ServiceProvider>(State.ServiceProvider).register();
+    await app.resolve<StateServiceProvider>(StateServiceProvider).register();
 
     walletRepository = app.getTagged<Contracts.State.WalletRepository>(
         Container.Identifiers.WalletRepository,
@@ -38,69 +39,76 @@ beforeEach(async () => {
         "blockchain",
     );
 
-    walletSearchService = app.get<Contracts.State.WalletSearchService>(Container.Identifiers.WalletSearchService);
+    walletSearchService = app.resolve(WalletSearchService);
 });
 
 describe("WalletSearchService.getWallet", () => {
     it("should get wallet by address", async () => {
         const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
-        const actualWallet = walletSearchService.getWallet(wallet.address);
+        const walletResource = walletSearchService.getWallet(wallet.address);
 
-        expect(actualWallet).toBe(wallet);
+        expect(walletResource.address).toEqual(wallet.address);
     });
 
     it("should not get wallet by address", async () => {
         walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
-        const actualWallet = walletSearchService.getWallet("not really an address");
+        const walletResource = walletSearchService.getWallet("not really an address");
 
-        expect(actualWallet).toBe(undefined);
+        expect(walletResource).toBe(undefined);
+    });
+
+    it("should get wallet by publicKey", async () => {
+        const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
+        const walletResource = walletSearchService.getWallet(Identities.PublicKey.fromPassphrase("secret"));
+
+        expect(walletResource.address).toBe(wallet.address);
     });
 
     it("should not get wallet by publicKey", async () => {
         walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
-        const actualWallet = walletSearchService.getWallet(Identities.PublicKey.fromPassphrase("other secret"));
+        const walletResource = walletSearchService.getWallet(Identities.PublicKey.fromPassphrase("other secret"));
 
-        expect(actualWallet).toBe(undefined);
+        expect(walletResource).toBe(undefined);
     });
 
     it("should get wallet by username", async () => {
         const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
         wallet.setAttribute<string>("delegate.username", "test_username");
         walletRepository.index(wallet);
-        const actualWallet = walletSearchService.getWallet("test_username");
+        const walletResource = walletSearchService.getWallet("test_username");
 
-        expect(actualWallet).toBe(wallet);
+        expect(walletResource.address).toBe(wallet.address);
     });
 
     it("should not get wallet by username", async () => {
         const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
         wallet.setAttribute<string>("delegate.username", "test_username");
         walletRepository.index(wallet);
-        const actualWallet = walletSearchService.getWallet("test_username_2");
+        const walletResource = walletSearchService.getWallet("test_username_2");
 
-        expect(actualWallet).toBe(undefined);
+        expect(walletResource).toBe(undefined);
     });
 
     it("should get wallet with additional filter", () => {
         const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
         wallet.setAttribute<string>("delegate.username", "test_username");
         walletRepository.index(wallet);
-        const actualWallet = walletSearchService.getWallet(wallet.address, {
+        const walletResource = walletSearchService.getWallet(wallet.address, {
             attributes: { delegate: { username: "test_username" } },
         });
 
-        expect(actualWallet).toBe(wallet);
+        expect(walletResource.address).toBe(wallet.address);
     });
 
     it("should not get wallet with additional filter", () => {
         const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
         wallet.setAttribute<string>("delegate.username", "test_username");
         walletRepository.index(wallet);
-        const actualWallet = walletSearchService.getWallet(wallet.address, {
+        const walletResource = walletSearchService.getWallet(wallet.address, {
             attributes: { delegate: { username: "test_username_2" } },
         });
 
-        expect(actualWallet).toBe(undefined);
+        expect(walletResource).toBe(undefined);
     });
 });
 
@@ -120,11 +128,11 @@ describe("WalletSearchService.getWalletsPage", () => {
 
         const page = walletSearchService.getWalletsPage({ limit: 3, offset: 0 }, []);
 
-        expect(page).toEqual({
-            results: [wallet3, wallet2, wallet1],
-            totalCount: 5,
-            meta: { totalCountIsEstimate: false },
-        });
+        expect(page.results.length).toBe(3);
+        expect(page.results[0].address).toBe(wallet3.address);
+        expect(page.results[1].address).toBe(wallet2.address);
+        expect(page.results[2].address).toBe(wallet1.address);
+        expect(page.totalCount).toBe(5);
     });
 
     it("should get last two wallets sorted by balance:desc", () => {
@@ -142,11 +150,10 @@ describe("WalletSearchService.getWalletsPage", () => {
 
         const page = walletSearchService.getWalletsPage({ limit: 3, offset: 3 }, []);
 
-        expect(page).toEqual({
-            results: [wallet5, wallet4],
-            totalCount: 5,
-            meta: { totalCountIsEstimate: false },
-        });
+        expect(page.results.length).toBe(2);
+        expect(page.results[0].address).toBe(wallet5.address);
+        expect(page.results[1].address).toBe(wallet4.address);
+        expect(page.totalCount).toBe(5);
     });
 
     it("should get only three wallets sorted by balance:desc", () => {
@@ -164,10 +171,10 @@ describe("WalletSearchService.getWalletsPage", () => {
 
         const page = walletSearchService.getWalletsPage({ limit: 5, offset: 0 }, [], { balance: { from: "100" } });
 
-        expect(page).toEqual({
-            results: [wallet3, wallet2, wallet1],
-            totalCount: 3,
-            meta: { totalCountIsEstimate: false },
-        });
+        expect(page.results.length).toBe(3);
+        expect(page.results[0].address).toBe(wallet3.address);
+        expect(page.results[1].address).toBe(wallet2.address);
+        expect(page.results[2].address).toBe(wallet1.address);
+        expect(page.totalCount).toBe(3);
     });
 });

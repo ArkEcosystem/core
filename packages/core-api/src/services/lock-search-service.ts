@@ -1,10 +1,27 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { HtlcLock, HtlcLockCriteria } from "../interfaces";
+import { Identifiers } from "../identifiers";
+import { WalletSearchService } from "./wallet-search-service";
+
+export type LockCriteria = Contracts.Search.StandardCriteriaOf<LockResource>;
+
+export type LockResource = {
+    lockId: string;
+    senderPublicKey: string;
+    isExpired: boolean;
+
+    amount: Utils.BigNumber;
+    secretHash: string;
+    recipientId: string;
+    timestamp: number;
+    expirationType: Enums.HtlcLockExpirationType;
+    expirationValue: number;
+    vendorField: string;
+};
 
 @Container.injectable()
-export class HtlcLockSearchService {
+export class LockSearchService {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
@@ -12,29 +29,29 @@ export class HtlcLockSearchService {
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
 
-    @Container.inject(Container.Identifiers.WalletSearchService)
-    private readonly walletSearchService!: Contracts.State.WalletSearchService;
+    @Container.inject(Identifiers.WalletSearchService)
+    private readonly walletSearchService!: WalletSearchService;
 
-    public getLock(lockId: string, ...criterias: HtlcLockCriteria[]): HtlcLock | undefined {
+    public getLock(lockId: string, ...criterias: LockCriteria[]): LockResource | undefined {
         if (!this.walletRepository.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
             return undefined;
         }
 
         const wallet = this.walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
-        const lock = this.getLockResource(wallet, lockId);
+        const lockResource = this.getLockResource(wallet, lockId);
 
-        if (!AppUtils.Search.testStandardCriterias(lock, ...criterias)) {
+        if (AppUtils.Search.testStandardCriterias(lockResource, ...criterias)) {
+            return lockResource;
+        } else {
             return undefined;
         }
-
-        return lock;
     }
 
     public getLocksPage(
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
-        ...criterias: HtlcLockCriteria[]
-    ): Contracts.Search.Page<HtlcLock> {
+        ...criterias: LockCriteria[]
+    ): Contracts.Search.Page<LockResource> {
         return AppUtils.Search.getPage(pagination, ordering, this.getLocks(...criterias));
     }
 
@@ -42,41 +59,44 @@ export class HtlcLockSearchService {
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
         walletId: string,
-        ...criterias: HtlcLockCriteria[]
-    ): Contracts.Search.Page<HtlcLock> {
+        ...criterias: LockCriteria[]
+    ): Contracts.Search.Page<LockResource> {
         return AppUtils.Search.getPage(pagination, ordering, this.getWalletLocks(walletId, ...criterias));
     }
 
-    private *getLocks(...criterias: HtlcLockCriteria[]): Iterable<HtlcLock> {
+    private *getLocks(...criterias: LockCriteria[]): Iterable<LockResource> {
         for (const [lockId, wallet] of this.walletRepository.getIndex(Contracts.State.WalletIndexes.Locks).entries()) {
-            if (!wallet.hasAttribute(`htlc.locks.${lockId}`)) {
-                // todo: fix index, so `htlc.locks.${lockId}` is guaranteed to exist
-                continue;
+            const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {});
+            if (!walletLocks[lockId]) {
+                continue; // todo: fix index, so walletLocks[lockId] is guaranteed to exist
             }
 
-            const lock = this.getLockResource(wallet, lockId);
-            if (AppUtils.Search.testStandardCriterias(lock, ...criterias)) {
-                yield lock;
+            const lockResource = this.getLockResource(wallet, lockId);
+            if (AppUtils.Search.testStandardCriterias(lockResource, ...criterias)) {
+                yield lockResource;
             }
         }
     }
 
-    private *getWalletLocks(walletId: string, ...criterias: HtlcLockCriteria[]): Iterable<HtlcLock> {
-        const wallet = this.walletSearchService.getWallet(walletId);
-        if (!wallet) {
+    private *getWalletLocks(walletId: string, ...criterias: LockCriteria[]): Iterable<LockResource> {
+        const walletResource = this.walletSearchService.getWallet(walletId);
+        if (!walletResource) {
             throw new Error("Wallet not found");
         }
 
-        for (const lockId of Object.keys(wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {}))) {
-            const lock = this.getLockResource(wallet, lockId);
+        const wallet = this.walletRepository.findByAddress(walletResource.address);
+        const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {});
 
-            if (AppUtils.Search.testStandardCriterias(lock, ...criterias)) {
-                yield lock;
+        for (const lockId of Object.keys(walletLocks)) {
+            const lockResource = this.getLockResource(wallet, lockId);
+
+            if (AppUtils.Search.testStandardCriterias(lockResource, ...criterias)) {
+                yield lockResource;
             }
         }
     }
 
-    private getLockResource(wallet: Contracts.State.Wallet, lockId: string): HtlcLock {
+    private getLockResource(wallet: Contracts.State.Wallet, lockId: string): LockResource {
         const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks");
         const walletLock = walletLocks[lockId];
 

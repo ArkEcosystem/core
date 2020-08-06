@@ -1,10 +1,11 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import * as Transactions from "@arkecosystem/core-transactions";
 import { Enums } from "@arkecosystem/crypto";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
+import { Identifiers } from "../identifiers";
 import { TransactionResource } from "../resources";
+import { LockCriteria, LockResource, LockSearchService } from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()
@@ -12,34 +13,34 @@ export class LocksController extends Controller {
     @Container.inject(Container.Identifiers.TransactionHistoryService)
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
-    @Container.inject(Transactions.Identifiers.HtlcLockSearchService)
-    private readonly htlcLockSearchService!: Transactions.HtlcLockSearchService;
+    @Container.inject(Identifiers.LockSearchService)
+    private readonly lockSearchService!: LockSearchService;
 
-    public index(request: Hapi.Request): Contracts.Search.Page<Transactions.HtlcLock> {
+    public index(request: Hapi.Request): Contracts.Search.Page<LockResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as Transactions.HtlcLockCriteria;
+        const criteria = this.getCriteria(request) as LockCriteria;
 
-        return this.htlcLockSearchService.getLocksPage(pagination, ordering, criteria);
+        return this.lockSearchService.getLocksPage(pagination, ordering, criteria);
     }
 
-    public search(request: Hapi.Request): Contracts.Search.Page<Transactions.HtlcLock> {
+    public search(request: Hapi.Request): Contracts.Search.Page<LockResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = request.payload as Transactions.HtlcLockCriteria;
+        const criteria = request.payload as LockCriteria;
 
-        return this.htlcLockSearchService.getLocksPage(pagination, ordering, criteria);
+        return this.lockSearchService.getLocksPage(pagination, ordering, criteria);
     }
 
-    public show(request: Hapi.Request): { data: Transactions.HtlcLock } | Boom {
+    public show(request: Hapi.Request): { data: LockResource } | Boom {
         const lockId = request.params.id as string;
-        const lock = this.htlcLockSearchService.getLock(lockId);
+        const lockResource = this.lockSearchService.getLock(lockId);
 
-        if (!lock) {
+        if (!lockResource) {
             return notFound("Lock not found");
         }
 
-        return { data: lock };
+        return { data: lockResource };
     }
 
     public async unlocked(request: Hapi.Request, h: Hapi.ResponseToolkit) {

@@ -1,10 +1,18 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import * as Transactions from "@arkecosystem/core-transactions";
 import { Enums } from "@arkecosystem/crypto";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
+import { Identifiers } from "../identifiers";
 import { BlockResource, BlockWithTransactionsResource } from "../resources";
+import {
+    ActiveWalletResource,
+    DelegateCriteria,
+    DelegateResource,
+    DelegateSearchService,
+    WalletCriteria,
+    WalletSearchService,
+} from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()
@@ -12,37 +20,37 @@ export class DelegatesController extends Controller {
     @Container.inject(Container.Identifiers.BlockHistoryService)
     private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
-    @Container.inject(Container.Identifiers.WalletSearchService)
-    private readonly walletSearchService!: Contracts.State.WalletSearchService;
+    @Container.inject(Identifiers.WalletSearchService)
+    private readonly walletSearchService!: WalletSearchService;
 
-    @Container.inject(Transactions.Identifiers.DelegateSearchService)
-    private readonly delegateSearchService!: Transactions.DelegateSearchService;
+    @Container.inject(Identifiers.DelegateSearchService)
+    private readonly delegateSearchService!: DelegateSearchService;
 
-    public index(request: Hapi.Request): Contracts.Search.Page<Transactions.Delegate> {
+    public index(request: Hapi.Request): Contracts.Search.Page<DelegateResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as Transactions.DelegateCriteria;
+        const criteria = this.getCriteria(request) as DelegateCriteria;
 
         return this.delegateSearchService.getDelegatesPage(pagination, ordering, criteria);
     }
 
-    public search(request: Hapi.Request): Contracts.Search.Page<Transactions.Delegate> {
+    public search(request: Hapi.Request): Contracts.Search.Page<DelegateResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = request.payload as Transactions.DelegateCriteria;
+        const criteria = request.payload as DelegateCriteria;
 
         return this.delegateSearchService.getDelegatesPage(pagination, ordering, criteria);
     }
 
-    public show(request: Hapi.Request): { data: Transactions.Delegate } | Boom {
+    public show(request: Hapi.Request): { data: DelegateResource } | Boom {
         const delegateId = request.params.id as string;
-        const delegate = this.delegateSearchService.getDelegate(delegateId);
+        const delegateResource = this.delegateSearchService.getDelegate(delegateId);
 
-        if (!delegate) {
+        if (!delegateResource) {
             return notFound("Delegate not found");
         }
 
-        return { data: delegate };
+        return { data: delegateResource };
     }
 
     public async blocks(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -77,21 +85,21 @@ export class DelegatesController extends Controller {
         }
     }
 
-    public voters(request: Hapi.Request): Contracts.Search.Page<Contracts.State.Wallet> | Boom {
+    public voters(request: Hapi.Request): Contracts.Search.Page<ActiveWalletResource> | Boom {
         const delegateId = request.params.id as string;
-        const delegate = this.delegateSearchService.getDelegate(delegateId);
+        const delegateResource = this.delegateSearchService.getDelegate(delegateId);
 
-        if (!delegate) {
+        if (!delegateResource) {
             return notFound("Delegate not found");
         }
 
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as Contracts.State.WalletCriteria;
+        const criteria = this.getCriteria(request) as WalletCriteria;
 
         return this.walletSearchService.getActiveWalletsPage(pagination, ordering, criteria, {
             attributes: {
-                vote: delegate.publicKey,
+                vote: delegateResource.publicKey,
             },
         });
     }

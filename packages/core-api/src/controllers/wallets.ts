@@ -1,10 +1,18 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import * as Transactions from "@arkecosystem/core-transactions";
 import { Enums } from "@arkecosystem/crypto";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
+import { Identifiers } from "../identifiers";
 import { TransactionResource, TransactionWithBlockResource } from "../resources";
+import {
+    LockCriteria,
+    LockResource,
+    LockSearchService,
+    WalletCriteria,
+    WalletResource,
+    WalletSearchService,
+} from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()
@@ -12,45 +20,45 @@ export class WalletsController extends Controller {
     @Container.inject(Container.Identifiers.TransactionHistoryService)
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
-    @Container.inject(Container.Identifiers.WalletSearchService)
-    private readonly walletSearchService!: Contracts.State.WalletSearchService;
+    @Container.inject(Identifiers.WalletSearchService)
+    private readonly walletSearchService!: WalletSearchService;
 
-    @Container.inject(Transactions.Identifiers.HtlcLockSearchService)
-    private readonly htlcLockSearchService!: Transactions.HtlcLockSearchService;
+    @Container.inject(Identifiers.LockSearchService)
+    private readonly lockSearchService!: LockSearchService;
 
-    public index(request: Hapi.Request): Contracts.Search.Page<Contracts.State.Wallet> {
+    public index(request: Hapi.Request): Contracts.Search.Page<WalletResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as Contracts.State.WalletCriteria;
+        const criteria = this.getCriteria(request) as WalletCriteria;
 
         return this.walletSearchService.getWalletsPage(pagination, ordering, criteria);
     }
 
-    public top(request: Hapi.Request): Contracts.Search.Page<Contracts.State.Wallet> {
+    public top(request: Hapi.Request): Contracts.Search.Page<WalletResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as Contracts.State.WalletCriteria;
+        const criteria = this.getCriteria(request) as WalletCriteria;
 
         return this.walletSearchService.getWalletsPage(pagination, ordering, criteria);
     }
 
-    public search(request: Hapi.Request): Contracts.Search.Page<Contracts.State.Wallet> {
+    public search(request: Hapi.Request): Contracts.Search.Page<WalletResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = request.payload as Contracts.State.WalletCriteria;
+        const criteria = request.payload as WalletCriteria;
 
         return this.walletSearchService.getWalletsPage(pagination, ordering, criteria);
     }
 
-    public show(request: Hapi.Request): { data: Contracts.State.Wallet } | Boom {
+    public show(request: Hapi.Request): { data: WalletResource } | Boom {
         const walletId = request.params.id as string;
-        const wallet = this.walletSearchService.getWallet(walletId);
+        const walletResource = this.walletSearchService.getWallet(walletId);
 
-        if (!wallet) {
+        if (!walletResource) {
             return notFound("Wallet not found");
         }
 
-        return { data: wallet };
+        return { data: walletResource };
     }
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -200,18 +208,18 @@ export class WalletsController extends Controller {
         }
     }
 
-    public locks(request: Hapi.Request): Contracts.Search.Page<Transactions.HtlcLock> | Boom {
+    public locks(request: Hapi.Request): Contracts.Search.Page<LockResource> | Boom {
         const walletId = request.params.id as string;
-        const wallet = this.walletSearchService.getWallet(walletId);
+        const walletResource = this.walletSearchService.getWallet(walletId);
 
-        if (!wallet) {
+        if (!walletResource) {
             return notFound("Wallet not found");
         }
 
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as Transactions.HtlcLockCriteria;
+        const criteria = this.getCriteria(request) as LockCriteria;
 
-        return this.htlcLockSearchService.getWalletLocksPage(pagination, ordering, walletId, criteria);
+        return this.lockSearchService.getWalletLocksPage(pagination, ordering, walletId, criteria);
     }
 }

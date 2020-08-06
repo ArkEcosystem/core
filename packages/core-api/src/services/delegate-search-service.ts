@@ -1,6 +1,36 @@
 import { Container, Contracts, Utils as AppUtils, Utils } from "@arkecosystem/core-kernel";
 
-import { Delegate, DelegateCriteria, DelegateLastBlock } from "../interfaces";
+import { Identifiers } from "../identifiers";
+import { WalletSearchService } from "./wallet-search-service";
+
+export type DelegateCriteria = Contracts.Search.StandardCriteriaOf<DelegateResource>;
+
+export type DelegateResource = {
+    username: string;
+    address: string;
+    publicKey: string;
+    votes: Utils.BigNumber;
+    rank: number;
+    isResigned: boolean;
+    blocks: {
+        produced: number;
+        last: DelegateResourceLastBlock | undefined;
+    };
+    production: {
+        approval: number;
+    };
+    forged: {
+        fees: Utils.BigNumber;
+        rewards: Utils.BigNumber;
+        total: Utils.BigNumber;
+    };
+};
+
+export type DelegateResourceLastBlock = {
+    id: string;
+    height: number;
+    timestamp: number;
+};
 
 @Container.injectable()
 export class DelegateSearchService {
@@ -8,45 +38,47 @@ export class DelegateSearchService {
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
-    @Container.inject(Container.Identifiers.WalletSearchService)
-    private readonly walletSearchService!: Contracts.State.WalletSearchService;
+    @Container.inject(Identifiers.WalletSearchService)
+    private readonly walletSearchService!: WalletSearchService;
 
-    public getDelegate(delegateId: string, ...criterias: DelegateCriteria[]): Delegate | undefined {
-        const wallet = this.walletSearchService.getWallet(delegateId, { attributes: { delegate: {} } });
-        if (!wallet) {
+    public getDelegate(delegateId: string, ...criterias: DelegateCriteria[]): DelegateResource | undefined {
+        const walletResource = this.walletSearchService.getWallet(delegateId, { attributes: { delegate: {} } });
+        if (!walletResource) {
             return undefined;
         }
 
-        const delegate = this.getDelegateResource(wallet);
-        if (!AppUtils.Search.testStandardCriterias(delegate, ...criterias)) {
+        const wallet = this.walletRepository.findByAddress(walletResource.address);
+        const delegateResource = this.getDelegateResource(wallet);
+
+        if (AppUtils.Search.testStandardCriterias(delegateResource, ...criterias)) {
+            return delegateResource;
+        } else {
             return undefined;
         }
-
-        return delegate;
     }
 
     public getDelegatesPage(
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
         ...criterias: DelegateCriteria[]
-    ): Contracts.Search.Page<Delegate> {
+    ): Contracts.Search.Page<DelegateResource> {
         return AppUtils.Search.getPage(pagination, ordering, this.getDelegates(...criterias));
     }
 
-    private *getDelegates(...criterias: DelegateCriteria[]): Iterable<Delegate> {
+    private *getDelegates(...criterias: DelegateCriteria[]): Iterable<DelegateResource> {
         for (const wallet of this.walletRepository.allByUsername()) {
-            const delegate = this.getDelegateResource(wallet);
+            const delegateResource = this.getDelegateResource(wallet);
 
-            if (AppUtils.Search.testStandardCriterias(delegate, ...criterias)) {
-                yield delegate;
+            if (AppUtils.Search.testStandardCriterias(delegateResource, ...criterias)) {
+                yield delegateResource;
             }
         }
     }
 
-    private getDelegateResource(wallet: Contracts.State.Wallet): Delegate {
+    private getDelegateResource(wallet: Contracts.State.Wallet): DelegateResource {
         AppUtils.assert.defined<string>(wallet.publicKey);
 
-        let delegateLastBlock: DelegateLastBlock | undefined;
+        let delegateLastBlock: DelegateResourceLastBlock | undefined;
 
         if (wallet.hasAttribute("delegate.lastBlock")) {
             delegateLastBlock = {

@@ -9,8 +9,6 @@ import {
     BusinessUpdateTransactionHandler,
     EntityTransactionHandler,
 } from "./handlers";
-import { Identifiers } from "./identifiers";
-import { EntitySearchService } from "./services";
 import { bridgechainIndexer, businessIndexer, entityIndexer, MagistrateIndex } from "./wallet-indexes";
 
 export class ServiceProvider extends Providers.ServiceProvider {
@@ -38,7 +36,5 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
             .toConstantValue({ name: MagistrateIndex.Entities, indexer: entityIndexer });
-
-        this.app.bind(Identifiers.EntitySearchService).to(EntitySearchService);
     }
 }
