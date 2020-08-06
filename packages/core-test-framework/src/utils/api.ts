@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { Identifiers } from "@arkecosystem/core-api";
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
+import querystring from "querystring";
 
 import secrets from "../internal/passphrases.json";
 import { TransactionFactory } from "./transaction-factory";
@@ -11,10 +12,7 @@ export class ApiHelpers {
 
     public async request(method, path, params = {}, headers = {}) {
         // Build URL params from _params_ object for GET / DELETE requests
-        const getParams = Object.entries(params)
-            .map(([key, val]) => `${key}=${val}`)
-            .join("&");
-
+        const getParams = querystring.stringify(params);
         const url = `http://localhost:4003/api/${path}`;
 
         // Injecting the request into Hapi server
@@ -23,9 +21,7 @@ export class ApiHelpers {
             url: ["GET", "DELETE"].includes(method) ? `${url}?${getParams}` : url,
             headers: {
                 ...headers,
-                ...{
-                    "Content-Type": "application/json",
-                },
+                "Content-Type": "application/json",
             },
             payload: ["GET", "DELETE"].includes(method) ? {} : params,
         };

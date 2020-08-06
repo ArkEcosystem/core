@@ -64,9 +64,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.TransactionValidatorFactory)
             .toAutoFactory(Container.Identifiers.TransactionValidator);
 
-        this.registerActions();
-
         this.app.bind(Container.Identifiers.WalletSearchService).to(WalletSearchService);
+
+        this.registerActions();
     }
 
     public async boot(): Promise<void> {

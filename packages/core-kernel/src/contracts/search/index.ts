@@ -2,7 +2,7 @@ export * from "./criteria";
 export * from "./expressions";
 
 export type ParsedOrdering = {
-    path: string[];
+    path: string; // ! { get } from "@arkecosystem/utils" incorrectly handles path array
     direction: "asc" | "desc";
 }[];
 

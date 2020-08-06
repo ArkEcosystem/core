@@ -180,40 +180,6 @@ export const isNumericEqual = (
 };
 
 /**
- * a >= b
- */
-export const isNumericGreaterThanEqual = (
-    a: number | BigInt | Utils.BigNumber | string,
-    b: number | BigInt | Utils.BigNumber | string,
-): boolean => {
-    if (a instanceof Utils.BigNumber) {
-        return a.isGreaterThanEqual(b);
-    }
-
-    if (b instanceof Utils.BigNumber) {
-        return b.isLessThanEqual(a);
-    }
-
-    if (typeof a === "string") {
-        a = parseFloat(a);
-
-        if (isNaN(a)) {
-            return false;
-        }
-    }
-
-    if (typeof b === "string") {
-        b = parseFloat(b);
-
-        if (isNaN(b)) {
-            return false;
-        }
-    }
-
-    return a >= b;
-};
-
-/**
  * a <= b
  */
 export const isNumericLessThanEqual = (
@@ -245,6 +211,40 @@ export const isNumericLessThanEqual = (
     }
 
     return a <= b;
+};
+
+/**
+ * a >= b
+ */
+export const isNumericGreaterThanEqual = (
+    a: number | BigInt | Utils.BigNumber | string,
+    b: number | BigInt | Utils.BigNumber | string,
+): boolean => {
+    if (a instanceof Utils.BigNumber) {
+        return a.isGreaterThanEqual(b);
+    }
+
+    if (b instanceof Utils.BigNumber) {
+        return b.isLessThanEqual(a);
+    }
+
+    if (typeof a === "string") {
+        a = parseFloat(a);
+
+        if (isNaN(a)) {
+            return false;
+        }
+    }
+
+    if (typeof b === "string") {
+        b = parseFloat(b);
+
+        if (isNaN(b)) {
+            return false;
+        }
+    }
+
+    return a >= b;
 };
 
 /**
@@ -292,8 +292,15 @@ export const testStandardCriteriaItem = <T>(value: T, criteriaItem: StandardCrit
         }
 
         if (typeof criteriaItem === "object" && criteriaItem !== null) {
-            const from = "from" in criteriaItem && isNumeric(criteriaItem["from"]) ? criteriaItem["from"] : null;
-            const to = "to" in criteriaItem && isNumeric(criteriaItem["to"]) ? criteriaItem["to"] : null;
+            const from =
+                "from" in criteriaItem && (isNumeric(criteriaItem["from"]) || typeof criteriaItem["from"] === "string")
+                    ? criteriaItem["from"]
+                    : null;
+
+            const to =
+                "to" in criteriaItem && (isNumeric(criteriaItem["to"]) || typeof criteriaItem["to"] === "string")
+                    ? criteriaItem["to"]
+                    : null;
 
             if (from !== null && to !== null) {
                 return isNumericGreaterThanEqual(value, from) && isNumericLessThanEqual(value, to);
@@ -329,7 +336,7 @@ export const testStandardCriteriaItem = <T>(value: T, criteriaItem: StandardCrit
                         return testStandardCriterias(valueValue, criteriaValue);
                     });
                 } else {
-                    return testStandardCriterias(value[key], criteriaItem);
+                    return testStandardCriterias(value[key], criteriaValue);
                 }
             });
         }
@@ -400,22 +407,22 @@ export const compareValues = <T>(a: T, b: T): number => {
 
 export const parseOrdering = (ordering: Ordering): ParsedOrdering => {
     return [ordering].flat(Number.MAX_VALUE).map((item) => {
-        const [dot, direction] = item.split(":");
+        const [path, direction] = item.split(":");
 
-        if (direction !== "asc" && direction !== "desc") {
-            return { path: dot.split("."), direction };
+        if (direction === "asc" || direction === "desc") {
+            return { path, direction };
         } else {
-            return { path: dot.split("."), direction: "asc" };
+            return { path, direction: "asc" };
         }
     });
 };
 
-export const compareValuesByOrdering = <T>(a: T, b: T, ordering: ParsedOrdering): number => {
+export const compareValuesByParsedOrdering = <T>(a: T, b: T, ordering: ParsedOrdering): number => {
     for (const { path, direction } of ordering) {
         if (direction === "asc") {
             return compareValues(get(a, path), get(b, path));
         } else {
-            return compareValues(get(a, path), get(b, path)) * -1;
+            return compareValues(get(b, path), get(a, path));
         }
     }
 
@@ -426,7 +433,7 @@ export const getPage = <T>(pagination: Pagination, ordering: Ordering, items: It
     const parsedOrdering = parseOrdering(ordering);
     const total = Array.from(items);
     const results = total
-        .sort((a, b) => compareValuesByOrdering(a, b, parsedOrdering))
+        .sort((a, b) => compareValuesByParsedOrdering(a, b, parsedOrdering))
         .slice(pagination.offset, pagination.offset + pagination.limit);
 
     return {
