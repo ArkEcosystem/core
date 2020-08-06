@@ -6,11 +6,11 @@ import Hapi from "@hapi/hapi";
 import { Identifiers } from "../identifiers";
 import { BlockResource, BlockWithTransactionsResource } from "../resources";
 import {
-    ActiveWalletResource,
     DelegateCriteria,
     DelegateResource,
     DelegateSearchService,
     WalletCriteria,
+    WalletResource,
     WalletSearchService,
 } from "../services";
 import { Controller } from "./controller";
@@ -85,7 +85,7 @@ export class DelegatesController extends Controller {
         }
     }
 
-    public voters(request: Hapi.Request): Contracts.Search.Page<ActiveWalletResource> | Boom {
+    public voters(request: Hapi.Request): Contracts.Search.Page<WalletResource> | Boom {
         const delegateId = request.params.id as string;
         const delegateResource = this.delegateSearchService.getDelegate(delegateId);
 

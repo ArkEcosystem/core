@@ -24,7 +24,9 @@ let walletSearchService: WalletSearchService;
 beforeEach(async () => {
     triggerService.bind.mockReset();
     walletAttributes.has.mockReset();
-    walletAttributes.has.mockReturnValue(true);
+    walletAttributes.has.mockImplementation((attribute: string) => {
+        return ["delegate.username", "delegate.resigned", "delegate", "htlc.locks", "ipfs.hashes"].includes(attribute);
+    });
 
     app = new Application(new Container.Container());
 
@@ -40,6 +42,21 @@ beforeEach(async () => {
     );
 
     walletSearchService = app.resolve(WalletSearchService);
+});
+
+describe("WalletSearchService.getWalletResourceFromWallet", () => {
+    it("should return WalletResource", () => {
+        const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
+        const walletResource = walletSearchService.getWalletResourceFromWallet(wallet);
+
+        expect(walletResource).toEqual({
+            address: wallet.address,
+            publicKey: wallet.publicKey,
+            balance: wallet.balance,
+            nonce: wallet.nonce,
+            attributes: wallet.getAttributes(),
+        });
+    });
 });
 
 describe("WalletSearchService.getWallet", () => {

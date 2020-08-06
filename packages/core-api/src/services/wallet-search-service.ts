@@ -11,14 +11,6 @@ export type WalletResource = {
     attributes: object;
 };
 
-export type ActiveWalletResource = {
-    address: string;
-    publicKey: string;
-    balance: Utils.BigNumber;
-    nonce: Utils.BigNumber;
-    attributes: object;
-};
-
 @Container.injectable()
 export class WalletSearchService {
     @Container.inject(Container.Identifiers.WalletRepository)
@@ -44,7 +36,7 @@ export class WalletSearchService {
             return undefined;
         }
 
-        const walletResource = this.getWalletResource(wallet);
+        const walletResource = this.getWalletResourceFromWallet(wallet);
 
         if (AppUtils.Search.testStandardCriterias(walletResource, ...criterias)) {
             return walletResource;
@@ -65,13 +57,23 @@ export class WalletSearchService {
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
         ...criterias: WalletCriteria[]
-    ): Contracts.Search.Page<ActiveWalletResource> {
+    ): Contracts.Search.Page<WalletResource> {
         return AppUtils.Search.getPage(pagination, [ordering, "balance:desc"], this.getActiveWallets(...criterias));
+    }
+
+    public getWalletResourceFromWallet(wallet: Contracts.State.Wallet): WalletResource {
+        return {
+            address: wallet.address,
+            publicKey: wallet.publicKey,
+            balance: wallet.balance,
+            nonce: wallet.nonce,
+            attributes: wallet.getAttributes(),
+        };
     }
 
     private *getWallets(...criterias: WalletCriteria[]): Iterable<WalletResource> {
         for (const wallet of this.walletRepository.allByAddress()) {
-            const walletResource = this.getWalletResource(wallet);
+            const walletResource = this.getWalletResourceFromWallet(wallet);
 
             if (AppUtils.Search.testStandardCriterias(walletResource, ...criterias)) {
                 yield walletResource;
@@ -79,35 +81,13 @@ export class WalletSearchService {
         }
     }
 
-    private *getActiveWallets(...criterias: WalletCriteria[]): Iterable<ActiveWalletResource> {
+    private *getActiveWallets(...criterias: WalletCriteria[]): Iterable<WalletResource> {
         for (const wallet of this.walletRepository.allByPublicKey()) {
-            const walletResource = this.getActiveWalletResource(wallet);
+            const walletResource = this.getWalletResourceFromWallet(wallet);
 
             if (AppUtils.Search.testStandardCriterias(walletResource, ...criterias)) {
                 yield walletResource;
             }
         }
-    }
-
-    private getWalletResource(wallet: Contracts.State.Wallet): WalletResource {
-        return {
-            address: wallet.address,
-            publicKey: wallet.publicKey,
-            balance: wallet.balance,
-            nonce: wallet.nonce,
-            attributes: wallet.getAttributes(),
-        };
-    }
-
-    private getActiveWalletResource(wallet: Contracts.State.Wallet): ActiveWalletResource {
-        AppUtils.assert.defined<string>(wallet.publicKey);
-
-        return {
-            address: wallet.address,
-            publicKey: wallet.publicKey,
-            balance: wallet.balance,
-            nonce: wallet.nonce,
-            attributes: wallet.getAttributes(),
-        };
     }
 }
