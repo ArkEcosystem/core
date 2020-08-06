@@ -30,7 +30,7 @@ export class EntitySearchService {
         }
 
         const wallet = this.walletRepository.findByIndex("entities", entityId);
-        const entityResource = this.getEntityResource(wallet, entityId);
+        const entityResource = this.getEntityResourceFromWallet(wallet, entityId);
 
         if (AppUtils.Search.testStandardCriterias(entityResource, ...criterias)) {
             return entityResource;
@@ -60,6 +60,24 @@ export class EntitySearchService {
         return AppUtils.Search.getPage(pagination, ordering, this.getWalletEntities(walletId, ...criterias));
     }
 
+    public getEntityResourceFromWallet(wallet: Contracts.State.Wallet, entityId: string): EntityResource {
+        const walletEntities = wallet.getAttribute<IEntitiesWallet>("entities");
+        const walletEntity = walletEntities[entityId];
+
+        AppUtils.assert.defined<IEntityWallet>(walletEntity);
+        AppUtils.assert.defined<string>(wallet.publicKey);
+
+        return {
+            id: entityId,
+            address: wallet.address,
+            publicKey: wallet.publicKey,
+            isResigned: !!walletEntity.resigned,
+            type: walletEntity.type,
+            subType: walletEntity.subType,
+            data: walletEntity.data,
+        };
+    }
+
     private *getEntities(...criterias: EntityCriteria[]): Iterable<EntityResource> {
         for (const [entityId, wallet] of this.walletRepository.getIndex("entities").entries()) {
             const walletEntities = wallet.getAttribute<IEntitiesWallet>("entities", {});
@@ -67,7 +85,7 @@ export class EntitySearchService {
                 continue; // todo: fix index, so walletEntities[entityId] is guaranteed to exist
             }
 
-            const entityResource = this.getEntityResource(wallet, entityId);
+            const entityResource = this.getEntityResourceFromWallet(wallet, entityId);
             if (AppUtils.Search.testStandardCriterias(entityResource, ...criterias)) {
                 yield entityResource;
             }
@@ -84,29 +102,11 @@ export class EntitySearchService {
         const walletEntities = wallet.getAttribute<IEntitiesWallet>("entities", {});
 
         for (const entityId of Object.keys(walletEntities)) {
-            const entityResource = this.getEntityResource(wallet, entityId);
+            const entityResource = this.getEntityResourceFromWallet(wallet, entityId);
 
             if (AppUtils.Search.testStandardCriterias(entityResource, ...criterias)) {
                 yield entityResource;
             }
         }
-    }
-
-    private getEntityResource(wallet: Contracts.State.Wallet, entityId: string): EntityResource {
-        const walletEntities = wallet.getAttribute<IEntitiesWallet>("entities");
-        const walletEntity = walletEntities[entityId];
-
-        AppUtils.assert.defined<IEntityWallet>(walletEntity);
-        AppUtils.assert.defined<string>(wallet.publicKey);
-
-        return {
-            id: entityId,
-            address: wallet.address,
-            publicKey: wallet.publicKey,
-            isResigned: !!walletEntity.resigned,
-            type: walletEntity.type,
-            subType: walletEntity.subType,
-            data: walletEntity.data,
-        };
     }
 }

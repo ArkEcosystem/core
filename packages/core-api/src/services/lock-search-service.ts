@@ -38,7 +38,7 @@ export class LockSearchService {
         }
 
         const wallet = this.walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
-        const lockResource = this.getLockResource(wallet, lockId);
+        const lockResource = this.getLockResourceFromWallet(wallet, lockId);
 
         if (AppUtils.Search.testStandardCriterias(lockResource, ...criterias)) {
             return lockResource;
@@ -66,39 +66,7 @@ export class LockSearchService {
         return AppUtils.Search.getPage(pagination, ordering, this.getWalletLocks(walletId, ...criterias));
     }
 
-    private *getLocks(...criterias: LockCriteria[]): Iterable<LockResource> {
-        for (const [lockId, wallet] of this.walletRepository.getIndex(Contracts.State.WalletIndexes.Locks).entries()) {
-            const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {});
-            if (!walletLocks[lockId]) {
-                continue; // todo: fix index, so walletLocks[lockId] is guaranteed to exist
-            }
-
-            const lockResource = this.getLockResource(wallet, lockId);
-            if (AppUtils.Search.testStandardCriterias(lockResource, ...criterias)) {
-                yield lockResource;
-            }
-        }
-    }
-
-    private *getWalletLocks(walletId: string, ...criterias: LockCriteria[]): Iterable<LockResource> {
-        const walletResource = this.walletSearchService.getWallet(walletId);
-        if (!walletResource) {
-            throw new Error("Wallet not found");
-        }
-
-        const wallet = this.walletRepository.findByAddress(walletResource.address);
-        const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {});
-
-        for (const lockId of Object.keys(walletLocks)) {
-            const lockResource = this.getLockResource(wallet, lockId);
-
-            if (AppUtils.Search.testStandardCriterias(lockResource, ...criterias)) {
-                yield lockResource;
-            }
-        }
-    }
-
-    private getLockResource(wallet: Contracts.State.Wallet, lockId: string): LockResource {
+    public getLockResourceFromWallet(wallet: Contracts.State.Wallet, lockId: string): LockResource {
         const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks");
         const walletLock = walletLocks[lockId];
 
@@ -122,5 +90,37 @@ export class LockSearchService {
             expirationValue: walletLock.expiration.value,
             vendorField: walletLock.vendorField!,
         };
+    }
+
+    private *getLocks(...criterias: LockCriteria[]): Iterable<LockResource> {
+        for (const [lockId, wallet] of this.walletRepository.getIndex(Contracts.State.WalletIndexes.Locks).entries()) {
+            const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {});
+            if (!walletLocks[lockId]) {
+                continue; // todo: fix index, so walletLocks[lockId] is guaranteed to exist
+            }
+
+            const lockResource = this.getLockResourceFromWallet(wallet, lockId);
+            if (AppUtils.Search.testStandardCriterias(lockResource, ...criterias)) {
+                yield lockResource;
+            }
+        }
+    }
+
+    private *getWalletLocks(walletId: string, ...criterias: LockCriteria[]): Iterable<LockResource> {
+        const walletResource = this.walletSearchService.getWallet(walletId);
+        if (!walletResource) {
+            throw new Error("Wallet not found");
+        }
+
+        const wallet = this.walletRepository.findByAddress(walletResource.address);
+        const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {});
+
+        for (const lockId of Object.keys(walletLocks)) {
+            const lockResource = this.getLockResourceFromWallet(wallet, lockId);
+
+            if (AppUtils.Search.testStandardCriterias(lockResource, ...criterias)) {
+                yield lockResource;
+            }
+        }
     }
 }

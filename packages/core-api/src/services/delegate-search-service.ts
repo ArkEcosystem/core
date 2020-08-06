@@ -48,7 +48,7 @@ export class DelegateSearchService {
         }
 
         const wallet = this.walletRepository.findByAddress(walletResource.address);
-        const delegateResource = this.getDelegateResource(wallet);
+        const delegateResource = this.getDelegateResourceFromWallet(wallet);
 
         if (AppUtils.Search.testStandardCriterias(delegateResource, ...criterias)) {
             return delegateResource;
@@ -67,17 +67,7 @@ export class DelegateSearchService {
         return AppUtils.Search.getPage(pagination, ordering, this.getDelegates(...criterias));
     }
 
-    private *getDelegates(...criterias: DelegateCriteria[]): Iterable<DelegateResource> {
-        for (const wallet of this.walletRepository.allByUsername()) {
-            const delegateResource = this.getDelegateResource(wallet);
-
-            if (AppUtils.Search.testStandardCriterias(delegateResource, ...criterias)) {
-                yield delegateResource;
-            }
-        }
-    }
-
-    private getDelegateResource(wallet: Contracts.State.Wallet): DelegateResource {
+    public getDelegateResourceFromWallet(wallet: Contracts.State.Wallet): DelegateResource {
         AppUtils.assert.defined<string>(wallet.publicKey);
 
         let delegateLastBlock: DelegateResourceLastBlock | undefined;
@@ -110,5 +100,15 @@ export class DelegateSearchService {
                 total: Utils.BigNumber.make(AppUtils.delegateCalculator.calculateForgedTotal(wallet)),
             },
         };
+    }
+
+    private *getDelegates(...criterias: DelegateCriteria[]): Iterable<DelegateResource> {
+        for (const wallet of this.walletRepository.allByUsername()) {
+            const delegateResource = this.getDelegateResourceFromWallet(wallet);
+
+            if (AppUtils.Search.testStandardCriterias(delegateResource, ...criterias)) {
+                yield delegateResource;
+            }
+        }
     }
 }
