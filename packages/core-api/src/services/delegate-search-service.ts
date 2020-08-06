@@ -62,6 +62,8 @@ export class DelegateSearchService {
         ordering: Contracts.Search.Ordering,
         ...criterias: DelegateCriteria[]
     ): Contracts.Search.Page<DelegateResource> {
+        ordering = [ordering, "rank:asc"];
+
         return AppUtils.Search.getPage(pagination, ordering, this.getDelegates(...criterias));
     }
 

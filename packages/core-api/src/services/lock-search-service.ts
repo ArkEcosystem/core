@@ -52,6 +52,8 @@ export class LockSearchService {
         ordering: Contracts.Search.Ordering,
         ...criterias: LockCriteria[]
     ): Contracts.Search.Page<LockResource> {
+        ordering = [ordering, "timestamp:desc"];
+
         return AppUtils.Search.getPage(pagination, ordering, this.getLocks(...criterias));
     }
 
