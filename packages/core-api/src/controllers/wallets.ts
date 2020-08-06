@@ -63,13 +63,13 @@ export class WalletsController extends Controller {
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const walletId = request.params.id as string;
-        const wallet = this.walletSearchService.getWallet(walletId);
+        const walletResource = this.walletSearchService.getWallet(walletId);
 
-        if (!wallet) {
+        if (!walletResource) {
             return notFound("Wallet not found");
         }
 
-        const criteria: Contracts.Shared.TransactionCriteria = { ...request.query, address: wallet.address };
+        const criteria: Contracts.Shared.TransactionCriteria = { ...request.query, address: walletResource.address };
         const order: Contracts.Search.ListOrder = this.getListingOrder(request);
         const page: Contracts.Search.ListPage = this.getListingPage(request);
         const options: Contracts.Search.ListOptions = this.getListingOptions();
@@ -97,16 +97,19 @@ export class WalletsController extends Controller {
 
     public async transactionsSent(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const walletId = request.params.id as string;
-        const wallet = this.walletSearchService.getWallet(walletId);
+        const walletResource = this.walletSearchService.getWallet(walletId);
 
-        if (!wallet) {
+        if (!walletResource) {
             return notFound("Wallet not found");
         }
-        if (!wallet.publicKey) {
+        if (!walletResource.publicKey) {
             return AppUtils.Search.getEmptyPage();
         }
 
-        const criteria: Contracts.Shared.TransactionCriteria = { ...request.query, senderPublicKey: wallet.publicKey };
+        const criteria: Contracts.Shared.TransactionCriteria = {
+            ...request.query,
+            senderPublicKey: walletResource.publicKey,
+        };
         const order: Contracts.Search.ListOrder = this.getListingOrder(request);
         const page: Contracts.Search.ListPage = this.getListingPage(request);
         const options: Contracts.Search.ListOptions = this.getListingOptions();
@@ -134,13 +137,16 @@ export class WalletsController extends Controller {
 
     public async transactionsReceived(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const walletId = request.params.id as string;
-        const wallet = this.walletSearchService.getWallet(walletId);
+        const walletResource = this.walletSearchService.getWallet(walletId);
 
-        if (!wallet) {
+        if (!walletResource) {
             return notFound("Wallet not found");
         }
 
-        const criteria: Contracts.Shared.TransactionCriteria = { ...request.query, recipientId: wallet.address };
+        const criteria: Contracts.Shared.TransactionCriteria = {
+            ...request.query,
+            recipientId: walletResource.address,
+        };
         const order: Contracts.Search.ListOrder = this.getListingOrder(request);
         const page: Contracts.Search.ListPage = this.getListingPage(request);
         const options: Contracts.Search.ListOptions = this.getListingOptions();
@@ -168,12 +174,12 @@ export class WalletsController extends Controller {
 
     public async votes(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const walletId = request.params.id as string;
-        const wallet = this.walletSearchService.getWallet(walletId);
+        const walletResource = this.walletSearchService.getWallet(walletId);
 
-        if (!wallet) {
+        if (!walletResource) {
             return notFound("Wallet not found");
         }
-        if (!wallet.publicKey) {
+        if (!walletResource.publicKey) {
             return AppUtils.Search.getEmptyPage();
         }
 
@@ -181,7 +187,7 @@ export class WalletsController extends Controller {
             ...request.query,
             typeGroup: Enums.TransactionTypeGroup.Core,
             type: Enums.TransactionType.Vote,
-            senderPublicKey: wallet.publicKey,
+            senderPublicKey: walletResource.publicKey,
         };
         const order: Contracts.Search.ListOrder = this.getListingOrder(request);
         const page: Contracts.Search.ListPage = this.getListingPage(request);

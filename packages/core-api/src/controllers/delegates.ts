@@ -55,14 +55,14 @@ export class DelegatesController extends Controller {
 
     public async blocks(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const delegateId = request.params.id as string;
-        const delegate = this.delegateSearchService.getDelegate(delegateId);
+        const delegateResource = this.delegateSearchService.getDelegate(delegateId);
 
-        if (!delegate) {
+        if (!delegateResource) {
             return notFound("Delegate not found");
         }
 
         if (request.query.transform) {
-            const blockCriteria = { generatorPublicKey: delegate.publicKey };
+            const blockCriteria = { generatorPublicKey: delegateResource.publicKey };
             const blockWithSomeTransactionsListResult = await this.blockHistoryService.listByCriteriaJoinTransactions(
                 blockCriteria,
                 { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
@@ -73,7 +73,7 @@ export class DelegatesController extends Controller {
 
             return this.toPagination(blockWithSomeTransactionsListResult, BlockWithTransactionsResource, true);
         } else {
-            const blockCriteria = { generatorPublicKey: delegate.publicKey };
+            const blockCriteria = { generatorPublicKey: delegateResource.publicKey };
             const blockListResult = await this.blockHistoryService.listByCriteria(
                 blockCriteria,
                 this.getListingOrder(request),
