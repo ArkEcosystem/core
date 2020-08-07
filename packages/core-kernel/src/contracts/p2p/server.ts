@@ -19,7 +19,6 @@ export interface CurrentRound {
     nextForger: DelegateWallet;
     lastBlock: Interfaces.IBlockData;
     canForge: boolean;
-    timeLeftInSlot: number;
 }
 
 export interface ForgingTransactions {

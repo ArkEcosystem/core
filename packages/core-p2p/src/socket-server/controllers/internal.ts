@@ -65,8 +65,6 @@ export class InternalController extends Controller {
         const timestamp = Crypto.Slots.getTime();
         const forgingInfo = Utils.forgingInfoCalculator.calculateForgingInfo(timestamp, height, blockTimeLookup);
 
-        const timeLeftInSlot = Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup);
-
         return {
             current: roundInfo.round,
             reward,
@@ -76,7 +74,6 @@ export class InternalController extends Controller {
             nextForger: delegates[forgingInfo.nextForger],
             lastBlock: lastBlock.data,
             canForge: forgingInfo.canForge,
-            timeLeftInSlot,
         };
     }
 
