@@ -70,34 +70,38 @@ export class DelegateSearchService {
     public getDelegateResourceFromWallet(wallet: Contracts.State.Wallet): DelegateResource {
         AppUtils.assert.defined<string>(wallet.publicKey);
 
+        // to ensure that every property exists it would be better to getAttribute each of them
+        // requires whitelisting all of them in wallet attributes
+        const walletDelegate = wallet.getAttribute("delegate");
+
         let delegateLastBlock: DelegateResourceLastBlock | undefined;
 
-        if (wallet.hasAttribute("delegate.lastBlock")) {
+        if (walletDelegate.lastBlock) {
             delegateLastBlock = {
-                id: wallet.getAttribute<string>("delegate.lastBlock.id"),
-                height: wallet.getAttribute<number>("delegate.lastBlock.height"),
-                timestamp: wallet.getAttribute<number>("delegate.lastBlock.timestamp"),
+                id: walletDelegate.lastBlock.id,
+                height: walletDelegate.lastBlock.height,
+                timestamp: walletDelegate.lastBlock.timestamp,
             };
         }
 
         return {
-            username: wallet.getAttribute<string>("delegate.username"),
+            username: walletDelegate.username,
             address: wallet.address,
             publicKey: wallet.publicKey,
-            votes: wallet.getAttribute<Utils.BigNumber>("delegate.voteBalance"),
-            rank: wallet.getAttribute<number>("delegate.rank"),
-            isResigned: wallet.getAttribute<boolean>("delegate.resigned", false),
+            votes: walletDelegate.voteBalance,
+            rank: walletDelegate.rank,
+            isResigned: !!walletDelegate.resigned,
             blocks: {
-                produced: wallet.getAttribute<number>("delegate.producedBlocks"),
+                produced: walletDelegate.producedBlocks,
                 last: delegateLastBlock,
             },
             production: {
                 approval: AppUtils.delegateCalculator.calculateApproval(wallet),
             },
             forged: {
-                fees: wallet.getAttribute<Utils.BigNumber>("delegate.forgedFees"),
-                rewards: wallet.getAttribute<Utils.BigNumber>("delegate.forgedRewards"),
-                total: Utils.BigNumber.make(AppUtils.delegateCalculator.calculateForgedTotal(wallet)),
+                fees: walletDelegate.forgedFees,
+                rewards: walletDelegate.forgedRewards,
+                total: walletDelegate.forgedFees.plus(walletDelegate.forgedRewards),
             },
         };
     }

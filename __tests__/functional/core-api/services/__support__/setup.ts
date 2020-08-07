@@ -8,6 +8,7 @@ import {
 import { Application, Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { ServiceProvider as StateServiceProvider } from "@arkecosystem/core-state";
 import { ServiceProvider as TransactionsServiceProvider } from "@arkecosystem/core-transactions";
+import { wallet } from "@tests/unit/crypto/blocks/__fixtures__/wallet";
 
 type MockOf<T extends (...args: unknown[]) => unknown> = jest.Mock<ReturnType<T>, Parameters<T>>;
 
@@ -54,6 +55,7 @@ export const setUp = async (): Promise<TestEnvironment> => {
     const walletAttributes = app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes);
     walletAttributes.set("delegate.username");
     walletAttributes.set("delegate.resigned");
+    walletAttributes.set("delegate.voteBalance");
     walletAttributes.set("delegate");
     walletAttributes.set("htlc.locks");
     walletAttributes.set("ipfs.hashes");
