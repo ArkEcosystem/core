@@ -37,7 +37,7 @@
         "kleur": "^4.0.0",
         "latest-version": "^5.1.0",
         "listr": "^0.14.3",
-        "ora": "^4.0.3",
+        "ora": "^5.0.0",
         "semver": "^6.3.0",
         "type-fest": "^0.16.0",
         "yargs-parser": "^18.0.0"
