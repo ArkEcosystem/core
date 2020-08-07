@@ -24,7 +24,13 @@ export class EntityTransaction extends Transactions.Transaction {
     public static getSchema(): Transactions.schemas.TransactionSchema {
         const baseAssetDataProps = {
             type: {
-                enum: [EntityType.Business, EntityType.Developer, EntityType.Plugin, EntityType.Delegate],
+                enum: [
+                    EntityType.Business,
+                    EntityType.Bridgechain,
+                    EntityType.Developer,
+                    EntityType.Plugin,
+                    EntityType.Delegate,
+                ],
             },
             subType: {
                 enum: [EntitySubType.None, EntitySubType.PluginCore, EntitySubType.PluginDesktop],

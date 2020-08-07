@@ -102,3 +102,9 @@ export class EntityWrongSubTypeError extends Errors.TransactionError {
         super("Failed to apply transaction, because the entity asset subtype does not match the wallet one.");
     }
 }
+
+export class EntityDeactivatedError extends Errors.TransactionError {
+    public constructor() {
+        super("Failed to apply transaction, because the entity type is deactivated.");
+    }
+}

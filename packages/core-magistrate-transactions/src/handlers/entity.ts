@@ -12,7 +12,7 @@ import {
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { EntityWrongSubTypeError, StaticFeeMismatchError } from "../errors";
+import { EntityDeactivatedError, EntityWrongSubTypeError, StaticFeeMismatchError } from "../errors";
 import { EntityRegisterSubHandler, EntityResignSubHandler, EntityUpdateSubHandler } from "./entity-subhandlers";
 import { BusinessSubHandlers } from "./entity-subhandlers/business";
 import { DelegateSubHandlers } from "./entity-subhandlers/delegate";
@@ -20,13 +20,22 @@ import { DeveloperSubHandlers } from "./entity-subhandlers/developer";
 import { PluginCoreSubHandlers } from "./entity-subhandlers/plugin-core";
 import { PluginDesktopSubHandlers } from "./entity-subhandlers/plugin-desktop";
 
+interface IDeactivatedSubHandler {
+    throwIfCannotBeApplied(): void;
+    emitEvents(): void;
+    applyToSender(): void;
+    revertForSender(): void;
+}
 interface ISubHandlers {
-    [Enums.EntityAction.Register]: EntityRegisterSubHandler;
-    [Enums.EntityAction.Resign]: EntityResignSubHandler;
-    [Enums.EntityAction.Update]: EntityUpdateSubHandler;
+    [Enums.EntityAction.Register]: EntityRegisterSubHandler | IDeactivatedSubHandler;
+    [Enums.EntityAction.Resign]: EntityResignSubHandler | IDeactivatedSubHandler;
+    [Enums.EntityAction.Update]: EntityUpdateSubHandler | IDeactivatedSubHandler;
 }
 interface IHandlers {
     [Enums.EntityType.Business]: {
+        [Enums.EntitySubType.None]: ISubHandlers;
+    };
+    [Enums.EntityType.Bridgechain]: {
         [Enums.EntitySubType.None]: ISubHandlers;
     };
     [Enums.EntityType.Developer]: {
@@ -105,6 +114,10 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
     ): Promise<void> {
         if (Utils.isException(transaction)) {
             return;
+        }
+
+        if (this.isDeactivatedEntity(transaction)) {
+            throw new EntityDeactivatedError();
         }
 
         const staticFee: Utils.BigNumber = this.getConstructor().staticFee();
@@ -190,12 +203,27 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
     }
 
     private initializeHandlers(): void {
+        // deactivatedSubHandler as default (does nothing) for existing deactivated transactions (exceptions)
+        const deactivatedSubHandler: IDeactivatedSubHandler = {
+            throwIfCannotBeApplied: () => {}, // tslint:disable-line
+            emitEvents: () => {}, // tslint:disable-line
+            applyToSender: () => {}, // tslint:disable-line
+            revertForSender: () => {}, // tslint:disable-line
+        };
+
         this.handlers = {
             [Enums.EntityType.Business]: {
                 [Enums.EntitySubType.None]: {
                     [Enums.EntityAction.Register]: new BusinessSubHandlers.BusinessRegisterSubHandler(),
                     [Enums.EntityAction.Resign]: new BusinessSubHandlers.BusinessResignSubHandler(),
                     [Enums.EntityAction.Update]: new BusinessSubHandlers.BusinessUpdateSubHandler(),
+                },
+            },
+            [Enums.EntityType.Bridgechain]: {
+                [Enums.EntitySubType.None]: {
+                    [Enums.EntityAction.Register]: deactivatedSubHandler,
+                    [Enums.EntityAction.Resign]: deactivatedSubHandler,
+                    [Enums.EntityAction.Update]: deactivatedSubHandler,
                 },
             },
             [Enums.EntityType.Developer]: {
@@ -225,5 +253,12 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
                 },
             },
         };
+    }
+
+    private isDeactivatedEntity(transaction: Interfaces.ITransaction): boolean {
+        if (transaction.data.asset.type === Enums.EntityType.Bridgechain) {
+            return true;
+        }
+        return false;
     }
 }
