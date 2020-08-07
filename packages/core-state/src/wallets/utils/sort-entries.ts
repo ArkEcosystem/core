@@ -32,14 +32,18 @@ export const sortEntries = (params: OrderBy, wallets: Contracts.State.Wallet[]) 
                 return AppUtils.get(wallet, iteratee);
             }
 
-            const delegateAttribute: string = `attributes.delegate.${iteratee}`;
+            const walletAttributes = wallet.getAttributes();
 
-            if (AppUtils.has(wallet, delegateAttribute)) {
+            if (AppUtils.has(walletAttributes, `delegate.${iteratee}`)) {
                 /* istanbul ignore next */
-                return AppUtils.get(wallet, delegateAttribute);
+                return AppUtils.get(walletAttributes, `delegate.${iteratee}`);
             }
 
-            return AppUtils.get(wallet, `attributes.${iteratee}`);
+            if (AppUtils.has(walletAttributes, iteratee)) {
+                return AppUtils.get(walletAttributes, iteratee);
+            }
+
+            return getProperty(wallet, iteratee);
         },
         [order],
     );
