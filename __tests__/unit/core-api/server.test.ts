@@ -94,6 +94,101 @@ describe("Server", () => {
         });
     });
 
+    describe("getRoute", () => {
+        it("should get custom route", async () => {
+            await expect(server.initialize("Test", serverConfig)).toResolve();
+
+            const testRoute = {
+                method: "GET",
+                path: "/test",
+                handler: () => "ok",
+            };
+
+            await expect(server.route(testRoute)).toResolve();
+
+            const returnedRoute = server.getRoute("GET", "/test");
+
+            expect(returnedRoute.method).toEqual("get");
+            expect(returnedRoute.path).toEqual("/test");
+        });
+
+        it("should get custom route and override handler", async () => {
+            await expect(server.initialize("Test", serverConfig)).toResolve();
+
+            const testRoute = {
+                method: "GET",
+                path: "/test",
+                handler: () => "ok",
+            };
+
+            await expect(server.route(testRoute)).toResolve();
+
+            const injectOptions = {
+                method: "GET",
+                url: "/test",
+            };
+
+            const response = await server.inject(injectOptions);
+
+            expect(response.payload).toBe("ok");
+
+            const returnedRoute = server.getRoute("GET", "/test");
+            returnedRoute.settings.handler = () => "override";
+
+            const anotherResponse = await server.inject(injectOptions);
+
+            expect(anotherResponse.payload).toBe("override");
+        });
+
+        it("should get custom route and extend response", async () => {
+            await expect(server.initialize("Test", serverConfig)).toResolve();
+
+            const testRoute = {
+                method: "GET",
+                path: "/test",
+                handler: () => {
+                    return {
+                        data1: "data1",
+                    };
+                },
+            };
+
+            await expect(server.route(testRoute)).toResolve();
+
+            const injectOptions = {
+                method: "GET",
+                url: "/test",
+            };
+
+            const response = await server.inject(injectOptions);
+
+            expect(response.payload).toBe(
+                JSON.stringify({
+                    data1: "data1",
+                }),
+            );
+
+            const returnedRoute = server.getRoute("GET", "/test");
+
+            const originalHandler = returnedRoute.settings.handler;
+            returnedRoute.settings.handler = () => {
+                const item = originalHandler();
+                item.data2 = "data2";
+
+                return item;
+            };
+
+            const anotherResponse = await server.inject(injectOptions);
+
+            expect(anotherResponse.payload).toBe(
+                JSON.stringify({
+                    data1: "data1",
+                    data2: "data2",
+                }),
+            );
+        });
+    });
+
     describe("register", () => {
         it("should be ok", async () => {
             await expect(server.initialize("Test", serverConfig)).toResolve();

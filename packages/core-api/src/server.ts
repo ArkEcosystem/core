@@ -145,6 +145,10 @@ export class Server {
         return this.server.route(routes);
     }
 
+    public getRoute(method: string, path: string): ServerRoute | undefined {
+        return this.server.table().find((route) => route.method === method.toLowerCase() && route.path === path);
+    }
+
     /**
      * @param {(string | ServerInjectOptions)} options
      * @returns {Promise<void>}
