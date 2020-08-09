@@ -40,7 +40,7 @@
         "ora": "^4.0.3",
         "semver": "^6.3.0",
         "type-fest": "^0.16.0",
-        "yargs-parser": "^18.0.0"
+        "yargs-parser": "^19.0.0"
     },
     "devDependencies": {
         "@types/fast-levenshtein": "^0.0.1",
