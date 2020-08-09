@@ -1,6 +1,5 @@
 // tslint:disable: max-classes-per-file
 
-import parseJSON from "fast-json-parse";
 import got from "got";
 
 export class HttpieError extends Error {
@@ -18,14 +17,18 @@ export class HttpieError extends Error {
         });
 
         if (error.response) {
-            Object.defineProperty(this, "response", {
-                enumerable: false,
-                value: {
-                    body: parseJSON(error.response.body).value,
-                    headers: error.response.headers,
-                    status: error.response.statusCode,
-                },
-            });
+            try {
+                Object.defineProperty(this, "response", {
+                    enumerable: false,
+                    value: {
+                        body: JSON.parse(error.response.body || {}),
+                        headers: error.response.headers,
+                        status: error.response.statusCode,
+                    },
+                });
+            } catch {
+                // Do nothing if the response body parsing fails.
+            }
         }
 
         Error.captureStackTrace(this, this.constructor);
@@ -91,7 +94,7 @@ class Httpie {
             const { body, headers, statusCode } = await got[method](url, opts);
 
             return {
-                body: parseJSON(body).value,
+                body: JSON.parse(body || {}),
                 headers,
                 status: statusCode,
             };
