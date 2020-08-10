@@ -21,7 +21,7 @@ export class HttpieError extends Error {
                 Object.defineProperty(this, "response", {
                     enumerable: false,
                     value: {
-                        body: JSON.parse(error.response.body || {}),
+                        body: JSON.parse(error.response.body),
                         headers: error.response.headers,
                         status: error.response.statusCode,
                     },
@@ -94,7 +94,7 @@ class Httpie {
             const { body, headers, statusCode } = await got[method](url, opts);
 
             return {
-                body: JSON.parse(body || {}),
+                body: JSON.parse(body),
                 headers,
                 status: statusCode,
             };
