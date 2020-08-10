@@ -223,7 +223,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         assert.strictEqual(
             blocks.length,
             1,
-            `database.getBlocksByHeight([ ${claimedHeight} ]) returned ${blocks.length} results: ` +
+            `databaseInteraction.getBlocksByHeight([ ${claimedHeight} ]) returned ${blocks.length} results: ` +
                 this.anyToString(blocks) +
                 ` (our chain is at height ${ourHeight})`,
         );

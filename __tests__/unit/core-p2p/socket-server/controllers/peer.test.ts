@@ -15,6 +15,10 @@ describe("PeerController", () => {
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
     const peerStorage = { getPeers: jest.fn() };
     const database = { getCommonBlocks: jest.fn(), getBlocksForDownload: jest.fn() };
+    const databaseInteractions = {
+        getCommonBlocks: jest.fn(),
+        getBlocksForDownload: jest.fn(),
+    };
     const blockchain = {
         getLastBlock: jest.fn(),
         handleIncomingBlock: jest.fn(),
@@ -62,6 +66,7 @@ describe("PeerController", () => {
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.PeerStorage).toConstantValue(peerStorage);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
+        container.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
     });
 
@@ -95,7 +100,7 @@ describe("PeerController", () => {
     describe("getCommonBlocks", () => {
         it("should return the last common block found and the last height", async () => {
             const request = { payload: { ids: ["123456789", "111116789"] } };
-            database.getCommonBlocks = jest.fn().mockReturnValueOnce(request.payload.ids);
+            databaseInteractions.getCommonBlocks = jest.fn().mockReturnValueOnce(request.payload.ids);
             const height = 1433;
             blockchain.getLastBlock = jest.fn().mockReturnValueOnce({ data: { height } });
             const commonBlocks = await peerController.getCommonBlocks(request, {});
@@ -108,7 +113,7 @@ describe("PeerController", () => {
 
         it("should throw MissingCommonBlockError when no common block found", async () => {
             const request = { payload: { ids: ["123456789", "111116789"] } };
-            database.getCommonBlocks = jest.fn().mockReturnValueOnce([]);
+            databaseInteractions.getCommonBlocks = jest.fn().mockReturnValueOnce([]);
 
             await expect(peerController.getCommonBlocks(request, {})).rejects.toBeInstanceOf(MissingCommonBlockError);
         });

@@ -1,10 +1,9 @@
 import { Container, Utils as KernelUtils } from "@arkecosystem/core-kernel";
-
-import { InternalController } from "@arkecosystem/core-p2p/src/socket-server/controllers/internal";
-import { Networks, Utils, Blocks } from "@arkecosystem/crypto";
-import { TransactionFactory } from "@arkecosystem/crypto/dist/transactions";
-import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p/src/enums";
+import { NetworkState } from "@arkecosystem/core-p2p/src/network-state";
+import { InternalController } from "@arkecosystem/core-p2p/src/socket-server/controllers/internal";
+import { Blocks, Networks, Utils } from "@arkecosystem/crypto";
+import { TransactionFactory } from "@arkecosystem/crypto/dist/transactions";
 
 describe("InternalController", () => {
     let internalController: InternalController;
@@ -16,6 +15,7 @@ describe("InternalController", () => {
     const networkMonitor = { getNetworkState: jest.fn() };
     const emitter = { dispatch: jest.fn() };
     const database = { getActiveDelegates: jest.fn() };
+    const databaseInteractions = { getActiveDelegates: jest.fn() };
     const poolCollator = { getBlockCandidateTransactions: jest.fn() };
     const poolService = { getPoolSize: jest.fn() };
     const blockchain = { getLastBlock: jest.fn(), forceWakeup: jest.fn() };
@@ -35,6 +35,7 @@ describe("InternalController", () => {
         container.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(networkMonitor);
         container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
+        container.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
     });
 
@@ -118,7 +119,7 @@ describe("InternalController", () => {
                     delegate: "delegate2",
                 },
             ];
-            database.getActiveDelegates = jest.fn().mockReturnValueOnce(delegates);
+            databaseInteractions.getActiveDelegates = jest.fn().mockReturnValueOnce(delegates);
             const forgingInfo = {
                 blockTimestamp: 97456,
                 currentForger: 0,
