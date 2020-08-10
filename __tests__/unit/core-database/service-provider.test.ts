@@ -1,8 +1,7 @@
-import { Application, Container, Providers } from "@packages/core-kernel";
-import { createConnection, getCustomRepository } from "typeorm";
-
 import { defaults } from "@packages/core-database/src/defaults";
 import { ServiceProvider } from "@packages/core-database/src/service-provider";
+import { Application, Container, Providers } from "@packages/core-kernel";
+import { createConnection, getCustomRepository } from "typeorm";
 
 jest.mock("typeorm", () => {
     return Object.assign(jest.requireActual("typeorm"), {
@@ -18,10 +17,6 @@ const logger = {
     info: jest.fn(),
 };
 
-const triggers = {
-    bind: jest.fn(),
-};
-
 const events = {
     dispatch: jest.fn(),
 };
@@ -29,12 +24,10 @@ const events = {
 beforeEach(() => {
     app = new Application(new Container.Container());
     app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-    app.bind(Container.Identifiers.TriggerService).toConstantValue(triggers);
     app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(events);
 
     logger.debug.mockReset();
     logger.info.mockReset();
-    triggers.bind.mockReset();
     events.dispatch.mockReset();
 });
 
@@ -50,7 +43,6 @@ describe("ServiceProvider.register", () => {
         expect(getCustomRepository).toBeCalledTimes(3);
 
         expect(events.dispatch).toBeCalled();
-        expect(triggers.bind).toBeCalled();
 
         expect(app.isBound(Container.Identifiers.DatabaseConnection)).toBe(true);
         expect(app.isBound(Container.Identifiers.DatabaseRoundRepository)).toBe(true);
