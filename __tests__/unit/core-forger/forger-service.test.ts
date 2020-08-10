@@ -4,11 +4,11 @@ import { ForgeNewBlockAction, IsForgingAllowedAction } from "@arkecosystem/core-
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@arkecosystem/core-test-framework";
 import { Interfaces } from "@arkecosystem/crypto";
-import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 import { HostNoResponseError, RelayCommunicationError } from "@packages/core-forger/src/errors";
 import { ForgerService } from "@packages/core-forger/src/forger-service";
 import { Container, Enums, Services, Utils } from "@packages/core-kernel";
 import { NetworkStateStatus } from "@packages/core-p2p";
+import { GetActiveDelegatesAction } from "@packages/core-state/src/actions";
 import { Crypto, Managers } from "@packages/crypto";
 import { Address } from "@packages/crypto/src/identities";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
@@ -139,7 +139,7 @@ describe("ForgerService", () => {
         });
     });
 
-  describe("GetLastForgedBlock", () => {
+    describe("GetLastForgedBlock", () => {
         it("should return undefined", async () => {
             forgerService.register({ hosts: [mockHost] });
 

@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { Container, Services } from "@packages/core-kernel";
+import { GetActiveDelegatesAction } from "@packages/core-state/src/actions";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { Managers } from "@packages/crypto/src";

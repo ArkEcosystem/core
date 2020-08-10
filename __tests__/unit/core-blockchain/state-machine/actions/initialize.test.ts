@@ -18,8 +18,20 @@ describe("Initialize", () => {
         restoredDatabaseIntegrity: undefined,
         verifyBlockchain: jest.fn(),
         deleteRound: jest.fn(),
+    };
+    const databaseInteractions = {
+        walletRepository: {
+            getNonce: jest.fn(),
+        },
         buildWallets: jest.fn(),
         restoreCurrentRound: jest.fn(),
+        applyBlock: jest.fn(),
+        getTopBlocks: jest.fn(),
+        getLastBlock: jest.fn(),
+        loadBlocksFromCurrentRound: jest.fn(),
+        revertBlock: jest.fn(),
+        deleteRound: jest.fn(),
+        getActiveDelegates: jest.fn().mockReturnValue([]),
     };
     const peerNetworkMonitor = { boot: jest.fn() };
 
@@ -30,6 +42,7 @@ describe("Initialize", () => {
         container.bind(Container.Identifiers.Application).toConstantValue(application);
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
+        container.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
         container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPool);
         container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
@@ -57,7 +70,7 @@ describe("Initialize", () => {
 
                 expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
                 expect(databaseService.deleteRound).toHaveBeenCalledTimes(1);
-                expect(databaseService.restoreCurrentRound).toHaveBeenCalledTimes(1);
+                expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalledTimes(1);
                 expect(transactionPool.readdTransactions).toHaveBeenCalledTimes(1);
                 expect(peerNetworkMonitor.boot).toHaveBeenCalledTimes(1);
                 expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
@@ -182,7 +195,7 @@ describe("Initialize", () => {
 
                 expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
                 expect(databaseService.deleteRound).toHaveBeenCalledTimes(1);
-                expect(databaseService.restoreCurrentRound).toHaveBeenCalledTimes(0);
+                expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalledTimes(0);
                 expect(transactionPool.readdTransactions).toHaveBeenCalledTimes(0);
                 expect(peerNetworkMonitor.boot).toHaveBeenCalledTimes(1);
                 expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
