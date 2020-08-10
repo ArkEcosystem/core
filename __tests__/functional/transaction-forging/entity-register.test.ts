@@ -16,7 +16,6 @@ describe("Transaction Forging - Entity registration", () => {
             const registrations = [];
             let nonce = Utils.BigNumber.make(2);
             for (const { type, subType, name } of [
-                { type: Enums.EntityType.Bridgechain, subType: Enums.EntitySubType.None, name: "brdge" },
                 { type: Enums.EntityType.Business, subType: Enums.EntitySubType.None, name: "bzness" },
                 { type: Enums.EntityType.Delegate, subType: Enums.EntitySubType.None, name: "genesis_1" },
                 { type: Enums.EntityType.Developer, subType: Enums.EntitySubType.None, name: "dvloper" },
@@ -48,6 +47,25 @@ describe("Transaction Forging - Entity registration", () => {
                 await expect(entityRegistration.id).toBeForged();
                 await expect(entityRegistration).entityRegistered();
             }
+        });
+
+        it("should reject bridgechain entity registration, because it is deactivated [Signed with 1 Passphrase]", async () => {
+            // entity registration
+            const entityRegistration = TransactionFactory.entity({
+                type: Enums.EntityType.Bridgechain,
+                subType: Enums.EntitySubType.None,
+                action: Enums.EntityAction.Register,
+                data: {
+                    name: "plzacceptbridgechain",
+                },
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(entityRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(entityRegistration.id).not.toBeForged();
+            await expect(entityRegistration).not.entityRegistered();
         });
 
         it("should reject entity registration, because entity name contains unicode control characters [Signed with 1 Passphrase]", async () => {
@@ -96,11 +114,11 @@ describe("Transaction Forging - Entity registration", () => {
 
             // Registering entity
             const entityRegistration = TransactionFactory.entity({
-                type: Enums.EntityType.Bridgechain,
+                type: Enums.EntityType.Business,
                 subType: Enums.EntitySubType.None,
                 action: Enums.EntityAction.Register,
                 data: {
-                    name: "my_bridgechain",
+                    name: "my_bizbiz",
                 },
             })
                 .withPassphrase(passphrase)

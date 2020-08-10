@@ -88,7 +88,7 @@ describe("Memory", () => {
                             .nonce(nonce.toString())
                             .recipientId(address)
                             .amount("1")
-                            .fee(Math.floor(Math.random() * 100000).toString()) //
+                            .fee(Math.ceil(Math.random() * 100000).toString()) //
                             .sign(passphrase)
                             .build();
 

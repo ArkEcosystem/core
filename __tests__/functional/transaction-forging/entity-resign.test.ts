@@ -146,11 +146,11 @@ describe("Transaction Forging - Entity resign", () => {
 
             // Registering entity
             const entityRegistration = TransactionFactory.entity({
-                type: Enums.EntityType.Bridgechain,
+                type: Enums.EntityType.Business,
                 subType: Enums.EntitySubType.None,
                 action: Enums.EntityAction.Register,
                 data: {
-                    name: "by_bridgechain",
+                    name: "by_bizbiz",
                 },
             })
                 .withPassphrase(passphrase)
@@ -163,7 +163,7 @@ describe("Transaction Forging - Entity resign", () => {
 
             // Updating entity
             const entityResign = TransactionFactory.entity({
-                type: Enums.EntityType.Bridgechain,
+                type: Enums.EntityType.Business,
                 subType: Enums.EntitySubType.None,
                 action: Enums.EntityAction.Resign,
                 registrationId: entityRegistration.id,
