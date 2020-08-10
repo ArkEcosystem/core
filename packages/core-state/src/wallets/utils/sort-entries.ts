@@ -6,44 +6,31 @@ import { getProperty } from "./get-property";
 export type OrderBy = (any | string)[];
 
 // todo: review the implementation
-export const sortEntries = (params: OrderBy, wallets: Contracts.State.Wallet[]) => {
+export const sortEntries = (params: OrderBy, entries: unknown[]): unknown[] => {
     const [iteratee, order] = params;
 
     if (["balance", "voteBalance"].includes(iteratee)) {
-        return Object.values(wallets).sort((a: Contracts.State.Wallet, b: Contracts.State.Wallet) => {
-            const iterateeA: Utils.BigNumber = getProperty(a, iteratee) || Utils.BigNumber.ZERO;
-            const iterateeB: Utils.BigNumber = getProperty(b, iteratee) || Utils.BigNumber.ZERO;
+        return Object.values(entries as Contracts.State.Wallet[]).sort(
+            (a: Contracts.State.Wallet, b: Contracts.State.Wallet) => {
+                const iterateeA: Utils.BigNumber = getProperty(a, iteratee) || Utils.BigNumber.ZERO;
+                const iterateeB: Utils.BigNumber = getProperty(b, iteratee) || Utils.BigNumber.ZERO;
 
-            return order === "asc" ? iterateeA.comparedTo(iterateeB) : iterateeB.comparedTo(iterateeA);
-        });
+                return order === "asc" ? iterateeA.comparedTo(iterateeB) : iterateeB.comparedTo(iterateeA);
+            },
+        );
     }
 
     return AppUtils.orderBy(
-        wallets,
+        entries,
         // todo: revisit the implementation of this method when wallet search changes are implemented
         // most likely even remove it once the wallet changes have been fully implemented
-        (wallet: Contracts.State.Wallet) => {
+        (entry: unknown) => {
             if (typeof iteratee === "function") {
                 // @ts-ignore
-                return iteratee(wallet);
+                return iteratee(entry);
             }
 
-            if (AppUtils.has(wallet, iteratee)) {
-                return AppUtils.get(wallet, iteratee);
-            }
-
-            const walletAttributes = wallet.getAttributes();
-
-            if (AppUtils.has(walletAttributes, `delegate.${iteratee}`)) {
-                /* istanbul ignore next */
-                return AppUtils.get(walletAttributes, `delegate.${iteratee}`);
-            }
-
-            if (AppUtils.has(walletAttributes, iteratee)) {
-                return AppUtils.get(walletAttributes, iteratee);
-            }
-
-            return getProperty(wallet, iteratee);
+            return getProperty(entry, iteratee);
         },
         [order],
     );
