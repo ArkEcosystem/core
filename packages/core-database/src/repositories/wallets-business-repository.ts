@@ -60,14 +60,14 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         switch (scope) {
             case Database.SearchScope.Wallets: {
                 return walletManager.findByIndex(
-                    [State.WalletIndexes.Usernames, State.WalletIndexes.Addresses, State.WalletIndexes.PublicKeys],
+                    [State.WalletIndexes.Addresses, State.WalletIndexes.PublicKeys, State.WalletIndexes.Usernames],
                     id,
                 );
             }
 
             case Database.SearchScope.Delegates: {
                 const wallet: State.IWallet | undefined = walletManager.findByIndex(
-                    [State.WalletIndexes.Usernames, State.WalletIndexes.Addresses, State.WalletIndexes.PublicKeys],
+                    [State.WalletIndexes.Addresses, State.WalletIndexes.PublicKeys, State.WalletIndexes.Usernames],
                     id,
                 );
 

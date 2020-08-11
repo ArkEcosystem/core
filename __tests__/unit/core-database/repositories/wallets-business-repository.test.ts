@@ -10,7 +10,7 @@ import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 import { WalletsBusinessRepository } from "../../../../packages/core-database/src";
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
 import { Wallets } from "../../../../packages/core-state/src";
-import { Address } from "../../../../packages/crypto/src/identities";
+import { Address, PublicKey } from "../../../../packages/crypto/src/identities";
 import { stateStorageStub } from "../__fixtures__/state-storage-stub";
 
 let genesisSenders;
@@ -357,6 +357,22 @@ describe("Wallet Repository", () => {
 
         it("should be ok with a username", () => {
             expectWallet("username");
+        });
+
+        it("should find wallet by address or public key before username", () => {
+            const address = Address.fromPassphrase("dummy");
+            const publicKey = PublicKey.fromPassphrase("dummy");
+            const wallet = new Wallets.Wallet(address);
+            wallet.publicKey = publicKey;
+            const walletUsernameAddress = new Wallets.Wallet(Address.fromPassphrase("a different wallet"));
+            walletUsernameAddress.setAttribute("delegate.username", address);
+            const walletUsernamePublicKey = new Wallets.Wallet(Address.fromPassphrase("a different wallet"));
+            walletUsernamePublicKey.setAttribute("delegate.username", publicKey);
+
+            walletManager.index([wallet, walletUsernameAddress, walletUsernamePublicKey]);
+
+            expect(repository.findById(Database.SearchScope.Wallets, address)).toBe(wallet);
+            expect(repository.findById(Database.SearchScope.Wallets, publicKey)).toBe(wallet);
         });
     });
 
