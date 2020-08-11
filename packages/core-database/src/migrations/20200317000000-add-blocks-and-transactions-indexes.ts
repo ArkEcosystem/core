@@ -3,7 +3,7 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class AddBlocksAndTransactionsIndexes20200317000000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`
-            CREATE INDEX transactions_asset ON transactions(asset);
+            CREATE INDEX transactions_asset ON transactions USING GIN(asset);
             CREATE INDEX transactions_amount ON transactions(amount);
             CREATE INDEX transactions_fee ON transactions(fee);
             CREATE INDEX transactions_nonce_idx ON transactions(nonce);
