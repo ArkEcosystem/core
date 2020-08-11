@@ -29,6 +29,14 @@ export class Hash {
             return false;
         }
 
+        // if first byte is zero it is to make R/S positive, so second byte should be negative
+        if (
+            (rFirstByte === 0 && bufferSignature.readInt8(4 + 1) >= 0) ||
+            (sFirstByte === 0 && bufferSignature.readInt8(4 + rLength + 2 + 1) >= 0)
+        ) {
+            return false;
+        }
+
         return secp256k1.verify(
             hash,
             signatureRS,

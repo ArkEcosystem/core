@@ -66,6 +66,24 @@ describe("Hash", () => {
                 Hash.verifyECDSA(hash, invalidSignatureNegativeR, Buffer.from(identity.publicKey, "hex")),
             ).toBeFalse();
         });
+
+        it("should not verify when signature R or S has incorrect padding zeros", () => {
+            const hash: Buffer = TransactionUtils.toHash(transaction);
+            const validSignature =
+                "30450221008682af02d5f3c6302af14f3239a997022f69c28a5e3282603d5f25912ccd3b47022023cec266362f5bb91e6a2f2fcb62f4c61829dfd7a096432ff8b4a54a83577444";
+            const invalidSignatures = [
+                "3046022200008682af02d5f3c6302af14f3239a997022f69c28a5e3282603d5f25912ccd3b47022023cec266362f5bb91e6a2f2fcb62f4c61829dfd7a096432ff8b4a54a83577444",
+                "30460221008682af02d5f3c6302af14f3239a997022f69c28a5e3282603d5f25912ccd3b4702210023cec266362f5bb91e6a2f2fcb62f4c61829dfd7a096432ff8b4a54a83577444",
+                "304702230000008682af02d5f3c6302af14f3239a997022f69c28a5e3282603d5f25912ccd3b47022023cec266362f5bb91e6a2f2fcb62f4c61829dfd7a096432ff8b4a54a83577444",
+                "30460221008682af02d5f3c6302af14f3239a997022f69c28a5e3282603d5f25912ccd3b470222000023cec266362f5bb91e6a2f2fcb62f4c61829dfd7a096432ff8b4a54a83577444",
+            ];
+
+            expect(Hash.verifyECDSA(hash, validSignature, Buffer.from(identity.publicKey, "hex"))).toBeTrue();
+
+            for (const invalidSignature of invalidSignatures) {
+                expect(Hash.verifyECDSA(hash, invalidSignature, Buffer.from(identity.publicKey, "hex"))).toBeFalse();
+            }
+        });
     });
 
     describe("schnorr", () => {
