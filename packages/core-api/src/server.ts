@@ -1,4 +1,4 @@
-import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Types, Utils } from "@arkecosystem/core-kernel";
 import { badData } from "@hapi/boom";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
@@ -172,31 +172,30 @@ export class Server {
             },
         };
 
-        return {
-            ...{
-                router: {
-                    stripTrailingSlash: true,
-                },
-                routes: {
-                    payload: {
-                        /* istanbul ignore next */
-                        async failAction(request, h, err) {
-                            return badData(err.message);
-                        },
+        const defaultOptions = {
+            router: {
+                stripTrailingSlash: true,
+            },
+            routes: {
+                payload: {
+                    /* istanbul ignore next */
+                    async failAction(request, h, err) {
+                        return badData(err.message);
                     },
-                    validate: {
-                        options: {
-                            context: validateContext,
-                        },
+                },
+                validate: {
+                    options: {
+                        context: validateContext,
+                    },
 
-                        /* istanbul ignore next */
-                        async failAction(request, h, err) {
-                            return badData(err.message);
-                        },
+                    /* istanbul ignore next */
+                    async failAction(request, h, err) {
+                        return badData(err.message);
                     },
                 },
             },
-            ...options,
         };
+
+        return Utils.merge(defaultOptions, options);
     }
 }
