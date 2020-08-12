@@ -1,7 +1,7 @@
 import { RateLimiter } from "@arkecosystem/core-p2p/src/rate-limiter";
 import { cloneDeep } from "lodash";
 
-describe("RateLimiter", () => {
+describe.skip("RateLimiter", () => {
     let rateLimiter: RateLimiter;
 
     const rateLimitConfig = {

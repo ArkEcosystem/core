@@ -1,9 +1,8 @@
 import { Container, Enums } from "@arkecosystem/core-kernel";
-
 import { EventListener } from "@arkecosystem/core-p2p/src/event-listener";
 import { DisconnectPeer } from "@arkecosystem/core-p2p/src/listeners";
 
-describe("EventListener", () => {
+describe.skip("EventListener", () => {
     let eventListener: EventListener;
 
     const container = new Container.Container();

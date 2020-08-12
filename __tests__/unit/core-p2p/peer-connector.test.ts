@@ -2,15 +2,14 @@ import "jest-extended";
 
 import { Container } from "@arkecosystem/core-kernel";
 
-import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
-import { Peer } from "../../../packages/core-p2p/src/peer";
 import * as Nes from "../../../packages/core-p2p/src/hapi-nes";
-
+import { Peer } from "../../../packages/core-p2p/src/peer";
+import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
 import { NesClient } from "./mocks/nes";
 
 jest.spyOn(Nes, "Client").mockImplementation((url) => new (NesClient as any)());
 
-describe("PeerConnector", () => {
+describe.skip("PeerConnector", () => {
     let peerConnector: PeerConnector;
     let logger;
 

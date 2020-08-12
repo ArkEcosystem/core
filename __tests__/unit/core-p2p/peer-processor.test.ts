@@ -1,9 +1,8 @@
 import { Container, Enums } from "@arkecosystem/core-kernel";
-
-import { PeerProcessor } from "@arkecosystem/core-p2p/src/peer-processor";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
+import { PeerProcessor } from "@arkecosystem/core-p2p/src/peer-processor";
 
-describe("PeerProcessor", () => {
+describe.skip("PeerProcessor", () => {
     let peerProcessor: PeerProcessor;
 
     const container = new Container.Container();
@@ -60,8 +59,8 @@ describe("PeerProcessor", () => {
 
             expect(eventDispatcher.listen).toBeCalledTimes(1);
             expect(eventDispatcher.listen).toBeCalledWith(Enums.CryptoEvent.MilestoneChanged, expect.anything());
-        })
-    })
+        });
+    });
 
     describe("validateAndAcceptPeer", () => {
         it("should accept a new peer if its ip is validated", async () => {
