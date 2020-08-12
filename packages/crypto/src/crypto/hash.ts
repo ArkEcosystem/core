@@ -16,9 +16,10 @@ export class Hash {
 
         // check that global signature length matches R and S length, see DER format :
         // <header byte><signature length><integer marker><R length><R><integer marker><S length><S>
+        const signatureLength = bufferSignature.readUInt8(1);
         const rLength = bufferSignature.readUInt8(3);
         const sLength = bufferSignature.readUInt8(4 + rLength + 1);
-        if (bufferSignature.length !== 4 + rLength + 2 + sLength) {
+        if (bufferSignature.length !== 4 + rLength + 2 + sLength || signatureLength !== 2 + rLength + 2 + sLength) {
             return false;
         }
 
@@ -26,6 +27,14 @@ export class Hash {
         const rFirstByte = bufferSignature.readInt8(4);
         const sFirstByte = bufferSignature.readInt8(4 + rLength + 2);
         if (rFirstByte < 0 || sFirstByte < 0) {
+            return false;
+        }
+
+        // if first byte is zero it is to make R/S positive, so second byte should be negative
+        if (
+            (rFirstByte === 0 && bufferSignature.readInt8(4 + 1) >= 0) ||
+            (sFirstByte === 0 && bufferSignature.readInt8(4 + rLength + 2 + 1) >= 0)
+        ) {
             return false;
         }
 
