@@ -108,6 +108,15 @@ describe("API 2.0 - Transactions", () => {
         });
     });
 
+    describe("GET /transactions?limit=5", () => {
+        it("should GET few transactions", async () => {
+            const response = await api.request("GET", "transactions", { limit: 5 });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data.length).toBe(5);
+        });
+    });
+
     describe("GET /transactions/:id", () => {
         it("should GET a transaction by the given identifier", async () => {
             const response = await api.request("GET", `transactions/${transactionId}`);
