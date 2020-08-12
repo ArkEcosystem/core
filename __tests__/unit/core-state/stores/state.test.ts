@@ -31,6 +31,12 @@ beforeEach(() => {
 afterAll(() => jest.clearAllMocks());
 
 describe("State Storage", () => {
+    describe("getMaxLastBlocks", () => {
+        it("should return max last blocks limit", () => {
+            expect(stateStorage.getMaxLastBlocks()).toBe(100);
+        });
+    });
+
     describe("getLastHeight", () => {
         it("should return the last block height", () => {
             stateStorage.setLastBlock(blocks[0]);

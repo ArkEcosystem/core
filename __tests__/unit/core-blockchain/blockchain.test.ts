@@ -61,6 +61,7 @@ describe("Blockchain", () => {
         logService.debug = jest.fn();
 
         stateStore.started = false;
+        stateStore.getMaxLastBlocks = jest.fn().mockReturnValue(200);
         stateStore.clearWakeUpTimeout = jest.fn();
         stateStore.wakeUpTimeout = undefined;
         stateStore.lastDownloadedBlock = undefined;
@@ -379,7 +380,7 @@ describe("Blockchain", () => {
                 const spyDispatch = jest.spyOn(blockchain, "dispatch");
                 stateStore.started = true;
                 stateStore.getLastBlock = jest.fn().mockReturnValue({ data: blockData });
-                
+
                 jest.spyOn(Crypto.Slots, "getSlotNumber").mockReturnValueOnce(1).mockReturnValueOnce(2);
                 jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(5000);
 
@@ -500,7 +501,7 @@ describe("Blockchain", () => {
             expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [blockData] });
         });
 
-        it("should push a chunk to the queue when currentBlocksChunk.length > 100", async () => {
+        it("should push a chunk to the queue when currentBlocksChunk.length >= 100", async () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             blockchain.initialize({});
             stateStore.lastDownloadedBlock = { height: 23111 };
@@ -508,7 +509,7 @@ describe("Blockchain", () => {
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
             const blocksToEnqueue = [];
-            for (let i = 0; i <= 101; i++) {
+            for (let i = 0; i < 101; i++) {
                 // @ts-ignore
                 blocksToEnqueue.push(blockData);
             }

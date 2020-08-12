@@ -25,6 +25,11 @@ export interface StateStore {
     clearWakeUpTimeout(): void;
 
     /**
+     * Get block storage limit.
+     */
+    getMaxLastBlocks(): number;
+
+    /**
      * Get the last block height.
      */
     getLastHeight(): number;
