@@ -266,16 +266,23 @@ export class DatabaseService {
     public async getBlocks(offset: number, limit: number, headersOnly?: boolean): Promise<Interfaces.IBlockData[]> {
         // The functions below return matches in the range [start, end], including both ends.
         const start: number = offset;
-        const end: number = offset + limit - 1;
+        let end: number = offset + limit - 1;
 
         let blocks: Interfaces.IBlockData[] = this.stateStore.getLastBlocksByHeight(start, end, headersOnly);
 
         if (blocks.length !== limit) {
             // ! assumes that earlier blocks may be missing
             // ! but querying database is unnecessary when later blocks are missing too (aren't forged yet)
-            blocks = headersOnly
+
+            if (blocks.length) {
+                end = blocks[0].height;
+            }
+
+            const blocksFromDB = headersOnly
                 ? await this.blockRepository.findByHeightRange(start, end)
                 : await this.blockRepository.findByHeightRangeWithTransactions(start, end);
+
+            blocks = [...blocksFromDB, ...blocks];
         }
 
         return blocks;
