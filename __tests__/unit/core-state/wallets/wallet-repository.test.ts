@@ -60,7 +60,6 @@ beforeAll(async () => {
 
     attributeSet = initialEnv.sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes);
 
-    // TODO: pass attribute set from sandbox
     fixtureGenerator = new FixtureGenerator(genesisBlock, attributeSet);
 });
 
@@ -811,11 +810,6 @@ describe("Delegate Wallets", () => {
             { username: "delegate-2", forgedFees: Utils.BigNumber.make(30), forgedRewards: Utils.BigNumber.make(30) },
         ];
 
-        const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map((delegate) => {
-            const wallet = new Wallet("", new Services.Attributes.AttributeMap(attributeSet));
-            return Object.assign(wallet, { attributes: { delegate } });
-        });
-
         const search = (params = {}): Contracts.Search.ListResult<Wallet> => {
             return walletRepo.search(Contracts.State.SearchScope.Delegates, params);
         };
@@ -826,6 +820,12 @@ describe("Delegate Wallets", () => {
         });
 
         it("should return the local wallets of the connection that are delegates", () => {
+            const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map((delegate) => {
+                const wallet = new Wallet("", new Services.Attributes.AttributeMap(attributeSet));
+                wallet.setAttribute("delegate", delegate);
+                return wallet;
+            });
+
             jest.spyOn(walletRepo, "allByUsername").mockReturnValue(wallets);
 
             const { rows } = search();
