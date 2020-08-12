@@ -275,7 +275,7 @@ export class DatabaseService {
             // ! but querying database is unnecessary when later blocks are missing too (aren't forged yet)
 
             if (blocks.length) {
-                end = blocks[0].height;
+                end = blocks[0].height - 1;
             }
 
             const blocksFromDB = headersOnly
