@@ -3,7 +3,7 @@ import { badData } from "@hapi/boom";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
-import * as Schemas from "./schemas";
+import { createSchemas } from "./schemas";
 
 // todo: review the implementation
 @Container.injectable()
@@ -63,7 +63,11 @@ export class Server {
         this.server.listener.headersTimeout = timeout;
 
         this.server.app.app = this.app;
-        this.server.app.schemas = Schemas;
+        this.server.app.schemas = createSchemas({
+            pagination: {
+                limit: this.configuration.getRequired<number>("plugins.pagination.limit"),
+            },
+        });
 
         this.server.ext("onPreHandler", (request, h) => {
             request.headers["content-type"] = "application/json";
@@ -162,16 +166,6 @@ export class Server {
             options.tls.cert = readFileSync(options.tls.cert).toString();
         }
 
-        const validateContext = {
-            configuration: {
-                plugins: {
-                    pagination: {
-                        limit: this.configuration.getRequired<number>("plugins.pagination.limit"),
-                    },
-                },
-            },
-        };
-
         return {
             ...{
                 router: {
@@ -185,10 +179,6 @@ export class Server {
                         },
                     },
                     validate: {
-                        options: {
-                            context: validateContext,
-                        },
-
                         /* istanbul ignore next */
                         async failAction(request, h, err) {
                             return badData(err.message);
