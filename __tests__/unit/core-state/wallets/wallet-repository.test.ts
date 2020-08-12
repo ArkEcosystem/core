@@ -606,11 +606,26 @@ describe("Search", () => {
     describe("Delegates", () => {
         it("should search return all delegates", () => {
             const wallets = fixtureGenerator.generateFullWallets();
+            for (let i = 0; i < wallets.length; i++) {
+                wallets[i].setAttribute("delegate.rank", i + 1);
+            }
+            wallets.sort(() => Math.floor(Math.random() * 3) - 1);
             walletRepo.index(wallets);
 
             const delegates = walletRepo.search(Contracts.State.SearchScope.Delegates, {});
+
             expect(wallets.length).not.toEqual(0);
             expect(delegates.rows).toHaveLength(wallets.length);
+
+            for (let i = 1; i < delegates.rows.length; i++) {
+                const next: Contracts.State.Wallet = delegates.rows[i] as any;
+                const prev: Contracts.State.Wallet = delegates.rows[i - 1] as any;
+
+                const nextRank = next.getAttribute<number>("delegate.rank");
+                const prevRank = prev.getAttribute<number>("delegate.rank");
+
+                expect(nextRank).toBeGreaterThan(prevRank);
+            }
         });
 
         it("should search by address", () => {
