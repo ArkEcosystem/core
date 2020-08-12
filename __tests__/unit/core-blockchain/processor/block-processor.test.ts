@@ -37,12 +37,7 @@ describe("BlockProcessor", () => {
     const transactionHandlerRegistry = {
         getActivatedHandlerForData: jest.fn(),
     };
-    const databaseService = {
-        getActiveDelegates: jest.fn(),
-        walletRepository: {
-            getNonce: jest.fn(),
-        },
-    };
+    const databaseService = {};
     const databaseInteractions = {
         walletRepository: {
             getNonce: jest.fn(),
@@ -209,7 +204,7 @@ describe("BlockProcessor", () => {
                 ],
             };
 
-            databaseService.walletRepository.getNonce = jest.fn().mockReturnValueOnce(Utils.BigNumber.ONE);
+            databaseInteractions.walletRepository.getNonce = jest.fn().mockReturnValueOnce(Utils.BigNumber.ONE);
 
             const blockProcessor = sandbox.app.resolve<BlockProcessor>(BlockProcessor);
 
@@ -232,7 +227,7 @@ describe("BlockProcessor", () => {
                 ],
             };
 
-            databaseService.walletRepository.getNonce = jest.fn().mockReturnValueOnce(Utils.BigNumber.ONE);
+            databaseInteractions.walletRepository.getNonce = jest.fn().mockReturnValueOnce(Utils.BigNumber.ONE);
             databaseInteractions.getActiveDelegates = jest.fn().mockReturnValueOnce([]);
             blockchain.getLastBlock = jest.fn().mockReturnValueOnce(baseBlock);
             const generatorWallet = {
@@ -366,7 +361,7 @@ describe("BlockProcessor", () => {
         databaseInteractions.getActiveDelegates = jest.fn().mockReturnValueOnce([]);
         blockchain.getLastBlock = jest.fn().mockReturnValueOnce(baseBlock);
         transactionRepository.getForgedTransactionsIds = jest.fn().mockReturnValueOnce([transactionData.id]);
-        databaseService.walletRepository.getNonce = jest.fn().mockReturnValueOnce(Utils.BigNumber.ONE);
+        databaseInteractions.walletRepository.getNonce = jest.fn().mockReturnValueOnce(Utils.BigNumber.ONE);
         const generatorWallet = {
             getAttribute: jest.fn().mockReturnValue("generatorusername"),
         };
