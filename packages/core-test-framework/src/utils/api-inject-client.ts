@@ -13,7 +13,7 @@ export class ApiInjectClient {
     @Container.inject(Identifiers.HTTP)
     private readonly server!: Server;
 
-    public async get(path: string, params: Record<string, string> = {}): Promise<ApiResponse> {
+    public async get(path: string, params: Record<string, string | number> = {}): Promise<ApiResponse> {
         const url = `${this.server.uri}/api${path}?${querystring.stringify(params)}`;
         const request = { method: "GET", url };
         const response = await this.server.inject(request);
@@ -21,7 +21,7 @@ export class ApiInjectClient {
         return this.parseInjectResponse(response);
     }
 
-    public async post(path: string, body: unknown, params: Record<string, string> = {}): Promise<ApiResponse> {
+    public async post(path: string, body: unknown, params: Record<string, string | number> = {}): Promise<ApiResponse> {
         const url = `${this.server.uri}/api${path}?${querystring.stringify(params)}`;
         const payload = JSON.stringify(body);
         const headers = { "Content-Type": "application/json" };
