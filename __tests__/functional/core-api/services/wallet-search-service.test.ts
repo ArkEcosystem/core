@@ -1,5 +1,5 @@
-import { WalletSearchService } from "@arkecosystem/core-api";
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Identifiers as ApiIdentifiers, WalletSearchService } from "@arkecosystem/core-api";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
 import { setUp } from "./__support__/setup";
@@ -8,10 +8,15 @@ let walletRepository: Contracts.State.WalletRepository;
 let walletSearchService: WalletSearchService;
 
 beforeEach(async () => {
-    const env = await setUp();
+    const app = await setUp();
 
-    walletRepository = env.walletRepository;
-    walletSearchService = env.walletSearchService;
+    walletRepository = app.getTagged<Contracts.State.WalletRepository>(
+        Container.Identifiers.WalletRepository,
+        "state",
+        "blockchain",
+    );
+
+    walletSearchService = app.get<WalletSearchService>(ApiIdentifiers.WalletSearchService);
 });
 
 describe("WalletSearchService.getWalletResourceFromWallet", () => {

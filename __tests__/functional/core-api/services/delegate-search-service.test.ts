@@ -1,5 +1,5 @@
-import { DelegateSearchService } from "@arkecosystem/core-api";
-import { Contracts } from "@arkecosystem/core-kernel";
+import { DelegateSearchService, Identifiers as ApiIdentifiers } from "@arkecosystem/core-api";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
 import { setUp } from "./__support__/setup";
@@ -8,10 +8,15 @@ let walletRepository: Contracts.State.WalletRepository;
 let delegateSearchService: DelegateSearchService;
 
 beforeEach(async () => {
-    const env = await setUp();
+    const app = await setUp();
 
-    walletRepository = env.walletRepository;
-    delegateSearchService = env.delegateSearchService;
+    walletRepository = app.getTagged<Contracts.State.WalletRepository>(
+        Container.Identifiers.WalletRepository,
+        "state",
+        "blockchain",
+    );
+
+    delegateSearchService = app.get<DelegateSearchService>(ApiIdentifiers.DelegateSearchService);
 });
 
 const walletDelegate1 = {
