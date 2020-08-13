@@ -1,9 +1,9 @@
-import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Types, Utils } from "@arkecosystem/core-kernel";
 import { badData } from "@hapi/boom";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
-import { createSchemas } from "./schemas";
+import * as Schemas from "./schemas";
 
 // todo: review the implementation
 @Container.injectable()
@@ -63,11 +63,7 @@ export class Server {
         this.server.listener.headersTimeout = timeout;
 
         this.server.app.app = this.app;
-        this.server.app.schemas = createSchemas({
-            pagination: {
-                limit: this.configuration.getRequired<number>("plugins.pagination.limit"),
-            },
-        });
+        this.server.app.schemas = Schemas;
 
         this.server.ext("onPreHandler", (request, h) => {
             request.headers["content-type"] = "application/json";
@@ -166,27 +162,40 @@ export class Server {
             options.tls.cert = readFileSync(options.tls.cert).toString();
         }
 
-        return {
-            ...{
-                router: {
-                    stripTrailingSlash: true,
-                },
-                routes: {
-                    payload: {
-                        /* istanbul ignore next */
-                        async failAction(request, h, err) {
-                            return badData(err.message);
-                        },
-                    },
-                    validate: {
-                        /* istanbul ignore next */
-                        async failAction(request, h, err) {
-                            return badData(err.message);
-                        },
+        const validateContext = {
+            configuration: {
+                plugins: {
+                    pagination: {
+                        limit: this.configuration.getRequired<number>("plugins.pagination.limit"),
                     },
                 },
             },
-            ...options,
         };
+
+        const defaultOptions = {
+            router: {
+                stripTrailingSlash: true,
+            },
+            routes: {
+                payload: {
+                    /* istanbul ignore next */
+                    async failAction(request, h, err) {
+                        return badData(err.message);
+                    },
+                },
+                validate: {
+                    options: {
+                        context: validateContext,
+                    },
+
+                    /* istanbul ignore next */
+                    async failAction(request, h, err) {
+                        return badData(err.message);
+                    },
+                },
+            },
+        };
+
+        return Utils.merge(defaultOptions, options);
     }
 }
