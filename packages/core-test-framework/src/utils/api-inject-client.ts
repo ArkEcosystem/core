@@ -2,14 +2,14 @@ import { Identifiers, Server } from "@arkecosystem/core-api";
 import { Container } from "@arkecosystem/core-kernel";
 import querystring from "querystring";
 
-export type ApiServerResponse = {
+type ApiResponse = {
     status: number;
     headers: Record<string, string>;
     data: unknown;
 };
 
 @Container.injectable()
-export class ApiServerClient {
+export class ApiInjectClient {
     @Container.inject(Identifiers.HTTP)
     private readonly server!: Server;
 
@@ -17,18 +17,13 @@ export class ApiServerClient {
         path: string,
         options = {
             params: {} as Record<string, string>,
-            headers: {} as Record<string, string>,
         },
-    ): Promise<ApiServerResponse> {
+    ): Promise<ApiResponse> {
         const url = `${this.server.uri}/api${path}?${querystring.stringify(options.params)}`;
-        const request = { method: "GET", url, headers: options.headers };
+        const request = { method: "GET", url };
         const response = await this.server.inject(request);
 
-        return {
-            status: response.statusCode,
-            headers: response.headers,
-            data: JSON.parse(response.result),
-        };
+        return this.parseInjectResponse(response);
     }
 
     public async post(
@@ -36,19 +31,31 @@ export class ApiServerClient {
         body: unknown,
         options = {
             params: {} as Record<string, string>,
-            headers: {} as Record<string, string>,
         },
-    ): Promise<ApiServerResponse> {
+    ): Promise<ApiResponse> {
         const url = `${this.server.uri}/api${path}?${querystring.stringify(options.params)}`;
         const payload = JSON.stringify(body);
-        const headers = { "Content-Type": "application/json", ...options.headers };
+        const headers = { "Content-Type": "application/json" };
         const request = { method: "POST", url, payload, headers };
         const response = await this.server.inject(request);
 
+        return this.parseInjectResponse(response);
+    }
+
+    private parseInjectResponse(response: any): ApiResponse {
+        const responseHeaders = {};
+        for (const pair of Object.entries(response.headers)) {
+            const headerName = pair[0].toLowerCase();
+            const headerValue = String(pair[1]);
+            responseHeaders[headerName] = headerValue;
+        }
+
+        const responseData = JSON.parse(JSON.stringify(response.result));
+
         return {
             status: response.statusCode,
-            headers: response.headers,
-            data: JSON.parse(response.result),
+            headers: responseHeaders,
+            data: responseData,
         };
     }
 }
