@@ -1,4 +1,3 @@
-// import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Contracts } from "@arkecosystem/core-kernel";
 
 export class WalletIndex implements Contracts.State.WalletIndex {

@@ -180,14 +180,6 @@ export interface WalletRepository {
 
     index(wallets: Wallet | ReadonlyArray<Wallet>): void;
 
-    forgetByAddress(address: string): void;
-
-    forgetByPublicKey(publicKey: string): void;
-
-    forgetByUsername(username: string): void;
-
-    forgetByIndex(indexName: string, key: string): void;
-
     hasByAddress(address: string): boolean;
 
     hasByPublicKey(publicKey: string): boolean;

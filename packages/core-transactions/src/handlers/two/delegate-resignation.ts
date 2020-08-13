@@ -97,7 +97,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+        const senderWallet = this.walletRepository.findByPublicKey(
             transaction.data.senderPublicKey,
         );
 
@@ -111,7 +111,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        this.walletRepository.findByPublicKey(transaction.data.senderPublicKey).forgetAttribute("delegate.resigned");
+        const senderWallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+
+        senderWallet.forgetAttribute("delegate.resigned");
+
+        this.walletRepository.index(senderWallet);
     }
 
     public async applyToRecipient(
