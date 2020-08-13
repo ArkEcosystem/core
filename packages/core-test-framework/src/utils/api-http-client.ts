@@ -13,26 +13,15 @@ export class ApiHttpClient {
     @Container.inject(Identifiers.HTTP)
     private readonly server!: Server;
 
-    public async get(
-        path: string,
-        options = {
-            params: {} as Record<string, string>,
-        },
-    ): Promise<ApiResponse> {
-        const url = `${this.server.uri}/api${path}?${querystring.stringify(options.params)}`;
+    public async get(path: string, params: Record<string, string> = {}): Promise<ApiResponse> {
+        const url = `${this.server.uri}/api${path}?${querystring.stringify(params)}`;
         const response = await Utils.http.get(url);
 
         return this.parseHttpResponse(response);
     }
 
-    public async post(
-        path: string,
-        body: unknown,
-        options = {
-            params: {} as Record<string, string>,
-        },
-    ): Promise<ApiResponse> {
-        const url = `${this.server.uri}/api${path}?${querystring.stringify(options.params)}`;
+    public async post(path: string, body: unknown, params: Record<string, string> = {}): Promise<ApiResponse> {
+        const url = `${this.server.uri}/api${path}?${querystring.stringify(params)}`;
         const response = await Utils.http.post(url, { body: body as any });
 
         return this.parseHttpResponse(response);
