@@ -666,12 +666,12 @@ describe("DatabaseService.getBlocks", () => {
         const block102 = { height: 102, transactions: [] };
 
         stateStore.getLastBlocksByHeight.mockReturnValueOnce([block101, block102]);
-        blockRepository.findByHeightRangeWithTransactions.mockResolvedValueOnce([block100, block101, block102]);
+        blockRepository.findByHeightRangeWithTransactions.mockResolvedValueOnce([block100]);
 
         const result = await databaseService.getBlocks(100, 3);
 
         expect(stateStore.getLastBlocksByHeight).toBeCalledWith(100, 102, undefined);
-        expect(blockRepository.findByHeightRangeWithTransactions).toBeCalledWith(100, 102);
+        expect(blockRepository.findByHeightRangeWithTransactions).toBeCalledWith(100, 100);
         expect(result).toEqual([block100, block101, block102]);
     });
 
@@ -683,12 +683,12 @@ describe("DatabaseService.getBlocks", () => {
         const block102 = { height: 102 };
 
         stateStore.getLastBlocksByHeight.mockReturnValueOnce([block101, block102]);
-        blockRepository.findByHeightRange.mockResolvedValueOnce([block100, block101, block102]);
+        blockRepository.findByHeightRange.mockResolvedValueOnce([block100]);
 
         const result = await databaseService.getBlocks(100, 3, true);
 
         expect(stateStore.getLastBlocksByHeight).toBeCalledWith(100, 102, true);
-        expect(blockRepository.findByHeightRange).toBeCalledWith(100, 102);
+        expect(blockRepository.findByHeightRange).toBeCalledWith(100, 100);
         expect(result).toEqual([block100, block101, block102]);
     });
 });

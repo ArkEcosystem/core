@@ -97,6 +97,8 @@ export class IpfsTransactionHandler extends TransactionHandler {
             sender.forgetAttribute("ipfs");
         }
 
+        this.walletRepository.getIndex(Contracts.State.WalletIndexes.Ipfs).forget(transaction.data.asset.ipfs);
+
         this.walletRepository.index(sender);
     }
 

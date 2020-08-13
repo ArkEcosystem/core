@@ -34,7 +34,7 @@ export class StateStore implements Contracts.State.StateStore {
     // can be configured with the option `state.maxLastBlocks`.
     private lastBlocks: OrderedMap<number, Interfaces.IBlock> = OrderedMap<number, Interfaces.IBlock>();
     // Stores the last n incoming transaction ids. The amount of transaction ids
-    // can be configred with the option `state.maxLastTransactionIds`.
+    // can be configured with the option `state.maxLastTransactionIds`.
     private cachedTransactionIds: OrderedSet<string> = OrderedSet();
 
     /**
@@ -61,6 +61,10 @@ export class StateStore implements Contracts.State.StateStore {
             clearTimeout(this.wakeUpTimeout);
             this.wakeUpTimeout = undefined;
         }
+    }
+
+    public getMaxLastBlocks(): number {
+        return this.configuration.getRequired<number>("storage.maxLastBlocks");
     }
 
     /**
@@ -119,9 +123,7 @@ export class StateStore implements Contracts.State.StateStore {
         }
 
         // Delete oldest block if size exceeds the maximum
-        const maxLastBlocks = this.configuration.getRequired<number>("storage.maxLastBlocks");
-
-        if (this.lastBlocks.size > maxLastBlocks) {
+        if (this.lastBlocks.size > this.getMaxLastBlocks()) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);
         }
 
