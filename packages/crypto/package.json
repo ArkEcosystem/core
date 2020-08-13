@@ -54,7 +54,7 @@
         "@rollup/plugin-commonjs": "^13.0.0",
         "@rollup/plugin-inject": "^4.0.2",
         "@rollup/plugin-json": "^4.1.0",
-        "@rollup/plugin-node-resolve": "^8.1.0",
+        "@rollup/plugin-node-resolve": "^9.0.0",
         "@types/bip32": "^1.0.2",
         "@types/bip39": "^2.4.2",
         "@types/buffer-xor": "^2.0.0",
