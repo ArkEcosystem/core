@@ -27,7 +27,7 @@
         "@arkecosystem/core-transaction-pool": "^3.0.0-alpha.0",
         "@arkecosystem/crypto": "^3.0.0-alpha.0",
         "@hapi/boom": "^9.0.0",
-        "@hapi/hapi": "^19.0.0",
+        "@hapi/hapi": "^20.0.0",
         "@hapi/joi": "^17.1.0",
         "ajv": "^6.10.2",
         "ip": "^1.1.5",

@@ -27,7 +27,7 @@
         "@arkecosystem/core-state": "^3.0.0-alpha.0",
         "@hapi/basic": "^6.0.0",
         "@hapi/boom": "^9.0.0",
-        "@hapi/hapi": "^19.0.0",
+        "@hapi/hapi": "^20.0.0",
         "@hapist/json-rpc": "^0.2.0",
         "@hapist/whitelist": "^0.1.0",
         "@sindresorhus/df": "^3.1.1",

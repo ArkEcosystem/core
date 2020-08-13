@@ -22,7 +22,7 @@
     "dependencies": {
         "@arkecosystem/core-kernel": "^3.0.0-alpha.0",
         "@hapi/boom": "^9.0.0",
-        "@hapi/hapi": "^19.0.0",
+        "@hapi/hapi": "^20.0.0",
         "@hapi/joi": "^17.1.0",
         "fs-extra": "^8.1.0",
         "lowdb": "^1.0.0",
