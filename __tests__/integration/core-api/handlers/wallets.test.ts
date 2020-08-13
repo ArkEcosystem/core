@@ -106,7 +106,7 @@ describe("API 2.0 - Wallets", () => {
 
         it("should fail to GET a wallet by the given invalid identifier", async () => {
             for (const value of invalidIdentifiers) {
-                api.expectError(await api.request("GET", `wallets/${value}`), 400);
+                api.expectError(await api.request("GET", `wallets/${value}`), 422);
             }
         });
 
