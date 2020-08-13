@@ -1,22 +1,20 @@
-import { Utils } from "@arkecosystem/core-kernel";
-
 import { Wallet } from "../wallet";
 
 // todo: review implementation - quite a mess at the moment
-export const getProperty = (wallet: any, prop: string): any => {
+export const getProperty = (wallet: unknown, prop: string): any => {
+    if (typeof wallet !== "object" || wallet === null) {
+        return undefined;
+    }
+
     for (const [key, value] of Object.entries(wallet)) {
         if (key === prop) {
             return value;
         }
 
-        Utils.assert.defined<object>(value);
+        const result = getProperty(value, prop);
 
-        if (typeof value === "object") {
-            const result = getProperty(value, prop);
-
-            if (result !== undefined) {
-                return result;
-            }
+        if (result !== undefined) {
+            return result;
         }
     }
 

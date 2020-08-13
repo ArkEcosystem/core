@@ -60,7 +60,6 @@ beforeAll(async () => {
 
     attributeSet = initialEnv.sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes);
 
-    // TODO: pass attribute set from sandbox
     fixtureGenerator = new FixtureGenerator(genesisBlock, attributeSet);
 });
 
@@ -607,11 +606,26 @@ describe("Search", () => {
     describe("Delegates", () => {
         it("should search return all delegates", () => {
             const wallets = fixtureGenerator.generateFullWallets();
+            for (let i = 0; i < wallets.length; i++) {
+                wallets[i].setAttribute("delegate.rank", i + 1);
+            }
+            wallets.sort(() => Math.floor(Math.random() * 3) - 1);
             walletRepo.index(wallets);
 
             const delegates = walletRepo.search(Contracts.State.SearchScope.Delegates, {});
+
             expect(wallets.length).not.toEqual(0);
             expect(delegates.rows).toHaveLength(wallets.length);
+
+            for (let i = 1; i < delegates.rows.length; i++) {
+                const next: Contracts.State.Wallet = delegates.rows[i] as any;
+                const prev: Contracts.State.Wallet = delegates.rows[i - 1] as any;
+
+                const nextRank = next.getAttribute<number>("delegate.rank");
+                const prevRank = prev.getAttribute<number>("delegate.rank");
+
+                expect(nextRank).toBeGreaterThan(prevRank);
+            }
         });
 
         it("should search by address", () => {
@@ -811,11 +825,6 @@ describe("Delegate Wallets", () => {
             { username: "delegate-2", forgedFees: Utils.BigNumber.make(30), forgedRewards: Utils.BigNumber.make(30) },
         ];
 
-        const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map((delegate) => {
-            const wallet = new Wallet("", new Services.Attributes.AttributeMap(attributeSet));
-            return Object.assign(wallet, { attributes: { delegate } });
-        });
-
         const search = (params = {}): Contracts.Search.ListResult<Wallet> => {
             return walletRepo.search(Contracts.State.SearchScope.Delegates, params);
         };
@@ -826,6 +835,12 @@ describe("Delegate Wallets", () => {
         });
 
         it("should return the local wallets of the connection that are delegates", () => {
+            const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map((delegate) => {
+                const wallet = new Wallet("", new Services.Attributes.AttributeMap(attributeSet));
+                wallet.setAttribute("delegate", delegate);
+                return wallet;
+            });
+
             jest.spyOn(walletRepo, "allByUsername").mockReturnValue(wallets);
 
             const { rows } = search();
