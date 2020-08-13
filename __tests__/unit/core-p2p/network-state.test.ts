@@ -5,7 +5,7 @@ import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { PeerVerificationResult } from "@arkecosystem/core-p2p/src/peer-verifier";
 import { Blocks, Crypto, Utils } from "@arkecosystem/crypto";
 
-describe.skip("NetworkState", () => {
+describe("NetworkState", () => {
     const lastBlock = {
         data: {
             id: "17882607875259085966",

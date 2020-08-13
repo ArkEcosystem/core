@@ -3,7 +3,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 
 import { TransactionBroadcaster } from "../../../packages/core-p2p/src/transaction-broadcaster";
 
-describe.skip("TransactionBroadcaster", () => {
+describe("TransactionBroadcaster", () => {
     const container = new Container.Container();
 
     describe("broadcastTransactions", () => {

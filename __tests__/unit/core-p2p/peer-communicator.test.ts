@@ -29,7 +29,7 @@ const mapEventToPort = {
     "p2p.peer.getCommonBlocks": basePort + PortsOffset.Peer,
 };
 
-describe.skip("PeerCommunicator", () => {
+describe("PeerCommunicator", () => {
     let peerCommunicator: PeerCommunicator;
 
     const container = new Container.Container();

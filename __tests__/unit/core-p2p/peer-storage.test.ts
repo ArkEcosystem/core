@@ -2,7 +2,7 @@ import { Container } from "@arkecosystem/core-kernel";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { PeerStorage } from "@arkecosystem/core-p2p/src/peer-storage";
 
-describe.skip("PeerStorage", () => {
+describe("PeerStorage", () => {
     let peerStorage: PeerStorage;
 
     beforeEach(() => {

@@ -3,7 +3,7 @@ import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { PeerVerificationResult, PeerVerifier } from "@arkecosystem/core-p2p/src/peer-verifier";
 import { Blocks } from "@arkecosystem/crypto";
 
-describe.skip("PeerVerifier", () => {
+describe("PeerVerifier", () => {
     let app: Application;
     let peerVerifier: PeerVerifier;
     let peer: Peer;

@@ -2,7 +2,7 @@ import { Container } from "@arkecosystem/core-kernel";
 import { DisconnectInvalidPeers, DisconnectPeer } from "@arkecosystem/core-p2p/src/listeners";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
 
-describe.skip("DisconnectInvalidPeers", () => {
+describe("DisconnectInvalidPeers", () => {
     let disconnectInvalidPeers: DisconnectInvalidPeers;
 
     const container = new Container.Container();
