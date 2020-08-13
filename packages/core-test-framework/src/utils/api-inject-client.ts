@@ -5,7 +5,7 @@ import querystring from "querystring";
 type ApiResponse = {
     status: number;
     headers: Record<string, string>;
-    data: unknown;
+    data: any;
 };
 
 @Container.injectable()
