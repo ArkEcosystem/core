@@ -10,7 +10,7 @@ import path from "path";
 
 jest.setTimeout(60000);
 
-describe("NetworkMonitor", () => {
+describe.skip("NetworkMonitor", () => {
     let networkMonitor: NetworkMonitor;
 
     const container = new Container.Container();

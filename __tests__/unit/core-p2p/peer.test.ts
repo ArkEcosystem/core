@@ -3,7 +3,7 @@ import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { PeerVerificationResult } from "@arkecosystem/core-p2p/src/peer-verifier";
 import dayjs from "dayjs";
 
-describe("Peer", () => {
+describe.skip("Peer", () => {
     let peer: Peer;
 
     const ip = "167.184.53.78";

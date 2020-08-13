@@ -9,7 +9,7 @@ import { NesClient } from "./mocks/nes";
 
 jest.spyOn(Nes, "Client").mockImplementation((url) => new (NesClient as any)());
 
-describe("PeerConnector", () => {
+describe.skip("PeerConnector", () => {
     let peerConnector: PeerConnector;
     let logger;
 
