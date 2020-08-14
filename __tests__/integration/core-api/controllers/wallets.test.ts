@@ -35,3 +35,52 @@ describe("/wallets", () => {
         expect(wallets[0].nonce).toBe("51");
     });
 });
+
+describe("/wallets/search", () => {
+    it("should return 3 wallets with delegate username genesis_1 or genesis_2 or genesis_3", async () => {
+        const client = app.resolve(ApiHttpClient);
+        const query = {
+            orderBy: "attributes.delegate.username",
+        };
+        const payload = {
+            attributes: {
+                delegate: {
+                    username: ["genesis_1", "genesis_2", "genesis_3"],
+                },
+            },
+        };
+        const response = await client.post("/wallets/search", payload, query);
+        const wallets = response.data.data;
+
+        expect(wallets.length).toBe(3);
+        expect(wallets[0].attributes.delegate.username).toBe("genesis_1");
+        expect(wallets[1].attributes.delegate.username).toBe("genesis_2");
+        expect(wallets[2].attributes.delegate.username).toBe("genesis_3");
+    });
+
+    it("should return 5 wallets with delegate rank between 1 and 2, or 10 and 12", async () => {
+        const client = app.resolve(ApiHttpClient);
+        const query = {
+            orderBy: "attributes.delegate.rank",
+        };
+        const payload = {
+            attributes: {
+                delegate: {
+                    rank: [
+                        { from: 1, to: 2 },
+                        { from: 10, to: 12 },
+                    ],
+                },
+            },
+        };
+        const response = await client.post("/wallets/search", payload, query);
+        const wallets = response.data.data;
+
+        expect(wallets.length).toBe(5);
+        expect(wallets[0].attributes.delegate.rank).toBe(1);
+        expect(wallets[1].attributes.delegate.rank).toBe(2);
+        expect(wallets[2].attributes.delegate.rank).toBe(10);
+        expect(wallets[3].attributes.delegate.rank).toBe(11);
+        expect(wallets[4].attributes.delegate.rank).toBe(12);
+    });
+});

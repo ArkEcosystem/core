@@ -45,3 +45,35 @@ export const walletCriteriaQuerySchema = Joi.object({
     .concat(createRangeCriteriaQuerySchema("balance", bigNumberSchema))
     .concat(createRangeCriteriaQuerySchema("nonce", nonNegativeBigNumberSchema))
     .pattern(/^attributes\./, Joi.any());
+
+const walletBalanceCriteriaPayloadSchema = Joi.alternatives(
+    bigNumberSchema,
+    Joi.object({ from: bigNumberSchema, to: bigNumberSchema }).or("from", "to"),
+);
+
+const walletNonceCriteriaPayloadSchema = Joi.alternatives(
+    nonNegativeBigNumberSchema,
+    Joi.object({ from: nonNegativeBigNumberSchema, to: nonNegativeBigNumberSchema }).or("from", "to"),
+);
+
+const walletCriteriaPayloadItemSchema = Joi.object({
+    address: Joi.alternatives(
+        walletAddressLikeCriteriaItemSchema,
+        Joi.array().items(walletAddressLikeCriteriaItemSchema),
+    ),
+    publicKey: Joi.alternatives(
+        walletPublicKeyLikeCriteriaItemSchema,
+        Joi.array().items(walletPublicKeyLikeCriteriaItemSchema),
+    ),
+    balance: Joi.alternatives(
+        walletBalanceCriteriaPayloadSchema,
+        Joi.array().items(walletBalanceCriteriaPayloadSchema),
+    ),
+    nonce: Joi.alternatives(walletNonceCriteriaPayloadSchema, Joi.array().items(walletNonceCriteriaPayloadSchema)),
+    attributes: Joi.object(),
+}).unknown(false);
+
+export const walletCriteriaPayloadSchema = Joi.alternatives(
+    walletCriteriaPayloadItemSchema,
+    Joi.array().items(walletCriteriaPayloadItemSchema),
+);

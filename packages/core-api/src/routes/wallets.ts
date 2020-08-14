@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { WalletsController } from "../controllers/wallets";
-import { walletCriteriaQuerySchema, walletIdParamSchema } from "../resources-new";
+import { walletCriteriaPayloadSchema, walletCriteriaQuerySchema, walletIdParamSchema } from "../resources-new";
 import { orderingQuerySchema, paginationQuerySchema } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -188,33 +188,8 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: Joi.object({
-                    ...server.app.schemas.pagination,
-                    ...{
-                        orderBy: server.app.schemas.orderBy,
-                    },
-                }),
-                payload: Joi.object({
-                    address: server.app.schemas.address,
-                    addresses: Joi.array().unique().min(1).max(50).items(server.app.schemas.address),
-                    publicKey: Joi.string().hex().length(66),
-                    secondPublicKey: Joi.string().hex().length(66),
-                    vote: Joi.string().hex().length(66),
-                    username: Joi.string(),
-                    producedBlocks: Joi.number().integer().min(0),
-                    balance: Joi.object().keys({
-                        from: Joi.number().integer(),
-                        to: Joi.number().integer(),
-                    }),
-                    voteBalance: Joi.object().keys({
-                        from: Joi.number().integer().min(0),
-                        to: Joi.number().integer().min(0),
-                    }),
-                    lockedBalance: Joi.object().keys({
-                        from: Joi.number().integer().min(0),
-                        to: Joi.number().integer().min(0),
-                    }),
-                }),
+                query: Joi.object().concat(paginationQuerySchema).concat(orderingQuerySchema).unknown(false),
+                payload: walletCriteriaPayloadSchema,
             },
             plugins: {
                 pagination: {

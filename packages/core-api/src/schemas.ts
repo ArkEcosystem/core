@@ -38,7 +38,10 @@ export const paginationQuerySchema = Joi.object({
 // Ordering
 
 export const orderingQuerySchema = Joi.object({
-    orderBy: Joi.string().regex(/^[a-z._]{1,40}:(asc|desc)$/i, "orderBy query parameter (<iteratee>:<direction>)"),
+    orderBy: Joi.string().regex(
+        /^[0-9a-zA-Z._]+(:asc|:desc)?(,[0-9a-zA-Z._]+(:asc|:desc)?)*$/,
+        "orderBy query parameter (<property path>(:asc|:desc)(,<another property path>(:asc|:desc))",
+    ),
 }).unknown(false);
 
 // Old
