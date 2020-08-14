@@ -105,7 +105,7 @@ describe("EntityController", () => {
                     id: registrationTxId,
                 },
             };
-            
+
             await expect(controller.show(request, undefined)).resolves.toThrowError("Entity not found");
         });
 
@@ -116,13 +116,13 @@ describe("EntityController", () => {
                 },
             };
 
-            walletRepository.forgetByIndex(MagistrateIndex.Entities, registrationTxId);
+            walletRepository.getIndex(MagistrateIndex.Entities).forget(registrationTxId);
 
             await expect(controller.show(request, undefined)).resolves.toThrowError("Entity not found");
         });
 
         it("should return error if wallet has not indexed entity attribute", async () => {
-            walletRepository.forgetByIndex(MagistrateIndex.Entities, registrationTxId);
+            walletRepository.getIndex(MagistrateIndex.Entities).forget(registrationTxId);
 
             senderWallet = buildSenderWallet(app);
 
