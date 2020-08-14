@@ -5,7 +5,8 @@ import Hapi from "@hapi/hapi";
 
 import { Identifiers } from "../identifiers";
 import { TransactionResource } from "../resources";
-import { LockCriteria, LockResource, LockSearchService } from "../services";
+import { LockCriteria, LockResource } from "../resources-new";
+import { LockSearchService } from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()

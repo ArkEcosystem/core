@@ -1,15 +1,6 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
 
-export type WalletCriteria = Contracts.Search.StandardCriteriaOf<WalletResource>;
-
-export type WalletResource = {
-    address: string;
-    publicKey?: string;
-    balance: Utils.BigNumber;
-    nonce: Utils.BigNumber;
-    attributes: object;
-};
+import { WalletCriteria, WalletResource } from "../resources-new";
 
 @Container.injectable()
 export class WalletSearchService {

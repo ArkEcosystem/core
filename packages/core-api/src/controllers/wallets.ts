@@ -5,14 +5,8 @@ import Hapi from "@hapi/hapi";
 
 import { Identifiers } from "../identifiers";
 import { TransactionResource, TransactionWithBlockResource } from "../resources";
-import {
-    LockCriteria,
-    LockResource,
-    LockSearchService,
-    WalletCriteria,
-    WalletResource,
-    WalletSearchService,
-} from "../services";
+import { LockCriteria, LockResource, WalletCriteria, WalletResource } from "../resources-new";
+import { LockSearchService, WalletSearchService } from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()

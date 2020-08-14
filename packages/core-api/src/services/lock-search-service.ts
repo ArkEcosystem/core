@@ -1,24 +1,9 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import { Identifiers } from "../identifiers";
+import { LockCriteria, LockResource } from "../resources-new";
 import { WalletSearchService } from "./wallet-search-service";
-
-export type LockCriteria = Contracts.Search.StandardCriteriaOf<LockResource>;
-
-export type LockResource = {
-    lockId: string;
-    senderPublicKey: string;
-    isExpired: boolean;
-
-    amount: Utils.BigNumber;
-    secretHash: string;
-    recipientId: string;
-    timestamp: number;
-    expirationType: Enums.HtlcLockExpirationType;
-    expirationValue: number;
-    vendorField: string;
-};
 
 @Container.injectable()
 export class LockSearchService {

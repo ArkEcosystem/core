@@ -1,36 +1,8 @@
-import { Container, Contracts, Utils as AppUtils, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 
 import { Identifiers } from "../identifiers";
+import { DelegateCriteria, DelegateResource, DelegateResourceLastBlock } from "../resources-new";
 import { WalletSearchService } from "./wallet-search-service";
-
-export type DelegateCriteria = Contracts.Search.StandardCriteriaOf<DelegateResource>;
-
-export type DelegateResource = {
-    username: string;
-    address: string;
-    publicKey: string;
-    votes: Utils.BigNumber;
-    rank: number;
-    isResigned: boolean;
-    blocks: {
-        produced: number;
-        last: DelegateResourceLastBlock | undefined;
-    };
-    production: {
-        approval: number;
-    };
-    forged: {
-        fees: Utils.BigNumber;
-        rewards: Utils.BigNumber;
-        total: Utils.BigNumber;
-    };
-};
-
-export type DelegateResourceLastBlock = {
-    id: string;
-    height: number;
-    timestamp: number;
-};
 
 @Container.injectable()
 export class DelegateSearchService {

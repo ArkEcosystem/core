@@ -4,7 +4,8 @@ import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { Identifiers } from "../identifiers";
-import { EntityCriteria, EntityResource, EntitySearchService } from "../services";
+import { EntityCriteria, EntityResource } from "../resources";
+import { EntitySearchService } from "../services";
 
 @Container.injectable()
 export class EntityController extends Controller {

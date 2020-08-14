@@ -5,14 +5,8 @@ import Hapi from "@hapi/hapi";
 
 import { Identifiers } from "../identifiers";
 import { BlockResource, BlockWithTransactionsResource } from "../resources";
-import {
-    DelegateCriteria,
-    DelegateResource,
-    DelegateSearchService,
-    WalletCriteria,
-    WalletResource,
-    WalletSearchService,
-} from "../services";
+import { DelegateCriteria, DelegateResource, WalletCriteria, WalletResource } from "../resources-new";
+import { DelegateSearchService, WalletSearchService } from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()

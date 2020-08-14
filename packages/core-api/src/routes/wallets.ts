@@ -2,6 +2,8 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { WalletsController } from "../controllers/wallets";
+import { walletCriteriaQuerySchema, walletIdParamSchema } from "../resources-new";
+import { orderingQuerySchema, paginationQuerySchema } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(WalletsController);
@@ -13,20 +15,11 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: Joi.object({
-                    ...server.app.schemas.pagination,
-                    ...{
-                        orderBy: server.app.schemas.orderBy,
-                        address: Joi.string().alphanum().length(34),
-                        publicKey: Joi.string().hex().length(66),
-                        secondPublicKey: Joi.string().hex().length(66),
-                        vote: Joi.string().hex().length(66),
-                        username: Joi.string(),
-                        balance: Joi.number().integer(),
-                        voteBalance: Joi.number().integer().min(0),
-                        producedBlocks: Joi.number().integer().min(0),
-                    },
-                }),
+                query: Joi.object()
+                    .concat(walletCriteriaQuerySchema)
+                    .concat(paginationQuerySchema)
+                    .concat(orderingQuerySchema)
+                    .unknown(false),
             },
             plugins: {
                 pagination: {
@@ -42,20 +35,11 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.top,
         options: {
             validate: {
-                query: Joi.object({
-                    ...server.app.schemas.pagination,
-                    ...{
-                        orderBy: server.app.schemas.orderBy,
-                        address: Joi.string().alphanum().length(34),
-                        publicKey: Joi.string().hex().length(66),
-                        secondPublicKey: Joi.string().hex().length(66),
-                        vote: Joi.string().hex().length(66),
-                        username: Joi.string(),
-                        balance: Joi.number().integer(),
-                        voteBalance: Joi.number().integer().min(0),
-                        producedBlocks: Joi.number().integer().min(0),
-                    },
-                }),
+                query: Joi.object()
+                    .concat(walletCriteriaQuerySchema)
+                    .concat(paginationQuerySchema)
+                    .concat(orderingQuerySchema)
+                    .unknown(false),
             },
             plugins: {
                 pagination: {
@@ -72,7 +56,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: server.app.schemas.walletId,
+                    id: walletIdParamSchema,
                 }),
             },
         },

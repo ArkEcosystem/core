@@ -1,4 +1,47 @@
+import { Utils } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
+
+// BigNumber
+
+export const bigNumberSchema = Joi.custom((value: unknown) => {
+    return Utils.BigNumber.make(value as any);
+});
+
+export const nonNegativeBigNumberSchema = bigNumberSchema.custom((value: Utils.BigNumber, helpers) => {
+    return value.isGreaterThanEqual(0) ? value : helpers.error("any.invalid");
+});
+
+export const positiveBigNumberSchema = bigNumberSchema.custom((value: Utils.BigNumber, helpers) => {
+    return value.isGreaterThanEqual(1) ? value : helpers.error("any.invalid");
+});
+
+export const createRangeCriteriaQuerySchema = (key: string, item: Joi.Schema): Joi.ObjectSchema => {
+    return Joi.object({
+        [`${key}`]: item,
+        [`${key}.from`]: item,
+        [`${key}.to`]: item,
+    })
+        .without(`${key}`, [`${key}.from`, `${key}.to`], { separator: false })
+        .unknown(false);
+};
+
+// Pagination
+
+export const paginationQuerySchema = Joi.object({
+    page: Joi.number().integer().positive().default(1),
+    offset: Joi.number().integer().min(0),
+    limit: Joi.number().integer().min(1).default(100).max(Joi.ref("$configuration.plugins.pagination.limit")),
+})
+    .without("offset", "page")
+    .unknown(false);
+
+// Ordering
+
+export const orderingQuerySchema = Joi.object({
+    orderBy: Joi.string().regex(/^[a-z._]{1,40}:(asc|desc)$/i, "orderBy query parameter (<iteratee>:<direction>)"),
+}).unknown(false);
+
+// Old
 
 export const pagination = {
     page: Joi.number().integer().positive().default(1),

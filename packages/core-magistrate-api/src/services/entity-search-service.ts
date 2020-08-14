@@ -1,19 +1,8 @@
 import { Identifiers as ApiIdentifiers, WalletSearchService } from "@arkecosystem/core-api";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces } from "@arkecosystem/core-magistrate-crypto";
 import { IEntitiesWallet, IEntityWallet } from "@arkecosystem/core-magistrate-transactions";
 
-export type EntityCriteria = Contracts.Search.StandardCriteriaOf<EntityResource>;
-
-export type EntityResource = {
-    id: string;
-    publicKey: string;
-    address: string;
-    isResigned: boolean;
-    type: Enums.EntityType;
-    subType: Enums.EntitySubType;
-    data: Interfaces.IEntityAssetData;
-};
+import { EntityCriteria, EntityResource } from "../resources";
 
 @Container.injectable()
 export class EntitySearchService {
