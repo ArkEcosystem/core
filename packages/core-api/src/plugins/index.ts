@@ -1,3 +1,4 @@
+import { dotQuery } from "./dot-query";
 import { hapiAjv } from "./hapi-ajv";
 import { whitelist } from "./whitelist";
 
@@ -9,6 +10,7 @@ export const preparePlugins = (config) => [
         },
     },
     { plugin: hapiAjv },
+    { plugin: dotQuery },
     {
         plugin: require("./cache"),
         options: config.cache,
