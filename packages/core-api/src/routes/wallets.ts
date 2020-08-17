@@ -2,8 +2,8 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { WalletsController } from "../controllers/wallets";
-import { walletCriteriaPayloadSchema, walletCriteriaQuerySchema, walletIdParamSchema } from "../resources-new";
-import { orderingQuerySchema, paginationQuerySchema } from "../schemas";
+import { walletCriteriaSchema, walletIdSchema } from "../resources-new";
+import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(WalletsController);
@@ -15,11 +15,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: Joi.object()
-                    .concat(walletCriteriaQuerySchema)
-                    .concat(paginationQuerySchema)
-                    .concat(orderingQuerySchema)
-                    .unknown(false),
+                query: Joi.object().concat(walletCriteriaSchema).concat(Schemas.pagination_).concat(Schemas.ordering_),
             },
             plugins: {
                 pagination: {
@@ -35,11 +31,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.top,
         options: {
             validate: {
-                query: Joi.object()
-                    .concat(walletCriteriaQuerySchema)
-                    .concat(paginationQuerySchema)
-                    .concat(orderingQuerySchema)
-                    .unknown(false),
+                query: Joi.object().concat(walletCriteriaSchema).concat(Schemas.pagination_).concat(Schemas.ordering_),
             },
             plugins: {
                 pagination: {
@@ -56,7 +48,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: walletIdParamSchema,
+                    id: walletIdSchema,
                 }),
             },
         },
@@ -188,8 +180,8 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: Joi.object().concat(paginationQuerySchema).concat(orderingQuerySchema).unknown(false),
-                payload: walletCriteriaPayloadSchema,
+                query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
+                payload: walletCriteriaSchema,
             },
             plugins: {
                 pagination: {

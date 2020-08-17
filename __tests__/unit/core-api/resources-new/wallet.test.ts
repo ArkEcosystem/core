@@ -1,18 +1,18 @@
 import { Utils } from "@arkecosystem/crypto";
 
-import { walletCriteriaQuerySchema } from "../../../../packages/core-api/src/resources-new/wallet";
+import { walletCriteriaSchema } from "../../../../packages/core-api/src/resources-new/wallet";
 
-describe("walletCriteriaQuerySchema.address", () => {
+describe("walletCriteriaSchema.address", () => {
     it("should allow correct address", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             address: "AXzxJ8Ts3dQ2bvBR1tPE7GUee9iSEJb8HX",
         });
 
         expect(result.error).toBe(undefined);
     });
 
-    it("should not allow incorrect address", () => {
-        const result = walletCriteriaQuerySchema.validate({
+    it("should not allow invalid address", () => {
+        const result = walletCriteriaSchema.validate({
             address: "bad address",
         });
 
@@ -20,25 +20,33 @@ describe("walletCriteriaQuerySchema.address", () => {
     });
 
     it("should allow like expression", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             address: "AX%",
         });
 
         expect(result.error).toBe(undefined);
     });
+
+    it("should not allow invalid like expression", () => {
+        const result = walletCriteriaSchema.validate({
+            address: "$@!%",
+        });
+
+        expect(result.error).toBeTruthy();
+    });
 });
 
 describe("walletQueryCriteriaSchema.publicKey", () => {
     it("should allow correct public key", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             publicKey: "03da05c1c1d4f9c6bda13695b2f29fbc65d9589edc070fc61fe97974be3e59c14e",
         });
 
         expect(result.error).toBe(undefined);
     });
 
-    it("should not allow incorrect public key", () => {
-        const result = walletCriteriaQuerySchema.validate({
+    it("should not allow invalid public key", () => {
+        const result = walletCriteriaSchema.validate({
             publicKey: "bad public key",
         });
 
@@ -46,17 +54,25 @@ describe("walletQueryCriteriaSchema.publicKey", () => {
     });
 
     it("should allow like expression", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             publicKey: "03%",
         });
 
         expect(result.error).toBe(undefined);
     });
+
+    it("should not allow invalid like expression", () => {
+        const result = walletCriteriaSchema.validate({
+            publicKey: "$@!%",
+        });
+
+        expect(result.error).toBeTruthy();
+    });
 });
 
 describe("walletQueryCriteriaSchema.balance", () => {
     it("should allow numeric string value", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             balance: "123456",
         });
 
@@ -64,7 +80,7 @@ describe("walletQueryCriteriaSchema.balance", () => {
     });
 
     it("should allow explicitly positive string value", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             balance: "+123456",
         });
 
@@ -72,7 +88,7 @@ describe("walletQueryCriteriaSchema.balance", () => {
     });
 
     it("should allow negative numeric string value", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             balance: "-123456",
         });
 
@@ -80,7 +96,7 @@ describe("walletQueryCriteriaSchema.balance", () => {
     });
 
     it("should not allow non-numeric string value", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             balance: "bad balance",
         });
 
@@ -88,7 +104,7 @@ describe("walletQueryCriteriaSchema.balance", () => {
     });
 
     it("should convert value to Utils.BigNumber", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             balance: "123456",
         });
 
@@ -96,28 +112,20 @@ describe("walletQueryCriteriaSchema.balance", () => {
     });
 
     it("should allow from and to boundaries", () => {
-        const result = walletCriteriaQuerySchema.validate({
-            "balance.from": "123456",
-            "balance.to": "123456",
+        const result = walletCriteriaSchema.validate({
+            balance: {
+                from: "123456",
+                to: "123456",
+            },
         });
 
         expect(result.error).toBe(undefined);
-    });
-
-    it("should not allow simultaneous from or to boundaries and exact value", () => {
-        const result = walletCriteriaQuerySchema.validate({
-            balance: "123456",
-            "balance.from": "123456",
-            "balance.to": "123456",
-        });
-
-        expect(result.error).toBeTruthy();
     });
 });
 
 describe("walletQueryCriteriaSchema.nonce", () => {
     it("should allow numeric string value", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             nonce: "123456",
         });
 
@@ -125,7 +133,7 @@ describe("walletQueryCriteriaSchema.nonce", () => {
     });
 
     it("should allow zero value", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             nonce: "0",
         });
 
@@ -133,7 +141,7 @@ describe("walletQueryCriteriaSchema.nonce", () => {
     });
 
     it("should allow explicitly positive string value", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             nonce: "+123456",
         });
 
@@ -141,7 +149,7 @@ describe("walletQueryCriteriaSchema.nonce", () => {
     });
 
     it("should not allow negative numeric string value", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             nonce: "-123456",
         });
 
@@ -149,7 +157,7 @@ describe("walletQueryCriteriaSchema.nonce", () => {
     });
 
     it("should not allow non-numeric string value", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             nonce: "bad nonce",
         });
 
@@ -157,7 +165,7 @@ describe("walletQueryCriteriaSchema.nonce", () => {
     });
 
     it("should convert value to Utils.BigNumber", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             nonce: "123456",
         });
 
@@ -165,28 +173,20 @@ describe("walletQueryCriteriaSchema.nonce", () => {
     });
 
     it("should allow from and to boundaries", () => {
-        const result = walletCriteriaQuerySchema.validate({
-            "nonce.from": "123456",
-            "nonce.to": "123456",
+        const result = walletCriteriaSchema.validate({
+            nonce: {
+                from: "123456",
+                to: "123456",
+            },
         });
 
         expect(result.error).toBe(undefined);
-    });
-
-    it("should not allow simultaneous from or to boundaries and exact value", () => {
-        const result = walletCriteriaQuerySchema.validate({
-            nonce: "123456",
-            "nonce.from": "123456",
-            "nonce.to": "123456",
-        });
-
-        expect(result.error).toBeTruthy();
     });
 });
 
 describe("walletQueryCriteriaSchema.attributes", () => {
     it("should allow any key starting with attributes.", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             "attributes.vote": "no checks over public key format",
             "attributes.delegate.voteBalance": "no checks here either",
         });
@@ -197,7 +197,7 @@ describe("walletQueryCriteriaSchema.attributes", () => {
 
 describe("walletQueryCriteriaSchema", () => {
     it("should not allow unknown keys", () => {
-        const result = walletCriteriaQuerySchema.validate({
+        const result = walletCriteriaSchema.validate({
             some: "value",
         });
 
