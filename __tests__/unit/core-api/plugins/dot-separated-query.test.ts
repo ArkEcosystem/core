@@ -1,4 +1,4 @@
-import { dotQuery } from "../../../../packages/core-api/src/plugins/dot-query";
+import { dotSeparatedQuery } from "../../../../packages/core-api/src/plugins/dot-separated-query";
 
 describe("dotQuery.register", () => {
     it("should register onRequest extension", () => {
@@ -6,9 +6,9 @@ describe("dotQuery.register", () => {
             ext: jest.fn(),
         };
 
-        dotQuery.register(server);
+        dotSeparatedQuery.register(server);
 
-        expect(server.ext).toBeCalledWith("onRequest", dotQuery.onRequest);
+        expect(server.ext).toBeCalledWith("onRequest", dotSeparatedQuery.onRequest);
     });
 });
 
@@ -25,7 +25,7 @@ describe("dotQuery.onRequest", () => {
             continue: Symbol,
         };
 
-        const ret = dotQuery.onRequest(request, h);
+        const ret = dotSeparatedQuery.onRequest(request, h);
 
         expect(request.query).toEqual({
             balance: { from: "100", to: "200" },

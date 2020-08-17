@@ -1,4 +1,4 @@
-import { dotQuery } from "./dot-query";
+import { dotSeparatedQuery } from "./dot-separated-query";
 import { hapiAjv } from "./hapi-ajv";
 import { whitelist } from "./whitelist";
 
@@ -10,7 +10,7 @@ export const preparePlugins = (config) => [
         },
     },
     { plugin: hapiAjv },
-    { plugin: dotQuery },
+    { plugin: dotSeparatedQuery },
     {
         plugin: require("./cache"),
         options: config.cache,

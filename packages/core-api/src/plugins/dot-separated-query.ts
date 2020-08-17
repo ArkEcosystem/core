@@ -1,8 +1,8 @@
 import { Utils } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 
-export const dotQuery = {
-    name: "dot-query",
+export const dotSeparatedQuery = {
+    name: "dot-separated-query",
     version: "1.0.0",
 
     register(server: Hapi.Server): void {
