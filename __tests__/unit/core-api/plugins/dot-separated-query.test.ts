@@ -1,6 +1,6 @@
 import { dotSeparatedQuery } from "../../../../packages/core-api/src/plugins/dot-separated-query";
 
-describe("dotQuery.register", () => {
+describe("dotSeparatedQuery.register", () => {
     it("should register onRequest extension", () => {
         const server = {
             ext: jest.fn(),
@@ -12,7 +12,7 @@ describe("dotQuery.register", () => {
     });
 });
 
-describe("dotQuery.onRequest", () => {
+describe("dotSeparatedQuery.onRequest", () => {
     it("should replace query object", () => {
         const request = {
             query: {
