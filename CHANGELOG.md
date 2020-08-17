@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.49] - 2020-07-22
+
+### Fixed
+
+-   Use bundled file for `browser` field (#3904) (20d66cf3, @luciorubeens)
+-   Reduce download block size when getting no block (#3905) (e2232875, @air1one)
+-   Ping ports using head (#3905) (db226bd3, @air1one)
+-   Stricter rate limit for getBlocks (#3905) (df7a3aa1, @air1one)
+-   Allow to discard possibly invalid txs from pool (#3905) (0450ee84, @air1one)
+-   Check sig length vs R and S length (#3905) (1b0863c3, @air1one)
+-   Check that R and S is positive (#3905) (0783ec08, @air1one)
+
 ## [2.6.42] - 2020-06-29
 
 ### Added
@@ -995,6 +1007,8 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.6.49]: https://github.com/ARKEcosystem/core/compare/2.6.42...2.6.49
+[2.6.42]: https://github.com/ARKEcosystem/core/compare/2.6.39...2.6.42
 [2.6.39]: https://github.com/ARKEcosystem/core/compare/2.6.38...2.6.39
 [2.6.38]: https://github.com/ARKEcosystem/core/compare/2.6.37...2.6.38
 [2.6.37]: https://github.com/ARKEcosystem/core/compare/2.6.36...2.6.37
@@ -1560,6 +1574,8 @@ Closed security vulnerabilities:
 [#3818]: https://github.com/ARKEcosystem/core/pull/3818
 [#3823]: https://github.com/ARKEcosystem/core/pull/3823
 [#3830]: https://github.com/ARKEcosystem/core/pull/3830
+[#3904]: https://github.com/ARKEcosystem/core/pull/3904
+[#3905]: https://github.com/ARKEcosystem/core/pull/3905
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a

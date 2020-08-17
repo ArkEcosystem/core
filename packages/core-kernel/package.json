@@ -1,7 +1,7 @@
 {
     "name": "@arkecosystem/core-kernel",
     "description": "Kernel of ARK Core",
-    "version": "3.0.0-next.0",
+    "version": "3.0.0-alpha.0",
     "contributors": [
         "Brian Faust <brian@ark.io>"
     ],
@@ -12,7 +12,7 @@
         "dist"
     ],
     "scripts": {
-        "prepublishOnly": "yarn test && yarn build",
+        "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
         "compile": "../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
@@ -21,8 +21,8 @@
         "clean": "del dist"
     },
     "dependencies": {
-        "@arkecosystem/crypto": "^3.0.0-next.0",
-        "@arkecosystem/utils": "^1.1.7",
+        "@arkecosystem/crypto": "^3.0.0-alpha.0",
+        "@arkecosystem/utils": "^1.2.0",
         "@hapi/joi": "^17.1.0",
         "@pm2/io": "^4.3.5",
         "chalk": "^4.0.0",

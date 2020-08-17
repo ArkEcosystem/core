@@ -25,6 +25,8 @@ const transactionHistoryService = {
     listByCriteriaJoinBlock: jest.fn(),
 };
 
+const blockHistoryService = {};
+
 const block: Interfaces.IBlockData = {
     version: 0,
     timestamp: 103497376,
@@ -50,6 +52,7 @@ beforeEach(() => {
     Managers.configManager.setConfig(config);
 
     app = initApp();
+    app.bind(Identifiers.BlockHistoryService).toConstantValue(blockHistoryService);
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 
     // Triggers registration of indexes

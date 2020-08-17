@@ -250,7 +250,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             currentTransactionsCount += block.numberOfTransactions;
 
             const nextMilestone = milestoneHeights[0] && milestoneHeights[0] === block.height;
-            if (currentTransactionsCount >= 150 || currentBlocksChunk.length > 100 || nextMilestone) {
+
+            if (currentTransactionsCount >= 150 || currentBlocksChunk.length >= Math.min(this.state.getMaxLastBlocks(), 100) || nextMilestone) {
                 this.queue.push({ blocks: currentBlocksChunk });
                 currentBlocksChunk = [];
                 currentTransactionsCount = 0;

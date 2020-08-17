@@ -101,41 +101,14 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     public async pingPorts(peer: Contracts.P2P.Peer): Promise<void> {
         await Promise.all(
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
+                peer.ports[name] = -1;
                 try {
-                    let valid: boolean = false;
+                    const { statusCode } = await Utils.http.head(`http://${peer.ip}:${plugin.port}/`);
 
-                    const peerHostPort = `${peer.ip}:${plugin.port}`;
-
-                    if (name.includes("core-api") || name.includes("core-wallet-api")) {
-                        const { data, statusCode } = await Utils.http.get(
-                            `http://${peerHostPort}/api/node/configuration`,
-                        );
-
-                        if (statusCode === 200) {
-                            const ourNethash = Managers.configManager.get("network.nethash");
-                            const hisNethash = data.data.nethash;
-                            if (ourNethash === hisNethash) {
-                                valid = true;
-                            } else {
-                                this.logger.warning(
-                                    `Disconnecting from ${peerHostPort}: ` +
-                                        `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
-                                );
-
-                                await this.events.dispatch(Enums.PeerEvent.Disconnect, { peer });
-                            }
-                        }
-                    } else {
-                        const { statusCode } = await Utils.http.get(`http://${peerHostPort}/`);
-                        valid = statusCode === 200;
-                    }
-
-                    if (valid) {
+                    if (statusCode === 200) {
                         peer.ports[name] = plugin.port;
                     }
-                } catch (error) {
-                    peer.ports[name] = -1;
-                }
+                } catch {}
             }),
         );
     }
@@ -176,6 +149,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 serialized: true,
             },
             this.configuration.getRequired<number>("getBlocksTimeout"),
+            false,
         );
 
         if (!peerBlocks || !peerBlocks.length) {
@@ -240,7 +214,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         return true;
     }
 
-    private async emit(peer: Contracts.P2P.Peer, event: string, payload: any, timeout?: number) {
+    private async emit(peer: Contracts.P2P.Peer, event: string, payload: any, timeout?: number, disconnectOnError: boolean = true) {
         const port = getPeerPortForEvent(peer, event);
 
         let response;
@@ -266,14 +240,14 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 throw validationError;
             }
         } catch (e) {
-            this.handleSocketError(peer, event, e);
+            this.handleSocketError(peer, event, e, disconnectOnError);
             return undefined;
         }
 
         return response.payload;
     }
 
-    private handleSocketError(peer: Contracts.P2P.Peer, event: string, error: Error): void {
+    private handleSocketError(peer: Contracts.P2P.Peer, event: string, error: Error, disconnect: boolean = true): void {
         if (!error.name) {
             return;
         }
@@ -299,7 +273,9 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 }
-                this.events.dispatch(Enums.PeerEvent.Disconnect, { peer });
+                if (disconnect) {
+                    this.events.dispatch(Enums.PeerEvent.Disconnect, { peer });
+                }
         }
     }
 }

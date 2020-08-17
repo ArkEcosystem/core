@@ -18,7 +18,7 @@ expect.extend({
         let error: string;
 
         try {
-            const { body } = await got.get(`http://localhost:4003/api/v2/transactions/unconfirmed`);
+            const { body } = await got.get(`http://localhost:4003/api/transactions/unconfirmed`);
 
             const parsedBody = JSON.parse(body);
 

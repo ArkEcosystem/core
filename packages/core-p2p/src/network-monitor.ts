@@ -8,6 +8,8 @@ import { Peer } from "./peer";
 import { PeerCommunicator } from "./peer-communicator";
 import { checkDNS, checkNTP } from "./utils";
 
+const defaultDownloadChunkSize = 400;
+
 // todo: review the implementation
 @Container.injectable()
 export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
@@ -45,6 +47,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
      * At 400 blocks per chunk, 100 chunks would amount to 40k blocks.
      */
     private downloadedChunksCacheMax: number = 100;
+
+    private downloadChunkSize: number = defaultDownloadChunkSize;
 
     private initializing = true;
 
@@ -340,13 +344,12 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         }
 
         const networkHeight: number = this.getNetworkHeight();
-        const chunkSize: number = 400;
         let chunksMissingToSync: number;
 
         if (!networkHeight || networkHeight <= fromBlockHeight) {
             chunksMissingToSync = 1;
         } else {
-            chunksMissingToSync = Math.ceil((networkHeight - fromBlockHeight) / chunkSize);
+            chunksMissingToSync = Math.ceil((networkHeight - fromBlockHeight) / this.downloadChunkSize);
         }
         const chunksToDownload: number = Math.min(chunksMissingToSync, peersNotForked.length, maxParallelDownloads);
 
@@ -359,9 +362,9 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         let chunksHumanReadable: string = "";
 
         for (let i = 0; i < chunksToDownload; i++) {
-            const height: number = fromBlockHeight + chunkSize * i;
+            const height: number = fromBlockHeight + this.downloadChunkSize * i;
             const isLastChunk: boolean = i === chunksToDownload - 1;
-            const blocksRange: string = `[${height + 1}, ${isLastChunk ? ".." : height + chunkSize}]`;
+            const blocksRange: string = `[${height + 1}, ${isLastChunk ? ".." : height + this.downloadChunkSize}]`;
 
             //@ts-ignore
             downloadJobs.push(async () => {
@@ -386,9 +389,12 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 for (peer of peersToTry) {
                     peerPrint = `${peer.ip}:${peer.port}`;
                     try {
-                        blocks = await this.communicator.getPeerBlocks(peer, { fromBlockHeight: height });
+                        blocks = await this.communicator.getPeerBlocks(peer, {
+                            fromBlockHeight: height,
+                            blockLimit: this.downloadChunkSize,
+                        });
 
-                        if (blocks.length === chunkSize || (isLastChunk && blocks.length > 0)) {
+                        if (blocks.length === this.downloadChunkSize || (isLastChunk && blocks.length > 0)) {
                             this.logger.debug(
                                 `Downloaded blocks ${blocksRange} (${blocks.length}) ` + `from ${peerPrint}`,
                             );
@@ -449,9 +455,13 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 downloadResults[i] !== undefined &&
                 Object.keys(this.downloadedChunksCache).length <= this.downloadedChunksCacheMax
             ) {
-                this.downloadedChunksCache[fromBlockHeight + chunkSize * i] = downloadResults[i];
+                this.downloadedChunksCache[fromBlockHeight + this.downloadChunkSize * i] = downloadResults[i];
             }
         }
+
+        // if we did not manage to download any block, reduce chunk size for next time
+        this.downloadChunkSize =
+            downloadedBlocks.length === 0 ? Math.ceil(this.downloadChunkSize / 10) : defaultDownloadChunkSize;
 
         return downloadedBlocks;
     }

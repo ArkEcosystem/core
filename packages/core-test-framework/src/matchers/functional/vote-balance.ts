@@ -16,7 +16,7 @@ expect.extend({
         let pass: boolean = false;
         let fetchedVoteBalance: string;
         try {
-            const { body } = await got.get(`http://localhost:4003/api/v2/delegates/${publicKey}`);
+            const { body } = await got.get(`http://localhost:4003/api/delegates/${publicKey}`);
 
             const parsedBody = JSON.parse(body);
 
