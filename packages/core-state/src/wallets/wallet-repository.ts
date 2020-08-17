@@ -209,20 +209,9 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     }
 
     private indexWallet(wallet: Contracts.State.Wallet): void {
-        this.forgetWallet(wallet);
-
-        for (const walletIndex of Object.values(this.indexes)) {
-            walletIndex.index(wallet);
-        }
-    }
-
-    private forgetWallet(wallet: Contracts.State.Wallet): void {
         for (const index of Object.values(this.indexes)) {
-            for (const [name, indexedWallet] of index.entries()) {
-                if (indexedWallet.address === wallet.address) {
-                    index.forget(name);
-                }
-            }
+            index.forgetWallet(wallet);
+            index.index(wallet);
         }
     }
 
