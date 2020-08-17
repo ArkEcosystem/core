@@ -90,7 +90,6 @@ export class DatabaseInteraction {
         await this.applyRound(height);
     }
 
-    // TODO: move out of core-database to get rid of BlockState dependency
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         await this.blockState.applyBlock(block);
 
@@ -107,7 +106,6 @@ export class DatabaseInteraction {
         this.events.dispatch(Enums.BlockEvent.Applied, block.data);
     }
 
-    // TODO: move out of core-database to get rid of WalletState dependency
     public async applyRound(height: number): Promise<void> {
         // ! this doesn't make sense
         // ! next condition should be modified to include height === 1
@@ -180,7 +178,6 @@ export class DatabaseInteraction {
         this.blocksInCurrentRound = await this.getBlocksForRound();
     }
 
-    // TODO: move out of core-database to get rid of BlockState dependency
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         await this.revertRound(block.data.height);
         await this.blockState.revertBlock(block);
@@ -459,7 +456,6 @@ export class DatabaseInteraction {
         this.configureState(lastBlock);
     }
 
-    // TODO: not exactly sure where this goes...
     private async createGenesisBlock(): Promise<Interfaces.IBlock> {
         const genesisBlock = this.stateStore.getGenesisBlock();
         await this.databaseService.saveBlocks([genesisBlock]);
