@@ -155,7 +155,6 @@ describe("Wallet Repository Clone", () => {
         expect(walletRepoClone.allByAddress()).toEqual([wallet]);
 
         // TODO: similarly, this behaviour is odd - as the code hasn't been overwritten in the extended class
-        walletRepoClone.forgetByAddress(address);
         expect(walletRepoClone.has(address)).toBeTrue();
     });
 

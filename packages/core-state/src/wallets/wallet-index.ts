@@ -1,23 +1,24 @@
-// import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Contracts } from "@arkecosystem/core-kernel";
 
 export class WalletIndex implements Contracts.State.WalletIndex {
-    private walletIndex: Record<string, Contracts.State.Wallet>;
+    private walletByKey: Map<string, Contracts.State.Wallet>;
+    private keysByWallet: Map<Contracts.State.Wallet, string[]>;
 
     public constructor(public readonly indexer: Contracts.State.WalletIndexer) {
-        this.walletIndex = {};
+        this.walletByKey = new Map<string, Contracts.State.Wallet>();
+        this.keysByWallet = new Map<Contracts.State.Wallet, string[]>();
     }
 
     public entries(): ReadonlyArray<[string, Contracts.State.Wallet]> {
-        return Object.entries(this.walletIndex);
+        return [...this.walletByKey.entries()];
     }
 
     public keys(): string[] {
-        return Object.keys(this.walletIndex);
+        return [...this.walletByKey.keys()];
     }
 
     public values(): ReadonlyArray<Contracts.State.Wallet> {
-        return Object.values(this.walletIndex);
+        return [...this.walletByKey.values()];
     }
 
     public index(wallet: Contracts.State.Wallet): void {
@@ -25,29 +26,68 @@ export class WalletIndex implements Contracts.State.WalletIndex {
     }
 
     public has(key: string): boolean {
-        return !!this.walletIndex[key];
+        return this.walletByKey.has(key);
     }
 
     public get(key: string): Contracts.State.Wallet {
-        return this.walletIndex[key];
+        return this.walletByKey.get(key) as Contracts.State.Wallet;
     }
 
     public set(key: string, wallet: Contracts.State.Wallet): void {
-        this.walletIndex[key] = wallet;
+        // Key already exists
+        if (this.walletByKey.has(key)) {
+            const existingWallet = this.walletByKey.get(key)!;
+
+            // Remove given key in case where key points to different wallet
+            const existingKeys = this.keysByWallet.get(existingWallet)!;
+            this.keysByWallet.set(existingWallet, [...existingKeys.filter((x) => x !== key)]);
+        }
+
+        this.walletByKey.set(key, wallet);
+
+        if (this.keysByWallet.has(wallet)) {
+            const existingKeys = this.keysByWallet.get(wallet)!;
+            this.keysByWallet.set(wallet, [...existingKeys, key]);
+        } else {
+            this.keysByWallet.set(wallet, [key]);
+        }
     }
 
     public forget(key: string): void {
-        delete this.walletIndex[key];
+        if (this.walletByKey.has(key)) {
+            const wallet = this.walletByKey.get(key)!;
+
+            const keys = this.keysByWallet.get(wallet)!;
+
+            this.keysByWallet.set(
+                wallet,
+                keys.filter((x) => x !== key),
+            );
+
+            this.walletByKey.delete(key);
+        }
+    }
+
+    public forgetWallet(wallet: Contracts.State.Wallet): void {
+        if (this.keysByWallet.has(wallet)) {
+            const keys = this.keysByWallet.get(wallet)!;
+
+            for (const key of keys) {
+                this.walletByKey.delete(key);
+            }
+
+            this.keysByWallet.delete(wallet);
+        }
     }
 
     public clear(): void {
-        this.walletIndex = {};
+        this.walletByKey = new Map<string, Contracts.State.Wallet>();
     }
 
     public clone(): Contracts.State.WalletIndex {
         const walletIndex = new WalletIndex(this.indexer);
 
-        for (const [key, value] of Object.entries(this.walletIndex)) {
+        for (const [key, value] of this.entries()) {
             walletIndex.set(key, value.clone());
         }
 

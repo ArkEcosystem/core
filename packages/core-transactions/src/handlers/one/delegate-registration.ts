@@ -137,9 +137,9 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
-        this.walletRepository.forgetByUsername(sender.getAttribute("delegate.username"));
-
         sender.forgetAttribute("delegate");
+
+        this.walletRepository.index(sender);
     }
 
     public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {}

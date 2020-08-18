@@ -95,7 +95,7 @@ describe("API 2.0 - Delegates", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
 
-            expect(response.data.data[0].username).toBe("genesis_51");
+            expect(response.data.data[0].username).toBe("genesis_10");
             expect(response.data.data[0].votes).toBe("0");
 
             // Apply the original vote balances

@@ -11,6 +11,7 @@ export interface WalletIndex {
     get(key: string): Wallet | undefined;
     set(key: string, wallet: Wallet): void;
     forget(key: string): void;
+    forgetWallet(wallet: Wallet): void;
     entries(): ReadonlyArray<[string, Wallet]>;
     values(): ReadonlyArray<Wallet>;
     keys(): string[];
@@ -179,14 +180,6 @@ export interface WalletRepository {
     getNonce(publicKey: string): Utils.BigNumber;
 
     index(wallets: Wallet | ReadonlyArray<Wallet>): void;
-
-    forgetByAddress(address: string): void;
-
-    forgetByPublicKey(publicKey: string): void;
-
-    forgetByUsername(username: string): void;
-
-    forgetByIndex(indexName: string, key: string): void;
 
     hasByAddress(address: string): boolean;
 
