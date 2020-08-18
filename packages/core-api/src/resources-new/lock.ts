@@ -11,7 +11,6 @@ export type LockResource = {
     lockId: string;
     senderPublicKey: string;
     isExpired: boolean;
-
     amount: Utils.BigNumber;
     secretHash: string;
     recipientId: string;
@@ -27,6 +26,10 @@ export const lockCriteriaSchemaObject = {
     lockId: transactionCriteriaSchemaObject.id,
     senderPublicKey: transactionCriteriaSchemaObject.senderPublicKey,
     isExpired: Joi.boolean(),
+    amount: Joi.alternatives(
+        Schemas.bigNumber,
+        Joi.object({ from: Schemas.bigNumber, to: Schemas.bigNumber }).or("from", "to"),
+    ),
     secretHash: Joi.alternatives(
         Joi.string().hex().length(64),
         Joi.string()
@@ -34,9 +37,17 @@ export const lockCriteriaSchemaObject = {
             .regex(/%/),
     ),
     recipientId: transactionCriteriaSchemaObject.recipientId,
+    timestamp: Joi.alternatives(
+        Joi.number().min(0),
+        Joi.object({ from: Joi.number().min(0), to: Joi.number().min(0) }).or("from", "to"),
+    ),
     expirationType: Joi.number().allow(
         Enums.HtlcLockExpirationType.BlockHeight,
         Enums.HtlcLockExpirationType.EpochTimestamp,
+    ),
+    expirationValue: Joi.alternatives(
+        Joi.number().min(0),
+        Joi.object({ from: Joi.number().min(0), to: Joi.number().min(0) }).or("from", "to"),
     ),
     vendorField: transactionCriteriaSchemaObject.vendorField,
 };

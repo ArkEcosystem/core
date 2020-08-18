@@ -16,8 +16,10 @@ describe("/wallets", () => {
     it("should return wallets sorted by balance:desc", async () => {
         const client = app.resolve(ApiHttpClient);
         const response = await client.get("/wallets");
-        const wallets = response.data.data;
 
+        expect(response).toMatchObject({ status: 200 });
+
+        const wallets = response.body.data;
         const prevBalance = Utils.BigNumber.make(wallets[0].balance);
         for (const wallet of wallets.slice(1)) {
             const walletBalance = Utils.BigNumber.make(wallet.balance);
@@ -28,7 +30,10 @@ describe("/wallets", () => {
     it("should return wallets with balance less than 200000000000000", async () => {
         const client = app.resolve(ApiHttpClient);
         const response = await client.get("/wallets", { "balance.to": "200000000000000" });
-        const wallets = response.data.data;
+
+        expect(response).toMatchObject({ status: 200 });
+
+        const wallets = response.body.data;
 
         expect(wallets.length).toBe(1);
         expect(wallets[0].balance).toBe("-15300000000000000");
@@ -39,18 +44,17 @@ describe("/wallets", () => {
 describe("/wallets/search", () => {
     it("should return 3 wallets with delegate username genesis_1 or genesis_2 or genesis_3", async () => {
         const client = app.resolve(ApiHttpClient);
-        const query = {
-            orderBy: "attributes.delegate.username",
-        };
-        const payload = {
+        const response = await client.post("/wallets/search?orderBy=attributes.delegate.username", {
             attributes: {
                 delegate: {
                     username: ["genesis_1", "genesis_2", "genesis_3"],
                 },
             },
-        };
-        const response = await client.post("/wallets/search", payload, query);
-        const wallets = response.data.data;
+        });
+
+        expect(response).toMatchObject({ status: 200 });
+
+        const wallets = response.body.data;
 
         expect(wallets.length).toBe(3);
         expect(wallets[0].attributes.delegate.username).toBe("genesis_1");
@@ -60,10 +64,7 @@ describe("/wallets/search", () => {
 
     it("should return 5 wallets with delegate rank between 1 and 2, or 10 and 12", async () => {
         const client = app.resolve(ApiHttpClient);
-        const query = {
-            orderBy: "attributes.delegate.rank",
-        };
-        const payload = {
+        const response = await client.post("/wallets/search?orderBy=attributes.delegate.rank", {
             attributes: {
                 delegate: {
                     rank: [
@@ -72,9 +73,11 @@ describe("/wallets/search", () => {
                     ],
                 },
             },
-        };
-        const response = await client.post("/wallets/search", payload, query);
-        const wallets = response.data.data;
+        });
+
+        expect(response).toMatchObject({ status: 200 });
+
+        const wallets = response.body.data;
 
         expect(wallets.length).toBe(5);
         expect(wallets[0].attributes.delegate.rank).toBe(1);

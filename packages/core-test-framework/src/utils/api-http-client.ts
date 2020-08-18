@@ -5,7 +5,7 @@ import querystring from "querystring";
 type ApiResponse = {
     status: number;
     headers: Record<string, string>;
-    data: any;
+    body: any;
 };
 
 @Container.injectable()
@@ -14,20 +14,34 @@ export class ApiHttpClient {
     private readonly server!: Server;
 
     public async get(path: string, params: Record<string, string | number> = {}): Promise<ApiResponse> {
-        const url = `${this.server.uri}/api${path}?${querystring.stringify(params)}`;
-        const response = await Utils.http.get(url);
+        try {
+            const url = this.getUrl(path, params);
+            const response = await Utils.http.get(url);
 
-        return this.parseHttpResponse(response);
+            return this.getResponse(response);
+        } catch (error) {
+            return this.getResponse(error.response);
+        }
     }
 
     public async post(path: string, body: unknown, params: Record<string, string | number> = {}): Promise<ApiResponse> {
-        const url = `${this.server.uri}/api${path}?${querystring.stringify(params)}`;
-        const response = await Utils.http.post(url, { body: body as any });
+        try {
+            const url = this.getUrl(path, params);
+            const response = await Utils.http.post(url, { body: body as any });
 
-        return this.parseHttpResponse(response);
+            return this.getResponse(response);
+        } catch (error) {
+            return this.getResponse(error.response);
+        }
     }
 
-    private parseHttpResponse(response: Utils.HttpResponse): ApiResponse {
+    private getUrl(path: string, params: Record<string, string | number> = {}): string {
+        return path.includes("?")
+            ? `${this.server.uri}/api${path}&${querystring.stringify(params)}`
+            : `${this.server.uri}/api${path}?${querystring.stringify(params)}`;
+    }
+
+    private getResponse(response: Utils.HttpResponse): ApiResponse {
         if (typeof response.statusCode === "undefined") {
             throw new Error(`Invalid response status ${response.statusCode}`);
         }
@@ -46,7 +60,7 @@ export class ApiHttpClient {
         return {
             status: response.statusCode,
             headers: responseHeaders,
-            data: response.data,
+            body: response.data,
         };
     }
 }

@@ -5,7 +5,7 @@ import querystring from "querystring";
 type ApiResponse = {
     status: number;
     headers: Record<string, string>;
-    data: any;
+    body: any;
 };
 
 @Container.injectable()
@@ -14,24 +14,30 @@ export class ApiInjectClient {
     private readonly server!: Server;
 
     public async get(path: string, params: Record<string, string | number> = {}): Promise<ApiResponse> {
-        const url = `${this.server.uri}/api${path}?${querystring.stringify(params)}`;
+        const url = this.getUrl(path, params);
         const request = { method: "GET", url };
         const response = await this.server.inject(request);
 
-        return this.parseInjectResponse(response);
+        return this.getResponse(response);
     }
 
     public async post(path: string, body: unknown, params: Record<string, string | number> = {}): Promise<ApiResponse> {
-        const url = `${this.server.uri}/api${path}?${querystring.stringify(params)}`;
+        const url = this.getUrl(path, params);
         const payload = JSON.stringify(body);
         const headers = { "Content-Type": "application/json" };
         const request = { method: "POST", url, payload, headers };
         const response = await this.server.inject(request);
 
-        return this.parseInjectResponse(response);
+        return this.getResponse(response);
     }
 
-    private parseInjectResponse(response: any): ApiResponse {
+    private getUrl(path: string, params: Record<string, string | number> = {}): string {
+        return path.includes("?")
+            ? `${this.server.uri}/api${path}&${querystring.stringify(params)}`
+            : `${this.server.uri}/api${path}?${querystring.stringify(params)}`;
+    }
+
+    private getResponse(response: any): ApiResponse {
         const responseHeaders = {};
         for (const pair of Object.entries(response.headers)) {
             const headerName = pair[0].toLowerCase();
@@ -39,12 +45,12 @@ export class ApiInjectClient {
             responseHeaders[headerName] = headerValue;
         }
 
-        const responseData = JSON.parse(JSON.stringify(response.result));
+        const responseBody = JSON.parse(JSON.stringify(response.result));
 
         return {
             status: response.statusCode,
             headers: responseHeaders,
-            data: responseData,
+            body: responseBody,
         };
     }
 }
