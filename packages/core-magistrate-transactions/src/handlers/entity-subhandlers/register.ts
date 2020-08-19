@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { IEntityAsset } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
+import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { EntityAlreadyRegisteredError, EntityNameAlreadyRegisteredError } from "../../errors";
@@ -73,7 +73,7 @@ export class EntityRegisterSubHandler {
     ): Promise<void> {
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
         Utils.assert.defined<string>(transaction.id);
-        Utils.assert.defined<IEntityAsset>(transaction.data.asset);
+        Utils.assert.defined<MagistrateInterfaces.IEntityAsset>(transaction.data.asset);
 
         const wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
