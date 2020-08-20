@@ -11,6 +11,7 @@ describe("ServiceProvider", () => {
 
         app.bind(Container.Identifiers.StateStore).toConstantValue({ reset: jest.fn() });
         app.bind(Container.Identifiers.DatabaseService).toConstantValue({});
+        app.bind(Container.Identifiers.DatabaseInteraction).toConstantValue({});
         app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue({});
         app.bind(Container.Identifiers.TransactionPoolService).toConstantValue({});
         app.bind(Container.Identifiers.LogService).toConstantValue({});

@@ -1,9 +1,9 @@
 import { Container, Services } from "@arkecosystem/core-kernel";
-import { UnchainedHandler } from "@packages/core-blockchain/src/processor/handlers/unchained-handler";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
-import { Interfaces } from "@packages/crypto";
-import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
+import { UnchainedHandler } from "@packages/core-blockchain/src/processor/handlers/unchained-handler";
+import { GetActiveDelegatesAction } from "@packages/core-state/src/actions";
 import { Sandbox } from "@packages/core-test-framework";
+import { Interfaces } from "@packages/crypto";
 
 let sandbox: Sandbox;
 
@@ -15,7 +15,18 @@ const blockchain = {
     queue: { length: jest.fn() },
 };
 const stateStore = { numberOfBlocksToRollback: undefined };
-const database = { getActiveDelegates: jest.fn() };
+const database = {};
+const databaseInteractions = {
+    walletRepository: {
+        getNonce: jest.fn(),
+    },
+    getTopBlocks: jest.fn(),
+    getLastBlock: jest.fn(),
+    loadBlocksFromCurrentRound: jest.fn(),
+    revertBlock: jest.fn(),
+    deleteRound: jest.fn(),
+    getActiveDelegates: jest.fn().mockReturnValue([]),
+};
 
 beforeEach(() => {
     sandbox = new Sandbox();
@@ -24,6 +35,7 @@ beforeEach(() => {
     sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
     sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
+    sandbox.app.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
 
     sandbox.app.bind(Container.Identifiers.TriggerService).to(Services.Triggers.Triggers).inSingletonScope();
     sandbox.app
@@ -52,7 +64,7 @@ describe("UnchainedHandler", () => {
                     },
                 };
                 blockchain.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                database.getActiveDelegates = jest
+                databaseInteractions.getActiveDelegates = jest
                     .fn()
                     .mockResolvedValueOnce(
                         [
@@ -81,7 +93,7 @@ describe("UnchainedHandler", () => {
                     },
                 };
                 blockchain.getLastBlock = jest.fn().mockReturnValueOnce(lastBlock);
-                database.getActiveDelegates = jest
+                databaseInteractions.getActiveDelegates = jest
                     .fn()
                     .mockResolvedValueOnce(
                         [

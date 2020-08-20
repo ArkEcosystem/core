@@ -1,5 +1,5 @@
-import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessorResult } from "../block-processor";
@@ -20,15 +20,15 @@ export class AcceptBlockHandler implements BlockHandler {
     @Container.inject(Container.Identifiers.StateStore)
     private readonly state!: Contracts.State.StateStore;
 
-    @Container.inject(Container.Identifiers.DatabaseService)
-    private readonly database!: DatabaseService;
+    @Container.inject(Container.Identifiers.DatabaseInteraction)
+    private readonly databaseInteraction!: DatabaseInteraction;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
     private readonly transactionPool!: Contracts.TransactionPool.Service;
 
     public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         try {
-            await this.database.applyBlock(block);
+            await this.databaseInteraction.applyBlock(block);
 
             // Check if we recovered from a fork
             if (this.state.forkedBlock && this.state.forkedBlock.data.height === block.data.height) {

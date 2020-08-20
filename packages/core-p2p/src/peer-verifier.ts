@@ -1,5 +1,5 @@
-import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
+import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import pluralize from "pluralize";
@@ -38,7 +38,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     private readonly logger!: Contracts.Kernel.Logger;
 
     // todo: make use of ioc
-    private database!: DatabaseService;
+    private databaseInteraction!: DatabaseInteraction;
     private logPrefix!: string;
 
     private communicator!: Contracts.P2P.PeerCommunicator;
@@ -55,7 +55,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     public initialize(communicator: Contracts.P2P.PeerCommunicator, peer: Contracts.P2P.Peer) {
         this.communicator = communicator;
         this.peer = peer;
-        this.database = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
+        this.databaseInteraction = this.app.get<DatabaseInteraction>(Container.Identifiers.DatabaseInteraction);
 
         this.logPrefix = `Peer verify ${peer.ip}:`;
 
@@ -218,12 +218,12 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
             return false;
         }
 
-        const blocks = await this.database.getBlocksByHeight([claimedHeight]);
+        const blocks = await this.databaseInteraction.getBlocksByHeight([claimedHeight]);
 
         assert.strictEqual(
             blocks.length,
             1,
-            `database.getBlocksByHeight([ ${claimedHeight} ]) returned ${blocks.length} results: ` +
+            `databaseInteraction.getBlocksByHeight([ ${claimedHeight} ]) returned ${blocks.length} results: ` +
                 this.anyToString(blocks) +
                 ` (our chain is at height ${ourHeight})`,
         );
@@ -284,7 +284,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         const nAry = 8;
 
         const probe = async (heightsToProbe: number[]): Promise<number | undefined> => {
-            const ourBlocks = await this.database.getBlocksByHeight(heightsToProbe);
+            const ourBlocks = await this.databaseInteraction.getBlocksByHeight(heightsToProbe);
 
             assert.strictEqual(ourBlocks.length, heightsToProbe.length);
 

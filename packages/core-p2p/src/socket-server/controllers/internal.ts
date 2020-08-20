@@ -1,5 +1,5 @@
-import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
@@ -12,8 +12,8 @@ export class InternalController extends Controller {
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
     private readonly peerNetworkMonitor!: Contracts.P2P.NetworkMonitor;
 
-    @Container.inject(Container.Identifiers.DatabaseService)
-    private readonly database!: DatabaseService;
+    @Container.inject(Container.Identifiers.DatabaseInteraction)
+    private readonly databaseInteraction!: DatabaseInteraction;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
@@ -53,12 +53,12 @@ export class InternalController extends Controller {
         const roundInfo = Utils.roundCalculator.calculateRound(height);
 
         const reward = Managers.configManager.getMilestone(height).reward;
-        const delegates: Contracts.P2P.DelegateWallet[] = (await this.database.getActiveDelegates(roundInfo)).map(
-            (wallet) => ({
-                ...wallet,
-                delegate: wallet.getAttribute("delegate"),
-            }),
-        );
+        const delegates: Contracts.P2P.DelegateWallet[] = (
+            await this.databaseInteraction.getActiveDelegates(roundInfo)
+        ).map((wallet) => ({
+            ...wallet,
+            delegate: wallet.getAttribute("delegate"),
+        }));
 
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
 

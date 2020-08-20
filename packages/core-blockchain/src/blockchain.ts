@@ -1,5 +1,6 @@
 import { DatabaseService, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums, Providers, Services, Utils } from "@arkecosystem/core-kernel";
+import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 import async from "async";
 
@@ -19,6 +20,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
+
+    @Container.inject(Container.Identifiers.DatabaseInteraction)
+    private readonly databaseInteraction!: DatabaseInteraction;
 
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;
@@ -282,7 +286,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         const revertLastBlock = async () => {
             const lastBlock: Interfaces.IBlock = this.stateStore.getLastBlock();
 
-            await this.database.revertBlock(lastBlock);
+            await this.databaseInteraction.revertBlock(lastBlock);
             removedBlocks.push(lastBlock.data);
             removedTransactions.push(...[...lastBlock.transactions].reverse());
 
@@ -359,7 +363,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         this.logger.info(`Removing top ${Utils.pluralize("block", count, true)}`);
 
         await this.blockRepository.deleteTopBlocks(count);
-        await this.database.loadBlocksFromCurrentRound();
+        await this.databaseInteraction.loadBlocksFromCurrentRound();
     }
 
     /**
@@ -443,14 +447,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 );
 
                 for (const block of acceptedBlocks.reverse()) {
-                    await this.database.revertBlock(block);
+                    await this.databaseInteraction.revertBlock(block);
                 }
 
                 this.stateStore.setLastBlock(lastBlock);
                 this.resetLastDownloadedBlock();
 
                 await this.database.deleteRound(deleteRoundsAfter + 1);
-                await this.database.loadBlocksFromCurrentRound();
+                await this.databaseInteraction.loadBlocksFromCurrentRound();
 
                 return undefined;
             }
