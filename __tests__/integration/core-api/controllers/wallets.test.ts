@@ -52,6 +52,21 @@ describe("/wallets", () => {
     });
 });
 
+describe("/wallets/:id", () => {
+    it("should respond with 404 error when loading wallet that does not exist", async () => {
+        const client = app.resolve(ApiHttpClient);
+        const response = await client.get("/wallet/no-such-wallet-id");
+
+        expect(response).toMatchObject({
+            status: 404,
+            body: {
+                error: "Not Found",
+                // message: "Wallet not found",
+            },
+        });
+    });
+});
+
 describe("/wallets/search", () => {
     it("should return 3 wallets with delegate username genesis_1 or genesis_2 or genesis_3", async () => {
         const client = app.resolve(ApiHttpClient);
