@@ -58,10 +58,10 @@ export interface Wallet {
     nonce: Utils.BigNumber;
 
     /**
-     * @returns {object}
+     * @returns {Record<string, any>}
      * @memberof Wallet
      */
-    getAttributes(): object;
+    getAttributes(): Record<string, any>;
 
     /**
      * @template T

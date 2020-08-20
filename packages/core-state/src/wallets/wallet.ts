@@ -39,10 +39,10 @@ export class Wallet implements Contracts.State.Wallet {
     ) {}
 
     /**
-     * @returns {object}
+     * @returns {Record<string, any>}
      * @memberof Wallet
      */
-    public getAttributes(): object {
+    public getAttributes(): Record<string, any> {
         return this.attributes.all();
     }
 
