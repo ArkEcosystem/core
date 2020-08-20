@@ -49,25 +49,35 @@ beforeAll(() => {
 });
 
 describe("/locks", () => {
-    it("should return locks sorted by timestamp:desc", async () => {
+    it("should return locks sorted by timestamp.unix:desc", async () => {
         const client = app.resolve(ApiHttpClient);
         const response = await client.get("/locks");
 
-        expect(response).toMatchObject({ status: 200 });
+        expect(response).toMatchObject({
+            status: 200,
+            body: {
+                data: expect.anything(),
+            },
+        });
 
         const locks = response.body.data;
-        let prevTimestamp = locks[0].timestamp;
+        let prevTimestamp = locks[0].timestamp.unix;
         for (const lock of locks) {
-            expect(lock.timestamp).toBeLessThanOrEqual(prevTimestamp);
-            prevTimestamp = lock.timestamp;
+            expect(lock.timestamp.unix).toBeLessThanOrEqual(prevTimestamp);
+            prevTimestamp = lock.timestamp.unix;
         }
     });
 
     it("should return locks with amount less than 50", async () => {
         const client = app.resolve(ApiHttpClient);
-        const response = await client.get(`/locks?amount.to=50`, { timestamp: 10000 });
+        const response = await client.get(`/locks?amount.toz=50`);
 
-        expect(response).toMatchObject({ status: 200 });
+        expect(response).toMatchObject({
+            status: 200,
+            body: {
+                data: expect.anything(),
+            },
+        });
 
         const locks = response.body.data;
         for (const lock of locks) {

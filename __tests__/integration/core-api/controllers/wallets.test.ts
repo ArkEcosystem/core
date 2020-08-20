@@ -17,7 +17,12 @@ describe("/wallets", () => {
         const client = app.resolve(ApiHttpClient);
         const response = await client.get("/wallets");
 
-        expect(response).toMatchObject({ status: 200 });
+        expect(response).toMatchObject({
+            status: 200,
+            body: {
+                data: expect.anything(),
+            },
+        });
 
         const wallets = response.body.data;
         let prevBalance = Utils.BigNumber.make(wallets[0].balance);
@@ -32,7 +37,12 @@ describe("/wallets", () => {
         const client = app.resolve(ApiHttpClient);
         const response = await client.get("/wallets?balance.to=200000000000000");
 
-        expect(response).toMatchObject({ status: 200 });
+        expect(response).toMatchObject({
+            status: 200,
+            body: {
+                data: expect.anything(),
+            },
+        });
 
         const wallets = response.body.data;
 
@@ -53,7 +63,12 @@ describe("/wallets/search", () => {
             },
         });
 
-        expect(response).toMatchObject({ status: 200 });
+        expect(response).toMatchObject({
+            status: 200,
+            body: {
+                data: expect.anything(),
+            },
+        });
 
         const wallets = response.body.data;
 
@@ -76,7 +91,12 @@ describe("/wallets/search", () => {
             },
         });
 
-        expect(response).toMatchObject({ status: 200 });
+        expect(response).toMatchObject({
+            status: 200,
+            body: {
+                data: expect.anything(),
+            },
+        });
 
         const wallets = response.body.data;
 

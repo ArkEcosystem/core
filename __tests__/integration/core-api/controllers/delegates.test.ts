@@ -16,7 +16,12 @@ describe("/delegates", () => {
         const client = app.resolve(ApiHttpClient);
         const response = await client.get("/delegates");
 
-        expect(response).toMatchObject({ status: 200 });
+        expect(response).toMatchObject({
+            status: 200,
+            body: {
+                data: expect.anything(),
+            },
+        });
 
         const delegates = response.body.data;
         let prevRank = delegates[0].rank;
@@ -32,7 +37,12 @@ describe("/delegates", () => {
         const client = app.resolve(ApiHttpClient);
         const response = await client.get("/delegates?production.approval=1.96");
 
-        expect(response).toMatchObject({ status: 200 });
+        expect(response).toMatchObject({
+            status: 200,
+            body: {
+                data: expect.anything(),
+            },
+        });
 
         const delegates = response.body.data;
 
@@ -50,7 +60,12 @@ describe("/delegates/search", () => {
             rank: [10, 11, 12],
         });
 
-        expect(response).toMatchObject({ status: 200 });
+        expect(response).toMatchObject({
+            status: 200,
+            body: {
+                data: expect.anything(),
+            },
+        });
 
         const delegates = response.body.data;
 
