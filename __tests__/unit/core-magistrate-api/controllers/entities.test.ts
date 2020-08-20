@@ -58,10 +58,10 @@ describe("EntityController.index", () => {
             },
         });
 
-        expect(result).toBe(entitiesPage);
         expect(entitySearchService.getEntitiesPage).toBeCalledWith({ offset: 0, limit: 100 }, [], {
             type: Enums.EntityType.Business,
         });
+        expect(result).toBe(entitiesPage);
     });
 });
 
@@ -86,10 +86,10 @@ describe("EntityController.search", () => {
             },
         });
 
-        expect(result).toBe(entitiesPage);
         expect(entitySearchService.getEntitiesPage).toBeCalledWith({ offset: 0, limit: 100 }, [], {
             type: Enums.EntityType.Business,
         });
+        expect(result).toBe(entitiesPage);
     });
 });
 
@@ -104,8 +104,8 @@ describe("EntityController.show", () => {
             },
         });
 
-        expect(result).toEqual({ data: entity1 });
         expect(entitySearchService.getEntity).toBeCalledWith(entity1.id);
+        expect(result).toEqual({ data: entity1 });
     });
 
     it("should return 404 when entity wasn't found", () => {
@@ -118,6 +118,7 @@ describe("EntityController.show", () => {
             },
         });
 
+        expect(entitySearchService.getEntity).toBeCalledWith(entity1.id);
         expect(result).toBeInstanceOf(Boom);
     });
 });
