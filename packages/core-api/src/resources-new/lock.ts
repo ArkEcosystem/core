@@ -15,7 +15,11 @@ export type LockResource = {
     amount: Utils.BigNumber;
     secretHash: string;
     recipientId: string;
-    timestamp: number;
+    timestamp: {
+        epoch: number;
+        unix: number;
+        human: string;
+    };
     expirationType: Enums.HtlcLockExpirationType;
     expirationValue: number;
     vendorField: string;
@@ -36,7 +40,11 @@ export const lockCriteriaSchemaObject = {
             .regex(/%/),
     ),
     recipientId: transactionCriteriaSchemaObject.recipientId,
-    timestamp: transactionCriteriaSchemaObject.timestamp,
+    timestamp: {
+        epoch: Schemas.createRangeCriteriaSchema(Joi.number().integer().min(0)),
+        unix: Schemas.createRangeCriteriaSchema(Joi.number().integer().min(0)),
+        human: Joi.string(),
+    },
     expirationType: Joi.number().allow(
         Enums.HtlcLockExpirationType.BlockHeight,
         Enums.HtlcLockExpirationType.EpochTimestamp,

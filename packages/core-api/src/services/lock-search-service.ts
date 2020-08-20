@@ -37,7 +37,7 @@ export class LockSearchService {
         ordering: Contracts.Search.Ordering,
         ...criterias: LockCriteria[]
     ): Contracts.Search.Page<LockResource> {
-        ordering = [ordering, "timestamp:desc"];
+        ordering = [ordering, "timestamp.unix:desc"];
 
         return AppUtils.Search.getPage(pagination, ordering, this.getLocks(...criterias));
     }
@@ -70,7 +70,7 @@ export class LockSearchService {
             amount: walletLock.amount,
             secretHash: walletLock.secretHash,
             recipientId: walletLock.recipientId,
-            timestamp: walletLock.timestamp,
+            timestamp: AppUtils.formatTimestamp(walletLock.timestamp),
             expirationType: walletLock.expiration.type,
             expirationValue: walletLock.expiration.value,
             vendorField: walletLock.vendorField!,
