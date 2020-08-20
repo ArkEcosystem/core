@@ -1,5 +1,5 @@
-import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
@@ -11,13 +11,13 @@ export class PeerController extends Controller {
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly peerStorage!: Contracts.P2P.PeerStorage;
 
-    @Container.inject(Container.Identifiers.DatabaseService)
-    private readonly database!: DatabaseService;
+    @Container.inject(Container.Identifiers.DatabaseInteraction)
+    private readonly databaseInteraction!: DatabaseInteraction;
 
     public getPeers(request: Hapi.Request, h: Hapi.ResponseToolkit): Contracts.P2P.PeerBroadcast[] {
         return this.peerStorage
             .getPeers()
-            .filter((peer) => peer.port !== -1 )
+            .filter((peer) => peer.port !== -1)
             .map((peer) => peer.toBroadcast())
             .sort((a, b) => {
                 Utils.assert.defined<number>(a.latency);
@@ -34,7 +34,9 @@ export class PeerController extends Controller {
         common: Interfaces.IBlockData;
         lastBlockHeight: number;
     }> {
-        const commonBlocks: Interfaces.IBlockData[] = await this.database.getCommonBlocks((request.payload as any).ids);
+        const commonBlocks: Interfaces.IBlockData[] = await this.databaseInteraction.getCommonBlocks(
+            (request.payload as any).ids,
+        );
 
         if (!commonBlocks.length) {
             throw new MissingCommonBlockError();

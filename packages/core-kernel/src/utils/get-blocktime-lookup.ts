@@ -38,7 +38,7 @@ export const getBlockTimeLookup = async (app: Application, height: number): Prom
     const databaseService = app.get<any>(Identifiers.DatabaseService);
 
     const getBlockTimestampByHeight = async (height: number): Promise<number> => {
-        const blocks = await databaseService.getBlocksByHeight([height]);
+        const blocks = await databaseService.findBlockByHeights([height]);
         return blocks[0].timestamp;
     };
 

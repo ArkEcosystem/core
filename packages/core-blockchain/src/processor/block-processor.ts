@@ -168,7 +168,7 @@ export class BlockProcessor {
 
             if (nonceBySender[sender] === undefined) {
                 nonceBySender[sender] = this.app
-                    .get<any>(Container.Identifiers.DatabaseService)
+                    .get<any>(Container.Identifiers.DatabaseInteraction)
                     .walletRepository.getNonce(sender);
             }
 
