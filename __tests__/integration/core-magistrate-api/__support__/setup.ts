@@ -36,7 +36,6 @@ export const setUp = async (): Promise<Application> => {
                         { package: "@arkecosystem/core-p2p" },
                         { package: "@arkecosystem/core-blockchain" },
                         { package: "@arkecosystem/core-api" },
-                        { package: "@arkecosystem/core-magistrate-api" },
                         { package: "@arkecosystem/core-forger" },
                     ],
                 },
@@ -50,7 +49,6 @@ export const setUp = async (): Promise<Application> => {
                         { package: "@arkecosystem/core-p2p" },
                         { package: "@arkecosystem/core-blockchain" },
                         { package: "@arkecosystem/core-api" },
-                        { package: "@arkecosystem/core-magistrate-api" },
                     ],
                 },
                 forger: {
