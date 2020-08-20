@@ -1,7 +1,6 @@
-import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Connection, createConnection, getCustomRepository } from "typeorm";
 
-import { GetActiveDelegatesAction } from "./actions";
 import { BlockFilter } from "./block-filter";
 import { BlockHistoryService } from "./block-history-service";
 import { DatabaseService } from "./database-service";
@@ -36,8 +35,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Container.Identifiers.DatabaseModelConverter).to(ModelConverter);
         this.app.bind(Container.Identifiers.DatabaseService).to(DatabaseService).inSingletonScope();
-
-        this.registerActions();
     }
 
     public async boot(): Promise<void> {
@@ -83,11 +80,5 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public getTransactionRepository(): TransactionRepository {
         return getCustomRepository(TransactionRepository);
-    }
-
-    private registerActions(): void {
-        this.app
-            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-            .bind("getActiveDelegates", new GetActiveDelegatesAction(this.app));
     }
 }

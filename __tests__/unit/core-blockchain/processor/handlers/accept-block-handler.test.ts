@@ -1,7 +1,8 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { AcceptBlockHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/accept-block-handler";
-import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
 import { Interfaces } from "@arkecosystem/crypto";
+
+import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
+import { AcceptBlockHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/accept-block-handler";
 
 describe("AcceptBlockHandler", () => {
     const container = new Container.Container();
@@ -14,9 +15,19 @@ describe("AcceptBlockHandler", () => {
         setLastBlock: jest.fn(),
         lastDownloadedBlock: undefined,
     };
-    const database = { applyBlock: jest.fn() };
     const transactionPool = { acceptForgedTransaction: jest.fn() };
-
+    const databaseInteractions = {
+        walletRepository: {
+            getNonce: jest.fn(),
+        },
+        applyBlock: jest.fn(),
+        getTopBlocks: jest.fn(),
+        getLastBlock: jest.fn(),
+        loadBlocksFromCurrentRound: jest.fn(),
+        revertBlock: jest.fn(),
+        deleteRound: jest.fn(),
+        getActiveDelegates: jest.fn().mockReturnValue([]),
+    };
     const application = { get: jest.fn() };
 
     beforeAll(() => {
@@ -25,7 +36,7 @@ describe("AcceptBlockHandler", () => {
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
         container.bind(Container.Identifiers.StateStore).toConstantValue(state);
-        container.bind(Container.Identifiers.DatabaseService).toConstantValue(database);
+        container.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
         container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPool);
     });
 
@@ -47,8 +58,8 @@ describe("AcceptBlockHandler", () => {
 
             expect(result).toBe(BlockProcessorResult.Accepted);
 
-            expect(database.applyBlock).toBeCalledTimes(1);
-            expect(database.applyBlock).toHaveBeenCalledWith(block);
+            expect(databaseInteractions.applyBlock).toBeCalledTimes(1);
+            expect(databaseInteractions.applyBlock).toHaveBeenCalledWith(block);
 
             expect(blockchain.resetWakeUp).toBeCalledTimes(1);
 
@@ -85,7 +96,7 @@ describe("AcceptBlockHandler", () => {
         it("should return Reject and resetLastDownloadedBlock when something throws", async () => {
             const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
 
-            database.applyBlock = jest.fn().mockRejectedValueOnce(new Error("oops"));
+            databaseInteractions.applyBlock = jest.fn().mockRejectedValueOnce(new Error("oops"));
             const result = await acceptBlockHandler.execute(block as Interfaces.IBlock);
 
             expect(result).toBe(BlockProcessorResult.Rejected);
