@@ -33,7 +33,7 @@ export class EntitySearchService {
         ordering: Contracts.Search.Ordering,
         ...criterias: EntityCriteria[]
     ): Contracts.Search.Page<EntityResource> {
-        ordering = [ordering, "name:asc"];
+        ordering = [ordering, "data.name:asc"];
 
         return AppUtils.Search.getPage(pagination, ordering, this.getEntities(...criterias));
     }
@@ -44,12 +44,12 @@ export class EntitySearchService {
         walletId: string,
         ...criterias: EntityCriteria[]
     ): Contracts.Search.Page<EntityResource> {
-        ordering = [ordering, "name:asc"];
+        ordering = [ordering, "data.name:asc"];
 
         return AppUtils.Search.getPage(pagination, ordering, this.getWalletEntities(walletId, ...criterias));
     }
 
-    public getEntityResourceFromWallet(wallet: Contracts.State.Wallet, entityId: string): EntityResource {
+    private getEntityResourceFromWallet(wallet: Contracts.State.Wallet, entityId: string): EntityResource {
         const walletEntities = wallet.getAttribute<IEntitiesWallet>("entities");
         const walletEntity = walletEntities[entityId];
 

@@ -35,8 +35,9 @@ export const setUp = async (): Promise<Application> => {
                         { package: "@arkecosystem/core-transaction-pool" },
                         { package: "@arkecosystem/core-p2p" },
                         { package: "@arkecosystem/core-blockchain" },
-                        { package: "@arkecosystem/core-forger" },
                         { package: "@arkecosystem/core-api" },
+                        { package: "@arkecosystem/core-magistrate-api" },
+                        { package: "@arkecosystem/core-forger" },
                     ],
                 },
                 relay: {
@@ -44,10 +45,12 @@ export const setUp = async (): Promise<Application> => {
                         { package: "@arkecosystem/core-state" },
                         { package: "@arkecosystem/core-database" },
                         { package: "@arkecosystem/core-transactions" },
+                        { package: "@arkecosystem/core-magistrate-transactions" },
                         { package: "@arkecosystem/core-transaction-pool" },
                         { package: "@arkecosystem/core-p2p" },
                         { package: "@arkecosystem/core-blockchain" },
                         { package: "@arkecosystem/core-api" },
+                        { package: "@arkecosystem/core-magistrate-api" },
                     ],
                 },
                 forger: {
