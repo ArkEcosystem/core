@@ -1,12 +1,10 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Utils } from "@arkecosystem/crypto";
+import { Contracts } from "@arkecosystem/core-kernel";
+import { Identities } from "@arkecosystem/crypto";
 import { ApiHelpers } from "@packages/core-test-framework/src";
 
 import { setUp, tearDown } from "../__support__/setup";
-
-const genesisBlock = Managers.configManager.get("genesisBlock");
 
 const username = "genesis_1";
 const publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
