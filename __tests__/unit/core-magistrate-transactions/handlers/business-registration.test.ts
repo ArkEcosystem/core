@@ -127,6 +127,7 @@ describe("BusinessRegistration", () => {
             await expect(handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet)).toResolve();
         });
 
+
         it("should throw if business already registered", async () => {
             senderWallet.setAttribute("business", {});
             await expect(

@@ -5,6 +5,7 @@ import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { BusinessResignationBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import {
+    BridgechainsAreNotResignedError,
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
 } from "@packages/core-magistrate-transactions/src/errors";
@@ -137,6 +138,15 @@ describe("BusinessRegistration", () => {
             await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).toResolve();
         });
 
+        it("should not throw if exception", async () => {
+            const spyOnIsException = jest.spyOn(Utils, "isException").mockReturnValue(true);
+
+            senderWallet.setAttribute("business.resigned", true);
+            await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).toResolve();
+
+            spyOnIsException.mockReset();
+        });
+
         it("should throw if business is not registered", async () => {
             senderWallet.forgetAttribute("business");
             await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).rejects.toThrow(
@@ -148,6 +158,13 @@ describe("BusinessRegistration", () => {
             senderWallet.setAttribute("business.resigned", true);
             await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).rejects.toThrow(
                 BusinessIsResignedError,
+            );
+        });
+
+        it("should throw if bridgechains are not resigned", async () => {
+            senderWallet.setAttribute("business.bridgechains", [{ name: "dummy" }]);
+            await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).rejects.toThrow(
+                BridgechainsAreNotResignedError,
             );
         });
 
