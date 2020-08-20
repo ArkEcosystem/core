@@ -188,6 +188,19 @@ describe("DelegateResignationTransaction", () => {
         });
 
         it("should not throw if wallet is a delegate - second sign", async () => {
+            // Add extra delegate so we don't get NotEnoughDelegatesError
+            const anotherDelegate: Wallets.Wallet = factoryBuilder
+                .get("Wallet")
+                .withOptions({
+                    passphrase: "anotherDelegate",
+                    nonce: 0,
+                })
+                .make();
+
+            anotherDelegate.setAttribute("delegate", { username: "another" });
+            walletRepository.index(anotherDelegate);
+            allDelegates.push(anotherDelegate);
+
             secondSignatureWallet.setAttribute("delegate", { username: "dummy" });
             walletRepository.index(secondSignatureWallet);
             await expect(

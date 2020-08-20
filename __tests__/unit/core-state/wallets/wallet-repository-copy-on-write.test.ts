@@ -196,7 +196,6 @@ describe("Wallet Repository Copy On Write", () => {
         expect(walletRepoCopyOnWrite.allByAddress()).toEqual([wallet]);
 
         // TODO: similarly, this behaviour is odd - as the code hasn't been overwritten in the extended class
-        walletRepoCopyOnWrite.forgetByAddress(address);
         expect(walletRepoCopyOnWrite.has(address)).toBeTrue();
     });
 

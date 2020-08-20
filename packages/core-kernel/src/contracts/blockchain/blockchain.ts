@@ -6,13 +6,6 @@ export interface Blockchain {
     queue: any;
 
     /**
-     * Create a new blockchain manager instance.
-     * @param  {Object} options
-     * @return {void}
-     */
-    initialize(options: { networkStart?: boolean }): this;
-
-    /**
      * Dispatch an event to transition the state machine.
      * @param  {String} event
      * @return {void}
@@ -23,7 +16,7 @@ export interface Blockchain {
      * Start the blockchain and wait for it to be ready.
      * @return {void}
      */
-    boot(skipStartedCheck): Promise<boolean>;
+    boot(skipStartedCheck?: boolean): Promise<boolean>;
 
     dispose(): Promise<void>;
 

@@ -153,7 +153,9 @@ describe("Transaction Forging - Delegate Resignation", () => {
 
             const takenDelegates = walletRepository.allByUsername().slice(0, 50);
             for (const delegate of takenDelegates) {
-                walletRepository.forgetByUsername(delegate.getAttribute("delegate.username"));
+                for (const indexName of walletRepository.getIndexNames()) {
+                    walletRepository.getIndex(indexName).forgetWallet(delegate);
+                }
             }
 
             // Resign a delegate

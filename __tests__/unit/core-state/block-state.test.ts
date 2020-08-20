@@ -36,6 +36,14 @@ let spyApplyVoteBalances: jest.SpyInstance;
 let spyRevertVoteBalances: jest.SpyInstance;
 let spyRevertBlockFromForger: jest.SpyInstance;
 
+const forgetWallet = (wallet: Wallet) => {
+    for (const indexName of walletRepo.getIndexNames()) {
+        const index = walletRepo.getIndex(indexName);
+
+        index.forgetWallet(wallet);
+    }
+};
+
 beforeAll(async () => {
     const initialEnv = await setUp(setUpDefaults, true); // todo: why do I have to skip booting?
     walletRepo = initialEnv.walletRepo;
@@ -310,11 +318,6 @@ describe("BlockState", () => {
         expect(forgingWallet.balance).toEqual(balanceBefore);
     });
 
-    it("should throw if there is no forger wallet", async () => {
-        walletRepo.forgetByPublicKey(forgingWallet.publicKey);
-        await expect(blockState.applyBlock(blocks[0])).toReject();
-    });
-
     it("should update sender's and recipient's delegate's vote balance when applying transaction", async () => {
         const sendersDelegate = forgingWallet;
         sendersDelegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
@@ -575,14 +578,16 @@ describe("BlockState", () => {
 
             it("not fail to apply transaction if the recipient doesn't exist", async () => {
                 transaction.data.recipientId = "don'tExist";
-                walletRepo.forgetByAddress(recipientWallet.address);
+
+                forgetWallet(recipientWallet);
 
                 await expect(blockState.applyTransaction(transaction)).toResolve();
             });
 
             it("not fail to revert transaction if the recipient doesn't exist", async () => {
                 transaction.data.recipientId = "don'tExist";
-                walletRepo.forgetByAddress(recipientWallet.address);
+
+                forgetWallet(recipientWallet);
 
                 await expect(blockState.revertTransaction(transaction)).toResolve();
             });

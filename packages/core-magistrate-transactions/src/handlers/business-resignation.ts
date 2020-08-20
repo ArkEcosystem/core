@@ -2,6 +2,7 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+
 import { BridgechainsAreNotResignedError, BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
@@ -59,7 +60,10 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
             throw new BusinessIsResignedError();
         }
 
-        const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains", {});
+        const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute(
+            "business.bridgechains",
+            {},
+        );
         if (Object.values(bridgechains).some((bridgechain) => !bridgechain.resigned)) {
             throw new BridgechainsAreNotResignedError();
         }
@@ -92,7 +96,6 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.setAttribute("business.resigned", true);
-        this.walletRepository.index(sender);
     }
 
     public async revertForSender(transaction: Interfaces.ITransaction): Promise<void> {
@@ -103,7 +106,6 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.forgetAttribute("business.resigned");
-        this.walletRepository.index(sender);
     }
 
     public async applyToRecipient(

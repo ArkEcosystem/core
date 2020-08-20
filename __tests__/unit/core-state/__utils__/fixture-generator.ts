@@ -34,14 +34,24 @@ export class FixtureGenerator {
     }
 
     public generateHtlcLocks(): Wallet[] {
-        return this.genesisBlock.transactions
+        const wallets: Wallet[] = [];
+
+        this.genesisBlock.transactions
             .filter((transaction) => transaction.recipientId)
-            .map((transaction, i) => {
+            .forEach((transaction, i) => {
                 const address = Identities.Address.fromPublicKey(transaction.senderPublicKey);
-                const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
-                wallet.publicKey = transaction.senderPublicKey;
-                wallet.setAttribute("htlc.locks", {
-                    [transaction.id]: {
+                let wallet = wallets.find((x) => x.address === address);
+
+                if (!wallet) {
+                    wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
+                    wallet.publicKey = transaction.senderPublicKey;
+                    wallets.push(wallet);
+                }
+
+                if (wallet.hasAttribute("htlc.locks")) {
+                    const locks: any = wallet.getAttribute("htlc.locks");
+
+                    locks[transaction.id] = {
                         amount: Utils.BigNumber.make(10),
                         recipientId: transaction.recipientId,
                         secretHash: transaction.id,
@@ -49,10 +59,23 @@ export class FixtureGenerator {
                             type: 1,
                             value: 100 * (i + 1),
                         },
-                    },
-                });
-                return wallet;
+                    };
+                } else {
+                    wallet.setAttribute("htlc.locks", {
+                        [transaction.id]: {
+                            amount: Utils.BigNumber.make(10),
+                            recipientId: transaction.recipientId,
+                            secretHash: transaction.id,
+                            expiration: {
+                                type: 1,
+                                value: 100 * (i + 1),
+                            },
+                        },
+                    });
+                }
             });
+
+        return wallets;
     }
 
     public generateBridgeChainWallets(): Wallet[] {

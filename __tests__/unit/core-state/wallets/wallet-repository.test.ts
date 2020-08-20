@@ -166,7 +166,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.findByAddress(address)).toEqual(wallet);
     });
 
-    it("should get, set and forget wallets by address", () => {
+    it("should get and set wallets by address", () => {
         const address = "abcd";
         const wallet = walletRepo.createWallet(address);
 
@@ -193,9 +193,6 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByIndex("addresses", address)).toBeTrue();
         expect(walletRepo.hasByIndex("addresses", nonExistingAddress)).toBeFalse();
         expect(walletRepo.allByAddress()).toEqual([wallet]);
-
-        walletRepo.forgetByAddress(address);
-        expect(walletRepo.has(address)).toBeFalse();
     });
 
     /**
@@ -217,7 +214,7 @@ describe("Wallet Repository", () => {
         expect(() => walletRepo.findByIndex("addresses", "iAlsoDontExist")).toThrow(errorMessage);
     });
 
-    it("should get, set and forget wallets by public key", () => {
+    it("should get and set wallets by public key", () => {
         const wallet = walletRepo.createWallet("abcde");
         const publicKey = "02337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
         walletRepo.getIndex("publicKeys").set(publicKey, wallet);
@@ -233,9 +230,6 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByIndex("publicKeys", publicKey)).toBeTrue();
         expect(walletRepo.hasByIndex("publicKeys", nonExistingPublicKey)).toBeFalse();
         expect(walletRepo.allByPublicKey()).toEqual([wallet]);
-
-        walletRepo.forgetByPublicKey(publicKey);
-        expect(walletRepo.has(publicKey)).toBeFalse();
     });
 
     it("should create a wallet if one is not found during public key lookup", () => {
@@ -252,7 +246,7 @@ describe("Wallet Repository", () => {
         expect(() => walletRepo.findByIndex("publicKeys", secondNotYetExistingPublicKey)).toThrow();
     });
 
-    it("should get, set and forget wallets by username", () => {
+    it("should get and set wallets by username", () => {
         const username = "testUsername";
         const wallet = walletRepo.createWallet("abcdef");
         /**
@@ -272,16 +266,12 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByIndex("usernames", username)).toBeTrue();
         expect(walletRepo.hasByIndex("usernames", nonExistingUsername)).toBeFalse();
         expect(walletRepo.allByUsername()).toEqual([wallet]);
-
-        walletRepo.forgetByUsername(username);
-        expect(walletRepo.has(username)).toBeFalse();
     });
 
     it("should be able to index forgotten wallets", () => {
         const wallet1 = walletRepo.createWallet("wallet1");
         walletRepo.index(wallet1);
         expect(walletRepo.has("wallet1")).toBeTrue();
-        walletRepo.forgetByIndex("addresses", "wallet1");
         walletRepo.index(wallet1);
         expect(walletRepo.has("wallet1")).toBeTrue();
     });
@@ -290,11 +280,10 @@ describe("Wallet Repository", () => {
         const wallet1 = walletRepo.createWallet("wallet1");
         walletRepo.index(wallet1);
         wallet1.publicKey = undefined;
-        expect(() => walletRepo.forgetByIndex("addresses", "wallet2")).not.toThrow();
         expect(walletRepo.has("wallet2")).toBeFalse();
     });
 
-    it("should index array of wallets and forget using different indexers", () => {
+    it("should index array of wallets using different indexers", () => {
         const wallets: Contracts.State.Wallet[] = [];
         const walletAddresses: string[] = [];
         for (let i = 0; i < 6; i++) {
@@ -305,6 +294,7 @@ describe("Wallet Repository", () => {
         }
 
         walletRepo.index(wallets);
+
         walletAddresses.forEach((address) => expect(walletRepo.has(address)).toBeTrue());
 
         const publicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
@@ -317,14 +307,7 @@ describe("Wallet Repository", () => {
 
         wallets.forEach((wallet) => walletRepo.index(wallet));
 
-        walletRepo.forgetByIndex("addresses", walletAddresses[0]);
-        walletRepo.forgetByIndex("publicKeys", publicKey);
-        walletRepo.forgetByIndex("usernames", "username");
-        walletRepo.forgetByIndex("resignations", "resign");
-        walletRepo.forgetByIndex("locks", "locks");
-        walletRepo.forgetByIndex("ipfs", "ipfs");
-
-        walletAddresses.forEach((address) => expect(walletRepo.has(address)).toBeFalse());
+        walletAddresses.forEach((address) => expect(walletRepo.has(address)).toBeTrue());
     });
 
     it("should get the nonce of a wallet", () => {
@@ -541,8 +524,8 @@ describe("Search", () => {
             spyStateStore.mockReturnValue(genesisBlock);
 
             const locks = walletRepo.search(Contracts.State.SearchScope.Locks, {});
-            expect(wallets.length).not.toEqual(0);
-            expect(locks.rows).toHaveLength(wallets.length);
+            expect(wallets.length).toEqual(52);
+            expect(locks.rows).toHaveLength(102); // First wallet have 50 locks
         });
 
         it("should return all locks with amount params", () => {
@@ -557,8 +540,8 @@ describe("Search", () => {
             spyStateStore.mockReturnValue(genesisBlock);
 
             const locks = walletRepo.search(Contracts.State.SearchScope.Locks, { amount: "" });
-            expect(wallets.length).not.toEqual(0);
-            expect(locks.rows).toHaveLength(wallets.length);
+            expect(wallets.length).toEqual(52);
+            expect(locks.rows).toHaveLength(102); // First wallet have 50 locks
         });
 
         it("should return only wallets which have correct lock ids", () => {

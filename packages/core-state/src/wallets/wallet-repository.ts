@@ -122,31 +122,6 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return Utils.BigNumber.ZERO;
     }
 
-    public forgetByAddress(address: string): void {
-        this.forgetByIndex(Contracts.State.WalletIndexes.Addresses, address);
-    }
-
-    public forgetByPublicKey(publicKey: string): void {
-        this.forgetByIndex(Contracts.State.WalletIndexes.PublicKeys, publicKey);
-    }
-
-    public forgetByUsername(username: string): void {
-        this.forgetByIndex(Contracts.State.WalletIndexes.Usernames, username);
-    }
-
-    public forgetByIndex(indexName: string, key: string): void {
-        const forgottenWallet = this.getIndex(indexName).get(key);
-        for (const index of Object.values(this.indexes)) {
-            for (const [name, wallet] of index.entries()) {
-                if (wallet.publicKey === forgottenWallet?.publicKey) {
-                    index.forget(name);
-                }
-            }
-        }
-        // TODO: check whether this line is still needed?
-        this.getIndex(indexName).forget(key);
-    }
-
     public index(wallet: Contracts.State.Wallet): void {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.index(wallet);

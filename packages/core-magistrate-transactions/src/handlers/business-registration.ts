@@ -9,7 +9,6 @@ import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { BusinessAlreadyRegisteredError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
-import { MagistrateIndex } from "../wallet-indexes";
 import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
@@ -114,8 +113,6 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.forgetAttribute("business");
-
-        this.walletRepository.forgetByIndex(MagistrateIndex.Businesses, transaction.data.senderPublicKey);
 
         this.walletRepository.index(sender);
     }
