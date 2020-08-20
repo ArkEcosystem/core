@@ -1,5 +1,4 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
-import { set } from "@arkecosystem/utils";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -39,17 +38,13 @@ export class Controller {
         request: Hapi.Request,
         excludes = ["page", "limit", "offset", "orderBy", "transform"],
     ): unknown {
-        const query = {};
-
+        const criteria = {};
         for (const [key, value] of Object.entries(request.query)) {
-            if (excludes.includes(key)) {
-                continue;
+            if (excludes.includes(key) === false) {
+                criteria[key] = value;
             }
-
-            set(query, key, value);
         }
-
-        return query;
+        return criteria;
     }
 
     protected getListingPage(request: Hapi.Request): Contracts.Search.ListPage {

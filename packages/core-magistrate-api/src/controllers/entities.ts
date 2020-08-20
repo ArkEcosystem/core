@@ -9,10 +9,6 @@ import { EntitySearchService } from "../services";
 
 @Container.injectable()
 export class EntityController extends Controller {
-    @Container.inject(Container.Identifiers.WalletRepository)
-    @Container.tagged("state", "blockchain")
-    protected readonly walletRepository!: Contracts.State.WalletRepository;
-
     @Container.inject(Identifiers.EntitySearchService)
     private readonly entitySearchService!: EntitySearchService;
 
