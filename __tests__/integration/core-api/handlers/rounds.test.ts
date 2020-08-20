@@ -2,6 +2,7 @@ import "@packages/core-test-framework/src/matchers";
 
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { ApiHelpers, Factories } from "@packages/core-test-framework/src";
 
 import { calculateRanks, setUp, tearDown } from "../__support__/setup";
@@ -14,7 +15,9 @@ beforeAll(async () => {
 
     const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
     await databaseService.saveRound(Factories.factory("Round").make());
-    await (databaseService as any).initializeActiveDelegates(1);
+    const databaseInteraction = app.get<DatabaseInteraction>(Container.Identifiers.DatabaseInteraction);
+
+    await (databaseInteraction as any).initializeActiveDelegates(1);
 
     await calculateRanks();
 });

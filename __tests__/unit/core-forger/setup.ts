@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 import { DelegateTracker } from "@packages/core-forger/src/delegate-tracker";
 import { Container, Services } from "@packages/core-kernel";
+import { GetActiveDelegatesAction } from "@packages/core-state/src/actions";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { Managers } from "@packages/crypto/src";
@@ -34,6 +34,13 @@ export const setup = async (activeDelegates) => {
     }
 
     @Container.injectable()
+    class MockDatabaseInteraction {
+        public async getActiveDelegates(): Promise<Wallet[]> {
+            return activeDelegates;
+        }
+    }
+
+    @Container.injectable()
     class MockWalletRepository {
         public findByPublicKey(publicKey: string) {
             return {
@@ -50,6 +57,8 @@ export const setup = async (activeDelegates) => {
     }
 
     sandbox.app.bind(Container.Identifiers.DatabaseService).to(MockDatabaseService);
+
+    sandbox.app.bind(Container.Identifiers.DatabaseInteraction).to(MockDatabaseInteraction);
 
     sandbox.app.bind(Container.Identifiers.BlockchainService).to(MockBlockchainService);
 

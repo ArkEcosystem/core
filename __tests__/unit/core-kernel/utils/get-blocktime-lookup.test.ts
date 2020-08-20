@@ -18,7 +18,7 @@ const mockApp: Application = {
     // @ts-ignore
     get: () => {
         return {
-            getBlocksByHeight: async (heights: Array<number>): Promise<Array<any>> => {
+            findBlockByHeights: async (heights: Array<number>): Promise<Array<any>> => {
                 const result = [{ timestamp: 0 }];
                 switch (heights[0]) {
                     case 2:

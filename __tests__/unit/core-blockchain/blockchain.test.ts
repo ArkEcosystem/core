@@ -3,8 +3,8 @@ import "jest-extended";
 import { ProcessBlockAction } from "@packages/core-blockchain/src/actions";
 import { Blockchain } from "@packages/core-blockchain/src/blockchain";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor/block-processor";
-import { GetActiveDelegatesAction } from "@packages/core-database/src/actions";
 import { Container, Enums, Services, Utils as AppUtils } from "@packages/core-kernel";
+import { GetActiveDelegatesAction } from "@packages/core-state/src/actions";
 import { Sandbox } from "@packages/core-test-framework";
 import { Crypto, Interfaces, Managers, Networks, Utils } from "@packages/crypto";
 import delay from "delay";
@@ -22,6 +22,7 @@ describe("Blockchain", () => {
     const peerNetworkMonitor: any = {};
     const peerStorage: any = {};
     const blockProcessor: any = {};
+    const databaseInteractions: any = {};
 
     beforeAll(() => {
         sandbox = new Sandbox();
@@ -29,6 +30,7 @@ describe("Blockchain", () => {
         sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logService);
         sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
+        sandbox.app.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
         sandbox.app.bind(Container.Identifiers.DatabaseBlockRepository).toConstantValue(blockRepository);
         sandbox.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPoolService);
         sandbox.app.bind(Container.Identifiers.StateMachine).toConstantValue(stateMachine);
@@ -72,12 +74,15 @@ describe("Blockchain", () => {
         stateStore.pushPingBlock = jest.fn();
         stateStore.pingBlock = jest.fn();
 
-        databaseService.getTopBlocks = jest.fn();
-        databaseService.getLastBlock = jest.fn();
-        databaseService.loadBlocksFromCurrentRound = jest.fn();
-        databaseService.revertBlock = jest.fn();
         databaseService.deleteRound = jest.fn();
-        databaseService.getActiveDelegates = jest.fn().mockReturnValue([]);
+        databaseService.revertBlock = jest.fn();
+
+        databaseInteractions.getTopBlocks = jest.fn();
+        databaseInteractions.getLastBlock = jest.fn();
+        databaseInteractions.loadBlocksFromCurrentRound = jest.fn();
+        databaseInteractions.revertBlock = jest.fn();
+        databaseInteractions.deleteRound = jest.fn();
+        databaseInteractions.getActiveDelegates = jest.fn().mockReturnValue([]);
 
         blockRepository.deleteBlocks = jest.fn();
         blockRepository.deleteTopBlocks = jest.fn();
@@ -597,7 +602,7 @@ describe("Blockchain", () => {
 
             await blockchain.removeBlocks(2);
 
-            expect(databaseService.revertBlock).toHaveBeenCalledTimes(2);
+            expect(databaseInteractions.revertBlock).toHaveBeenCalledTimes(2);
             expect(stateStore.setLastBlock).toHaveBeenCalledTimes(2);
             expect(blockRepository.deleteBlocks).toHaveBeenCalledTimes(1);
         });
@@ -622,7 +627,7 @@ describe("Blockchain", () => {
 
             stateStore.getLastBlock = jest.fn();
 
-            expect(databaseService.revertBlock).toHaveBeenCalledTimes(1);
+            expect(databaseInteractions.revertBlock).toHaveBeenCalledTimes(1);
             expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
             expect(blockRepository.deleteBlocks).toHaveBeenCalledTimes(1);
         });
@@ -637,7 +642,7 @@ describe("Blockchain", () => {
                 await blockchain.removeTopBlocks(numberOfBlocks);
 
                 expect(blockRepository.deleteTopBlocks).toHaveBeenLastCalledWith(numberOfBlocks);
-                expect(databaseService.loadBlocksFromCurrentRound).toHaveBeenCalled();
+                expect(databaseInteractions.loadBlocksFromCurrentRound).toHaveBeenCalled();
             },
         );
     });
@@ -701,7 +706,7 @@ describe("Blockchain", () => {
 
             expect(spyClearQueue).toBeCalledTimes(1);
             expect(spyResetLastDownloadedBlock).toBeCalledTimes(1);
-            expect(databaseService.revertBlock).toBeCalledTimes(1);
+            expect(databaseInteractions.revertBlock).toBeCalledTimes(1);
         });
 
         it("should broadcast a block if (Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
