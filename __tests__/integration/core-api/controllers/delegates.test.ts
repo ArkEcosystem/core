@@ -19,7 +19,7 @@ describe("/delegates", () => {
         expect(response).toMatchObject({
             status: 200,
             body: {
-                data: expect.anything(),
+                data: expect.toBeArray(),
             },
         });
 
@@ -40,7 +40,7 @@ describe("/delegates", () => {
         expect(response).toMatchObject({
             status: 200,
             body: {
-                data: expect.anything(),
+                data: expect.toBeArray(),
             },
         });
 
@@ -63,7 +63,7 @@ describe("/delegates/search", () => {
         expect(response).toMatchObject({
             status: 200,
             body: {
-                data: expect.anything(),
+                data: expect.toBeArray(),
             },
         });
 
@@ -71,7 +71,7 @@ describe("/delegates/search", () => {
 
         expect(delegates.length).toBe(3);
         expect(delegates[0].rank).toBe(10);
-        expect(delegates[0].rank).toBe(11);
-        expect(delegates[0].rank).toBe(12);
+        expect(delegates[1].rank).toBe(11);
+        expect(delegates[2].rank).toBe(12);
     });
 });
