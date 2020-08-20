@@ -20,16 +20,17 @@ describe("/wallets", () => {
         expect(response).toMatchObject({ status: 200 });
 
         const wallets = response.body.data;
-        const prevBalance = Utils.BigNumber.make(wallets[0].balance);
+        let prevBalance = Utils.BigNumber.make(wallets[0].balance);
         for (const wallet of wallets.slice(1)) {
             const walletBalance = Utils.BigNumber.make(wallet.balance);
             expect(walletBalance.isLessThanEqual(prevBalance)).toBe(true);
+            prevBalance = walletBalance;
         }
     });
 
     it("should return wallets with balance less than 200000000000000", async () => {
         const client = app.resolve(ApiHttpClient);
-        const response = await client.get("/wallets", { "balance.to": "200000000000000" });
+        const response = await client.get("/wallets?balance.to=200000000000000");
 
         expect(response).toMatchObject({ status: 200 });
 

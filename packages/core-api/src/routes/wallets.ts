@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { WalletsController } from "../controllers/wallets";
-import { walletCriteriaSchema, walletIdSchema } from "../resources-new";
+import { walletCriteriaSchema, walletParamSchema } from "../resources-new";
 import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -48,7 +48,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: walletIdSchema,
+                    id: walletParamSchema,
                 }),
             },
         },
@@ -181,7 +181,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
-                payload: walletCriteriaSchema,
+                payload: Joi.array().single().items(walletCriteriaSchema),
             },
             plugins: {
                 pagination: {

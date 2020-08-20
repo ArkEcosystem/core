@@ -1,8 +1,9 @@
-import { Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { DelegatesController } from "../controllers/delegates";
+import { delegateCriteriaSchema, delegateParamSchema } from "../resources-new";
+import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(DelegatesController);
@@ -14,21 +15,10 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: Joi.object({
-                    ...server.app.schemas.pagination,
-                    ...{
-                        orderBy: server.app.schemas.orderBy,
-                        type: Joi.string().valid("resigned", "never-forged"),
-                        address: Joi.string().alphanum().length(34),
-                        publicKey: Joi.string().hex().length(66),
-                        secondPublicKey: Joi.string().hex().length(66),
-                        vote: Joi.string().hex().length(66),
-                        username: server.app.schemas.username,
-                        balance: Joi.number().integer().min(0),
-                        voteBalance: Joi.number().integer().min(0),
-                        producedBlocks: Joi.number().integer().min(0),
-                    },
-                }),
+                query: Joi.object()
+                    .concat(delegateCriteriaSchema)
+                    .concat(Schemas.pagination_)
+                    .concat(Schemas.ordering_),
             },
             plugins: {
                 pagination: {
@@ -45,7 +35,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: server.app.schemas.delegateIdentifier,
+                    id: delegateParamSchema,
                 }),
             },
         },
@@ -58,7 +48,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: server.app.schemas.delegateIdentifier,
+                    id: delegateParamSchema,
                 }),
                 query: Joi.object({
                     ...server.app.schemas.blockCriteriaSchemas,
@@ -82,7 +72,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: server.app.schemas.delegateIdentifier,
+                    id: delegateParamSchema,
                 }),
                 query: Joi.object({
                     ...server.app.schemas.pagination,
@@ -119,28 +109,8 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: Joi.object({
-                    ...server.app.schemas.pagination,
-                    ...{
-                        orderBy: server.app.schemas.orderBy,
-                    },
-                }),
-                payload: Joi.object({
-                    address: Joi.string().alphanum().length(34),
-                    publicKey: Joi.string().hex().length(66),
-                    username: server.app.schemas.username,
-                    usernames: Joi.array()
-                        .unique()
-                        .min(1)
-                        .max(Managers.configManager.getMilestone().activeDelegates)
-                        .items(server.app.schemas.username),
-                    approval: server.app.schemas.percentage,
-                    forgedFees: server.app.schemas.integerBetween,
-                    forgedRewards: server.app.schemas.integerBetween,
-                    forgedTotal: server.app.schemas.integerBetween,
-                    producedBlocks: server.app.schemas.integerBetween,
-                    voteBalance: server.app.schemas.integerBetween,
-                }),
+                query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
+                payload: Joi.array().single().items(delegateCriteriaSchema),
             },
             plugins: {
                 pagination: {

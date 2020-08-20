@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { LocksController } from "../controllers/locks";
-import { lockCriteriaSchema, lockIdSchema } from "../resources-new";
+import { lockCriteriaSchema, lockParamSchema } from "../resources-new";
 import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -32,7 +32,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: lockIdSchema,
+                    id: lockParamSchema,
                 }),
             },
         },
@@ -45,7 +45,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
-                payload: lockCriteriaSchema,
+                payload: Joi.array().single().items(lockCriteriaSchema),
             },
             plugins: {
                 pagination: {

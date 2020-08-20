@@ -3,6 +3,7 @@ import { Enums, Utils } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 
 import * as Schemas from "../schemas";
+import { blockCriteriaSchemaObject } from "./block";
 import { transactionCriteriaSchemaObject, transactionIdSchema } from "./transaction";
 
 export type LockCriteria = Contracts.Search.StandardCriteriaOf<LockResource>;
@@ -21,15 +22,13 @@ export type LockResource = {
 };
 
 export const lockIdSchema = transactionIdSchema;
+export const lockParamSchema = lockIdSchema;
 
 export const lockCriteriaSchemaObject = {
     lockId: transactionCriteriaSchemaObject.id,
     senderPublicKey: transactionCriteriaSchemaObject.senderPublicKey,
     isExpired: Joi.boolean(),
-    amount: Joi.alternatives(
-        Schemas.bigNumber,
-        Joi.object({ from: Schemas.bigNumber, to: Schemas.bigNumber }).or("from", "to"),
-    ),
+    amount: Schemas.createRangeCriteriaSchema(Schemas.bigNumber),
     secretHash: Joi.alternatives(
         Joi.string().hex().length(64),
         Joi.string()
@@ -37,19 +36,13 @@ export const lockCriteriaSchemaObject = {
             .regex(/%/),
     ),
     recipientId: transactionCriteriaSchemaObject.recipientId,
-    timestamp: Joi.alternatives(
-        Joi.number().min(0),
-        Joi.object({ from: Joi.number().min(0), to: Joi.number().min(0) }).or("from", "to"),
-    ),
+    timestamp: transactionCriteriaSchemaObject.timestamp,
     expirationType: Joi.number().allow(
         Enums.HtlcLockExpirationType.BlockHeight,
         Enums.HtlcLockExpirationType.EpochTimestamp,
     ),
-    expirationValue: Joi.alternatives(
-        Joi.number().min(0),
-        Joi.object({ from: Joi.number().min(0), to: Joi.number().min(0) }).or("from", "to"),
-    ),
+    expirationValue: Joi.alternatives(blockCriteriaSchemaObject.height, blockCriteriaSchemaObject.timestamp),
     vendorField: transactionCriteriaSchemaObject.vendorField,
 };
 
-export const lockCriteriaSchema = Schemas.createCriteriaSchema(lockCriteriaSchemaObject);
+export const lockCriteriaSchema = Schemas.createStandardCriteriaSchema(lockCriteriaSchemaObject);

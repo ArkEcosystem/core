@@ -7,22 +7,28 @@ export type SchemaObject = {
     [x: string]: Joi.Schema | SchemaObject;
 };
 
-export const createCriteriaSchema = (schemaObject: SchemaObject): Joi.ObjectSchema => {
-    let schema = Joi.object();
+export const createStandardCriteriaSchema = (schemaObject: SchemaObject): Joi.ObjectSchema => {
+    const schema = Joi.object();
 
     const isSchema = (value: Joi.Schema | SchemaObject): value is Joi.Schema => {
         return Joi.isSchema(value); // why it isn't a guard?
     };
 
     for (const [key, value] of Object.entries(schemaObject)) {
-        if (isSchema(value)) {
-            schema = schema.concat(Joi.object({ [key]: value }));
-        } else {
-            schema = schema.concat(Joi.object({ [key]: createCriteriaSchema(value) }));
-        }
+        schema.concat(
+            Joi.object({
+                [key]: Joi.array()
+                    .single()
+                    .items(isSchema(value) ? value : createStandardCriteriaSchema(value)),
+            }),
+        );
     }
 
     return schema;
+};
+
+export const createRangeCriteriaSchema = (item: Joi.Schema): Joi.Schema => {
+    return Joi.alternatives(item, Joi.object({ from: item, to: item }).or("from", "to"));
 };
 
 // BigNumber
