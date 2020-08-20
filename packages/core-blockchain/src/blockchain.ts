@@ -45,9 +45,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     // todo: make this private and use a queue instance from core-kernel
     // @ts-ignore
     public queue: async.AsyncQueue<any>;
-    // todo: make this private
-    // @ts-ignore
-    protected blockProcessor: BlockProcessor;
 
     private missedBlocks: number = 0;
     private lastCheckNetworkHealthTs: number = 0;
@@ -64,8 +61,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );
         }
-
-        this.blockProcessor = this.app.get<BlockProcessor>(Container.Identifiers.BlockProcessor);
 
         this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }): Promise<
             Interfaces.IBlock[] | undefined
@@ -405,7 +400,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             lastProcessResult = await this.app
                 .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-                .call("processBlock", { blockProcessor: this.blockProcessor, block: blockInstance });
+                .call("processBlock", {
+                    blockProcessor: this.app.get<BlockProcessor>(Container.Identifiers.BlockProcessor),
+                    block: blockInstance,
+                });
             lastProcessedBlock = blockInstance;
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
