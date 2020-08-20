@@ -108,7 +108,7 @@ describe("walletQueryCriteriaSchema.balance", () => {
             balance: "123456",
         });
 
-        expect(result.value.balance).toBeInstanceOf(Utils.BigNumber);
+        expect(result.value.balance[0]).toBeInstanceOf(Utils.BigNumber);
     });
 
     it("should allow from and to boundaries", () => {
@@ -169,7 +169,7 @@ describe("walletQueryCriteriaSchema.nonce", () => {
             nonce: "123456",
         });
 
-        expect(result.value.nonce).toBeInstanceOf(Utils.BigNumber);
+        expect(result.value.nonce[0]).toBeInstanceOf(Utils.BigNumber);
     });
 
     it("should allow from and to boundaries", () => {
@@ -178,17 +178,6 @@ describe("walletQueryCriteriaSchema.nonce", () => {
                 from: "123456",
                 to: "123456",
             },
-        });
-
-        expect(result.error).toBe(undefined);
-    });
-});
-
-describe("walletQueryCriteriaSchema.attributes", () => {
-    it("should allow any key starting with attributes.", () => {
-        const result = walletCriteriaSchema.validate({
-            "attributes.vote": "no checks over public key format",
-            "attributes.delegate.voteBalance": "no checks here either",
         });
 
         expect(result.error).toBe(undefined);

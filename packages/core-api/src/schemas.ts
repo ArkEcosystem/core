@@ -8,18 +8,18 @@ export type SchemaObject = {
 };
 
 export const createStandardCriteriaSchema = (schemaObject: SchemaObject): Joi.ObjectSchema => {
-    const schema = Joi.object();
+    let schema = Joi.object();
 
     const isSchema = (value: Joi.Schema | SchemaObject): value is Joi.Schema => {
-        return Joi.isSchema(value); // why it isn't a guard?
+        return Joi.isSchema(value); // why isn't it a guard?
     };
 
     for (const [key, value] of Object.entries(schemaObject)) {
-        schema.concat(
+        const item = isSchema(value) ? value : createStandardCriteriaSchema(value);
+
+        schema = schema.concat(
             Joi.object({
-                [key]: Joi.array()
-                    .single()
-                    .items(isSchema(value) ? value : createStandardCriteriaSchema(value)),
+                [key]: Joi.array().items(item).single(),
             }),
         );
     }

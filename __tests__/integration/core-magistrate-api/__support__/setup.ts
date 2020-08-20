@@ -1,6 +1,6 @@
 import { Application, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Managers, Utils } from "@arkecosystem/crypto";
-import { ServiceProvider } from "@packages/core-api/src";
+import { ServiceProvider } from "@packages/core-magistrate-api/src";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { resolve } from "path";
 
@@ -36,6 +36,7 @@ export const setUp = async (): Promise<Application> => {
                         { package: "@arkecosystem/core-p2p" },
                         { package: "@arkecosystem/core-blockchain" },
                         { package: "@arkecosystem/core-forger" },
+                        { package: "@arkecosystem/core-api" },
                     ],
                 },
                 relay: {
@@ -46,6 +47,7 @@ export const setUp = async (): Promise<Application> => {
                         { package: "@arkecosystem/core-transaction-pool" },
                         { package: "@arkecosystem/core-p2p" },
                         { package: "@arkecosystem/core-blockchain" },
+                        { package: "@arkecosystem/core-api" },
                     ],
                 },
                 forger: {
@@ -65,8 +67,8 @@ export const setUp = async (): Promise<Application> => {
 
             // We need to manually register the service provider from source so that jest can collect coverage.
             sandbox.registerServiceProvider({
-                name: "@arkecosystem/core-api",
-                path: resolve(__dirname, "../../../../packages/core-api"),
+                name: "@arkecosystem/core-magistrate-api",
+                path: resolve(__dirname, "../../../../packages/core-magistrate-api"),
                 klass: ServiceProvider,
             });
 

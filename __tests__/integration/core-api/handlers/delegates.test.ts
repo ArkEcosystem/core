@@ -192,7 +192,7 @@ describe("API 2.0 - Delegates", () => {
                 "state",
                 "blockchain",
             );
-            walletRepository.index([wallet]);
+            walletRepository.index(wallet);
 
             api.expectError(await api.request("GET", `delegates/${wallet.address}`), 404);
         });

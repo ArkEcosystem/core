@@ -1,7 +1,9 @@
+import { Schemas } from "@arkecosystem/core-api";
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { EntityController } from "../controllers/entities";
+import { entityCriteriaSchema, entityParamSchema } from "../resources";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(EntityController);
@@ -13,19 +15,12 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: Joi.object({
-                    ...server.app.schemas.pagination,
-                    ...{
-                        orderBy: server.app.schemas.orderBy,
-                        publicKey: Joi.string().hex().length(66),
-                        type: Joi.number().integer(), // see enum in core-magistrate-crypto
-                        subType: Joi.number().integer(), // see enum in core-magistrate-crypto
-                        name: Joi.string()
-                            .regex(/^[a-zA-Z0-9_-]+$/)
-                            .max(40),
-                        isResigned: Joi.bool(),
-                    },
-                }),
+                query: Joi.object().concat(entityCriteriaSchema).concat(Schemas.pagination_).concat(Schemas.ordering_),
+            },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
             },
         },
     });
@@ -37,7 +32,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: Joi.string().hex().length(64), // id is registration tx id
+                    id: entityParamSchema,
                 }),
             },
         },
@@ -49,21 +44,13 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: Joi.object({
-                    ...server.app.schemas.pagination,
-                    ...{
-                        orderBy: server.app.schemas.orderBy,
-                    },
-                }),
-                payload: Joi.object({
-                    publicKey: Joi.string().hex().length(66),
-                    type: Joi.number().integer(), // see enum in core-magistrate-crypto
-                    subType: Joi.number().integer(), // see enum in core-magistrate-crypto
-                    name: Joi.string()
-                        .regex(/^[a-zA-Z0-9_-]+$/)
-                        .max(40),
-                    isResigned: Joi.bool(),
-                }),
+                query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
+                payload: Joi.array().single().items(entityCriteriaSchema),
+            },
+            plugins: {
+                pagination: {
+                    enabled: true,
+                },
             },
         },
     });
