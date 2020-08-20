@@ -20,7 +20,7 @@ describe("/wallets", () => {
         expect(response).toMatchObject({
             status: 200,
             body: {
-                data: expect.anything(),
+                data: expect.toBeArray(),
             },
         });
 
@@ -40,7 +40,7 @@ describe("/wallets", () => {
         expect(response).toMatchObject({
             status: 200,
             body: {
-                data: expect.anything(),
+                data: expect.toBeArray(),
             },
         });
 
@@ -66,7 +66,7 @@ describe("/wallets/search", () => {
         expect(response).toMatchObject({
             status: 200,
             body: {
-                data: expect.anything(),
+                data: expect.toBeArray(),
             },
         });
 
@@ -94,7 +94,7 @@ describe("/wallets/search", () => {
         expect(response).toMatchObject({
             status: 200,
             body: {
-                data: expect.anything(),
+                data: expect.toBeArray(),
             },
         });
 

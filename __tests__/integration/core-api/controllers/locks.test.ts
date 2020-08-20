@@ -56,7 +56,7 @@ describe("/locks", () => {
         expect(response).toMatchObject({
             status: 200,
             body: {
-                data: expect.anything(),
+                data: expect.toBeArray(),
             },
         });
 
@@ -75,7 +75,7 @@ describe("/locks", () => {
         expect(response).toMatchObject({
             status: 200,
             body: {
-                data: expect.anything(),
+                data: expect.toBeArray(),
             },
         });
 
