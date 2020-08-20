@@ -70,7 +70,7 @@ describe("/locks", () => {
 
     it("should return locks with amount less than 50", async () => {
         const client = app.resolve(ApiHttpClient);
-        const response = await client.get(`/locks?amount.toz=50`);
+        const response = await client.get(`/locks?amount.to=50`);
 
         expect(response).toMatchObject({
             status: 200,
