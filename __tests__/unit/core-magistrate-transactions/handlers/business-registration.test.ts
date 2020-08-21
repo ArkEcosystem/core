@@ -6,7 +6,7 @@ import { Enums, Transactions as MagistrateTransactions } from "@packages/core-ma
 import { BusinessRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { BusinessAlreadyRegisteredError } from "@packages/core-magistrate-transactions/src/errors";
 import { MagistrateApplicationEvents } from "@packages/core-magistrate-transactions/src/events";
-import { BusinessRegistrationTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers";
+import { BusinessRegistrationTransactionHandler, EntityTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers";
 import { MagistrateIndex } from "@packages/core-magistrate-transactions/src/wallet-indexes";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -50,6 +50,7 @@ beforeEach(() => {
 
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(EntityTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -61,6 +62,12 @@ beforeEach(() => {
     senderWallet = buildSenderWallet(app);
 
     walletRepository.index(senderWallet);
+});
+
+afterEach(() => {
+    try {
+        Transactions.TransactionRegistry.deregisterTransactionType(MagistrateTransactions.EntityTransaction);
+    } catch {}
 });
 
 describe("BusinessRegistration", () => {

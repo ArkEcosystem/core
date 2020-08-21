@@ -13,6 +13,7 @@ import { MagistrateApplicationEvents } from "@packages/core-magistrate-transacti
 import {
     BusinessRegistrationTransactionHandler,
     BusinessResignationTransactionHandler,
+    EntityTransactionHandler
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { MagistrateIndex } from "@packages/core-magistrate-transactions/src/wallet-indexes";
 import { Wallets } from "@packages/core-state";
@@ -58,6 +59,7 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BusinessResignationTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(EntityTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -69,6 +71,12 @@ beforeEach(() => {
     senderWallet = buildSenderWallet(app);
 
     walletRepository.index(senderWallet);
+});
+
+afterEach(() => {
+    try {
+        Transactions.TransactionRegistry.deregisterTransactionType(MagistrateTransactions.EntityTransaction);
+    } catch {}
 });
 
 describe("BusinessRegistration", () => {

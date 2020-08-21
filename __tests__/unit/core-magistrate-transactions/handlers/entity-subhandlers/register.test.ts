@@ -58,7 +58,23 @@ afterEach(() => {
 
 describe("EntityRegisterSubHandler", () => {
     describe("throwIfCannotBeApplied", () => {
-        it("should not throw", async () => {
+        it("should not throw if wallet have no entities", async () => {
+            await expect(handler.throwIfCannotBeApplied(transaction, wallet, walletRepository)).toResolve();
+        });
+
+        it("should not throw if registering unique entity", async () => {
+            wallet.setAttribute("entities", {
+                ["dummy_id"]: {
+                    type: transaction.data.asset.type,
+                    subType: transaction.data.asset.subType,
+                    data: {
+                        name: "dummy_name",
+                    },
+                },
+            });
+
+            walletRepository.index(wallet);
+
             await expect(handler.throwIfCannotBeApplied(transaction, wallet, walletRepository)).toResolve();
         });
 
@@ -96,6 +112,18 @@ describe("EntityRegisterSubHandler", () => {
             await expect(handler.throwIfCannotBeApplied(transaction, wallet, walletRepository)).rejects.toBeInstanceOf(
                 EntityNameAlreadyRegisteredError,
             );
+        });
+    });
+
+    describe("applyToRecipient", () => {
+        it("should resolve", async () => {
+            await expect(handler.applyToRecipient(transaction, walletRepository)).toResolve();
+        });
+    });
+
+    describe("revertForRecipient", () => {
+        it("should resolve", async () => {
+            await expect(handler.revertForRecipient(transaction, walletRepository)).toResolve();
         });
     });
 });
