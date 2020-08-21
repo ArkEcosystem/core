@@ -5,7 +5,7 @@ import Hapi from "@hapi/hapi";
 
 import { Identifiers } from "../identifiers";
 import { TransactionResource } from "../resources";
-import { LockCriteria, LockResource } from "../resources-new";
+import { LockCriteria, lockCriteriaSchemaObject, LockResource } from "../resources-new";
 import { LockSearchService } from "../services";
 import { Controller } from "./controller";
 
@@ -20,7 +20,7 @@ export class LocksController extends Controller {
     public index(request: Hapi.Request): Contracts.Search.Page<LockResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as LockCriteria;
+        const criteria = this.getCriteria(request, lockCriteriaSchemaObject) as LockCriteria;
 
         return this.lockSearchService.getLocksPage(pagination, ordering, criteria);
     }

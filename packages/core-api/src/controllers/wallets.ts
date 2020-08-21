@@ -5,7 +5,14 @@ import Hapi from "@hapi/hapi";
 
 import { Identifiers } from "../identifiers";
 import { TransactionResource, TransactionWithBlockResource } from "../resources";
-import { LockCriteria, LockResource, WalletCriteria, WalletResource } from "../resources-new";
+import {
+    LockCriteria,
+    lockCriteriaSchemaObject,
+    LockResource,
+    WalletCriteria,
+    walletCriteriaSchemaObject,
+    WalletResource,
+} from "../resources-new";
 import { LockSearchService, WalletSearchService } from "../services";
 import { Controller } from "./controller";
 
@@ -23,7 +30,7 @@ export class WalletsController extends Controller {
     public index(request: Hapi.Request): Contracts.Search.Page<WalletResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as WalletCriteria;
+        const criteria = this.getCriteria(request, walletCriteriaSchemaObject) as WalletCriteria;
 
         return this.walletSearchService.getWalletsPage(pagination, ordering, criteria);
     }
@@ -31,7 +38,7 @@ export class WalletsController extends Controller {
     public top(request: Hapi.Request): Contracts.Search.Page<WalletResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as WalletCriteria;
+        const criteria = this.getCriteria(request, walletCriteriaSchemaObject) as WalletCriteria;
 
         return this.walletSearchService.getWalletsPage(pagination, ordering, criteria);
     }
@@ -53,6 +60,21 @@ export class WalletsController extends Controller {
         }
 
         return { data: walletResource };
+    }
+
+    public locks(request: Hapi.Request): Contracts.Search.Page<LockResource> | Boom {
+        const walletId = request.params.id as string;
+        const walletResource = this.walletSearchService.getWallet(walletId);
+
+        if (!walletResource) {
+            return notFound("Wallet not found");
+        }
+
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const criteria = this.getCriteria(request, lockCriteriaSchemaObject) as LockCriteria;
+
+        return this.lockSearchService.getWalletLocksPage(pagination, ordering, walletId, criteria);
     }
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -206,20 +228,5 @@ export class WalletsController extends Controller {
 
             return this.toPagination(transactionListResult, TransactionResource, false);
         }
-    }
-
-    public locks(request: Hapi.Request): Contracts.Search.Page<LockResource> | Boom {
-        const walletId = request.params.id as string;
-        const walletResource = this.walletSearchService.getWallet(walletId);
-
-        if (!walletResource) {
-            return notFound("Wallet not found");
-        }
-
-        const pagination = this.getPagination(request);
-        const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as LockCriteria;
-
-        return this.lockSearchService.getWalletLocksPage(pagination, ordering, walletId, criteria);
     }
 }

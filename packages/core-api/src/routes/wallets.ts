@@ -2,7 +2,12 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { WalletsController } from "../controllers/wallets";
-import { walletCriteriaSchemaObject, walletParamSchema } from "../resources-new";
+import {
+    lockCriteriaSchemaObject,
+    lockParamSchema,
+    walletCriteriaSchemaObject,
+    walletParamSchema,
+} from "../resources-new";
 import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -16,14 +21,12 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object()
-                    .concat(Schemas.createCriteriaQuerySchema(walletCriteriaSchemaObject))
+                    .concat(Joi.object(walletCriteriaSchemaObject))
                     .concat(Schemas.pagination_)
                     .concat(Schemas.ordering_),
             },
             plugins: {
-                pagination: {
-                    enabled: true,
-                },
+                pagination: { enabled: true },
             },
         },
     });
@@ -35,14 +38,27 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object()
-                    .concat(Schemas.createCriteriaQuerySchema(walletCriteriaSchemaObject))
+                    .concat(Joi.object(walletCriteriaSchemaObject))
                     .concat(Schemas.pagination_)
                     .concat(Schemas.ordering_),
             },
             plugins: {
-                pagination: {
-                    enabled: true,
-                },
+                pagination: { enabled: true },
+            },
+        },
+    });
+
+    server.route({
+        method: "POST",
+        path: "/wallets/search",
+        handler: controller.search,
+        options: {
+            validate: {
+                query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
+                payload: Schemas.createCriteriaPayloadSchema(walletCriteriaSchemaObject),
+            },
+            plugins: {
+                pagination: { enabled: true },
             },
         },
     });
@@ -56,6 +72,26 @@ export const register = (server: Hapi.Server): void => {
                 params: Joi.object({
                     id: walletParamSchema,
                 }),
+            },
+        },
+    });
+
+    server.route({
+        method: "GET",
+        path: "/wallets/{id}/locks",
+        handler: controller.locks,
+        options: {
+            validate: {
+                params: Joi.object({
+                    id: lockParamSchema,
+                }),
+                query: Joi.object()
+                    .concat(Joi.object(lockCriteriaSchemaObject))
+                    .concat(Schemas.pagination_)
+                    .concat(Schemas.ordering_),
+            },
+            plugins: {
+                pagination: { enabled: true },
             },
         },
     });
@@ -147,47 +183,6 @@ export const register = (server: Hapi.Server): void => {
                     orderBy: server.app.schemas.transactionsOrderBy,
                     transform: Joi.bool().default(true),
                 }),
-            },
-            plugins: {
-                pagination: {
-                    enabled: true,
-                },
-            },
-        },
-    });
-
-    server.route({
-        method: "GET",
-        path: "/wallets/{id}/locks",
-        handler: controller.locks,
-        options: {
-            validate: {
-                params: Joi.object({
-                    id: server.app.schemas.walletId,
-                }),
-                query: Joi.object({
-                    ...server.app.schemas.transactionCriteriaSchemas,
-                    ...server.app.schemas.pagination,
-                    orderBy: server.app.schemas.transactionsOrderBy,
-                    transform: Joi.bool().default(true),
-                }),
-            },
-            plugins: {
-                pagination: {
-                    enabled: true,
-                },
-            },
-        },
-    });
-
-    server.route({
-        method: "POST",
-        path: "/wallets/search",
-        handler: controller.search,
-        options: {
-            validate: {
-                query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
-                payload: Schemas.createCriteriaPayloadSchema(walletCriteriaSchemaObject),
             },
             plugins: {
                 pagination: {

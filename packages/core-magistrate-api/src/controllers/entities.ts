@@ -4,7 +4,7 @@ import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { Identifiers } from "../identifiers";
-import { EntityCriteria, EntityResource } from "../resources";
+import { EntityCriteria, entityCriteriaSchemaObject, EntityResource } from "../resources";
 import { EntitySearchService } from "../services";
 
 @Container.injectable()
@@ -15,7 +15,7 @@ export class EntityController extends Controller {
     public index(request: Hapi.Request): Contracts.Search.Page<EntityResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as EntityCriteria;
+        const criteria = this.getCriteria(request, entityCriteriaSchemaObject) as EntityCriteria;
 
         return this.entitySearchService.getEntitiesPage(pagination, ordering, criteria);
     }

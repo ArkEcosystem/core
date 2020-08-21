@@ -7,10 +7,6 @@ export type SchemaObject = {
     [x: string]: Joi.Schema | SchemaObject;
 };
 
-export const createCriteriaQuerySchema = (schemaObject: SchemaObject): Joi.ObjectSchema => {
-    return Joi.object(schemaObject);
-};
-
 export const createCriteriaPayloadSchema = (schemaObject: SchemaObject): Joi.ArraySchema => {
     const isSchema = (value: Joi.Schema | SchemaObject): value is Joi.Schema => {
         return Joi.isSchema(value); // why isn't it a guard? :-(

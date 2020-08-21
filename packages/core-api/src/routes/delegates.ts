@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { DelegatesController } from "../controllers/delegates";
-import { delegateCriteriaSchemaObject, delegateParamSchema } from "../resources-new";
+import { delegateCriteriaSchemaObject, delegateParamSchema, walletCriteriaSchemaObject } from "../resources-new";
 import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -16,14 +16,27 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object()
-                    .concat(Schemas.createCriteriaQuerySchema(delegateCriteriaSchemaObject))
+                    .concat(Joi.object(delegateCriteriaSchemaObject))
                     .concat(Schemas.pagination_)
                     .concat(Schemas.ordering_),
             },
             plugins: {
-                pagination: {
-                    enabled: true,
-                },
+                pagination: { enabled: true },
+            },
+        },
+    });
+
+    server.route({
+        method: "POST",
+        path: "/delegates/search",
+        handler: controller.search,
+        options: {
+            validate: {
+                query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
+                payload: Schemas.createCriteriaPayloadSchema(delegateCriteriaSchemaObject),
+            },
+            plugins: {
+                pagination: { enabled: true },
             },
         },
     });
@@ -43,6 +56,28 @@ export const register = (server: Hapi.Server): void => {
 
     server.route({
         method: "GET",
+        path: "/delegates/{id}/voters",
+        handler: controller.voters,
+        options: {
+            validate: {
+                params: Joi.object({
+                    id: delegateParamSchema,
+                }),
+                validate: {
+                    query: Joi.object()
+                        .concat(Joi.object(walletCriteriaSchemaObject))
+                        .concat(Schemas.pagination_)
+                        .concat(Schemas.ordering_),
+                },
+            },
+            plugins: {
+                pagination: { enabled: true },
+            },
+        },
+    });
+
+    server.route({
+        method: "GET",
         path: "/delegates/{id}/blocks",
         handler: controller.blocks,
         options: {
@@ -56,61 +91,6 @@ export const register = (server: Hapi.Server): void => {
                     orderBy: server.app.schemas.blocksOrderBy,
                     transform: Joi.bool().default(true),
                 }),
-            },
-            plugins: {
-                pagination: {
-                    enabled: true,
-                },
-            },
-        },
-    });
-
-    server.route({
-        method: "GET",
-        path: "/delegates/{id}/voters",
-        handler: controller.voters,
-        options: {
-            validate: {
-                params: Joi.object({
-                    id: delegateParamSchema,
-                }),
-                query: Joi.object({
-                    ...server.app.schemas.pagination,
-                    ...{
-                        orderBy: server.app.schemas.orderBy,
-                        id: server.app.schemas.blockId,
-                        version: Joi.number().integer().min(0),
-                        timestamp: Joi.number().integer().min(0),
-                        previousBlock: server.app.schemas.blockId,
-                        height: Joi.number().integer().positive(),
-                        numberOfTransactions: Joi.number().integer().min(0),
-                        totalAmount: Joi.number().integer().min(0),
-                        totalFee: Joi.number().integer().min(0),
-                        reward: Joi.number().integer().min(0),
-                        payloadLength: Joi.number().integer().min(0),
-                        payloadHash: Joi.string().hex(),
-                        generatorPublicKey: Joi.string().hex().length(66),
-                        blockSignature: Joi.string().hex(),
-                        transform: Joi.bool().default(true),
-                    },
-                }),
-            },
-            plugins: {
-                pagination: {
-                    enabled: true,
-                },
-            },
-        },
-    });
-
-    server.route({
-        method: "POST",
-        path: "/delegates/search",
-        handler: controller.search,
-        options: {
-            validate: {
-                query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
-                payload: Schemas.createCriteriaPayloadSchema(delegateCriteriaSchemaObject),
             },
             plugins: {
                 pagination: {

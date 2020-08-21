@@ -3,6 +3,7 @@ import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { Resource } from "../interfaces";
+import { SchemaObject } from "../schemas";
 
 @Container.injectable()
 export class Controller {
@@ -34,13 +35,11 @@ export class Controller {
         }
     }
 
-    protected getCriteria(
-        request: Hapi.Request,
-        excludes = ["page", "limit", "offset", "orderBy", "transform"],
-    ): unknown {
+    protected getCriteria(request: Hapi.Request, schemaObject: SchemaObject): unknown {
+        const schemaObjectKeys = Object.keys(schemaObject);
         const criteria = {};
         for (const [key, value] of Object.entries(request.query)) {
-            if (excludes.includes(key) === false) {
+            if (schemaObjectKeys.includes(key)) {
                 criteria[key] = value;
             }
         }

@@ -16,27 +16,12 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object()
-                    .concat(Schemas.createCriteriaQuerySchema(lockCriteriaSchemaObject))
+                    .concat(Joi.object(lockCriteriaSchemaObject))
                     .concat(Schemas.pagination_)
                     .concat(Schemas.ordering_),
             },
             plugins: {
-                pagination: {
-                    enabled: true,
-                },
-            },
-        },
-    });
-
-    server.route({
-        method: "GET",
-        path: "/locks/{id}",
-        handler: controller.show,
-        options: {
-            validate: {
-                params: Joi.object({
-                    id: lockParamSchema,
-                }),
+                pagination: { enabled: true },
             },
         },
     });
@@ -51,9 +36,20 @@ export const register = (server: Hapi.Server): void => {
                 payload: Schemas.createCriteriaPayloadSchema(lockCriteriaSchemaObject),
             },
             plugins: {
-                pagination: {
-                    enabled: true,
-                },
+                pagination: { enabled: true },
+            },
+        },
+    });
+
+    server.route({
+        method: "GET",
+        path: "/locks/{id}",
+        handler: controller.show,
+        options: {
+            validate: {
+                params: Joi.object({
+                    id: lockParamSchema,
+                }),
             },
         },
     });

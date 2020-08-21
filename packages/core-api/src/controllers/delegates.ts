@@ -5,7 +5,14 @@ import Hapi from "@hapi/hapi";
 
 import { Identifiers } from "../identifiers";
 import { BlockResource, BlockWithTransactionsResource } from "../resources";
-import { DelegateCriteria, DelegateResource, WalletCriteria, WalletResource } from "../resources-new";
+import {
+    DelegateCriteria,
+    delegateCriteriaSchemaObject,
+    DelegateResource,
+    WalletCriteria,
+    walletCriteriaSchemaObject,
+    WalletResource,
+} from "../resources-new";
 import { DelegateSearchService, WalletSearchService } from "../services";
 import { Controller } from "./controller";
 
@@ -23,7 +30,7 @@ export class DelegatesController extends Controller {
     public index(request: Hapi.Request): Contracts.Search.Page<DelegateResource> {
         const pagination = this.getPagination(request);
         const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as DelegateCriteria;
+        const criteria = this.getCriteria(request, delegateCriteriaSchemaObject) as DelegateCriteria;
 
         return this.delegateSearchService.getDelegatesPage(pagination, ordering, criteria);
     }
@@ -45,6 +52,25 @@ export class DelegatesController extends Controller {
         }
 
         return { data: delegateResource };
+    }
+
+    public voters(request: Hapi.Request): Contracts.Search.Page<WalletResource> | Boom {
+        const delegateId = request.params.id as string;
+        const delegateResource = this.delegateSearchService.getDelegate(delegateId);
+
+        if (!delegateResource) {
+            return notFound("Delegate not found");
+        }
+
+        const pagination = this.getPagination(request);
+        const ordering = this.getOrdering(request);
+        const criteria = this.getCriteria(request, walletCriteriaSchemaObject) as WalletCriteria;
+
+        return this.walletSearchService.getActiveWalletsPage(pagination, ordering, criteria, {
+            attributes: {
+                vote: delegateResource.publicKey,
+            },
+        });
     }
 
     public async blocks(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -77,24 +103,5 @@ export class DelegatesController extends Controller {
 
             return this.toPagination(blockListResult, BlockResource, false);
         }
-    }
-
-    public voters(request: Hapi.Request): Contracts.Search.Page<WalletResource> | Boom {
-        const delegateId = request.params.id as string;
-        const delegateResource = this.delegateSearchService.getDelegate(delegateId);
-
-        if (!delegateResource) {
-            return notFound("Delegate not found");
-        }
-
-        const pagination = this.getPagination(request);
-        const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request) as WalletCriteria;
-
-        return this.walletSearchService.getActiveWalletsPage(pagination, ordering, criteria, {
-            attributes: {
-                vote: delegateResource.publicKey,
-            },
-        });
     }
 }
