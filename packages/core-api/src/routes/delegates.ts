@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { DelegatesController } from "../controllers/delegates";
-import { delegateCriteriaSchema, delegateParamSchema } from "../resources-new";
+import { delegateCriteriaSchemaObject, delegateParamSchema } from "../resources-new";
 import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -16,7 +16,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object()
-                    .concat(delegateCriteriaSchema)
+                    .concat(Schemas.createCriteriaQuerySchema(delegateCriteriaSchemaObject))
                     .concat(Schemas.pagination_)
                     .concat(Schemas.ordering_),
             },
@@ -110,7 +110,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
-                payload: Joi.array().single().items(delegateCriteriaSchema),
+                payload: Schemas.createCriteriaPayloadSchema(delegateCriteriaSchemaObject),
             },
             plugins: {
                 pagination: {

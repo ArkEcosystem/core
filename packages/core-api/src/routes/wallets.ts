@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { WalletsController } from "../controllers/wallets";
-import { walletCriteriaSchema, walletParamSchema } from "../resources-new";
+import { walletCriteriaSchemaObject, walletParamSchema } from "../resources-new";
 import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -15,7 +15,10 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: Joi.object().concat(walletCriteriaSchema).concat(Schemas.pagination_).concat(Schemas.ordering_),
+                query: Joi.object()
+                    .concat(Schemas.createCriteriaQuerySchema(walletCriteriaSchemaObject))
+                    .concat(Schemas.pagination_)
+                    .concat(Schemas.ordering_),
             },
             plugins: {
                 pagination: {
@@ -31,7 +34,10 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.top,
         options: {
             validate: {
-                query: Joi.object().concat(walletCriteriaSchema).concat(Schemas.pagination_).concat(Schemas.ordering_),
+                query: Joi.object()
+                    .concat(Schemas.createCriteriaQuerySchema(walletCriteriaSchemaObject))
+                    .concat(Schemas.pagination_)
+                    .concat(Schemas.ordering_),
             },
             plugins: {
                 pagination: {
@@ -181,7 +187,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
-                payload: Joi.array().single().items(walletCriteriaSchema),
+                payload: Schemas.createCriteriaPayloadSchema(walletCriteriaSchemaObject),
             },
             plugins: {
                 pagination: {

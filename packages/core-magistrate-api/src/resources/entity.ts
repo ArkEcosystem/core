@@ -1,4 +1,4 @@
-import { Resources, Schemas } from "@arkecosystem/core-api";
+import { Resources } from "@arkecosystem/core-api";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces } from "@arkecosystem/core-magistrate-crypto";
 import Joi from "@hapi/joi";
@@ -39,5 +39,3 @@ export const entityCriteriaSchemaObject = {
         ipfsData: Joi.string(),
     },
 };
-
-export const entityCriteriaSchema = Schemas.createStandardCriteriaSchema(entityCriteriaSchemaObject);

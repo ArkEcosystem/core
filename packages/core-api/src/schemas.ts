@@ -7,24 +7,25 @@ export type SchemaObject = {
     [x: string]: Joi.Schema | SchemaObject;
 };
 
-export const createStandardCriteriaSchema = (schemaObject: SchemaObject): Joi.ObjectSchema => {
-    let schema = Joi.object();
+export const createCriteriaQuerySchema = (schemaObject: SchemaObject): Joi.ObjectSchema => {
+    return Joi.object(schemaObject);
+};
 
+export const createCriteriaPayloadSchema = (schemaObject: SchemaObject): Joi.ArraySchema => {
     const isSchema = (value: Joi.Schema | SchemaObject): value is Joi.Schema => {
-        return Joi.isSchema(value); // why isn't it a guard?
+        return Joi.isSchema(value); // why isn't it a guard? :-(
     };
 
+    const item = {};
     for (const [key, value] of Object.entries(schemaObject)) {
-        const item = isSchema(value) ? value : createStandardCriteriaSchema(value);
-
-        schema = schema.concat(
-            Joi.object({
-                [key]: Joi.array().items(item).single(),
-            }),
-        );
+        if (isSchema(value)) {
+            item[key] = Joi.array().single().items(value);
+        } else {
+            item[key] = createCriteriaPayloadSchema(value);
+        }
     }
 
-    return schema;
+    return Joi.array().single().items(Joi.object(item));
 };
 
 export const createRangeCriteriaSchema = (item: Joi.Schema): Joi.Schema => {

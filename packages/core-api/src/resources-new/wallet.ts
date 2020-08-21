@@ -36,5 +36,3 @@ export const walletCriteriaSchemaObject = {
     nonce: Schemas.createRangeCriteriaSchema(Schemas.nonNegativeBigNumber),
     attributes: Joi.object(),
 };
-
-export const walletCriteriaSchema = Schemas.createStandardCriteriaSchema(walletCriteriaSchemaObject);

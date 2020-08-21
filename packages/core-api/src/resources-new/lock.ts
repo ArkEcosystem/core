@@ -52,5 +52,3 @@ export const lockCriteriaSchemaObject = {
     expirationValue: Joi.alternatives(blockCriteriaSchemaObject.height, blockCriteriaSchemaObject.timestamp),
     vendorField: transactionCriteriaSchemaObject.vendorField,
 };
-
-export const lockCriteriaSchema = Schemas.createStandardCriteriaSchema(lockCriteriaSchemaObject);

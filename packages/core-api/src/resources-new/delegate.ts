@@ -61,5 +61,3 @@ export const delegateCriteriaSchemaObject = {
         total: Schemas.createRangeCriteriaSchema(Schemas.nonNegativeBigNumber),
     },
 };
-
-export const delegateCriteriaSchema = Schemas.createStandardCriteriaSchema(delegateCriteriaSchemaObject);
