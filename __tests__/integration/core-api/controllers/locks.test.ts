@@ -1,5 +1,5 @@
 import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
-import { ApiHttpClient } from "@arkecosystem/core-test-framework";
+import { ApiInjectClient } from "@arkecosystem/core-test-framework";
 import { Enums, Identities, Managers, Utils } from "@arkecosystem/crypto";
 
 import { setUp, tearDown } from "../__support__/setup";
@@ -50,7 +50,7 @@ beforeAll(() => {
 
 describe("/locks", () => {
     it("should return locks sorted by timestamp.unix:desc", async () => {
-        const client = app.resolve(ApiHttpClient);
+        const client = app.resolve(ApiInjectClient);
         const response = await client.get("/locks");
 
         expect(response).toMatchObject({
@@ -69,7 +69,7 @@ describe("/locks", () => {
     });
 
     it("should return locks with amount less than 50", async () => {
-        const client = app.resolve(ApiHttpClient);
+        const client = app.resolve(ApiInjectClient);
         const response = await client.get(`/locks?amount.to=50`);
 
         expect(response).toMatchObject({

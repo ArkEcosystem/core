@@ -1,6 +1,6 @@
 import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/core-magistrate-crypto";
-import { ApiHttpClient } from "@arkecosystem/core-test-framework";
+import { ApiInjectClient } from "@arkecosystem/core-test-framework";
 import { Managers } from "@arkecosystem/crypto";
 
 import { setUp, tearDown } from "../__support__/setup";
@@ -19,8 +19,6 @@ beforeAll(() => {
         "state",
         "blockchain",
     );
-
-    // todo: non-fake setup through forging
 
     const genesisBlock = Managers.configManager.get("genesisBlock");
     const wallets = walletRepository.allByPublicKey();
@@ -58,7 +56,7 @@ beforeAll(() => {
 
 describe("/entities", () => {
     it("should return entities sorted by data.name:asc", async () => {
-        const client = app.resolve(ApiHttpClient);
+        const client = app.resolve(ApiInjectClient);
         const response = await client.get("/entities");
 
         expect(response).toMatchObject({ status: 200 });

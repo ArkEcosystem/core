@@ -1,5 +1,5 @@
 import { Application } from "@arkecosystem/core-kernel";
-import { ApiHttpClient } from "@arkecosystem/core-test-framework";
+import { ApiInjectClient } from "@arkecosystem/core-test-framework";
 import { Utils } from "@arkecosystem/crypto";
 
 import { setUp, tearDown } from "../__support__/setup";
@@ -14,7 +14,7 @@ afterAll(async () => await tearDown());
 
 describe("/wallets", () => {
     it("should return wallets sorted by balance:desc", async () => {
-        const client = app.resolve(ApiHttpClient);
+        const client = app.resolve(ApiInjectClient);
         const response = await client.get("/wallets");
 
         expect(response).toMatchObject({
@@ -34,7 +34,7 @@ describe("/wallets", () => {
     });
 
     it("should return wallets with balance less than 200000000000000", async () => {
-        const client = app.resolve(ApiHttpClient);
+        const client = app.resolve(ApiInjectClient);
         const response = await client.get("/wallets?balance.to=200000000000000");
 
         expect(response).toMatchObject({
@@ -54,7 +54,7 @@ describe("/wallets", () => {
 
 describe("/wallets/:id", () => {
     it("should respond with 404 error when loading wallet that does not exist", async () => {
-        const client = app.resolve(ApiHttpClient);
+        const client = app.resolve(ApiInjectClient);
         const response = await client.get("/wallet/no-such-wallet-id");
 
         expect(response).toMatchObject({
@@ -69,7 +69,7 @@ describe("/wallets/:id", () => {
 
 describe("/wallets/search", () => {
     it("should return 3 wallets with delegate username genesis_1 or genesis_2 or genesis_3", async () => {
-        const client = app.resolve(ApiHttpClient);
+        const client = app.resolve(ApiInjectClient);
         const response = await client.post("/wallets/search?orderBy=attributes.delegate.username", {
             attributes: {
                 delegate: {
@@ -94,7 +94,7 @@ describe("/wallets/search", () => {
     });
 
     it("should return 5 wallets with delegate rank between 1 and 2, or 10 and 12", async () => {
-        const client = app.resolve(ApiHttpClient);
+        const client = app.resolve(ApiInjectClient);
         const response = await client.post("/wallets/search?orderBy=attributes.delegate.rank", {
             attributes: {
                 delegate: {

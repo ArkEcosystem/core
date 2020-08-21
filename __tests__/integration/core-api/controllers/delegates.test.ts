@@ -1,5 +1,5 @@
 import { Application } from "@arkecosystem/core-kernel";
-import { ApiHttpClient } from "@arkecosystem/core-test-framework";
+import { ApiInjectClient } from "@arkecosystem/core-test-framework";
 
 import { setUp, tearDown } from "../__support__/setup";
 
@@ -13,7 +13,7 @@ afterAll(async () => await tearDown());
 
 describe("/delegates", () => {
     it("should return delegates sorted by rank:asc", async () => {
-        const client = app.resolve(ApiHttpClient);
+        const client = app.resolve(ApiInjectClient);
         const response = await client.get("/delegates");
 
         expect(response).toMatchObject({
@@ -34,7 +34,7 @@ describe("/delegates", () => {
     });
 
     it("should return delegates with production.approval equal 1.96", async () => {
-        const client = app.resolve(ApiHttpClient);
+        const client = app.resolve(ApiInjectClient);
         const response = await client.get("/delegates?production.approval=1.96");
 
         expect(response).toMatchObject({
@@ -55,7 +55,7 @@ describe("/delegates", () => {
 
 describe("/delegates/search", () => {
     it("should return 10th, 11th, 12th ranked delegates", async () => {
-        const client = app.resolve(ApiHttpClient);
+        const client = app.resolve(ApiInjectClient);
         const response = await client.post("/delegates/search?orderBy=rank:asc", {
             rank: [10, 11, 12],
         });
