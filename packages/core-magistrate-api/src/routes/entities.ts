@@ -3,7 +3,12 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { EntityController } from "../controllers/entities";
-import { entityCriteriaSchemaObject, entityParamSchema } from "../resources";
+import {
+    entityCriteriaPayloadSchema,
+    entityCriteriaQuerySchema,
+    entityOrderingSchema,
+    entityParamSchema,
+} from "../resources";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(EntityController);
@@ -16,9 +21,9 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object()
-                    .concat(Joi.object(entityCriteriaSchemaObject))
-                    .concat(Schemas.pagination_)
-                    .concat(Schemas.ordering_),
+                    .concat(entityCriteriaQuerySchema)
+                    .concat(entityOrderingSchema)
+                    .concat(Schemas.pagination),
             },
             plugins: {
                 pagination: { enabled: true },
@@ -32,8 +37,8 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
-                payload: Schemas.createCriteriaPayloadSchema(entityCriteriaSchemaObject),
+                query: Joi.object().concat(entityOrderingSchema).concat(Schemas.pagination),
+                payload: entityCriteriaPayloadSchema,
             },
             plugins: {
                 pagination: { enabled: true },

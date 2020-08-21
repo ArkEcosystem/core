@@ -28,16 +28,16 @@ export class DelegatesController extends Controller {
     private readonly delegateSearchService!: DelegateSearchService;
 
     public index(request: Hapi.Request): Contracts.Search.Page<DelegateResource> {
-        const pagination = this.getPagination(request);
-        const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request, delegateCriteriaSchemaObject) as DelegateCriteria;
+        const pagination = this.getQueryPagination(request.query);
+        const ordering = request.query.orderBy as Contracts.Search.Ordering;
+        const criteria = this.getQueryCriteria(request.query, delegateCriteriaSchemaObject) as DelegateCriteria;
 
         return this.delegateSearchService.getDelegatesPage(pagination, ordering, criteria);
     }
 
     public search(request: Hapi.Request): Contracts.Search.Page<DelegateResource> {
-        const pagination = this.getPagination(request);
-        const ordering = this.getOrdering(request);
+        const pagination = this.getQueryPagination(request.query);
+        const ordering = request.query.orderBy as Contracts.Search.Ordering;
         const criteria = request.payload as DelegateCriteria;
 
         return this.delegateSearchService.getDelegatesPage(pagination, ordering, criteria);
@@ -62,9 +62,9 @@ export class DelegatesController extends Controller {
             return notFound("Delegate not found");
         }
 
-        const pagination = this.getPagination(request);
-        const ordering = this.getOrdering(request);
-        const criteria = this.getCriteria(request, walletCriteriaSchemaObject) as WalletCriteria;
+        const pagination = this.getQueryPagination(request.query);
+        const ordering = request.query.orderBy as Contracts.Search.Ordering;
+        const criteria = this.getQueryCriteria(request.query, walletCriteriaSchemaObject) as WalletCriteria;
 
         return this.walletSearchService.getActiveWalletsPage(pagination, ordering, criteria, {
             attributes: {

@@ -55,7 +55,7 @@ describe("WalletsController.index", () => {
             query: {
                 page: 1,
                 limit: 100,
-                orderBy: "balance:desc,address:asc",
+                orderBy: ["balance:desc", "address:asc"],
                 address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
             },
         });
@@ -87,7 +87,7 @@ describe("WalletsController.top", () => {
             query: {
                 page: 1,
                 limit: 100,
-                orderBy: "balance:desc,address:asc",
+                orderBy: ["balance:desc", "address:asc"],
                 address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
             },
         });

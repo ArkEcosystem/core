@@ -14,31 +14,23 @@ export class Controller {
     @Container.tagged("plugin", "@arkecosystem/core-api")
     protected readonly apiConfiguration!: Providers.PluginConfiguration;
 
-    protected getPagination(request: Hapi.Request): Contracts.Search.Pagination {
+    protected getQueryPagination(query: Hapi.RequestQuery): Contracts.Search.Pagination {
         const pagination = {
-            offset: (request.query.page - 1) * request.query.limit || 0,
-            limit: request.query.limit || 100,
+            offset: (query.page - 1) * query.limit || 0,
+            limit: query.limit || 100,
         };
 
-        if (request.query.offset) {
-            pagination.offset = request.query.offset;
+        if (query.offset) {
+            pagination.offset = query.offset;
         }
 
         return pagination;
     }
 
-    protected getOrdering(request: Hapi.Request): Contracts.Search.Ordering {
-        if (request.query.orderBy) {
-            return request.query.orderBy.split(",");
-        } else {
-            return [];
-        }
-    }
-
-    protected getCriteria(request: Hapi.Request, schemaObject: SchemaObject): unknown {
+    protected getQueryCriteria(query: Hapi.RequestQuery, schemaObject: SchemaObject): unknown {
         const schemaObjectKeys = Object.keys(schemaObject);
         const criteria = {};
-        for (const [key, value] of Object.entries(request.query)) {
+        for (const [key, value] of Object.entries(query)) {
             if (schemaObjectKeys.includes(key)) {
                 criteria[key] = value;
             }

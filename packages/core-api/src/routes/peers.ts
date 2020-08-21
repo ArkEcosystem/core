@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { PeersController } from "../controllers/peers";
+import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(PeersController);
@@ -14,13 +15,10 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object({
-                    ...server.app.schemas.pagination,
-                    ...{
-                        ip: Joi.string().ip(),
-                        version: Joi.string(),
-                        orderBy: server.app.schemas.orderBy,
-                    },
-                }),
+                    ip: Joi.string().ip(),
+                    version: Joi.string(),
+                    orderBy: server.app.schemas.orderBy,
+                }).concat(Schemas.pagination),
             },
             plugins: {
                 pagination: {

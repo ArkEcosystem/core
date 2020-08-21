@@ -54,7 +54,7 @@ describe("EntityController.index", () => {
                 type: Enums.EntityType.Business,
                 page: 1,
                 limit: 100,
-                orderBy: "data.name,address",
+                orderBy: ["data.name", "address"],
             },
         });
 
@@ -83,7 +83,7 @@ describe("EntityController.search", () => {
             query: {
                 page: 1,
                 limit: 100,
-                orderBy: "data.name,address",
+                orderBy: ["data.name", "address"],
             },
             payload: [{ type: Enums.EntityType.Business }, { type: Enums.EntityType.Bridgechain }],
         });

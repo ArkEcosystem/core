@@ -2,7 +2,14 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { DelegatesController } from "../controllers/delegates";
-import { delegateCriteriaSchemaObject, delegateParamSchema, walletCriteriaSchemaObject } from "../resources-new";
+import {
+    delegateCriteriaPayloadSchema,
+    delegateCriteriaQuerySchema,
+    delegateOrderingSchema,
+    delegateParamSchema,
+    walletCriteriaQuerySchema,
+    walletOrderingSchema,
+} from "../resources-new";
 import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -16,9 +23,9 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object()
-                    .concat(Joi.object(delegateCriteriaSchemaObject))
-                    .concat(Schemas.pagination_)
-                    .concat(Schemas.ordering_),
+                    .concat(delegateCriteriaQuerySchema)
+                    .concat(delegateOrderingSchema)
+                    .concat(Schemas.pagination),
             },
             plugins: {
                 pagination: { enabled: true },
@@ -32,8 +39,8 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
-                payload: Schemas.createCriteriaPayloadSchema(delegateCriteriaSchemaObject),
+                query: Joi.object().concat(delegateOrderingSchema).concat(Schemas.pagination),
+                payload: delegateCriteriaPayloadSchema,
             },
             plugins: {
                 pagination: { enabled: true },
@@ -63,12 +70,10 @@ export const register = (server: Hapi.Server): void => {
                 params: Joi.object({
                     id: delegateParamSchema,
                 }),
-                validate: {
-                    query: Joi.object()
-                        .concat(Joi.object(walletCriteriaSchemaObject))
-                        .concat(Schemas.pagination_)
-                        .concat(Schemas.ordering_),
-                },
+                query: Joi.object()
+                    .concat(walletCriteriaQuerySchema)
+                    .concat(walletOrderingSchema)
+                    .concat(Schemas.pagination),
             },
             plugins: {
                 pagination: { enabled: true },
@@ -87,10 +92,9 @@ export const register = (server: Hapi.Server): void => {
                 }),
                 query: Joi.object({
                     ...server.app.schemas.blockCriteriaSchemas,
-                    ...server.app.schemas.pagination,
                     orderBy: server.app.schemas.blocksOrderBy,
                     transform: Joi.bool().default(true),
-                }),
+                }).concat(Schemas.pagination),
             },
             plugins: {
                 pagination: {

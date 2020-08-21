@@ -2,7 +2,12 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { LocksController } from "../controllers/locks";
-import { lockCriteriaSchemaObject, lockParamSchema } from "../resources-new";
+import {
+    lockCriteriaPayloadSchema,
+    lockCriteriaQuerySchema,
+    lockOrderingSchema,
+    lockParamSchema,
+} from "../resources-new";
 import * as Schemas from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
@@ -16,9 +21,9 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object()
-                    .concat(Joi.object(lockCriteriaSchemaObject))
-                    .concat(Schemas.pagination_)
-                    .concat(Schemas.ordering_),
+                    .concat(lockCriteriaQuerySchema)
+                    .concat(lockOrderingSchema)
+                    .concat(Schemas.pagination),
             },
             plugins: {
                 pagination: { enabled: true },
@@ -32,8 +37,8 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: Joi.object().concat(Schemas.pagination_).concat(Schemas.ordering_),
-                payload: Schemas.createCriteriaPayloadSchema(lockCriteriaSchemaObject),
+                query: Joi.object().concat(lockOrderingSchema).concat(Schemas.pagination),
+                payload: lockCriteriaPayloadSchema,
             },
             plugins: {
                 pagination: { enabled: true },
@@ -61,9 +66,8 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object({
-                    ...server.app.schemas.pagination,
                     orderBy: server.app.schemas.orderBy,
-                }),
+                }).concat(Schemas.pagination),
                 payload: Joi.object({
                     ids: Joi.array().unique().min(1).max(25).items(Joi.string().hex().length(64)),
                 }),

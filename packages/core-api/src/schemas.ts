@@ -1,17 +1,71 @@
 import { Utils } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 
+const isSchema = (value: Joi.Schema | SchemaObject): value is Joi.Schema => {
+    return Joi.isSchema(value); // why isn't it a guard? :-(
+};
+
+// Pagination
+
+export const pagination = Joi.object({
+    page: Joi.number().integer().positive().default(1),
+    offset: Joi.number().integer().min(0),
+    limit: Joi.number().integer().min(1).default(100).max(Joi.ref("$configuration.plugins.pagination.limit")),
+}).without("offset", "page");
+
+// Ordering
+
+export const createOrderingSchema = (schemaObject: SchemaObject, wildcardPaths: string[] = []): Joi.ObjectSchema => {
+    const schemaObjectPaths: string[] = [];
+    const walkObjectKeys = (object: SchemaObject, parentPath: string) => {
+        for (const [key, value] of Object.entries(object)) {
+            const path = parentPath ? `${parentPath}.${key}` : key;
+            schemaObjectPaths.push(path);
+            if (!isSchema(value)) {
+                walkObjectKeys(value, path);
+            }
+        }
+    };
+    walkObjectKeys(schemaObject, "");
+
+    const orderBySchema = Joi.custom((value) => {
+        const orderByInstructions = value.split(",");
+
+        for (const orderByInstruction of orderByInstructions) {
+            const [orderByPath, orderByDirection] = orderByInstruction.split(":");
+
+            if (schemaObjectPaths.includes(orderByPath) === false) {
+                const pathWildcardMatched = !!wildcardPaths.find((wildcardPath) => {
+                    return orderByPath === wildcardPath || orderByPath.startsWith(`${wildcardPath}.`);
+                });
+
+                if (pathWildcardMatched === false) {
+                    throw new Error(`Unknown order by path ${orderByPath}`);
+                }
+            }
+
+            if (typeof orderByDirection !== "undefined" && orderByDirection !== "asc" && orderByDirection !== "desc") {
+                throw new Error(`Unexpected order by direction ${orderByInstruction}`);
+            }
+        }
+
+        return orderByInstructions;
+    }).default([]);
+
+    return Joi.object({ orderBy: orderBySchema });
+};
+
 // Criteria
 
 export type SchemaObject = {
     [x: string]: Joi.Schema | SchemaObject;
 };
 
-export const createCriteriaPayloadSchema = (schemaObject: SchemaObject): Joi.ArraySchema => {
-    const isSchema = (value: Joi.Schema | SchemaObject): value is Joi.Schema => {
-        return Joi.isSchema(value); // why isn't it a guard? :-(
-    };
+export const createCriteriaQuerySchema = (schemaObject: SchemaObject): Joi.ObjectSchema => {
+    return Joi.object(schemaObject);
+};
 
+export const createCriteriaPayloadSchema = (schemaObject: SchemaObject): Joi.ArraySchema => {
     const item = {};
     for (const [key, value] of Object.entries(schemaObject)) {
         if (isSchema(value)) {
@@ -42,27 +96,7 @@ export const positiveBigNumber = bigNumber.custom((value: Utils.BigNumber, helpe
     return value.isGreaterThanEqual(1) ? value : helpers.error("any.invalid");
 });
 
-// Pagination
-
-export const pagination_ = Joi.object({
-    page: Joi.number().integer().positive().default(1),
-    offset: Joi.number().integer().min(0),
-    limit: Joi.number().integer().min(1).default(100).max(Joi.ref("$configuration.plugins.pagination.limit")),
-}).without("offset", "page");
-
-// Ordering
-
-export const ordering_ = Joi.object({
-    orderBy: Joi.string().regex(/^[0-9a-zA-Z._]+(:asc|:desc)?(,[0-9a-zA-Z._]+(:asc|:desc)?)*$/),
-});
-
 // Old
-
-export const pagination = {
-    page: Joi.number().integer().positive().default(1),
-    offset: Joi.number().integer().min(0),
-    limit: Joi.number().integer().min(1).default(100).max(Joi.ref("$configuration.plugins.pagination.limit")),
-};
 
 export const blockId = Joi.alternatives().try(
     Joi.string()
