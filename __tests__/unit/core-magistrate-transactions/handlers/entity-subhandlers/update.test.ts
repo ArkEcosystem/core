@@ -4,7 +4,6 @@ import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magis
 import { Application } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { EntityBuilder } from "@packages/core-magistrate-crypto/src/builders";
-import { EntityAction, EntitySubType, EntityType } from "@packages/core-magistrate-crypto/src/enums";
 import { EntityTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers";
 import { BusinessRegistrationTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers";
 import { EntityUpdateSubHandler } from "@packages/core-magistrate-transactions/src/handlers/entity-subhandlers/update";
@@ -12,6 +11,7 @@ import { Wallets } from "@packages/core-state";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Managers, Transactions } from "@packages/crypto";
+import { Entity } from "../__fixtures__/";
 
 import { buildSenderWallet, initApp } from "../../__support__/app";
 
@@ -20,16 +20,6 @@ let handler: EntityUpdateSubHandler;
 let walletRepository;
 let wallet;
 let transaction;
-
-const resignAsset = {
-    type: EntityType.Business,
-    subType: EntitySubType.None,
-    action: EntityAction.Update,
-    registrationId: "1111111111111111111111111111111111111111111111111111111111111111",
-    data: {
-        ipfsData: "Qmbw6QmF6ttZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
-    },
-};
 
 const transactionHistoryService = {
     streamByCriteria: jest.fn(),
@@ -53,14 +43,7 @@ beforeEach(() => {
     wallet = buildSenderWallet(app);
 
     wallet.setAttribute("entities", {
-        ["1111111111111111111111111111111111111111111111111111111111111111"]: {
-            type: EntityType.Business,
-            subType: EntitySubType.None,
-            data: {
-                name: "my_business_1",
-                ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
-            },
-        },
+        ["521e69c181e53ec1e4efbe5b67509b70548debf23df150bb7ca97e233be9dc6b"]: Entity.validRegisters[0],
     });
 
     walletRepository.index(wallet);
@@ -68,7 +51,7 @@ beforeEach(() => {
     handler = app.resolve(EntityUpdateSubHandler);
 
     const builder = new EntityBuilder();
-    transaction = builder.asset(resignAsset).sign(passphrases[0]).build();
+    transaction = builder.asset(Entity.validUpdates[0]).sign(passphrases[0]).build();
 });
 
 afterEach(() => {

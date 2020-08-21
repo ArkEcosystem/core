@@ -15,7 +15,7 @@ import { Wallets } from "@packages/core-state";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Managers, Transactions } from "@packages/crypto";
 
-import { validRegisters } from "../__fixtures__/entity/register";
+import { Entity } from "../__fixtures__";
 import { buildSenderWallet, initApp } from "../../__support__/app";
 
 let app: Application;
@@ -44,7 +44,7 @@ beforeEach(() => {
     handler = app.resolve(EntityRegisterSubHandler);
 
     const builder = new EntityBuilder();
-    transaction = builder.asset(validRegisters[0]).sign("passphrase").build();
+    transaction = builder.asset(Entity.validRegisters[0]).sign("passphrase").build();
 });
 
 afterEach(() => {
