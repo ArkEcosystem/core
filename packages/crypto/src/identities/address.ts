@@ -12,7 +12,7 @@ export class Address {
     }
 
     public static fromPublicKey(publicKey: string, networkVersion?: number): string {
-        if (!/^[0-9A-Fa-f]{66}$/.test(publicKey)) {
+        if (!PublicKey.verify(publicKey)) {
             throw new PublicKeyError(publicKey);
         }
 

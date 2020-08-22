@@ -19,7 +19,7 @@ export class PublicKey {
         const { min, publicKeys }: IMultiSignatureAsset = asset;
 
         for (const publicKey of publicKeys) {
-            if (!/^[0-9A-Fa-f]{66}$/.test(publicKey)) {
+            if (!this.verify(publicKey)) {
                 throw new PublicKeyError(publicKey);
             }
         }
@@ -34,5 +34,9 @@ export class PublicKey {
         return secp256k1
             .publicKeyCombine(keys.map((publicKey: string) => Buffer.from(publicKey, "hex")))
             .toString("hex");
+    }
+
+    public static verify(publicKey: string): boolean {
+        return secp256k1.publicKeyVerify(Buffer.from(publicKey, "hex"));
     }
 }
