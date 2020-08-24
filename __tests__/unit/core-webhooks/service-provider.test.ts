@@ -47,6 +47,10 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue({});
 
+    app.bind(Container.Identifiers.StandardCriteriaService).toConstantValue({});
+
+    app.bind(Container.Identifiers.PaginationService).toConstantValue({});
+
     app.bind(Container.Identifiers.EventDispatcherService).to(NullEventDispatcher);
 
     app.bind(Container.Identifiers.LogService).toConstantValue(logger);
