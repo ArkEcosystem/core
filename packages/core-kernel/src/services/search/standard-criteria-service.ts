@@ -16,13 +16,7 @@ export class StandardCriteriaService {
                 //   { type: Enums.TransactionType.Vote }
                 // ]
 
-                for (const criteriaItem of criteria) {
-                    if (this.testStandardCriteriaItem(value, criteriaItem)) {
-                        return true;
-                    }
-                }
-
-                return true;
+                return criteria.some((criteriaItem) => this.testStandardCriteriaItem(value, criteriaItem));
             } else {
                 return this.testStandardCriteriaItem(value, criteria);
             }
