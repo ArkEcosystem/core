@@ -117,11 +117,7 @@ beforeEach(() => {
     });
     recipientsDelegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
 
-    walletRepo.index(votingWallet);
-    walletRepo.index(forgingWallet);
-    walletRepo.index(sendingWallet);
-    walletRepo.index(recipientWallet);
-    walletRepo.index(recipientsDelegate);
+    walletRepo.index([votingWallet, forgingWallet, sendingWallet, recipientWallet, recipientsDelegate]);
 
     addTransactionsToBlock(
         makeVoteTransactions(3, [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]),
@@ -336,10 +332,7 @@ describe("BlockState", () => {
         sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
         recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
 
-        walletRepo.index(sendersDelegate);
-        walletRepo.index(recipientsDelegate);
-        walletRepo.index(sendingWallet);
-        walletRepo.index(recipientWallet);
+        walletRepo.index([sendersDelegate, recipientsDelegate, sendingWallet, recipientWallet]);
 
         const transferTransaction = factory
             .get("Transfer")
@@ -377,10 +370,7 @@ describe("BlockState", () => {
         sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
         recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
 
-        walletRepo.index(sendersDelegate);
-        walletRepo.index(recipientsDelegate);
-        walletRepo.index(sendingWallet);
-        walletRepo.index(recipientWallet);
+        walletRepo.index([sendersDelegate, recipientsDelegate, sendingWallet, recipientWallet]);
 
         const transferTransaction = factory
             .get("Transfer")
@@ -441,16 +431,12 @@ describe("BlockState", () => {
 
             sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
             recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
-
-            walletRepo.index(sendersDelegate);
-            walletRepo.index(recipientsDelegate);
-            walletRepo.index(sendingWallet);
-            walletRepo.index(recipientWallet);
+            walletRepo.index([sendersDelegate, recipientsDelegate, sendingWallet, recipientWallet]);
         });
 
         it("should fail if there are no assets", async () => {
             sendingWallet.forgetAttribute("vote");
-            walletRepo.index(sendingWallet);
+            walletRepo.index([sendingWallet]);
 
             // @ts-ignore
             delete multiPaymentTransaction.data.asset;
@@ -467,7 +453,7 @@ describe("BlockState", () => {
 
         it("should be okay when recipient hasn't voted", async () => {
             recipientWallet.forgetAttribute("vote");
-            walletRepo.index(recipientWallet);
+            walletRepo.index([recipientWallet]);
 
             await expect(blockState.applyTransaction(multiPaymentTransaction)).toResolve();
         });

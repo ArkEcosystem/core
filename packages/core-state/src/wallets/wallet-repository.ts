@@ -122,15 +122,25 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return Utils.BigNumber.ZERO;
     }
 
-    public index(wallet: Contracts.State.Wallet): void {
-        for (const walletIndex of Object.values(this.indexes)) {
-            walletIndex.index(wallet);
+    public index(wallets: Contracts.State.Wallet | ReadonlyArray<Contracts.State.Wallet>): void {
+        if (!Array.isArray(wallets)) {
+            this.indexWallet(wallets as Contracts.State.Wallet);
+        } else {
+            for (const wallet of wallets) {
+                this.indexWallet(wallet);
+            }
         }
     }
 
     public reset(): void {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.clear();
+        }
+    }
+
+    private indexWallet(wallet: Contracts.State.Wallet): void {
+        for (const walletIndex of Object.values(this.indexes)) {
+            walletIndex.index(wallet);
         }
     }
 }
