@@ -2,7 +2,6 @@ import { LockSearchService, Resources } from "@arkecosystem/core-api";
 import { LocksController } from "@arkecosystem/core-api/src/controllers/locks";
 import { Identifiers } from "@arkecosystem/core-api/src/identifiers";
 import { Application, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
-import { PluginConfiguration } from "@arkecosystem/core-kernel/dist/providers";
 import { Enums, Utils } from "@arkecosystem/crypto";
 import { Boom } from "@hapi/boom";
 
