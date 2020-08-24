@@ -18,6 +18,8 @@ beforeEach(() => {
     app = initApp();
 
     app.unbind(Identifiers.ServiceProviderRepository);
+    app.bind(Identifiers.StandardCriteriaService).toConstantValue({});
+    app.bind(Identifiers.PaginationService).toConstantValue({});
     app.bind(Identifiers.BlockHistoryService).toConstantValue({});
     app.bind(Identifiers.TransactionHistoryService).toConstantValue({});
     app.bind(Identifiers.ServiceProviderRepository).toConstantValue(Mocks.ServiceProviderRepository.instance);
