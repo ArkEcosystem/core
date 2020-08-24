@@ -88,7 +88,7 @@ export const createOrderingSchema = (schemaObject: SchemaObject, wildcardPaths: 
 
                 throw new Error(`Unknown order property path ${path}`);
             });
-        }),
+        }).default([]),
     });
 };
 
