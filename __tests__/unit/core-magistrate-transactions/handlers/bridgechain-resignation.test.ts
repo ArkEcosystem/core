@@ -15,7 +15,7 @@ import {
     BridgechainRegistrationTransactionHandler,
     BridgechainResignationTransactionHandler,
     BusinessRegistrationTransactionHandler,
-    EntityTransactionHandler
+    EntityTransactionHandler,
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -26,7 +26,7 @@ import { Mempool } from "@packages/core-transaction-pool";
 import { InsufficientBalanceError } from "@packages/core-transactions/dist/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import {Crypto, Interfaces, Managers, Transactions, Utils} from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
 import _ from "lodash";
 
@@ -148,6 +148,16 @@ describe("BusinessRegistration", () => {
                 type: Enums.MagistrateTransactionType.BridgechainResignation,
             });
         });
+
+        it("should throw if asset is undefined", async () => {
+            bridgechainResignationTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield bridgechainResignationTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow();
+        });
     });
 
     describe("emitEvents", () => {
@@ -235,6 +245,20 @@ describe("BusinessRegistration", () => {
         it("should not throw", async () => {
             await expect(handler.throwIfCannotEnterPool(bridgechainResignationTransaction)).toResolve();
         });
+
+        // TODO: Finish test
+        // it("should not throw if another transaction from sender is in mempool", async () => {
+        //     const transferTransaction = BuilderFactory.transfer()
+        //         .recipientId(Identities.Address.fromPassphrase(passphrases[2]))
+        //         .amount("10")
+        //         .sign(passphrases[0])
+        //         .nonce("1")
+        //         .build();
+        //
+        //     await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(transferTransaction);
+        //
+        //     await expect(handler.throwIfCannotEnterPool(bridgechainResignationTransaction)).rejects.toThrow();
+        // });
 
         it("should throw if transaction by sender already in pool", async () => {
             await app

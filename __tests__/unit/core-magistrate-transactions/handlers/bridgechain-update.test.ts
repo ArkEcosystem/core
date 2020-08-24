@@ -177,6 +177,27 @@ describe("BusinessRegistration", () => {
                 type: Enums.MagistrateTransactionType.BridgechainUpdate,
             });
         });
+
+        it("should throw if asset is not defined", async () => {
+            bridgechainUpdateTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield bridgechainUpdateTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrowError();
+        });
+
+        it("should throw if asset.bridgechainUpdate asset is not defined", async () => {
+            // @ts-ignore
+            bridgechainUpdateTransaction.data.asset.bridgechainUpdate = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield bridgechainUpdateTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrowError();
+        });
     });
 
     describe("emitEvents", () => {
@@ -198,6 +219,13 @@ describe("BusinessRegistration", () => {
             await expect(handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet)).toResolve();
         });
 
+        it("should not throw if asset.bridgechainUpdate.port is undefined", async () => {
+            // @ts-ignore
+            bridgechainUpdateTransaction.data.asset.bridgechainUpdate.ports = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet)).toResolve();
+        });
+
         it("should throw if wallet is not business", async () => {
             senderWallet.forgetAttribute("business");
             await expect(
@@ -210,6 +238,14 @@ describe("BusinessRegistration", () => {
             await expect(
                 handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet),
             ).rejects.toThrowError(BusinessIsResignedError);
+        });
+
+        it("should throw if business asset is undefined", async () => {
+            // @ts-ignore
+            delete bridgechainUpdateTransaction.data.asset.bridgechainUpdate;
+            await expect(
+                handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet),
+            ).rejects.toThrowError();
         });
 
         it("should throw if wallet has no registered bridgechains", async () => {
@@ -289,6 +325,19 @@ describe("BusinessRegistration", () => {
                     .minus(bridgechainUpdateTransaction.data.amount)
                     .minus(bridgechainUpdateTransaction.data.fee),
             );
+        });
+
+        it("should throw if asset is undefined", async () => {
+            bridgechainUpdateTransaction.data.asset = undefined;
+
+            await expect(handler.apply(bridgechainUpdateTransaction)).rejects.toThrow();
+        });
+
+        it("should throw if asset.bridgechainUpdate is undefined", async () => {
+            // @ts-ignore
+            bridgechainUpdateTransaction.data.asset.bridgechainUpdate = undefined;
+
+            await expect(handler.apply(bridgechainUpdateTransaction)).rejects.toThrow();
         });
     });
 

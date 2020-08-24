@@ -113,6 +113,16 @@ describe("BusinessRegistration", () => {
                 type: Enums.MagistrateTransactionType.BusinessRegistration,
             });
         });
+
+        it("should throw if asset is undefined", async () => {
+            businessRegistrationTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield businessRegistrationTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow();
+        });
     });
 
     describe("emitEvents", () => {

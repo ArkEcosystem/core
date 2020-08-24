@@ -131,6 +131,16 @@ describe("BusinessRegistration", () => {
                 type: Enums.MagistrateTransactionType.BusinessUpdate,
             });
         });
+
+        it("should throw if asset is undefined", async () => {
+            businessUpdateTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield businessUpdateTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow();
+        });
     });
 
     describe("emitEvents", () => {
@@ -201,6 +211,12 @@ describe("BusinessRegistration", () => {
                     .minus(businessUpdateTransaction.data.amount)
                     .minus(businessUpdateTransaction.data.fee),
             );
+        });
+
+        it("should throw if asset is undefined", async () => {
+            businessUpdateTransaction.data.asset = undefined;
+
+            await expect(handler.apply(businessUpdateTransaction)).rejects.toThrow();
         });
     });
     describe("revert", () => {
