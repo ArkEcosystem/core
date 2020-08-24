@@ -71,7 +71,7 @@ describe("walletCriteriaSchemaObject.balance", () => {
 
     it("should convert value to Utils.BigNumber", () => {
         const result = walletCriteriaSchemaObject.balance.validate("123456");
-        expect(result.value.balance[0]).toBeInstanceOf(Utils.BigNumber);
+        expect(result.value).toBeInstanceOf(Utils.BigNumber);
     });
 
     it("should allow from and to boundaries", () => {
@@ -108,7 +108,7 @@ describe("walletCriteriaSchemaObject.nonce", () => {
 
     it("should convert value to Utils.BigNumber", () => {
         const result = walletCriteriaSchemaObject.nonce.validate("123456");
-        expect(result.value.nonce[0]).toBeInstanceOf(Utils.BigNumber);
+        expect(result.value).toBeInstanceOf(Utils.BigNumber);
     });
 
     it("should allow from and to boundaries", () => {
