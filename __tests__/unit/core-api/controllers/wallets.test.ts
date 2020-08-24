@@ -10,7 +10,7 @@ import { Wallets } from "@packages/core-state";
 import { Mocks } from "@packages/core-test-framework";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
+import { Crypto, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
 import { Managers } from "@packages/crypto/src";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 
