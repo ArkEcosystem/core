@@ -62,8 +62,8 @@ export class StandardCriteriaService {
         // And criteria that is used:
         // { owners: ["alice", "charlie"] }
         //
-        // If it should mean "alice AND charlie", then how to specify "alice OR charlie"?
-        // If it should mean "alice OR charlie", then how to specify "alice AND charlie"?
+        // If it's "alice AND charlie" then how to specify "alice OR charlie"?
+        // If it's "alice OR charlie" then how to specify "alice AND charlie"?
         //
         // Thankfully there are no resources with array properties.
 
@@ -71,9 +71,9 @@ export class StandardCriteriaService {
     }
 
     public testBooleanCriteriaItem(value: boolean, criteriaItem: StandardCriteriaOfItem<boolean>): boolean {
-        // In most cases criteria is casted to 'correct' type during validation (by @hapi/joi).
+        // In most cases criteria is cast to the same type as value during validation (by @hapi/joi).
         // Wallet's attributes property is an exception. There is currently now way to know what types may be there.
-        // To test properties within it string values ('raw' query string input) are also checked.
+        // To test properties within it string values are also checked.
         // For example boolean `true` value is checked against boolean `true` and string `"true"`.
 
         if (value) {
@@ -110,6 +110,7 @@ export class StandardCriteriaService {
         if (
             typeof criteriaItem === "number" ||
             typeof criteriaItem === "bigint" ||
+            typeof criteriaItem === "string" ||
             criteriaItem instanceof Utils.BigNumber
         ) {
             return bigNumberValue.isEqualTo(Utils.BigNumber.make(criteriaItem));
@@ -136,15 +137,12 @@ export class StandardCriteriaService {
     }
 
     public testObjectCriteriaItem(value: object, criteriaItem: StandardCriteriaOfItem<object>): boolean {
-        for (const key of Object.keys(criteriaItem)) {
+        return Object.keys(criteriaItem).every((key) => {
             if (key === "*") {
-                // wildcard criteria key checks against any property
                 return Object.values(value).some((v) => this.testStandardCriterias(v, criteriaItem[key]));
             } else {
                 return this.testStandardCriterias(value[key], criteriaItem[key]);
             }
-        }
-
-        return true; // empty object criteria matches any object
+        });
     }
 }
