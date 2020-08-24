@@ -6,10 +6,7 @@ import { ServiceProvider as TransactionsServiceProvider } from "@arkecosystem/co
 export const setUp = async (): Promise<Application> => {
     const app = new Application(new Container.Container());
 
-    app.bind(Container.Identifiers.TriggerService).toConstantValue({
-        bind: jest.fn(),
-    });
-
+    const triggersServiceProvider = app.resolve(Services.Triggers.ServiceProvider);
     const searchServiceProvider = app.resolve(Services.Search.ServiceProvider);
     const stateServiceProvider = app.resolve(StateServiceProvider);
     const transactionsServiceProvider = app.resolve(TransactionsServiceProvider);
@@ -24,6 +21,7 @@ export const setUp = async (): Promise<Application> => {
         }),
     );
 
+    await triggersServiceProvider.register();
     await searchServiceProvider.register();
     await stateServiceProvider.register();
     await transactionsServiceProvider.register();
