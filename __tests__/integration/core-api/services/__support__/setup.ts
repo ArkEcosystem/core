@@ -10,6 +10,7 @@ export const setUp = async (): Promise<Application> => {
         bind: jest.fn(),
     });
 
+    const searchServiceProvider = app.resolve(Services.Search.ServiceProvider);
     const stateServiceProvider = app.resolve(StateServiceProvider);
     const transactionsServiceProvider = app.resolve(TransactionsServiceProvider);
     const apiServiceProvider = app.resolve(ApiServiceProvider);
@@ -23,6 +24,7 @@ export const setUp = async (): Promise<Application> => {
         }),
     );
 
+    await searchServiceProvider.register();
     await stateServiceProvider.register();
     await transactionsServiceProvider.register();
     await apiServiceProvider.register();

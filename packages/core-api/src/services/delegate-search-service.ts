@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 
 import { Identifiers } from "../identifiers";
 import { DelegateCriteria, DelegateResource, DelegateResourceLastBlock } from "../resources-new";
@@ -13,6 +13,12 @@ export class DelegateSearchService {
     @Container.inject(Identifiers.WalletSearchService)
     private readonly walletSearchService!: WalletSearchService;
 
+    @Container.inject(Container.Identifiers.StandardCriteriaService)
+    private readonly standardCriteriaService!: Services.Search.StandardCriteriaService;
+
+    @Container.inject(Container.Identifiers.PaginationService)
+    private readonly paginationService!: Services.Search.PaginationService;
+
     public getDelegate(delegateId: string, ...criterias: DelegateCriteria[]): DelegateResource | undefined {
         const walletResource = this.walletSearchService.getWallet(delegateId, { attributes: { delegate: {} } });
         if (!walletResource) {
@@ -22,7 +28,7 @@ export class DelegateSearchService {
         const wallet = this.walletRepository.findByAddress(walletResource.address);
         const delegateResource = this.getDelegateResourceFromWallet(wallet);
 
-        if (AppUtils.Search.testStandardCriterias(delegateResource, ...criterias)) {
+        if (this.standardCriteriaService.testStandardCriterias(delegateResource, ...criterias)) {
             return delegateResource;
         } else {
             return undefined;
@@ -34,9 +40,9 @@ export class DelegateSearchService {
         ordering: Contracts.Search.Ordering,
         ...criterias: DelegateCriteria[]
     ): Contracts.Search.Page<DelegateResource> {
-        ordering = [ordering, "rank:asc"];
+        ordering = [...ordering, { path: "rank", direction: "asc" }];
 
-        return AppUtils.Search.getPage(pagination, ordering, this.getDelegates(...criterias));
+        return this.paginationService.getPage(pagination, ordering, this.getDelegates(...criterias));
     }
 
     public getDelegateResourceFromWallet(wallet: Contracts.State.Wallet): DelegateResource {
@@ -82,7 +88,7 @@ export class DelegateSearchService {
         for (const wallet of this.walletRepository.allByUsername()) {
             const delegateResource = this.getDelegateResourceFromWallet(wallet);
 
-            if (AppUtils.Search.testStandardCriterias(delegateResource, ...criterias)) {
+            if (this.standardCriteriaService.testStandardCriterias(delegateResource, ...criterias)) {
                 yield delegateResource;
             }
         }

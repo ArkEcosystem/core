@@ -1,7 +1,7 @@
 import { LockSearchService, Resources, WalletSearchService } from "@arkecosystem/core-api";
 import { WalletsController } from "@arkecosystem/core-api/src/controllers/wallets";
 import { Identifiers } from "@arkecosystem/core-api/src/identifiers";
-import { Application, Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Application, Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Enums, Utils } from "@arkecosystem/crypto";
 import { Boom } from "@hapi/boom";
 
@@ -33,12 +33,17 @@ const transactionHistoryService = {
     listByCriteriaJoinBlock: jestfn<Contracts.Shared.TransactionHistoryService["listByCriteriaJoinBlock"]>(),
 };
 
+const paginationService = {
+    getEmptyPage: jestfn<Services.Search.PaginationService["getEmptyPage"]>(),
+};
+
 const container = new Container.Container();
 container.bind(Container.Identifiers.Application).toConstantValue(app);
 container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(apiConfiguration);
 container.bind(Identifiers.WalletSearchService).toConstantValue(walletSearchService);
 container.bind(Identifiers.LockSearchService).toConstantValue(lockSearchService);
 container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
+container.bind(Container.Identifiers.PaginationService).toConstantValue(paginationService);
 
 beforeEach(() => {
     jest.resetAllMocks();
@@ -542,6 +547,9 @@ describe("WalletsController.transactionsSent", () => {
     it("should return empty page when wallet is cold wallet", async () => {
         walletSearchService.getWallet.mockReturnValueOnce(walletResource2Cold);
 
+        const emptyPage = { results: [], totalCount: 0, meta: { totalCountIsEstimate: false } };
+        paginationService.getEmptyPage.mockReturnValueOnce(emptyPage);
+
         const walletsController = container.resolve(WalletsController);
         const result = await walletsController.transactionsSent(
             {
@@ -553,7 +561,8 @@ describe("WalletsController.transactionsSent", () => {
         );
 
         expect(walletSearchService.getWallet).toBeCalledWith(walletResource2Cold.address);
-        expect(result).toEqual(AppUtils.Search.getEmptyPage());
+        expect(paginationService.getEmptyPage).toBeCalled();
+        expect(result).toBe(emptyPage);
     });
 });
 
@@ -851,6 +860,9 @@ describe("WalletsController.votes", () => {
     it("should return empty page when wallet is cold wallet", async () => {
         walletSearchService.getWallet.mockReturnValueOnce(walletResource2Cold);
 
+        const emptyPage = { results: [], totalCount: 0, meta: { totalCountIsEstimate: false } };
+        paginationService.getEmptyPage.mockReturnValueOnce(emptyPage);
+
         const walletsController = container.resolve(WalletsController);
         const result = await walletsController.votes(
             {
@@ -862,6 +874,7 @@ describe("WalletsController.votes", () => {
         );
 
         expect(walletSearchService.getWallet).toBeCalledWith(walletResource2Cold.address);
-        expect(result).toEqual(AppUtils.Search.getEmptyPage());
+        expect(paginationService.getEmptyPage).toBeCalled();
+        expect(result).toBe(emptyPage);
     });
 });

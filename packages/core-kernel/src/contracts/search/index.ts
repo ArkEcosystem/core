@@ -1,12 +1,7 @@
 export * from "./criteria";
 export * from "./expressions";
 
-export type ParsedOrdering = {
-    path: string; // ! { get } from "@arkecosystem/utils" incorrectly handles path array
-    direction: "asc" | "desc";
-}[];
-
-export type Ordering = string | Ordering[];
+export type Ordering = { path: string; direction: "asc" | "desc" }[];
 
 export type Pagination = {
     offset: number;

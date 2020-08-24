@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
 
 import { WalletCriteria, WalletResource } from "../resources-new";
 
@@ -7,6 +7,12 @@ export class WalletSearchService {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
+
+    @Container.inject(Container.Identifiers.StandardCriteriaService)
+    private readonly standardCriteriaService!: Services.Search.StandardCriteriaService;
+
+    @Container.inject(Container.Identifiers.PaginationService)
+    private readonly paginationService!: Services.Search.PaginationService;
 
     public getWallet(walletId: string, ...criterias: WalletCriteria[]): WalletResource | undefined {
         let wallet: Contracts.State.Wallet | undefined;
@@ -29,7 +35,7 @@ export class WalletSearchService {
 
         const walletResource = this.getWalletResourceFromWallet(wallet);
 
-        if (AppUtils.Search.testStandardCriterias(walletResource, ...criterias)) {
+        if (this.standardCriteriaService.testStandardCriterias(walletResource, ...criterias)) {
             return walletResource;
         } else {
             return undefined;
@@ -41,7 +47,9 @@ export class WalletSearchService {
         ordering: Contracts.Search.Ordering,
         ...criterias: WalletCriteria[]
     ): Contracts.Search.Page<WalletResource> {
-        return AppUtils.Search.getPage(pagination, [ordering, "balance:desc"], this.getWallets(...criterias));
+        ordering = [...ordering, { path: "balance", direction: "desc" }];
+
+        return this.paginationService.getPage(pagination, ordering, this.getWallets(...criterias));
     }
 
     public getActiveWalletsPage(
@@ -49,7 +57,9 @@ export class WalletSearchService {
         ordering: Contracts.Search.Ordering,
         ...criterias: WalletCriteria[]
     ): Contracts.Search.Page<WalletResource> {
-        return AppUtils.Search.getPage(pagination, [ordering, "balance:desc"], this.getActiveWallets(...criterias));
+        ordering = [...ordering, { path: "balance", direction: "desc" }];
+
+        return this.paginationService.getPage(pagination, ordering, this.getActiveWallets(...criterias));
     }
 
     public getWalletResourceFromWallet(wallet: Contracts.State.Wallet): WalletResource {
@@ -66,7 +76,7 @@ export class WalletSearchService {
         for (const wallet of this.walletRepository.allByAddress()) {
             const walletResource = this.getWalletResourceFromWallet(wallet);
 
-            if (AppUtils.Search.testStandardCriterias(walletResource, ...criterias)) {
+            if (this.standardCriteriaService.testStandardCriterias(walletResource, ...criterias)) {
                 yield walletResource;
             }
         }
@@ -76,7 +86,7 @@ export class WalletSearchService {
         for (const wallet of this.walletRepository.allByPublicKey()) {
             const walletResource = this.getWalletResourceFromWallet(wallet);
 
-            if (AppUtils.Search.testStandardCriterias(walletResource, ...criterias)) {
+            if (this.standardCriteriaService.testStandardCriterias(walletResource, ...criterias)) {
                 yield walletResource;
             }
         }

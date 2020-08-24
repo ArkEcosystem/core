@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
 import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -18,6 +18,9 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class WalletsController extends Controller {
+    @Container.inject(Container.Identifiers.PaginationService)
+    private readonly paginationService!: Services.Search.PaginationService;
+
     @Container.inject(Identifiers.WalletSearchService)
     private readonly walletSearchService!: WalletSearchService;
 
@@ -119,7 +122,7 @@ export class WalletsController extends Controller {
             return notFound("Wallet not found");
         }
         if (!walletResource.publicKey) {
-            return AppUtils.Search.getEmptyPage();
+            return this.paginationService.getEmptyPage();
         }
 
         const criteria: Contracts.Shared.TransactionCriteria = {
@@ -196,7 +199,7 @@ export class WalletsController extends Controller {
             return notFound("Wallet not found");
         }
         if (!walletResource.publicKey) {
-            return AppUtils.Search.getEmptyPage();
+            return this.paginationService.getEmptyPage();
         }
 
         const criteria: Contracts.Shared.TransactionCriteria = {
