@@ -1,6 +1,5 @@
 import "jest-extended";
 
-import { Contracts } from "@packages/core-kernel/src";
 import { Wallet, WalletRepository, WalletRepositoryCopyOnWrite } from "@packages/core-state/src/wallets";
 import {
     addressesIndexer,
@@ -58,89 +57,34 @@ describe("Wallet Repository Copy On Write", () => {
         const wallet1 = walletRepoCopyOnWrite.createWallet("abcd");
         const wallet2 = walletRepoCopyOnWrite.createWallet("efg");
         const wallet3 = walletRepoCopyOnWrite.createWallet("hij");
-        const allWallets = [wallet1, wallet2, wallet3];
         walletRepoCopyOnWrite.getIndex("usernames").set("username1", wallet1);
         walletRepoCopyOnWrite.getIndex("usernames").set("username2", wallet2);
         walletRepoCopyOnWrite.getIndex("usernames").set("username3", wallet3);
-        walletRepo.index(allWallets);
+        walletRepo.index(wallet1);
+        walletRepo.index(wallet2);
+        walletRepo.index(wallet3);
 
-        expect(walletRepoCopyOnWrite.allByUsername()).toEqual(allWallets);
+        expect(walletRepoCopyOnWrite.allByUsername()).toEqual([wallet1, wallet2, wallet3]);
 
         const wallet4 = walletRepoCopyOnWrite.createWallet("klm");
         walletRepo.getIndex("usernames").set("username4", wallet4);
 
-        expect(walletRepoCopyOnWrite.allByUsername()).toEqual(allWallets);
+        // ? shouldn't it be [wallet1, wallet2, wallet3, wallet4] now?
+        expect(walletRepoCopyOnWrite.allByUsername()).toEqual([wallet1, wallet2, wallet3]);
     });
 
     it("should not index wallets in CopyOnWrite repo if they were only indexed on original", () => {
         const wallet1 = walletRepoCopyOnWrite.createWallet("abcd");
         const wallet2 = walletRepoCopyOnWrite.createWallet("efg");
         const wallet3 = walletRepoCopyOnWrite.createWallet("hij");
-        const allWallets = [wallet1, wallet2, wallet3];
         walletRepo.getIndex("usernames").set("username1", wallet1);
         walletRepo.getIndex("usernames").set("username2", wallet2);
         walletRepo.getIndex("usernames").set("username3", wallet3);
-        walletRepo.index(allWallets);
+        walletRepo.index(wallet1);
+        walletRepo.index(wallet2);
+        walletRepo.index(wallet3);
 
         expect(walletRepoCopyOnWrite.allByUsername()).toEqual([]);
-    });
-
-    describe("search", () => {
-        it("should throw if no wallet exists", () => {
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, "1")).toThrowError(
-                `Wallet 1 doesn't exist in indexes`,
-            );
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Delegates, "1")).toThrowError(
-                `Wallet 1 doesn't exist in indexes`,
-            );
-        });
-
-        // TODO: is this expected behaviour that you cannot search by these scopes
-        it("should throw when looking up via locks scope", () => {
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Locks, "1")).toThrowError(
-                `Unknown scope ${Contracts.State.SearchScope.Locks}`,
-            );
-        });
-
-        it("should throw when looking up via an unknown search scope", () => {
-            expect(() => walletRepoCopyOnWrite.findByScope("doesNotExist" as any, "1")).toThrowError(
-                `Unknown scope doesNotExist`,
-            );
-        });
-
-        it("should have to index wallet on original repo in order to search", () => {
-            const wallet = walletRepoCopyOnWrite.createWallet("abcd");
-            expect(() =>
-                walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address),
-            ).toThrow();
-
-            walletRepo.index(wallet);
-
-            expect(() =>
-                walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address),
-            ).not.toThrow();
-            expect(walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toEqual(
-                wallet,
-            );
-        });
-
-        it("should retrieve existing wallet when searching Delegate Scope", () => {
-            const wallet = walletRepoCopyOnWrite.createWallet("abcd");
-            walletRepo.index(wallet);
-
-            expect(() =>
-                walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Delegates, wallet.address),
-            ).toThrowError(`Wallet abcd isn't delegate`);
-
-            wallet.setAttribute("delegate", true);
-            /**
-             * TODO: check that TemptempWalletRepo should throw here.
-             * WalletRepo does not.
-             */
-            expect(() =>
-                walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Delegates, wallet.address),
-            ).toThrowError(`Wallet abcd isn't delegate`);
-        });
     });
 
     // TODO: test behaves differently to WalletRepository due to inheritance
