@@ -49,43 +49,47 @@ export const createRangeCriteriaSchema = (item: Joi.Schema): Joi.Schema => {
 // Ordering
 
 export const createOrderingSchema = (schemaObject: SchemaObject, wildcardPaths: string[] = []): Joi.ObjectSchema => {
-    const schemaObjectPaths: string[] = [];
-    const walkObjectKeys = (object: SchemaObject, parentPath: string) => {
-        for (const [key, value] of Object.entries(object)) {
-            const path = parentPath ? `${parentPath}.${key}` : key;
-            schemaObjectPaths.push(path);
-            if (!isSchema(value)) {
-                walkObjectKeys(value, path);
-            }
-        }
+    const getObjectPaths = (object: SchemaObject): string[] => {
+        return Object.entries(object)
+            .map(([key, value]) => {
+                return isSchema(value) ? key : getObjectPaths(value).map((p) => `${key}.${p}`);
+            })
+            .flat();
     };
-    walkObjectKeys(schemaObject, "");
 
-    const orderBySchema = Joi.custom((value) => {
-        const orderByInstructions = value.split(",");
+    const exactPaths = getObjectPaths(schemaObject);
 
-        for (const orderByInstruction of orderByInstructions) {
-            const [orderByPath, orderByDirection] = orderByInstruction.split(":");
+    return Joi.object({
+        orderBy: Joi.custom((value) => {
+            if (value === "") {
+                return []; // or throw?
+            }
 
-            if (schemaObjectPaths.includes(orderByPath) === false) {
-                const pathWildcardMatched = !!wildcardPaths.find((wildcardPath) => {
-                    return orderByPath === wildcardPath || orderByPath.startsWith(`${wildcardPath}.`);
-                });
+            return value.split(",").map((item) => {
+                const pair = item.split(":");
+                const path = pair[0];
+                const direction = pair.length === 1 ? "asc" : pair[1];
 
-                if (pathWildcardMatched === false) {
-                    throw new Error(`Unknown order by path ${orderByPath}`);
+                if (direction !== "asc" && direction !== "desc") {
+                    throw new Error(`Unexpected order direction ${direction}`);
                 }
-            }
 
-            if (typeof orderByDirection !== "undefined" && orderByDirection !== "asc" && orderByDirection !== "desc") {
-                throw new Error(`Unexpected order by direction ${orderByInstruction}`);
-            }
-        }
+                if (exactPaths.includes(path)) {
+                    return { path, direction };
+                }
 
-        return orderByInstructions;
-    }).default([]);
+                if (wildcardPaths.includes(path)) {
+                    return { path, direction };
+                }
 
-    return Joi.object({ orderBy: orderBySchema });
+                if (wildcardPaths.find((wp) => path.startsWith(`${wp}.`))) {
+                    return { path, direction };
+                }
+
+                throw new Error(`Unknown order property path ${path}`);
+            });
+        }),
+    });
 };
 
 // Pagination
