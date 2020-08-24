@@ -1,6 +1,5 @@
 import Joi from "@hapi/joi";
 
-import { blockCriteriaSchemaObject } from "./block";
 import { walletCriteriaSchemaObject } from "./wallet";
 
 export const transactionIdSchema = Joi.string().hex().length(64);
