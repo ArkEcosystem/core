@@ -86,7 +86,6 @@ describe("DelegatesController.index", () => {
             results: [delegateResource1],
             meta: { totalCountIsEstimate: false },
         };
-
         delegateSearchService.getDelegatesPage.mockReturnValueOnce(delegatesPage);
 
         const delegatesController = container.resolve(DelegatesController);
@@ -116,7 +115,6 @@ describe("DelegatesController.search", () => {
             results: [delegateResource1],
             meta: { totalCountIsEstimate: false },
         };
-
         delegateSearchService.getDelegatesPage.mockReturnValueOnce(delegatesPage);
 
         const delegatesController = container.resolve(DelegatesController);
@@ -173,13 +171,13 @@ describe("DelegatesController.show", () => {
 
 describe("DelegatesController.voters", () => {
     it("should get delegate id from pathname and criteria from query and return voter wallets from WalletSearchService", () => {
+        delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource1);
+
         const voterWalletsPage: Contracts.Search.Page<Resources.WalletResource> = {
             totalCount: 1,
             results: [delegate1VoterWalletResource1],
             meta: { totalCountIsEstimate: false },
         };
-
-        delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource1);
         walletSearchService.getActiveWalletsPage.mockReturnValueOnce(voterWalletsPage);
 
         const delegatesController = container.resolve(DelegatesController);

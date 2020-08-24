@@ -1,9 +1,7 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { Identifiers } from "../identifiers";
 import { LockCriteria, LockResource } from "../resources-new";
-import { WalletSearchService } from "./wallet-search-service";
 
 @Container.injectable()
 export class LockSearchService {
@@ -13,9 +11,6 @@ export class LockSearchService {
 
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
-
-    @Container.inject(Identifiers.WalletSearchService)
-    private readonly walletSearchService!: WalletSearchService;
 
     public getLock(lockId: string, ...criterias: LockCriteria[]): LockResource | undefined {
         if (!this.walletRepository.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
@@ -45,10 +40,10 @@ export class LockSearchService {
     public getWalletLocksPage(
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
-        walletId: string,
+        walletAddress: string,
         ...criterias: LockCriteria[]
     ): Contracts.Search.Page<LockResource> {
-        return AppUtils.Search.getPage(pagination, ordering, this.getWalletLocks(walletId, ...criterias));
+        return AppUtils.Search.getPage(pagination, ordering, this.getWalletLocks(walletAddress, ...criterias));
     }
 
     public getLockResourceFromWallet(wallet: Contracts.State.Wallet, lockId: string): LockResource {
@@ -91,13 +86,8 @@ export class LockSearchService {
         }
     }
 
-    private *getWalletLocks(walletId: string, ...criterias: LockCriteria[]): Iterable<LockResource> {
-        const walletResource = this.walletSearchService.getWallet(walletId);
-        if (!walletResource) {
-            throw new Error("Wallet not found");
-        }
-
-        const wallet = this.walletRepository.findByAddress(walletResource.address);
+    private *getWalletLocks(walletAddress: string, ...criterias: LockCriteria[]): Iterable<LockResource> {
+        const wallet = this.walletRepository.findByAddress(walletAddress);
         const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {});
 
         for (const lockId of Object.keys(walletLocks)) {

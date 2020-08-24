@@ -18,14 +18,14 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class WalletsController extends Controller {
-    @Container.inject(Container.Identifiers.TransactionHistoryService)
-    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
-
     @Container.inject(Identifiers.WalletSearchService)
     private readonly walletSearchService!: WalletSearchService;
 
     @Container.inject(Identifiers.LockSearchService)
     private readonly lockSearchService!: LockSearchService;
+
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public index(request: Hapi.Request): Contracts.Search.Page<WalletResource> {
         const pagination = this.getQueryPagination(request.query);
@@ -74,7 +74,7 @@ export class WalletsController extends Controller {
         const ordering = request.query.orderBy as Contracts.Search.Ordering;
         const criteria = this.getQueryCriteria(request.query, lockCriteriaSchemaObject) as LockCriteria;
 
-        return this.lockSearchService.getWalletLocksPage(pagination, ordering, walletId, criteria);
+        return this.lockSearchService.getWalletLocksPage(pagination, ordering, walletResource.address, criteria);
     }
 
     public async transactions(request: Hapi.Request, h: Hapi.ResponseToolkit) {

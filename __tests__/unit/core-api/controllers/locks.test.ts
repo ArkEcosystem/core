@@ -62,7 +62,6 @@ describe("LocksController.index", () => {
             meta: { totalCountIsEstimate: false },
             results: [lockResource1],
         };
-
         lockSearchService.getLocksPage.mockReturnValueOnce(locksPage);
 
         const locksController = container.resolve(LocksController);
@@ -92,7 +91,6 @@ describe("LocksController.search", () => {
             meta: { totalCountIsEstimate: false },
             results: [lockResource1],
         };
-
         lockSearchService.getLocksPage.mockReturnValueOnce(locksPage);
 
         const locksController = container.resolve(LocksController);
