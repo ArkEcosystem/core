@@ -2,16 +2,49 @@ import { Utils } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 
 const isSchema = (value: Joi.Schema | SchemaObject): value is Joi.Schema => {
-    return Joi.isSchema(value); // why isn't it a guard? :-(
+    return Joi.isSchema(value);
 };
 
-// Pagination
+// BigNumber
 
-export const pagination = Joi.object({
-    page: Joi.number().integer().positive().default(1),
-    offset: Joi.number().integer().min(0),
-    limit: Joi.number().integer().min(1).default(100).max(Joi.ref("$configuration.plugins.pagination.limit")),
-}).without("offset", "page");
+export const bigNumber = Joi.custom((value: unknown) => {
+    return Utils.BigNumber.make(value as any);
+});
+
+export const nonNegativeBigNumber = bigNumber.custom((value: Utils.BigNumber, helpers) => {
+    return value.isGreaterThanEqual(0) ? value : helpers.error("any.invalid");
+});
+
+export const positiveBigNumber = bigNumber.custom((value: Utils.BigNumber, helpers) => {
+    return value.isGreaterThanEqual(1) ? value : helpers.error("any.invalid");
+});
+
+// Criteria
+
+export type SchemaObject = {
+    [x: string]: Joi.Schema | SchemaObject;
+};
+
+export const createCriteriaQuerySchema = (schemaObject: SchemaObject): Joi.ObjectSchema => {
+    return Joi.object(schemaObject);
+};
+
+export const createCriteriaPayloadSchema = (schemaObject: SchemaObject): Joi.ArraySchema => {
+    const item = {};
+    for (const [key, value] of Object.entries(schemaObject)) {
+        if (isSchema(value)) {
+            item[key] = Joi.array().single().items(value);
+        } else {
+            item[key] = createCriteriaPayloadSchema(value);
+        }
+    }
+
+    return Joi.array().single().items(Joi.object(item));
+};
+
+export const createRangeCriteriaSchema = (item: Joi.Schema): Joi.Schema => {
+    return Joi.alternatives(item, Joi.object({ from: item, to: item }).or("from", "to"));
+};
 
 // Ordering
 
@@ -55,46 +88,13 @@ export const createOrderingSchema = (schemaObject: SchemaObject, wildcardPaths: 
     return Joi.object({ orderBy: orderBySchema });
 };
 
-// Criteria
+// Pagination
 
-export type SchemaObject = {
-    [x: string]: Joi.Schema | SchemaObject;
-};
-
-export const createCriteriaQuerySchema = (schemaObject: SchemaObject): Joi.ObjectSchema => {
-    return Joi.object(schemaObject);
-};
-
-export const createCriteriaPayloadSchema = (schemaObject: SchemaObject): Joi.ArraySchema => {
-    const item = {};
-    for (const [key, value] of Object.entries(schemaObject)) {
-        if (isSchema(value)) {
-            item[key] = Joi.array().single().items(value);
-        } else {
-            item[key] = createCriteriaPayloadSchema(value);
-        }
-    }
-
-    return Joi.array().single().items(Joi.object(item));
-};
-
-export const createRangeCriteriaSchema = (item: Joi.Schema): Joi.Schema => {
-    return Joi.alternatives(item, Joi.object({ from: item, to: item }).or("from", "to"));
-};
-
-// BigNumber
-
-export const bigNumber = Joi.custom((value: unknown) => {
-    return Utils.BigNumber.make(value as any);
-});
-
-export const nonNegativeBigNumber = bigNumber.custom((value: Utils.BigNumber, helpers) => {
-    return value.isGreaterThanEqual(0) ? value : helpers.error("any.invalid");
-});
-
-export const positiveBigNumber = bigNumber.custom((value: Utils.BigNumber, helpers) => {
-    return value.isGreaterThanEqual(1) ? value : helpers.error("any.invalid");
-});
+export const pagination = Joi.object({
+    page: Joi.number().integer().positive().default(1),
+    offset: Joi.number().integer().min(0),
+    limit: Joi.number().integer().min(1).default(100).max(Joi.ref("$configuration.plugins.pagination.limit")),
+}).without("offset", "page");
 
 // Old
 
