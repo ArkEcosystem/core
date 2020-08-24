@@ -246,20 +246,6 @@ describe("BusinessRegistration", () => {
             await expect(handler.throwIfCannotEnterPool(bridgechainResignationTransaction)).toResolve();
         });
 
-        // TODO: Finish test
-        // it("should not throw if another transaction from sender is in mempool", async () => {
-        //     const transferTransaction = BuilderFactory.transfer()
-        //         .recipientId(Identities.Address.fromPassphrase(passphrases[2]))
-        //         .amount("10")
-        //         .sign(passphrases[0])
-        //         .nonce("1")
-        //         .build();
-        //
-        //     await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(transferTransaction);
-        //
-        //     await expect(handler.throwIfCannotEnterPool(bridgechainResignationTransaction)).rejects.toThrow();
-        // });
-
         it("should throw if transaction by sender already in pool", async () => {
             await app
                 .get<Mempool>(Identifiers.TransactionPoolMempool)
