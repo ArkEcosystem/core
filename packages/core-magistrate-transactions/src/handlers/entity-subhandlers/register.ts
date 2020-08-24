@@ -48,19 +48,17 @@ export class EntityRegisterSubHandler {
         }
 
         for (const wallet of walletRepository.getIndex(MagistrateIndex.Entities).values()) {
-            if (wallet.hasAttribute("entities")) {
-                const entityValues: IEntityWallet[] = Object.values(wallet.getAttribute("entities"));
+            const entityValues: IEntityWallet[] = Object.values(wallet.getAttribute("entities"));
 
-                if (
-                    entityValues.some(
-                        (entity) =>
-                            entity.data.name!.toLowerCase() === transaction.data.asset!.data.name.toLowerCase() &&
-                            entity.type === transaction.data.asset!.type &&
-                            entity.subType === transaction.data.asset!.subType,
-                    )
-                ) {
-                    throw new EntityNameAlreadyRegisteredError();
-                }
+            if (
+                entityValues.some(
+                    (entity) =>
+                        entity.data.name!.toLowerCase() === transaction.data.asset!.data.name.toLowerCase() &&
+                        entity.type === transaction.data.asset!.type &&
+                        entity.subType === transaction.data.asset!.subType,
+                )
+            ) {
+                throw new EntityNameAlreadyRegisteredError();
             }
         }
     }
