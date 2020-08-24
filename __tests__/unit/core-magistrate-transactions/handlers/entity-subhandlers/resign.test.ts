@@ -84,24 +84,73 @@ describe("EntityResignSubHandler", () => {
             await expect(handler.throwIfCannotBeApplied(transaction, wallet, walletRepository)).toResolve();
         });
 
-        it("should throw if transaction registrationId is missing", async () => {
-            delete transaction.data.asset.registrationId;
+        it("should throw if asset is undefined", async () => {
+            transaction.data.asset = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(transaction, wallet, walletRepository)).rejects.toThrow();
+        });
+
+        it("should throw if asset.registrationId is undefined", async () => {
+            transaction.data.asset.registrationId = undefined;
 
             await expect(handler.throwIfCannotBeApplied(transaction, wallet, walletRepository)).rejects.toThrow();
         });
     });
 
+    describe("emitEvents", () => {
+        it("should be ok", async () => {
+            // @ts-ignore
+            handler.emitEvents(transaction, {});
+        });
+    });
+
     describe("applyToSender", () => {
-        it("should throw if registrationId is missing", async () => {
-            delete transaction.data.asset.registrationId;
+        it("should be ok", async () => {
+            await expect(handler.applyToSender(transaction, walletRepository)).toResolve();
+        });
+
+        it("should be ok if registered entity with same registrationId doesn't exist", async () => {
+            wallet.setAttribute("entities", {
+                ["dummy_registration_id"]: Entity.validRegisters[0],
+            });
+
+            await expect(handler.applyToSender(transaction, walletRepository)).toResolve();
+        });
+
+        it("should throw if asset is missing", async () => {
+            transaction.data.asset = undefined;
+
+            await expect(handler.applyToSender(transaction, walletRepository)).rejects.toThrow();
+        });
+
+        it("should throw if asset.registrationId is missing", async () => {
+            transaction.data.asset.registrationId = undefined;
 
             await expect(handler.applyToSender(transaction, walletRepository)).rejects.toThrow();
         });
     });
 
     describe("revertForSender", () => {
-        it("should throw if registrationId is missing", async () => {
-            delete transaction.data.asset.registrationId;
+        it("should be ok if registered entity with same registrationId doesn't exist", async () => {
+            wallet.setAttribute("entities", {
+                ["dummy_registration_id"]: Entity.validRegisters[0],
+            });
+
+            // @ts-ignore
+            await expect(handler.revertForSender(transaction, walletRepository, undefined)).toResolve();
+        });
+
+        it("should throw if asset is missing", async () => {
+            transaction.data.asset = undefined;
+
+            await expect(
+                // @ts-ignore
+                handler.revertForSender(transaction, walletRepository, transactionHistoryService),
+            ).rejects.toThrow();
+        });
+
+        it("should throw if asset.registrationId is missing", async () => {
+            transaction.data.asset.registrationId = undefined;
 
             await expect(
                 // @ts-ignore

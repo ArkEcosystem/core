@@ -76,7 +76,7 @@ export class EntityUpdateSubHandler {
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
         Utils.assert.defined<string>(transaction.id);
         Utils.assert.defined<string>(transaction.data.asset?.registrationId);
-        Utils.assert.defined<IEntityAssetData>(transaction.data.asset?.data);
+        Utils.assert.defined<IEntityAssetData>(transaction.data.asset.data);
 
         const assetData: IEntityAssetData = transaction.data.asset.data;
 
