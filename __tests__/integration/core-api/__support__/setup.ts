@@ -85,7 +85,7 @@ export const setUp = async (): Promise<Application> => {
 };
 
 export const tearDown = async (): Promise<void> => {
-    sandbox.dispose();
+    await sandbox.dispose();
 };
 
 export const calculateRanks = async () => {
