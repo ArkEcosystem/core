@@ -30,7 +30,7 @@ beforeEach(() => {
     jest.resetAllMocks();
 });
 
-const walletResource1 = {
+const walletResource1: Resources.WalletResource = {
     address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
     publicKey: "03c6e98f9aff65c517c824c9b21b6e1bc053a19f81d95d4f76426b1f5e651e64db",
     balance: Utils.BigNumber.make("31477465932829"),

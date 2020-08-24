@@ -11,11 +11,11 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class LocksController extends Controller {
-    @Container.inject(Container.Identifiers.TransactionHistoryService)
-    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
-
     @Container.inject(Identifiers.LockSearchService)
     private readonly lockSearchService!: LockSearchService;
+
+    @Container.inject(Container.Identifiers.TransactionHistoryService)
+    private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
     public index(request: Hapi.Request): Contracts.Search.Page<LockResource> {
         const pagination = this.getQueryPagination(request.query);
@@ -57,6 +57,7 @@ export class LocksController extends Controller {
                 asset: request.payload.ids.map((lockId: string) => ({ refund: { lockTransactionId: lockId } })),
             },
         ];
+
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
             criteria,
             this.getListingOrder(request),
