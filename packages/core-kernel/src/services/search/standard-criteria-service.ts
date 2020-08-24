@@ -105,35 +105,51 @@ export class StandardCriteriaService {
         value: number | BigInt | Utils.BigNumber,
         criteriaItem: StandardCriteriaOfItem<number | BigInt | Utils.BigNumber>,
     ): boolean {
-        const bigNumberValue = Utils.BigNumber.make(value);
+        if (typeof value === "number") {
+            // delegate.production.approval is float
 
-        if (
-            typeof criteriaItem === "number" ||
-            typeof criteriaItem === "bigint" ||
-            typeof criteriaItem === "string" ||
-            criteriaItem instanceof Utils.BigNumber
-        ) {
-            return bigNumberValue.isEqualTo(Utils.BigNumber.make(criteriaItem));
+            if (typeof criteriaItem === "object" && criteriaItem !== null) {
+                if ("from" in criteriaItem && "to" in criteriaItem) {
+                    return value >= Number(criteriaItem["from"]) && value <= Number(criteriaItem["to"]);
+                }
+
+                if ("from" in criteriaItem) {
+                    return value >= Number(criteriaItem["from"]);
+                }
+
+                if ("to" in criteriaItem) {
+                    return value <= Number(criteriaItem["to"]);
+                }
+
+                throw new Error(`Unexpected range criteria`);
+            } else {
+                return value === Number(criteriaItem);
+            }
+        } else {
+            // bigint or Utils.BigNumber
+            const bigNumberValue = Utils.BigNumber.make(value);
+
+            if (typeof criteriaItem === "object" && criteriaItem !== null) {
+                if ("from" in criteriaItem && "to" in criteriaItem) {
+                    return (
+                        bigNumberValue.isGreaterThanEqual(Utils.BigNumber.make(criteriaItem["from"])) &&
+                        bigNumberValue.isLessThanEqual(Utils.BigNumber.make(criteriaItem["to"]))
+                    );
+                }
+
+                if ("from" in criteriaItem) {
+                    return bigNumberValue.isGreaterThanEqual(Utils.BigNumber.make(criteriaItem["from"]));
+                }
+
+                if ("to" in criteriaItem) {
+                    return bigNumberValue.isLessThanEqual(Utils.BigNumber.make(criteriaItem["to"]));
+                }
+
+                throw new Error(`Unexpected range criteria`);
+            } else {
+                return bigNumberValue.isEqualTo(Utils.BigNumber.make(criteriaItem));
+            }
         }
-
-        if (typeof criteriaItem === "object" && criteriaItem !== null) {
-            if ("from" in criteriaItem && "to" in criteriaItem) {
-                return (
-                    bigNumberValue.isGreaterThanEqual(Utils.BigNumber.make(criteriaItem["from"])) &&
-                    bigNumberValue.isLessThanEqual(Utils.BigNumber.make(criteriaItem["to"]))
-                );
-            }
-
-            if ("from" in criteriaItem) {
-                return bigNumberValue.isGreaterThanEqual(Utils.BigNumber.make(criteriaItem["from"]));
-            }
-
-            if ("to" in criteriaItem) {
-                return bigNumberValue.isLessThanEqual(Utils.BigNumber.make(criteriaItem["to"]));
-            }
-        }
-
-        throw new Error(`Unexpected range criteria`);
     }
 
     public testObjectCriteriaItem(value: object, criteriaItem: StandardCriteriaOfItem<object>): boolean {

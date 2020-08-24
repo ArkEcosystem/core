@@ -48,6 +48,10 @@ export class PaginationService {
             if (a === true) return 1;
         }
 
+        if (typeof a === "number" && typeof b === "number") {
+            return a - b;
+        }
+
         if (
             (typeof a === "number" || typeof a === "bigint" || a instanceof Utils.BigNumber) &&
             (typeof b === "number" || typeof b === "bigint" || b instanceof Utils.BigNumber)
