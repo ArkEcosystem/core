@@ -150,12 +150,8 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             "business",
         );
 
-        AppUtils.assert.defined<MagistrateInterfaces.IBridgechainUpdateAsset>(
-            transaction.data.asset?.bridgechainUpdate,
-        );
-
-        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset =
-            transaction.data.asset.bridgechainUpdate;
+        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset = transaction.data.asset! // Assertion check inside super.applyToSender
+            .bridgechainUpdate;
 
         AppUtils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
