@@ -24,7 +24,8 @@ export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo:
         // that buildVoteBalances should only be triggered if there is a htlc lockedBalance?
         voter.setAttribute("htlc.lockedBalance", totalBalance.div(2));
 
-        walletRepo.index([delegate, voter]);
+        walletRepo.index(delegate);
+        walletRepo.index(voter);
         delegates.push(delegate as Wallet);
     }
     return delegates;
