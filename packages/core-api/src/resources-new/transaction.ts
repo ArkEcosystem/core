@@ -13,7 +13,6 @@ export const transactionCriteriaSchemaObject = {
             .regex(/^[0-9a-z%]{1,64}$/)
             .regex(/%/),
     ),
-    timestamp: blockCriteriaSchemaObject.timestamp,
     senderPublicKey: walletCriteriaSchemaObject.publicKey,
     recipientId: walletCriteriaSchemaObject.address,
     vendorField: Joi.string().max(256),

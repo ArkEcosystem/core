@@ -30,10 +30,7 @@ const lockSearchService = {
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.Application).toConstantValue(app);
-container
-    .bind(Container.Identifiers.PluginConfiguration)
-    .toConstantValue(apiConfiguration)
-    .whenTargetTagged("plugin", "@arkecosystem/core-api");
+container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(apiConfiguration);
 container.bind(Identifiers.LockSearchService).toConstantValue(lockSearchService);
 container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
 

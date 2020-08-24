@@ -32,7 +32,11 @@ export type DelegateResource = {
 export type DelegateResourceLastBlock = {
     id: string;
     height: number;
-    timestamp: number;
+    timestamp: {
+        epoch: number;
+        unix: number;
+        human: string;
+    };
 };
 
 export const delegateParamSchema = walletParamSchema;
@@ -49,7 +53,11 @@ export const delegateCriteriaSchemaObject = {
         last: {
             id: blockCriteriaSchemaObject.id,
             height: blockCriteriaSchemaObject.height,
-            timestamp: blockCriteriaSchemaObject.timestamp,
+            timestamp: {
+                epoch: Schemas.createRangeCriteriaSchema(Joi.number().integer().min(0)),
+                unix: Schemas.createRangeCriteriaSchema(Joi.number().integer().min(0)),
+                human: Joi.string(),
+            },
         },
     },
     production: {

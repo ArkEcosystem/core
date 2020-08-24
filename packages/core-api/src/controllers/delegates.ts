@@ -18,14 +18,14 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class DelegatesController extends Controller {
-    @Container.inject(Container.Identifiers.BlockHistoryService)
-    private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
+    @Container.inject(Identifiers.DelegateSearchService)
+    private readonly delegateSearchService!: DelegateSearchService;
 
     @Container.inject(Identifiers.WalletSearchService)
     private readonly walletSearchService!: WalletSearchService;
 
-    @Container.inject(Identifiers.DelegateSearchService)
-    private readonly delegateSearchService!: DelegateSearchService;
+    @Container.inject(Container.Identifiers.BlockHistoryService)
+    private readonly blockHistoryService!: Contracts.Shared.BlockHistoryService;
 
     public index(request: Hapi.Request): Contracts.Search.Page<DelegateResource> {
         const pagination = this.getQueryPagination(request.query);
