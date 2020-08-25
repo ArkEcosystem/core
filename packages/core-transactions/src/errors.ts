@@ -82,7 +82,7 @@ export class MissingMultiSignatureOnSenderError extends TransactionError {
 
 export class InvalidMultiSignaturesError extends TransactionError {
     constructor() {
-        super(`Failed to apply transaction, because multi signatures are invalid.`);
+        super(`Failed to apply transaction, because the multi signatures are invalid.`);
     }
 }
 
