@@ -74,12 +74,6 @@ export class UnexpectedSecondSignatureError extends TransactionError {
     }
 }
 
-export class UnexpectedMultiSignatureError extends TransactionError {
-    constructor() {
-        super(`Failed to apply transaction, because multi signatures are currently not supported.`);
-    }
-}
-
 export class MissingMultiSignatureOnSenderError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because sender does not have a multi signature.`);
