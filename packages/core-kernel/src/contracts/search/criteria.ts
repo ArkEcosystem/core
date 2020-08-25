@@ -26,5 +26,5 @@ export type StandardCriteriaOfItem<T> = T extends any[]
     : T extends string
     ? string
     : T extends object
-    ? { [K in keyof T]?: StandardCriteriaOf<T[K]> }
+    ? { [K in keyof T]?: StandardCriteriaOf<T[K]> } | { "*"?: unknown }
     : never;

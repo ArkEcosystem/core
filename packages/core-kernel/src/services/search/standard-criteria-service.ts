@@ -21,19 +21,7 @@ export class StandardCriteriaService {
                     try {
                         return this.testStandardCriteriaItem(value, criteriaItem);
                     } catch (error) {
-                        if (error instanceof InvalidCriteria) {
-                            throw new InvalidCriteria(error.value, error.criteria, [String(i), ...error.path]);
-                        }
-
-                        if (error instanceof UnsupportedValue) {
-                            throw new UnsupportedValue(error.value, [String(i), ...error.path]);
-                        }
-
-                        if (error instanceof UnexpectedError) {
-                            throw new UnexpectedError(error.error, [String(i), ...error.path]);
-                        }
-
-                        throw new UnexpectedError(error, [String(i), ...error.path]);
+                        this.rethrowError(error, String(i));
                     }
                 });
             } else {
@@ -47,9 +35,8 @@ export class StandardCriteriaService {
             return false;
         }
 
-        // Narrowing `value` to `boolean` doesn't narrow `criteriaItem` to `StandardCriteriaOfItem<boolean>` :-(
-
         if (typeof value === "boolean") {
+            // narrowing `value` to `boolean` doesn't narrow `criteriaItem` to `StandardCriteriaOfItem<boolean>` :-(
             return this.testBooleanValueCriteriaItem(value, criteriaItem as StandardCriteriaOfItem<boolean>);
         }
 
@@ -82,7 +69,7 @@ export class StandardCriteriaService {
         // Consider hypothetical resource that has array property:
         // { owners: ["alice", "bob", "charlie"] }
         //
-        // And criteria that is used:
+        // Criteria that is used:
         // { owners: ["alice", "charlie"] }
         //
         // If it's "alice AND charlie" then how to specify "alice OR charlie"?
@@ -201,7 +188,7 @@ export class StandardCriteriaService {
                 }
 
                 if ("to" in criteriaItem) {
-                    return bnValue.isGreaterThanEqual(criteriaItem.to);
+                    return bnValue.isLessThanEqual(criteriaItem.to);
                 }
             } catch (error) {
                 if ("from" in criteriaItem) {
@@ -228,30 +215,40 @@ export class StandardCriteriaService {
     }
 
     private testObjectValueCriteriaItem(value: object, criteriaItem: StandardCriteriaOfItem<object>): boolean {
-        return Object.keys(criteriaItem).every((key) => {
+        const criteriaKeys = Object.keys(criteriaItem);
+
+        if (criteriaKeys.length === 1 && criteriaKeys[0] === "*") {
             try {
-                if (key === "*") {
-                    return Object.values(value).some((v) => {
-                        return this.testStandardCriterias(v, criteriaItem[key]);
-                    });
-                } else {
-                    return this.testStandardCriterias(value[key], criteriaItem[key]);
-                }
+                return Object.values(value).some((v) => {
+                    return this.testStandardCriterias(v, criteriaItem["*"]);
+                });
             } catch (error) {
-                if (error instanceof InvalidCriteria) {
-                    throw new InvalidCriteria(error.value, error.criteria, [key, ...error.path]);
-                }
-
-                if (error instanceof UnsupportedValue) {
-                    throw new UnsupportedValue(error.value, [key, ...error.path]);
-                }
-
-                if (error instanceof UnexpectedError) {
-                    throw new UnexpectedError(error.error, [key, ...error.path]);
-                }
-
-                throw new UnexpectedError(error, [key, ...error.path]);
+                this.rethrowError(error, "*");
             }
-        });
+        } else {
+            return criteriaKeys.every((key) => {
+                try {
+                    return this.testStandardCriterias(value[key], criteriaItem[key]);
+                } catch (error) {
+                    this.rethrowError(error, key);
+                }
+            });
+        }
+    }
+
+    private rethrowError(error: Error, key: string): never {
+        if (error instanceof InvalidCriteria) {
+            throw new InvalidCriteria(error.value, error.criteria, [key, ...error.path]);
+        }
+
+        if (error instanceof UnsupportedValue) {
+            throw new UnsupportedValue(error.value, [key, ...error.path]);
+        }
+
+        if (error instanceof UnexpectedError) {
+            throw new UnexpectedError(error.error, [key, ...error.path]);
+        }
+
+        throw new UnexpectedError(error, [key]);
     }
 }
