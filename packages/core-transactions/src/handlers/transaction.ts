@@ -8,12 +8,14 @@ import assert from "assert";
 import {
     ColdWalletError,
     InsufficientBalanceError,
-    InvalidMultiSignatureError,
+    InvalidMultiSignaturesError,
     InvalidSecondSignatureError,
     LegacyMultiSignatureError,
+    LegacyMultiSignatureRegistrationError,
+    MissingMultiSignatureOnSenderError,
     SenderWalletMismatchError,
-    UnexpectedMultiSignatureError,
     UnexpectedSecondSignatureError,
+    UnsupportedMultiSignatureTransactionError,
 } from "../errors";
 import { IDynamicFeeContext, ITransactionHandler } from "../interfaces";
 
@@ -112,7 +114,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             transaction.type === Enums.TransactionType.MultiSignature &&
             transaction.typeGroup === Enums.TransactionTypeGroup.Core;
         if (isMultiSignatureRegistration && !Managers.configManager.getMilestone().aip11) {
-            throw new UnexpectedMultiSignatureError();
+            throw new LegacyMultiSignatureRegistrationError();
         }
 
         if (sender.hasMultiSignature()) {
@@ -124,14 +126,14 @@ export abstract class TransactionHandler implements ITransactionHandler {
             }
 
             if (!dbSender.hasMultiSignature()) {
-                throw new UnexpectedMultiSignatureError();
+                throw new MissingMultiSignatureOnSenderError();
             }
 
             if (!dbSender.verifySignatures(data, dbSender.getAttribute("multiSignature"))) {
-                throw new InvalidMultiSignatureError();
+                throw new InvalidMultiSignaturesError();
             }
         } else if (transaction.data.signatures && !isMultiSignatureRegistration) {
-            throw new UnexpectedMultiSignatureError();
+            throw new UnsupportedMultiSignatureTransactionError();
         }
     }
 
@@ -238,7 +240,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<{ type: string, message: string } | null> {
+    ): Promise<{ type: string; message: string } | null> {
         return {
             type: "ERR_UNSUPPORTED",
             message: `Invalidating transaction of unsupported type '${Enums.TransactionType[data.type]}'`,
@@ -248,7 +250,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
     protected async typeFromSenderAlreadyInPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
-    ): Promise<{ type: string, message: string } | null> {
+    ): Promise<{ type: string; message: string } | null> {
         const { senderPublicKey, type }: Interfaces.ITransactionData = data;
 
         if (await pool.senderHasTransactionsOfType(senderPublicKey, type)) {
