@@ -4,6 +4,7 @@ import { NullEventDispatcher } from "@packages/core-kernel/src/services/events/d
 import {
     bridgechainIndexer,
     businessIndexer,
+    entityIndexer,
     MagistrateIndex,
 } from "@packages/core-magistrate-transactions/src/wallet-indexes";
 import { Wallets } from "@packages/core-state";
@@ -87,6 +88,11 @@ export const initApp = (): Application => {
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: MagistrateIndex.Bridgechains,
         indexer: bridgechainIndexer,
+    });
+
+    app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
+        name: MagistrateIndex.Entities,
+        indexer: entityIndexer,
     });
 
     app.bind(Identifiers.WalletFactory).toFactory<Contracts.State.Wallet>(
@@ -181,26 +187,11 @@ export const initApp = (): Application => {
 };
 
 export const buildSenderWallet = (app: Application): Contracts.State.Wallet => {
-    // const wallet: Wallets.Wallet = factoryBuilder
-    //     .get("Wallet")
-    //     .withOptions({
-    //         passphrase: passphrases[0],
-    //         nonce: 0
-    //     })
-    //     .make();
-
     const walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
 
     const wallet: Contracts.State.Wallet = walletRepository.createWallet(
         Identities.Address.fromPassphrase(passphrases[0]),
     );
-
-    // let wallet: Wallets.Wallet = new Wallets.Wallet(
-    //     Identities.Address.fromPassphrase(passphrases[0]),
-    //     new Services.Attributes.AttributeMap(
-    //         app.get<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes),
-    //     ),
-    // );
 
     wallet.publicKey = Identities.PublicKey.fromPassphrase(passphrases[0]);
     wallet.balance = Utils.BigNumber.make(7527654310);

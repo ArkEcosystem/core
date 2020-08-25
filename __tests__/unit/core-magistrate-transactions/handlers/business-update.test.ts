@@ -13,6 +13,7 @@ import { MagistrateApplicationEvents } from "@packages/core-magistrate-transacti
 import {
     BusinessRegistrationTransactionHandler,
     BusinessUpdateTransactionHandler,
+    EntityTransactionHandler,
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -58,6 +59,7 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BusinessUpdateTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(EntityTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -69,6 +71,12 @@ beforeEach(() => {
     senderWallet = buildSenderWallet(app);
 
     walletRepository.index(senderWallet);
+});
+
+afterEach(() => {
+    try {
+        Transactions.TransactionRegistry.deregisterTransactionType(MagistrateTransactions.EntityTransaction);
+    } catch {}
 });
 
 describe("BusinessRegistration", () => {
@@ -122,6 +130,16 @@ describe("BusinessRegistration", () => {
                 typeGroup: Enums.MagistrateTransactionGroup,
                 type: Enums.MagistrateTransactionType.BusinessUpdate,
             });
+        });
+
+        it("should throw if asset is undefined", async () => {
+            businessUpdateTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield businessUpdateTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow();
         });
     });
 
@@ -193,6 +211,12 @@ describe("BusinessRegistration", () => {
                     .minus(businessUpdateTransaction.data.amount)
                     .minus(businessUpdateTransaction.data.fee),
             );
+        });
+
+        it("should throw if asset is undefined", async () => {
+            businessUpdateTransaction.data.asset = undefined;
+
+            await expect(handler.apply(businessUpdateTransaction)).rejects.toThrow();
         });
     });
     describe("revert", () => {

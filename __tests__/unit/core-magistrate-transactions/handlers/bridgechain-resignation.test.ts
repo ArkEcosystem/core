@@ -15,6 +15,7 @@ import {
     BridgechainRegistrationTransactionHandler,
     BridgechainResignationTransactionHandler,
     BusinessRegistrationTransactionHandler,
+    EntityTransactionHandler,
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -25,7 +26,7 @@ import { Mempool } from "@packages/core-transaction-pool";
 import { InsufficientBalanceError } from "@packages/core-transactions/dist/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
+import {Crypto, Interfaces, Managers, Transactions, Utils} from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
 import _ from "lodash";
 
@@ -60,6 +61,7 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainResignationTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(EntityTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -71,6 +73,12 @@ beforeEach(() => {
     senderWallet = buildSenderWallet(app);
 
     walletRepository.index(senderWallet);
+});
+
+afterEach(() => {
+    try {
+        Transactions.TransactionRegistry.deregisterTransactionType(MagistrateTransactions.EntityTransaction);
+    } catch {}
 });
 
 describe("BusinessRegistration", () => {
@@ -139,6 +147,16 @@ describe("BusinessRegistration", () => {
                 typeGroup: Enums.MagistrateTransactionGroup,
                 type: Enums.MagistrateTransactionType.BridgechainResignation,
             });
+        });
+
+        it("should throw if asset is undefined", async () => {
+            bridgechainResignationTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield bridgechainResignationTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow();
         });
     });
 

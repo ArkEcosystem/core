@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { IEntityAsset } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
+import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { EntityAlreadyRegisteredError, EntityNameAlreadyRegisteredError } from "../../errors";
@@ -48,19 +48,17 @@ export class EntityRegisterSubHandler {
         }
 
         for (const wallet of walletRepository.getIndex(MagistrateIndex.Entities).values()) {
-            if (wallet.hasAttribute("entities")) {
-                const entityValues: IEntityWallet[] = Object.values(wallet.getAttribute("entities"));
+            const entityValues: IEntityWallet[] = Object.values(wallet.getAttribute("entities"));
 
-                if (
-                    entityValues.some(
-                        (entity) =>
-                            entity.data.name!.toLowerCase() === transaction.data.asset!.data.name.toLowerCase() &&
-                            entity.type === transaction.data.asset!.type &&
-                            entity.subType === transaction.data.asset!.subType,
-                    )
-                ) {
-                    throw new EntityNameAlreadyRegisteredError();
-                }
+            if (
+                entityValues.some(
+                    (entity) =>
+                        entity.data.name!.toLowerCase() === transaction.data.asset!.data.name.toLowerCase() &&
+                        entity.type === transaction.data.asset!.type &&
+                        entity.subType === transaction.data.asset!.subType,
+                )
+            ) {
+                throw new EntityNameAlreadyRegisteredError();
             }
         }
     }
@@ -73,7 +71,7 @@ export class EntityRegisterSubHandler {
     ): Promise<void> {
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
         Utils.assert.defined<string>(transaction.id);
-        Utils.assert.defined<IEntityAsset>(transaction.data.asset);
+        Utils.assert.defined<MagistrateInterfaces.IEntityAsset>(transaction.data.asset);
 
         const wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
