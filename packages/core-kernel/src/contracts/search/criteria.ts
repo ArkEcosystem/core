@@ -19,7 +19,9 @@ export type StandardCriteriaOfItem<T> = T extends any[]
     ? never
     : T extends boolean
     ? boolean | string
-    : T extends number | BigInt | Utils.BigNumber
+    : T extends number
+    ? NumericCriteria<number | string>
+    : T extends BigInt | Utils.BigNumber
     ? NumericCriteria<number | BigInt | Utils.BigNumber | string>
     : T extends string
     ? string
