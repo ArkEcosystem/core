@@ -37,8 +37,8 @@ export class LockSearchService {
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
         ...criterias: LockCriteria[]
-    ): Contracts.Search.Page<LockResource> {
-        ordering = [...ordering, { path: "timestamp.unix", direction: "desc" }];
+    ): Contracts.Search.ResultPage<LockResource> {
+        ordering = [...ordering, { property: "timestamp.unix", direction: "desc" }];
 
         return this.paginationService.getPage(pagination, ordering, this.getLocks(...criterias));
     }
@@ -48,8 +48,8 @@ export class LockSearchService {
         ordering: Contracts.Search.Ordering,
         walletAddress: string,
         ...criterias: LockCriteria[]
-    ): Contracts.Search.Page<LockResource> {
-        ordering = [...ordering, { path: "timestamp.unix", direction: "desc" }];
+    ): Contracts.Search.ResultPage<LockResource> {
+        ordering = [...ordering, { property: "timestamp.unix", direction: "desc" }];
 
         return this.paginationService.getPage(pagination, ordering, this.getWalletLocks(walletAddress, ...criterias));
     }

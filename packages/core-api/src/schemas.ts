@@ -1,3 +1,4 @@
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 
@@ -60,35 +61,33 @@ export const createOrderingSchema = (schemaObject: SchemaObject, wildcardPaths: 
     const exactPaths = getObjectPaths(schemaObject);
 
     return Joi.object({
-        orderBy: Joi.custom((value) => {
-            if (value === "") {
-                return []; // or throw?
-            }
-
-            return value.split(",").map((item) => {
-                const pair = item.split(":");
-                const path = pair[0];
-                const direction = pair.length === 1 ? "asc" : pair[1];
-
-                if (direction !== "asc" && direction !== "desc") {
-                    throw new Error(`Unexpected order direction ${direction}`);
+        orderBy: Joi.custom(
+            (value): Contracts.Search.Ordering => {
+                if (value === "") {
+                    return []; // or throw?
                 }
 
-                if (exactPaths.includes(path)) {
-                    return { path, direction };
-                }
+                return value.split(",").map((item) => {
+                    const pair = item.split(":");
+                    const property = pair[0];
+                    const direction = pair.length === 1 ? "asc" : pair[1];
 
-                if (wildcardPaths.includes(path)) {
-                    return { path, direction };
-                }
+                    if (direction !== "asc" && direction !== "desc") {
+                        throw new Error(`Unexpected order direction ${direction}`);
+                    }
 
-                if (wildcardPaths.find((wp) => path.startsWith(`${wp}.`))) {
-                    return { path, direction };
-                }
+                    if (exactPaths.includes(property)) {
+                        return { property, direction };
+                    }
 
-                throw new Error(`Unknown order property path ${path}`);
-            });
-        }).default([]),
+                    if (wildcardPaths.find((wp) => property.startsWith(`${wp}.`))) {
+                        return { property, direction };
+                    }
+
+                    throw new Error(`Unknown order property path ${property}`);
+                });
+            },
+        ).default([]),
     });
 };
 

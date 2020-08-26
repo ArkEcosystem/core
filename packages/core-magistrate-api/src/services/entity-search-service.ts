@@ -38,8 +38,8 @@ export class EntitySearchService {
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
         ...criterias: EntityCriteria[]
-    ): Contracts.Search.Page<EntityResource> {
-        ordering = [...ordering, { path: "data.name", direction: "asc" }];
+    ): Contracts.Search.ResultPage<EntityResource> {
+        ordering = [...ordering, { property: "data.name", direction: "asc" }];
 
         return this.paginationService.getPage(pagination, ordering, this.getEntities(...criterias));
     }
@@ -49,8 +49,8 @@ export class EntitySearchService {
         ordering: Contracts.Search.Ordering,
         walletId: string,
         ...criterias: EntityCriteria[]
-    ): Contracts.Search.Page<EntityResource> {
-        ordering = [...ordering, { path: "data.name", direction: "asc" }];
+    ): Contracts.Search.ResultPage<EntityResource> {
+        ordering = [...ordering, { property: "data.name", direction: "asc" }];
 
         return this.paginationService.getPage(pagination, ordering, this.getWalletEntities(walletId, ...criterias));
     }

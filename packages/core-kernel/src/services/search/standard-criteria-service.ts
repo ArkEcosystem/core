@@ -75,7 +75,7 @@ export class StandardCriteriaService {
         // If it's "alice AND charlie" then how to specify "alice OR charlie"?
         // If it's "alice OR charlie" then how to specify "alice AND charlie"?
         //
-        // Thankfully there are no resources with array properties.
+        // Peer is the only resource with array property.
 
         throw new UnsupportedValue(value, []);
     }

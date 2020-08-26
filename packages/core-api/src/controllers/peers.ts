@@ -14,19 +14,19 @@ export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const allPeers: Contracts.P2P.Peer[] = [...this.peerStorage.getPeers()];
 
-        let result = allPeers;
+        let results = allPeers;
 
         if (request.query.version) {
             const versionRange = semver.validRange(decodeURIComponent((request.query as any).version));
 
             if (versionRange) {
-                result = result.filter((peer) => peer.version && semver.satisfies(peer.version, versionRange));
+                results = results.filter((peer) => peer.version && semver.satisfies(peer.version, versionRange));
             } else {
                 return Boom.notFound("Invalid version range provided");
             }
         }
 
-        const count: number = result.length;
+        const totalCount: number = results.length;
 
         const limit: number = +request.query.limit || 100;
 
@@ -46,36 +46,42 @@ export class PeersController extends Controller {
 
             switch (orderByMapped[0]) {
                 case "version": {
-                    result =
+                    results =
                         orderByMapped[1] === "asc"
-                            ? result.sort((a, b) => semver.compare(a[orderByMapped[0]], b[orderByMapped[0]]))
-                            : result.sort((a, b) => semver.rcompare(a[orderByMapped[0]], b[orderByMapped[0]]));
+                            ? results.sort((a, b) => semver.compare(a[orderByMapped[0]], b[orderByMapped[0]]))
+                            : results.sort((a, b) => semver.rcompare(a[orderByMapped[0]], b[orderByMapped[0]]));
                     break;
                 }
                 case "height": {
-                    result = Utils.orderBy(
-                        result,
+                    results = Utils.orderBy(
+                        results,
                         (el) => el.state[orderByMapped[0]],
                         orderByMapped[1] === "asc" ? "asc" : "desc", // ? why desc is default
                     );
                     break;
                 }
                 case "latency": {
-                    result = Utils.orderBy(result, orderByMapped[0], orderByMapped[1] === "asc" ? "asc" : "desc");
+                    results = Utils.orderBy(results, orderByMapped[0], orderByMapped[1] === "asc" ? "asc" : "desc");
                     break;
                 }
                 default: {
-                    result = result.sort((a, b) => a.latency! - b.latency!);
+                    results = results.sort((a, b) => a.latency! - b.latency!);
                     break;
                 }
             }
         } else {
-            result = result.sort((a, b) => a.latency! - b.latency!);
+            results = results.sort((a, b) => a.latency! - b.latency!);
         }
 
-        result = result.slice(offset, offset + limit);
+        results = results.slice(offset, offset + limit);
 
-        return super.toPagination({ rows: result, count, countIsEstimate: false }, PeerResource);
+        const resultPage = {
+            results,
+            totalCount,
+            meta: { totalCountIsEstimate: false },
+        };
+
+        return super.toPagination(resultPage, PeerResource);
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {

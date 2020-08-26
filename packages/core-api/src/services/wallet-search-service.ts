@@ -46,8 +46,8 @@ export class WalletSearchService {
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
         ...criterias: WalletCriteria[]
-    ): Contracts.Search.Page<WalletResource> {
-        ordering = [...ordering, { path: "balance", direction: "desc" }];
+    ): Contracts.Search.ResultPage<WalletResource> {
+        ordering = [...ordering, { property: "balance", direction: "desc" }];
 
         return this.paginationService.getPage(pagination, ordering, this.getWallets(...criterias));
     }
@@ -56,8 +56,8 @@ export class WalletSearchService {
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
         ...criterias: WalletCriteria[]
-    ): Contracts.Search.Page<WalletResource> {
-        ordering = [...ordering, { path: "balance", direction: "desc" }];
+    ): Contracts.Search.ResultPage<WalletResource> {
+        ordering = [...ordering, { property: "balance", direction: "desc" }];
 
         return this.paginationService.getPage(pagination, ordering, this.getActiveWallets(...criterias));
     }

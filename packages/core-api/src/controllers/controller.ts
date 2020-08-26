@@ -38,7 +38,7 @@ export class Controller {
         return criteria;
     }
 
-    protected getListingPage(request: Hapi.Request): Contracts.Search.ListPage {
+    protected getListingPage(request: Hapi.Request): Contracts.Search.Pagination {
         const pagination = {
             offset: (request.query.page - 1) * request.query.limit || 0,
             limit: request.query.limit || 100,
@@ -51,7 +51,7 @@ export class Controller {
         return pagination;
     }
 
-    protected getListingOrder(request: Hapi.Request): Contracts.Search.ListOrder {
+    protected getListingOrder(request: Hapi.Request): Contracts.Search.Ordering {
         if (!request.query.orderBy) {
             return [];
         }
@@ -62,12 +62,12 @@ export class Controller {
         }));
     }
 
-    protected getListingOptions(): Contracts.Search.ListOptions {
-        const options: Contracts.Search.ListOptions = {
-            estimateTotalCount: this.apiConfiguration.getOptional<boolean>("options.estimateTotalCount", true),
-        };
+    protected getListingOptions(): Contracts.Search.Options {
+        const estimateTotalCount = this.apiConfiguration.getOptional<boolean>("options.estimateTotalCount", true);
 
-        return options;
+        return {
+            estimateTotalCount,
+        };
     }
 
     protected respondWithResource(data, transformer, transform = true): any {
@@ -84,22 +84,36 @@ export class Controller {
         };
     }
 
-    protected toResource(data, transformer, transform = true): object {
-        return transform
-            ? this.app.resolve<Resource>(transformer).transform(data)
-            : this.app.resolve<Resource>(transformer).raw(data);
+    protected toResource<T, R extends Resource>(
+        item: T,
+        transformer: new () => R,
+        transform = true,
+    ): ReturnType<R["raw"]> | ReturnType<R["transform"]> {
+        const resource = this.app.resolve<R>(transformer);
+
+        if (transform) {
+            return resource.transform(item) as ReturnType<R["transform"]>;
+        } else {
+            return resource.raw(item) as ReturnType<R["raw"]>;
+        }
     }
 
     /* istanbul ignore next */
-    protected toCollection<T>(data: T[], transformer, transform = true): object {
-        return data.map((item) => this.toResource(item, transformer, transform));
+    protected toCollection<T, R extends Resource>(
+        items: T[],
+        transformer: new () => R,
+        transform = true,
+    ): ReturnType<R["raw"]>[] | ReturnType<R["transform"]>[] {
+        return items.map((item) => this.toResource(item, transformer, transform));
     }
 
-    protected toPagination<T>(data: Contracts.Search.ListResult<T>, transformer, transform = true): object {
-        return {
-            results: this.toCollection(data.rows, transformer, transform),
-            totalCount: data.count,
-            meta: { totalCountIsEstimate: data.countIsEstimate },
-        };
+    protected toPagination<T, R extends Resource>(
+        resultPage: Contracts.Search.ResultPage<T>,
+        transformer: new () => R,
+        transform = true,
+    ): Contracts.Search.ResultPage<ReturnType<R["raw"]>> | Contracts.Search.ResultPage<ReturnType<R["transform"]>> {
+        const items = this.toCollection(resultPage.results, transformer, transform);
+
+        return { ...resultPage, results: items };
     }
 }

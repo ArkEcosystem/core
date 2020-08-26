@@ -30,7 +30,7 @@ export class WalletsController extends Controller {
     @Container.inject(Container.Identifiers.TransactionHistoryService)
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
-    public index(request: Hapi.Request): Contracts.Search.Page<WalletResource> {
+    public index(request: Hapi.Request): Contracts.Search.ResultPage<WalletResource> {
         const pagination = this.getQueryPagination(request.query);
         const ordering = request.query.orderBy as Contracts.Search.Ordering;
         const criteria = this.getQueryCriteria(request.query, walletCriteriaSchemaObject) as WalletCriteria;
@@ -38,7 +38,7 @@ export class WalletsController extends Controller {
         return this.walletSearchService.getWalletsPage(pagination, ordering, criteria);
     }
 
-    public top(request: Hapi.Request): Contracts.Search.Page<WalletResource> {
+    public top(request: Hapi.Request): Contracts.Search.ResultPage<WalletResource> {
         const pagination = this.getQueryPagination(request.query);
         const ordering = request.query.orderBy as Contracts.Search.Ordering;
         const criteria = this.getQueryCriteria(request.query, walletCriteriaSchemaObject) as WalletCriteria;
@@ -46,7 +46,7 @@ export class WalletsController extends Controller {
         return this.walletSearchService.getWalletsPage(pagination, ordering, criteria);
     }
 
-    public search(request: Hapi.Request): Contracts.Search.Page<WalletResource> {
+    public search(request: Hapi.Request): Contracts.Search.ResultPage<WalletResource> {
         const pagination = this.getQueryPagination(request.query);
         const ordering = request.query.orderBy as Contracts.Search.Ordering;
         const criteria = request.payload as WalletCriteria;
@@ -65,7 +65,7 @@ export class WalletsController extends Controller {
         return { data: walletResource };
     }
 
-    public locks(request: Hapi.Request): Contracts.Search.Page<LockResource> | Boom {
+    public locks(request: Hapi.Request): Contracts.Search.ResultPage<LockResource> | Boom {
         const walletId = request.params.id as string;
         const walletResource = this.walletSearchService.getWallet(walletId);
 
@@ -89,15 +89,15 @@ export class WalletsController extends Controller {
         }
 
         const criteria: Contracts.Shared.TransactionCriteria = { ...request.query, address: walletResource.address };
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
+        const ordering: Contracts.Search.Ordering = this.getListingOrder(request);
+        const pagination: Contracts.Search.Pagination = this.getListingPage(request);
+        const options: Contracts.Search.Options = this.getListingOptions();
 
         if (request.query.transform) {
             const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
                 criteria,
-                order,
-                page,
+                ordering,
+                pagination,
                 options,
             );
 
@@ -105,8 +105,8 @@ export class WalletsController extends Controller {
         } else {
             const transactionListResult = await this.transactionHistoryService.listByCriteria(
                 criteria,
-                order,
-                page,
+                ordering,
+                pagination,
                 options,
             );
 
@@ -129,15 +129,15 @@ export class WalletsController extends Controller {
             ...request.query,
             senderPublicKey: walletResource.publicKey,
         };
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
+        const ordering: Contracts.Search.Ordering = this.getListingOrder(request);
+        const pagination: Contracts.Search.Pagination = this.getListingPage(request);
+        const options: Contracts.Search.Options = this.getListingOptions();
 
         if (request.query.transform) {
             const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
                 criteria,
-                order,
-                page,
+                ordering,
+                pagination,
                 options,
             );
 
@@ -145,8 +145,8 @@ export class WalletsController extends Controller {
         } else {
             const transactionListResult = await this.transactionHistoryService.listByCriteria(
                 criteria,
-                order,
-                page,
+                ordering,
+                pagination,
                 options,
             );
 
@@ -166,15 +166,15 @@ export class WalletsController extends Controller {
             ...request.query,
             recipientId: walletResource.address,
         };
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
+        const ordering: Contracts.Search.Ordering = this.getListingOrder(request);
+        const pagination: Contracts.Search.Pagination = this.getListingPage(request);
+        const options: Contracts.Search.Options = this.getListingOptions();
 
         if (request.query.transform) {
             const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
                 criteria,
-                order,
-                page,
+                ordering,
+                pagination,
                 options,
             );
 
@@ -182,8 +182,8 @@ export class WalletsController extends Controller {
         } else {
             const transactionListResult = await this.transactionHistoryService.listByCriteria(
                 criteria,
-                order,
-                page,
+                ordering,
+                pagination,
                 options,
             );
 
@@ -208,15 +208,15 @@ export class WalletsController extends Controller {
             type: Enums.TransactionType.Vote,
             senderPublicKey: walletResource.publicKey,
         };
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
+        const ordering: Contracts.Search.Ordering = this.getListingOrder(request);
+        const pagination: Contracts.Search.Pagination = this.getListingPage(request);
+        const options: Contracts.Search.Options = this.getListingOptions();
 
         if (request.query.transform) {
             const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
                 criteria,
-                order,
-                page,
+                ordering,
+                pagination,
                 options,
             );
 
@@ -224,8 +224,8 @@ export class WalletsController extends Controller {
         } else {
             const transactionListResult = await this.transactionHistoryService.listByCriteria(
                 criteria,
-                order,
-                page,
+                ordering,
+                pagination,
                 options,
             );
 

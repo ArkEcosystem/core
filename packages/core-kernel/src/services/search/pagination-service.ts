@@ -1,24 +1,24 @@
 import { Utils } from "@arkecosystem/crypto";
 
-import { Ordering, Page, Pagination } from "../../contracts/search";
+import { Ordering, Pagination, ResultPage } from "../../contracts/search";
 import { injectable } from "../../ioc";
 import { BigNumber, get } from "../../utils";
 
 @injectable()
 export class PaginationService {
-    public getEmptyPage(): Page<any> {
+    public getEmptyPage(): ResultPage<any> {
         return { results: [], totalCount: 0, meta: { totalCountIsEstimate: false } };
     }
 
-    public getPage<T>(pagination: Pagination, ordering: Ordering, items: Iterable<T>): Page<T> {
+    public getPage<T>(pagination: Pagination, ordering: Ordering, items: Iterable<T>): ResultPage<T> {
         const total = Array.from(items).sort((a, b) => {
             let result = 0;
 
-            for (const { direction, path } of ordering) {
+            for (const { direction, property } of ordering) {
                 if (direction === "asc") {
-                    result = this.compareValues(get(a, path), get(b, path));
+                    result = this.compareValues(get(a, property), get(b, property));
                 } else {
-                    result = this.compareValues(get(b, path), get(a, path));
+                    result = this.compareValues(get(b, property), get(a, property));
                 }
 
                 if (result !== 0) {
