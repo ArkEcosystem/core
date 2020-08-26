@@ -97,7 +97,7 @@ export const pagination = Joi.object({
     page: Joi.number().integer().positive().default(1),
     offset: Joi.number().integer().min(0),
     limit: Joi.number().integer().min(1).default(100).max(Joi.ref("$configuration.plugins.pagination.limit")),
-}).without("offset", "page");
+}); // .without("offset", "page"); // conflict with pagination plugin
 
 // Old
 

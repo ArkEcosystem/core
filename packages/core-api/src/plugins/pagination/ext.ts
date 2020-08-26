@@ -30,6 +30,7 @@ export class Ext {
                 return undefined;
             };
 
+            // ! should be set through validation schema
             setParam("page", 1);
             setParam("limit", Utils.get(this.config, "query.limit.default", 100));
         }

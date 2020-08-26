@@ -11,7 +11,9 @@ beforeAll(async () => {
     app = await setUp();
 });
 
-afterAll(async () => await tearDown());
+afterAll(async () => {
+    await tearDown();
+});
 
 beforeAll(() => {
     const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
