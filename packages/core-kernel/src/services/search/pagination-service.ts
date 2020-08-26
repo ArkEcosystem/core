@@ -11,6 +11,10 @@ export class PaginationService {
     }
 
     public getPage<T>(pagination: Pagination, ordering: Ordering, items: Iterable<T>): ResultsPage<T> {
+        // todo: Array.from(items) can be avoided.
+        // todo: There is no reason to sort items that will not be included into result.
+        // todo: Only pagination.offset + pagination.limit items have to be kept in memory.
+
         const total = Array.from(items).sort((a, b) => this.compare(a, b, ordering));
 
         return {
@@ -22,42 +26,40 @@ export class PaginationService {
 
     public compare<T>(a: T, b: T, ordering: Ordering): number {
         for (const { property, direction } of ordering) {
-            let propertyA = get(a, property);
-            let propertyB = get(b, property);
+            let valueA = get(a, property);
+            let valueB = get(b, property);
 
-            // undefined are always at the end regardless of direction
-            if (typeof propertyA === "undefined" && typeof propertyB !== "undefined") return 1;
-            if (typeof propertyB === "undefined" && typeof propertyA !== "undefined") return -1;
-
-            // nulls are also at the end right before undefined
-            if (propertyA === null && propertyB !== null) return 1;
-            if (propertyB === null && propertyA !== null) return -1;
+            // undefined and null are always at the end regardless of direction
+            if (typeof valueA === "undefined" && typeof valueB !== "undefined") return 1;
+            if (typeof valueB === "undefined" && typeof valueA !== "undefined") return -1;
+            if (valueA === null && valueB !== null) return 1;
+            if (valueB === null && valueA !== null) return -1;
 
             if (direction === "desc") {
-                [propertyA, propertyB] = [propertyB, propertyA];
+                [valueA, valueB] = [valueB, valueA];
             }
 
             if (
-                (typeof propertyA === "boolean" && typeof propertyB === "boolean") ||
-                (typeof propertyA === "string" && typeof propertyB === "string") ||
-                (typeof propertyA === "number" && typeof propertyB === "number") ||
-                (typeof propertyA === "bigint" && typeof propertyB === "bigint")
+                (typeof valueA === "boolean" && typeof valueB === "boolean") ||
+                (typeof valueA === "string" && typeof valueB === "string") ||
+                (typeof valueA === "number" && typeof valueB === "number") ||
+                (typeof valueA === "bigint" && typeof valueB === "bigint")
             ) {
-                if (propertyA < propertyB) return -1;
-                if (propertyA > propertyB) return 1;
+                if (valueA < valueB) return -1;
+                if (valueA > valueB) return 1;
                 continue;
             }
 
-            if (propertyA instanceof Utils.BigNumber && propertyB instanceof Utils.BigNumber) {
-                if (propertyA.isLessThan(propertyB)) return -1;
-                if (propertyA.isGreaterThan(propertyB)) return 1;
+            if (valueA instanceof Utils.BigNumber && valueB instanceof Utils.BigNumber) {
+                if (valueA.isLessThan(valueB)) return -1;
+                if (valueA.isGreaterThan(valueB)) return 1;
                 continue;
             }
 
-            if (typeof propertyA !== typeof propertyB) {
-                throw new Error("Incompatible types");
+            if (typeof valueA !== typeof valueB) {
+                throw new Error(`Mismatched types '${typeof valueA}' and '${typeof valueB}' at '${property}'`);
             } else {
-                throw new Error("Unexpected type");
+                throw new Error(`Unexpected type at '${property}'`);
             }
         }
 
