@@ -1,16 +1,16 @@
 import { Utils } from "@arkecosystem/crypto";
 
-import { Ordering, Pagination, ResultPage } from "../../contracts/search";
+import { Ordering, Pagination, ResultsPage } from "../../contracts/search";
 import { injectable } from "../../ioc";
 import { BigNumber, get } from "../../utils";
 
 @injectable()
 export class PaginationService {
-    public getEmptyPage(): ResultPage<any> {
+    public getEmptyPage(): ResultsPage<any> {
         return { results: [], totalCount: 0, meta: { totalCountIsEstimate: false } };
     }
 
-    public getPage<T>(pagination: Pagination, ordering: Ordering, items: Iterable<T>): ResultPage<T> {
+    public getPage<T>(pagination: Pagination, ordering: Ordering, items: Iterable<T>): ResultsPage<T> {
         const total = Array.from(items).sort((a, b) => {
             let result = 0;
 

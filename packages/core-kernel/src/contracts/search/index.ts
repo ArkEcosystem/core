@@ -15,7 +15,7 @@ export type Options = {
     estimateTotalCount?: boolean;
 };
 
-export type ResultPage<T> = {
+export type ResultsPage<T> = {
     results: T[];
     totalCount: number;
     meta: { totalCountIsEstimate: boolean };

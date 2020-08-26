@@ -17,7 +17,7 @@ export class LocksController extends Controller {
     @Container.inject(Container.Identifiers.TransactionHistoryService)
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
-    public index(request: Hapi.Request): Contracts.Search.ResultPage<LockResource> {
+    public index(request: Hapi.Request): Contracts.Search.ResultsPage<LockResource> {
         const pagination = this.getQueryPagination(request.query);
         const ordering = request.query.orderBy as Contracts.Search.Ordering;
         const criteria = this.getQueryCriteria(request.query, lockCriteriaSchemaObject) as LockCriteria;
@@ -25,7 +25,7 @@ export class LocksController extends Controller {
         return this.lockSearchService.getLocksPage(pagination, ordering, criteria);
     }
 
-    public search(request: Hapi.Request): Contracts.Search.ResultPage<LockResource> {
+    public search(request: Hapi.Request): Contracts.Search.ResultsPage<LockResource> {
         const pagination = this.getQueryPagination(request.query);
         const ordering = request.query.orderBy as Contracts.Search.Ordering;
         const criteria = request.payload as LockCriteria;

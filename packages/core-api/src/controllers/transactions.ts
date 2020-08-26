@@ -95,13 +95,13 @@ export class TransactionsController extends Controller {
             pagination.offset + pagination.limit,
         );
         const results = transactions.map((t) => t.data);
-        const resultPage = {
+        const resultsPage = {
             results,
             totalCount: all.length,
             meta: { totalCountIsEstimate: false },
         };
 
-        return super.toPagination(resultPage, TransactionResource, !!request.query.transform);
+        return super.toPagination(resultsPage, TransactionResource, !!request.query.transform);
     }
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {

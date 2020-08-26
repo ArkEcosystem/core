@@ -42,7 +42,7 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         order: Contracts.Search.Ordering,
         page: Contracts.Search.Pagination,
         options?: Contracts.Search.Options,
-    ): Promise<Contracts.Search.ResultPage<TEntity>> {
+    ): Promise<Contracts.Search.ResultsPage<TEntity>> {
         const queryBuilder = this.createQueryBuilder().select();
         this.addWhere(queryBuilder, expression);
         this.addOrderBy(queryBuilder, order);

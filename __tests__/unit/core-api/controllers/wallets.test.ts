@@ -83,7 +83,7 @@ const wallet1LockResource1: Resources.LockResource = {
 
 describe("WalletsController.index", () => {
     it("should get criteria from query and return wallets page from WalletSearchService", () => {
-        const walletsPage: Contracts.Search.ResultPage<Resources.WalletResource> = {
+        const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
             results: [walletResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
@@ -114,7 +114,7 @@ describe("WalletsController.top", () => {
     // it is exact duplicate of WalletsController.index
 
     it("should get criteria from query and return wallets page from WalletSearchService", () => {
-        const walletsPage: Contracts.Search.ResultPage<Resources.WalletResource> = {
+        const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
             results: [walletResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
@@ -143,7 +143,7 @@ describe("WalletsController.top", () => {
 
 describe("WalletsController.search", () => {
     it("should get criteria from payload and return wallets page from WalletSearchService", () => {
-        const walletsPage: Contracts.Search.ResultPage<Resources.WalletResource> = {
+        const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
             results: [walletResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
@@ -206,7 +206,7 @@ describe("WalletsController.locks", () => {
     it("should get wallet id from pathname and criteria from query and return locks page from LockSearchService", () => {
         walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
 
-        const locksPage: Contracts.Search.ResultPage<Resources.LockResource> = {
+        const locksPage: Contracts.Search.ResultsPage<Resources.LockResource> = {
             results: [wallet1LockResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },

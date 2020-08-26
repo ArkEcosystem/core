@@ -1,6 +1,6 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { Options, OrCriteria, Ordering, OrEqualCriteria, OrNumericCriteria, Pagination, ResultPage } from "../search";
+import { Options, OrCriteria, Ordering, OrEqualCriteria, OrNumericCriteria, Pagination, ResultsPage } from "../search";
 import { OrTransactionCriteria } from "./transaction-history-service";
 
 export type BlockCriteria = {
@@ -36,7 +36,7 @@ export interface BlockHistoryService {
         ordering: Ordering,
         pagination: Pagination,
         options?: Options,
-    ): Promise<ResultPage<Interfaces.IBlockData>>;
+    ): Promise<ResultsPage<Interfaces.IBlockData>>;
 
     findOneByCriteriaJoinTransactions(
         blockCriteria: OrBlockCriteria,
@@ -54,5 +54,5 @@ export interface BlockHistoryService {
         ordering: Ordering,
         pagination: Pagination,
         options?: Options,
-    ): Promise<ResultPage<BlockDataWithTransactionData>>;
+    ): Promise<ResultsPage<BlockDataWithTransactionData>>;
 }

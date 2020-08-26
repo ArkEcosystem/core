@@ -75,13 +75,13 @@ export class PeersController extends Controller {
 
         results = results.slice(offset, offset + limit);
 
-        const resultPage = {
+        const resultsPage = {
             results,
             totalCount,
             meta: { totalCountIsEstimate: false },
         };
 
-        return super.toPagination(resultPage, PeerResource);
+        return super.toPagination(resultsPage, PeerResource);
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {

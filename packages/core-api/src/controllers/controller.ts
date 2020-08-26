@@ -108,12 +108,12 @@ export class Controller {
     }
 
     protected toPagination<T, R extends Resource>(
-        resultPage: Contracts.Search.ResultPage<T>,
+        resultsPage: Contracts.Search.ResultsPage<T>,
         transformer: new () => R,
         transform = true,
-    ): Contracts.Search.ResultPage<ReturnType<R["raw"]>> | Contracts.Search.ResultPage<ReturnType<R["transform"]>> {
-        const items = this.toCollection(resultPage.results, transformer, transform);
+    ): Contracts.Search.ResultsPage<ReturnType<R["raw"]>> | Contracts.Search.ResultsPage<ReturnType<R["transform"]>> {
+        const items = this.toCollection(resultsPage.results, transformer, transform);
 
-        return { ...resultPage, results: items };
+        return { ...resultsPage, results: items };
     }
 }

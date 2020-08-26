@@ -30,7 +30,7 @@ export class WalletsController extends Controller {
     @Container.inject(Container.Identifiers.TransactionHistoryService)
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
-    public index(request: Hapi.Request): Contracts.Search.ResultPage<WalletResource> {
+    public index(request: Hapi.Request): Contracts.Search.ResultsPage<WalletResource> {
         const pagination = this.getQueryPagination(request.query);
         const ordering = request.query.orderBy as Contracts.Search.Ordering;
         const criteria = this.getQueryCriteria(request.query, walletCriteriaSchemaObject) as WalletCriteria;
@@ -38,7 +38,7 @@ export class WalletsController extends Controller {
         return this.walletSearchService.getWalletsPage(pagination, ordering, criteria);
     }
 
-    public top(request: Hapi.Request): Contracts.Search.ResultPage<WalletResource> {
+    public top(request: Hapi.Request): Contracts.Search.ResultsPage<WalletResource> {
         const pagination = this.getQueryPagination(request.query);
         const ordering = request.query.orderBy as Contracts.Search.Ordering;
         const criteria = this.getQueryCriteria(request.query, walletCriteriaSchemaObject) as WalletCriteria;
@@ -46,7 +46,7 @@ export class WalletsController extends Controller {
         return this.walletSearchService.getWalletsPage(pagination, ordering, criteria);
     }
 
-    public search(request: Hapi.Request): Contracts.Search.ResultPage<WalletResource> {
+    public search(request: Hapi.Request): Contracts.Search.ResultsPage<WalletResource> {
         const pagination = this.getQueryPagination(request.query);
         const ordering = request.query.orderBy as Contracts.Search.Ordering;
         const criteria = request.payload as WalletCriteria;
@@ -65,7 +65,7 @@ export class WalletsController extends Controller {
         return { data: walletResource };
     }
 
-    public locks(request: Hapi.Request): Contracts.Search.ResultPage<LockResource> | Boom {
+    public locks(request: Hapi.Request): Contracts.Search.ResultsPage<LockResource> | Boom {
         const walletId = request.params.id as string;
         const walletResource = this.walletSearchService.getWallet(walletId);
 

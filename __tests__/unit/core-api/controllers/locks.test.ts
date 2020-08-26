@@ -57,7 +57,7 @@ const lockResource1: Resources.LockResource = {
 
 describe("LocksController.index", () => {
     it("should get criteria from query and return locks page from LockSearchService", () => {
-        const locksPage: Contracts.Search.ResultPage<Resources.LockResource> = {
+        const locksPage: Contracts.Search.ResultsPage<Resources.LockResource> = {
             results: [lockResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
@@ -86,7 +86,7 @@ describe("LocksController.index", () => {
 
 describe("LocksController.search", () => {
     it("should get criteria from payload and return locks page from LockSearchService", () => {
-        const locksPage: Contracts.Search.ResultPage<Resources.LockResource> = {
+        const locksPage: Contracts.Search.ResultsPage<Resources.LockResource> = {
             results: [lockResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },

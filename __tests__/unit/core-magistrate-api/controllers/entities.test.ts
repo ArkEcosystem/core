@@ -40,7 +40,7 @@ const entityResource1 = {
 
 describe("EntityController.index", () => {
     it("should get criteria from query and return page from EntitySearchService", () => {
-        const entitiesPage: Contracts.Search.ResultPage<Resources.EntityResource> = {
+        const entitiesPage: Contracts.Search.ResultsPage<Resources.EntityResource> = {
             results: [entityResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
@@ -70,7 +70,7 @@ describe("EntityController.index", () => {
 
 describe("EntityController.search", () => {
     it("should get criteria from payload and return page from EntitySearchService", () => {
-        const entitiesPage: Contracts.Search.ResultPage<Resources.EntityResource> = {
+        const entitiesPage: Contracts.Search.ResultsPage<Resources.EntityResource> = {
             results: [entityResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },

@@ -81,7 +81,7 @@ const delegate1VoterWalletResource1: Resources.WalletResource = {
 
 describe("DelegatesController.index", () => {
     it("should get criteria from query and return delegates page from DelegateSearchService", () => {
-        const delegatesPage: Contracts.Search.ResultPage<Resources.DelegateResource> = {
+        const delegatesPage: Contracts.Search.ResultsPage<Resources.DelegateResource> = {
             results: [delegateResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
@@ -110,7 +110,7 @@ describe("DelegatesController.index", () => {
 
 describe("DelegatesController.search", () => {
     it("should get criteria from payload and return delegates page from DelegateSearchService", () => {
-        const delegatesPage: Contracts.Search.ResultPage<Resources.DelegateResource> = {
+        const delegatesPage: Contracts.Search.ResultsPage<Resources.DelegateResource> = {
             results: [delegateResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
@@ -173,7 +173,7 @@ describe("DelegatesController.voters", () => {
     it("should get delegate id from pathname and criteria from query and return voter wallets from WalletSearchService", () => {
         delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource1);
 
-        const voterWalletsPage: Contracts.Search.ResultPage<Resources.WalletResource> = {
+        const voterWalletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
             results: [delegate1VoterWalletResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },

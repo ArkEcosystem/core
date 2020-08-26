@@ -39,7 +39,7 @@ export class DelegateSearchService {
         pagination: Contracts.Search.Pagination,
         ordering: Contracts.Search.Ordering,
         ...criterias: DelegateCriteria[]
-    ): Contracts.Search.ResultPage<DelegateResource> {
+    ): Contracts.Search.ResultsPage<DelegateResource> {
         ordering = [...ordering, { property: "rank", direction: "asc" }];
 
         return this.paginationService.getPage(pagination, ordering, this.getDelegates(...criterias));
