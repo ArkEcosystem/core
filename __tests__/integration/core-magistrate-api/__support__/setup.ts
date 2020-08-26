@@ -1,5 +1,5 @@
-import { Application, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Managers, Utils } from "@arkecosystem/crypto";
+import { Application, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Managers } from "@arkecosystem/crypto";
 import { ServiceProvider } from "@packages/core-magistrate-api/src";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { resolve } from "path";
