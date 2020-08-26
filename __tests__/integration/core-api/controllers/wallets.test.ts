@@ -35,6 +35,26 @@ describe("/wallets", () => {
         }
     });
 
+    it("should return wallets sorted by balance:desc when orderBy parameter is empty string", async () => {
+        const client = app.resolve(ApiInjectClient);
+        const response = await client.get("/wallets?orderBy=");
+
+        expect(response).toMatchObject({
+            status: 200,
+            body: {
+                data: expect.toBeArray(),
+            },
+        });
+
+        const wallets = response.body.data;
+        let prevBalance = Utils.BigNumber.make(wallets[0].balance);
+        for (const wallet of wallets.slice(1)) {
+            const walletBalance = Utils.BigNumber.make(wallet.balance);
+            expect(walletBalance.isLessThanEqual(prevBalance)).toBe(true);
+            prevBalance = walletBalance;
+        }
+    });
+
     it("should return wallets with balance less than 200000000000000", async () => {
         const client = app.resolve(ApiInjectClient);
         const response = await client.get("/wallets?balance.to=200000000000000");
