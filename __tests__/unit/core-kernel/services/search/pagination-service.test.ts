@@ -3,11 +3,13 @@ import { PaginationService } from "@arkecosystem/core-kernel/src/services/search
 
 const container = new Container.Container();
 
-describe("PaginationService.compareValues", () => {
-    it("should compare number values", () => {
+describe("PaginationService.compare", () => {
+    it("should compare number properties", () => {
         const paginationService = container.resolve(PaginationService);
-        const result = [1, 3, 2].sort((a, b) => paginationService.compareValues(a, b));
+        const result = [{ v: 1 }, { v: 3 }, { v: 2 }].sort((a, b) =>
+            paginationService.compare(a, b, [{ property: "v", direction: "asc" }]),
+        );
 
-        expect(result).toEqual([1, 2, 3]);
+        expect(result).toEqual([{ v: 1 }, { v: 2 }, { v: 3 }]);
     });
 });

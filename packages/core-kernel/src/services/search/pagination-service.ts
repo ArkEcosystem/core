@@ -2,7 +2,7 @@ import { Utils } from "@arkecosystem/crypto";
 
 import { Ordering, Pagination, ResultsPage } from "../../contracts/search";
 import { injectable } from "../../ioc";
-import { BigNumber, get } from "../../utils";
+import { get } from "../../utils";
 
 @injectable()
 export class PaginationService {
@@ -11,23 +11,7 @@ export class PaginationService {
     }
 
     public getPage<T>(pagination: Pagination, ordering: Ordering, items: Iterable<T>): ResultsPage<T> {
-        const total = Array.from(items).sort((a, b) => {
-            let result = 0;
-
-            for (const { direction, property } of ordering) {
-                if (direction === "asc") {
-                    result = this.compareValues(get(a, property), get(b, property));
-                } else {
-                    result = this.compareValues(get(b, property), get(a, property));
-                }
-
-                if (result !== 0) {
-                    break;
-                }
-            }
-
-            return result;
-        });
+        const total = Array.from(items).sort((a, b) => this.compare(a, b, ordering));
 
         return {
             results: total.slice(pagination.offset, pagination.offset + pagination.limit),
@@ -36,33 +20,47 @@ export class PaginationService {
         };
     }
 
-    public compareValues(a: unknown, b: unknown): number {
-        if (typeof a === "undefined" || typeof b === "undefined" || a === null || b === null) {
-            // todo: undefined or null should be sorted to the bottom regardless of direction (asc or desc)
-            return 0;
+    public compare<T>(a: T, b: T, ordering: Ordering): number {
+        for (const { property, direction } of ordering) {
+            let propertyA = get(a, property);
+            let propertyB = get(b, property);
+
+            // undefined are always at the end regardless of direction
+            if (typeof propertyA === "undefined" && typeof propertyB !== "undefined") return 1;
+            if (typeof propertyB === "undefined" && typeof propertyA !== "undefined") return -1;
+
+            // nulls are also at the end right before undefined
+            if (propertyA === null && propertyB !== null) return 1;
+            if (propertyB === null && propertyA !== null) return -1;
+
+            if (direction === "desc") {
+                [propertyA, propertyB] = [propertyB, propertyA];
+            }
+
+            if (
+                (typeof propertyA === "boolean" && typeof propertyB === "boolean") ||
+                (typeof propertyA === "string" && typeof propertyB === "string") ||
+                (typeof propertyA === "number" && typeof propertyB === "number") ||
+                (typeof propertyA === "bigint" && typeof propertyB === "bigint")
+            ) {
+                if (propertyA < propertyB) return -1;
+                if (propertyA > propertyB) return 1;
+                continue;
+            }
+
+            if (propertyA instanceof Utils.BigNumber && propertyB instanceof Utils.BigNumber) {
+                if (propertyA.isLessThan(propertyB)) return -1;
+                if (propertyA.isGreaterThan(propertyB)) return 1;
+                continue;
+            }
+
+            if (typeof propertyA !== typeof propertyB) {
+                throw new Error("Incompatible types");
+            } else {
+                throw new Error("Unexpected type");
+            }
         }
 
-        if (typeof a === "boolean" && typeof b === "boolean") {
-            if (a === b) return 0;
-            if (a === false) return -1;
-            if (a === true) return 1;
-        }
-
-        if (typeof a === "number" && typeof b === "number") {
-            return a - b;
-        }
-
-        if (
-            (typeof a === "number" || typeof a === "bigint" || a instanceof Utils.BigNumber) &&
-            (typeof b === "number" || typeof b === "bigint" || b instanceof Utils.BigNumber)
-        ) {
-            return BigNumber.make(a).comparedTo(BigNumber.make(b));
-        }
-
-        if (typeof a === "string" && typeof b === "string") {
-            return a.localeCompare(b);
-        }
-
-        throw new Error("Incompatible types");
+        return 0;
     }
 }
