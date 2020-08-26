@@ -34,11 +34,10 @@ export class WalletIndex implements Contracts.State.WalletIndex {
     }
 
     public set(key: string, wallet: Contracts.State.Wallet): void {
-        // Key for wallet already exists
-        if (this.walletByKey.has(key)) {
-            const existingWallet = this.walletByKey.get(key)!;
+        const existingWallet = this.walletByKey.get(key)!;
 
-            // Remove given key in case where key points to different wallet
+        // Remove given key in case where key points to different wallet
+        if (existingWallet) {
             const existingKeys = this.keysByWallet.get(existingWallet)!;
             existingKeys.delete(key);
         }
@@ -57,9 +56,9 @@ export class WalletIndex implements Contracts.State.WalletIndex {
     }
 
     public forget(key: string): void {
-        if (this.walletByKey.has(key)) {
-            const wallet = this.walletByKey.get(key)!;
+        const wallet = this.walletByKey.get(key)!;
 
+        if (wallet) {
             const existingKeys = this.keysByWallet.get(wallet)!;
 
             existingKeys.delete(key);
@@ -69,9 +68,9 @@ export class WalletIndex implements Contracts.State.WalletIndex {
     }
 
     public forgetWallet(wallet: Contracts.State.Wallet): void {
-        if (this.keysByWallet.has(wallet)) {
-            const keys = this.keysByWallet.get(wallet)!;
+        const keys = this.keysByWallet.get(wallet)!;
 
+        if (keys) {
             for (const key of keys) {
                 this.walletByKey.delete(key);
             }
