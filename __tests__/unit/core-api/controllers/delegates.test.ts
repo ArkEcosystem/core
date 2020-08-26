@@ -81,9 +81,9 @@ const delegate1VoterWalletResource1: Resources.WalletResource = {
 
 describe("DelegatesController.index", () => {
     it("should get criteria from query and return delegates page from DelegateSearchService", () => {
-        const delegatesPage: Contracts.Search.Page<Resources.DelegateResource> = {
-            totalCount: 1,
+        const delegatesPage: Contracts.Search.ResultPage<Resources.DelegateResource> = {
             results: [delegateResource1],
+            totalCount: 1,
             meta: { totalCountIsEstimate: false },
         };
         delegateSearchService.getDelegatesPage.mockReturnValueOnce(delegatesPage);
@@ -110,9 +110,9 @@ describe("DelegatesController.index", () => {
 
 describe("DelegatesController.search", () => {
     it("should get criteria from payload and return delegates page from DelegateSearchService", () => {
-        const delegatesPage: Contracts.Search.Page<Resources.DelegateResource> = {
-            totalCount: 1,
+        const delegatesPage: Contracts.Search.ResultPage<Resources.DelegateResource> = {
             results: [delegateResource1],
+            totalCount: 1,
             meta: { totalCountIsEstimate: false },
         };
         delegateSearchService.getDelegatesPage.mockReturnValueOnce(delegatesPage);
@@ -173,9 +173,9 @@ describe("DelegatesController.voters", () => {
     it("should get delegate id from pathname and criteria from query and return voter wallets from WalletSearchService", () => {
         delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource1);
 
-        const voterWalletsPage: Contracts.Search.Page<Resources.WalletResource> = {
-            totalCount: 1,
+        const voterWalletsPage: Contracts.Search.ResultPage<Resources.WalletResource> = {
             results: [delegate1VoterWalletResource1],
+            totalCount: 1,
             meta: { totalCountIsEstimate: false },
         };
         walletSearchService.getActiveWalletsPage.mockReturnValueOnce(voterWalletsPage);
@@ -241,9 +241,9 @@ describe("DelegatesController.blocks", () => {
         });
 
         blockHistoryService.listByCriteria.mockResolvedValueOnce({
-            count: 1,
-            rows: [block1],
-            countIsEstimate: true,
+            results: [block1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
 
         const delegatesController = container.resolve(DelegatesController);
@@ -292,9 +292,9 @@ describe("DelegatesController.blocks", () => {
         });
 
         blockHistoryService.listByCriteriaJoinTransactions.mockResolvedValueOnce({
-            count: 1,
-            rows: [{ data: block1, transactions: [] }],
-            countIsEstimate: true,
+            results: [{ data: block1, transactions: [] }],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
 
         const delegatesController = container.resolve(DelegatesController);

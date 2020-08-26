@@ -40,10 +40,10 @@ const entityResource1 = {
 
 describe("EntityController.index", () => {
     it("should get criteria from query and return page from EntitySearchService", () => {
-        const entitiesPage: Contracts.Search.Page<Resources.EntityResource> = {
+        const entitiesPage: Contracts.Search.ResultPage<Resources.EntityResource> = {
+            results: [entityResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
-            results: [entityResource1],
         };
 
         entitySearchService.getEntitiesPage.mockReturnValueOnce(entitiesPage);
@@ -70,10 +70,10 @@ describe("EntityController.index", () => {
 
 describe("EntityController.search", () => {
     it("should get criteria from payload and return page from EntitySearchService", () => {
-        const entitiesPage: Contracts.Search.Page<Resources.EntityResource> = {
+        const entitiesPage: Contracts.Search.ResultPage<Resources.EntityResource> = {
+            results: [entityResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
-            results: [entityResource1],
         };
 
         entitySearchService.getEntitiesPage.mockReturnValueOnce(entitiesPage);

@@ -57,10 +57,10 @@ const lockResource1: Resources.LockResource = {
 
 describe("LocksController.index", () => {
     it("should get criteria from query and return locks page from LockSearchService", () => {
-        const locksPage: Contracts.Search.Page<Resources.LockResource> = {
+        const locksPage: Contracts.Search.ResultPage<Resources.LockResource> = {
+            results: [lockResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
-            results: [lockResource1],
         };
         lockSearchService.getLocksPage.mockReturnValueOnce(locksPage);
 
@@ -86,10 +86,10 @@ describe("LocksController.index", () => {
 
 describe("LocksController.search", () => {
     it("should get criteria from payload and return locks page from LockSearchService", () => {
-        const locksPage: Contracts.Search.Page<Resources.LockResource> = {
+        const locksPage: Contracts.Search.ResultPage<Resources.LockResource> = {
+            results: [lockResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
-            results: [lockResource1],
         };
         lockSearchService.getLocksPage.mockReturnValueOnce(locksPage);
 
@@ -162,9 +162,9 @@ describe("LocksController.unlocked", () => {
         });
 
         transactionHistoryService.listByCriteria.mockResolvedValueOnce({
-            count: 2,
-            rows: [lock1Claim, lock2Refund],
-            countIsEstimate: true,
+            results: [lock1Claim, lock2Refund],
+            totalCount: 2,
+            meta: { totalCountIsEstimate: true },
         });
 
         const locksController = container.resolve(LocksController);

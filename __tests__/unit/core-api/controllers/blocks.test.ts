@@ -1,9 +1,10 @@
 import "jest-extended";
 
+import { Contracts } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 import { BlocksController } from "@packages/core-api/src/controllers/blocks";
 import { Block } from "@packages/core-database/src/models";
-import {Application, Container} from "@packages/core-kernel";
+import { Application, Container } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { Wallets } from "@packages/core-state";
@@ -15,18 +16,26 @@ import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
 
+const jestfn = <T extends (...args: unknown[]) => unknown>(
+    implementation?: (...args: Parameters<T>) => ReturnType<T>,
+) => {
+    return jest.fn(implementation);
+};
+
 let app: Application;
 let controller: BlocksController;
 let walletRepository: Wallets.WalletRepository;
 
 const blockHistoryService = {
-    findOneByCriteria: jest.fn(),
-    listByCriteria: jest.fn(),
-    listByCriteriaJoinTransactions: jest.fn(),
-    findOneByCriteriaJoinTransactions: jest.fn(),
+    findOneByCriteria: jestfn<Contracts.Shared.BlockHistoryService["findOneByCriteria"]>(),
+    listByCriteria: jestfn<Contracts.Shared.BlockHistoryService["listByCriteria"]>(),
+    listByCriteriaJoinTransactions: jestfn<Contracts.Shared.BlockHistoryService["listByCriteriaJoinTransactions"]>(),
+    findOneByCriteriaJoinTransactions: jestfn<
+        Contracts.Shared.BlockHistoryService["findOneByCriteriaJoinTransactions"]
+    >(),
 };
 const transactionHistoryService = {
-    listByCriteria: jest.fn(),
+    listByCriteria: jestfn<Contracts.Shared.TransactionHistoryService["listByCriteria"]>(),
 };
 
 beforeEach(() => {
@@ -135,9 +144,9 @@ describe("BlocksController", () => {
     describe("index", () => {
         it("should return last blocks from store", async () => {
             blockHistoryService.listByCriteria.mockResolvedValue({
-                rows: [mockBlock],
-                count: 1,
-                countIsEstimate: false,
+                results: [mockBlock],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const request: Hapi.Request = {
@@ -158,9 +167,9 @@ describe("BlocksController", () => {
 
         it("should return last block from store - transformed", async () => {
             blockHistoryService.listByCriteriaJoinTransactions.mockResolvedValue({
-                rows: [{ data: mockBlock, transactions: [] }],
-                count: 1,
-                countIsEstimate: false,
+                results: [{ data: mockBlock, transactions: [] }],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const request: Hapi.Request = {
@@ -374,9 +383,9 @@ describe("BlocksController", () => {
 
             blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock);
             transactionHistoryService.listByCriteria.mockResolvedValue({
-                rows: [transaction.data],
-                count: 1,
-                countIsEstimate: false,
+                results: [transaction.data],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const request: Hapi.Request = {
@@ -435,9 +444,9 @@ describe("BlocksController", () => {
     describe("search", () => {
         it("should return found blocks from store", async () => {
             blockHistoryService.listByCriteria.mockResolvedValue({
-                rows: [mockBlock],
-                count: 1,
-                countIsEstimate: false,
+                results: [mockBlock],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const request: Hapi.Request = {
@@ -459,14 +468,9 @@ describe("BlocksController", () => {
 
         it("should return found blocks from store using transform", async () => {
             blockHistoryService.listByCriteriaJoinTransactions.mockResolvedValue({
-                rows: [
-                    {
-                        data: mockBlock,
-                        transactions: [],
-                    },
-                ],
-                count: 1,
-                countIsEstimate: false,
+                results: [{ data: mockBlock, transactions: [] }],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const request: Hapi.Request = {

@@ -83,10 +83,10 @@ const wallet1LockResource1: Resources.LockResource = {
 
 describe("WalletsController.index", () => {
     it("should get criteria from query and return wallets page from WalletSearchService", () => {
-        const walletsPage: Contracts.Search.Page<Resources.WalletResource> = {
+        const walletsPage: Contracts.Search.ResultPage<Resources.WalletResource> = {
+            results: [walletResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
-            results: [walletResource1],
         };
         walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
 
@@ -114,10 +114,10 @@ describe("WalletsController.top", () => {
     // it is exact duplicate of WalletsController.index
 
     it("should get criteria from query and return wallets page from WalletSearchService", () => {
-        const walletsPage: Contracts.Search.Page<Resources.WalletResource> = {
+        const walletsPage: Contracts.Search.ResultPage<Resources.WalletResource> = {
+            results: [walletResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
-            results: [walletResource1],
         };
         walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
 
@@ -143,10 +143,10 @@ describe("WalletsController.top", () => {
 
 describe("WalletsController.search", () => {
     it("should get criteria from payload and return wallets page from WalletSearchService", () => {
-        const walletsPage: Contracts.Search.Page<Resources.WalletResource> = {
+        const walletsPage: Contracts.Search.ResultPage<Resources.WalletResource> = {
+            results: [walletResource1],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
-            results: [walletResource1],
         };
         walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
 
@@ -206,9 +206,9 @@ describe("WalletsController.locks", () => {
     it("should get wallet id from pathname and criteria from query and return locks page from LockSearchService", () => {
         walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
 
-        const locksPage: Contracts.Search.Page<Resources.LockResource> = {
-            totalCount: 1,
+        const locksPage: Contracts.Search.ResultPage<Resources.LockResource> = {
             results: [wallet1LockResource1],
+            totalCount: 1,
             meta: { totalCountIsEstimate: false },
         };
         lockSearchService.getWalletLocksPage.mockReturnValueOnce(locksPage);
@@ -268,9 +268,9 @@ describe("WalletsController.transactions", () => {
         });
 
         transactionHistoryService.listByCriteria.mockResolvedValueOnce({
-            count: 1,
-            rows: [tx1],
-            countIsEstimate: true,
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
 
         const walletsController = container.resolve(WalletsController);
@@ -332,9 +332,9 @@ describe("WalletsController.transactions", () => {
         });
 
         transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
-            count: 1,
-            rows: [{ data: tx1, block: tx1Block }],
-            countIsEstimate: true,
+            results: [{ data: tx1, block: tx1Block }],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
 
         const walletsController = container.resolve(WalletsController);
@@ -414,9 +414,9 @@ describe("WalletsController.transactionsSent", () => {
         });
 
         transactionHistoryService.listByCriteria.mockResolvedValueOnce({
-            count: 1,
-            rows: [tx1],
-            countIsEstimate: true,
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
 
         const walletsController = container.resolve(WalletsController);
@@ -457,8 +457,8 @@ describe("WalletsController.transactionsSent", () => {
         );
 
         expect(result).toEqual({
-            totalCount: 1,
             results: [tx1],
+            totalCount: 1,
             meta: { totalCountIsEstimate: true },
         });
     });
@@ -478,9 +478,9 @@ describe("WalletsController.transactionsSent", () => {
         });
 
         transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
-            count: 1,
-            rows: [{ data: tx1, block: tx1Block }],
-            countIsEstimate: true,
+            results: [{ data: tx1, block: tx1Block }],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
 
         const walletsController = container.resolve(WalletsController);
@@ -581,9 +581,9 @@ describe("WalletsController.transactionsReceived", () => {
         });
 
         transactionHistoryService.listByCriteria.mockResolvedValueOnce({
-            count: 1,
-            rows: [tx1],
-            countIsEstimate: true,
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
 
         const walletsController = container.resolve(WalletsController);
@@ -645,9 +645,9 @@ describe("WalletsController.transactionsReceived", () => {
         });
 
         transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
-            count: 1,
-            rows: [{ data: tx1, block: tx1Block }],
-            countIsEstimate: true,
+            results: [{ data: tx1, block: tx1Block }],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
 
         const walletsController = container.resolve(WalletsController);
@@ -688,8 +688,8 @@ describe("WalletsController.transactionsReceived", () => {
         );
 
         expect(result).toEqual({
-            totalCount: 1,
             results: [tx1],
+            totalCount: 1,
             meta: { totalCountIsEstimate: true },
         });
     });
@@ -727,9 +727,9 @@ describe("WalletsController.votes", () => {
         });
 
         transactionHistoryService.listByCriteria.mockResolvedValueOnce({
-            count: 1,
-            rows: [tx1],
-            countIsEstimate: true,
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
 
         const walletsController = container.resolve(WalletsController);
@@ -770,8 +770,8 @@ describe("WalletsController.votes", () => {
         );
 
         expect(result).toEqual({
-            totalCount: 1,
             results: [tx1],
+            totalCount: 1,
             meta: { totalCountIsEstimate: true },
         });
     });
@@ -791,9 +791,9 @@ describe("WalletsController.votes", () => {
         });
 
         transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
-            count: 1,
-            rows: [{ data: tx1, block: tx1Block }],
-            countIsEstimate: true,
+            results: [{ data: tx1, block: tx1Block }],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
 
         const walletsController = container.resolve(WalletsController);
@@ -834,8 +834,8 @@ describe("WalletsController.votes", () => {
         );
 
         expect(result).toEqual({
-            totalCount: 1,
             results: [tx1],
+            totalCount: 1,
             meta: { totalCountIsEstimate: true },
         });
     });
@@ -860,7 +860,11 @@ describe("WalletsController.votes", () => {
     it("should return empty page when wallet is cold wallet", async () => {
         walletSearchService.getWallet.mockReturnValueOnce(walletResource2Cold);
 
-        const emptyPage = { results: [], totalCount: 0, meta: { totalCountIsEstimate: false } };
+        const emptyPage = {
+            results: [],
+            totalCount: 0,
+            meta: { totalCountIsEstimate: false },
+        };
         paginationService.getEmptyPage.mockReturnValueOnce(emptyPage);
 
         const walletsController = container.resolve(WalletsController);
