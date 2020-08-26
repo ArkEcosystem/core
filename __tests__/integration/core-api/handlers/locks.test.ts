@@ -73,9 +73,9 @@ describe("API 2.0 - Locks", () => {
             );
 
             jest.spyOn(transactionRepository, "listByExpression").mockResolvedValueOnce({
-                rows: [{ ...refundTransaction.data, serialized: refundTransaction.serialized } as any],
-                count: 1,
-                countIsEstimate: false,
+                results: [{ ...refundTransaction.data, serialized: refundTransaction.serialized } as any],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const response = await api.request("POST", "locks/unlocked", {
