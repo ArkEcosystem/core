@@ -144,7 +144,7 @@ describe("BlocksController", () => {
     describe("index", () => {
         it("should return last blocks from store", async () => {
             blockHistoryService.listByCriteria.mockResolvedValue({
-                results: [mockBlock],
+                results: [mockBlock as any],
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             });
@@ -167,7 +167,7 @@ describe("BlocksController", () => {
 
         it("should return last block from store - transformed", async () => {
             blockHistoryService.listByCriteriaJoinTransactions.mockResolvedValue({
-                results: [{ data: mockBlock, transactions: [] }],
+                results: [{ data: mockBlock, transactions: [] } as any],
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             });
@@ -285,7 +285,7 @@ describe("BlocksController", () => {
 
     describe("show", () => {
         it("should return found block from store", async () => {
-            blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock);
+            blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock as any);
 
             const request: Hapi.Request = {
                 params: {
@@ -303,7 +303,7 @@ describe("BlocksController", () => {
         });
 
         it("should return found block from store and last height is defined", async () => {
-            blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock);
+            blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock as any);
 
             const mockBlockchain = app.get(Container.Identifiers.BlockchainService);
             // @ts-ignore
@@ -339,7 +339,7 @@ describe("BlocksController", () => {
 
         it("should return found block from store using transform option", async () => {
             blockHistoryService.findOneByCriteriaJoinTransactions.mockResolvedValueOnce({
-                data: mockBlock,
+                data: mockBlock as any,
                 transactions: [],
             });
 
@@ -381,7 +381,7 @@ describe("BlocksController", () => {
                 .nonce("1")
                 .build();
 
-            blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock);
+            blockHistoryService.findOneByCriteria.mockResolvedValueOnce(mockBlock as any);
             transactionHistoryService.listByCriteria.mockResolvedValue({
                 results: [transaction.data],
                 totalCount: 1,
@@ -444,7 +444,7 @@ describe("BlocksController", () => {
     describe("search", () => {
         it("should return found blocks from store", async () => {
             blockHistoryService.listByCriteria.mockResolvedValue({
-                results: [mockBlock],
+                results: [mockBlock as any],
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             });
@@ -468,7 +468,7 @@ describe("BlocksController", () => {
 
         it("should return found blocks from store using transform", async () => {
             blockHistoryService.listByCriteriaJoinTransactions.mockResolvedValue({
-                results: [{ data: mockBlock, transactions: [] }],
+                results: [{ data: mockBlock, transactions: [] } as any],
                 totalCount: 1,
                 meta: { totalCountIsEstimate: false },
             });
