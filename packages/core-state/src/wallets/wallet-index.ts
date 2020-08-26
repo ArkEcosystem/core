@@ -2,11 +2,11 @@ import { Contracts } from "@arkecosystem/core-kernel";
 
 export class WalletIndex implements Contracts.State.WalletIndex {
     private walletByKey: Map<string, Contracts.State.Wallet>;
-    private keysByWallet: Map<Contracts.State.Wallet, string[]>;
+    private keysByWallet: Map<Contracts.State.Wallet, Set<string>>;
 
     public constructor(public readonly indexer: Contracts.State.WalletIndexer) {
         this.walletByKey = new Map<string, Contracts.State.Wallet>();
-        this.keysByWallet = new Map<Contracts.State.Wallet, string[]>();
+        this.keysByWallet = new Map<Contracts.State.Wallet, Set<string>>();
     }
 
     public entries(): ReadonlyArray<[string, Contracts.State.Wallet]> {
@@ -34,22 +34,25 @@ export class WalletIndex implements Contracts.State.WalletIndex {
     }
 
     public set(key: string, wallet: Contracts.State.Wallet): void {
-        // Key already exists
+        // Key for wallet already exists
         if (this.walletByKey.has(key)) {
             const existingWallet = this.walletByKey.get(key)!;
 
             // Remove given key in case where key points to different wallet
             const existingKeys = this.keysByWallet.get(existingWallet)!;
-            this.keysByWallet.set(existingWallet, [...existingKeys.filter((x) => x !== key)]);
+            existingKeys.delete(key);
         }
 
         this.walletByKey.set(key, wallet);
 
         if (this.keysByWallet.has(wallet)) {
             const existingKeys = this.keysByWallet.get(wallet)!;
-            this.keysByWallet.set(wallet, [...existingKeys, key]);
+            existingKeys.add(key);
         } else {
-            this.keysByWallet.set(wallet, [key]);
+            const keys: Set<string> = new Set();
+            keys.add(key);
+
+            this.keysByWallet.set(wallet, keys);
         }
     }
 
@@ -57,12 +60,9 @@ export class WalletIndex implements Contracts.State.WalletIndex {
         if (this.walletByKey.has(key)) {
             const wallet = this.walletByKey.get(key)!;
 
-            const keys = this.keysByWallet.get(wallet)!;
+            const existingKeys = this.keysByWallet.get(wallet)!;
 
-            this.keysByWallet.set(
-                wallet,
-                keys.filter((x) => x !== key),
-            );
+            existingKeys.delete(key);
 
             this.walletByKey.delete(key);
         }
