@@ -4,7 +4,7 @@ export class WalletIndex implements Contracts.State.WalletIndex {
     private walletByKey: Map<string, Contracts.State.Wallet>;
     private keysByWallet: Map<Contracts.State.Wallet, Set<string>>;
 
-    public constructor(public readonly indexer: Contracts.State.WalletIndexer) {
+    public constructor(public readonly indexer: Contracts.State.WalletIndexer, public readonly autoIndex: boolean) {
         this.walletByKey = new Map<string, Contracts.State.Wallet>();
         this.keysByWallet = new Map<Contracts.State.Wallet, Set<string>>();
     }
@@ -84,7 +84,7 @@ export class WalletIndex implements Contracts.State.WalletIndex {
     }
 
     public clone(): Contracts.State.WalletIndex {
-        const walletIndex = new WalletIndex(this.indexer);
+        const walletIndex = new WalletIndex(this.indexer, this.autoIndex);
 
         for (const [key, value] of this.entries()) {
             walletIndex.set(key, value.clone());
