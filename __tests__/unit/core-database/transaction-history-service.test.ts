@@ -175,9 +175,9 @@ describe("TransactionHistoryService.listByCriteria", () => {
         expect(transactionRepository.listByExpression).toBeCalledWith(expression, ordering, pagination, undefined);
         expect(modelConverter.getTransactionData).toBeCalledWith([model1, model2]);
         expect(result).toEqual({
-            rows: [data1, data2],
-            count: 2,
-            countIsEstimate: false,
+            results: [data1, data2],
+            totalCount: 2,
+            meta: { totalCountIsEstimate: false },
         });
     });
 });
