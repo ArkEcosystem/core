@@ -61,33 +61,35 @@ export const createOrderingSchema = (schemaObject: SchemaObject, wildcardPaths: 
     const exactPaths = getObjectPaths(schemaObject);
 
     return Joi.object({
-        orderBy: Joi.custom(
-            (value): Contracts.Search.Ordering => {
-                if (value === "") {
-                    return []; // or throw?
+        orderBy: Joi.custom((value, helpers) => {
+            if (value === "") {
+                return [];
+            }
+
+            const ordering: Contracts.Search.Ordering = [];
+
+            for (const item of value.split(",")) {
+                const pair = item.split(":");
+                const property = String(pair[0]);
+                const direction = pair.length === 1 ? "asc" : pair[1];
+
+                if (!exactPaths.includes(property) && !wildcardPaths.find((wp) => property.startsWith(`${wp}.`))) {
+                    return helpers.message({
+                        custom: `Unknown orderBy property '${property}'`,
+                    });
                 }
 
-                return value.split(",").map((item) => {
-                    const pair = item.split(":");
-                    const property = pair[0];
-                    const direction = pair.length === 1 ? "asc" : pair[1];
+                if (direction !== "asc" && direction !== "desc") {
+                    return helpers.message({
+                        custom: `Unexpected orderBy direction '${direction}' for property '${property}'`,
+                    });
+                }
 
-                    if (direction !== "asc" && direction !== "desc") {
-                        throw new Error(`Unexpected order direction ${direction}`);
-                    }
+                ordering.push({ property, direction: direction as "asc" | "desc" });
+            }
 
-                    if (exactPaths.includes(property)) {
-                        return { property, direction };
-                    }
-
-                    if (wildcardPaths.find((wp) => property.startsWith(`${wp}.`))) {
-                        return { property, direction };
-                    }
-
-                    throw new Error(`Unknown order property path ${property}`);
-                });
-            },
-        ).default([]),
+            return ordering;
+        }).default([]),
     });
 };
 
