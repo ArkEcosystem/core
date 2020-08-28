@@ -11,7 +11,7 @@ afterAll(async () => await support.tearDown());
 
 describe("Transaction Forging - Entity registration", () => {
     describe("Signed with 1 Passphrase", () => {
-        it.only("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
+        it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Registering all possible entity types/subTypes
             const registrations = [];
             let nonce = Utils.BigNumber.make(2);
