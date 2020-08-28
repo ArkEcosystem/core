@@ -13,20 +13,20 @@ export const validRegisters: Interfaces.IEntityAsset[] = [
         },
     },
     {
-        type: EntityType.Business,
+        type: 255,
         subType: 45,
         action: EntityAction.Register,
         data: {
-            name: "my_business_1",
+            name: "my_custom_1",
             ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
         },
     },
     {
-        type: EntityType.Developer,
+        type: 221,
         subType: 255,
         action: EntityAction.Register,
         data: {
-            name: "my_business_1",
+            name: "my_custom_2",
             ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
         },
     },

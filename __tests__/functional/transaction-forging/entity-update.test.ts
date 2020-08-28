@@ -12,6 +12,7 @@ afterAll(async () => await support.tearDown());
 describe("Transaction Forging - Entity update", () => {
     const staticFeeUpdate = 500000000;
     const subType = 9; // subType is valid between 0 and 255
+    const type = 255; // type is valid between 0 and 255
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             for (let i = 0; i < 30; i++) {
@@ -20,7 +21,7 @@ describe("Transaction Forging - Entity update", () => {
 
             // Registering a desktop wallet plugin
             const entityRegistration = TransactionFactory.entity({
-                type: Enums.EntityType.Plugin,
+                type,
                 subType,
                 action: Enums.EntityAction.Register,
                 data: {
@@ -37,7 +38,7 @@ describe("Transaction Forging - Entity update", () => {
 
             // Updating the desktop wallet plugin
             const entityUpdate = TransactionFactory.entity({
-                type: Enums.EntityType.Plugin,
+                type,
                 subType,
                 action: Enums.EntityAction.Update,
                 registrationId: entityRegistration.id,

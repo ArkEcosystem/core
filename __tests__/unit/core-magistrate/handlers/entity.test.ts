@@ -340,7 +340,7 @@ describe("Entity handler", () => {
 
                 // entity exists and is not resigned, but has not the same type as the resign asset
                 const entityNotResigned = {
-                    type: asset.type === EntityType.Developer ? EntityType.Plugin : EntityType.Developer,
+                    type: (asset.type + 1) % 255, // different type but still in the range [0, 255]
                     subType: asset.subType,
                     data: { name: "random name", description: "the current entity" },
                 };
@@ -554,7 +554,7 @@ describe("Entity handler", () => {
 
                 // entity exists and is not resigned, but has not the same type as the update asset
                 const entityNotResigned = {
-                    type: asset.type === EntityType.Developer ? EntityType.Plugin : EntityType.Developer,
+                    type: (asset.type + 1) % 255, // different type but still in the range [0, 255]
                     subType: asset.subType,
                     data: { name: "random name", description: "the current entity" },
                 };

@@ -29,6 +29,38 @@ export const invalidRegisters: Interfaces.IEntityAsset[] = [
         data: {}, // should have at least a name
     },
     {
+        type: 256, // max 255
+        subType: 1,
+        action: Enums.EntityAction.Register,
+        data: {
+            name: "validname",
+        },
+    },
+    {
+        type: -1, // min 0
+        subType: 1,
+        action: Enums.EntityAction.Register,
+        data: {
+            name: "validname",
+        },
+    },
+    {
+        type: Enums.EntityType.Plugin,
+        subType: 256, // max 255
+        action: Enums.EntityAction.Register,
+        data: {
+            name: "validname",
+        },
+    },
+    {
+        type: Enums.EntityType.Plugin,
+        subType: -1, // min 0
+        action: Enums.EntityAction.Register,
+        data: {
+            name: "validname",
+        },
+    },
+    {
         type: Enums.EntityType.Plugin,
         subType: 1,
         action: Enums.EntityAction.Register,

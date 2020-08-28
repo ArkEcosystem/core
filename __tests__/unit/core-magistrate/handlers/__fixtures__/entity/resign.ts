@@ -11,7 +11,14 @@ export const validResigns: Interfaces.IEntityAsset[] = [
         data: {},
     },
     {
-        type: EntityType.Business,
+        type: 43,
+        subType: 255,
+        action: EntityAction.Resign,
+        registrationId: "521e69c181e53ec1e4efbe5b67509b70548debf23df150bb7ca97e233be9dc6b",
+        data: {},
+    },
+    {
+        type: 255,
         subType: 255,
         action: EntityAction.Resign,
         registrationId: "521e69c181e53ec1e4efbe5b67509b70548debf23df150bb7ca97e233be9dc6b",

@@ -29,6 +29,42 @@ export const invalidUpdates: Interfaces.IEntityAsset[] = [
             name: "name cannot be updated", // name is the only prop that cannot be updated
         },
     },
+    {
+        type: Enums.EntityType.Plugin,
+        subType: 256, // max 255
+        action: Enums.EntityAction.Update,
+        registrationId: "e77a1d1d080ebce113dd27e1cb0a242ec8600fb72cd62ace4e46148bee1d3acc",
+        data: {
+            ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
+        },
+    },
+    {
+        type: Enums.EntityType.Plugin,
+        subType: -1, // min 0
+        action: Enums.EntityAction.Update,
+        registrationId: "e77a1d1d080ebce113dd27e1cb0a242ec8600fb72cd62ace4e46148bee1d3acc",
+        data: {
+            ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
+        },
+    },
+    {
+        type: 256, // max 255
+        subType: 1,
+        action: Enums.EntityAction.Update,
+        registrationId: "e77a1d1d080ebce113dd27e1cb0a242ec8600fb72cd62ace4e46148bee1d3acc",
+        data: {
+            ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
+        },
+    },
+    {
+        type: -1, // min 0
+        subType: 1,
+        action: Enums.EntityAction.Update,
+        registrationId: "e77a1d1d080ebce113dd27e1cb0a242ec8600fb72cd62ace4e46148bee1d3acc",
+        data: {
+            ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
+        },
+    },
     ...invalidAssetData.map(data => ({
         type: Enums.EntityType.Developer,
         subType: 0,

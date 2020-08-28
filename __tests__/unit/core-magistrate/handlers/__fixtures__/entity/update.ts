@@ -13,7 +13,16 @@ export const validUpdates: Interfaces.IEntityAsset[] = [
         },
     },
     {
-        type: EntityType.Business,
+        type: 33,
+        subType: 255,
+        action: EntityAction.Update,
+        registrationId: "521e69c181e53ec1e4efbe5b67509b70548debf23df150bb7ca97e233be9dc6b",
+        data: {
+            ipfsData: "Qmbw6QmF6ttZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
+        },
+    },
+    {
+        type: 255,
         subType: 255,
         action: EntityAction.Update,
         registrationId: "521e69c181e53ec1e4efbe5b67509b70548debf23df150bb7ca97e233be9dc6b",

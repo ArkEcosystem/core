@@ -11,7 +11,7 @@ afterAll(async () => await support.tearDown());
 
 describe("Transaction Forging - Entity registration", () => {
     describe("Signed with 1 Passphrase", () => {
-        it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
+        it.only("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Registering all possible entity types/subTypes
             const registrations = [];
             let nonce = Utils.BigNumber.make(2);
@@ -21,6 +21,8 @@ describe("Transaction Forging - Entity registration", () => {
                 { type: Enums.EntityType.Developer, subType: 6, name: "dvloper" },
                 { type: Enums.EntityType.Plugin, subType: 255, name: "plgincore" },
                 { type: Enums.EntityType.Plugin, subType: 134, name: "plgindskt" },
+                { type: 255, subType: 134, name: "type255shouldwork" },
+                { type: 174, subType: 33, name: "type174shouldwork" },
             ]) {
                 registrations.push(
                     TransactionFactory.entity({ type, subType, action: Enums.EntityAction.Register, data: { name } })
@@ -76,6 +78,44 @@ describe("Transaction Forging - Entity registration", () => {
                 action: Enums.EntityAction.Register,
                 data: {
                     name: "\u0008name",
+                },
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(entityRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(entityRegistration.id).not.toBeForged();
+            await expect(entityRegistration).not.entityRegistered();
+        });
+
+        it("should reject entity registration, because entity type is > 255 [Signed with 1 Passphrase]", async () => {
+            // entity registration
+            const entityRegistration = TransactionFactory.entity({
+                type: 256,
+                subType: 1,
+                action: Enums.EntityAction.Register,
+                data: {
+                    name: "name256",
+                },
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(entityRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(entityRegistration.id).not.toBeForged();
+            await expect(entityRegistration).not.entityRegistered();
+        });
+
+        it("should reject entity registration, because entity sub type is > 255 [Signed with 1 Passphrase]", async () => {
+            // entity registration
+            const entityRegistration = TransactionFactory.entity({
+                type: 1,
+                subType: 256,
+                action: Enums.EntityAction.Register,
+                data: {
+                    name: "namesubtype256",
                 },
             })
                 .withPassphrase(secrets[0])

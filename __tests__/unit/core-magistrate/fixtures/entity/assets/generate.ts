@@ -1,7 +1,8 @@
 import { IEntityAsset } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
 import { EntityAction, EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
 
-const allTypes = [EntityType.Business, EntityType.Bridgechain, EntityType.Developer, EntityType.Plugin];
+// valid types already assigned (in enum EntityType) + other "custom" but valid types (in range 0-255)
+const allTypes = [EntityType.Business, EntityType.Bridgechain, EntityType.Developer, EntityType.Plugin, 99, 255];
 const allSubTypes = [0, 3, 77, 255]; // a few valid subTypes containing min (0) and max (255)
 const allActions = [EntityAction.Register, EntityAction.Update, EntityAction.Resign];
 const registrationIds = [undefined, "c8b924ec44ac3341a110d440f630149e97c8c9c630dff5040466834096eba7f9"];
