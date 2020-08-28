@@ -37,7 +37,7 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
     }
 
     public dynamicFee(context: TransactionInterfaces.IDynamicFeeContext): Utils.BigNumber {
-        return this.getConstructor().staticFee(context);
+        return this.getConstructor().staticFee({ data: context.transaction.data });
     }
 
     public walletAttributes(): ReadonlyArray<string> {
