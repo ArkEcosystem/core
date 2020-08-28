@@ -173,7 +173,7 @@ describe("Wallet Repository", () => {
     });
 
     it("should create a wallet if one is not found during public key lookup", () => {
-        const firstNotYetExistingPublicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
+        const firstNotYetExistingPublicKey = "0235d486fea0193cbe77e955ab175b8f6eb9eaf784de689beffbd649989f5d6be3";
         expect(() => walletRepo.findByPublicKey(firstNotYetExistingPublicKey)).not.toThrow();
         expect(walletRepo.findByPublicKey(firstNotYetExistingPublicKey)).toBeInstanceOf(Wallet);
 
@@ -182,7 +182,7 @@ describe("Wallet Repository", () => {
          * Looking up a non-existing publicKey by findByPublicKey creates a wallet.
          * However looking up a non-existing publicKey using findByIndex() does not.
          */
-        const secondNotYetExistingPublicKey = "32337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
+        const secondNotYetExistingPublicKey = "03a46f2547d20b47003c1c376788db5a54d67264df2ae914f70bf453b6a1fa1b3a";
         expect(() => walletRepo.findByIndex("publicKeys", secondNotYetExistingPublicKey)).toThrow();
     });
 
@@ -239,7 +239,7 @@ describe("Wallet Repository", () => {
 
         walletAddresses.forEach((address) => expect(walletRepo.has(address)).toBeTrue());
 
-        const publicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
+        const publicKey = "02511f16ffb7b7e9afc12f04f317a11d9644e4be9eb5a5f64673946ad0f6336f34";
 
         walletRepo.getIndex("publicKeys").set(publicKey, wallets[1]);
         walletRepo.getIndex("usernames").set("username", wallets[2]);
@@ -255,14 +255,14 @@ describe("Wallet Repository", () => {
     it("should get the nonce of a wallet", () => {
         const wallet1 = walletRepo.createWallet("wallet1");
         wallet1.nonce = Utils.BigNumber.make(100);
-        wallet1.publicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
+        wallet1.publicKey = "02511f16ffb7b7e9afc12f04f317a11d9644e4be9eb5a5f64673946ad0f6336f34";
         walletRepo.index(wallet1);
 
         expect(walletRepo.getNonce(wallet1.publicKey)).toEqual(Utils.BigNumber.make(100));
     });
 
     it("should return 0 nonce if there is no wallet", () => {
-        const publicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
+        const publicKey = "03c075494ad044ab8c0b2dc7ccd19f649db844a4e558e539d3ac2610c4b90a5139";
         expect(walletRepo.getNonce(publicKey)).toEqual(Utils.BigNumber.ZERO);
     });
 

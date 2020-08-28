@@ -685,7 +685,7 @@ describe("BlockState", () => {
 
             it("update vote balances for claims transactions", async () => {
                 const recipientsDelegate = walletRepo.findByPublicKey(
-                    "32337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece",
+                    "034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192",
                 );
                 sender.setAttribute("vote", forgingWallet.publicKey);
                 recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);

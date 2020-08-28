@@ -114,7 +114,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         const hasResignation: boolean = this.poolQuery
             .getAllBySender(transaction.data.senderPublicKey)
             .whereKind(transaction)
-            .wherePredicate((t) => t.data.asset?.bridgechainResignation.bridgechainId === bridgechainId)
+            .wherePredicate((t) => t.data.asset!.bridgechainResignation.bridgechainId === bridgechainId)
             .has();
 
         if (hasResignation) {

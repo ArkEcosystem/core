@@ -1,4 +1,6 @@
-import { Container } from "@arkecosystem/core-kernel";
+import "jest-extended";
+
+import { Container, Utils } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/core-magistrate-crypto";
 import { EntityBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
 import { EntitySubType, EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
@@ -9,8 +11,10 @@ import {
     EntityNotRegisteredError,
     EntityWrongSubTypeError,
     EntityWrongTypeError,
+    StaticFeeMismatchError,
 } from "@arkecosystem/core-magistrate-transactions/src/errors";
 import { EntityTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers/entity";
+import { Utils as CryptoUtils } from "@arkecosystem/crypto";
 import { Managers, Transactions } from "@arkecosystem/crypto";
 
 import { validRegisters } from "./__fixtures__/entity/register";
@@ -42,6 +46,7 @@ describe("Entity handler", () => {
     const transactionHistoryService = {
         findOneByCriteria: jest.fn(),
         findManyByCriteria: jest.fn(),
+        streamByCriteria: jest.fn(),
     };
 
     beforeAll(() => {
@@ -61,6 +66,184 @@ describe("Entity handler", () => {
         };
 
         jest.spyOn(walletRepository, "findByPublicKey").mockReturnValue(wallet);
+    });
+
+    describe("dependencies", () => {
+        it("should return empty array", async () => {
+            entityHandler = container.resolve(EntityTransactionHandler);
+            const result = entityHandler.dependencies();
+
+            expect(result).toBeArray();
+            expect(result.length).toBe(0);
+        });
+    });
+
+    describe("isActivated", () => {
+        afterAll(() => {
+            Managers.configManager.setHeight(2);
+        });
+
+        it("should return false if AIP36 is not enabled", async () => {
+            entityHandler = container.resolve(EntityTransactionHandler);
+            const result = await entityHandler.isActivated();
+
+            expect(result).toBeFalse();
+        });
+
+        it("should return true if AIP36 is enabled", async () => {
+            Managers.configManager.setHeight(51);
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+            const result = await entityHandler.isActivated();
+            expect(result).toBeTrue();
+        });
+    });
+
+    describe("dynamicFee", () => {
+        it("should return 5000000000", async () => {
+            entityHandler = container.resolve(EntityTransactionHandler);
+            // @ts-ignore
+            const result = await entityHandler.dynamicFee({ height: 5 });
+
+            expect(result.toString()).toEqual(Utils.BigNumber.make(5000000000).toString());
+        });
+    });
+
+    describe("walletAttributes", () => {
+        it("should return entities attribute", async () => {
+            entityHandler = container.resolve(EntityTransactionHandler);
+            const result = await entityHandler.walletAttributes();
+
+            expect(result).toEqual(["entities"]);
+        });
+    });
+
+    describe("bootstrap", () => {
+        let transaction;
+        let entityHandler;
+
+        beforeEach(() => {
+            const builder = new EntityBuilder();
+            transaction = builder.asset(validRegisters[0]).sign("passphrase").build();
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+
+            transactionHistoryService.streamByCriteria
+                .mockImplementationOnce(async function* () {
+                    yield transaction.data;
+                })
+                .mockImplementation(async function* () {});
+        });
+
+        it("should resolve", async () => {
+            await expect(entityHandler.bootstrap()).toResolve();
+        });
+
+        it("should resolve with initialized handlers", async () => {
+            // @ts-ignore
+            entityHandler.initializeHandlers();
+
+            await expect(entityHandler.bootstrap()).toResolve();
+        });
+    });
+
+    describe("throwIfCannotBeApplied", () => {
+        let transaction: EntityTransaction;
+        let entityHandler: EntityTransactionHandler;
+
+        beforeEach(() => {
+            const builder = new EntityBuilder();
+            transaction = builder.asset(validRegisters[0]).sign("passphrase").build() as EntityTransaction;
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+        });
+
+        it("should resolve", async () => {
+            await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).toResolve();
+        });
+
+        it("should resolve if exception", async () => {
+            const spyOnIsException = jest.spyOn(CryptoUtils, "isException");
+            spyOnIsException.mockReturnValue(true);
+
+            transaction.data.fee = Utils.BigNumber.make("4000");
+
+            await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).toResolve();
+
+            spyOnIsException.mockReset();
+        });
+
+        it("should throw on static fee mismatch", async () => {
+            transaction.data.fee = Utils.BigNumber.make("4000");
+
+            await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
+                StaticFeeMismatchError,
+            );
+        });
+
+        it("should throw on wrong entity subtype", async () => {
+            // @ts-ignore
+            transaction.data.asset.subType = 9;
+
+            await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
+                EntityWrongSubTypeError,
+            );
+        });
+    });
+
+    describe("emitEvents", () => {
+        it("should not dispatch", async () => {
+            const builder = new EntityBuilder();
+            const transaction = builder.asset(validRegisters[0]).sign("passphrase").build();
+
+            const emitter = {
+                dispatch: jest.fn(),
+            };
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+
+            // @ts-ignore
+            entityHandler.emitEvents(transaction, emitter);
+
+            // Emitting is currently disabled on EntityTransactions
+            expect(emitter.dispatch).toHaveBeenCalledTimes(0);
+        });
+    });
+
+    describe("applyToRecipient", () => {
+        it("should resolve", async () => {
+            const builder = new EntityBuilder();
+            const transaction = builder.asset(validRegisters[0]).sign("passphrase").build();
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+
+            await expect(entityHandler.applyToRecipient(transaction)).toResolve();
+        });
+    });
+
+    describe("revertForRecipient", () => {
+        it("should resolve", async () => {
+            const builder = new EntityBuilder();
+            const transaction = builder.asset(validRegisters[0]).sign("passphrase").build();
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+
+            await expect(entityHandler.revertForRecipient(transaction)).toResolve();
+        });
+    });
+
+    describe("getHandler", () => {
+        it("should return undefined if handler is not registered", async () => {
+            const builder = new EntityBuilder();
+            const transaction = builder.asset(validRegisters[0]).sign("passphrase").build();
+
+            entityHandler = container.resolve(EntityTransactionHandler);
+
+            // @ts-ignore
+            transaction.data.asset.type = 9;
+            // @ts-ignore
+            expect(entityHandler.getHandler(transaction)).toBeUndefined();
+        });
     });
 
     describe("register", () => {

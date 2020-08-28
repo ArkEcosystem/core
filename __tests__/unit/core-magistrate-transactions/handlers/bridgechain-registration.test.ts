@@ -19,6 +19,7 @@ import { MagistrateApplicationEvents } from "@packages/core-magistrate-transacti
 import {
     BridgechainRegistrationTransactionHandler,
     BusinessRegistrationTransactionHandler,
+    EntityTransactionHandler,
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -62,6 +63,7 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(EntityTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -73,6 +75,12 @@ beforeEach(() => {
     senderWallet = buildSenderWallet(app);
 
     walletRepository.index(senderWallet);
+});
+
+afterEach(() => {
+    try {
+        Transactions.TransactionRegistry.deregisterTransactionType(MagistrateTransactions.EntityTransaction);
+    } catch {}
 });
 
 describe("BusinessRegistration", () => {
@@ -133,6 +141,26 @@ describe("BusinessRegistration", () => {
                 type: Enums.MagistrateTransactionType.BridgechainRegistration,
             });
         });
+
+        it("should resolve if wallet have empty bridgechains attribute", async () => {
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield bridgechainRegistrationTransaction.data;
+            });
+
+            senderWallet.setAttribute("business.bridgechains", {});
+
+            await expect(handler.bootstrap()).toResolve();
+        });
+
+        it("should throw if asset is undefined", async () => {
+            bridgechainRegistrationTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield bridgechainRegistrationTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow();
+        });
     });
 
     describe("emitEvents", () => {
@@ -174,6 +202,22 @@ describe("BusinessRegistration", () => {
         it("should not throw defined as exception", async () => {
             configManager.set("network.pubKeyHash", 99);
             configManager.set("exceptions.transactions", [bridgechainRegistrationTransaction.data.id]);
+
+            await expect(handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet)).toResolve();
+        });
+
+        it("should not throw if genesis hash is not registered", async () => {
+            const businessAttributes = {
+                bridgechains: {},
+            };
+
+            businessAttributes.bridgechains["a_different_genesis_hash"] = {
+                bridgechainAsset: { ...bridgechainRegistrationAsset, name: "adifferentname" },
+            };
+
+            senderWallet.setAttribute("business", businessAttributes);
+
+            walletRepository.index(senderWallet);
 
             await expect(handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet)).toResolve();
         });
@@ -271,6 +315,12 @@ describe("BusinessRegistration", () => {
                     .minus(bridgechainRegistrationTransaction.data.amount)
                     .minus(bridgechainRegistrationTransaction.data.fee),
             );
+        });
+
+        it("should be ok if empty business.bridgechains attribute already exist", async () => {
+            senderWallet.setAttribute("business.bridgechains", {});
+
+            await expect(handler.apply(bridgechainRegistrationTransaction)).toResolve();
         });
 
         it("should be ok without custom wallet repository", async () => {

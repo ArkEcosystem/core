@@ -128,7 +128,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         const hasUpdate: boolean = this.poolQuery
             .getAllBySender(transaction.data.senderPublicKey)
             .whereKind(transaction)
-            .wherePredicate((t) => t.data.asset?.bridgechainUpdate.bridgechainId === bridgechainId)
+            .wherePredicate((t) => t.data.asset!.bridgechainUpdate.bridgechainId === bridgechainId)
             .has();
 
         if (hasUpdate) {
@@ -150,12 +150,8 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             "business",
         );
 
-        AppUtils.assert.defined<MagistrateInterfaces.IBridgechainUpdateAsset>(
-            transaction.data.asset?.bridgechainUpdate,
-        );
-
-        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset =
-            transaction.data.asset.bridgechainUpdate;
+        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset = transaction.data.asset! // Assertion check inside super.applyToSender
+            .bridgechainUpdate;
 
         AppUtils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 

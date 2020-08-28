@@ -1,7 +1,5 @@
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
-import { IBusinessWalletAttributes } from "./interfaces";
-
 export enum MagistrateIndex {
     Businesses = "businesses",
     Bridgechains = "bridgechains",
@@ -10,12 +8,8 @@ export enum MagistrateIndex {
 
 export const businessIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet): void => {
     if (wallet.hasAttribute("business")) {
-        const business: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>("business");
-
-        if (business !== undefined) {
-            Utils.assert.defined<string>(wallet.publicKey);
-            index.set(wallet.publicKey, wallet);
-        }
+        Utils.assert.defined<string>(wallet.publicKey);
+        index.set(wallet.publicKey, wallet);
     }
 };
 

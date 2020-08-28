@@ -5,6 +5,7 @@ import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { BusinessResignationBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import {
+    BridgechainsAreNotResignedError,
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
 } from "@packages/core-magistrate-transactions/src/errors";
@@ -12,6 +13,7 @@ import { MagistrateApplicationEvents } from "@packages/core-magistrate-transacti
 import {
     BusinessRegistrationTransactionHandler,
     BusinessResignationTransactionHandler,
+    EntityTransactionHandler
 } from "@packages/core-magistrate-transactions/src/handlers";
 import { MagistrateIndex } from "@packages/core-magistrate-transactions/src/wallet-indexes";
 import { Wallets } from "@packages/core-state";
@@ -57,6 +59,7 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(BusinessResignationTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(EntityTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -68,6 +71,12 @@ beforeEach(() => {
     senderWallet = buildSenderWallet(app);
 
     walletRepository.index(senderWallet);
+});
+
+afterEach(() => {
+    try {
+        Transactions.TransactionRegistry.deregisterTransactionType(MagistrateTransactions.EntityTransaction);
+    } catch {}
 });
 
 describe("BusinessRegistration", () => {
@@ -137,6 +146,15 @@ describe("BusinessRegistration", () => {
             await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).toResolve();
         });
 
+        it("should not throw if exception", async () => {
+            const spyOnIsException = jest.spyOn(Utils, "isException").mockReturnValue(true);
+
+            senderWallet.setAttribute("business.resigned", true);
+            await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).toResolve();
+
+            spyOnIsException.mockReset();
+        });
+
         it("should throw if business is not registered", async () => {
             senderWallet.forgetAttribute("business");
             await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).rejects.toThrow(
@@ -148,6 +166,13 @@ describe("BusinessRegistration", () => {
             senderWallet.setAttribute("business.resigned", true);
             await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).rejects.toThrow(
                 BusinessIsResignedError,
+            );
+        });
+
+        it("should throw if bridgechains are not resigned", async () => {
+            senderWallet.setAttribute("business.bridgechains", [{ name: "dummy" }]);
+            await expect(handler.throwIfCannotBeApplied(businessResignationTransaction, senderWallet)).rejects.toThrow(
+                BridgechainsAreNotResignedError,
             );
         });
 

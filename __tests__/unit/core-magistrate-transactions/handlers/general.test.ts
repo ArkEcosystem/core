@@ -4,7 +4,7 @@ import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Enums, Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
 import { BusinessRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
-import { BusinessRegistrationTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers";
+import { BusinessRegistrationTransactionHandler, EntityTransactionHandler } from "@packages/core-magistrate-transactions/src/handlers";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
 import { Generators } from "@packages/core-test-framework/src";
@@ -39,6 +39,7 @@ beforeEach(() => {
 
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(null);
     app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(EntityTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -50,6 +51,12 @@ beforeEach(() => {
     senderWallet = buildSenderWallet(app);
 
     walletRepository.index(senderWallet);
+});
+
+afterEach(() => {
+    try {
+        Transactions.TransactionRegistry.deregisterTransactionType(MagistrateTransactions.EntityTransaction);
+    } catch {}
 });
 
 describe("BusinessRegistration", () => {
