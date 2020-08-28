@@ -5,52 +5,13 @@ const allTypes = [EntityType.Business, EntityType.Bridgechain, EntityType.Develo
 const allSubTypes = [0, 3, 77, 255]; // a few valid subTypes containing min (0) and max (255)
 const allActions = [EntityAction.Register, EntityAction.Update, EntityAction.Resign];
 const registrationIds = [undefined, "c8b924ec44ac3341a110d440f630149e97c8c9c630dff5040466834096eba7f9"];
-const datas = [
-    { name: "the name of the entity" },
-    { description: " the description of the entity" },
-    { website: "www.thewebsite.com" },
-    { website: "website could be any string tho for ser/deser" },
-    { sourceControl: { github: "https://github.com/theorg/therepo" } },
-    { sourceControl: { github: "github could be any string tho" } },
-    { sourceControl: { gitlab: "https://gitlab.com/theorg/therepo" } },
-    { sourceControl: { gitlab: "gitlab could be any string tho" } },
-    { sourceControl: { bitbucket: "https://bitbucket.com/theorg/therepo" } },
-    { sourceControl: { bitbucket: "bitbucket could be any string tho" } },
-    { sourceControl: { npmjs: "https://npmjs.com/theorg/therepo" } },
-    { sourceControl: { npmjs: "npmjs could be any string tho" } },
-    { socialMedia: { twitter: "https://twitter.com/dummy" } },
-    { socialMedia: { twitter: "twitter could be any string tho" } },
-    { socialMedia: { facebook: "https://facebook.com/dummy" } },
-    { socialMedia: { facebook: "facebook could be any string tho" } },
-    { socialMedia: { linkedin: "https://linkedin.com/dummy" } },
-    { socialMedia: { linkedin: "linkedin could be any string tho" } },
-    { images: ["https://flickr.com/dummy.png"] },
-    { images: ["https://flickr.com/dummy1.png", "https://flickr.com/dummy2.png", "could be any string as image tho"] },
-    { videos: ["https://youtube.com/dummy"] },
-    { videos: ["https://youtube.com/dummy", "https://youtube.com/dummy3423", "could be any string as video tho"] },
-];
+const datas = [{ name: "the name of the entity" }, { ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ" }];
 const specialDatas = [
     // special datas where data => ser => deser does not give back data (see examples)
-    // basically, empty object or empty array or empty string is considered undefined
+    // basically, empty string is considered undefined
     // [dataToSerialize, expectedDeserialized]
     [{ name: "" }, {}],
-    [{ description: "" }, {}],
-    [{ website: "" }, {}],
-    [{ sourceControl: { github: "" } }, {}],
-    [{ sourceControl: { gitlab: "" } }, {}],
-    [{ sourceControl: { bitbucket: "" } }, {}],
-    [{ sourceControl: { npmjs: "" } }, {}],
-    [{ socialMedia: { twitter: "" } }, {}],
-    [{ socialMedia: { facebook: "" } }, {}],
-    [{ socialMedia: { linkedin: "" } }, {}],
-    [{ images: [] }, {}],
-    [{ name: "the name", images: [] }, { name: "the name" }],
-    [{ videos: [] }, {}],
-    [{ name: "another name", videos: [] }, { name: "another name" }],
-    [{ sourceControl: {} }, {}],
-    [{ name: "new name", sourceControl: {} }, { name: "new name" }],
-    [{ socialMedia: {} }, {}],
-    [{ description: "some description", socialMedia: {} }, { description: "some description" }],
+    [{ ipfsData: "" }, {}],
 ];
 
 // base asset properties we will use to generate all kind of {data} with it

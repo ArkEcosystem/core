@@ -11,6 +11,7 @@ import {
     EntitySenderIsNotDelegateError,
     EntityWrongSubTypeError,
     EntityWrongTypeError,
+    StaticFeeMismatchError,
 } from "@arkecosystem/core-magistrate-transactions/src/errors";
 import { EntityTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers";
 import { entityIndexer, MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-manager";
@@ -160,6 +161,23 @@ describe("Entity handler", () => {
                 ).toResolve();
             });
 
+            it("should throw when fee does not match register fee", async () => {
+                const transaction = entityBuilder
+                    .asset({
+                        type: Enums.EntityType.Business,
+                        subType: 4,
+                        action: Enums.EntityAction.Register,
+                        data: { name: "thename", ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ" },
+                    })
+                    .fee("500000000")
+                    .sign(senderPassphrase)
+                    .build();
+
+                await expect(
+                    entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
+                ).rejects.toBeInstanceOf(StaticFeeMismatchError);
+            });
+
             describe("Entity delegate", () => {
                 const createEntityDelegateTx = name =>
                     entityBuilder
@@ -294,6 +312,24 @@ describe("Entity handler", () => {
                 await expect(
                     entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
                 ).rejects.toBeInstanceOf(EntityAlreadyResignedError);
+            });
+
+            it("should throw when fee does not match resign fee", async () => {
+                const transaction = entityBuilder
+                    .asset({
+                        type: Enums.EntityType.Business,
+                        subType: 4,
+                        action: Enums.EntityAction.Resign,
+                        registrationId: "533384534cd561fc17f72be0bb57bf39961954ba0741f53c08e3f463ef19118c",
+                        data: {},
+                    })
+                    .fee("5000000000")
+                    .sign(senderPassphrase)
+                    .build();
+
+                await expect(
+                    entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
+                ).rejects.toBeInstanceOf(StaticFeeMismatchError);
             });
 
             it.each([validResigns])("should throw when entity type does not match", async asset => {
@@ -490,6 +526,24 @@ describe("Entity handler", () => {
                 await expect(
                     entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
                 ).rejects.toBeInstanceOf(EntityAlreadyResignedError);
+            });
+
+            it("should throw when fee does not match update fee", async () => {
+                const transaction = entityBuilder
+                    .asset({
+                        type: Enums.EntityType.Business,
+                        subType: 4,
+                        action: Enums.EntityAction.Update,
+                        registrationId: "533384534cd561fc17f72be0bb57bf39961954ba0741f53c08e3f463ef19118c",
+                        data: { ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khbttQidPfbpmNZ" },
+                    })
+                    .fee("5000000000")
+                    .sign(senderPassphrase)
+                    .build();
+
+                await expect(
+                    entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
+                ).rejects.toBeInstanceOf(StaticFeeMismatchError);
             });
 
             it.each([validUpdates])("should throw when entity type does not match", async asset => {

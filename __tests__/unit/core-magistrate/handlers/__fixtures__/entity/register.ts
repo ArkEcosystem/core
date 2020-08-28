@@ -12,4 +12,22 @@ export const validRegisters: Interfaces.IEntityAsset[] = [
             ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
         },
     },
+    {
+        type: EntityType.Business,
+        subType: 45,
+        action: EntityAction.Register,
+        data: {
+            name: "my_business_1",
+            ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
+        },
+    },
+    {
+        type: EntityType.Developer,
+        subType: 255,
+        action: EntityAction.Register,
+        data: {
+            name: "my_business_1",
+            ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
+        },
+    },
 ];
