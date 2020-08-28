@@ -13,7 +13,7 @@ export interface IBridgechainWalletAttributes {
 
 export interface IEntityWallet {
     type: Enums.EntityType;
-    subType: Enums.EntitySubType;
+    subType: number;
     data: Interfaces.IEntityAssetData;
     resigned?: boolean;
 }

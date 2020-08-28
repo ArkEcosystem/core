@@ -1,9 +1,8 @@
-import { Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
 import {
     EntityAction,
-    EntitySubType,
     EntityType,
     MagistrateTransactionGroup,
     MagistrateTransactionStaticFees,
@@ -32,9 +31,7 @@ export class EntityTransaction extends Transactions.Transaction {
                     EntityType.Delegate,
                 ],
             },
-            subType: {
-                enum: [EntitySubType.None, EntitySubType.PluginCore, EntitySubType.PluginDesktop],
-            }, // subType depends on type but the type/subType check is in handler
+            subType: { type: "integer", minimum: 0, maximum: 255 },
             registrationId: { $ref: "transactionId" },
         };
 
@@ -81,7 +78,18 @@ export class EntityTransaction extends Transactions.Transaction {
         });
     }
 
-    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(MagistrateTransactionStaticFees.Entity);
+    public static staticFee(feeContext: { height?: number; data?: Interfaces.ITransactionData } = {}): Utils.BigNumber {
+        // there should always be a feeContext.data except for tx builder when setting default fee in constructor
+        return feeContext.data ? this.staticFeeByAction[feeContext.data.asset.action] : this.defaultStaticFee;
+    }
+    protected static staticFeeByAction = {
+        [EntityAction.Register]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityRegister),
+        [EntityAction.Update]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityUpdate),
+        [EntityAction.Resign]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityResign),
+    };
+    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
+        MagistrateTransactionStaticFees.EntityRegister,
+    );
 
     public serialize(): ByteBuffer {
         const { data } = this;
