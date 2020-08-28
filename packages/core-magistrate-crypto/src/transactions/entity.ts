@@ -3,7 +3,6 @@ import ByteBuffer from "bytebuffer";
 
 import {
     EntityAction,
-    EntityType,
     MagistrateTransactionGroup,
     MagistrateTransactionStaticFees,
     MagistrateTransactionType,
@@ -22,15 +21,7 @@ export class EntityTransaction extends Transactions.Transaction {
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         const baseAssetDataProps = {
-            type: {
-                enum: [
-                    EntityType.Business,
-                    EntityType.Bridgechain,
-                    EntityType.Developer,
-                    EntityType.Plugin,
-                    EntityType.Delegate,
-                ],
-            },
+            type: { type: "integer", minimum: 0, maximum: 255 },
             subType: { type: "integer", minimum: 0, maximum: 255 },
             registrationId: { $ref: "transactionId" },
         };

@@ -1,4 +1,4 @@
-import { Enums, Interfaces } from "@arkecosystem/core-magistrate-crypto";
+import { Interfaces } from "@arkecosystem/core-magistrate-crypto";
 
 export interface IBusinessWalletAttributes {
     businessAsset: Interfaces.IBusinessRegistrationAsset;
@@ -12,7 +12,7 @@ export interface IBridgechainWalletAttributes {
 }
 
 export interface IEntityWallet {
-    type: Enums.EntityType;
+    type: number;
     subType: number;
     data: Interfaces.IEntityAssetData;
     resigned?: boolean;
