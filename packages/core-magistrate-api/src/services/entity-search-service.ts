@@ -55,7 +55,7 @@ export class EntitySearchService {
         return this.paginationService.getPage(pagination, sorting, this.getWalletEntities(walletId, ...criterias));
     }
 
-    private getEntityResourceFromWallet(wallet: Contracts.State.Wallet, entityId: string): EntityResource {
+    public getEntityResourceFromWallet(wallet: Contracts.State.Wallet, entityId: string): EntityResource {
         const walletEntities = wallet.getAttribute<IEntitiesWallet>("entities");
         const walletEntity = walletEntities[entityId];
 
