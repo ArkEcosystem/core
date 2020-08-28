@@ -10,7 +10,7 @@ import { utils } from "../utils";
 
 const entityRegistrationAsset: IEntityWallet = {
     type: Enums.EntityType.Developer,
-    subType: Enums.EntitySubType.None,
+    subType: 0,
     data: {
         name: "iam_a_dev",
         ipfsData: "Qdm2345ousd462",

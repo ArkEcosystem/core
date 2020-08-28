@@ -16,11 +16,13 @@ describe("Transaction Forging - Entity registration", () => {
             const registrations = [];
             let nonce = Utils.BigNumber.make(2);
             for (const { type, subType, name } of [
-                { type: Enums.EntityType.Business, subType: Enums.EntitySubType.None, name: "bzness" },
-                { type: Enums.EntityType.Delegate, subType: Enums.EntitySubType.None, name: "genesis_1" },
-                { type: Enums.EntityType.Developer, subType: Enums.EntitySubType.None, name: "dvloper" },
-                { type: Enums.EntityType.Plugin, subType: Enums.EntitySubType.PluginCore, name: "plgincore" },
-                { type: Enums.EntityType.Plugin, subType: Enums.EntitySubType.PluginDesktop, name: "plgindskt" },
+                { type: Enums.EntityType.Business, subType: 0, name: "bzness" },
+                { type: Enums.EntityType.Delegate, subType: 1, name: "genesis_1" },
+                { type: Enums.EntityType.Developer, subType: 6, name: "dvloper" },
+                { type: Enums.EntityType.Plugin, subType: 255, name: "plgincore" },
+                { type: Enums.EntityType.Plugin, subType: 134, name: "plgindskt" },
+                { type: 255, subType: 134, name: "type255shouldwork" },
+                { type: 174, subType: 33, name: "type174shouldwork" },
             ]) {
                 registrations.push(
                     TransactionFactory.entity({ type, subType, action: Enums.EntityAction.Register, data: { name } })
@@ -53,7 +55,7 @@ describe("Transaction Forging - Entity registration", () => {
             // entity registration
             const entityRegistration = TransactionFactory.entity({
                 type: Enums.EntityType.Bridgechain,
-                subType: Enums.EntitySubType.None,
+                subType: 0,
                 action: Enums.EntityAction.Register,
                 data: {
                     name: "plzacceptbridgechain",
@@ -72,10 +74,48 @@ describe("Transaction Forging - Entity registration", () => {
             // entity registration
             const entityRegistration = TransactionFactory.entity({
                 type: Enums.EntityType.Plugin,
-                subType: Enums.EntitySubType.PluginDesktop,
+                subType: 1,
                 action: Enums.EntityAction.Register,
                 data: {
                     name: "\u0008name",
+                },
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(entityRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(entityRegistration.id).not.toBeForged();
+            await expect(entityRegistration).not.entityRegistered();
+        });
+
+        it("should reject entity registration, because entity type is > 255 [Signed with 1 Passphrase]", async () => {
+            // entity registration
+            const entityRegistration = TransactionFactory.entity({
+                type: 256,
+                subType: 1,
+                action: Enums.EntityAction.Register,
+                data: {
+                    name: "name256",
+                },
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(entityRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(entityRegistration.id).not.toBeForged();
+            await expect(entityRegistration).not.entityRegistered();
+        });
+
+        it("should reject entity registration, because entity sub type is > 255 [Signed with 1 Passphrase]", async () => {
+            // entity registration
+            const entityRegistration = TransactionFactory.entity({
+                type: 1,
+                subType: 256,
+                action: Enums.EntityAction.Register,
+                data: {
+                    name: "namesubtype256",
                 },
             })
                 .withPassphrase(secrets[0])
@@ -115,7 +155,7 @@ describe("Transaction Forging - Entity registration", () => {
             // Registering entity
             const entityRegistration = TransactionFactory.entity({
                 type: Enums.EntityType.Business,
-                subType: Enums.EntitySubType.None,
+                subType: 0,
                 action: Enums.EntityAction.Register,
                 data: {
                     name: "my_bizbiz",
@@ -177,7 +217,7 @@ describe("Transaction Forging - Entity registration", () => {
             // Registering entity
             const entityRegistration = TransactionFactory.entity({
                 type: Enums.EntityType.Developer,
-                subType: Enums.EntitySubType.None,
+                subType: 0,
                 action: Enums.EntityAction.Register,
                 data: {
                     name: "iam_a_developer",

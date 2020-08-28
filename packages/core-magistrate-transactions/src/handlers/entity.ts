@@ -1,9 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import {
-    Enums,
-    Interfaces as MagistrateInterfaces,
-    Transactions as MagistrateTransactions,
-} from "@arkecosystem/core-magistrate-crypto";
+import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import {
     Handlers as IHandlers,
     Interfaces as TransactionInterfaces,
@@ -12,47 +8,22 @@ import {
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { EntityDeactivatedError, EntityWrongSubTypeError, StaticFeeMismatchError } from "../errors";
-import { EntityRegisterSubHandler, EntityResignSubHandler, EntityUpdateSubHandler } from "./entity-subhandlers";
-import { BusinessSubHandlers } from "./entity-subhandlers/business";
-import { DelegateSubHandlers } from "./entity-subhandlers/delegate";
-import { DeveloperSubHandlers } from "./entity-subhandlers/developer";
-import { PluginCoreSubHandlers } from "./entity-subhandlers/plugin-core";
-import { PluginDesktopSubHandlers } from "./entity-subhandlers/plugin-desktop";
-
-interface IDeactivatedSubHandler {
-    throwIfCannotBeApplied(): void;
-    emitEvents(): void;
-    applyToSender(): void;
-    revertForSender(): void;
-}
-interface ISubHandlers {
-    [Enums.EntityAction.Register]: EntityRegisterSubHandler | IDeactivatedSubHandler;
-    [Enums.EntityAction.Resign]: EntityResignSubHandler | IDeactivatedSubHandler;
-    [Enums.EntityAction.Update]: EntityUpdateSubHandler | IDeactivatedSubHandler;
-}
-interface IHandlers {
-    [Enums.EntityType.Business]: {
-        [Enums.EntitySubType.None]: ISubHandlers;
-    };
-    [Enums.EntityType.Bridgechain]: {
-        [Enums.EntitySubType.None]: ISubHandlers;
-    };
-    [Enums.EntityType.Developer]: {
-        [Enums.EntitySubType.None]: ISubHandlers;
-    };
-    [Enums.EntityType.Plugin]: {
-        [Enums.EntitySubType.PluginCore]: ISubHandlers;
-        [Enums.EntitySubType.PluginDesktop]: ISubHandlers;
-    };
-    [Enums.EntityType.Delegate]: {
-        [Enums.EntitySubType.None]: ISubHandlers;
-    };
-}
+import {
+    EntityAlreadyRegisteredError,
+    EntityAlreadyResignedError,
+    EntityDeactivatedError,
+    EntityNameAlreadyRegisteredError,
+    EntityNameDoesNotMatchDelegateError,
+    EntityNotRegisteredError,
+    EntitySenderIsNotDelegateError,
+    EntityWrongSubTypeError,
+    EntityWrongTypeError,
+    StaticFeeMismatchError,
+} from "../errors";
+import { IEntitiesWallet, IEntityWallet } from "../interfaces";
+import { MagistrateIndex } from "../wallet-manager";
 
 export class EntityTransactionHandler extends IHandlers.TransactionHandler {
-    private handlers!: IHandlers;
-
     public dependencies(): ReadonlyArray<IHandlers.TransactionHandlerConstructor> {
         return [];
     }
@@ -66,7 +37,7 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
     }
 
     public dynamicFee(context: TransactionInterfaces.IDynamicFeeContext): Utils.BigNumber {
-        return this.getConstructor().staticFee(context);
+        return this.getConstructor().staticFee({ data: context.transaction.data });
     }
 
     public walletAttributes(): ReadonlyArray<string> {
@@ -76,35 +47,17 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-        const registerTransactions = [];
-        const updateTransactions = [];
-        const resignTransactions = [];
         while (reader.hasNext()) {
             const transactions = await reader.read();
 
             for (const transaction of transactions) {
-                switch (transaction.asset.action) {
-                    case Enums.EntityAction.Register:
-                        registerTransactions.push(transaction);
-                        break;
-                    case Enums.EntityAction.Update:
-                        updateTransactions.push(transaction);
-                        break;
-                    case Enums.EntityAction.Resign:
-                        resignTransactions.push(transaction);
-                        break;
-                }
+                const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+
+                this.applyTransactionToWallet(transaction, wallet);
+
+                walletManager.index([wallet]);
             }
         }
-
-        const registerSubHandler = new EntityRegisterSubHandler();
-        await registerSubHandler.bootstrap(registerTransactions, walletManager);
-
-        const updateSubHandler = new EntityUpdateSubHandler();
-        await updateSubHandler.bootstrap(updateTransactions, walletManager);
-
-        const resignSubHandler = new EntityResignSubHandler();
-        await resignSubHandler.bootstrap(resignTransactions, walletManager);
     }
 
     public async throwIfCannotBeApplied(
@@ -120,19 +73,59 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
             throw new EntityDeactivatedError();
         }
 
-        const staticFee: Utils.BigNumber = this.getConstructor().staticFee();
+        const staticFee: Utils.BigNumber = this.getConstructor().staticFee({ data: transaction.data });
         if (!transaction.data.fee.isEqualTo(staticFee)) {
             throw new StaticFeeMismatchError(staticFee.toFixed());
         }
 
         super.throwIfCannotBeApplied(transaction, wallet, walletManager);
 
-        const handler = this.getHandler(transaction);
-        if (!handler) {
-            throw new EntityWrongSubTypeError(); // wrong sub type / type association
+        const walletEntities = wallet.getAttribute("entities", {});
+        if (transaction.data.asset.action === Enums.EntityAction.Register) {
+            if (walletEntities[transaction.id]) {
+                throw new EntityAlreadyRegisteredError();
+            }
+
+            for (const wallet of walletManager.getIndex(MagistrateIndex.Entities).values()) {
+                if (wallet.hasAttribute("entities")) {
+                    const entityValues: IEntityWallet[] = Object.values(wallet.getAttribute("entities"));
+
+                    if (
+                        entityValues.some(
+                            entity =>
+                                entity.data.name!.toLowerCase() === transaction.data.asset!.data.name.toLowerCase() &&
+                                entity.type === transaction.data.asset!.type &&
+                                entity.subType === transaction.data.asset!.subType,
+                        )
+                    ) {
+                        throw new EntityNameAlreadyRegisteredError();
+                    }
+                }
+            }
+        } else {
+            // Resign or update share the same checks
+            if (!walletEntities[transaction.data.asset.registrationId]) {
+                throw new EntityNotRegisteredError();
+            }
+            if (walletEntities[transaction.data.asset.registrationId].resigned) {
+                throw new EntityAlreadyResignedError();
+            }
+            if (walletEntities[transaction.data.asset.registrationId].type !== transaction.data.asset.type) {
+                throw new EntityWrongTypeError();
+            }
+            if (walletEntities[transaction.data.asset.registrationId].subType !== transaction.data.asset.subType) {
+                throw new EntityWrongSubTypeError();
+            }
         }
 
-        return this.getHandler(transaction)!.throwIfCannotBeApplied(transaction, wallet, walletManager);
+        if (transaction.data.asset.type === Enums.EntityType.Delegate) {
+            if (!wallet.hasAttribute("delegate.username")) {
+                throw new EntitySenderIsNotDelegateError();
+            }
+            if (wallet.getAttribute("delegate.username") !== transaction.data.asset.data.name) {
+                throw new EntityNameDoesNotMatchDelegateError();
+            }
+        }
     }
 
     public async canEnterTransactionPool(
@@ -144,7 +137,7 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        return this.getHandler(transaction)!.emitEvents(transaction, emitter);
+        return;
     }
 
     public async applyToSender(
@@ -153,18 +146,36 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
     ): Promise<void> {
         await super.applyToSender(transaction, walletManager);
 
-        return this.getHandler(transaction)!.applyToSender(transaction, walletManager);
+        const wallet: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+
+        this.applyTransactionToWallet(transaction.data, wallet);
+
+        walletManager.index([wallet]);
     }
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        const connection: Database.IConnection = app.resolvePlugin<Database.IDatabaseService>("database").connection;
-
         await super.revertForSender(transaction, walletManager);
 
-        return this.getHandler(transaction)!.revertForSender(transaction, walletManager, connection);
+        const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+
+        const entities = wallet.getAttribute("entities", {});
+
+        switch (transaction.data.asset.action) {
+            case Enums.EntityAction.Register:
+                delete entities[transaction.id];
+                break;
+            case Enums.EntityAction.Update:
+                return this.revertForSenderUpdate(transaction, walletManager);
+            case Enums.EntityAction.Resign:
+                delete entities[transaction.data.asset.registrationId].resigned;
+                break;
+        }
+
+        wallet.setAttribute("entities", entities);
+        walletManager.index([wallet]);
     }
 
     public async applyToRecipient(
@@ -179,80 +190,104 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 
-    private getHandler(
+    private async revertForSenderUpdate(
         transaction: Interfaces.ITransaction,
-    ): EntityRegisterSubHandler | EntityResignSubHandler | EntityUpdateSubHandler | undefined {
-        if (!this.handlers) {
-            this.initializeHandlers();
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        const connection: Database.IConnection = app.resolvePlugin<Database.IDatabaseService>("database").connection;
+
+        // Here we have to "replay" entity registration and update transactions associated with the registration id
+        // (except the current one being reverted) to rebuild previous wallet state.
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+
+        const entities = sender.getAttribute("entities", {});
+        const registrationId: string = transaction.data.asset.registrationId;
+
+        const dbEntityTransactions = await connection.transactionsRepository.search({
+            parameters: [
+                {
+                    field: "senderPublicKey",
+                    value: transaction.data.senderPublicKey,
+                    operator: Database.SearchOperator.OP_EQ,
+                },
+                {
+                    field: "type",
+                    value: Enums.MagistrateTransactionType.Entity,
+                    operator: Database.SearchOperator.OP_EQ,
+                },
+                {
+                    field: "typeGroup",
+                    value: transaction.data.typeGroup,
+                    operator: Database.SearchOperator.OP_EQ,
+                },
+            ],
+            orderBy: [
+                {
+                    direction: "asc",
+                    field: "nonce",
+                },
+            ],
+        });
+
+        let mergedEntity: IEntityWallet;
+        for (const dbEntityTx of dbEntityTransactions.rows) {
+            if (dbEntityTx.id === transaction.id) {
+                continue;
+            }
+
+            if (!mergedEntity) {
+                // first register tx
+                mergedEntity = {
+                    type: dbEntityTx.asset.type,
+                    subType: dbEntityTx.asset.subType,
+                    data: { ...dbEntityTx.asset.data },
+                };
+            } else {
+                mergedEntity.data = { ...mergedEntity.data, ...dbEntityTx.asset!.data };
+            }
         }
 
-        const {
-            type,
-            subType,
-            action,
-        }: {
-            type: Enums.EntityType;
-            subType: Enums.EntitySubType;
-            action: Enums.EntityAction;
-        } = transaction.data.asset as MagistrateInterfaces.IEntityAsset;
+        entities[registrationId] = {
+            type: mergedEntity.type,
+            subType: mergedEntity.subType,
+            data: { ...mergedEntity.data },
+        };
 
-        if (this.handlers[type] && this.handlers[type][subType] && this.handlers[type][subType][action]) {
-            return this.handlers[type][subType][action];
-        }
-        return undefined;
+        sender.setAttribute("entities", entities);
+
+        walletManager.index([sender]);
     }
 
-    private initializeHandlers(): void {
-        // deactivatedSubHandler as default (does nothing) for existing deactivated transactions (exceptions)
-        const deactivatedSubHandler: IDeactivatedSubHandler = {
-            throwIfCannotBeApplied: () => {}, // tslint:disable-line
-            emitEvents: () => {}, // tslint:disable-line
-            applyToSender: () => {}, // tslint:disable-line
-            revertForSender: () => {}, // tslint:disable-line
-        };
+    private applyTransactionToWallet(
+        transaction: Database.IBootstrapTransaction | Interfaces.ITransactionData,
+        wallet: State.IWallet,
+    ) {
+        const entities: IEntitiesWallet = wallet.getAttribute<IEntitiesWallet>("entities", {});
 
-        this.handlers = {
-            [Enums.EntityType.Business]: {
-                [Enums.EntitySubType.None]: {
-                    [Enums.EntityAction.Register]: new BusinessSubHandlers.BusinessRegisterSubHandler(),
-                    [Enums.EntityAction.Resign]: new BusinessSubHandlers.BusinessResignSubHandler(),
-                    [Enums.EntityAction.Update]: new BusinessSubHandlers.BusinessUpdateSubHandler(),
-                },
-            },
-            [Enums.EntityType.Bridgechain]: {
-                [Enums.EntitySubType.None]: {
-                    [Enums.EntityAction.Register]: deactivatedSubHandler,
-                    [Enums.EntityAction.Resign]: deactivatedSubHandler,
-                    [Enums.EntityAction.Update]: deactivatedSubHandler,
-                },
-            },
-            [Enums.EntityType.Developer]: {
-                [Enums.EntitySubType.None]: {
-                    [Enums.EntityAction.Register]: new DeveloperSubHandlers.DeveloperRegisterSubHandler(),
-                    [Enums.EntityAction.Resign]: new DeveloperSubHandlers.DeveloperResignSubHandler(),
-                    [Enums.EntityAction.Update]: new DeveloperSubHandlers.DeveloperUpdateSubHandler(),
-                },
-            },
-            [Enums.EntityType.Plugin]: {
-                [Enums.EntitySubType.PluginCore]: {
-                    [Enums.EntityAction.Register]: new PluginCoreSubHandlers.PluginCoreRegisterSubHandler(),
-                    [Enums.EntityAction.Resign]: new PluginCoreSubHandlers.PluginCoreResignSubHandler(),
-                    [Enums.EntityAction.Update]: new PluginCoreSubHandlers.PluginCoreUpdateSubHandler(),
-                },
-                [Enums.EntitySubType.PluginDesktop]: {
-                    [Enums.EntityAction.Register]: new PluginDesktopSubHandlers.PluginDesktopRegisterSubHandler(),
-                    [Enums.EntityAction.Resign]: new PluginDesktopSubHandlers.PluginDesktopResignSubHandler(),
-                    [Enums.EntityAction.Update]: new PluginDesktopSubHandlers.PluginDesktopUpdateSubHandler(),
-                },
-            },
-            [Enums.EntityType.Delegate]: {
-                [Enums.EntitySubType.None]: {
-                    [Enums.EntityAction.Register]: new DelegateSubHandlers.DelegateRegisterSubHandler(),
-                    [Enums.EntityAction.Resign]: new DelegateSubHandlers.DelegateResignSubHandler(),
-                    [Enums.EntityAction.Update]: new DelegateSubHandlers.DelegateUpdateSubHandler(),
-                },
-            },
-        };
+        switch (transaction.asset.action) {
+            case Enums.EntityAction.Register:
+                entities[transaction.id] = {
+                    type: transaction.asset.type,
+                    subType: transaction.asset.subType,
+                    data: transaction.asset.data,
+                };
+                break;
+            case Enums.EntityAction.Update:
+                entities[transaction.asset.registrationId] = {
+                    type: entities[transaction.asset.registrationId].type,
+                    subType: entities[transaction.asset.registrationId].subType,
+                    data: { ...entities[transaction.asset.registrationId].data, ...transaction.asset.data },
+                };
+                break;
+            case Enums.EntityAction.Resign:
+                entities[transaction.asset.registrationId] = {
+                    ...entities[transaction.asset.registrationId],
+                    resigned: true,
+                };
+                break;
+        }
+
+        wallet.setAttribute("entities", entities);
     }
 
     private isDeactivatedEntity(transaction: Interfaces.ITransaction): boolean {

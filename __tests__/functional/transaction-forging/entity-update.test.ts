@@ -10,6 +10,9 @@ beforeAll(async () => await support.setUp());
 afterAll(async () => await support.tearDown());
 
 describe("Transaction Forging - Entity update", () => {
+    const staticFeeUpdate = 500000000;
+    const subType = 9; // subType is valid between 0 and 255
+    const type = 255; // type is valid between 0 and 255
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             for (let i = 0; i < 30; i++) {
@@ -18,8 +21,8 @@ describe("Transaction Forging - Entity update", () => {
 
             // Registering a desktop wallet plugin
             const entityRegistration = TransactionFactory.entity({
-                type: Enums.EntityType.Plugin,
-                subType: Enums.EntitySubType.PluginDesktop,
+                type,
+                subType,
                 action: Enums.EntityAction.Register,
                 data: {
                     name: "my_plugin_for_desktop_wallet",
@@ -35,14 +38,15 @@ describe("Transaction Forging - Entity update", () => {
 
             // Updating the desktop wallet plugin
             const entityUpdate = TransactionFactory.entity({
-                type: Enums.EntityType.Plugin,
-                subType: Enums.EntitySubType.PluginDesktop,
+                type,
+                subType,
                 action: Enums.EntityAction.Update,
                 registrationId: entityRegistration.id,
                 data: {
                     ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
                 },
             })
+                .withFee(staticFeeUpdate)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -52,11 +56,49 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityUpdate).entityUpdated();
         });
 
+        it("should reject entity update, because of incorrect fee [Signed with 1 Passphrase]", async () => {
+            // entity registration
+            const entityRegistration = TransactionFactory.entity({
+                type: Enums.EntityType.Plugin,
+                subType,
+                action: Enums.EntityAction.Register,
+                data: {
+                    name: "some_other_name",
+                },
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(entityRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(entityRegistration.id).toBeForged();
+            await expect(entityRegistration).entityRegistered();
+
+            // Trying to update the desktop wallet plugin of secrets[0] wallet using secrets[1]
+            const entityUpdate = TransactionFactory.entity({
+                type: Enums.EntityType.Plugin,
+                subType,
+                action: Enums.EntityAction.Update,
+                registrationId: entityRegistration.id,
+                data: {
+                    ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
+                },
+            })
+                .withFee(5000000000) // this is an invalid fee - fee for register (50) instead of update fee
+                .withPassphrase(secrets[1])
+                .createOne();
+
+            await expect(entityUpdate).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(entityUpdate.id).not.toBeForged();
+            await expect(entityUpdate).not.entityUpdated();
+        });
+
         it("should reject entity update, because associated register belongs to another wallet [Signed with 1 Passphrase]", async () => {
             // entity registration
             const entityRegistration = TransactionFactory.entity({
                 type: Enums.EntityType.Plugin,
-                subType: Enums.EntitySubType.PluginDesktop,
+                subType,
                 action: Enums.EntityAction.Register,
                 data: {
                     name: "another_name",
@@ -73,13 +115,14 @@ describe("Transaction Forging - Entity update", () => {
             // Trying to update the desktop wallet plugin of secrets[0] wallet using secrets[1]
             const entityUpdate = TransactionFactory.entity({
                 type: Enums.EntityType.Plugin,
-                subType: Enums.EntitySubType.PluginDesktop,
+                subType,
                 action: Enums.EntityAction.Update,
                 registrationId: entityRegistration.id,
                 data: {
                     ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
                 },
             })
+                .withFee(staticFeeUpdate)
                 .withPassphrase(secrets[1])
                 .createOne();
 
@@ -93,7 +136,7 @@ describe("Transaction Forging - Entity update", () => {
             // entity registration
             const entityRegistration = TransactionFactory.entity({
                 type: Enums.EntityType.Plugin,
-                subType: Enums.EntitySubType.PluginDesktop,
+                subType,
                 action: Enums.EntityAction.Register,
                 data: {
                     name: "again_another_name",
@@ -107,16 +150,17 @@ describe("Transaction Forging - Entity update", () => {
             await expect(entityRegistration.id).toBeForged();
             await expect(entityRegistration).entityRegistered();
 
-            // Trying to update the desktop wallet plugin using PluginCore subtype
+            // Trying to update with a different subtype
             const entityUpdate = TransactionFactory.entity({
                 type: Enums.EntityType.Plugin,
-                subType: Enums.EntitySubType.PluginCore,
+                subType: subType + 7,
                 action: Enums.EntityAction.Update,
                 registrationId: entityRegistration.id,
                 data: {
                     ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
                 },
             })
+                .withFee(staticFeeUpdate)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -154,7 +198,7 @@ describe("Transaction Forging - Entity update", () => {
             // Registering entity
             const entityRegistration = TransactionFactory.entity({
                 type: Enums.EntityType.Business,
-                subType: Enums.EntitySubType.None,
+                subType,
                 action: Enums.EntityAction.Register,
                 data: {
                     name: "b_bizbiz",
@@ -172,13 +216,14 @@ describe("Transaction Forging - Entity update", () => {
             // Updating entity
             const entityUpdate = TransactionFactory.entity({
                 type: Enums.EntityType.Business,
-                subType: Enums.EntitySubType.None,
+                subType,
                 action: Enums.EntityAction.Update,
                 registrationId: entityRegistration.id,
                 data: {
                     ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
                 },
             })
+                .withFee(staticFeeUpdate)
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
                 .createOne();
@@ -235,7 +280,7 @@ describe("Transaction Forging - Entity update", () => {
             // Registering entity
             const entityRegistration = TransactionFactory.entity({
                 type: Enums.EntityType.Developer,
-                subType: Enums.EntitySubType.None,
+                subType,
                 action: Enums.EntityAction.Register,
                 data: {
                     name: "iam_a_developer",
@@ -253,13 +298,14 @@ describe("Transaction Forging - Entity update", () => {
             // Updating entity
             const entityUpdate = TransactionFactory.entity({
                 type: Enums.EntityType.Developer,
-                subType: Enums.EntitySubType.None,
+                subType,
                 action: Enums.EntityAction.Update,
                 registrationId: entityRegistration.id,
                 data: {
                     ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
                 },
             })
+                .withFee(staticFeeUpdate)
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
