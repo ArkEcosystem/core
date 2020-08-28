@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -111,12 +111,72 @@ describe("Ipfs", () => {
                 yield ipfsTransaction.data;
             });
 
+            expect(senderWallet.hasAttribute("ipfs.hashes")).toBeFalse();
+            expect(
+                walletRepository
+                    .getIndex(Contracts.State.WalletIndexes.Ipfs)
+                    .has("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w"),
+            ).toBeFalse();
+
             await expect(handler.bootstrap()).toResolve();
 
             expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
                 typeGroup: Enums.TransactionTypeGroup.Core,
                 type: Enums.TransactionType.Ipfs,
             });
+
+            expect(
+                walletRepository
+                    .getIndex(Contracts.State.WalletIndexes.Ipfs)
+                    .has("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w"),
+            ).toBeTrue();
+
+            expect(senderWallet.hasAttribute("ipfs.hashes")).toBeTrue();
+            const ipfsHashes = senderWallet.getAttribute("ipfs.hashes");
+            expect(ipfsHashes[ipfsTransaction.data.asset!.ipfs]).toBeTrue();
+        });
+
+        it("should resolve if wallet has ipfs attribute", async () => {
+            senderWallet.setAttribute("ipfs", { hashes: {} });
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield ipfsTransaction.data;
+            });
+
+            expect(
+                walletRepository
+                    .getIndex(Contracts.State.WalletIndexes.Ipfs)
+                    .has("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w"),
+            ).toBeFalse();
+
+            await expect(handler.bootstrap()).toResolve();
+
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.Ipfs,
+            });
+
+            expect(
+                walletRepository
+                    .getIndex(Contracts.State.WalletIndexes.Ipfs)
+                    .has("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w"),
+            ).toBeTrue();
+
+            expect(senderWallet.hasAttribute("ipfs.hashes")).toBeTrue();
+            const ipfsHashes = senderWallet.getAttribute("ipfs.hashes");
+            expect(ipfsHashes[ipfsTransaction.data.asset!.ipfs]).toBeTrue();
+        });
+
+        it("should throw if asset is undefiend", async () => {
+            senderWallet.setAttribute("ipfs", { hashes: {} });
+
+            ipfsTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield ipfsTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
         });
     });
 
@@ -186,6 +246,26 @@ describe("Ipfs", () => {
                 ],
             ).toBeTrue();
             expect(senderWallet.balance).toEqual(balanceBefore.minus(ipfsTransaction.data.fee));
+        });
+    });
+
+    describe("applyToSender", () => {
+        it("should throw if asset is undefined", async () => {
+            ipfsTransaction.data.asset = undefined;
+
+            await expect(handler.applyToSender(ipfsTransaction)).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
+    });
+
+    describe("revertForSender", () => {
+        it("should throw if asset is undefined", async () => {
+            senderWallet.nonce = Utils.BigNumber.make("1");
+
+            ipfsTransaction.data.asset = undefined;
+
+            await expect(handler.revertForSender(ipfsTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
         });
     });
 

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions } from "@packages/core-kernel";
 import { DelegateEvent } from "@packages/core-kernel/src/enums";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
@@ -112,12 +112,12 @@ describe("DelegateRegistrationTransaction", () => {
             Mocks.BlockRepository.setLastForgedBlocks([]);
         });
 
-        // TODO: assert wallet repository
-
         it("should resolve", async () => {
             transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
                 yield delegateRegistrationTransaction.data;
             });
+
+            expect(senderWallet.hasAttribute("delegate")).toBeFalse();
 
             await expect(handler.bootstrap()).toResolve();
 
@@ -125,6 +125,45 @@ describe("DelegateRegistrationTransaction", () => {
                 typeGroup: Enums.TransactionTypeGroup.Core,
                 type: Enums.TransactionType.DelegateRegistration,
             });
+            expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).has("dummy")).toBeTrue();
+            expect(senderWallet.hasAttribute("delegate")).toBeTrue();
+            expect(senderWallet.getAttribute("delegate")).toEqual({
+                username: "dummy",
+                voteBalance: Utils.BigNumber.ZERO,
+                forgedFees: Utils.BigNumber.ZERO,
+                forgedRewards: Utils.BigNumber.ZERO,
+                producedBlocks: 0,
+                rank: undefined,
+            });
+        });
+
+        it("should not resolve if asset is undefined", async () => {
+            delegateRegistrationTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield delegateRegistrationTransaction.data;
+            });
+
+            expect(senderWallet.hasAttribute("delegate")).toBeFalse();
+
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
+            expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).has("dummy")).toBeFalse();
+            expect(senderWallet.hasAttribute("delegate")).toBeFalse();
+        });
+
+        it("should not resolve if asset.delegate is undefined", async () => {
+            // @ts-ignore
+            delegateRegistrationTransaction.data.asset.delegate = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield delegateRegistrationTransaction.data;
+            });
+
+            expect(senderWallet.hasAttribute("delegate")).toBeFalse();
+
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
+            expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).has("dummy")).toBeFalse();
+            expect(senderWallet.hasAttribute("delegate")).toBeFalse();
         });
 
         it("should resolve with bocks", async () => {
@@ -141,17 +180,30 @@ describe("DelegateRegistrationTransaction", () => {
                 },
             ]);
 
-            Mocks.BlockRepository.setLastForgedBlocks([
-                {
-                    generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
-                    id: "123",
-                    height: "1",
-                    timestamp: 1,
-                },
-            ]);
+            const lastForgedBlock = {
+                generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                id: "123",
+                height: "1",
+                timestamp: 1,
+            };
+
+            Mocks.BlockRepository.setLastForgedBlocks([lastForgedBlock]);
+
+            expect(senderWallet.hasAttribute("delegate")).toBeFalse();
 
             await expect(handler.bootstrap()).toResolve();
-            // TODO: assert wallet repository
+
+            expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).has("dummy")).toBeTrue();
+            expect(senderWallet.hasAttribute("delegate")).toBeTrue();
+            expect(senderWallet.getAttribute("delegate.lastBlock")).toEqual(lastForgedBlock);
+
+            const delegateAttributes: any = senderWallet.getAttribute("delegate");
+            expect(delegateAttributes.username).toEqual("dummy");
+            expect(delegateAttributes.voteBalance).toEqual(Utils.BigNumber.ZERO);
+            expect(delegateAttributes.forgedFees).toEqual(Utils.BigNumber.make("2"));
+            expect(delegateAttributes.forgedRewards).toEqual(Utils.BigNumber.make("2"));
+            expect(delegateAttributes.producedBlocks).toEqual(1);
+            expect(delegateAttributes.rank).toBeUndefined();
         });
 
         it("should resolve with bocks and genesis wallet", async () => {
@@ -176,7 +228,9 @@ describe("DelegateRegistrationTransaction", () => {
             ]);
 
             await expect(handler.bootstrap()).toResolve();
-            // TODO: assert wallet repository
+
+            expect(walletRepository.getIndex(Contracts.State.WalletIndexes.Usernames).has("dummy")).toBeFalse();
+            expect(senderWallet.hasAttribute("delegate")).toBeFalse();
         });
     });
 

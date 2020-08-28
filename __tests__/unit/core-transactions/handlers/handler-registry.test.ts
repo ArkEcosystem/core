@@ -274,6 +274,17 @@ describe("Registry", () => {
         ).toResolve();
     });
 
+    it("should skip handler registration if provider handlerProvider is already registered", async () => {
+        const transactionHandlerProvider = app.get<TransactionHandlerProvider>(Identifiers.TransactionHandlerProvider);
+
+        transactionHandlerProvider.isRegistrationRequired = jest.fn().mockReturnValue(false);
+        transactionHandlerProvider.registerHandlers = jest.fn();
+
+        app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+
+        expect(transactionHandlerProvider.registerHandlers).not.toHaveBeenCalled();
+    });
+
     it("should register a custom type", async () => {
         app.bind(Identifiers.TransactionHandler).to(TestTransactionHandler);
 
