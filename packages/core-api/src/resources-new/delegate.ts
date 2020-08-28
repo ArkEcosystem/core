@@ -72,4 +72,4 @@ export const delegateCriteriaSchemaObject = {
 
 export const delegateCriteriaQuerySchema = Schemas.createCriteriaQuerySchema(delegateCriteriaSchemaObject);
 export const delegateCriteriaPayloadSchema = Schemas.createCriteriaPayloadSchema(delegateCriteriaSchemaObject);
-export const delegateOrderingSchema = Schemas.createOrderingSchema(delegateCriteriaSchemaObject);
+export const delegateSortingSchema = Schemas.createSortingSchema(delegateCriteriaSchemaObject);

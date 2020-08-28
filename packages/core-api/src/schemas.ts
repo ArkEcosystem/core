@@ -47,9 +47,9 @@ export const createRangeCriteriaSchema = (item: Joi.Schema): Joi.Schema => {
     return Joi.alternatives(item, Joi.object({ from: item, to: item }).or("from", "to"));
 };
 
-// Ordering
+// Sorting
 
-export const createOrderingSchema = (schemaObject: SchemaObject, wildcardPaths: string[] = []): Joi.ObjectSchema => {
+export const createSortingSchema = (schemaObject: SchemaObject, wildcardPaths: string[] = []): Joi.ObjectSchema => {
     const getObjectPaths = (object: SchemaObject): string[] => {
         return Object.entries(object)
             .map(([key, value]) => {
@@ -66,7 +66,7 @@ export const createOrderingSchema = (schemaObject: SchemaObject, wildcardPaths: 
                 return [];
             }
 
-            const ordering: Contracts.Search.Ordering = [];
+            const sorting: Contracts.Search.Sorting = [];
 
             for (const item of value.split(",")) {
                 const pair = item.split(":");
@@ -85,10 +85,10 @@ export const createOrderingSchema = (schemaObject: SchemaObject, wildcardPaths: 
                     });
                 }
 
-                ordering.push({ property, direction: direction as "asc" | "desc" });
+                sorting.push({ property, direction: direction as "asc" | "desc" });
             }
 
-            return ordering;
+            return sorting;
         }).default([]),
     });
 };

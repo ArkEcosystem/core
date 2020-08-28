@@ -29,18 +29,18 @@ export class DelegatesController extends Controller {
 
     public index(request: Hapi.Request): Contracts.Search.ResultsPage<DelegateResource> {
         const pagination = this.getQueryPagination(request.query);
-        const ordering = request.query.orderBy as Contracts.Search.Ordering;
+        const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = this.getQueryCriteria(request.query, delegateCriteriaSchemaObject) as DelegateCriteria;
 
-        return this.delegateSearchService.getDelegatesPage(pagination, ordering, criteria);
+        return this.delegateSearchService.getDelegatesPage(pagination, sorting, criteria);
     }
 
     public search(request: Hapi.Request): Contracts.Search.ResultsPage<DelegateResource> {
         const pagination = this.getQueryPagination(request.query);
-        const ordering = request.query.orderBy as Contracts.Search.Ordering;
+        const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = request.payload as DelegateCriteria;
 
-        return this.delegateSearchService.getDelegatesPage(pagination, ordering, criteria);
+        return this.delegateSearchService.getDelegatesPage(pagination, sorting, criteria);
     }
 
     public show(request: Hapi.Request): { data: DelegateResource } | Boom {
@@ -63,10 +63,10 @@ export class DelegatesController extends Controller {
         }
 
         const pagination = this.getQueryPagination(request.query);
-        const ordering = request.query.orderBy as Contracts.Search.Ordering;
+        const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = this.getQueryCriteria(request.query, walletCriteriaSchemaObject) as WalletCriteria;
 
-        return this.walletSearchService.getActiveWalletsPage(pagination, ordering, criteria, {
+        return this.walletSearchService.getActiveWalletsPage(pagination, sorting, criteria, {
             attributes: {
                 vote: delegateResource.publicKey,
             },

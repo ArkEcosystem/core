@@ -2,7 +2,7 @@ import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import { BlockHistoryService } from "../../../packages/core-database/src/block-history-service";
 
-const defaultBlockOrdering: Contracts.Search.Ordering = [{ property: "height", direction: "asc" }];
+const defaultBlockSorting: Contracts.Search.Sorting = [{ property: "height", direction: "asc" }];
 
 const blockRepository = {
     findManyByExpression: jest.fn(),
@@ -60,7 +60,7 @@ describe("BlockHistoryService.findOneByCriteria", () => {
         const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(blockFilter.getExpression).toBeCalledWith(criteria);
-        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockOrdering);
+        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockSorting);
         expect(modelConverter.getBlockData).toBeCalledWith([]);
         expect(result).toBeUndefined();
     });
@@ -79,7 +79,7 @@ describe("BlockHistoryService.findOneByCriteria", () => {
         const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(blockFilter.getExpression).toBeCalledWith(criteria);
-        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockOrdering);
+        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockSorting);
         expect(modelConverter.getBlockData).toBeCalledWith([model]);
 
         expect(result).toBe(data);
@@ -103,7 +103,7 @@ describe("BlockHistoryService.findManyByCriteria", () => {
         const result = await blockHistoryService.findManyByCriteria(criteria);
 
         expect(blockFilter.getExpression).toBeCalledWith(criteria);
-        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockOrdering);
+        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockSorting);
         expect(modelConverter.getBlockData).toBeCalledWith([model1, model2]);
 
         expect(result.length).toBe(2);

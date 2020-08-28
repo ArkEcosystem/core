@@ -4,12 +4,12 @@ import Joi from "@hapi/joi";
 import { WalletsController } from "../controllers/wallets";
 import {
     lockCriteriaQuerySchema,
-    lockOrderingSchema,
     lockParamSchema,
+    lockSortingSchema,
     walletCriteriaPayloadSchema,
     walletCriteriaQuerySchema,
-    walletOrderingSchema,
     walletParamSchema,
+    walletSortingSchema,
 } from "../resources-new";
 import * as Schemas from "../schemas";
 
@@ -25,7 +25,7 @@ export const register = (server: Hapi.Server): void => {
             validate: {
                 query: Joi.object()
                     .concat(walletCriteriaQuerySchema)
-                    .concat(walletOrderingSchema)
+                    .concat(walletSortingSchema)
                     .concat(Schemas.pagination),
             },
             plugins: {
@@ -42,7 +42,7 @@ export const register = (server: Hapi.Server): void => {
             validate: {
                 query: Joi.object()
                     .concat(walletCriteriaQuerySchema)
-                    .concat(walletOrderingSchema)
+                    .concat(walletSortingSchema)
                     .concat(Schemas.pagination),
             },
             plugins: {
@@ -57,7 +57,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: Joi.object().concat(walletOrderingSchema).concat(Schemas.pagination),
+                query: Joi.object().concat(walletSortingSchema).concat(Schemas.pagination),
                 payload: walletCriteriaPayloadSchema,
             },
             plugins: {
@@ -90,7 +90,7 @@ export const register = (server: Hapi.Server): void => {
                 }),
                 query: Joi.object()
                     .concat(lockCriteriaQuerySchema)
-                    .concat(lockOrderingSchema)
+                    .concat(lockSortingSchema)
                     .concat(Schemas.pagination),
             },
             plugins: {

@@ -39,4 +39,4 @@ export const walletCriteriaSchemaObject = {
 
 export const walletCriteriaQuerySchema = Schemas.createCriteriaQuerySchema(walletCriteriaSchemaObject);
 export const walletCriteriaPayloadSchema = Schemas.createCriteriaPayloadSchema(walletCriteriaSchemaObject);
-export const walletOrderingSchema = Schemas.createOrderingSchema(walletCriteriaSchemaObject, ["attributes"]);
+export const walletSortingSchema = Schemas.createSortingSchema(walletCriteriaSchemaObject, ["attributes"]);

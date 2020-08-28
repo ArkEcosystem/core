@@ -37,12 +37,12 @@ export class DelegateSearchService {
 
     public getDelegatesPage(
         pagination: Contracts.Search.Pagination,
-        ordering: Contracts.Search.Ordering,
+        sorting: Contracts.Search.Sorting,
         ...criterias: DelegateCriteria[]
     ): Contracts.Search.ResultsPage<DelegateResource> {
-        ordering = [...ordering, { property: "rank", direction: "asc" }];
+        sorting = [...sorting, { property: "rank", direction: "asc" }];
 
-        return this.paginationService.getPage(pagination, ordering, this.getDelegates(...criterias));
+        return this.paginationService.getPage(pagination, sorting, this.getDelegates(...criterias));
     }
 
     public getDelegateResourceFromWallet(wallet: Contracts.State.Wallet): DelegateResource {

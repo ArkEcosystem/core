@@ -15,21 +15,21 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
 
     public async findManyByExpression(
         expression: Contracts.Search.Expression<TEntity>,
-        ordering: Contracts.Search.Ordering = [],
+        sorting: Contracts.Search.Sorting = [],
     ): Promise<TEntity[]> {
         const queryBuilder: SelectQueryBuilder<TEntity> = this.createQueryBuilder().select();
         this.addWhere(queryBuilder, expression);
-        this.addOrderBy(queryBuilder, ordering);
+        this.addOrderBy(queryBuilder, sorting);
         return queryBuilder.getMany();
     }
 
     public async *streamByExpression(
         expression: Contracts.Search.Expression<TEntity>,
-        order: Contracts.Search.Ordering = [],
+        sorting: Contracts.Search.Sorting = [],
     ): AsyncIterable<TEntity> {
         const queryBuilder = this.createQueryBuilder().select("*");
         this.addWhere(queryBuilder, expression);
-        this.addOrderBy(queryBuilder, order);
+        this.addOrderBy(queryBuilder, sorting);
         const stream = await queryBuilder.stream();
 
         for await (const raw of stream) {
@@ -39,14 +39,14 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
 
     public async listByExpression(
         expression: Contracts.Search.Expression<TEntity>,
-        order: Contracts.Search.Ordering,
-        page: Contracts.Search.Pagination,
+        sorting: Contracts.Search.Sorting,
+        pagination: Contracts.Search.Pagination,
         options?: Contracts.Search.Options,
     ): Promise<Contracts.Search.ResultsPage<TEntity>> {
         const queryBuilder = this.createQueryBuilder().select();
         this.addWhere(queryBuilder, expression);
-        this.addOrderBy(queryBuilder, order);
-        this.addSkipOffset(queryBuilder, page);
+        this.addOrderBy(queryBuilder, sorting);
+        this.addSkipOffset(queryBuilder, pagination);
 
         if (options?.estimateTotalCount === false) {
             const [results, totalCount]: [TEntity[], number] = await queryBuilder.getManyAndCount();
@@ -120,19 +120,19 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         queryBuilder.where(sqlExpression.query, sqlExpression.parameters);
     }
 
-    private addOrderBy(queryBuilder: SelectQueryBuilder<TEntity>, order: Contracts.Search.Ordering): void {
-        if (order.length) {
-            const column = this.queryHelper.getColumnName(this.metadata, order[0].property);
-            queryBuilder.orderBy(column, order[0].direction === "desc" ? "DESC" : "ASC");
+    private addOrderBy(queryBuilder: SelectQueryBuilder<TEntity>, sorting: Contracts.Search.Sorting): void {
+        if (sorting.length) {
+            const column = this.queryHelper.getColumnName(this.metadata, sorting[0].property);
+            queryBuilder.orderBy(column, sorting[0].direction === "desc" ? "DESC" : "ASC");
 
-            for (const item of order.slice(1)) {
+            for (const item of sorting.slice(1)) {
                 const column = this.queryHelper.getColumnName(this.metadata, item.property);
                 queryBuilder.addOrderBy(column, item.direction === "desc" ? "DESC" : "ASC");
             }
         }
     }
 
-    private addSkipOffset(queryBuilder: SelectQueryBuilder<TEntity>, page: Contracts.Search.Pagination): void {
-        queryBuilder.skip(page.offset).take(page.limit);
+    private addSkipOffset(queryBuilder: SelectQueryBuilder<TEntity>, pagination: Contracts.Search.Pagination): void {
+        queryBuilder.skip(pagination.offset).take(pagination.limit);
     }
 }

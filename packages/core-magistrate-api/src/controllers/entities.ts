@@ -14,18 +14,18 @@ export class EntityController extends Controller {
 
     public index(request: Hapi.Request): Contracts.Search.ResultsPage<EntityResource> {
         const pagination = this.getQueryPagination(request.query);
-        const ordering = request.query.orderBy as Contracts.Search.Ordering;
+        const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = this.getQueryCriteria(request.query, entityCriteriaSchemaObject) as EntityCriteria;
 
-        return this.entitySearchService.getEntitiesPage(pagination, ordering, criteria);
+        return this.entitySearchService.getEntitiesPage(pagination, sorting, criteria);
     }
 
     public search(request: Hapi.Request): Contracts.Search.ResultsPage<EntityResource> {
         const pagination = this.getQueryPagination(request.query);
-        const ordering = request.query.orderBy as Contracts.Search.Ordering;
+        const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = request.payload as EntityCriteria;
 
-        return this.entitySearchService.getEntitiesPage(pagination, ordering, criteria);
+        return this.entitySearchService.getEntitiesPage(pagination, sorting, criteria);
     }
 
     public show(request: Hapi.Request): { data: EntityResource } | Boom {

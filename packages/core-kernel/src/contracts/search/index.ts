@@ -1,7 +1,7 @@
 export * from "./criteria";
 export * from "./expressions";
 
-export type Ordering = {
+export type Sorting = {
     property: string;
     direction: "asc" | "desc";
 }[];

@@ -9,8 +9,8 @@ describe("PaginationService.getPage", () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: 1 }, { v: 3 }, {}, { v: 2 }];
-        const ordering = [{ property: "v", direction: "asc" as const }];
-        const resultsPage = paginationService.getPage(pagination, ordering, items);
+        const sorting = [{ property: "v", direction: "asc" as const }];
+        const resultsPage = paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: 1 }, { v: 2 }, { v: 3 }, {}],
@@ -23,8 +23,8 @@ describe("PaginationService.getPage", () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: 1 }, { v: 3 }, {}, { v: 2 }];
-        const ordering = [{ property: "v", direction: "desc" as const }];
-        const resultsPage = paginationService.getPage(pagination, ordering, items);
+        const sorting = [{ property: "v", direction: "desc" as const }];
+        const resultsPage = paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: 3 }, { v: 2 }, { v: 1 }, {}],
@@ -37,8 +37,8 @@ describe("PaginationService.getPage", () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: 1 }, { v: 3 }, {}, { v: null }, { v: 2 }];
-        const ordering = [{ property: "v", direction: "asc" as const }];
-        const resultsPage = paginationService.getPage(pagination, ordering, items);
+        const sorting = [{ property: "v", direction: "asc" as const }];
+        const resultsPage = paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: 1 }, { v: 2 }, { v: 3 }, { v: null }, {}],
@@ -51,8 +51,8 @@ describe("PaginationService.getPage", () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: 1 }, { v: null }, { v: 3 }, {}, { v: 2 }];
-        const ordering = [{ property: "v", direction: "desc" as const }];
-        const resultsPage = paginationService.getPage(pagination, ordering, items);
+        const sorting = [{ property: "v", direction: "desc" as const }];
+        const resultsPage = paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: 3 }, { v: 2 }, { v: 1 }, { v: null }, {}],
@@ -61,7 +61,7 @@ describe("PaginationService.getPage", () => {
         });
     });
 
-    it("should sort using second ordering instruction when first properties are equal", () => {
+    it("should sort using second sorting instruction when first properties are equal", () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [
@@ -69,11 +69,11 @@ describe("PaginationService.getPage", () => {
             { a: 1, b: 101 },
             { a: 2, b: 100 },
         ];
-        const ordering = [
+        const sorting = [
             { property: "a", direction: "asc" as const },
             { property: "b", direction: "asc" as const },
         ];
-        const resultsPage = paginationService.getPage(pagination, ordering, items);
+        const resultsPage = paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [
@@ -90,8 +90,8 @@ describe("PaginationService.getPage", () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
         const items = [{ v: Utils.BigNumber.make(1) }, { v: Utils.BigNumber.make(3) }, { v: Utils.BigNumber.make(2) }];
-        const ordering = [{ property: "v", direction: "asc" as const }];
-        const resultsPage = paginationService.getPage(pagination, ordering, items);
+        const sorting = [{ property: "v", direction: "asc" as const }];
+        const resultsPage = paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
             results: [{ v: Utils.BigNumber.make(1) }, { v: Utils.BigNumber.make(2) }, { v: Utils.BigNumber.make(3) }],

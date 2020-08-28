@@ -30,14 +30,14 @@ export class TransactionsController extends Controller {
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const criteria: Contracts.Shared.TransactionCriteria = request.query;
-        const ordering: Contracts.Search.Ordering = this.getListingOrder(request);
+        const sorting: Contracts.Search.Sorting = this.getListingOrder(request);
         const pagination: Contracts.Search.Pagination = this.getListingPage(request);
         const options: Contracts.Search.Options = this.getListingOptions();
 
         if (request.query.transform) {
             const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
                 criteria,
-                ordering,
+                sorting,
                 pagination,
                 options,
             );
@@ -46,7 +46,7 @@ export class TransactionsController extends Controller {
         } else {
             const transactionListResult = await this.transactionHistoryService.listByCriteria(
                 criteria,
-                ordering,
+                sorting,
                 pagination,
                 options,
             );
@@ -120,14 +120,14 @@ export class TransactionsController extends Controller {
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const criteria: Contracts.Shared.TransactionCriteria = request.payload;
-        const ordering: Contracts.Search.Ordering = this.getListingOrder(request);
+        const sorting: Contracts.Search.Sorting = this.getListingOrder(request);
         const pagination: Contracts.Search.Pagination = this.getListingPage(request);
         const options: Contracts.Search.Options = this.getListingOptions();
 
         if (request.query.transform) {
             const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
                 criteria,
-                ordering,
+                sorting,
                 pagination,
                 options,
             );
@@ -136,7 +136,7 @@ export class TransactionsController extends Controller {
         } else {
             const transactionListResult = await this.transactionHistoryService.listByCriteria(
                 criteria,
-                ordering,
+                sorting,
                 pagination,
                 options,
             );

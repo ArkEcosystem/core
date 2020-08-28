@@ -5,8 +5,8 @@ import { LocksController } from "../controllers/locks";
 import {
     lockCriteriaPayloadSchema,
     lockCriteriaQuerySchema,
-    lockOrderingSchema,
     lockParamSchema,
+    lockSortingSchema,
 } from "../resources-new";
 import * as Schemas from "../schemas";
 
@@ -22,7 +22,7 @@ export const register = (server: Hapi.Server): void => {
             validate: {
                 query: Joi.object()
                     .concat(lockCriteriaQuerySchema)
-                    .concat(lockOrderingSchema)
+                    .concat(lockSortingSchema)
                     .concat(Schemas.pagination),
             },
             plugins: {
@@ -37,7 +37,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: Joi.object().concat(lockOrderingSchema).concat(Schemas.pagination),
+                query: Joi.object().concat(lockSortingSchema).concat(Schemas.pagination),
                 payload: lockCriteriaPayloadSchema,
             },
             plugins: {

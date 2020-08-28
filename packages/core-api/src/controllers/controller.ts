@@ -51,7 +51,7 @@ export class Controller {
         return pagination;
     }
 
-    protected getListingOrder(request: Hapi.Request): Contracts.Search.Ordering {
+    protected getListingOrder(request: Hapi.Request): Contracts.Search.Sorting {
         if (!request.query.orderBy) {
             return [];
         }

@@ -35,23 +35,23 @@ export class LockSearchService {
 
     public getLocksPage(
         pagination: Contracts.Search.Pagination,
-        ordering: Contracts.Search.Ordering,
+        sorting: Contracts.Search.Sorting,
         ...criterias: LockCriteria[]
     ): Contracts.Search.ResultsPage<LockResource> {
-        ordering = [...ordering, { property: "timestamp.unix", direction: "desc" }];
+        sorting = [...sorting, { property: "timestamp.unix", direction: "desc" }];
 
-        return this.paginationService.getPage(pagination, ordering, this.getLocks(...criterias));
+        return this.paginationService.getPage(pagination, sorting, this.getLocks(...criterias));
     }
 
     public getWalletLocksPage(
         pagination: Contracts.Search.Pagination,
-        ordering: Contracts.Search.Ordering,
+        sorting: Contracts.Search.Sorting,
         walletAddress: string,
         ...criterias: LockCriteria[]
     ): Contracts.Search.ResultsPage<LockResource> {
-        ordering = [...ordering, { property: "timestamp.unix", direction: "desc" }];
+        sorting = [...sorting, { property: "timestamp.unix", direction: "desc" }];
 
-        return this.paginationService.getPage(pagination, ordering, this.getWalletLocks(walletAddress, ...criterias));
+        return this.paginationService.getPage(pagination, sorting, this.getWalletLocks(walletAddress, ...criterias));
     }
 
     public getLockResourceFromWallet(wallet: Contracts.State.Wallet, lockId: string): LockResource {

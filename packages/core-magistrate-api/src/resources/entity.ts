@@ -42,4 +42,4 @@ export const entityCriteriaSchemaObject = {
 
 export const entityCriteriaQuerySchema = Schemas.createCriteriaQuerySchema(entityCriteriaSchemaObject);
 export const entityCriteriaPayloadSchema = Schemas.createCriteriaPayloadSchema(entityCriteriaSchemaObject);
-export const entityOrderingSchema = Schemas.createOrderingSchema(entityCriteriaSchemaObject);
+export const entitySortingSchema = Schemas.createSortingSchema(entityCriteriaSchemaObject);

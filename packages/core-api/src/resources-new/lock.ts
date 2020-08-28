@@ -55,4 +55,4 @@ export const lockCriteriaSchemaObject = {
 
 export const lockCriteriaQuerySchema = Schemas.createCriteriaQuerySchema(lockCriteriaSchemaObject);
 export const lockCriteriaPayloadSchema = Schemas.createCriteriaPayloadSchema(lockCriteriaSchemaObject);
-export const lockOrderingSchema = Schemas.createOrderingSchema(lockCriteriaSchemaObject);
+export const lockSortingSchema = Schemas.createSortingSchema(lockCriteriaSchemaObject);

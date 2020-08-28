@@ -1,6 +1,6 @@
 import { Utils } from "@arkecosystem/crypto";
 
-import { Ordering, Pagination, ResultsPage } from "../../contracts/search";
+import { Pagination, ResultsPage, Sorting } from "../../contracts/search";
 import { injectable } from "../../ioc";
 import { get } from "../../utils";
 
@@ -10,12 +10,12 @@ export class PaginationService {
         return { results: [], totalCount: 0, meta: { totalCountIsEstimate: false } };
     }
 
-    public getPage<T>(pagination: Pagination, ordering: Ordering, items: Iterable<T>): ResultsPage<T> {
+    public getPage<T>(pagination: Pagination, sorting: Sorting, items: Iterable<T>): ResultsPage<T> {
         // todo: Array.from(items) can be avoided.
         // todo: There is no reason to sort items that will not be included into result.
         // todo: Only pagination.offset + pagination.limit items have to be kept in memory.
 
-        const total = Array.from(items).sort((a, b) => this.compare(a, b, ordering));
+        const total = Array.from(items).sort((a, b) => this.compare(a, b, sorting));
 
         return {
             results: total.slice(pagination.offset, pagination.offset + pagination.limit),
@@ -24,8 +24,8 @@ export class PaginationService {
         };
     }
 
-    public compare<T>(a: T, b: T, ordering: Ordering): number {
-        for (const { property, direction } of ordering) {
+    public compare<T>(a: T, b: T, sorting: Sorting): number {
+        for (const { property, direction } of sorting) {
             let valueA = get(a, property);
             let valueB = get(b, property);
 

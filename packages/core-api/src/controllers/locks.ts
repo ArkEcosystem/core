@@ -19,18 +19,18 @@ export class LocksController extends Controller {
 
     public index(request: Hapi.Request): Contracts.Search.ResultsPage<LockResource> {
         const pagination = this.getQueryPagination(request.query);
-        const ordering = request.query.orderBy as Contracts.Search.Ordering;
+        const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = this.getQueryCriteria(request.query, lockCriteriaSchemaObject) as LockCriteria;
 
-        return this.lockSearchService.getLocksPage(pagination, ordering, criteria);
+        return this.lockSearchService.getLocksPage(pagination, sorting, criteria);
     }
 
     public search(request: Hapi.Request): Contracts.Search.ResultsPage<LockResource> {
         const pagination = this.getQueryPagination(request.query);
-        const ordering = request.query.orderBy as Contracts.Search.Ordering;
+        const sorting = request.query.orderBy as Contracts.Search.Sorting;
         const criteria = request.payload as LockCriteria;
 
-        return this.lockSearchService.getLocksPage(pagination, ordering, criteria);
+        return this.lockSearchService.getLocksPage(pagination, sorting, criteria);
     }
 
     public show(request: Hapi.Request): { data: LockResource } | Boom {

@@ -4,12 +4,12 @@ import {
     Options,
     OrContainsCriteria,
     OrCriteria,
-    Ordering,
     OrEqualCriteria,
     OrLikeCriteria,
     OrNumericCriteria,
     Pagination,
     ResultsPage,
+    Sorting,
 } from "../search";
 
 export type TransactionCriteria = {
@@ -47,7 +47,7 @@ export interface TransactionHistoryService {
 
     listByCriteria(
         criteria: OrTransactionCriteria,
-        ordering: Ordering,
+        sorting: Sorting,
         pagination: Pagination,
         options?: Options,
     ): Promise<ResultsPage<Interfaces.ITransactionData>>;
@@ -58,7 +58,7 @@ export interface TransactionHistoryService {
 
     listByCriteriaJoinBlock(
         criteria: OrTransactionCriteria,
-        ordering: Ordering,
+        sorting: Sorting,
         pagination: Pagination,
         options?: Options,
     ): Promise<ResultsPage<TransactionDataWithBlockData>>;

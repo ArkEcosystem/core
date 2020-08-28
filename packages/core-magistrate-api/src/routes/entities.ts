@@ -6,7 +6,7 @@ import { EntityController } from "../controllers/entities";
 import {
     entityCriteriaPayloadSchema,
     entityCriteriaQuerySchema,
-    entityOrderingSchema,
+    entitySortingSchema,
     entityParamSchema,
 } from "../resources";
 
@@ -22,7 +22,7 @@ export const register = (server: Hapi.Server): void => {
             validate: {
                 query: Joi.object()
                     .concat(entityCriteriaQuerySchema)
-                    .concat(entityOrderingSchema)
+                    .concat(entitySortingSchema)
                     .concat(Schemas.pagination),
             },
             plugins: {
@@ -37,7 +37,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: Joi.object().concat(entityOrderingSchema).concat(Schemas.pagination),
+                query: Joi.object().concat(entitySortingSchema).concat(Schemas.pagination),
                 payload: entityCriteriaPayloadSchema,
             },
             plugins: {

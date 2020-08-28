@@ -36,23 +36,23 @@ export class EntitySearchService {
 
     public getEntitiesPage(
         pagination: Contracts.Search.Pagination,
-        ordering: Contracts.Search.Ordering,
+        sorting: Contracts.Search.Sorting,
         ...criterias: EntityCriteria[]
     ): Contracts.Search.ResultsPage<EntityResource> {
-        ordering = [...ordering, { property: "data.name", direction: "asc" }];
+        sorting = [...sorting, { property: "data.name", direction: "asc" }];
 
-        return this.paginationService.getPage(pagination, ordering, this.getEntities(...criterias));
+        return this.paginationService.getPage(pagination, sorting, this.getEntities(...criterias));
     }
 
     public getWalletEntitiesPage(
         pagination: Contracts.Search.Pagination,
-        ordering: Contracts.Search.Ordering,
+        sorting: Contracts.Search.Sorting,
         walletId: string,
         ...criterias: EntityCriteria[]
     ): Contracts.Search.ResultsPage<EntityResource> {
-        ordering = [...ordering, { property: "data.name", direction: "asc" }];
+        sorting = [...sorting, { property: "data.name", direction: "asc" }];
 
-        return this.paginationService.getPage(pagination, ordering, this.getWalletEntities(walletId, ...criterias));
+        return this.paginationService.getPage(pagination, sorting, this.getWalletEntities(walletId, ...criterias));
     }
 
     private getEntityResourceFromWallet(wallet: Contracts.State.Wallet, entityId: string): EntityResource {
