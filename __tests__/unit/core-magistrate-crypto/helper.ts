@@ -60,6 +60,10 @@ export const businessUpdateAsset3: IBusinessUpdateAsset = {
     repository: "http://www.repository.com/myorg/myrepo",
 };
 
+export const businessUpdateAsset4: IBusinessUpdateAsset = {
+    website: "https://www.ark.io",
+};
+
 // Bridgechain registration assets
 export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
     name: "arkecosystem1",

@@ -89,6 +89,23 @@ describe("Business registration transaction", () => {
 
             expect(deserialized.data.asset!.businessRegistration).toStrictEqual(businessRegistrationAsset4);
         });
+
+        it("should throw on serialization if asset is undefined", () => {
+            const businessRegistration = builder
+                .businessRegistrationAsset(businessRegistrationAsset4)
+                .network(23)
+                .sign("passphrase")
+                .getStruct();
+
+            const transaction = Transactions.TransactionFactory.fromData(businessRegistration);
+            expect(transaction.serialize()).toBeDefined();
+
+            transaction.data.asset = undefined;
+
+            expect(() => {
+                transaction.serialize();
+            }).toThrowError();
+        });
     });
 
     describe("Schema tests", () => {
