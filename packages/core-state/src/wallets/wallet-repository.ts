@@ -21,11 +21,11 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     @Container.postConstruct()
     public initialize(): void {
-        for (const { name, indexer } of this.indexerIndexes) {
+        for (const { name, indexer, autoIndex } of this.indexerIndexes) {
             if (this.indexes[name]) {
                 throw new WalletIndexAlreadyRegisteredError(name);
             }
-            this.indexes[name] = new WalletIndex(indexer);
+            this.indexes[name] = new WalletIndex(indexer, autoIndex);
         }
     }
 
@@ -209,7 +209,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     }
 
     private indexWallet(wallet: Contracts.State.Wallet): void {
-        for (const index of Object.values(this.indexes)) {
+        for (const index of Object.values(this.indexes).filter((index) => index.autoIndex)) {
             index.forgetWallet(wallet);
             index.index(wallet);
         }

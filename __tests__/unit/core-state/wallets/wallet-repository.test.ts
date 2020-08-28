@@ -38,6 +38,7 @@ beforeAll(async () => {
         .toConstantValue({
             name: MagistrateIndex.Businesses,
             indexer: businessIndexer,
+            autoIndex: true,
         });
 
     initialEnv.sandbox.app
@@ -45,6 +46,7 @@ beforeAll(async () => {
         .toConstantValue({
             name: MagistrateIndex.Bridgechains,
             indexer: bridgechainIndexer,
+            autoIndex: true,
         });
 
     // TODO: why does this have to be rebound here?
