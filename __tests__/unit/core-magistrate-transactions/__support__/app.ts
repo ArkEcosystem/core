@@ -58,41 +58,49 @@ export const initApp = (): Application => {
     app.bind<Contracts.State.WalletIndexerIndex>(Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: Contracts.State.WalletIndexes.Addresses,
         indexer: addressesIndexer,
+        autoIndex: true,
     });
 
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: Contracts.State.WalletIndexes.PublicKeys,
         indexer: publicKeysIndexer,
+        autoIndex: true,
     });
 
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: Contracts.State.WalletIndexes.Usernames,
         indexer: usernamesIndexer,
+        autoIndex: true,
     });
 
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: Contracts.State.WalletIndexes.Ipfs,
         indexer: ipfsIndexer,
+        autoIndex: true,
     });
 
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: Contracts.State.WalletIndexes.Locks,
         indexer: locksIndexer,
+        autoIndex: true,
     });
 
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: MagistrateIndex.Businesses,
         indexer: businessIndexer,
+        autoIndex: true,
     });
 
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: MagistrateIndex.Bridgechains,
         indexer: bridgechainIndexer,
+        autoIndex: true,
     });
 
     app.bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex).toConstantValue({
         name: MagistrateIndex.Entities,
         indexer: entityIndexer,
+        autoIndex: true,
     });
 
     app.bind(Identifiers.WalletFactory).toFactory<Contracts.State.Wallet>(
