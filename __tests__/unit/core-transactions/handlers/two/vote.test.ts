@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -186,6 +186,15 @@ describe("VoteTransaction", () => {
             });
             senderWallet.setAttribute("vote", "no_a_public_key");
             await expect(handler.bootstrap()).rejects.toThrow(UnvoteMismatchError);
+        });
+
+        it("should throw if asset is undefined", async () => {
+            unvoteTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield unvoteTransaction.data;
+            });
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
         });
     });
 

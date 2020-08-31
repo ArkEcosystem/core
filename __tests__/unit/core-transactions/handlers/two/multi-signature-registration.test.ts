@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts, Services } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions, Services } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -157,6 +157,15 @@ describe("MultiSignatureRegistrationTransaction", () => {
             recipientWallet.setAttribute("multiSignature", multiSignatureTransaction.data.asset!.multiSignature);
             await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
         });
+
+        it("should throw if asset is undefined", async () => {
+            multiSignatureTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield multiSignatureTransaction.data;
+            });
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
     });
 
     describe("throwIfCannotBeApplied", () => {
@@ -172,6 +181,14 @@ describe("MultiSignatureRegistrationTransaction", () => {
             await expect(
                 handler.throwIfCannotBeApplied(secondSignatureMultiSignatureTransaction, secondSignatureWallet),
             ).toResolve();
+        });
+
+        it("should throw if asset is undefined", async () => {
+            multiSignatureTransaction.data.asset = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
         });
 
         it("should throw if the wallet already has multisignatures", async () => {
@@ -369,6 +386,30 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
     });
 
+    describe("applyToSender", () => {
+        it("should throw if asset is undefined", async () => {
+            multiSignatureTransaction.data.asset = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.applyToSender(multiSignatureTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+    });
+
+    describe("applyToRecipient", () => {
+        it("should throw if asset is undefined", async () => {
+            multiSignatureTransaction.data.asset = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.applyToRecipient(multiSignatureTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+    });
+
     describe("revert", () => {
         it("should be ok", async () => {
             senderWallet.nonce = Utils.BigNumber.make(1);
@@ -378,6 +419,16 @@ describe("MultiSignatureRegistrationTransaction", () => {
             expect(senderWallet.nonce.isZero()).toBeTrue();
             expect(senderWallet.hasMultiSignature()).toBeFalse();
             expect(recipientWallet.hasMultiSignature()).toBeFalse();
+        });
+    });
+
+    describe("revertForRecipient", () => {
+        it("should throw if asset is undefined", async () => {
+            multiSignatureTransaction.data.asset = undefined;
+
+            await expect(handler.revertForRecipient(multiSignatureTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
         });
     });
 });

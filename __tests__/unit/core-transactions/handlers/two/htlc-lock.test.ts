@@ -282,6 +282,8 @@ describe("Htlc lock", () => {
 
                 const balanceBefore = senderWallet.balance;
 
+                expect(senderWallet.hasAttribute("htlc.locks")).toBeFalse();
+
                 await handler.apply(htlcLockTransaction);
 
                 expect(senderWallet.getAttribute("htlc.locks", {})[htlcLockTransaction.id!]).toBeDefined();
