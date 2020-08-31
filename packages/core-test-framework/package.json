@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-test-framework",
-    "version": "3.0.0-alpha.0",
+    "version": "3.0.0-alpha.2",
     "description": "Test Framework for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,10 +21,10 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-cli": "^3.0.0-alpha.0",
-        "@arkecosystem/core-forger": "^3.0.0-alpha.0",
-        "@arkecosystem/core-kernel": "^3.0.0-alpha.0",
-        "@arkecosystem/crypto": "^3.0.0-alpha.0",
+        "@arkecosystem/core-cli": "^3.0.0-alpha.2",
+        "@arkecosystem/core-forger": "^3.0.0-alpha.2",
+        "@arkecosystem/core-kernel": "^3.0.0-alpha.2",
+        "@arkecosystem/crypto": "^3.0.0-alpha.2",
         "bip39": "^3.0.2",
         "bs58": "^4.0.1",
         "chance": "^1.1.3",

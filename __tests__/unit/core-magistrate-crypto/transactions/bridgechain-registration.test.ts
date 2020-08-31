@@ -1,9 +1,9 @@
 import "jest-extended";
 
 import { BridgechainRegistrationBuilder } from "@packages/core-magistrate-crypto/src/builders";
+import { BridgechainRegistrationTransaction } from "@packages/core-magistrate-crypto/src/transactions";
 import { Managers, Transactions, Validation } from "@packages/crypto";
 
-import { BridgechainRegistrationTransaction } from "@packages/core-magistrate-crypto/src/transactions";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, checkCommonFields } from "../helper";
 
 let builder: BridgechainRegistrationBuilder;
@@ -55,6 +55,23 @@ describe("Bridgechain registration transaction", () => {
             expect(deserialized.data.asset!.bridgechainRegistration).toStrictEqual(
                 bridgechainRegistration.asset!.bridgechainRegistration,
             );
+        });
+
+        it("should throw on serialization if asset is undefined", () => {
+            const bridgechainRegistration = builder
+                .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
+                .network(23)
+                .sign("passphrase")
+                .getStruct();
+
+            const transaction = Transactions.TransactionFactory.fromData(bridgechainRegistration);
+            expect(transaction.serialize()).toBeDefined();
+
+            transaction.data.asset = undefined;
+
+            expect(() => {
+                transaction.serialize();
+            }).toThrowError();
         });
     });
 

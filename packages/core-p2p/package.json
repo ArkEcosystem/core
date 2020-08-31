@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-p2p",
-    "version": "3.0.0-alpha.0",
+    "version": "3.0.0-alpha.2",
     "description": "P2P API for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -24,10 +24,10 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-database": "^3.0.0-alpha.0",
-        "@arkecosystem/core-kernel": "^3.0.0-alpha.0",
-        "@arkecosystem/core-transaction-pool": "^3.0.0-alpha.0",
-        "@arkecosystem/crypto": "^3.0.0-alpha.0",
+        "@arkecosystem/core-database": "^3.0.0-alpha.2",
+        "@arkecosystem/core-kernel": "^3.0.0-alpha.2",
+        "@arkecosystem/core-transaction-pool": "^3.0.0-alpha.2",
+        "@arkecosystem/crypto": "^3.0.0-alpha.2",
         "@hapi/boom": "^9.0.0",
         "@hapi/bounce": "2.x.x",
         "@hapi/cryptiles": "5.x.x",

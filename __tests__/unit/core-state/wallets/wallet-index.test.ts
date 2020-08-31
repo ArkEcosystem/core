@@ -18,7 +18,7 @@ beforeEach(() => {
     wallet = factory.make<Wallets.Wallet>();
     walletIndex = new WalletIndex((index, wallet) => {
         index.set(wallet.address, wallet);
-    });
+    }, true);
 });
 
 describe("WalletIndex", () => {

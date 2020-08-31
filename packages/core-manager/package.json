@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-manager",
-    "version": "3.0.0-alpha.0",
+    "version": "3.0.0-alpha.2",
     "description": "Manager for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,10 +21,10 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-cli": "^3.0.0-alpha.0",
-        "@arkecosystem/core-database": "^3.0.0-alpha.0",
-        "@arkecosystem/core-kernel": "^3.0.0-alpha.0",
-        "@arkecosystem/core-state": "^3.0.0-alpha.0",
+        "@arkecosystem/core-cli": "^3.0.0-alpha.2",
+        "@arkecosystem/core-database": "^3.0.0-alpha.2",
+        "@arkecosystem/core-kernel": "^3.0.0-alpha.2",
+        "@arkecosystem/core-state": "^3.0.0-alpha.2",
         "@hapi/basic": "^6.0.0",
         "@hapi/boom": "^9.0.0",
         "@hapi/hapi": "^19.0.0",

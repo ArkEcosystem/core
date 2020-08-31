@@ -4,7 +4,13 @@ import { BusinessUpdateBuilder } from "@packages/core-magistrate-crypto/src/buil
 import { BusinessUpdateTransaction } from "@packages/core-magistrate-crypto/src/transactions";
 import { Managers, Transactions, Validation as Ajv } from "@packages/crypto";
 
-import { businessUpdateAsset1, businessUpdateAsset2, businessUpdateAsset3, checkCommonFields } from "../helper";
+import {
+    businessUpdateAsset1,
+    businessUpdateAsset2,
+    businessUpdateAsset3,
+    businessUpdateAsset4,
+    checkCommonFields,
+} from "../helper";
 
 let builder: BusinessUpdateBuilder;
 
@@ -54,6 +60,35 @@ describe("Business update transaction", () => {
             const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessResignation);
+        });
+        it("should ser/deserialize giving back original fields", () => {
+            const businessResignation = builder
+                .network(23)
+                .businessUpdateAsset(businessUpdateAsset4)
+                .sign("passphrase")
+                .getStruct();
+
+            const serialized = Transactions.TransactionFactory.fromData(businessResignation).serialized.toString("hex");
+            const deserialized = Transactions.Deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, businessResignation);
+        });
+
+        it("should throw on serialization if asset is undefined", () => {
+            const businessResignation = builder
+                .network(23)
+                .businessUpdateAsset(businessUpdateAsset3)
+                .sign("passphrase")
+                .getStruct();
+
+            const transaction = Transactions.TransactionFactory.fromData(businessResignation);
+            expect(transaction.serialize()).toBeDefined();
+
+            transaction.data.asset = undefined;
+
+            expect(() => {
+                transaction.serialize();
+            }).toThrowError();
         });
     });
 
