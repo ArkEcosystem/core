@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts, Services } from "@packages/core-kernel";
+import { Application, Contracts, Services, Exceptions } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -127,7 +127,28 @@ describe("MultiSignatureRegistrationTransaction", () => {
             .sign(passphrases[0])
             .build();
 
-        multiSignatureTransaction.data.asset.multiSignatureLegacy = "multiSignatureLegacy mock" as any;
+        multiSignatureTransaction.data.asset!.multiSignatureLegacy = "multiSignatureLegacy mock" as any;
+    });
+
+    describe("dependencies", () => {
+        it("should return empty array", async () => {
+            expect(handler.dependencies()).toEqual([]);
+        });
+    });
+
+    describe("walletAttributes", () => {
+        it("should return array", async () => {
+            const attributes = handler.walletAttributes();
+
+            expect(attributes).toBeArray();
+            expect(attributes.length).toBe(2);
+        });
+    });
+
+    describe("getConstructor", () => {
+        it("should return v1 constructor", async () => {
+            expect(handler.getConstructor()).toBe(Transactions.One.MultiSignatureRegistrationTransaction);
+        });
     });
 
     describe("bootstrap", () => {
@@ -153,6 +174,39 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
             await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
         });
+
+        it("should throw if asset.multiSignatureLegacy is undefined", async () => {
+            multiSignatureTransaction.data.asset!.multiSignatureLegacy = undefined;
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield multiSignatureTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
+
+        it("should throw if asset is undefined", async () => {
+            multiSignatureTransaction.data.asset = undefined;
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield multiSignatureTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
+    });
+
+    describe("isActivated", () => {
+        it("should return true when aip11 is false", async () => {
+            configManager.getMilestone().aip11 = false;
+            await expect(handler.isActivated()).resolves.toBe(true);
+        });
+        it("should return true when aip11 is undefined", async () => {
+            configManager.getMilestone().aip11 = undefined;
+            await expect(handler.isActivated()).resolves.toBe(true);
+        });
+        it("should return false when aip11 is true", async () => {
+            configManager.getMilestone().aip11 = true;
+            await expect(handler.isActivated()).resolves.toBe(false);
+        });
     });
 
     describe("throwIfCannotBeApplied", () => {
@@ -173,7 +227,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             );
         });
 
-        it("should not throw defined as exception", async () => {
+        it("should not throw if exception", async () => {
             configManager.set("network.pubKeyHash", 99);
             configManager.set("exceptions.transactions", [multiSignatureTransaction.id]);
 
@@ -189,18 +243,27 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
     });
 
-    describe("isActivated", () => {
-        it("should return true when aip11 is false", async () => {
-            configManager.getMilestone().aip11 = false;
-            await expect(handler.isActivated()).resolves.toBe(true);
+    describe("applyToSender", () => {
+        it("should be ok", async () => {
+            await expect(handler.applyToSender(multiSignatureTransaction)).toResolve();
         });
-        it("should return true when aip11 is undefined", async () => {
-            configManager.getMilestone().aip11 = undefined;
-            await expect(handler.isActivated()).resolves.toBe(true);
+    });
+
+    describe("applyToRecipient", () => {
+        it("should be ok", async () => {
+            await expect(handler.applyToRecipient(multiSignatureTransaction)).toResolve();
         });
-        it("should return false when aip11 is true", async () => {
-            configManager.getMilestone().aip11 = true;
-            await expect(handler.isActivated()).resolves.toBe(false);
+    });
+
+    describe("revertForSender", () => {
+        it("should be ok", async () => {
+            await expect(handler.revertForSender(multiSignatureTransaction)).toResolve();
+        });
+    });
+
+    describe("revertForRecipient", () => {
+        it("should be ok", async () => {
+            await expect(handler.revertForRecipient(multiSignatureTransaction)).toResolve();
         });
     });
 });
