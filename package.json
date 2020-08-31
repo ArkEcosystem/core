@@ -92,7 +92,7 @@
         "moment": "^2.24.0",
         "moment-timezone": "^0.5.28",
         "nock": "^13.0.0",
-        "npm-check-updates": "^7.0.0",
+        "npm-check-updates": "^8.0.0",
         "prettier": "^2.0.2",
         "rimraf": "^3.0.2",
         "sinon": "^9.0.1",
