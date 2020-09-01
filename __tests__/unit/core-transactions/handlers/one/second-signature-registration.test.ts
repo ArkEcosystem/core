@@ -75,7 +75,7 @@ describe("DelegateRegistrationTransaction V1", () => {
 
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(
             Transactions.InternalTransactionType.from(
-                Enums.TransactionType.Transfer,
+                Enums.TransactionType.SecondSignature,
                 Enums.TransactionTypeGroup.Core,
             ),
             1,
@@ -112,58 +112,6 @@ describe("DelegateRegistrationTransaction V1", () => {
     describe("isActivated", () => {
         it("should return true", async () => {
             await expect(handler.isActivated()).resolves.toBeTrue();
-        });
-    });
-
-    describe("throwIfCannotBeApplied", () => {
-        it("should throw if sender doesn't have enough founds", async () => {
-
-        });
-
-        it("should throw if nonce is invalid", async () => {
-
-        });
-
-        it("should throw if already have second signature", async () => {
-
-        });
-
-        it("should throw if asset.signature.pubicKey is undefined", async () => {
-
-        });
-    });
-
-    describe("throwIfCannotEnterPool", () => {
-        it("should resolve", async () => {
-
-        });
-
-        it("should throw if same transaction type by sender is in pool", async () => {
-
-        });
-    });
-
-    describe("applyToSender", () => {
-        it("should resolve", async () => {
-
-        });
-    });
-
-    describe("applyToRecipient", () => {
-        it("should resolve", async () => {
-
-        });
-    });
-
-    describe("revertForSender", () => {
-        it("should resolve", async () => {
-
-        });
-    });
-
-    describe("revertForRecipient", () => {
-        it("should resolve", async () => {
-
         });
     });
 });

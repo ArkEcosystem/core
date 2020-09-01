@@ -6,7 +6,7 @@ import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
 import { Generators } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { TransactionHandler } from "@packages/core-transactions/src/handlers";
+import { TransactionHandler, One } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Interfaces, Managers, Transactions } from "@packages/crypto";
 import { configManager } from "@packages/crypto/src/managers";
@@ -84,7 +84,7 @@ describe("DelegateRegistrationTransaction V1", () => {
 
     describe("dependencies", () => {
         it("should return empty array", async () => {
-            expect(handler.dependencies()).toEqual([]);
+            expect(handler.dependencies()).toEqual([One.DelegateRegistrationTransactionHandler]);
         });
     });
 
@@ -112,98 +112,6 @@ describe("DelegateRegistrationTransaction V1", () => {
     describe("isActivated", () => {
         it("should return true", async () => {
             await expect(handler.isActivated()).resolves.toBeTrue();
-        });
-    });
-
-    describe("throwIfCannotBeApplied", () => {
-        it("should resolve - for vote", async () => {
-
-        });
-
-        it("should resolve - for un-vote", async () => {
-
-        });
-
-        it("should resolve using second signature on wallet", async () => {
-
-        });
-
-        it("should resolve using multisignature wallet", async () => {
-
-        });
-
-        it("should throw if asset.vote is undefined", async () => {
-
-        });
-
-        it("should throw if wallet already voted", async () => {
-
-        });
-
-        it("should throw if wallet already un-voted", async () => {
-
-        });
-
-        it("should throw if sender doesn't have enough founds", async () => {
-
-        });
-
-        it("should throw if nonce is invalid", async () => {
-
-        });
-
-        it("should throw if vote is not for delegate", async () => {
-
-        });
-    });
-
-    describe("throwIfCannotEnterPool", () => {
-        it("should resolve", async () => {
-
-        });
-
-        it("should throw if same transaction type from sender is already in pool", async () => {
-
-        });
-    });
-
-    describe("applyToSender", () => {
-        it("should resolve for vote", async () => {
-
-        });
-
-        it("should resolve for un-vote", async () => {
-
-        });
-
-        it("should throw if asset.vote is undefined", async () => {
-
-        });
-    });
-
-    describe("applyToRecipient", () => {
-        it("should resolve", async () => {
-
-        });
-    });
-
-    describe("revertForSender", () => {
-        it("should resolve for vote", async () => {
-
-        });
-
-        it("should resolve for un-vote", async () => {
-
-        });
-
-        it("should throw if asset.vote is undefined", async () => {
-
-        });
-    });
-
-    describe("revertForRecipient", () => {
-        it("should resolve", async () => {
-
         });
     });
 });

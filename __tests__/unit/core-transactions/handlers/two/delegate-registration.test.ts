@@ -76,6 +76,10 @@ beforeEach(() => {
     walletRepository.index(recipientWallet);
 });
 
+afterEach(() => {
+    jest.clearAllMocks();
+});
+
 describe("DelegateRegistrationTransaction", () => {
     let delegateRegistrationTransaction: Interfaces.ITransaction;
     let secondSignaturedDelegateRegistrationTransaction: Interfaces.ITransaction;

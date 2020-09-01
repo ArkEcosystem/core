@@ -245,7 +245,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("applyToSender", () => {
         it("should be ok", async () => {
-            await expect(handler.applyToSender(multiSignatureTransaction)).toResolve();
+            await expect(handler.applyToSender(multiSignatureTransaction)).rejects.toThrow(LegacyMultiSignatureError);
         });
     });
 
@@ -257,6 +257,8 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("revertForSender", () => {
         it("should be ok", async () => {
+            senderWallet.nonce = Utils.BigNumber.ONE;
+
             await expect(handler.revertForSender(multiSignatureTransaction)).toResolve();
         });
     });

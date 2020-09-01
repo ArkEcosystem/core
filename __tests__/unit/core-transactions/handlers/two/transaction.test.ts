@@ -1,5 +1,7 @@
 import "jest-extended";
 
+import ByteBuffer from "bytebuffer";
+
 import { Application, Contracts } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
@@ -17,7 +19,7 @@ import {
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "@packages/core-transactions/src/errors";
-import { TransactionHandler } from "@packages/core-transactions/src/handlers";
+import { TransactionHandler, TransactionHandlerConstructor } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
@@ -31,6 +33,8 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
+import { TransactionTypeGroup } from "@arkecosystem/crypto/dist/enums";
+import { TransactionSchema } from "@arkecosystem/crypto/dist/transactions/types/schemas";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -46,12 +50,62 @@ const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
 mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
+class TestTransaction extends Transactions.Transaction {
+    public static typeGroup: number = TransactionTypeGroup.Test;
+    public static type: number = 1;
+    public static key = "test";
+    public static version: number = 2;
+
+    public static getSchema(): TransactionSchema {
+        return {
+            $id: "test",
+        };
+    }
+
+    public serialize(options?: any): ByteBuffer | undefined {
+        return new ByteBuffer(0);
+    }
+
+    public deserialize(buf) {
+        return;
+    }
+}
+
+class TestTransactionHandler extends TransactionHandler {
+    public getConstructor(): Transactions.TransactionConstructor {
+        return TestTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [];
+    }
+
+    public walletAttributes(): ReadonlyArray<string> {
+        return [];
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return true;
+    }
+
+    public async bootstrap(): Promise<void> {}
+
+    public async applyToRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
+
+    public async revertForRecipient(transaction: Interfaces.ITransaction): Promise<void> {}
+}
+
+// Transactions.TransactionRegistry.registerTransactionType(TestTransaction);
+
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
     Managers.configManager.setConfig(config);
 
     app = initApp();
+
+    app.bind(Identifiers.TransactionHandler).to(TestTransactionHandler);
+
     app.bind(Identifiers.TransactionHistoryService).toConstantValue(null);
 
     walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
@@ -71,18 +125,24 @@ beforeEach(() => {
     walletRepository.index(recipientWallet);
 });
 
+afterEach(() => {
+    try {
+        Transactions.TransactionRegistry.deregisterTransactionType(TestTransaction);
+    } catch {}
+});
+
 describe("General Tests", () => {
     let transferTransaction: Interfaces.ITransaction;
     let transactionWithSecondSignature: Interfaces.ITransaction;
     let multiSignatureTransferTransaction: Interfaces.ITransaction;
-    let handler: TransactionHandler;
+    let handler: TestTransactionHandler;
 
     beforeEach(async () => {
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
             Identifiers.TransactionHandlerRegistry,
         );
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(
-            Transactions.InternalTransactionType.from(Enums.TransactionType.Transfer, Enums.TransactionTypeGroup.Core),
+            Transactions.InternalTransactionType.from(1, Enums.TransactionTypeGroup.Test),
             2,
         );
 
@@ -127,11 +187,30 @@ describe("General Tests", () => {
             await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).toResolve();
         });
 
+        it("should not throw if version is undefined", async () => {
+            transferTransaction.data.version = undefined;
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).toResolve();
+        });
+
         it("should throw if wallet publicKey does not match transaction senderPublicKey", async () => {
             transferTransaction.data.senderPublicKey = "a".repeat(66);
             await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrowError(
                 SenderWalletMismatchError,
             );
+        });
+
+        it("should not throw if the transaction has a second signature and should ignore second signaure field", async () => {
+            Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField = true;
+            // @ts-ignore
+            Managers.configManager.config.network.name = "devnet";
+
+            await expect(
+                handler.throwIfCannotBeApplied(transactionWithSecondSignature, senderWallet),
+            ).toResolve();
+
+            // @ts-ignore
+            Managers.configManager.config.network.name = "testnet";
+            Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField = false;
         });
 
         it("should throw if the transaction has a second signature but wallet does not", async () => {
@@ -153,6 +232,14 @@ describe("General Tests", () => {
 
         it("should throw if nonce is invalid", async () => {
             senderWallet.nonce = Utils.BigNumber.make(1);
+            await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrowError(
+                UnexpectedNonceError,
+            );
+        });
+
+        it("should not throw if transaction nonce is undefined", async () => {
+            transferTransaction.data.nonce = undefined;
+
             await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrowError(
                 UnexpectedNonceError,
             );
@@ -323,15 +410,12 @@ describe("General Tests", () => {
             const instance = Transactions.TransactionFactory.fromData(transactionData);
 
             const senderBalance = senderWallet.balance;
-            const recipientBalance = recipientWallet.balance;
 
             await handler.apply(instance);
 
             expect(senderWallet.balance).toEqual(
                 Utils.BigNumber.make(senderBalance).minus(instance.data.amount).minus(instance.data.fee),
             );
-
-            expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).plus(instance.data.amount));
         });
 
         it("should resolve defined as exception", async () => {
@@ -371,6 +455,19 @@ describe("General Tests", () => {
             await expect(handler.revert(transferTransaction)).toResolve();
         });
 
+        it("should resolve if version is undefined", async () => {
+            transferTransaction.data.version = undefined;
+
+            await expect(handler.apply(transferTransaction)).toResolve();
+            await expect(handler.revert(transferTransaction)).toResolve();
+        });
+
+        it("should throw if nonce is undefined", async () => {
+            await expect(handler.apply(transferTransaction)).toResolve();
+            transferTransaction.data.nonce = undefined;
+            await expect(handler.revert(transferTransaction)).rejects.toThrow(UnexpectedNonceError)
+        });
+
         it("should throw if nonce is invalid", async () => {
             await expect(handler.apply(transferTransaction)).toResolve();
             senderWallet.nonce = Utils.BigNumber.make(100);
@@ -385,7 +482,6 @@ describe("General Tests", () => {
             const instance = Transactions.TransactionFactory.fromData(transactionData);
 
             const senderBalance = senderWallet.balance;
-            const recipientBalance = recipientWallet.balance;
 
             await handler.revert(instance);
             expect(senderWallet.balance).toEqual(
@@ -393,7 +489,19 @@ describe("General Tests", () => {
             );
 
             expect(senderWallet.nonce.isZero()).toBeTrue();
-            expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).minus(instance.data.amount));
+        });
+    });
+
+    describe("emitEvents", () => {
+        it("should be ok", async () => {
+            // @ts-ignore
+            handler.emitEvents(transferTransaction, {});
+        });
+    });
+
+    describe("throwIfCannotEnterPool", () => {
+        it("should resolve", async () => {
+            await expect(handler.throwIfCannotEnterPool(transferTransaction)).toResolve();
         });
     });
 });

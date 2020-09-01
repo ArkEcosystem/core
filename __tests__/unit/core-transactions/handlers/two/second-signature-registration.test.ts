@@ -171,6 +171,31 @@ describe("SecondSignatureRegistrationTransaction", () => {
                 InsufficientBalanceError,
             );
         });
+
+        it("should throw if asset.signature.publicKey is undefined", async () => {
+            // @ts-ignore
+            secondSignatureTransaction.data.asset.signature.publicKey = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
+        it("should throw if asset.signature is undefined", async () => {
+            secondSignatureTransaction.data.asset!.signature = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
+        it("should throw if asset is undefined", async () => {
+            secondSignatureTransaction.data.asset = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
     });
 
     describe("throwIfCannotEnterPool", () => {
@@ -207,6 +232,39 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
             await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
                 SecondSignatureAlreadyRegisteredError,
+            );
+        });
+    });
+
+    describe("applyToSender", () => {
+        it("should throw if asset.signature.publicKey is undefined", async () => {
+            // @ts-ignore
+            secondSignatureTransaction.data.asset.signature.publicKey = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.apply(secondSignatureTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
+        it("should throw if asset.signature is undefined", async () => {
+            secondSignatureTransaction.data.asset!.signature = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.apply(secondSignatureTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
+        it("should throw if asset is undefined", async () => {
+            secondSignatureTransaction.data.asset = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.apply(secondSignatureTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
             );
         });
     });
