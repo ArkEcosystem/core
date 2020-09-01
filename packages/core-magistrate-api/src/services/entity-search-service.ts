@@ -1,4 +1,3 @@
-import { Identifiers as ApiIdentifiers, WalletSearchService } from "@arkecosystem/core-api";
 import { Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { IEntitiesWallet, IEntityWallet } from "@arkecosystem/core-magistrate-transactions";
 
@@ -9,9 +8,6 @@ export class EntitySearchService {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
-
-    @Container.inject(ApiIdentifiers.WalletSearchService)
-    private readonly walletSearchService!: WalletSearchService;
 
     @Container.inject(Container.Identifiers.StandardCriteriaService)
     private readonly standardCriteriaService!: Services.Search.StandardCriteriaService;
@@ -44,18 +40,17 @@ export class EntitySearchService {
         return this.paginationService.getPage(pagination, sorting, this.getEntities(...criterias));
     }
 
-    public getWalletEntitiesPage(
-        pagination: Contracts.Search.Pagination,
-        sorting: Contracts.Search.Sorting,
-        walletId: string,
-        ...criterias: EntityCriteria[]
-    ): Contracts.Search.ResultsPage<EntityResource> {
-        sorting = [...sorting, { property: "data.name", direction: "asc" }];
+    private *getEntities(...criterias: EntityCriteria[]): Iterable<EntityResource> {
+        for (const [entityId, wallet] of this.walletRepository.getIndex("entities").entries()) {
+            const entityResource = this.getEntityResourceFromWallet(wallet, entityId);
 
-        return this.paginationService.getPage(pagination, sorting, this.getWalletEntities(walletId, ...criterias));
+            if (this.standardCriteriaService.testStandardCriterias(entityResource, ...criterias)) {
+                yield entityResource;
+            }
+        }
     }
 
-    public getEntityResourceFromWallet(wallet: Contracts.State.Wallet, entityId: string): EntityResource {
+    private getEntityResourceFromWallet(wallet: Contracts.State.Wallet, entityId: string): EntityResource {
         const walletEntities = wallet.getAttribute<IEntitiesWallet>("entities");
         const walletEntity = walletEntities[entityId];
 
@@ -71,32 +66,5 @@ export class EntitySearchService {
             subType: walletEntity.subType,
             data: walletEntity.data,
         };
-    }
-
-    private *getEntities(...criterias: EntityCriteria[]): Iterable<EntityResource> {
-        for (const [entityId, wallet] of this.walletRepository.getIndex("entities").entries()) {
-            const entityResource = this.getEntityResourceFromWallet(wallet, entityId);
-            if (this.standardCriteriaService.testStandardCriterias(entityResource, ...criterias)) {
-                yield entityResource;
-            }
-        }
-    }
-
-    private *getWalletEntities(walletId: string, ...criterias: EntityCriteria[]): Iterable<EntityResource> {
-        const walletResource = this.walletSearchService.getWallet(walletId);
-        if (!walletResource) {
-            throw new Error("Wallet not found");
-        }
-
-        const wallet = this.walletRepository.findByAddress(walletResource.address);
-        const walletEntities = wallet.getAttribute<IEntitiesWallet>("entities", {});
-
-        for (const entityId of Object.keys(walletEntities)) {
-            const entityResource = this.getEntityResourceFromWallet(wallet, entityId);
-
-            if (this.standardCriteriaService.testStandardCriterias(entityResource, ...criterias)) {
-                yield entityResource;
-            }
-        }
     }
 }

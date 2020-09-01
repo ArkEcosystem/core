@@ -45,11 +45,19 @@ export class DelegateSearchService {
         return this.paginationService.getPage(pagination, sorting, this.getDelegates(...criterias));
     }
 
-    public getDelegateResourceFromWallet(wallet: Contracts.State.Wallet): DelegateResource {
+    private *getDelegates(...criterias: DelegateCriteria[]): Iterable<DelegateResource> {
+        for (const wallet of this.walletRepository.allByUsername()) {
+            const delegateResource = this.getDelegateResourceFromWallet(wallet);
+
+            if (this.standardCriteriaService.testStandardCriterias(delegateResource, ...criterias)) {
+                yield delegateResource;
+            }
+        }
+    }
+
+    private getDelegateResourceFromWallet(wallet: Contracts.State.Wallet): DelegateResource {
         AppUtils.assert.defined<string>(wallet.publicKey);
 
-        // to ensure that every property exists it would be better to getAttribute each of them
-        // requires whitelisting all of them in wallet attributes
         const walletDelegate = wallet.getAttribute("delegate");
 
         let delegateLastBlock: DelegateResourceLastBlock | undefined;
@@ -82,15 +90,5 @@ export class DelegateSearchService {
                 total: walletDelegate.forgedFees.plus(walletDelegate.forgedRewards),
             },
         };
-    }
-
-    private *getDelegates(...criterias: DelegateCriteria[]): Iterable<DelegateResource> {
-        for (const wallet of this.walletRepository.allByUsername()) {
-            const delegateResource = this.getDelegateResourceFromWallet(wallet);
-
-            if (this.standardCriteriaService.testStandardCriterias(delegateResource, ...criterias)) {
-                yield delegateResource;
-            }
-        }
     }
 }

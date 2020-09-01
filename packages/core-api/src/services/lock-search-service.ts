@@ -54,7 +54,29 @@ export class LockSearchService {
         return this.paginationService.getPage(pagination, sorting, this.getWalletLocks(walletAddress, ...criterias));
     }
 
-    public getLockResourceFromWallet(wallet: Contracts.State.Wallet, lockId: string): LockResource {
+    private *getLocks(...criterias: LockCriteria[]): Iterable<LockResource> {
+        for (const [lockId, wallet] of this.walletRepository.getIndex(Contracts.State.WalletIndexes.Locks).entries()) {
+            const lockResource = this.getLockResourceFromWallet(wallet, lockId);
+            if (this.standardCriteriaService.testStandardCriterias(lockResource, ...criterias)) {
+                yield lockResource;
+            }
+        }
+    }
+
+    private *getWalletLocks(walletAddress: string, ...criterias: LockCriteria[]): Iterable<LockResource> {
+        const wallet = this.walletRepository.findByAddress(walletAddress);
+        const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {});
+
+        for (const lockId of Object.keys(walletLocks)) {
+            const lockResource = this.getLockResourceFromWallet(wallet, lockId);
+
+            if (this.standardCriteriaService.testStandardCriterias(lockResource, ...criterias)) {
+                yield lockResource;
+            }
+        }
+    }
+
+    private getLockResourceFromWallet(wallet: Contracts.State.Wallet, lockId: string): LockResource {
         const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks");
         const walletLock = walletLocks[lockId];
 
@@ -78,27 +100,5 @@ export class LockSearchService {
             expirationValue: walletLock.expiration.value,
             vendorField: walletLock.vendorField!,
         };
-    }
-
-    private *getLocks(...criterias: LockCriteria[]): Iterable<LockResource> {
-        for (const [lockId, wallet] of this.walletRepository.getIndex(Contracts.State.WalletIndexes.Locks).entries()) {
-            const lockResource = this.getLockResourceFromWallet(wallet, lockId);
-            if (this.standardCriteriaService.testStandardCriterias(lockResource, ...criterias)) {
-                yield lockResource;
-            }
-        }
-    }
-
-    private *getWalletLocks(walletAddress: string, ...criterias: LockCriteria[]): Iterable<LockResource> {
-        const wallet = this.walletRepository.findByAddress(walletAddress);
-        const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {});
-
-        for (const lockId of Object.keys(walletLocks)) {
-            const lockResource = this.getLockResourceFromWallet(wallet, lockId);
-
-            if (this.standardCriteriaService.testStandardCriterias(lockResource, ...criterias)) {
-                yield lockResource;
-            }
-        }
     }
 }

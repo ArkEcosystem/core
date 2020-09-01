@@ -62,16 +62,6 @@ export class WalletSearchService {
         return this.paginationService.getPage(pagination, sorting, this.getActiveWallets(...criterias));
     }
 
-    public getWalletResourceFromWallet(wallet: Contracts.State.Wallet): WalletResource {
-        return {
-            address: wallet.address,
-            publicKey: wallet.publicKey,
-            balance: wallet.balance,
-            nonce: wallet.nonce,
-            attributes: wallet.getAttributes(),
-        };
-    }
-
     private *getWallets(...criterias: WalletCriteria[]): Iterable<WalletResource> {
         for (const wallet of this.walletRepository.allByAddress()) {
             const walletResource = this.getWalletResourceFromWallet(wallet);
@@ -90,5 +80,15 @@ export class WalletSearchService {
                 yield walletResource;
             }
         }
+    }
+
+    private getWalletResourceFromWallet(wallet: Contracts.State.Wallet): WalletResource {
+        return {
+            address: wallet.address,
+            publicKey: wallet.publicKey,
+            balance: wallet.balance,
+            nonce: wallet.nonce,
+            attributes: wallet.getAttributes(),
+        };
     }
 }
