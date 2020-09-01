@@ -4,6 +4,7 @@ import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 export interface WalletIndex {
     readonly indexer: WalletIndexer;
+    readonly autoIndex: boolean;
     index(wallet: Wallet): void;
     has(key: string): boolean;
     get(key: string): Wallet | undefined;
@@ -19,7 +20,7 @@ export interface WalletIndex {
 
 export type WalletIndexer = (index: WalletIndex, wallet: Wallet) => void;
 
-export type WalletIndexerIndex = { name: string; indexer: WalletIndexer };
+export type WalletIndexerIndex = { name: string; indexer: WalletIndexer; autoIndex: boolean };
 
 export enum WalletIndexes {
     Addresses = "addresses",

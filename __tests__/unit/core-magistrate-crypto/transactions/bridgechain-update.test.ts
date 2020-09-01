@@ -1,5 +1,7 @@
 import "jest-extended";
 
+import ByteBuffer from "bytebuffer";
+
 import { BridgechainUpdateBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { Managers, Transactions, Validation } from "@packages/crypto";
 import { BridgechainUpdateTransaction } from "@packages/core-magistrate-crypto/src/transactions";
@@ -19,23 +21,74 @@ describe("Bridgechain update ser/deser", () => {
         builder = new BridgechainUpdateBuilder();
     });
 
-    it("should ser/deserialize giving back original fields", () => {
-        const businessResignation = builder
-            .network(23)
-            .bridgechainUpdateAsset({
-                bridgechainId: genesisHash,
-                seedNodes: ["74.125.224.72"],
-                ports: { "@arkecosystem/core-api": 12345 },
-                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
-                bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
-            })
-            .sign("passphrase")
-            .getStruct();
+    describe("Ser/deser", () => {
+        it("should ser/deserialize giving back original fields", () => {
+            const businessResignation = builder
+                .network(23)
+                .bridgechainUpdateAsset({
+                    bridgechainId: genesisHash,
+                    seedNodes: ["74.125.224.72"],
+                    ports: {"@arkecosystem/core-api": 12345},
+                    bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                    bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
+                })
+                .sign("passphrase")
+                .getStruct();
 
-        const serialized = Transactions.TransactionFactory.fromData(businessResignation).serialized.toString("hex");
-        const deserialized = Transactions.Deserializer.deserialize(serialized);
+            const serialized = Transactions.TransactionFactory.fromData(businessResignation).serialized.toString("hex");
+            const deserialized = Transactions.Deserializer.deserialize(serialized);
 
-        checkCommonFields(deserialized, businessResignation);
+            checkCommonFields(deserialized, businessResignation);
+        });
+
+        it("should ser/deserialize if fiends have length 0", () => {
+            const businessResignation = builder
+                .network(23)
+                .bridgechainUpdateAsset({
+                    bridgechainId: genesisHash,
+                    seedNodes: ["74.125.224.72"],
+                    ports: {"@arkecosystem/core-api": 12345},
+                    bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                    bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
+                })
+                .sign("passphrase")
+                .getStruct();
+
+            const transaction = Transactions.TransactionFactory.fromData(businessResignation);
+
+
+            transaction.data.asset!.seedNodes = [];
+            transaction.data.asset!.ports = {};
+            transaction.data.asset!.bridgechainRepository = "";
+            transaction.data.asset!.bridgechainAssetRepository = "";
+
+            const serialized = ByteBuffer.fromHex(transaction.serialize().toString("hex"));
+
+            transaction.deserialize(serialized);
+        });
+
+        it("should throw on serialization if asset is undefined", () => {
+            const businessResignation = builder
+                .network(23)
+                .bridgechainUpdateAsset({
+                    bridgechainId: genesisHash,
+                    seedNodes: ["74.125.224.72"],
+                    ports: {"@arkecosystem/core-api": 12345},
+                    bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                    bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
+                })
+                .sign("passphrase")
+                .getStruct();
+
+            const transaction = Transactions.TransactionFactory.fromData(businessResignation);
+            expect(transaction.serialize()).toBeDefined();
+
+            transaction.data.asset = undefined;
+
+            expect(() => {
+                transaction.serialize();
+            }).toThrowError();
+        });
     });
 
     describe("Schema tests", () => {

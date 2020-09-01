@@ -27,14 +27,14 @@ export class ServiceProvider extends Providers.ServiceProvider {
     private registerIndexers(): void {
         this.app
             .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-            .toConstantValue({ name: MagistrateIndex.Businesses, indexer: businessIndexer });
+            .toConstantValue({ name: MagistrateIndex.Businesses, indexer: businessIndexer, autoIndex: true });
 
         this.app
             .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-            .toConstantValue({ name: MagistrateIndex.Bridgechains, indexer: bridgechainIndexer });
+            .toConstantValue({ name: MagistrateIndex.Bridgechains, indexer: bridgechainIndexer, autoIndex: true });
 
         this.app
             .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
-            .toConstantValue({ name: MagistrateIndex.Entities, indexer: entityIndexer });
+            .toConstantValue({ name: MagistrateIndex.Entities, indexer: entityIndexer, autoIndex: true });
     }
 }

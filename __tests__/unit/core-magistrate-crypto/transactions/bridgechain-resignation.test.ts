@@ -34,6 +34,23 @@ describe("Bridgechain registration transaction", () => {
 
             checkCommonFields(deserialized, bridgechainResignation);
         });
+
+        it("should throw on serialization if asset is undefined", () => {
+            const bridgechainResignation = builder
+                .bridgechainResignationAsset(genesisHash)
+                .network(23)
+                .sign("passphrase")
+                .getStruct();
+
+            const transaction = Transactions.TransactionFactory.fromData(bridgechainResignation);
+            expect(transaction.serialize()).toBeDefined();
+
+            transaction.data.asset = undefined;
+
+            expect(() => {
+                transaction.serialize();
+            }).toThrowError();
+        });
     });
 
     describe("Schema tests", () => {
