@@ -66,8 +66,6 @@ beforeEach(() => {
 });
 
 describe("DelegateRegistrationTransaction V1", () => {
-    // let delegateRegistrationTransaction: Interfaces.ITransaction;
-    // let secondSignaturedDelegateRegistrationTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
 
     beforeEach(async () => {
@@ -81,20 +79,6 @@ describe("DelegateRegistrationTransaction V1", () => {
             ),
             1,
         );
-
-        // delegateRegistrationTransaction = BuilderFactory.delegateRegistration()
-        //     .version(1)
-        //     .usernameAsset("dummy")
-        //     .nonce("1")
-        //     .sign(passphrases[0])
-        //     .build();
-
-        // secondSignaturedDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
-        //     .usernameAsset("dummy")
-        //     .nonce("1")
-        //     .sign(passphrases[1])
-        //     .secondSign(passphrases[2])
-        //     .build();
     });
 
     describe("dependencies", () => {
@@ -127,90 +111,6 @@ describe("DelegateRegistrationTransaction V1", () => {
     describe("isActivated", () => {
         it("should return true", async () => {
             await expect(handler.isActivated()).resolves.toBeTrue();
-        });
-    });
-
-    describe("throwIfCannotBeApplied", () => {
-        it("should resolve", async () => {
-
-        });
-
-        it("should resolve using second signature on wallet", async () => {
-
-        });
-
-        it("should resolve using multisignature wallet", async () => {
-
-        });
-
-        it("should throw if transaction.asset is undefined", async () => {
-
-        });
-
-        it("should throw if transaction.asset.username is undefined", async () => {
-
-        });
-
-        it("should throw if username is already registered", async () => {
-
-        });
-
-        it("should throw if sender doesn't have enough founds", async () => {
-
-        });
-
-        it("should throw if nonce is invalid", async () => {
-
-        });
-
-        it("should throw if sender is delegate", async () => {
-
-        });
-
-        it("should throw if sender is resigned delegate", async () => {
-
-        });
-    });
-
-    describe("throwIfCannotEnterPool", () => {
-        it("should resolve", async () => {
-
-        });
-
-        it("should throw if same transaction type from sender is already in pool", async () => {
-
-        });
-
-        it("should throw if transaction with same username is already in pool", async () => {
-
-        });
-    });
-
-    describe("applyToSender", () => {
-        it("should resolve", async () => {
-
-        });
-
-        it("should throw if asset.delegate.username is undefined", async () => {
-
-        });
-    });
-
-    describe("applyToRecipient", () => {
-        it("should resolve", async () => {
-
-        });
-    });
-
-    describe("revertForSender", () => {
-        it("should resolve", async () => {
-
-        });
-    });
-
-    describe("revertForRecipient", () => {
-        it("should resolve", async () => {
-
         });
     });
 });
