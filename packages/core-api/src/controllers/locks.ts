@@ -35,8 +35,8 @@ export class LocksController extends Controller {
 
     public show(request: Hapi.Request): { data: LockResource } | Boom {
         const lockId = request.params.id as string;
-        const lockResource = this.lockSearchService.getLock(lockId);
 
+        const lockResource = this.lockSearchService.getLock(lockId);
         if (!lockResource) {
             return notFound("Lock not found");
         }

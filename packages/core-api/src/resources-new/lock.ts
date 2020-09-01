@@ -25,9 +25,6 @@ export type LockResource = {
     vendorField: string;
 };
 
-export const lockIdSchema = transactionIdSchema;
-export const lockParamSchema = lockIdSchema;
-
 export const lockCriteriaSchemaObject = {
     lockId: transactionCriteriaSchemaObject.id,
     senderPublicKey: transactionCriteriaSchemaObject.senderPublicKey,
@@ -53,6 +50,7 @@ export const lockCriteriaSchemaObject = {
     vendorField: transactionCriteriaSchemaObject.vendorField,
 };
 
-export const lockCriteriaQuerySchema = Schemas.createCriteriaQuerySchema(lockCriteriaSchemaObject);
+export const lockParamSchema = transactionIdSchema;
+export const lockCriteriaQuerySchema = Joi.object(lockCriteriaSchemaObject);
 export const lockCriteriaPayloadSchema = Schemas.createCriteriaPayloadSchema(lockCriteriaSchemaObject);
 export const lockSortingSchema = Schemas.createSortingSchema(lockCriteriaSchemaObject);

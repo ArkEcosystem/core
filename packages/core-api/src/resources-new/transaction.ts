@@ -3,7 +3,6 @@ import Joi from "@hapi/joi";
 import { walletCriteriaSchemaObject } from "./wallet";
 
 export const transactionIdSchema = Joi.string().hex().length(64);
-export const transactionParamSchema = transactionIdSchema;
 
 export const transactionCriteriaSchemaObject = {
     id: Joi.alternatives(
@@ -16,3 +15,5 @@ export const transactionCriteriaSchemaObject = {
     recipientId: walletCriteriaSchemaObject.address,
     vendorField: Joi.string().max(256),
 };
+
+export const transactionParamSchema = transactionIdSchema;

@@ -4,7 +4,7 @@ import Joi from "@hapi/joi";
 
 import * as Schemas from "../schemas";
 import { blockCriteriaSchemaObject } from "./block";
-import { walletCriteriaSchemaObject, walletParamSchema } from "./wallet";
+import { walletCriteriaSchemaObject } from "./wallet";
 
 export type DelegateCriteria = Contracts.Search.StandardCriteriaOf<DelegateResource>;
 
@@ -39,8 +39,6 @@ export type DelegateResourceLastBlock = {
     };
 };
 
-export const delegateParamSchema = walletParamSchema;
-
 export const delegateCriteriaSchemaObject = {
     username: Joi.string().max(256),
     address: walletCriteriaSchemaObject.address,
@@ -70,6 +68,6 @@ export const delegateCriteriaSchemaObject = {
     },
 };
 
-export const delegateCriteriaQuerySchema = Schemas.createCriteriaQuerySchema(delegateCriteriaSchemaObject);
+export const delegateCriteriaQuerySchema = Joi.object(delegateCriteriaSchemaObject);
 export const delegateCriteriaPayloadSchema = Schemas.createCriteriaPayloadSchema(delegateCriteriaSchemaObject);
 export const delegateSortingSchema = Schemas.createSortingSchema(delegateCriteriaSchemaObject);

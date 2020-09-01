@@ -14,10 +14,9 @@ export type WalletResource = {
     attributes: object;
 };
 
-export const walletAddressSchema = Joi.string().alphanum().length(34);
-export const walletPublicKeySchema = Joi.string().hex().length(66);
-export const walletUsernameSchema = Joi.string().max(256);
-export const walletParamSchema = Joi.alternatives(walletAddressSchema, walletPublicKeySchema, walletUsernameSchema);
+const walletAddressSchema = Joi.string().alphanum().length(34);
+const walletPublicKeySchema = Joi.string().hex().length(66);
+const walletUsernameSchema = Joi.string().max(256);
 
 export const walletCriteriaSchemaObject = {
     address: Joi.alternatives(
@@ -37,6 +36,7 @@ export const walletCriteriaSchemaObject = {
     attributes: Joi.object(),
 };
 
-export const walletCriteriaQuerySchema = Schemas.createCriteriaQuerySchema(walletCriteriaSchemaObject);
+export const walletParamSchema = Joi.alternatives(walletAddressSchema, walletPublicKeySchema, walletUsernameSchema);
+export const walletCriteriaQuerySchema = Joi.object(walletCriteriaSchemaObject);
 export const walletCriteriaPayloadSchema = Schemas.createCriteriaPayloadSchema(walletCriteriaSchemaObject);
 export const walletSortingSchema = Schemas.createSortingSchema(walletCriteriaSchemaObject, ["attributes"]);

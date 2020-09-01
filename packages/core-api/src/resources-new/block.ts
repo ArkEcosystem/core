@@ -1,15 +1,13 @@
 import Joi from "@hapi/joi";
 
-export const blockHeightSchema = Joi.number().integer().min(1);
-export const blockIdSchema = Joi.alternatives(
+const blockHeightSchema = Joi.number().integer().min(1);
+const blockIdSchema = Joi.alternatives(
     Joi.string()
         .min(13)
         .max(20)
         .regex(/^[0-9]+$/),
     Joi.string().hex().length(64),
 );
-
-export const blockParamSchema = Joi.alternatives(blockIdSchema, blockHeightSchema);
 
 export const blockCriteriaSchemaObject = {
     id: Joi.alternatives(
@@ -30,3 +28,5 @@ export const blockCriteriaSchemaObject = {
         Joi.object({ from: Joi.number().integer().min(0), to: Joi.number().integer().min(0) }).or("from", "to"),
     ),
 };
+
+export const blockParamSchema = Joi.alternatives(blockIdSchema, blockHeightSchema);

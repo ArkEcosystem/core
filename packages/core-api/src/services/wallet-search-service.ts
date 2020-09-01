@@ -14,7 +14,7 @@ export class WalletSearchService {
     @Container.inject(Container.Identifiers.PaginationService)
     private readonly paginationService!: Services.Search.PaginationService;
 
-    public getWallet(walletId: string, ...criterias: WalletCriteria[]): WalletResource | undefined {
+    public getWallet(walletId: string): WalletResource | undefined {
         let wallet: Contracts.State.Wallet | undefined;
 
         if (this.walletRepository.hasByAddress(walletId)) {
@@ -29,14 +29,8 @@ export class WalletSearchService {
             wallet = this.walletRepository.findByUsername(walletId);
         }
 
-        if (!wallet) {
-            return undefined;
-        }
-
-        const walletResource = this.getWalletResourceFromWallet(wallet);
-
-        if (this.standardCriteriaService.testStandardCriterias(walletResource, ...criterias)) {
-            return walletResource;
+        if (wallet) {
+            return this.getWalletResourceFromWallet(wallet);
         } else {
             return undefined;
         }
@@ -62,6 +56,16 @@ export class WalletSearchService {
         return this.paginationService.getPage(pagination, sorting, this.getActiveWallets(...criterias));
     }
 
+    private getWalletResourceFromWallet(wallet: Contracts.State.Wallet): WalletResource {
+        return {
+            address: wallet.address,
+            publicKey: wallet.publicKey,
+            balance: wallet.balance,
+            nonce: wallet.nonce,
+            attributes: wallet.getAttributes(),
+        };
+    }
+
     private *getWallets(...criterias: WalletCriteria[]): Iterable<WalletResource> {
         for (const wallet of this.walletRepository.allByAddress()) {
             const walletResource = this.getWalletResourceFromWallet(wallet);
@@ -80,15 +84,5 @@ export class WalletSearchService {
                 yield walletResource;
             }
         }
-    }
-
-    private getWalletResourceFromWallet(wallet: Contracts.State.Wallet): WalletResource {
-        return {
-            address: wallet.address,
-            publicKey: wallet.publicKey,
-            balance: wallet.balance,
-            nonce: wallet.nonce,
-            attributes: wallet.getAttributes(),
-        };
     }
 }

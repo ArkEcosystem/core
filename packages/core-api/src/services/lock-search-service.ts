@@ -18,16 +18,10 @@ export class LockSearchService {
     @Container.inject(Container.Identifiers.PaginationService)
     private readonly paginationService!: Services.Search.PaginationService;
 
-    public getLock(lockId: string, ...criterias: LockCriteria[]): LockResource | undefined {
-        if (!this.walletRepository.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
-            return undefined;
-        }
-
-        const wallet = this.walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
-        const lockResource = this.getLockResourceFromWallet(wallet, lockId);
-
-        if (this.standardCriteriaService.testStandardCriterias(lockResource, ...criterias)) {
-            return lockResource;
+    public getLock(lockId: string): LockResource | undefined {
+        if (this.walletRepository.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
+            const wallet = this.walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
+            return this.getLockResourceFromWallet(wallet, lockId);
         } else {
             return undefined;
         }
@@ -54,6 +48,35 @@ export class LockSearchService {
         return this.paginationService.getPage(pagination, sorting, this.getWalletLocks(walletAddress, ...criterias));
     }
 
+    private getLockResourceFromWallet(wallet: Contracts.State.Wallet, lockId: string): LockResource {
+        const locksAttribute = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks");
+        const lockAttribute = locksAttribute[lockId];
+
+        AppUtils.assert.defined<Interfaces.IHtlcLock>(lockAttribute);
+        AppUtils.assert.defined<string>(lockAttribute.recipientId);
+        AppUtils.assert.defined<string>(wallet.publicKey);
+
+        const senderPublicKey = wallet.publicKey;
+        const lastBlock = this.stateStore.getLastBlock();
+        const isExpired = AppUtils.expirationCalculator.calculateLockExpirationStatus(
+            lastBlock,
+            lockAttribute.expiration,
+        );
+
+        return {
+            lockId,
+            senderPublicKey,
+            isExpired,
+            amount: lockAttribute.amount,
+            secretHash: lockAttribute.secretHash,
+            recipientId: lockAttribute.recipientId,
+            timestamp: AppUtils.formatTimestamp(lockAttribute.timestamp),
+            expirationType: lockAttribute.expiration.type,
+            expirationValue: lockAttribute.expiration.value,
+            vendorField: lockAttribute.vendorField!,
+        };
+    }
+
     private *getLocks(...criterias: LockCriteria[]): Iterable<LockResource> {
         for (const [lockId, wallet] of this.walletRepository.getIndex(Contracts.State.WalletIndexes.Locks).entries()) {
             const lockResource = this.getLockResourceFromWallet(wallet, lockId);
@@ -65,40 +88,14 @@ export class LockSearchService {
 
     private *getWalletLocks(walletAddress: string, ...criterias: LockCriteria[]): Iterable<LockResource> {
         const wallet = this.walletRepository.findByAddress(walletAddress);
-        const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {});
+        const locksAttribute = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks", {});
 
-        for (const lockId of Object.keys(walletLocks)) {
+        for (const lockId of Object.keys(locksAttribute)) {
             const lockResource = this.getLockResourceFromWallet(wallet, lockId);
 
             if (this.standardCriteriaService.testStandardCriterias(lockResource, ...criterias)) {
                 yield lockResource;
             }
         }
-    }
-
-    private getLockResourceFromWallet(wallet: Contracts.State.Wallet, lockId: string): LockResource {
-        const walletLocks = wallet.getAttribute<Interfaces.IHtlcLocks>("htlc.locks");
-        const walletLock = walletLocks[lockId];
-
-        AppUtils.assert.defined<Interfaces.IHtlcLock>(walletLock);
-        AppUtils.assert.defined<string>(walletLock.recipientId);
-        AppUtils.assert.defined<string>(wallet.publicKey);
-
-        const senderPublicKey = wallet.publicKey;
-        const lastBlock = this.stateStore.getLastBlock();
-        const isExpired = AppUtils.expirationCalculator.calculateLockExpirationStatus(lastBlock, walletLock.expiration);
-
-        return {
-            lockId,
-            senderPublicKey,
-            isExpired,
-            amount: walletLock.amount,
-            secretHash: walletLock.secretHash,
-            recipientId: walletLock.recipientId,
-            timestamp: AppUtils.formatTimestamp(walletLock.timestamp),
-            expirationType: walletLock.expiration.type,
-            expirationValue: walletLock.expiration.value,
-            vendorField: walletLock.vendorField!,
-        };
     }
 }

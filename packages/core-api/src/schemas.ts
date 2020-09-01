@@ -26,12 +26,9 @@ export type SchemaObject = {
     [x: string]: Joi.Schema | SchemaObject;
 };
 
-export const createCriteriaQuerySchema = (schemaObject: SchemaObject): Joi.ObjectSchema => {
-    return Joi.object(schemaObject);
-};
-
 export const createCriteriaPayloadSchema = (schemaObject: SchemaObject): Joi.ArraySchema => {
     const item = {};
+
     for (const [key, value] of Object.entries(schemaObject)) {
         if (isSchema(value)) {
             item[key] = Joi.array().single().items(value);

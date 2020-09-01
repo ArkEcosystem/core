@@ -1,4 +1,4 @@
-import { Resources, Schemas } from "@arkecosystem/core-api";
+import { Resources as CoreResources, Schemas } from "@arkecosystem/core-api";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces } from "@arkecosystem/core-magistrate-crypto";
 import Joi from "@hapi/joi";
@@ -15,13 +15,10 @@ export type EntityResource = {
     data: Interfaces.IEntityAssetData;
 };
 
-export const entityIdSchema = Resources.transactionIdSchema;
-export const entityParamSchema = entityIdSchema;
-
 export const entityCriteriaSchemaObject = {
-    id: Resources.transactionCriteriaSchemaObject.id,
-    publicKey: Resources.walletCriteriaSchemaObject.publicKey,
-    address: Resources.walletCriteriaSchemaObject.address,
+    id: CoreResources.transactionCriteriaSchemaObject.id,
+    publicKey: CoreResources.walletCriteriaSchemaObject.publicKey,
+    address: CoreResources.walletCriteriaSchemaObject.address,
     isResigned: Joi.boolean(),
     type: Joi.number().allow(
         Enums.EntityType.Business,
@@ -40,6 +37,7 @@ export const entityCriteriaSchemaObject = {
     },
 };
 
-export const entityCriteriaQuerySchema = Schemas.createCriteriaQuerySchema(entityCriteriaSchemaObject);
+export const entityParamSchema = CoreResources.transactionIdSchema;
+export const entityCriteriaQuerySchema = Joi.object(entityCriteriaSchemaObject);
 export const entityCriteriaPayloadSchema = Schemas.createCriteriaPayloadSchema(entityCriteriaSchemaObject);
 export const entitySortingSchema = Schemas.createSortingSchema(entityCriteriaSchemaObject);

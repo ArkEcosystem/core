@@ -44,9 +44,14 @@ export class DelegatesController extends Controller {
     }
 
     public show(request: Hapi.Request): { data: DelegateResource } | Boom {
-        const delegateId = request.params.id as string;
-        const delegateResource = this.delegateSearchService.getDelegate(delegateId);
+        const walletId = request.params.id as string;
 
+        const walletResource = this.walletSearchService.getWallet(walletId);
+        if (!walletResource) {
+            return notFound("Wallet not found");
+        }
+
+        const delegateResource = this.delegateSearchService.getDelegate(walletResource.address);
         if (!delegateResource) {
             return notFound("Delegate not found");
         }
@@ -55,9 +60,14 @@ export class DelegatesController extends Controller {
     }
 
     public voters(request: Hapi.Request): Contracts.Search.ResultsPage<WalletResource> | Boom {
-        const delegateId = request.params.id as string;
-        const delegateResource = this.delegateSearchService.getDelegate(delegateId);
+        const walletId = request.params.id as string;
 
+        const walletResource = this.walletSearchService.getWallet(walletId);
+        if (!walletResource) {
+            return notFound("Wallet not found");
+        }
+
+        const delegateResource = this.delegateSearchService.getDelegate(walletResource.address);
         if (!delegateResource) {
             return notFound("Delegate not found");
         }
@@ -74,9 +84,14 @@ export class DelegatesController extends Controller {
     }
 
     public async blocks(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const delegateId = request.params.id as string;
-        const delegateResource = this.delegateSearchService.getDelegate(delegateId);
+        const walletId = request.params.id as string;
 
+        const walletResource = this.walletSearchService.getWallet(walletId);
+        if (!walletResource) {
+            return notFound("Wallet not found");
+        }
+
+        const delegateResource = this.delegateSearchService.getDelegate(walletResource.address);
         if (!delegateResource) {
             return notFound("Delegate not found");
         }
