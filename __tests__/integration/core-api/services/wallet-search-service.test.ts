@@ -19,21 +19,6 @@ beforeEach(async () => {
     walletSearchService = app.get<WalletSearchService>(ApiIdentifiers.WalletSearchService);
 });
 
-describe("WalletSearchService.getWalletResourceFromWallet", () => {
-    it("should return WalletResource", () => {
-        const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
-        const walletResource = walletSearchService.getWalletResourceFromWallet(wallet);
-
-        expect(walletResource).toEqual({
-            address: wallet.address,
-            publicKey: wallet.publicKey,
-            balance: wallet.balance,
-            nonce: wallet.nonce,
-            attributes: wallet.getAttributes(),
-        });
-    });
-});
-
 describe("WalletSearchService.getWallet", () => {
     it("should get wallet by address", async () => {
         const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
