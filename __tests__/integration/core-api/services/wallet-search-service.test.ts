@@ -29,7 +29,7 @@ describe("WalletSearchService.getWallet", () => {
 
     it("should not get wallet by address", async () => {
         walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
-        const walletResource = walletSearchService.getWallet("not really an address");
+        const walletResource = walletSearchService.getWallet("not an address");
 
         expect(walletResource).toBe(undefined);
     });
