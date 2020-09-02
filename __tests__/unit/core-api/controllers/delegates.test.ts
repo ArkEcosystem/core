@@ -25,6 +25,7 @@ const delegateSearchService = {
 };
 
 const walletSearchService = {
+    getWallet: jestfn<WalletSearchService["getWallet"]>(),
     getActiveWalletsPage: jestfn<WalletSearchService["getActiveWalletsPage"]>(),
 };
 
@@ -40,7 +41,22 @@ container.bind(Identifiers.DelegateSearchService).toConstantValue(delegateSearch
 container.bind(Identifiers.WalletSearchService).toConstantValue(walletSearchService);
 container.bind(Container.Identifiers.BlockHistoryService).toConstantValue(blockHistoryService);
 
-const delegateResource1: Resources.DelegateResource = {
+const walletResource: Resources.WalletResource = {
+    address: "AKdr5d9AMEnsKYxpDcoHdyyjSCKVx3r9Nj",
+    publicKey: "020431436cf94f3c6a6ba566fe9e42678db8486590c732ca6c3803a10a86f50b92",
+    balance: Utils.BigNumber.make("591828336750"),
+    nonce: Utils.BigNumber.make("375627"),
+    attributes: {
+        vote: "03f25207238ef72cc3a0482af05a5296996da80c92dd0c1eb80e911281eedaf237",
+        delegate: {
+            username: "biz_classic",
+            voteBalance: Utils.BigNumber.make("303991427568137"),
+            rank: 2,
+        },
+    },
+};
+
+const delegateResource: Resources.DelegateResource = {
     username: "biz_classic",
     address: "AKdr5d9AMEnsKYxpDcoHdyyjSCKVx3r9Nj",
     publicKey: "020431436cf94f3c6a6ba566fe9e42678db8486590c732ca6c3803a10a86f50b92",
@@ -69,20 +85,20 @@ const delegateResource1: Resources.DelegateResource = {
     },
 };
 
-const delegate1VoterWalletResource1: Resources.WalletResource = {
+const voterWalletResource: Resources.WalletResource = {
     address: "ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6",
     publicKey: "03a4a2ca6fd5bda092177f02ce6672922c51391d843bf25560dbfccae2fa683771",
     balance: Utils.BigNumber.make("25130683837728"),
     nonce: Utils.BigNumber.make("8"),
     attributes: {
-        vote: delegateResource1.publicKey,
+        vote: delegateResource.publicKey,
     },
 };
 
 describe("DelegatesController.index", () => {
     it("should get criteria from query and return delegates page from DelegateSearchService", () => {
         const delegatesPage: Contracts.Search.ResultsPage<Resources.DelegateResource> = {
-            results: [delegateResource1],
+            results: [delegateResource],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
         };
@@ -111,7 +127,7 @@ describe("DelegatesController.index", () => {
 describe("DelegatesController.search", () => {
     it("should get criteria from payload and return delegates page from DelegateSearchService", () => {
         const delegatesPage: Contracts.Search.ResultsPage<Resources.DelegateResource> = {
-            results: [delegateResource1],
+            results: [delegateResource],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
         };
@@ -141,21 +157,23 @@ describe("DelegatesController.search", () => {
 
 describe("DelegatesController.show", () => {
     it("should get delegate id from pathname and return delegate from DelegateSearchService", () => {
-        delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource1);
+        walletSearchService.getWallet.mockReturnValue(walletResource);
+        delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource);
 
         const delegatesController = container.resolve(DelegatesController);
         const result = delegatesController.show({
             params: {
-                id: delegateResource1.address,
+                id: "AKdr5d9AMEnsKYxpDcoHdyyjSCKVx3r9Nj",
             },
         });
 
-        expect(delegateSearchService.getDelegate).toBeCalledWith(delegateResource1.address);
-        expect(result).toEqual({ data: delegateResource1 });
+        expect(walletSearchService.getWallet).toBeCalledWith("AKdr5d9AMEnsKYxpDcoHdyyjSCKVx3r9Nj");
+        expect(delegateSearchService.getDelegate).toBeCalledWith(walletResource.address);
+        expect(result).toEqual({ data: delegateResource });
     });
 
     it("should return 404 when delegate wasn't found", () => {
-        delegateSearchService.getDelegate.mockReturnValueOnce(undefined);
+        walletSearchService.getWallet.mockReturnValue(undefined);
 
         const delegatesController = container.resolve(DelegatesController);
         const result = delegatesController.show({
@@ -164,17 +182,18 @@ describe("DelegatesController.show", () => {
             },
         });
 
-        expect(delegateSearchService.getDelegate).toBeCalledWith("non-existing-delegate-id");
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-delegate-id");
         expect(result).toBeInstanceOf(Boom);
     });
 });
 
 describe("DelegatesController.voters", () => {
     it("should get delegate id from pathname and criteria from query and return voter wallets from WalletSearchService", () => {
-        delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource1);
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource);
+        delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource);
 
         const voterWalletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
-            results: [delegate1VoterWalletResource1],
+            results: [voterWalletResource],
             totalCount: 1,
             meta: { totalCountIsEstimate: false },
         };
@@ -183,7 +202,7 @@ describe("DelegatesController.voters", () => {
         const delegatesController = container.resolve(DelegatesController);
         const result = delegatesController.voters({
             params: {
-                id: delegateResource1.username,
+                id: "biz_classic",
             },
             query: {
                 page: 1,
@@ -193,20 +212,21 @@ describe("DelegatesController.voters", () => {
             },
         });
 
-        expect(delegateSearchService.getDelegate).toBeCalledWith(delegateResource1.username);
+        expect(walletSearchService.getWallet).toBeCalledWith("biz_classic");
+        expect(delegateSearchService.getDelegate).toBeCalledWith(walletResource.address);
 
         expect(walletSearchService.getActiveWalletsPage).toBeCalledWith(
             { offset: 0, limit: 100 },
             ["balance:desc", "address:asc"],
             { balance: { from: 300 } },
-            { attributes: { vote: delegateResource1.publicKey } },
+            { attributes: { vote: delegateResource.publicKey } },
         );
 
         expect(result).toBe(voterWalletsPage);
     });
 
     it("should return 404 when delegate wasn't found", () => {
-        delegateSearchService.getDelegate.mockReturnValueOnce(undefined);
+        walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
         const delegatesController = container.resolve(DelegatesController);
         const result = delegatesController.voters({
@@ -221,7 +241,7 @@ describe("DelegatesController.voters", () => {
             },
         });
 
-        expect(delegateSearchService.getDelegate).toBeCalledWith("non-existing-delegate-id");
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-delegate-id");
         expect(result).toBeInstanceOf(Boom);
     });
 });
@@ -230,7 +250,8 @@ describe("DelegatesController.blocks", () => {
     it("should take delegate id from pathname and return raw blocks from BlockHistoryService", async () => {
         const block1 = {} as any;
 
-        delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource1);
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource);
+        delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource);
 
         apiConfiguration.getOptional.mockReturnValueOnce(true);
 
@@ -250,7 +271,7 @@ describe("DelegatesController.blocks", () => {
         const result = await delegatesController.blocks(
             {
                 params: {
-                    id: delegateResource1.username,
+                    id: "biz_classic",
                 },
                 query: {
                     page: 1,
@@ -262,10 +283,11 @@ describe("DelegatesController.blocks", () => {
             undefined,
         );
 
-        expect(delegateSearchService.getDelegate).toBeCalledWith(delegateResource1.username);
+        expect(walletSearchService.getWallet).toBeCalledWith("biz_classic");
+        expect(delegateSearchService.getDelegate).toBeCalledWith(walletResource.address);
 
         expect(blockHistoryService.listByCriteria).toBeCalledWith(
-            { generatorPublicKey: delegateResource1.publicKey },
+            { generatorPublicKey: delegateResource.publicKey },
             [{ direction: "desc", property: "height" }],
             { limit: 100, offset: 0 },
             { estimateTotalCount: true },
@@ -281,7 +303,8 @@ describe("DelegatesController.blocks", () => {
     it("should take delegate id from pathname and return transformed blocks from BlockHistoryService", async () => {
         const block1 = {} as any;
 
-        delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource1);
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource);
+        delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource);
 
         apiConfiguration.getOptional.mockReturnValueOnce(true);
 
@@ -301,7 +324,7 @@ describe("DelegatesController.blocks", () => {
         const result = await delegatesController.blocks(
             {
                 params: {
-                    id: delegateResource1.username,
+                    id: "biz_classic",
                 },
                 query: {
                     page: 1,
@@ -313,10 +336,11 @@ describe("DelegatesController.blocks", () => {
             undefined,
         );
 
-        expect(delegateSearchService.getDelegate).toBeCalledWith(delegateResource1.username);
+        expect(walletSearchService.getWallet).toBeCalledWith("biz_classic");
+        expect(delegateSearchService.getDelegate).toBeCalledWith(walletResource.address);
 
         expect(blockHistoryService.listByCriteriaJoinTransactions).toBeCalledWith(
-            { generatorPublicKey: delegateResource1.publicKey },
+            { generatorPublicKey: delegateResource.publicKey },
             { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
             [{ direction: "desc", property: "height" }],
             { limit: 100, offset: 0 },
@@ -331,7 +355,7 @@ describe("DelegatesController.blocks", () => {
     });
 
     it("should return 404 when delegate wasn't found", async () => {
-        delegateSearchService.getDelegate.mockReturnValueOnce(undefined);
+        walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
         const delegatesController = container.resolve(DelegatesController);
         const result = await delegatesController.blocks(
@@ -348,7 +372,7 @@ describe("DelegatesController.blocks", () => {
             undefined,
         );
 
-        expect(delegateSearchService.getDelegate).toBeCalledWith("non-existing-delegate-id");
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-delegate-id");
         expect(result).toBeInstanceOf(Boom);
     });
 });
