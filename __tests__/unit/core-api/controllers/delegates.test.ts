@@ -41,7 +41,7 @@ container.bind(Identifiers.DelegateSearchService).toConstantValue(delegateSearch
 container.bind(Identifiers.WalletSearchService).toConstantValue(walletSearchService);
 container.bind(Container.Identifiers.BlockHistoryService).toConstantValue(blockHistoryService);
 
-const walletResource: Resources.WalletResource = {
+const delegateWalletResource: Resources.WalletResource = {
     address: "AKdr5d9AMEnsKYxpDcoHdyyjSCKVx3r9Nj",
     publicKey: "020431436cf94f3c6a6ba566fe9e42678db8486590c732ca6c3803a10a86f50b92",
     balance: Utils.BigNumber.make("591828336750"),
@@ -157,7 +157,7 @@ describe("DelegatesController.search", () => {
 
 describe("DelegatesController.show", () => {
     it("should get delegate id from pathname and return delegate from DelegateSearchService", () => {
-        walletSearchService.getWallet.mockReturnValue(walletResource);
+        walletSearchService.getWallet.mockReturnValue(delegateWalletResource);
         delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource);
 
         const delegatesController = container.resolve(DelegatesController);
@@ -168,28 +168,44 @@ describe("DelegatesController.show", () => {
         });
 
         expect(walletSearchService.getWallet).toBeCalledWith("AKdr5d9AMEnsKYxpDcoHdyyjSCKVx3r9Nj");
-        expect(delegateSearchService.getDelegate).toBeCalledWith(walletResource.address);
+        expect(delegateSearchService.getDelegate).toBeCalledWith(delegateWalletResource.address);
         expect(result).toEqual({ data: delegateResource });
     });
 
-    it("should return 404 when delegate wasn't found", () => {
+    it("should return 404 when wallet wasn't found", () => {
         walletSearchService.getWallet.mockReturnValue(undefined);
 
         const delegatesController = container.resolve(DelegatesController);
         const result = delegatesController.show({
             params: {
-                id: "non-existing-delegate-id",
+                id: "non-existing-wallet-id",
             },
         });
 
-        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-delegate-id");
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+        expect(result).toBeInstanceOf(Boom);
+    });
+
+    it("should return 404 when wallet isn't delegate", () => {
+        walletSearchService.getWallet.mockReturnValue(voterWalletResource);
+        delegateSearchService.getDelegate.mockReturnValueOnce(undefined);
+
+        const delegatesController = container.resolve(DelegatesController);
+        const result = delegatesController.show({
+            params: {
+                id: "ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6",
+            },
+        });
+
+        expect(walletSearchService.getWallet).toBeCalledWith("ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6");
+        expect(delegateSearchService.getDelegate).toBeCalledWith(voterWalletResource.address);
         expect(result).toBeInstanceOf(Boom);
     });
 });
 
 describe("DelegatesController.voters", () => {
     it("should get delegate id from pathname and criteria from query and return voter wallets from WalletSearchService", () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource);
+        walletSearchService.getWallet.mockReturnValueOnce(delegateWalletResource);
         delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource);
 
         const voterWalletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
@@ -213,7 +229,7 @@ describe("DelegatesController.voters", () => {
         });
 
         expect(walletSearchService.getWallet).toBeCalledWith("biz_classic");
-        expect(delegateSearchService.getDelegate).toBeCalledWith(walletResource.address);
+        expect(delegateSearchService.getDelegate).toBeCalledWith(delegateWalletResource.address);
 
         expect(walletSearchService.getActiveWalletsPage).toBeCalledWith(
             { offset: 0, limit: 100 },
@@ -225,13 +241,13 @@ describe("DelegatesController.voters", () => {
         expect(result).toBe(voterWalletsPage);
     });
 
-    it("should return 404 when delegate wasn't found", () => {
+    it("should return 404 when wallet wasn't found", () => {
         walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
         const delegatesController = container.resolve(DelegatesController);
         const result = delegatesController.voters({
             params: {
-                id: "non-existing-delegate-id",
+                id: "non-existing-wallet-id",
             },
             query: {
                 page: 1,
@@ -241,7 +257,29 @@ describe("DelegatesController.voters", () => {
             },
         });
 
-        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-delegate-id");
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+        expect(result).toBeInstanceOf(Boom);
+    });
+
+    it("should return 404 when wallet isn't delegate", () => {
+        walletSearchService.getWallet.mockReturnValueOnce(voterWalletResource);
+        delegateSearchService.getDelegate.mockReturnValueOnce(undefined);
+
+        const delegatesController = container.resolve(DelegatesController);
+        const result = delegatesController.voters({
+            params: {
+                id: "ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6",
+            },
+            query: {
+                page: 1,
+                limit: 100,
+                orderBy: ["balance:desc", "address:asc"],
+                balance: { from: 300 },
+            },
+        });
+
+        expect(walletSearchService.getWallet).toBeCalledWith("ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6");
+        expect(delegateSearchService.getDelegate).toBeCalledWith(voterWalletResource.address);
         expect(result).toBeInstanceOf(Boom);
     });
 });
@@ -250,7 +288,7 @@ describe("DelegatesController.blocks", () => {
     it("should take delegate id from pathname and return raw blocks from BlockHistoryService", async () => {
         const block1 = {} as any;
 
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource);
+        walletSearchService.getWallet.mockReturnValueOnce(delegateWalletResource);
         delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource);
 
         apiConfiguration.getOptional.mockReturnValueOnce(true);
@@ -284,7 +322,7 @@ describe("DelegatesController.blocks", () => {
         );
 
         expect(walletSearchService.getWallet).toBeCalledWith("biz_classic");
-        expect(delegateSearchService.getDelegate).toBeCalledWith(walletResource.address);
+        expect(delegateSearchService.getDelegate).toBeCalledWith(delegateWalletResource.address);
 
         expect(blockHistoryService.listByCriteria).toBeCalledWith(
             { generatorPublicKey: delegateResource.publicKey },
@@ -303,7 +341,7 @@ describe("DelegatesController.blocks", () => {
     it("should take delegate id from pathname and return transformed blocks from BlockHistoryService", async () => {
         const block1 = {} as any;
 
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource);
+        walletSearchService.getWallet.mockReturnValueOnce(delegateWalletResource);
         delegateSearchService.getDelegate.mockReturnValueOnce(delegateResource);
 
         apiConfiguration.getOptional.mockReturnValueOnce(true);
@@ -337,7 +375,7 @@ describe("DelegatesController.blocks", () => {
         );
 
         expect(walletSearchService.getWallet).toBeCalledWith("biz_classic");
-        expect(delegateSearchService.getDelegate).toBeCalledWith(walletResource.address);
+        expect(delegateSearchService.getDelegate).toBeCalledWith(delegateWalletResource.address);
 
         expect(blockHistoryService.listByCriteriaJoinTransactions).toBeCalledWith(
             { generatorPublicKey: delegateResource.publicKey },
@@ -354,14 +392,14 @@ describe("DelegatesController.blocks", () => {
         });
     });
 
-    it("should return 404 when delegate wasn't found", async () => {
+    it("should return 404 when wallet wasn't found", async () => {
         walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
         const delegatesController = container.resolve(DelegatesController);
         const result = await delegatesController.blocks(
             {
                 params: {
-                    id: "non-existing-delegate-id",
+                    id: "non-existing-wallet-id",
                 },
                 query: {
                     page: 1,
@@ -372,7 +410,31 @@ describe("DelegatesController.blocks", () => {
             undefined,
         );
 
-        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-delegate-id");
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+        expect(result).toBeInstanceOf(Boom);
+    });
+
+    it("should return 404 when wallet isn't delegate", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(voterWalletResource);
+        delegateSearchService.getDelegate.mockReturnValueOnce(undefined);
+
+        const delegatesController = container.resolve(DelegatesController);
+        const result = await delegatesController.blocks(
+            {
+                params: {
+                    id: "ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6",
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    orderBy: "height:desc",
+                },
+            },
+            undefined,
+        );
+
+        expect(walletSearchService.getWallet).toBeCalledWith("ATL9kyo71wjPPXqvGMUD89t5RazmQfQMc6");
+        expect(delegateSearchService.getDelegate).toBeCalledWith(voterWalletResource.address);
         expect(result).toBeInstanceOf(Boom);
     });
 });
