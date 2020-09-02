@@ -1,4 +1,4 @@
-import mm from "micromatch";
+import mm from "nanomatch";
 
 import { EventDispatcher as EventDispatcherContract, EventListener, EventName } from "../../../contracts/kernel/events";
 import { injectable } from "../../../ioc";
