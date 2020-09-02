@@ -65,28 +65,6 @@ describe("WalletSearchService.getWallet", () => {
 
         expect(walletResource).toBe(undefined);
     });
-
-    it("should get wallet with additional filter", () => {
-        const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
-        wallet.setAttribute<string>("delegate.username", "test_username");
-        walletRepository.index(wallet);
-        const walletResource = walletSearchService.getWallet(wallet.address, {
-            attributes: { delegate: { username: "test_username" } },
-        });
-
-        expect(walletResource.address).toBe(wallet.address);
-    });
-
-    it("should not get wallet with additional filter", () => {
-        const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret"));
-        wallet.setAttribute<string>("delegate.username", "test_username");
-        walletRepository.index(wallet);
-        const walletResource = walletSearchService.getWallet(wallet.address, {
-            attributes: { delegate: { username: "test_username_2" } },
-        });
-
-        expect(walletResource).toBe(undefined);
-    });
 });
 
 describe("WalletSearchService.getWalletsPage", () => {
