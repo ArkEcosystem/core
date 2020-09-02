@@ -17,7 +17,7 @@ export class Controller {
     protected getQueryPagination(query: Hapi.RequestQuery): Contracts.Search.Pagination {
         const pagination = {
             offset: (query.page - 1) * query.limit || 0,
-            limit: query.limit || 100,
+            limit: query.limit,
         };
 
         if (query.offset) {
