@@ -1,4 +1,5 @@
-import { DelegateSearchService, Identifiers as ApiIdentifiers } from "@arkecosystem/core-api";
+import { Identifiers as ApiIdentifiers } from "@arkecosystem/core-api/src/identifiers";
+import { DelegateSearchService } from "@arkecosystem/core-api/src/services/delegate-search-service";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 

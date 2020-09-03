@@ -1,4 +1,5 @@
-import { Identifiers as ApiIdentifiers, WalletSearchService } from "@arkecosystem/core-api";
+import { WalletSearchService } from "@arkecosystem/core-api/src/services/wallet-search-service";
+import { Identifiers as ApiIdentifiers } from "@arkecosystem/core-api/src/identifiers";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
