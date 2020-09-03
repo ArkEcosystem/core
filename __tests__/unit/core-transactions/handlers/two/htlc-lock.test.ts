@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -143,18 +143,44 @@ describe("Htlc lock", () => {
 
         describe("bootstrap", () => {
             it("should resolve", async () => {
+                expect(senderWallet.hasAttribute("htlc.locks")).toBeFalse();
+
                 Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
                 await expect(handler.bootstrap()).toResolve();
+
+                expect(senderWallet.hasAttribute("htlc.locks")).toBeTrue();
+                expect(senderWallet.getAttribute<any>("htlc.lockedBalance").toString()).toBe(
+                    Utils.BigNumber.make("1").toString(),
+                );
+
+                const locks = senderWallet.getAttribute("htlc.locks");
+                expect(locks[htlcLockTransaction.id].amount).toEqual(Utils.BigNumber.make("1"));
+                expect(locks[htlcLockTransaction.id].recipientId).toEqual(recipientWallet.address);
+                expect(locks[htlcLockTransaction.id].timetamp).toEqual(htlcLockTransaction.timestamp);
+                expect(locks[htlcLockTransaction.id].secretHash).toEqual(htlcSecretHashHex);
+                expect(locks[htlcLockTransaction.id].expiration).toEqual(expiration);
             });
 
             it("should resolve with open transaction", async () => {
-                const mockHtlcLockTransacton = Mapper.mapTransactionToModel(htlcLockTransaction);
+                const mockHtlcLockTransaction = Mapper.mapTransactionToModel(htlcLockTransaction);
                 // @ts-ignore
-                mockHtlcLockTransacton.open = true;
+                mockHtlcLockTransaction.open = true;
 
-                Mocks.TransactionRepository.setTransactions([mockHtlcLockTransacton]);
+                Mocks.TransactionRepository.setTransactions([mockHtlcLockTransaction]);
 
                 await expect(handler.bootstrap()).toResolve();
+
+                expect(senderWallet.hasAttribute("htlc.locks")).toBeTrue();
+                expect(senderWallet.getAttribute<any>("htlc.lockedBalance").toString()).toBe(
+                    Utils.BigNumber.make("1").toString(),
+                );
+
+                const locks = senderWallet.getAttribute("htlc.locks");
+                expect(locks[htlcLockTransaction.id].amount).toEqual(Utils.BigNumber.make("1"));
+                expect(locks[htlcLockTransaction.id].recipientId).toEqual(recipientWallet.address);
+                expect(locks[htlcLockTransaction.id].timetamp).toEqual(htlcLockTransaction.timestamp);
+                expect(locks[htlcLockTransaction.id].secretHash).toEqual(htlcSecretHashHex);
+                expect(locks[htlcLockTransaction.id].expiration).toEqual(expiration);
             });
 
             it("should resolve with open transaction using vendor field", async () => {
@@ -166,7 +192,7 @@ describe("Htlc lock", () => {
                     .recipientId(recipientWallet.address)
                     .amount("1")
                     .nonce("1")
-                    .vendorField("dummy")
+                    .vendorField("64756d6d79")
                     .sign(passphrases[0])
                     .build();
 
@@ -176,6 +202,19 @@ describe("Htlc lock", () => {
 
                 Mocks.TransactionRepository.setTransactions([mockHtlcLockTransacton]);
                 await expect(handler.bootstrap()).toResolve();
+
+                expect(senderWallet.hasAttribute("htlc.locks")).toBeTrue();
+                expect(senderWallet.getAttribute<any>("htlc.lockedBalance").toString()).toBe(
+                    Utils.BigNumber.make("1").toString(),
+                );
+
+                const locks = senderWallet.getAttribute("htlc.locks");
+                expect(locks[htlcLockTransaction.id].amount).toEqual(Utils.BigNumber.make("1"));
+                expect(locks[htlcLockTransaction.id].recipientId).toEqual(recipientWallet.address);
+                expect(locks[htlcLockTransaction.id].timetamp).toEqual(htlcLockTransaction.timestamp);
+                expect(locks[htlcLockTransaction.id].vendorField).toEqual("dummy");
+                expect(locks[htlcLockTransaction.id].secretHash).toEqual(htlcSecretHashHex);
+                expect(locks[htlcLockTransaction.id].expiration).toEqual(expiration);
             });
         });
 
@@ -194,6 +233,14 @@ describe("Htlc lock", () => {
                 await expect(
                     handler.throwIfCannotBeApplied(multiSignatureHtlcLockTransaction, multiSignatureWallet),
                 ).toResolve();
+            });
+
+            it("should throw if asset is undefined", async () => {
+                htlcLockTransaction.data.asset = undefined;
+
+                await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
             });
 
             it("should throw if wallet has insufficient funds", async () => {
@@ -235,12 +282,24 @@ describe("Htlc lock", () => {
 
                 const balanceBefore = senderWallet.balance;
 
+                expect(senderWallet.hasAttribute("htlc.locks")).toBeFalse();
+
                 await handler.apply(htlcLockTransaction);
 
                 expect(senderWallet.getAttribute("htlc.locks", {})[htlcLockTransaction.id!]).toBeDefined();
                 expect(senderWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
                 expect(senderWallet.balance).toEqual(
                     balanceBefore.minus(htlcLockTransaction.data.fee).minus(htlcLockTransaction.data.amount),
+                );
+            });
+        });
+
+        describe("applyToRecipient", () => {
+            it("should throw if asset is undefined", async () => {
+                htlcLockTransaction.data.asset = undefined;
+
+                await expect(handler.applyToRecipient(htlcLockTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
                 );
             });
         });

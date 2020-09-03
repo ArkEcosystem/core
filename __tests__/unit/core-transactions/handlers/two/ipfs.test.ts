@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -111,12 +111,72 @@ describe("Ipfs", () => {
                 yield ipfsTransaction.data;
             });
 
+            expect(senderWallet.hasAttribute("ipfs.hashes")).toBeFalse();
+            expect(
+                walletRepository
+                    .getIndex(Contracts.State.WalletIndexes.Ipfs)
+                    .has("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w"),
+            ).toBeFalse();
+
             await expect(handler.bootstrap()).toResolve();
 
             expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
                 typeGroup: Enums.TransactionTypeGroup.Core,
                 type: Enums.TransactionType.Ipfs,
             });
+
+            expect(
+                walletRepository
+                    .getIndex(Contracts.State.WalletIndexes.Ipfs)
+                    .has("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w"),
+            ).toBeTrue();
+
+            expect(senderWallet.hasAttribute("ipfs.hashes")).toBeTrue();
+            const ipfsHashes = senderWallet.getAttribute("ipfs.hashes");
+            expect(ipfsHashes[ipfsTransaction.data.asset!.ipfs]).toBeTrue();
+        });
+
+        it("should resolve if wallet has ipfs attribute", async () => {
+            senderWallet.setAttribute("ipfs", { hashes: {} });
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield ipfsTransaction.data;
+            });
+
+            expect(
+                walletRepository
+                    .getIndex(Contracts.State.WalletIndexes.Ipfs)
+                    .has("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w"),
+            ).toBeFalse();
+
+            await expect(handler.bootstrap()).toResolve();
+
+            expect(transactionHistoryService.streamByCriteria).toBeCalledWith({
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.Ipfs,
+            });
+
+            expect(
+                walletRepository
+                    .getIndex(Contracts.State.WalletIndexes.Ipfs)
+                    .has("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w"),
+            ).toBeTrue();
+
+            expect(senderWallet.hasAttribute("ipfs.hashes")).toBeTrue();
+            const ipfsHashes = senderWallet.getAttribute("ipfs.hashes");
+            expect(ipfsHashes[ipfsTransaction.data.asset!.ipfs]).toBeTrue();
+        });
+
+        it("should throw if asset is undefiend", async () => {
+            senderWallet.setAttribute("ipfs", { hashes: {} });
+
+            ipfsTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield ipfsTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
         });
     });
 
@@ -163,6 +223,14 @@ describe("Ipfs", () => {
             );
         });
 
+        it("should throw if asset is undefined", async () => {
+            ipfsTransaction.data.asset = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
         it("should throw if hash already exists", async () => {
             await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).toResolve();
             await expect(handler.apply(ipfsTransaction)).toResolve();
@@ -187,6 +255,45 @@ describe("Ipfs", () => {
             ).toBeTrue();
             expect(senderWallet.balance).toEqual(balanceBefore.minus(ipfsTransaction.data.fee));
         });
+
+        it("should apply ipfs transaction if wallet have ipfs attribute", async () => {
+            senderWallet.setAttribute("ipfs", { hashes: {} });
+
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).toResolve();
+
+            const balanceBefore = senderWallet.balance;
+
+            await handler.apply(ipfsTransaction);
+
+            expect(
+                senderWallet.getAttribute<Contracts.State.WalletIpfsAttributes>("ipfs.hashes")[
+                    ipfsTransaction.data.asset!.ipfs!
+                ],
+            ).toBeTrue();
+            expect(senderWallet.balance).toEqual(balanceBefore.minus(ipfsTransaction.data.fee));
+        });
+    });
+
+    describe("applyToSender", () => {
+        it("should throw if asset is undefined", async () => {
+            ipfsTransaction.data.asset = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.applyToSender(ipfsTransaction)).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
+    });
+
+    describe("revertForSender", () => {
+        it("should throw if asset is undefined", async () => {
+            senderWallet.nonce = Utils.BigNumber.make("1");
+
+            ipfsTransaction.data.asset = undefined;
+
+            await expect(handler.revertForSender(ipfsTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
     });
 
     describe("revert", () => {
@@ -207,6 +314,28 @@ describe("Ipfs", () => {
             await handler.revert(ipfsTransaction);
 
             expect(senderWallet.hasAttribute("ipfs")).toBeFalse();
+            expect(senderWallet.balance).toEqual(balanceBefore);
+        });
+
+        it("should be ok if wallet have many ipfs attributes", async () => {
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet)).toResolve();
+
+            const balanceBefore = senderWallet.balance;
+
+            await handler.apply(ipfsTransaction);
+
+            senderWallet.getAttribute("ipfs.hashes")["dummy_ipfs_hash"] = true;
+
+            expect(senderWallet.balance).toEqual(balanceBefore.minus(ipfsTransaction.data.fee));
+            expect(
+                senderWallet.getAttribute<Contracts.State.WalletIpfsAttributes>("ipfs.hashes")[
+                    ipfsTransaction.data.asset!.ipfs!
+                ],
+            ).toBeTrue();
+
+            await handler.revert(ipfsTransaction);
+
+            expect(senderWallet.hasAttribute("ipfs")).toBeTrue();
             expect(senderWallet.balance).toEqual(balanceBefore);
         });
     });

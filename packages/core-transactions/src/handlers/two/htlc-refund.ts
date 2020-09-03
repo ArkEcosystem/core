@@ -49,11 +49,8 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await this.performGenericWalletChecks(transaction, sender);
 
-        AppUtils.assert.defined<string>(transaction.data.asset?.refund);
-
         // Specific HTLC refund checks
-
-        AppUtils.assert.defined<Interfaces.IHtlcRefundAsset>(transaction.data.asset.refund);
+        AppUtils.assert.defined<string>(transaction.data.asset?.refund?.lockTransactionId);
 
         const lockId: string = transaction.data.asset.refund.lockTransactionId;
         const lockWallet: Contracts.State.Wallet = this.walletRepository.findByIndex(
@@ -93,7 +90,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const hasRefund = this.poolQuery
             .getAll()
             .whereKind(transaction)
-            .wherePredicate((t) => t.data.asset?.refund?.lockTransactionId === lockId)
+            .wherePredicate(/* istanbul ignore next */(t) => t.data.asset?.refund?.lockTransactionId === lockId)
             .has();
 
         if (hasRefund) {
@@ -187,6 +184,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(lockTransaction.asset?.lock);
 
+        /* istanbul ignore else */
         if (locks) {
             AppUtils.assert.defined<string>(lockTransaction.id);
 

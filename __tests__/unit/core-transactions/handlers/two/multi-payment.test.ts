@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -133,6 +133,16 @@ describe("MultiPaymentTransaction", () => {
                 type: Enums.TransactionType.MultiPayment,
             });
         });
+
+        it("should throw if asset is undefined", async () => {
+            multiPaymentTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield multiPaymentTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
     });
 
     describe("throwIfCannotBeApplied", () => {
@@ -150,6 +160,14 @@ describe("MultiPaymentTransaction", () => {
             await expect(
                 handler.throwIfCannotBeApplied(multiSignatureMultiPaymentTransaction, multiSignatureWallet),
             ).toResolve();
+        });
+
+        it("should throw if asset is undefined", async () => {
+            multiPaymentTransaction.data.asset = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
         });
 
         it("should throw if wallet has insufficient funds", async () => {
@@ -188,6 +206,28 @@ describe("MultiPaymentTransaction", () => {
         });
     });
 
+    describe("applyToSender", () => {
+        it("should throw if asset is undefined", async () => {
+            multiPaymentTransaction.data.asset = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.applyToSender(multiPaymentTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+    });
+
+    describe("applyToRecipient", () => {
+        it("should throw if asset is undefined", async () => {
+            multiPaymentTransaction.data.asset = undefined;
+
+            await expect(handler.applyToRecipient(multiPaymentTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+    });
+
     describe("revert", () => {
         it("should be ok", async () => {
             const senderBalance = senderWallet.balance;
@@ -209,6 +249,28 @@ describe("MultiPaymentTransaction", () => {
 
             expect(senderWallet.nonce.isZero()).toBeTrue();
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
+        });
+    });
+
+    describe("revertForSender", () => {
+        it("should throw if asset is undefined", async () => {
+            senderWallet.nonce = Utils.BigNumber.ONE;
+
+            multiPaymentTransaction.data.asset = undefined;
+
+            await expect(handler.revertForSender(multiPaymentTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+    });
+
+    describe("revertForRecipient", () => {
+        it("should throw if asset is undefined", async () => {
+            multiPaymentTransaction.data.asset = undefined;
+
+            await expect(handler.revertForRecipient(multiPaymentTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
         });
     });
 });

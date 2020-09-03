@@ -38,6 +38,7 @@ export class SecondSignatureRegistrationTransactionHandler extends TransactionHa
         }
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
+        Utils.assert.defined<string>(transaction.data.asset?.signature?.publicKey);
 
         const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
             transaction.data.senderPublicKey,

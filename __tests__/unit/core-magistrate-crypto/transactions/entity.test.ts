@@ -5,7 +5,7 @@ import { EntityBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders
 import { EntityTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
 import { Managers, Transactions, Validation } from "@arkecosystem/crypto";
 
-import { generateAssets } from "../fixtures/entity/assets/generate";
+import { generateAssets, generateSpecialAssets } from "../fixtures/entity/assets/generate";
 import { invalidRegisters, validRegisters } from "../fixtures/entity/schemas/register";
 import { invalidResigns, validResigns } from "../fixtures/entity/schemas/resign";
 import { invalidUpdates, validUpdates } from "../fixtures/entity/schemas/update";
@@ -25,6 +25,7 @@ describe("Entity transaction", () => {
 
     describe("Ser/deser", () => {
         const entityAssets = generateAssets();
+        const entitySpecialAssets = generateSpecialAssets();
 
         it.each(entityAssets)("should ser/deserialize giving back original fields", (asset) => {
             const mockVerifySchema = jest
@@ -41,6 +42,25 @@ describe("Entity transaction", () => {
 
             mockVerifySchema.mockRestore();
         });
+
+        it.each(entitySpecialAssets)(
+            "should ser/deserialize giving back original fields",
+            (assetToSerialize, expectedDeserialized) => {
+                const mockVerifySchema = jest
+                    .spyOn(Transactions.Verifier, "verifySchema")
+                    .mockImplementation((data) => ({ value: data, error: undefined }));
+
+                const entity = builder.network(23).asset(assetToSerialize).sign("passphrase").getStruct();
+
+                const serialized = Transactions.TransactionFactory.fromData(entity).serialized.toString("hex");
+                const deserialized = Transactions.Deserializer.deserialize(serialized);
+
+                checkCommonFields(deserialized, entity);
+                expect(deserialized.data.asset).toEqual(expectedDeserialized);
+
+                mockVerifySchema.mockRestore();
+            },
+        );
     });
 
     describe("Schema tests", () => {
