@@ -42,9 +42,9 @@ const wallet = {
     getAttributes: () => ({
         delegate: {
             username: "binance_staking",
-            voteBalance: "352045954555224",
-            forgedFees: "13830924525",
-            forgedRewards: "5947800000000",
+            voteBalance: Utils.BigNumber.make("352045954555224"),
+            forgedFees: Utils.BigNumber.make("13830924525"),
+            forgedRewards: Utils.BigNumber.make("5947800000000"),
             producedBlocks: 29739,
             rank: 1,
             lastBlock: {
@@ -54,9 +54,9 @@ const wallet = {
                 previousBlockHex: "c872ff925814623f40a8d0979299017d084cca9e9a8ad8a9a1ae53f627fa43ee",
                 previousBlock: "c872ff925814623f40a8d0979299017d084cca9e9a8ad8a9a1ae53f627fa43ee",
                 numberOfTransactions: 0,
-                totalAmount: "0",
-                totalFee: "0",
-                reward: "200000000",
+                totalAmount: Utils.BigNumber.make("0"),
+                totalFee: Utils.BigNumber.make("0"),
+                reward: Utils.BigNumber.make("200000000"),
                 payloadLength: 0,
                 payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                 generatorPublicKey: "028fe98e42e159f2450a52371dfb23ae69a39fc5fee6545690b7f51bfcee933357",

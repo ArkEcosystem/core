@@ -1,5 +1,4 @@
-import { WalletSearchService } from "@arkecosystem/core-api/src/services/wallet-search-service";
-import { Identifiers as ApiIdentifiers } from "@arkecosystem/core-api/src/identifiers";
+import { WalletSearchService, Identifiers as ApiIdentifiers } from "@arkecosystem/core-api/src";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
@@ -132,5 +131,27 @@ describe("WalletSearchService.getWalletsPage", () => {
         expect(page.results[1].address).toBe(wallet2.address);
         expect(page.results[2].address).toBe(wallet1.address);
         expect(page.totalCount).toBe(3);
+    });
+});
+
+describe("WalletSearchService.getActiveWalletsPage", () => {
+    it("should only get wallets with public keys", () => {
+        const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret1"));
+        const wallet2 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("secret2"));
+        const wallet3 = walletRepository.findByAddress(Identities.Address.fromPassphrase("secret3"));
+        const wallet4 = walletRepository.findByAddress(Identities.Address.fromPassphrase("secret4"));
+        const wallet5 = walletRepository.findByAddress(Identities.Address.fromPassphrase("secret5"));
+
+        wallet1.balance = Utils.BigNumber.make("100");
+        wallet2.balance = Utils.BigNumber.make("200");
+        wallet3.balance = Utils.BigNumber.make("300");
+        wallet4.balance = Utils.BigNumber.make("400");
+        wallet5.balance = Utils.BigNumber.make("500");
+
+        const page = walletSearchService.getActiveWalletsPage({ offset: 0, limit: 100 }, []);
+
+        expect(page.totalCount).toBe(2);
+        expect(page.results[0].address).toBe(wallet1.address);
+        expect(page.results[1].address).toBe(wallet2.address);
     });
 });
