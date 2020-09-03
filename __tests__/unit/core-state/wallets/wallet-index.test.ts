@@ -42,6 +42,13 @@ describe("WalletIndex", () => {
         expect(walletIndex.keys()).toContain(wallet.address);
     });
 
+    it("should return walletKeys", () => {
+        expect(walletIndex.walletKeys(wallet)).toEqual([]);
+
+        walletIndex.index(wallet);
+        expect(walletIndex.walletKeys(wallet)).toEqual([wallet.address]);
+    });
+
     describe("set", () => {
         it("should set and get addresses", () => {
             expect(walletIndex.has(wallet.address)).toBeFalse();
