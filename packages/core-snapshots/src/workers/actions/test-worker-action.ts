@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { WorkerAction } from "@packages/core-snapshots/src/contracts";
+import { WorkerAction } from "@arkecosystem/core-snapshots/src/contracts";
 import { parentPort } from "worker_threads";
 
 // For testing purposes only

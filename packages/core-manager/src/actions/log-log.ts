@@ -53,7 +53,7 @@ export class Action implements Actions.Action {
             shell: true,
         });
 
-        return response.stdout;
+        return parseInt(response.stdout);
     }
 
     private async getLog(
