@@ -24,7 +24,7 @@ export class PaginationService {
         };
     }
 
-    public compare<T>(a: T, b: T, sorting: Sorting): number {
+    private compare<T>(a: T, b: T, sorting: Sorting): number {
         for (const { property, direction } of sorting) {
             let valueA = get(a, property);
             let valueB = get(b, property);
