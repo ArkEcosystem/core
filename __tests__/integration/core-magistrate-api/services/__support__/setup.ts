@@ -42,6 +42,14 @@ export const setUp = async (): Promise<Application> => {
     walletAttributes.set("delegate");
     walletAttributes.set("htlc.locks");
     walletAttributes.set("ipfs.hashes");
+    walletAttributes.set("entities");
+    walletAttributes.set("business");
+    walletAttributes.set("business.businessAsset");
+    walletAttributes.set("business.transactionId");
+    walletAttributes.set("business.bridgechains");
+    walletAttributes.set("business.bridgechains.bridgechain");
+    walletAttributes.set("business.bridgechains.bridgechain.resigned");
+    walletAttributes.set("business.resigned");
 
     return app;
 };
