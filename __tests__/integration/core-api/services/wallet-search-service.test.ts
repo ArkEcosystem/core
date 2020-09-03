@@ -148,7 +148,9 @@ describe("WalletSearchService.getActiveWalletsPage", () => {
         wallet4.balance = Utils.BigNumber.make("400");
         wallet5.balance = Utils.BigNumber.make("500");
 
-        const page = walletSearchService.getActiveWalletsPage({ offset: 0, limit: 100 }, []);
+        const page = walletSearchService.getActiveWalletsPage({ offset: 0, limit: 100 }, [
+            { property: "balance", direction: "asc" },
+        ]);
 
         expect(page.totalCount).toBe(2);
         expect(page.results[0].address).toBe(wallet1.address);
