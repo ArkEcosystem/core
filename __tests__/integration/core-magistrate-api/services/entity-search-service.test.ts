@@ -70,4 +70,21 @@ describe("EntitySearchService.getEntitiesPage", () => {
         expect(entitiesPage.results[0].data.name).toBe("entity 1");
         expect(entitiesPage.results[1].data.name).toBe("entity 2");
     });
+
+    it("should entities that match criteria", () => {
+        const wallet1 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet1"));
+        wallet1.setAttribute("entities", { [entityId1]: entityAttribute1 });
+        walletRepository.index(wallet1);
+
+        const wallet2 = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("wallet2"));
+        wallet2.setAttribute("entities", { [entityId2]: entityAttribute2 });
+        walletRepository.index(wallet2);
+
+        const entitiesPage = entitySearchService.getEntitiesPage({ offset: 0, limit: 100 }, [], {
+            data: { name: "entity 1" },
+        });
+
+        expect(entitiesPage.totalCount).toBe(1);
+        expect(entitiesPage.results[0].data.name).toBe("entity 1");
+    });
 });
