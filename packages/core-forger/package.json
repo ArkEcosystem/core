@@ -27,7 +27,7 @@
         "@arkecosystem/core-p2p": "^3.0.0-alpha.2",
         "@arkecosystem/crypto": "^3.0.0-alpha.2",
         "@hapi/hapi": "^19.0.0",
-        "node-forge": "^0.9.1",
+        "node-forge": "^0.10.0",
         "otplib": "^12.0.0",
         "wif": "^2.0.6"
     },
