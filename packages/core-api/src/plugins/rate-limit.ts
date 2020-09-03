@@ -1,6 +1,6 @@
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
-import mm from "micromatch";
+import mm from "nanomatch";
 import { RateLimiterMemory, RLWrapperBlackAndWhite } from "rate-limiter-flexible";
 
 interface RateLimitResult {

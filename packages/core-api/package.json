@@ -31,6 +31,7 @@
         "@hapi/joi": "^17.1.0",
         "ajv": "^6.10.2",
         "ip": "^1.1.5",
+        "nanomatch": "^1.2.13",
         "node-cache": "^5.0.2",
         "rate-limiter-flexible": "^1.1.6",
         "semver": "^6.3.0"
