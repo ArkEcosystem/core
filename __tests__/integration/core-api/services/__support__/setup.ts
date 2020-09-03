@@ -1,4 +1,4 @@
-import { ServiceProvider as ApiServiceProvider } from "@arkecosystem/core-api";
+import { ServiceProvider as ApiServiceProvider } from "@arkecosystem/core-api/src";
 import { Application, Container, Providers, Services } from "@arkecosystem/core-kernel";
 import { ServiceProvider as StateServiceProvider } from "@arkecosystem/core-state";
 import { ServiceProvider as TransactionsServiceProvider } from "@arkecosystem/core-transactions";
