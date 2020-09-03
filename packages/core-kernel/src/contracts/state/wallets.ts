@@ -16,6 +16,7 @@ export interface WalletIndex {
     entries(): ReadonlyArray<[string, Wallet]>;
     values(): ReadonlyArray<Wallet>;
     keys(): string[];
+    walletKeys(wallet: Wallet): string[];
     clear(): void;
     clone(): WalletIndex;
 }

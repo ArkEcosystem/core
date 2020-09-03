@@ -14,8 +14,7 @@ export class WalletRepositoryCopyOnWrite extends WalletRepository {
 
     public findByAddress(address: string): Contracts.State.Wallet {
         if (address && !this.hasByAddress(address)) {
-            const walletClone = this.blockchainWalletRepository.findByAddress(address).clone();
-            this.index(walletClone);
+            this.cloneWallet(this.blockchainWalletRepository.findByAddress(address));
         }
         return this.findByIndex(Contracts.State.WalletIndexes.Addresses, address)!;
     }
@@ -27,17 +26,30 @@ export class WalletRepositoryCopyOnWrite extends WalletRepository {
         if (this.blockchainWalletRepository.hasByIndex(index, key) === false) {
             return false;
         }
-        const walletClone = this.blockchainWalletRepository.findByIndex(index, key).clone();
-        this.index(walletClone);
+
+        this.cloneWallet(this.blockchainWalletRepository.findByIndex(index, key));
         return true;
     }
 
     public allByUsername(): ReadonlyArray<Contracts.State.Wallet> {
         for (const wallet of this.blockchainWalletRepository.allByUsername()) {
-            if (super.hasByAddress(wallet.address) === false) {
-                this.index(wallet.clone());
+            if (!super.hasByAddress(wallet.address)) {
+                this.cloneWallet(wallet);
             }
         }
         return super.allByUsername();
+    }
+
+    private cloneWallet(wallet: Contracts.State.Wallet) {
+        const walletClone = wallet.clone();
+
+        for (const indexName of this.blockchainWalletRepository.getIndexNames()) {
+            const walletKeys = this.blockchainWalletRepository.getIndex(indexName).walletKeys(wallet);
+
+            const index = this.getIndex(indexName);
+            for (const key of walletKeys) {
+                index.set(key, walletClone);
+            }
+        }
     }
 }
