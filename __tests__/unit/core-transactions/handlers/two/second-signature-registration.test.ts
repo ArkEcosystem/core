@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -109,6 +109,26 @@ describe("SecondSignatureRegistrationTransaction", () => {
                 type: Enums.TransactionType.SecondSignature,
             });
         });
+
+        it("should throw if asset is undefined", async () => {
+            secondSignatureTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield secondSignatureTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
+
+        it("should throw if asset.signature is undefined", async () => {
+            secondSignatureTransaction.data.asset!.signature = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield secondSignatureTransaction.data;
+            });
+
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
     });
 
     describe("throwIfCannotBeApplied", () => {
@@ -151,6 +171,31 @@ describe("SecondSignatureRegistrationTransaction", () => {
                 InsufficientBalanceError,
             );
         });
+
+        it("should throw if asset.signature.publicKey is undefined", async () => {
+            // @ts-ignore
+            secondSignatureTransaction.data.asset.signature.publicKey = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
+        it("should throw if asset.signature is undefined", async () => {
+            secondSignatureTransaction.data.asset!.signature = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
+        it("should throw if asset is undefined", async () => {
+            secondSignatureTransaction.data.asset = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
     });
 
     describe("throwIfCannotEnterPool", () => {
@@ -187,6 +232,39 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
             await expect(handler.throwIfCannotBeApplied(secondSignatureTransaction, senderWallet)).rejects.toThrow(
                 SecondSignatureAlreadyRegisteredError,
+            );
+        });
+    });
+
+    describe("applyToSender", () => {
+        it("should throw if asset.signature.publicKey is undefined", async () => {
+            // @ts-ignore
+            secondSignatureTransaction.data.asset.signature.publicKey = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.apply(secondSignatureTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
+        it("should throw if asset.signature is undefined", async () => {
+            secondSignatureTransaction.data.asset!.signature = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.apply(secondSignatureTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
+        it("should throw if asset is undefined", async () => {
+            secondSignatureTransaction.data.asset = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.apply(secondSignatureTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
             );
         });
     });

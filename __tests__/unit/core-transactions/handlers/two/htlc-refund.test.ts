@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -86,6 +86,7 @@ describe("Htlc refund", () => {
         let multiSignatureHtlcRefundTransaction: Interfaces.ITransaction;
         let handler: TransactionHandler;
         let lockWallet: Wallets.Wallet;
+        const amount = 6 * 1e8;
 
         beforeAll(() => {
             Managers.configManager.setFromPreset("testnet");
@@ -113,7 +114,6 @@ describe("Htlc refund", () => {
 
             walletRepository.index(lockWallet);
 
-            const amount = 6 * 1e8;
             const expiration = {
                 type: expirationType,
                 value: makeExpiredTimestamp(expirationType),
@@ -209,6 +209,23 @@ describe("Htlc refund", () => {
                 ).toResolve();
             });
 
+            it("should throw if asset is undefined", async () => {
+                htlcRefundTransaction.data.asset = undefined;
+
+                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
+            it("should throw if asset.refund is undefined", async () => {
+                // @ts-ignore
+                htlcRefundTransaction.data.asset.refund = undefined;
+
+                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
             it("should throw if no wallet has a lock with associated transaction id", async () => {
                 lockWallet.setAttribute("htlc.locks", {});
 
@@ -289,6 +306,23 @@ describe("Htlc refund", () => {
                 await expect(handler.throwIfCannotEnterPool(htlcRefundTransaction)).toResolve();
             });
 
+            it("should throw if asset is undefined", async () => {
+                htlcRefundTransaction.data.asset = undefined;
+
+                await expect(handler.throwIfCannotEnterPool(htlcRefundTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
+            it("should throw if asset.refund is undefined", async () => {
+                // @ts-ignore
+                htlcRefundTransaction.data.asset.refund = undefined;
+
+                await expect(handler.throwIfCannotEnterPool(htlcRefundTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
             it("should throw if no wallet has a lock with associated transaction id", async () => {
                 lockWallet.setAttribute("htlc.locks", {});
 
@@ -355,6 +389,39 @@ describe("Htlc refund", () => {
                 );
             });
 
+            it("should apply htlc refund transaction if lockWallet contains another locks", async () => {
+                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet)).toResolve();
+
+                const balanceBefore = lockWallet.balance;
+
+                lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount).plus(amount));
+                lockWallet.setAttribute("htlc.locks", {
+                    [htlcLockTransaction.id!]: {
+                        amount: htlcLockTransaction.data.amount,
+                        recipientId: htlcLockTransaction.data.recipientId,
+                        ...htlcLockTransaction.data.asset!.lock,
+                    },
+                    ["dummy_id"]: {
+                        amount: htlcLockTransaction.data.amount,
+                        recipientId: htlcLockTransaction.data.recipientId,
+                        ...htlcLockTransaction.data.asset!.lock,
+                    },
+                });
+
+                walletRepository.index(lockWallet);
+                // @ts-ignore
+                expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeDefined();
+                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount.plus(amount));
+
+                await handler.apply(htlcRefundTransaction);
+
+                expect(lockWallet.hasAttribute("htlc.locks")).toBeTrue();
+                expect(lockWallet.getAttribute("htlc.locks")).toContainKey("dummy_id");
+                expect(lockWallet.balance).toEqual(
+                    balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
+                );
+            });
+
             it("should apply htlc refund transaction defined as exception", async () => {
                 configManager.set("network.pubKeyHash", 99);
                 configManager.set("exceptions.transactions", [htlcRefundTransaction.id]);
@@ -395,6 +462,27 @@ describe("Htlc refund", () => {
                 expect(lockWallet.hasAttribute("htlc")).toBe(false);
                 expect(lockWallet.balance).toEqual(
                     balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee),
+                );
+            });
+
+            it("should throw if asset is undefined", async () => {
+                htlcRefundTransaction.data.asset = undefined;
+
+                handler.throwIfCannotBeApplied = jest.fn();
+
+                await expect(handler.apply(htlcRefundTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
+            it("should throw if asset.refund is undefined", async () => {
+                // @ts-ignore
+                htlcRefundTransaction.data.asset.refund = undefined;
+
+                handler.throwIfCannotBeApplied = jest.fn();
+
+                await expect(handler.apply(htlcRefundTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
                 );
             });
         });
@@ -457,6 +545,38 @@ describe("Htlc refund", () => {
 
                 expect(foundLockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
                 expect(foundLockWallet.balance).toEqual(balanceBefore);
+            });
+
+            it("should throw if asset is undefined", async () => {
+                await expect(handler.apply(htlcRefundTransaction)).toResolve();
+
+                htlcRefundTransaction.data.asset = undefined;
+
+                await expect(handler.revert(htlcRefundTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
+            it("should throw if asset.refund is undefined", async () => {
+                await expect(handler.apply(htlcRefundTransaction)).toResolve();
+
+                // @ts-ignore
+                htlcRefundTransaction.data.asset.refund = undefined;
+
+                await expect(handler.revert(htlcRefundTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
+            it("should throw if lockedTransaction.asset is undefined", async () => {
+                await expect(handler.apply(htlcRefundTransaction)).toResolve();
+
+                htlcLockTransaction.data.asset = undefined;
+                Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
+
+                await expect(handler.revert(htlcRefundTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
             });
         });
     });

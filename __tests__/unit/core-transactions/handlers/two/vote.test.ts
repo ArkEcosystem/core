@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -187,6 +187,15 @@ describe("VoteTransaction", () => {
             senderWallet.setAttribute("vote", "no_a_public_key");
             await expect(handler.bootstrap()).rejects.toThrow(UnvoteMismatchError);
         });
+
+        it("should throw if asset is undefined", async () => {
+            unvoteTransaction.data.asset = undefined;
+
+            transactionHistoryService.streamByCriteria.mockImplementationOnce(async function* () {
+                yield unvoteTransaction.data;
+            });
+            await expect(handler.bootstrap()).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
     });
 
     describe("emitEvents", () => {
@@ -204,6 +213,30 @@ describe("VoteTransaction", () => {
             handler.emitEvents(unvoteTransaction, emitter);
 
             expect(spy).toHaveBeenCalledWith("wallet.unvote", expect.anything());
+        });
+
+        it("should throw if asset.votes is undefined", async () => {
+            const emitter: Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(
+                Identifiers.EventDispatcherService,
+            );
+
+            voteTransaction.data.asset!.votes = undefined;
+
+            expect(() => {
+                handler.emitEvents(voteTransaction, emitter);
+            }).toThrow(Exceptions.Runtime.AssertionException);
+        });
+
+        it("should throw if asset is undefined", async () => {
+            const emitter: Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(
+                Identifiers.EventDispatcherService,
+            );
+
+            voteTransaction.data.asset = undefined;
+
+            expect(() => {
+                handler.emitEvents(voteTransaction, emitter);
+            }).toThrow(Exceptions.Runtime.AssertionException);
         });
     });
 
@@ -276,11 +309,27 @@ describe("VoteTransaction", () => {
             );
         });
 
-        it("should not if wallet has insufficient funds for unvote", async () => {
+        it("should throw if wallet has insufficient funds for unvote", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
             senderWallet.setAttribute("vote", delegateWallet.publicKey);
             await expect(handler.throwIfCannotBeApplied(unvoteTransaction, senderWallet)).rejects.toThrow(
                 InsufficientBalanceError,
+            );
+        });
+
+        it("should throw if asset.votes is undefined", async () => {
+            voteTransaction.data.asset!.votes = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(voteTransaction, senderWallet)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
+        it("should throw if asset is undefined", async () => {
+            voteTransaction.data.asset = undefined;
+
+            await expect(handler.throwIfCannotBeApplied(voteTransaction, senderWallet)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
             );
         });
     });
@@ -332,6 +381,24 @@ describe("VoteTransaction", () => {
         });
     });
 
+    describe("applyForSender", () => {
+        it("should throw if asset.vote is undefined", async () => {
+            voteTransaction.data.asset!.votes = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.applyToSender(voteTransaction)).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
+
+        it("should throw if asset is undefined", async () => {
+            voteTransaction.data.asset = undefined;
+
+            handler.throwIfCannotBeApplied = jest.fn();
+
+            await expect(handler.applyToSender(voteTransaction)).rejects.toThrow(Exceptions.Runtime.AssertionException);
+        });
+    });
+
     describe("revert", () => {
         describe("vote", () => {
             it("should remove the vote from the wallet", async () => {
@@ -358,6 +425,26 @@ describe("VoteTransaction", () => {
                 expect(senderWallet.nonce.isZero()).toBeTrue();
                 expect(senderWallet.getAttribute("vote")).toBe(delegateWallet.publicKey);
             });
+        });
+    });
+
+    describe("revertForSender", () => {
+        it("should throw if asset.vote is undefined", async () => {
+            voteTransaction.data.asset!.votes = undefined;
+
+            senderWallet.nonce = Utils.BigNumber.ONE;
+
+            await expect(handler.revertForSender(voteTransaction)).rejects.toThrow(
+                Exceptions.Runtime.AssertionException,
+            );
+        });
+
+        it("should throw if asset is undefined", async () => {
+            voteTransaction.data.asset = undefined;
+
+            senderWallet.nonce = Utils.BigNumber.ONE;
+
+            await expect(handler.revertForSender(voteTransaction)).rejects.toThrow(Exceptions.Runtime.AssertionException);
         });
     });
 });

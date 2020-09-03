@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Application, Contracts } from "@packages/core-kernel";
+import { Application, Contracts, Exceptions } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
@@ -228,6 +228,22 @@ describe("Htlc claim", () => {
                 ).toResolve();
             });
 
+            it("should throw if asset is undefined", async () => {
+                htlcClaimTransaction.data.asset = undefined;
+
+                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
+            it("should throw if asset.claim is undefined", async () => {
+                htlcClaimTransaction.data.asset!.claim = undefined;
+
+                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
             it("should throw if no wallet has a lock with associated transaction id", async () => {
                 lockWallet.setAttribute("htlc.locks", {});
 
@@ -324,6 +340,22 @@ describe("Htlc claim", () => {
         describe("throwIfCannotEnterPool", () => {
             it("should not throw", async () => {
                 await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).toResolve();
+            });
+
+            it("should throw if asset is undefined", async () => {
+                htlcClaimTransaction.data.asset = undefined;
+
+                await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
+            it("should throw if asset.claim is undefined", async () => {
+                htlcClaimTransaction.data.asset!.claim = undefined;
+
+                await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
             });
 
             it("should throw if no wallet has a lock with associated transaction id", async () => {
@@ -454,6 +486,32 @@ describe("Htlc claim", () => {
             });
         });
 
+        describe("applyToSender", () => {
+            it("should apply", async () => {
+                expect(handler.applyToSender(htlcClaimTransaction)).toResolve();
+            });
+
+            it("should throw if asset is undefined", async () => {
+                htlcClaimTransaction.data.asset = undefined;
+
+                handler.throwIfCannotBeApplied = jest.fn();
+
+                await expect(handler.applyToSender(htlcClaimTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
+            it("should throw if asset.claim is undefined", async () => {
+                htlcClaimTransaction.data.asset!.claim = undefined;
+
+                handler.throwIfCannotBeApplied = jest.fn();
+
+                await expect(handler.applyToSender(htlcClaimTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+        });
+
         describe("revert", () => {
             it("should be ok", async () => {
                 await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet)).toResolve();
@@ -488,6 +546,54 @@ describe("Htlc claim", () => {
                 expect(claimWallet.balance).toEqual(balanceBefore);
             });
 
+            it("should be ok if lockWallet contains another locks", async () => {
+                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet)).toResolve();
+
+                Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
+
+                lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount).plus(amount));
+                lockWallet.setAttribute("htlc.locks", {
+                    [htlcLockTransaction.id!]: {
+                        amount: htlcLockTransaction.data.amount,
+                        recipientId: htlcLockTransaction.data.recipientId,
+                        ...htlcLockTransaction.data.asset!.lock,
+                    },
+                    ["dummy_id"]: {
+                        amount: htlcLockTransaction.data.amount,
+                        recipientId: htlcLockTransaction.data.recipientId,
+                        ...htlcLockTransaction.data.asset!.lock,
+                    },
+                });
+
+                walletRepository.index(lockWallet);
+
+                const balanceBefore = claimWallet.balance;
+                await handler.apply(htlcClaimTransaction);
+
+                expect(lockWallet.hasAttribute("htlc.locks")).toBeTrue();
+                expect(claimWallet.balance).toEqual(
+                    balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
+                );
+
+                await handler.revert(htlcClaimTransaction);
+
+                const foundLockWallet = walletRepository.findByIndex(
+                    Contracts.State.WalletIndexes.Locks,
+                    htlcLockTransaction.id!,
+                );
+
+                expect(foundLockWallet).toBeDefined();
+                // @ts-ignore
+                expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toEqual({
+                    amount: htlcLockTransaction.data.amount,
+                    recipientId: htlcLockTransaction.data.recipientId,
+                    ...htlcLockTransaction.data.asset!.lock,
+                });
+
+                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount.plus(amount));
+                expect(claimWallet.balance).toEqual(balanceBefore);
+            });
+
             it("should be ok if lock transaction has vendorField", async () => {
                 htlcLockTransaction.data.vendorField = "dummy";
 
@@ -515,6 +621,49 @@ describe("Htlc claim", () => {
 
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
                 expect(claimWallet.balance).toEqual(balanceBefore);
+            });
+        });
+
+        describe("revertForSender", () => {
+            beforeEach(() => {
+                Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
+            });
+
+            it("should revert", async () => {
+                await expect(handler.applyToSender(htlcClaimTransaction)).toResolve();
+                await expect(handler.revertForSender(htlcClaimTransaction)).toResolve();
+            });
+
+            it("should throw if asset is undefined", async () => {
+                await expect(handler.apply(htlcClaimTransaction)).toResolve();
+
+                htlcClaimTransaction.data.asset = undefined;
+                claimWallet.nonce = Utils.BigNumber.ONE;
+
+                await expect(handler.revertForSender(htlcClaimTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
+            it("should throw if asset.claim is undefined", async () => {
+                await expect(handler.apply(htlcClaimTransaction)).toResolve();
+
+                htlcClaimTransaction.data.asset!.claim = undefined;
+
+                await expect(handler.revertForSender(htlcClaimTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
+            });
+
+            it("should throw if lockedTransaction.asset is undefined", async () => {
+                await expect(handler.apply(htlcClaimTransaction)).toResolve();
+
+                htlcLockTransaction.data.asset = undefined;
+                Mocks.TransactionRepository.setTransactions([Mapper.mapTransactionToModel(htlcLockTransaction)]);
+
+                await expect(handler.revertForSender(htlcClaimTransaction)).rejects.toThrow(
+                    Exceptions.Runtime.AssertionException,
+                );
             });
         });
     });

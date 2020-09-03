@@ -96,7 +96,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const hasClaim: boolean = this.poolQuery
             .getAll()
             .whereKind(transaction)
-            .wherePredicate((t) => t.data.asset?.claim?.lockTransactionId === lockId)
+            .wherePredicate(/* istanbul ignore next */ (t) => t.data.asset?.claim?.lockTransactionId === lockId)
             .has();
 
         if (hasClaim) {
