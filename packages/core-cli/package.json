@@ -33,6 +33,7 @@
         "execa": "^3.4.0",
         "fast-levenshtein": "^2.0.6",
         "fs-extra": "^8.1.0",
+        "inversify": "^5.0.1",
         "is-ci": "^2.0.0",
         "kleur": "^4.0.0",
         "latest-version": "^5.1.0",
