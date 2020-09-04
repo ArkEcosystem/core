@@ -1,5 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@packages/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
 let accept: string[] = [];
 let broadcast: string[] = [];
