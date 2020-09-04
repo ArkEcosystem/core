@@ -48,12 +48,12 @@ export class Action implements Actions.Action {
         return parseInt(response.stdout);
     }
 
-    private getLines(path: string, fromLine: number, range: number): number {
+    private getLines(path: string, fromLine: number, range: number): string {
         const response: ExecaSyncReturnValue = sync(`sed -n '${fromLine},${fromLine + range}p' ${path}`, {
             shell: true,
         });
 
-        return parseInt(response.stdout);
+        return response.stdout;
     }
 
     private async getLog(
