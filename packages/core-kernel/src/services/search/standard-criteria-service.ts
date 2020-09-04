@@ -217,7 +217,9 @@ export class StandardCriteriaService {
                     }
                 }
 
-                throw error; // unreachable
+                // unreachable
+                /* istanbul ignore next */
+                throw error;
             }
         }
 
