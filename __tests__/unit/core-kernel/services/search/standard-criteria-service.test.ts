@@ -247,6 +247,10 @@ describe("StandardCriteriaService.testStandardCriterias", () => {
             expect(() => check(Utils.BigNumber.make(1), { to: "b" })).toThrow(
                 "Invalid criteria 'b' (string) at 'to' for BigNumber value",
             );
+
+            expect(() => check(Utils.BigNumber.make(1), { invalid: "criteria" } as any)).toThrow(
+                "Invalid criteria '[object Object]' (Object) for BigNumber value",
+            );
         });
     });
 
@@ -274,6 +278,23 @@ describe("StandardCriteriaService.testStandardCriterias", () => {
 
             expect(check(value, { "*": "alice" })).toBe(true);
             expect(check(value, { "*": "dave" })).toBe(false);
+        });
+
+        it("should re-throw error", () => {
+            const value = {
+                owner: "alice",
+                user: "bob",
+            };
+
+            expect(() => check(value, { "*": [{}] })).toThrowError(
+                "Invalid criteria '[object Object]' (Object) at '*.0' for string value",
+            );
+        });
+    });
+
+    describe("when value is array", () => {
+        it("should throw an error", () => {
+            expect(() => check([1, 2, 3], {} as any)).toThrowError("Unsupported value Array(3)");
         });
     });
 

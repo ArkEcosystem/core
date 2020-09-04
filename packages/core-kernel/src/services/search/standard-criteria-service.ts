@@ -217,7 +217,7 @@ export class StandardCriteriaService {
                     }
                 }
 
-                throw error;
+                throw error; // unreachable
             }
         }
 

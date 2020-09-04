@@ -48,7 +48,9 @@ export class UnsupportedValue extends Error {
     private static getMessage(value: unknown, path: string[]): string {
         let v: string;
 
-        if (typeof value === "object") {
+        if (Array.isArray(value)) {
+            v = `Array(${value.length})`;
+        } else if (typeof value === "object") {
             if (value === null) {
                 v = "'null'";
             } else {
