@@ -21,6 +21,7 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
+        "@arkecosystem/core": "^3.0.0-alpha.2",
         "@arkecosystem/core-api": "^3.0.0-alpha.2",
         "@arkecosystem/core-blockchain": "^3.0.0-alpha.2",
         "@arkecosystem/core-cli": "^3.0.0-alpha.2",
