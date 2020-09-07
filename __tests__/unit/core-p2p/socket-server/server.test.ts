@@ -23,7 +23,7 @@ describe("Server", () => {
 
     const container = new Container.Container();
 
-    const logger = { warning: jest.fn(), debug: jest.fn() };
+    const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
     const app = {
         log: logger,
         terminate: jest.fn(),
@@ -50,6 +50,7 @@ describe("Server", () => {
         hapiServer.inject = jest.fn();
         hapiServer.route = jest.fn();
         hapiServer.register = jest.fn();
+        hapiServer.info = { uri: "" };
     });
 
     const name = "P2P server";
@@ -86,7 +87,8 @@ describe("Server", () => {
             await server.initialize(name, options);
             await server.boot();
 
-            expect(hapiServer.start).toBeCalledTimes(1);
+            expect(hapiServer.start).toBeCalledTimes(3);
+            expect(app.terminate).not.toBeCalled();
         });
 
         it("should terminate app if server.start() failed", async () => {
@@ -105,7 +107,8 @@ describe("Server", () => {
             await server.initialize(name, options);
             await server.dispose();
 
-            expect(hapiServer.stop).toBeCalledTimes(1);
+            expect(hapiServer.stop).toBeCalledTimes(3);
+            expect(app.terminate).not.toBeCalled();
         });
 
         it("should terminate app if server.stop() failed", async () => {
