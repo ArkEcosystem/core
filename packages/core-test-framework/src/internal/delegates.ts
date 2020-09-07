@@ -2,6 +2,8 @@ import { Identities } from "@arkecosystem/crypto";
 
 import passphrases from "./passphrases.json";
 
+export { passphrases };
+
 export const addresses: string[] = passphrases.map((passphrase: string) =>
     Identities.Address.fromPassphrase(passphrase),
 );
