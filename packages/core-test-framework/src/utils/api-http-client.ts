@@ -43,10 +43,14 @@ export class ApiHttpClient {
 
     private getResponse(response: Utils.HttpResponse): ApiResponse {
         if (typeof response.statusCode === "undefined") {
+            // unreachable
+            /* istanbul ignore next */
             throw new Error(`Invalid response status ${response.statusCode}`);
         }
 
         if (response.headers.length % 2 !== 0) {
+            // unreachable
+            /* istanbul ignore next */
             throw new Error(`Invalid response headers ${JSON.stringify(response.headers)}`);
         }
 

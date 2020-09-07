@@ -14,7 +14,16 @@ afterAll(async () => {
 });
 
 describe("ApiInjectClient.get", () => {
-    it("should send stringified GET parameters", async () => {
+    it("should send GET request", async () => {
+        const client = app.resolve(ApiInjectClient);
+        const response = await client.get("/echo");
+
+        expect(response).toMatchObject({
+            status: 200,
+        });
+    });
+
+    it("should send GET request with parameters taken from argument", async () => {
         const client = app.resolve(ApiInjectClient);
         const response = await client.get("/echo", { a: "a", b: 1 });
 
@@ -22,6 +31,18 @@ describe("ApiInjectClient.get", () => {
             status: 200,
             body: {
                 query: { a: "a", b: "1" },
+            },
+        });
+    });
+
+    it("should send GET request with parameters taken from argument merged with those in path", async () => {
+        const client = app.resolve(ApiInjectClient);
+        const response = await client.get("/echo?c=c", { a: "a", b: 1 });
+
+        expect(response).toMatchObject({
+            status: 200,
+            body: {
+                query: { a: "a", b: "1", c: "c" },
             },
         });
     });
