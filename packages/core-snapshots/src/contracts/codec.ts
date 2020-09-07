@@ -1,4 +1,4 @@
-import { Models } from "@packages/core-database";
+import { Models } from "@arkecosystem/core-database";
 
 export interface Codec {
     encodeBlock(block: any): Buffer;

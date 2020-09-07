@@ -1,5 +1,5 @@
 import { Models, Repositories } from "@arkecosystem/core-database";
-import { Contracts } from "@packages/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { EntityRepository } from "typeorm";
 
 import { Repository } from "../contracts";

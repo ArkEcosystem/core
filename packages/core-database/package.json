@@ -24,6 +24,7 @@
     "dependencies": {
         "@arkecosystem/core-kernel": "^3.0.0-alpha.2",
         "@arkecosystem/crypto": "^3.0.0-alpha.2",
+        "@arkecosystem/utils": "^1.2.0",
         "dayjs": "^1.8.17",
         "pg": "^8.2.1",
         "reflect-metadata": "^0.1.13",

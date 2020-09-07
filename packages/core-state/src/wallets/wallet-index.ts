@@ -17,6 +17,12 @@ export class WalletIndex implements Contracts.State.WalletIndex {
         return [...this.walletByKey.keys()];
     }
 
+    public walletKeys(wallet: Contracts.State.Wallet): string[] {
+        const walletKeys = this.keysByWallet.get(wallet);
+
+        return walletKeys ? [...walletKeys.keys()] : [];
+    }
+
     public values(): ReadonlyArray<Contracts.State.Wallet> {
         return [...this.walletByKey.values()];
     }
@@ -81,6 +87,7 @@ export class WalletIndex implements Contracts.State.WalletIndex {
 
     public clear(): void {
         this.walletByKey = new Map<string, Contracts.State.Wallet>();
+        this.keysByWallet = new Map<Contracts.State.Wallet, Set<string>>();
     }
 
     public clone(): Contracts.State.WalletIndex {

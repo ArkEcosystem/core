@@ -1,6 +1,6 @@
-import { Contracts } from "@packages/core-kernel";
-import { Meta, Options } from "@packages/core-snapshots/src/contracts/index";
-import { Interfaces } from "@packages/crypto";
+import { Contracts } from "@arkecosystem/core-kernel";
+import { Meta, Options } from "@arkecosystem/core-snapshots/src/contracts/index";
+import { Interfaces } from "@arkecosystem/crypto";
 
 export interface DumpRange {
     firstBlockHeight: number;

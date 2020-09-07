@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { Contracts } from "@packages/core-kernel";
 import { Wallet, WalletRepository, WalletRepositoryCopyOnWrite } from "@packages/core-state/src/wallets";
 import {
     addressesIndexer,
@@ -57,34 +58,23 @@ describe("Wallet Repository Copy On Write", () => {
         const wallet1 = walletRepoCopyOnWrite.createWallet("abcd");
         const wallet2 = walletRepoCopyOnWrite.createWallet("efg");
         const wallet3 = walletRepoCopyOnWrite.createWallet("hij");
-        walletRepoCopyOnWrite.getIndex("usernames").set("username1", wallet1);
-        walletRepoCopyOnWrite.getIndex("usernames").set("username2", wallet2);
-        walletRepoCopyOnWrite.getIndex("usernames").set("username3", wallet3);
-        walletRepo.index(wallet1);
-        walletRepo.index(wallet2);
-        walletRepo.index(wallet3);
+
+        wallet1.setAttribute("delegate.username", "username1");
+        wallet2.setAttribute("delegate.username", "username2");
+        wallet3.setAttribute("delegate.username", "username3");
+
+        const allWallets = [wallet1, wallet2, wallet3];
+        walletRepo.index(allWallets);
 
         expect(walletRepoCopyOnWrite.allByUsername()).toEqual([wallet1, wallet2, wallet3]);
 
         const wallet4 = walletRepoCopyOnWrite.createWallet("klm");
-        walletRepo.getIndex("usernames").set("username4", wallet4);
 
-        // ? shouldn't it be [wallet1, wallet2, wallet3, wallet4] now?
-        expect(walletRepoCopyOnWrite.allByUsername()).toEqual([wallet1, wallet2, wallet3]);
-    });
+        wallet4.setAttribute("delegate.username", "username4");
+        walletRepo.index(wallet4);
+        allWallets.push(wallet4);
 
-    it("should not index wallets in CopyOnWrite repo if they were only indexed on original", () => {
-        const wallet1 = walletRepoCopyOnWrite.createWallet("abcd");
-        const wallet2 = walletRepoCopyOnWrite.createWallet("efg");
-        const wallet3 = walletRepoCopyOnWrite.createWallet("hij");
-        walletRepo.getIndex("usernames").set("username1", wallet1);
-        walletRepo.getIndex("usernames").set("username2", wallet2);
-        walletRepo.getIndex("usernames").set("username3", wallet3);
-        walletRepo.index(wallet1);
-        walletRepo.index(wallet2);
-        walletRepo.index(wallet3);
-
-        expect(walletRepoCopyOnWrite.allByUsername()).toEqual([]);
+        expect(walletRepoCopyOnWrite.allByUsername()).toEqual(allWallets);
     });
 
     // TODO: test behaves differently to WalletRepository due to inheritance
@@ -183,7 +173,7 @@ describe("Wallet Repository Copy On Write", () => {
         });
     });
 
-    describe("findByPublickey", () => {
+    describe("findByPublicKey", () => {
         it("should return a copy", () => {
             const wallet = walletRepo.createWallet("ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp");
             wallet.publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
@@ -239,4 +229,26 @@ describe("Wallet Repository Copy On Write", () => {
             expect(walletRepoCopyOnWrite.hasByUsername(wallet.getAttribute("delegate.username"))).toBeTrue();
         });
     });
+
+    describe("hasByIndex", () => {
+        it("should be ok", () => {
+            const wallet = walletRepo.createWallet("abc");
+            wallet.setAttribute("delegate", { username: "test" });
+            walletRepo.index(wallet);
+
+            expect(walletRepoCopyOnWrite.hasByIndex(Contracts.State.WalletIndexes.Usernames, "test")).toBeTrue();
+        });
+    });
+
+    describe("findByIndex", () => {
+        it("should be ok", () => {
+            const wallet = walletRepo.createWallet("abc");
+            wallet.setAttribute("delegate", { username: "test" });
+            walletRepo.index(wallet);
+
+            expect(walletRepoCopyOnWrite.findByIndex(Contracts.State.WalletIndexes.Usernames, "test")).toEqual(wallet);
+        });
+    });
+
+    // TODO: Check index where autoIndex = false
 });

@@ -1,4 +1,4 @@
-import { StreamReader, StreamWriter } from "@packages/core-snapshots/src/filesystem";
+import { StreamReader, StreamWriter } from "@arkecosystem/core-snapshots/src/filesystem";
 
 export type StreamReaderFactory = (file: string, useCompression: boolean, decode: Function) => StreamReader;
 
