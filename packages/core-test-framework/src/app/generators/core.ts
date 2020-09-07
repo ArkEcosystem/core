@@ -89,7 +89,7 @@ export class CoreGenerator extends Generator {
         if (this.options.core.environment) {
             writeFileSync(filePath, this.options.core.environment);
         } else {
-            copyFileSync(resolve(__dirname, "../../../../core/bin/config/testnet/.env"), filePath);
+            copyFileSync(require.resolve("@arkecosystem/core/bin/config/testnet/.env"), filePath);
         }
     }
 
@@ -103,7 +103,7 @@ export class CoreGenerator extends Generator {
         if (this.options.core.app) {
             writeJSONSync(filePath, this.options.core.app, { spaces: 4 });
         } else {
-            copyFileSync(resolve(__dirname, "../../../../core/bin/config/testnet/app.json"), filePath);
+            copyFileSync(require.resolve("@arkecosystem/core/bin/config/testnet/app.json"), filePath);
         }
     }
 }
