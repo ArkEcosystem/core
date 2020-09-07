@@ -1,8 +1,7 @@
-import hapi from "@hapi/hapi";
 import { Container } from "@arkecosystem/core-kernel";
-
-import { Server } from "@arkecosystem/core-p2p/src/socket-server/server";
 import * as Nes from "@arkecosystem/core-p2p/src/hapi-nes";
+import { Server } from "@arkecosystem/core-p2p/src/socket-server/server";
+import hapi from "@hapi/hapi";
 
 import { NesClient } from "../mocks/nes";
 
@@ -61,6 +60,24 @@ describe("Server", () => {
             await server.initialize(name, options);
 
             expect(spyHapiServer).toBeCalledTimes(3); // 3 servers listening on the 3 ports
+            expect(hapiServer.register).toHaveBeenCalledWith({
+                plugin: Nes.plugin,
+                options: {
+                    maxPayload: 102400,
+                },
+            });
+            expect(hapiServer.register).toHaveBeenCalledWith({
+                plugin: Nes.plugin,
+                options: {
+                    maxPayload: 20971520,
+                },
+            });
+            expect(hapiServer.register).toHaveBeenCalledWith({
+                plugin: Nes.plugin,
+                options: {
+                    maxPayload: 10485760,
+                },
+            });
         });
     });
 
