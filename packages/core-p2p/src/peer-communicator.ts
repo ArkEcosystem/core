@@ -273,6 +273,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 }
+                /* istanbul ignore else */
                 if (disconnect) {
                     this.events.dispatch(Enums.PeerEvent.Disconnect, { peer });
                 }

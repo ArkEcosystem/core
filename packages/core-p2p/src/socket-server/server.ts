@@ -71,15 +71,20 @@ export class Server {
         const basePort = Number(optionsServer.port);
 
         this.peerServer = new HapiServer({ address, port: basePort + PortsOffset.Peer });
-        this.blocksServer = new HapiServer({ address, port: basePort + PortsOffset.Blocks });
-        this.transactionsServer = new HapiServer({ address, port: basePort + PortsOffset.Transactions });
-        
-        for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
-            (server.app as any).app = this.app;
-            await server.register({ plugin });
+        this.peerServer.app = this.app;
+        await this.peerServer.register({ plugin, options: { maxPayload: 102400 } }); // 100 KB
 
+        this.blocksServer = new HapiServer({ address, port: basePort + PortsOffset.Blocks });
+        this.blocksServer.app = this.app;
+        await this.blocksServer.register({ plugin, options: { maxPayload: 20971520 } }); // 20 MB
+
+        this.transactionsServer = new HapiServer({ address, port: basePort + PortsOffset.Transactions });
+        this.transactionsServer.app = this.app;
+        await this.transactionsServer.register({ plugin, options: { maxPayload: 10485760 } }); // 10 MB
+
+        for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
             this.app.resolve(ValidatePlugin).register(server);
-        };
+        }
 
         this.app.resolve(InternalRoute).register(this.peerServer);
         this.app.resolve(PeerRoute).register(this.peerServer);

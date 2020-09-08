@@ -1,8 +1,7 @@
-import hapi from "@hapi/hapi";
 import { Container } from "@arkecosystem/core-kernel";
-
-import { Server } from "@arkecosystem/core-p2p/src/socket-server/server";
 import * as Nes from "@arkecosystem/core-p2p/src/hapi-nes";
+import { Server } from "@arkecosystem/core-p2p/src/socket-server/server";
+import hapi from "@hapi/hapi";
 
 import { NesClient } from "../mocks/nes";
 
@@ -24,7 +23,7 @@ describe("Server", () => {
 
     const container = new Container.Container();
 
-    const logger = { warning: jest.fn(), debug: jest.fn() };
+    const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
     const app = {
         log: logger,
         terminate: jest.fn(),
@@ -51,6 +50,7 @@ describe("Server", () => {
         hapiServer.inject = jest.fn();
         hapiServer.route = jest.fn();
         hapiServer.register = jest.fn();
+        hapiServer.info = { uri: "" };
     });
 
     const name = "P2P server";
@@ -61,6 +61,24 @@ describe("Server", () => {
             await server.initialize(name, options);
 
             expect(spyHapiServer).toBeCalledTimes(3); // 3 servers listening on the 3 ports
+            expect(hapiServer.register).toHaveBeenCalledWith({
+                plugin: Nes.plugin,
+                options: {
+                    maxPayload: 102400,
+                },
+            });
+            expect(hapiServer.register).toHaveBeenCalledWith({
+                plugin: Nes.plugin,
+                options: {
+                    maxPayload: 20971520,
+                },
+            });
+            expect(hapiServer.register).toHaveBeenCalledWith({
+                plugin: Nes.plugin,
+                options: {
+                    maxPayload: 10485760,
+                },
+            });
         });
     });
 
@@ -69,7 +87,8 @@ describe("Server", () => {
             await server.initialize(name, options);
             await server.boot();
 
-            expect(hapiServer.start).toBeCalledTimes(1);
+            expect(hapiServer.start).toBeCalledTimes(3);
+            expect(app.terminate).not.toBeCalled();
         });
 
         it("should terminate app if server.start() failed", async () => {
@@ -88,7 +107,8 @@ describe("Server", () => {
             await server.initialize(name, options);
             await server.dispose();
 
-            expect(hapiServer.stop).toBeCalledTimes(1);
+            expect(hapiServer.stop).toBeCalledTimes(3);
+            expect(app.terminate).not.toBeCalled();
         });
 
         it("should terminate app if server.stop() failed", async () => {
