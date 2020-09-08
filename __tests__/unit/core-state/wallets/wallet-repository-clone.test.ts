@@ -192,6 +192,7 @@ describe("Wallet Repository Clone", () => {
 
         it("should re-index wallet", () => {
             const wallet = walletRepo.createWallet("abcdef");
+            walletRepo.index(wallet);
             const clone = wallet.clone();
             walletRepoClone.index(clone);
 
