@@ -6,6 +6,7 @@ import { EntityAction, EntityType } from "@arkecosystem/core-magistrate-crypto/s
 import {
     EntityAlreadyRegisteredError,
     EntityAlreadyResignedError,
+    EntityNameAlreadyRegisteredError,
     EntityNameDoesNotMatchDelegateError,
     EntityNotRegisteredError,
     EntitySenderIsNotDelegateError,
@@ -177,6 +178,62 @@ describe("Entity handler", () => {
                     entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
                 ).rejects.toBeInstanceOf(StaticFeeMismatchError);
             });
+
+            it.each([validRegisters])(
+                "should throw when entity name is already registered for same type",
+                async asset => {
+                    const transaction = entityBuilder
+                        .asset(asset)
+                        .sign(senderPassphrase)
+                        .build();
+
+                    const randomPassphrase = "this is another passphrase";
+                    const randomWallet = new Wallets.Wallet(Identities.Address.fromPassphrase(randomPassphrase));
+                    randomWallet.balance = Utils.BigNumber.make(452765431200000);
+                    randomWallet.publicKey = Identities.PublicKey.fromPassphrase(randomPassphrase);
+                    // entity name already registered with different wallet and different tx id
+                    randomWallet.setAttribute("entities", {
+                        "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
+                            type: asset.type,
+                            subType: (asset.subType + 1) % 255, // different subType but still in the range [0, 255]
+                            data: asset.data,
+                        },
+                    });
+                    walletManager.reindex(randomWallet);
+
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
+                    ).rejects.toBeInstanceOf(EntityNameAlreadyRegisteredError);
+                },
+            );
+
+            it.each([validRegisters])(
+                "should not throw when entity name is registered for a different type",
+                async asset => {
+                    const transaction = entityBuilder
+                        .asset(asset)
+                        .sign(senderPassphrase)
+                        .build();
+
+                    const randomPassphrase = "this is another passphrase";
+                    const randomWallet = new Wallets.Wallet(Identities.Address.fromPassphrase(randomPassphrase));
+                    randomWallet.balance = Utils.BigNumber.make(452765431200000);
+                    randomWallet.publicKey = Identities.PublicKey.fromPassphrase(randomPassphrase);
+                    // entity name already registered with different wallet and different tx id
+                    randomWallet.setAttribute("entities", {
+                        "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
+                            type: (asset.type + 1) % 255, // different subType but still in the range [0, 255]
+                            subType: asset.subType,
+                            data: asset.data,
+                        },
+                    });
+                    walletManager.reindex(randomWallet);
+
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
+                    ).toResolve();
+                },
+            );
 
             describe("Entity delegate", () => {
                 const createEntityDelegateTx = name =>
