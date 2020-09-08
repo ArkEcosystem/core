@@ -173,13 +173,11 @@ describe("Wallet Repository Clone", () => {
     });
 
     describe("indexing", () => {
-        it("should not affect the original", () => {
+        it("should throw error when attempting to index state=blockchain wallet", () => {
             const wallet = walletRepo.createWallet("abcdef");
             walletRepo.index(wallet);
 
-            walletRepoClone.index(wallet);
-
-            expect(walletRepo.findByAddress(wallet.address)).not.toBe(walletRepoClone.findByAddress(wallet.address));
+            expect(() => walletRepoClone.index(wallet)).toThrowError("Can't index state=blockchain wallet");
         });
     });
 
