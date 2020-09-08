@@ -11,3 +11,5 @@ export * as Factories from "./factories";
 // Utilities for common tasks like sending HTTP requests or altering wallets
 export * from "./utils"; // todo: export as Utils
 export * as Mocks from "./mocks"; // todo: export as Utils
+// internals are also useful for bridgechains
+export * from "./internal";

@@ -98,6 +98,72 @@ describe("Listener", () => {
         await server.stop();
     });
 
+    describe("maxPayload", () => {
+        let server;
+        let response;
+        let payload;
+
+        beforeEach(async () => {
+            response = "a".repeat(10);
+            payload = "b".repeat(10);
+
+            server = Hapi.server();
+            await server.register({ plugin: plugin, options: { maxPayload: 100 } });
+            server.route({
+                method: "GET",
+                path: "/",
+                handler: async () => {
+                    return response;
+                },
+            });
+        });
+
+        it("should resolve if payload and response are less than maxPayload", async () => {
+            await server.start();
+            const client = new Client("http://localhost:" + server.info.port);
+            await client.connect();
+
+            await expect(client.request({ path: "/", payload })).resolves.toEqual({
+                payload: response,
+                statusCode: 200,
+            });
+
+            await client.disconnect();
+            await server.stop();
+        });
+
+        it("should resolve if response is greater than maxPayload", async () => {
+            response = "a".repeat(200);
+
+            await server.start();
+            const client = new Client("http://localhost:" + server.info.port);
+            await client.connect();
+
+            await expect(client.request({ path: "/", payload })).resolves.toEqual({
+                payload: response,
+                statusCode: 200,
+            });
+
+            await client.disconnect();
+            await server.stop();
+        });
+
+        it("should throw if payload is greater than maxPayload", async () => {
+            payload = "b".repeat(110);
+
+            await server.start();
+            const client = new Client("http://localhost:" + server.info.port);
+            await client.connect();
+
+            await expect(client.request({ path: "/", payload })).rejects.toThrowError(
+                "Request failed - server disconnected",
+            );
+
+            await client.disconnect();
+            await server.stop();
+        });
+    });
+
     describe("_beat()", () => {
         it("disconnects client after timeout", async () => {
             const server = Hapi.server();

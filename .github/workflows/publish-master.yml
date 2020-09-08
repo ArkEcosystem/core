@@ -1,0 +1,64 @@
+name: Publish (Master)
+
+on:
+    push:
+        branches:
+            - "master"
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 12
+                  registry-url: https://registry.npmjs.org/
+
+            - name: Install & Build
+              run: yarn setup
+
+            - name: Publish to NPM
+              run: |
+                cd packages
+                cd crypto && npm publish --access public && cd ..
+                cd core-api && npm publish --access public && cd ..
+                cd core-blockchain && npm publish --access public && cd ..
+                cd core-container && npm publish --access public && cd ..
+                cd core-database && npm publish --access public && cd ..
+                cd core-database-postgres && npm publish --access public && cd ..
+                cd core-elasticsearch && npm publish --access public && cd ..
+                cd core-error-tracker-airbrake && npm publish --access public && cd ..
+                cd core-error-tracker-bugsnag && npm publish --access public && cd ..
+                cd core-error-tracker-raygun && npm publish --access public && cd ..
+                cd core-error-tracker-rollbar && npm publish --access public && cd ..
+                cd core-error-tracker-sentry && npm publish --access public && cd ..
+                cd core-event-emitter && npm publish --access public && cd ..
+                cd core-exchange-json-rpc && npm publish --access public && cd ..
+                cd core-explorer && npm publish --access public && cd ..
+                cd core-forger && npm publish --access public && cd ..
+                cd core-http-utils && npm publish --access public && cd ..
+                cd core-interfaces && npm publish --access public && cd ..
+                cd core-jest-matchers && npm publish --access public && cd ..
+                cd core-logger && npm publish --access public && cd ..
+                cd core-logger-pino && npm publish --access public && cd ..
+                cd core-logger-signale && npm publish --access public && cd ..
+                cd core-logger-winston && npm publish --access public && cd ..
+                cd core-magistrate-crypto && npm publish --access public && cd ..
+                cd core-magistrate-transactions && npm publish --access public && cd ..
+                cd core-new-relic && npm publish --access public && cd ..
+                cd core-p2p && npm publish --access public && cd ..
+                cd core-snapshots && npm publish --access public && cd ..
+                cd core-state && npm publish --access public && cd ..
+                cd core-tester-cli && npm publish --access public && cd ..
+                cd core-transaction-pool && npm publish --access public && cd ..
+                cd core-transactions && npm publish --access public && cd ..
+                cd core-utils && npm publish --access public && cd ..
+                cd core-vote-report && npm publish --access public && cd ..
+                cd core-wallet-api && npm publish --access public && cd ..
+                cd core-webhooks && npm publish --access public && cd ..
+                cd core && npm publish --access public && cd ..
+              env:
+                  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
