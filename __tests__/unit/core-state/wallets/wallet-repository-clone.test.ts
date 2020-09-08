@@ -31,6 +31,7 @@ beforeEach(() => {
 describe("Wallet Repository Clone", () => {
     it("should create a wallet", () => {
         const wallet = walletRepoClone.createWallet("abcd");
+
         expect(wallet.address).toEqual("abcd");
         expect(wallet).toBeInstanceOf(Wallet);
     });
@@ -174,10 +175,27 @@ describe("Wallet Repository Clone", () => {
 
     describe("indexing", () => {
         it("should index wallet", () => {
-            const wallet = walletRepoClone.createWallet("abcdef");
-            walletRepoClone.index(wallet);
+            const wallet1 = walletRepoClone.createWallet("wallet1");
+            walletRepoClone.index(wallet1);
 
-            expect(walletRepoClone.findByAddress("abcdef")).toBe(wallet);
+            expect(walletRepoClone.findByAddress("wallet1")).toBe(wallet1);
+        });
+
+        it("should index array of wallets", () => {
+            const wallet1 = walletRepoClone.createWallet("wallet1");
+            const wallet2 = walletRepoClone.createWallet("wallet2");
+            walletRepoClone.index([wallet1, wallet2]);
+
+            expect(walletRepoClone.findByAddress("wallet1")).toBe(wallet1);
+            expect(walletRepoClone.findByAddress("wallet2")).toBe(wallet2);
+        });
+
+        it("should re-index wallet", () => {
+            const wallet = walletRepo.createWallet("abcdef");
+            const clone = wallet.clone();
+            walletRepoClone.index(clone);
+
+            expect(walletRepoClone.findByAddress("abcdef")).toBe(clone);
         });
 
         it("should throw error when attempting to index state=blockchain wallet", () => {
