@@ -35,13 +35,13 @@ describe("PaginationService.getPage", () => {
     it("should return items with undefined properties at the end", () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
-        const items = [{ v: 1 }, { v: 3 }, {}, { v: 2 }];
+        const items = [{ v: 1 }, {}, { v: 3 }, {}, { v: 2 }];
         const sorting = [{ property: "v", direction: "asc" as const }];
         const resultsPage = paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
-            results: [{ v: 1 }, { v: 2 }, { v: 3 }, {}],
-            totalCount: 4,
+            results: [{ v: 1 }, { v: 2 }, { v: 3 }, {}, {}],
+            totalCount: 5,
             meta: { totalCountIsEstimate: false },
         });
     });
@@ -63,13 +63,13 @@ describe("PaginationService.getPage", () => {
     it("should return items with null properties at the end before items with undefined properties", () => {
         const paginationService = container.resolve(PaginationService);
         const pagination = { offset: 0, limit: 100 };
-        const items = [{ v: 1 }, { v: 3 }, {}, { v: null }, { v: 2 }];
+        const items = [{ v: 1 }, { v: 3 }, {}, { v: null }, { v: 2 }, { v: null }];
         const sorting = [{ property: "v", direction: "asc" as const }];
         const resultsPage = paginationService.getPage(pagination, sorting, items);
 
         expect(resultsPage).toEqual({
-            results: [{ v: 1 }, { v: 2 }, { v: 3 }, { v: null }, {}],
-            totalCount: 5,
+            results: [{ v: 1 }, { v: 2 }, { v: 3 }, { v: null }, { v: null }, {}],
+            totalCount: 6,
             meta: { totalCountIsEstimate: false },
         });
     });
