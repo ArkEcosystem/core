@@ -94,8 +94,7 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
                         entityValues.some(
                             entity =>
                                 entity.data.name!.toLowerCase() === transaction.data.asset!.data.name.toLowerCase() &&
-                                entity.type === transaction.data.asset!.type &&
-                                entity.subType === transaction.data.asset!.subType,
+                                entity.type === transaction.data.asset!.type,
                         )
                     ) {
                         throw new EntityNameAlreadyRegisteredError();
