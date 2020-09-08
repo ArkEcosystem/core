@@ -173,6 +173,13 @@ describe("Wallet Repository Clone", () => {
     });
 
     describe("indexing", () => {
+        it("should index wallet", () => {
+            const wallet = walletRepoClone.createWallet("abcdef");
+            walletRepoClone.index(wallet);
+
+            expect(walletRepoClone.findByAddress("abcdef")).toBe(wallet);
+        });
+
         it("should throw error when attempting to index state=blockchain wallet", () => {
             const wallet = walletRepo.createWallet("abcdef");
             walletRepo.index(wallet);
