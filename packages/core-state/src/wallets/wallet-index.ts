@@ -89,14 +89,4 @@ export class WalletIndex implements Contracts.State.WalletIndex {
         this.walletByKey = new Map<string, Contracts.State.Wallet>();
         this.keysByWallet = new Map<Contracts.State.Wallet, Set<string>>();
     }
-
-    public clone(): Contracts.State.WalletIndex {
-        const walletIndex = new WalletIndex(this.indexer, this.autoIndex);
-
-        for (const [key, value] of this.entries()) {
-            walletIndex.set(key, value.clone());
-        }
-
-        return walletIndex;
-    }
 }
