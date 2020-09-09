@@ -77,7 +77,7 @@ export class PeerVerifier {
         claimedState: P2P.IPeerState,
         deadline: number,
     ): Promise<PeerVerificationResult | undefined> {
-        if (!this.checkStateHeader(claimedState)) {
+        if (!(await this.checkStateHeader(claimedState))) {
             return undefined;
         }
 
@@ -102,7 +102,7 @@ export class PeerVerifier {
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
     }
 
-    private checkStateHeader(claimedState: P2P.IPeerState): boolean {
+    private async checkStateHeader(claimedState: P2P.IPeerState): Promise<boolean> {
         const blockHeader: Interfaces.IBlockData = claimedState.header as Interfaces.IBlockData;
         const claimedHeight: number = Number(blockHeader.height);
         if (claimedHeight !== claimedState.height) {
@@ -126,8 +126,9 @@ export class PeerVerifier {
                 return true;
             }
 
-            const claimedBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(blockHeader);
-            if (claimedBlock.verifySignature()) {
+            const roundInfo = roundCalculator.calculateRound(claimedHeight);
+            const delegates = await this.getDelegatesByRound(roundInfo);
+            if (await this.verifyPeerBlock(blockHeader, claimedHeight, delegates)) {
                 return true;
             }
 
