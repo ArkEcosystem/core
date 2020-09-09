@@ -30,6 +30,7 @@ class Database {
         try {
             return this.database
                 .get("webhooks")
+                // @ts-ignore
                 .find({ id })
                 .value();
         } catch (error) {
@@ -40,6 +41,7 @@ class Database {
     public findByEvent(event: string): IWebhook[] {
         return this.database
             .get("webhooks")
+            // @ts-ignore
             .filter({ event })
             .value();
     }
@@ -49,6 +51,7 @@ class Database {
 
         this.database
             .get("webhooks")
+            // @ts-ignore
             .push(data)
             .write();
 
@@ -58,6 +61,7 @@ class Database {
     public update(id: string, data: IWebhook): IWebhook {
         return this.database
             .get("webhooks")
+            // @ts-ignore
             .find({ id })
             .assign(data)
             .write();
@@ -66,6 +70,7 @@ class Database {
     public destroy(id: string): void {
         this.database
             .get("webhooks")
+            // @ts-ignore
             .remove({ id })
             .write();
     }
