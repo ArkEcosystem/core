@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.54] - 2020-09-09
+
+### Changed
+
+-   Verify peer claimed state (24a8b044, @air1one)
+
+### Fixed
+
+-   Use head from utils (da13465e, @air1one)
+
 ## [2.6.52] - 2020-08-11
 
 ### Fixed
