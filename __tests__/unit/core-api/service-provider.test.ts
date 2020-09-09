@@ -48,6 +48,10 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue({});
 
+    app.bind(Container.Identifiers.StandardCriteriaService).toConstantValue({});
+
+    app.bind(Container.Identifiers.PaginationService).toConstantValue({});
+
     defaults.server.http.enabled = true;
     defaults.server.https.enabled = "enabled";
     defaults.server.https.tls.key = path.resolve(__dirname, "./__fixtures__/key.pem");

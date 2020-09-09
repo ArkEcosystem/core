@@ -48,6 +48,14 @@ export class Server {
     private name!: string;
 
     /**
+     * @type {string}
+     * @memberof Server
+     */
+    public get uri(): string {
+        return this.server.info.uri;
+    }
+
+    /**
      * @param {string} name
      * @param {Types.JsonObject} optionsServer
      * @returns {Promise<void>}

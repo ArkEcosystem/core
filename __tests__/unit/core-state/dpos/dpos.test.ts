@@ -68,7 +68,7 @@ describe("dpos", () => {
             delegates[2].setAttribute("delegate.voteBalance", Utils.BigNumber.make(5467));
             delegates[1].publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
             delegates[2].publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
-            walletRepo.index([delegates[2], delegates[2]]);
+            walletRepo.index(delegates[2]);
 
             expect(() => dposState.buildDelegateRanking()).toThrow(
                 'The balance and public key of both delegates are identical! Delegate "delegate2" appears twice in the list.',

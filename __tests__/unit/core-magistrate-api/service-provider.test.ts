@@ -39,6 +39,10 @@ beforeEach(() => {
     app.bind(Container.Identifiers.TransactionHandlerRegistry).toConstantValue({});
 
     app.bind(Container.Identifiers.LogService).toConstantValue({});
+
+    app.bind(Container.Identifiers.StandardCriteriaService).toConstantValue({});
+
+    app.bind(Container.Identifiers.PaginationService).toConstantValue({});
 });
 
 describe("ServiceProvider", () => {

@@ -1,22 +1,22 @@
 export * from "./criteria";
 export * from "./expressions";
 
-export type ListOrder = {
+export type Sorting = {
     property: string;
     direction: "asc" | "desc";
 }[];
 
-export type ListPage = {
+export type Pagination = {
     offset: number;
     limit: number;
 };
 
-export type ListResult<T> = {
-    rows: T[];
-    count: number;
-    countIsEstimate: boolean;
+export type Options = {
+    estimateTotalCount?: boolean;
 };
 
-export type ListOptions = {
-    estimateTotalCount?: boolean;
+export type ResultsPage<T> = {
+    results: T[];
+    totalCount: number;
+    meta: { totalCountIsEstimate: boolean };
 };

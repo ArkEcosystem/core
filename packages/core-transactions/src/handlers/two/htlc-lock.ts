@@ -51,7 +51,9 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             wallet.setAttribute("htlc.lockedBalance", lockedBalance);
         }
 
-        this.walletRepository.index(Object.values(walletsToIndex));
+        for (const wallet of Object.values(walletsToIndex)) {
+            this.walletRepository.index(wallet);
+        }
     }
 
     public async isActivated(): Promise<boolean> {

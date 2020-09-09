@@ -10,7 +10,7 @@ const jestfn = <T extends (...args: unknown[]) => unknown>(
     return jest.fn(implementation);
 };
 
-const defaultTransactionOrder: Contracts.Search.ListOrder = [
+const defaultTransactionSorting: Contracts.Search.Sorting = [
     { property: "blockHeight", direction: "asc" },
     { property: "sequence", direction: "asc" },
 ];
@@ -63,7 +63,7 @@ describe("TransactionHistoryService.findOneByCriteria", () => {
         const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
-        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression, defaultTransactionOrder);
+        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression, defaultTransactionSorting);
         expect(modelConverter.getTransactionData).toBeCalledWith([]);
         expect(result).toBeUndefined();
     });
@@ -82,7 +82,7 @@ describe("TransactionHistoryService.findOneByCriteria", () => {
         const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
-        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression, defaultTransactionOrder);
+        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression, defaultTransactionSorting);
         expect(modelConverter.getTransactionData).toBeCalledWith([model]);
 
         expect(result).toBe(data);
@@ -106,7 +106,7 @@ describe("TransactionHistoryService.findManyByCriteria", () => {
         const result = await transactionHistoryService.findManyByCriteria(criteria);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
-        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression, defaultTransactionOrder);
+        expect(transactionRepository.findManyByExpression).toBeCalledWith(expression, defaultTransactionSorting);
         expect(modelConverter.getTransactionData).toBeCalledWith([model1, model2]);
 
         expect(result.length).toBe(2);
@@ -139,7 +139,7 @@ describe("TransactionHistoryService.streamByCriteria", () => {
         }
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
-        expect(transactionRepository.streamByExpression).toBeCalledWith(expression, defaultTransactionOrder);
+        expect(transactionRepository.streamByExpression).toBeCalledWith(expression, defaultTransactionSorting);
         expect(modelConverter.getTransactionData).toBeCalledWith([model1]);
         expect(modelConverter.getTransactionData).toBeCalledWith([model2]);
 
@@ -157,27 +157,27 @@ describe("TransactionHistoryService.listByCriteria", () => {
         const model2: Contracts.Database.TransactionModel = Symbol.for("model") as any;
         const data1: Interfaces.ITransactionData = Symbol.for("data") as any;
         const data2: Interfaces.ITransactionData = Symbol.for("data") as any;
-        const order: Contracts.Search.ListOrder = Symbol.for("order") as any;
-        const page: Contracts.Search.ListPage = Symbol.for("page") as any;
+        const sorting: Contracts.Search.Sorting = Symbol.for("order") as any;
+        const pagination: Contracts.Search.Pagination = Symbol.for("page") as any;
 
         transactionFilter.getExpression.mockResolvedValueOnce(expression);
         transactionRepository.listByExpression.mockResolvedValueOnce({
-            rows: [model1, model2],
-            count: 2,
-            countIsEstimate: false,
+            results: [model1, model2],
+            totalCount: 2,
+            meta: { totalCountIsEstimate: false },
         });
         modelConverter.getTransactionData.mockReturnValueOnce([data1, data2]);
 
         const blockHistoryService = container.resolve(TransactionHistoryService);
-        const result = await blockHistoryService.listByCriteria(criteria, order, page);
+        const result = await blockHistoryService.listByCriteria(criteria, sorting, pagination);
 
         expect(transactionFilter.getExpression).toBeCalledWith(criteria);
-        expect(transactionRepository.listByExpression).toBeCalledWith(expression, order, page, undefined);
+        expect(transactionRepository.listByExpression).toBeCalledWith(expression, sorting, pagination, undefined);
         expect(modelConverter.getTransactionData).toBeCalledWith([model1, model2]);
         expect(result).toEqual({
-            rows: [data1, data2],
-            count: 2,
-            countIsEstimate: false,
+            results: [data1, data2],
+            totalCount: 2,
+            meta: { totalCountIsEstimate: false },
         });
     });
 });

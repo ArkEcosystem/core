@@ -1,613 +1,884 @@
-import "jest-extended";
+import { LockSearchService, Resources, WalletSearchService } from "@arkecosystem/core-api";
+import { WalletsController } from "@arkecosystem/core-api/src/controllers/wallets";
+import { Identifiers } from "@arkecosystem/core-api/src/identifiers";
+import { Application, Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
+import { Enums, Utils } from "@arkecosystem/crypto";
+import { Boom } from "@hapi/boom";
 
-import Hapi from "@hapi/hapi";
-import { WalletsController } from "@packages/core-api/src/controllers/wallets";
-import { Application, Contracts } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Wallets } from "@packages/core-state";
-import { Mocks } from "@packages/core-test-framework";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
-import { Managers } from "@packages/crypto/src";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
+const jestfn = <T extends (...args: unknown[]) => unknown>(
+    implementation?: (...args: Parameters<T>) => ReturnType<T>,
+) => {
+    return jest.fn(implementation);
+};
 
-import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
-import { htlcSecretHashHex } from "../../core-transactions/handlers/__fixtures__/htlc-secrets";
+const app = {
+    resolve: jestfn<Application["resolve"]>(),
+};
 
-let app: Application;
-let controller: WalletsController;
-let walletRepository: Wallets.WalletRepository;
+const apiConfiguration = {
+    getOptional: jestfn<Providers.PluginConfiguration["getOptional"]>(),
+};
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
+const walletSearchService = {
+    getWallet: jestfn<WalletSearchService["getWallet"]>(),
+    getWalletsPage: jestfn<WalletSearchService["getWalletsPage"]>(),
+};
 
-const { EpochTimestamp } = Enums.HtlcLockExpirationType;
-
-const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
-    mockLastBlockData.height! + heightRelativeToLastBlock;
-const makeNotExpiredTimestamp = (type) =>
-    type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
+const lockSearchService = {
+    getWalletLocksPage: jestfn<LockSearchService["getWalletLocksPage"]>(),
+};
 
 const transactionHistoryService = {
-    listByCriteria: jest.fn(),
-    listByCriteriaJoinBlock: jest.fn(),
+    listByCriteria: jestfn<Contracts.Shared.TransactionHistoryService["listByCriteria"]>(),
+    listByCriteriaJoinBlock: jestfn<Contracts.Shared.TransactionHistoryService["listByCriteriaJoinBlock"]>(),
 };
 
-const block: Interfaces.IBlockData = {
-    version: 0,
-    timestamp: 103497376,
-    height: 152,
-    previousBlockHex: "23d6352eb4450dfb",
-    previousBlock: "2582309911052750331",
-    numberOfTransactions: 0,
-    totalAmount: Utils.BigNumber.make("0"),
-    totalFee: Utils.BigNumber.make("0"),
-    reward: Utils.BigNumber.make("0"),
-    payloadLength: 0,
-    payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    generatorPublicKey: "021770413ad01c60b94e1d3ed44c00e0145fe7897e40f5f6265e220f4e65cf427f",
-    blockSignature:
-        "3045022100f43e1133e74eca9fa8090c9b581fb1727d1e007818a53247ff9272b6bb64242e02201473233d08829d9ee6c35fee462a62911d675f1dc3ab66798882475b5acabb86",
-    idHex: "420d4f574229b758",
-    id: "4759547617391261528",
+const paginationService = {
+    getEmptyPage: jestfn<Services.Search.PaginationService["getEmptyPage"]>(),
 };
+
+const container = new Container.Container();
+container.bind(Container.Identifiers.Application).toConstantValue(app);
+container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(apiConfiguration);
+container.bind(Identifiers.WalletSearchService).toConstantValue(walletSearchService);
+container.bind(Identifiers.LockSearchService).toConstantValue(lockSearchService);
+container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
+container.bind(Container.Identifiers.PaginationService).toConstantValue(paginationService);
 
 beforeEach(() => {
-    app = initApp();
-    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
-
-    // Triggers registration of indexes
-    app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-
-    controller = app.resolve<WalletsController>(WalletsController);
-    walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
-
-    Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
-    transactionHistoryService.listByCriteria.mockReset();
+    jest.resetAllMocks();
 });
 
-afterEach(() => {
-    try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.BusinessRegistrationTransaction,
+const walletResource1: Resources.WalletResource = {
+    address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
+    publicKey: "03c6e98f9aff65c517c824c9b21b6e1bc053a19f81d95d4f76426b1f5e651e64db",
+    balance: Utils.BigNumber.make("31477465932829"),
+    nonce: Utils.BigNumber.make("5"),
+    attributes: {},
+};
+
+const walletResource2Cold: Resources.WalletResource = {
+    address: "AdawBmuTYzjNgrYgDEbZVzPbYLvYnBin2Y",
+    balance: Utils.BigNumber.make("1000"),
+    nonce: Utils.BigNumber.make("0"),
+    attributes: {},
+};
+
+const wallet1LockResource1: Resources.LockResource = {
+    lockId: "700bef5e3c2fcbbac83472b7320a635cf02fddb14e12d83f911f05faea8e540c",
+    senderPublicKey: "03c6e98f9aff65c517c824c9b21b6e1bc053a19f81d95d4f76426b1f5e651e64db",
+    isExpired: false,
+    amount: Utils.BigNumber.make("1000"),
+    secretHash: "9929b94c6caf437576b458334b10605b4471086bda5dfdac6e3108043e349324",
+    recipientId: "AXm433vapiwt83xfh8x9ciNxYkVd76pbNe",
+    timestamp: {
+        epoch: 108158400,
+        unix: 1598259600,
+        human: "2020-08-24T09:00:00.000Z",
+    },
+    expirationType: Enums.HtlcLockExpirationType.EpochTimestamp,
+    expirationValue: 108158500,
+    vendorField: "ArkPool payments",
+};
+
+describe("WalletsController.index", () => {
+    it("should get criteria from query and return wallets page from WalletSearchService", () => {
+        const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
+            results: [walletResource1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: false },
+        };
+        walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
+
+        const walletsController = container.resolve(WalletsController);
+        const result = walletsController.index({
+            query: {
+                page: 1,
+                limit: 100,
+                orderBy: ["balance:desc", "address:asc"],
+                address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
+            },
+        });
+
+        expect(walletSearchService.getWalletsPage).toBeCalledWith(
+            { offset: 0, limit: 100 },
+            ["balance:desc", "address:asc"],
+            { address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu" },
         );
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.BridgechainRegistrationTransaction,
-        );
-    } catch {}
+
+        expect(result).toBe(walletsPage);
+    });
 });
 
-describe("WalletsController", () => {
-    let senderWallet: Contracts.State.Wallet;
-    let transferTransaction: Interfaces.ITransaction;
+describe("WalletsController.top", () => {
+    // it is exact duplicate of WalletsController.index
 
-    beforeEach(() => {
-        senderWallet = buildSenderWallet(app);
+    it("should get criteria from query and return wallets page from WalletSearchService", () => {
+        const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
+            results: [walletResource1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: false },
+        };
+        walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
 
-        walletRepository.index(senderWallet);
+        const walletsController = container.resolve(WalletsController);
+        const result = walletsController.top({
+            query: {
+                page: 1,
+                limit: 100,
+                orderBy: ["balance:desc", "address:asc"],
+                address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
+            },
+        });
 
-        Managers.configManager.getMilestone().aip11 = true;
+        expect(walletSearchService.getWalletsPage).toBeCalledWith(
+            { offset: 0, limit: 100 },
+            ["balance:desc", "address:asc"],
+            { address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu" },
+        );
 
-        transferTransaction = BuilderFactory.transfer()
-            .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
-            .amount("1")
-            .sign(passphrases[0])
-            .nonce("1")
-            .build();
+        expect(result).toBe(walletsPage);
+    });
+});
+
+describe("WalletsController.search", () => {
+    it("should get criteria from payload and return wallets page from WalletSearchService", () => {
+        const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
+            results: [walletResource1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: false },
+        };
+        walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
+
+        const walletsController = container.resolve(WalletsController);
+        const result = walletsController.search({
+            query: {
+                page: 1,
+                limit: 100,
+                orderBy: ["balance:desc", "address:asc"],
+            },
+            payload: {
+                address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
+            },
+        });
+
+        expect(walletSearchService.getWalletsPage).toBeCalledWith(
+            { offset: 0, limit: 100 },
+            ["balance:desc", "address:asc"],
+            { address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu" },
+        );
+
+        expect(result).toBe(walletsPage);
+    });
+});
+
+describe("WalletsController.show", () => {
+    it("should get wallet id from pathname and criteria from query and return wallet from WalletSearchService", () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+        const walletsController = container.resolve(WalletsController);
+        const result = walletsController.show({
+            params: {
+                id: walletResource1.address,
+            },
+        });
+
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.address);
+        expect(result).toEqual({ data: walletResource1 });
     });
 
-    describe("index", () => {
-        it("should return list of wallets", async () => {
-            const request: Hapi.Request = {
+    it("should return 404 when wallet wasn't found", () => {
+        walletSearchService.getWallet.mockReturnValueOnce(undefined);
+
+        const walletsController = container.resolve(WalletsController);
+        const result = walletsController.show({
+            params: {
+                id: "non-existing-wallet-id",
+            },
+        });
+
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+        expect(result).toBeInstanceOf(Boom);
+    });
+});
+
+describe("WalletsController.locks", () => {
+    it("should get wallet id from pathname and criteria from query and return locks page from LockSearchService", () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+        const locksPage: Contracts.Search.ResultsPage<Resources.LockResource> = {
+            results: [wallet1LockResource1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: false },
+        };
+        lockSearchService.getWalletLocksPage.mockReturnValueOnce(locksPage);
+
+        const walletsController = container.resolve(WalletsController);
+        const result = walletsController.locks({
+            params: {
+                id: walletResource1.publicKey,
+            },
+            query: {
+                page: 1,
+                limit: 100,
+                orderBy: ["timestamp.unix:desc"],
+                isExpired: false,
+            },
+        });
+
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+        expect(lockSearchService.getWalletLocksPage).toBeCalledWith(
+            { limit: 100, offset: 0 },
+            ["timestamp.unix:desc"],
+            walletResource1.address,
+            { isExpired: false },
+        );
+
+        expect(result).toBe(locksPage);
+    });
+
+    it("should return 404 when wallet wasn't found", () => {
+        walletSearchService.getWallet.mockReturnValueOnce(undefined);
+
+        const walletsController = container.resolve(WalletsController);
+        const result = walletsController.locks({
+            params: {
+                id: "non-existing-wallet-id",
+            },
+        });
+
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+        expect(result).toBeInstanceOf(Boom);
+    });
+});
+
+describe("WalletsController.transactions", () => {
+    it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+        const tx1 = {} as any;
+
+        apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+        app.resolve.mockReturnValue({
+            raw(resource) {
+                return resource;
+            },
+        });
+
+        transactionHistoryService.listByCriteria.mockResolvedValueOnce({
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
+        });
+
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.transactions(
+            {
+                params: {
+                    id: walletResource1.publicKey,
+                },
                 query: {
                     page: 1,
                     limit: 100,
+                    orderBy: "amount:desc",
                     transform: false,
+                    type: Enums.TransactionType.MultiPayment,
                 },
-            };
+            },
+            undefined,
+        );
 
-            const response = (await controller.index(request, undefined)) as PaginatedResponse;
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
 
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    address: senderWallet.address,
-                    publicKey: senderWallet.publicKey,
-                }),
-            );
+        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+        expect(transactionHistoryService.listByCriteria).toBeCalledWith(
+            {
+                type: Enums.TransactionType.MultiPayment,
+                address: walletResource1.address,
+
+                // not filtered out from criteria
+                page: 1,
+                limit: 100,
+                orderBy: "amount:desc",
+                transform: false,
+            },
+            [{ direction: "desc", property: "amount" }],
+            { limit: 100, offset: 0 },
+            { estimateTotalCount: true },
+        );
+
+        expect(result).toEqual({
+            totalCount: 1,
+            results: [tx1],
+            meta: { totalCountIsEstimate: true },
         });
     });
 
-    describe("top", () => {
-        it("should return list of top wallets", async () => {
-            const request: Hapi.Request = {
-                query: {
-                    page: 1,
-                    limit: 100,
-                    transform: false,
-                },
-            };
+    it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
 
-            const response = (await controller.top(request, undefined)) as PaginatedResponse;
+        const tx1 = {} as any;
+        const tx1Block = {} as any;
 
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    address: senderWallet.address,
-                    publicKey: senderWallet.publicKey,
-                }),
-            );
-        });
-    });
+        apiConfiguration.getOptional.mockReturnValueOnce(true);
 
-    describe("show", () => {
-        it("should return lock", async () => {
-            const request: Hapi.Request = {
-                params: {
-                    id: senderWallet.publicKey,
-                },
-                query: {
-                    transform: false,
-                },
-            };
-
-            const response = (await controller.show(request, undefined)) as ItemResponse;
-
-            expect(response.data).toEqual(
-                expect.objectContaining({
-                    address: senderWallet.address,
-                    publicKey: senderWallet.publicKey,
-                }),
-            );
+        app.resolve.mockReturnValue({
+            transform(resource) {
+                return resource.data;
+            },
         });
 
-        it("should return wallet not found", async () => {
-            walletRepository.findByScope = jest.fn();
-
-            const request: Hapi.Request = {
-                params: {
-                    id: senderWallet.publicKey,
-                },
-                query: {
-                    transform: false,
-                },
-            };
-
-            const response = (await controller.show(request, undefined)) as ItemResponse;
-
-            expect(response).toEqual(new Error("Wallet not found"));
+        transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
+            results: [{ data: tx1, block: tx1Block }],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
-    });
 
-    describe("transactions", () => {
-        it("should return list of transactions", async () => {
-            transactionHistoryService.listByCriteria.mockResolvedValue({
-                rows: [transferTransaction.data],
-                count: 1,
-                countIsEstimate: false,
-            });
-
-            const request: Hapi.Request = {
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.transactions(
+            {
                 params: {
-                    id: senderWallet.publicKey,
+                    id: walletResource1.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false,
+                    orderBy: "amount:desc",
+                    transform: true,
+                    type: Enums.TransactionType.MultiPayment,
                 },
-            };
+            },
+            undefined,
+        );
 
-            const response = (await controller.transactions(request, undefined)) as PaginatedResponse;
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
 
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    id: transferTransaction.id,
-                }),
-            );
+        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+        expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
+            {
+                type: Enums.TransactionType.MultiPayment,
+                address: walletResource1.address,
+
+                // not filtered out from criteria
+                page: 1,
+                limit: 100,
+                orderBy: "amount:desc",
+                transform: true,
+            },
+            [{ direction: "desc", property: "amount" }],
+            { limit: 100, offset: 0 },
+            { estimateTotalCount: true },
+        );
+
+        expect(result).toEqual({
+            totalCount: 1,
+            results: [tx1],
+            meta: { totalCountIsEstimate: true },
+        });
+    });
+
+    it("should return 404 when wallet wasn't found", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(undefined);
+
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.transactions(
+            {
+                params: {
+                    id: "non-existing-wallet-id",
+                },
+            },
+            undefined,
+        );
+
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+        expect(result).toBeInstanceOf(Boom);
+    });
+});
+
+describe("WalletsController.transactionsSent", () => {
+    it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+        const tx1 = {} as any;
+
+        apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+        app.resolve.mockReturnValue({
+            raw(resource) {
+                return resource;
+            },
         });
 
-        it("should return list of transactions using transform", async () => {
-            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
-                rows: [{ data: transferTransaction.data, block: block }],
-                count: 1,
-                countIsEstimate: false,
-            });
+        transactionHistoryService.listByCriteria.mockResolvedValueOnce({
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
+        });
 
-            const request: Hapi.Request = {
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.transactionsSent(
+            {
                 params: {
-                    id: senderWallet.publicKey,
+                    id: walletResource1.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
+                    orderBy: "amount:desc",
+                    transform: false,
+                    type: Enums.TransactionType.MultiPayment,
+                },
+            },
+            undefined,
+        );
+
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+        expect(transactionHistoryService.listByCriteria).toBeCalledWith(
+            {
+                type: Enums.TransactionType.MultiPayment,
+                senderPublicKey: walletResource1.publicKey,
+
+                // not filtered out from criteria
+                page: 1,
+                limit: 100,
+                orderBy: "amount:desc",
+                transform: false,
+            },
+            [{ direction: "desc", property: "amount" }],
+            { limit: 100, offset: 0 },
+            { estimateTotalCount: true },
+        );
+
+        expect(result).toEqual({
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
+        });
+    });
+
+    it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+        const tx1 = {} as any;
+        const tx1Block = {} as any;
+
+        apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+        app.resolve.mockReturnValue({
+            transform(resource) {
+                return resource.data;
+            },
+        });
+
+        transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
+            results: [{ data: tx1, block: tx1Block }],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
+        });
+
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.transactionsSent(
+            {
+                params: {
+                    id: walletResource1.publicKey,
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    orderBy: "amount:desc",
+                    transform: true,
+                    type: Enums.TransactionType.MultiPayment,
+                },
+            },
+            undefined,
+        );
+
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+        expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
+            {
+                type: Enums.TransactionType.MultiPayment,
+                senderPublicKey: walletResource1.publicKey,
+
+                // not filtered out from criteria
+                page: 1,
+                limit: 100,
+                orderBy: "amount:desc",
+                transform: true,
+            },
+            [{ direction: "desc", property: "amount" }],
+            { limit: 100, offset: 0 },
+            { estimateTotalCount: true },
+        );
+
+        expect(result).toEqual({
+            totalCount: 1,
+            results: [tx1],
+            meta: { totalCountIsEstimate: true },
+        });
+    });
+
+    it("should return 404 when wallet wasn't found", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(undefined);
+
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.transactionsSent(
+            {
+                params: {
+                    id: "non-existing-wallet-id",
+                },
+            },
+            undefined,
+        );
+
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+        expect(result).toBeInstanceOf(Boom);
+    });
+
+    it("should return empty page when wallet is cold wallet", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource2Cold);
+
+        const emptyPage = { results: [], totalCount: 0, meta: { totalCountIsEstimate: false } };
+        paginationService.getEmptyPage.mockReturnValueOnce(emptyPage);
+
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.transactionsSent(
+            {
+                params: {
+                    id: walletResource2Cold.address,
+                },
+            },
+            undefined,
+        );
+
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource2Cold.address);
+        expect(paginationService.getEmptyPage).toBeCalled();
+        expect(result).toBe(emptyPage);
+    });
+});
+
+describe("WalletsController.transactionsReceived", () => {
+    it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+        const tx1 = {} as any;
+
+        apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+        app.resolve.mockReturnValue({
+            raw(resource) {
+                return resource;
+            },
+        });
+
+        transactionHistoryService.listByCriteria.mockResolvedValueOnce({
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
+        });
+
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.transactionsReceived(
+            {
+                params: {
+                    id: walletResource1.publicKey,
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    orderBy: "amount:desc",
+                    transform: false,
+                    type: Enums.TransactionType.MultiPayment,
+                },
+            },
+            undefined,
+        );
+
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+        expect(transactionHistoryService.listByCriteria).toBeCalledWith(
+            {
+                type: Enums.TransactionType.MultiPayment,
+                recipientId: walletResource1.address,
+
+                // not filtered out from criteria
+                page: 1,
+                limit: 100,
+                orderBy: "amount:desc",
+                transform: false,
+            },
+            [{ direction: "desc", property: "amount" }],
+            { limit: 100, offset: 0 },
+            { estimateTotalCount: true },
+        );
+
+        expect(result).toEqual({
+            totalCount: 1,
+            results: [tx1],
+            meta: { totalCountIsEstimate: true },
+        });
+    });
+
+    it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+        const tx1 = {} as any;
+        const tx1Block = {} as any;
+
+        apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+        app.resolve.mockReturnValue({
+            transform(resource) {
+                return resource.data;
+            },
+        });
+
+        transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
+            results: [{ data: tx1, block: tx1Block }],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
+        });
+
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.transactionsReceived(
+            {
+                params: {
+                    id: walletResource1.publicKey,
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    orderBy: "amount:desc",
+                    transform: true,
+                    type: Enums.TransactionType.MultiPayment,
+                },
+            },
+            undefined,
+        );
+
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+        expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
+            {
+                type: Enums.TransactionType.MultiPayment,
+                recipientId: walletResource1.address,
+
+                // not filtered out from criteria
+                page: 1,
+                limit: 100,
+                orderBy: "amount:desc",
+                transform: true,
+            },
+            [{ direction: "desc", property: "amount" }],
+            { limit: 100, offset: 0 },
+            { estimateTotalCount: true },
+        );
+
+        expect(result).toEqual({
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
+        });
+    });
+
+    it("should return 404 when wallet wasn't found", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(undefined);
+
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.transactionsReceived(
+            {
+                params: {
+                    id: "non-existing-wallet-id",
+                },
+            },
+            undefined,
+        );
+
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+        expect(result).toBeInstanceOf(Boom);
+    });
+});
+
+describe("WalletsController.votes", () => {
+    it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+        const tx1 = {} as any;
+
+        apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+        app.resolve.mockReturnValue({
+            raw(resource) {
+                return resource;
+            },
+        });
+
+        transactionHistoryService.listByCriteria.mockResolvedValueOnce({
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
+        });
+
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.votes(
+            {
+                params: {
+                    id: walletResource1.publicKey,
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    orderBy: "amount:desc",
+                    transform: false,
+                },
+            },
+            undefined,
+        );
+
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+        expect(transactionHistoryService.listByCriteria).toBeCalledWith(
+            {
+                senderPublicKey: walletResource1.publicKey,
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.Vote,
+
+                // not filtered out from criteria
+                page: 1,
+                limit: 100,
+                orderBy: "amount:desc",
+                transform: false,
+            },
+            [{ direction: "desc", property: "amount" }],
+            { limit: 100, offset: 0 },
+            { estimateTotalCount: true },
+        );
+
+        expect(result).toEqual({
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
+        });
+    });
+
+    it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+        const tx1 = {} as any;
+        const tx1Block = {} as any;
+
+        apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+        app.resolve.mockReturnValue({
+            transform(resource) {
+                return resource.data;
+            },
+        });
+
+        transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
+            results: [{ data: tx1, block: tx1Block }],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
+        });
+
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.votes(
+            {
+                params: {
+                    id: walletResource1.publicKey,
+                },
+                query: {
+                    page: 1,
+                    limit: 100,
+                    orderBy: "amount:desc",
                     transform: true,
                 },
-            };
+            },
+            undefined,
+        );
 
-            const response = (await controller.transactions(request, undefined)) as PaginatedResponse;
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
 
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    id: transferTransaction.id,
-                }),
-            );
-        });
+        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
 
-        it("should still return list of transactions when wallet is cold wallet", async () => {
-            walletRepository.findByAddress("01234567890123456789");
-            transactionHistoryService.listByCriteria.mockResolvedValue({
-                rows: [],
-                count: 0,
-                countIsEstimate: false,
-            });
+        expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
+            {
+                senderPublicKey: walletResource1.publicKey,
+                typeGroup: Enums.TransactionTypeGroup.Core,
+                type: Enums.TransactionType.Vote,
 
-            const request: Hapi.Request = { params: { id: "01234567890123456789" }, query: {} };
-            const response = (await controller.transactions(request, undefined)) as PaginatedResponse;
+                // not filtered out from criteria
+                page: 1,
+                limit: 100,
+                orderBy: "amount:desc",
+                transform: true,
+            },
+            [{ direction: "desc", property: "amount" }],
+            { limit: 100, offset: 0 },
+            { estimateTotalCount: true },
+        );
 
-            expect(response.totalCount).toEqual(0);
-        });
-
-        it("should return error if wallet does not exists", async () => {
-            const request: Hapi.Request = {
-                params: {
-                    id: "unknown_wallet_public_key",
-                },
-            };
-
-            await expect(controller.transactions(request, undefined)).resolves.toThrowError("Wallet not found");
+        expect(result).toEqual({
+            results: [tx1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: true },
         });
     });
 
-    describe("transactionsSent", () => {
-        it("should return list of transactions", async () => {
-            transactionHistoryService.listByCriteria.mockResolvedValue({
-                rows: [transferTransaction.data],
-                count: 1,
-                countIsEstimate: false,
-            });
+    it("should return 404 when wallet wasn't found", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
-            const request: Hapi.Request = {
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.votes(
+            {
                 params: {
-                    id: senderWallet.publicKey,
+                    id: "non-existing-wallet-id",
                 },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    transform: false,
-                },
-            };
+            },
+            undefined,
+        );
 
-            const response = (await controller.transactionsSent(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    id: transferTransaction.id,
-                }),
-            );
-        });
-
-        it("should return list of transactions using transform", async () => {
-            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
-                rows: [{ data: transferTransaction.data, block: block }],
-                count: 1,
-                countIsEstimate: false,
-            });
-
-            const request: Hapi.Request = {
-                params: {
-                    id: senderWallet.publicKey,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    transform: true,
-                },
-            };
-
-            const response = (await controller.transactionsSent(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    id: transferTransaction.id,
-                }),
-            );
-        });
-
-        it("should return empty list of transactions when wallet is cold wallet", async () => {
-            walletRepository.findByAddress("01234567890123456789");
-
-            const request: Hapi.Request = { params: { id: "01234567890123456789" }, query: {} };
-            const response = (await controller.transactionsSent(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toEqual(0);
-        });
-
-        it("should return error if wallet does not exists", async () => {
-            const request: Hapi.Request = {
-                params: {
-                    id: "unknown_wallet_public_key",
-                },
-            };
-
-            await expect(controller.transactionsSent(request, undefined)).resolves.toThrowError("Wallet not found");
-        });
+        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+        expect(result).toBeInstanceOf(Boom);
     });
 
-    describe("transactionsReceived", () => {
-        it("should return list of transactions", async () => {
-            transactionHistoryService.listByCriteria.mockResolvedValue({
-                rows: [transferTransaction.data],
-                count: 1,
-                countIsEstimate: false,
-            });
+    it("should return empty page when wallet is cold wallet", async () => {
+        walletSearchService.getWallet.mockReturnValueOnce(walletResource2Cold);
 
-            const request: Hapi.Request = {
+        const emptyPage = {
+            results: [],
+            totalCount: 0,
+            meta: { totalCountIsEstimate: false },
+        };
+        paginationService.getEmptyPage.mockReturnValueOnce(emptyPage);
+
+        const walletsController = container.resolve(WalletsController);
+        const result = await walletsController.votes(
+            {
                 params: {
-                    id: senderWallet.publicKey,
+                    id: walletResource2Cold.address,
                 },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    transform: false,
-                },
-            };
+            },
+            undefined,
+        );
 
-            const response = (await controller.transactionsReceived(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    id: transferTransaction.id,
-                }),
-            );
-        });
-
-        it("should return list of transactions using transform", async () => {
-            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
-                rows: [{ data: transferTransaction.data, block: block}],
-                count: 1,
-                countIsEstimate: false,
-            });
-
-            const request: Hapi.Request = {
-                params: {
-                    id: senderWallet.publicKey,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    transform: true,
-                },
-            };
-
-            const response = (await controller.transactionsReceived(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    id: transferTransaction.id,
-                }),
-            );
-        });
-
-        it("should return error if wallet does not exists", async () => {
-            const request: Hapi.Request = {
-                params: {
-                    id: "unknown_wallet_public_key",
-                },
-            };
-
-            await expect(controller.transactionsReceived(request, undefined)).resolves.toThrowError("Wallet not found");
-        });
-    });
-
-    describe("votes", () => {
-        it("should return list of transactions", async () => {
-            transactionHistoryService.listByCriteria.mockResolvedValue({
-                rows: [transferTransaction.data],
-                count: 1,
-                countIsEstimate: false,
-            });
-
-            const request: Hapi.Request = {
-                params: {
-                    id: senderWallet.publicKey,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    transform: false,
-                },
-            };
-
-            const response = (await controller.votes(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    id: transferTransaction.id,
-                }),
-            );
-        });
-
-        it("should return list of transactions using transform", async () => {
-            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
-                rows: [{ data: transferTransaction.data, block: block }],
-                count: 1,
-                countIsEstimate: false,
-            });
-
-            const request: Hapi.Request = {
-                params: {
-                    id: senderWallet.publicKey,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    transform: true,
-                },
-            };
-
-            const response = (await controller.votes(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    id: transferTransaction.id,
-                }),
-            );
-        });
-
-        it("should return empty list of transactions when wallet is cold wallet", async () => {
-            walletRepository.findByAddress("01234567890123456789");
-
-            const request: Hapi.Request = { params: { id: "01234567890123456789" }, query: {} };
-            const response = (await controller.votes(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toEqual(0);
-        });
-
-        it("should return error if wallet does not exists", async () => {
-            const request: Hapi.Request = {
-                params: {
-                    id: "unknown_wallet_public_key",
-                },
-            };
-
-            await expect(controller.votes(request, undefined)).resolves.toThrowError("Wallet not found");
-        });
-    });
-
-    describe("locks", () => {
-        it("should return list of transactions", async () => {
-            const expiration = {
-                type: EpochTimestamp,
-                value: makeNotExpiredTimestamp(EpochTimestamp),
-            };
-
-            const htlcLockTransaction = BuilderFactory.htlcLock()
-                .htlcLockAsset({
-                    secretHash: htlcSecretHashHex,
-                    expiration: expiration,
-                })
-                .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
-                .amount("1")
-                .nonce("1")
-                .sign(passphrases[0])
-                .build();
-
-            senderWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make("1"));
-
-            senderWallet.setAttribute("htlc.locks", {
-                [htlcLockTransaction.id!]: {
-                    amount: htlcLockTransaction.data.amount,
-                    recipientId: htlcLockTransaction.data.recipientId,
-                    timestamp: mockLastBlockData.timestamp,
-                    ...htlcLockTransaction.data.asset!.lock,
-                },
-            });
-
-            walletRepository.index(senderWallet);
-
-            const request: Hapi.Request = {
-                params: {
-                    id: senderWallet.publicKey,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    transform: false,
-                },
-            };
-
-            const response = (await controller.locks(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    lockId: htlcLockTransaction.id,
-                }),
-            );
-        });
-
-        it("should return empty rows if cold wallet", async () => {
-            const request: Hapi.Request = {
-                params: {
-                    id: senderWallet.address,
-                },
-            };
-
-            delete senderWallet.publicKey;
-
-            const response = (await controller.locks(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBe(0);
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results.length).toBe(0);
-        });
-
-        it("should return error if wallet does not exists", async () => {
-            const request: Hapi.Request = {
-                params: {
-                    id: "unknown_wallet_public_key",
-                },
-            };
-
-            await expect(controller.locks(request, undefined)).resolves.toThrowError("Wallet not found");
-        });
-    });
-
-    describe("search", () => {
-        it("should return found wallets", async () => {
-            const request: Hapi.Request = {
-                params: {
-                    id: senderWallet.publicKey,
-                },
-                query: {
-                    transform: false,
-                },
-            };
-
-            const response = (await controller.search(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    address: senderWallet.address,
-                    publicKey: senderWallet.publicKey,
-                }),
-            );
-        });
+        expect(walletSearchService.getWallet).toBeCalledWith(walletResource2Cold.address);
+        expect(paginationService.getEmptyPage).toBeCalled();
+        expect(result).toBe(emptyPage);
     });
 });

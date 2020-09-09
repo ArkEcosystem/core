@@ -1,10 +1,104 @@
+import { Contracts } from "@arkecosystem/core-kernel";
+import { Utils } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 
-export const pagination = {
+const isSchema = (value: Joi.Schema | SchemaObject): value is Joi.Schema => {
+    return Joi.isSchema(value);
+};
+
+// BigNumber
+
+export const bigNumber = Joi.custom((value: unknown) => {
+    return Utils.BigNumber.make(value as any);
+});
+
+export const nonNegativeBigNumber = bigNumber.custom((value: Utils.BigNumber, helpers) => {
+    return value.isGreaterThanEqual(0) ? value : helpers.error("any.invalid");
+});
+
+export const positiveBigNumber = bigNumber.custom((value: Utils.BigNumber, helpers) => {
+    return value.isGreaterThanEqual(1) ? value : helpers.error("any.invalid");
+});
+
+// Criteria
+
+export type SchemaObject = {
+    [x: string]: Joi.Schema | SchemaObject;
+};
+
+export const createCriteriaPayloadSchema = (schemaObject: SchemaObject): Joi.ArraySchema => {
+    const item = {};
+
+    for (const [key, value] of Object.entries(schemaObject)) {
+        if (isSchema(value)) {
+            item[key] = Joi.array().single().items(value);
+        } else {
+            item[key] = createCriteriaPayloadSchema(value);
+        }
+    }
+
+    return Joi.array().single().items(Joi.object(item));
+};
+
+export const createRangeCriteriaSchema = (item: Joi.Schema): Joi.Schema => {
+    return Joi.alternatives(item, Joi.object({ from: item, to: item }).or("from", "to"));
+};
+
+// Sorting
+
+export const createSortingSchema = (schemaObject: SchemaObject, wildcardPaths: string[] = []): Joi.ObjectSchema => {
+    const getObjectPaths = (object: SchemaObject): string[] => {
+        return Object.entries(object)
+            .map(([key, value]) => {
+                return isSchema(value) ? key : getObjectPaths(value).map((p) => `${key}.${p}`);
+            })
+            .flat();
+    };
+
+    const exactPaths = getObjectPaths(schemaObject);
+
+    return Joi.object({
+        orderBy: Joi.custom((value, helpers) => {
+            if (value === "") {
+                return [];
+            }
+
+            const sorting: Contracts.Search.Sorting = [];
+
+            for (const item of value.split(",")) {
+                const pair = item.split(":");
+                const property = String(pair[0]);
+                const direction = pair.length === 1 ? "asc" : pair[1];
+
+                if (!exactPaths.includes(property) && !wildcardPaths.find((wp) => property.startsWith(`${wp}.`))) {
+                    return helpers.message({
+                        custom: `Unknown orderBy property '${property}'`,
+                    });
+                }
+
+                if (direction !== "asc" && direction !== "desc") {
+                    return helpers.message({
+                        custom: `Unexpected orderBy direction '${direction}' for property '${property}'`,
+                    });
+                }
+
+                sorting.push({ property, direction: direction as "asc" | "desc" });
+            }
+
+            return sorting;
+        }).default([]),
+    });
+};
+
+// Pagination
+
+export const pagination = Joi.object({
     page: Joi.number().integer().positive().default(1),
     offset: Joi.number().integer().min(0),
     limit: Joi.number().integer().min(1).default(100).max(Joi.ref("$configuration.plugins.pagination.limit")),
-};
+}); // .without("offset", "page"); // conflict with pagination plugin
+
+// Old
 
 export const blockId = Joi.alternatives().try(
     Joi.string()

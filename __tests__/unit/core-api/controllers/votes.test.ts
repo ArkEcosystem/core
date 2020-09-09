@@ -60,9 +60,9 @@ describe("VotesController", () => {
     describe("index", () => {
         it("should return list of votes", async () => {
             transactionHistoryService.listByCriteria.mockResolvedValue({
-                rows: [voteTransaction.data],
-                count: 1,
-                countIsEstimate: false,
+                results: [voteTransaction.data],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const request: Hapi.Request = {

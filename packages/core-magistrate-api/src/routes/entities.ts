@@ -1,7 +1,14 @@
+import { Schemas } from "@arkecosystem/core-api";
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { EntityController } from "../controllers/entities";
+import {
+    entityCriteriaPayloadSchema,
+    entityCriteriaQuerySchema,
+    entitySortingSchema,
+    entityParamSchema,
+} from "../resources";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(EntityController);
@@ -13,19 +20,28 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: Joi.object({
-                    ...server.app.schemas.pagination,
-                    ...{
-                        orderBy: server.app.schemas.orderBy,
-                        publicKey: Joi.string().hex().length(66),
-                        type: Joi.number().integer(), // see enum in core-magistrate-crypto
-                        subType: Joi.number().integer(), // see enum in core-magistrate-crypto
-                        name: Joi.string()
-                            .regex(/^[a-zA-Z0-9_-]+$/)
-                            .max(40),
-                        isResigned: Joi.bool(),
-                    },
-                }),
+                query: Joi.object()
+                    .concat(entityCriteriaQuerySchema)
+                    .concat(entitySortingSchema)
+                    .concat(Schemas.pagination),
+            },
+            plugins: {
+                pagination: { enabled: true },
+            },
+        },
+    });
+
+    server.route({
+        method: "POST",
+        path: "/entities/search",
+        handler: controller.search,
+        options: {
+            validate: {
+                query: Joi.object().concat(entitySortingSchema).concat(Schemas.pagination),
+                payload: entityCriteriaPayloadSchema,
+            },
+            plugins: {
+                pagination: { enabled: true },
             },
         },
     });
@@ -37,32 +53,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: Joi.string().hex().length(64), // id is registration tx id
-                }),
-            },
-        },
-    });
-
-    server.route({
-        method: "POST",
-        path: "/entities/search",
-        handler: controller.search,
-        options: {
-            validate: {
-                query: Joi.object({
-                    ...server.app.schemas.pagination,
-                    ...{
-                        orderBy: server.app.schemas.orderBy,
-                    },
-                }),
-                payload: Joi.object({
-                    publicKey: Joi.string().hex().length(66),
-                    type: Joi.number().integer(), // see enum in core-magistrate-crypto
-                    subType: Joi.number().integer(), // see enum in core-magistrate-crypto
-                    name: Joi.string()
-                        .regex(/^[a-zA-Z0-9_-]+$/)
-                        .max(40),
-                    isResigned: Joi.bool(),
+                    id: entityParamSchema,
                 }),
             },
         },

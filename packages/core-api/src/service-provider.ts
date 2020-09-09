@@ -4,9 +4,14 @@ import Handlers from "./handlers";
 import { Identifiers } from "./identifiers";
 import { preparePlugins } from "./plugins";
 import { Server } from "./server";
+import { DelegateSearchService, LockSearchService, WalletSearchService } from "./services";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
+        this.app.bind(Identifiers.WalletSearchService).to(WalletSearchService);
+        this.app.bind(Identifiers.DelegateSearchService).to(DelegateSearchService);
+        this.app.bind(Identifiers.LockSearchService).to(LockSearchService);
+
         if (this.config().get("server.http.enabled")) {
             await this.buildServer("http", Identifiers.HTTP);
         }

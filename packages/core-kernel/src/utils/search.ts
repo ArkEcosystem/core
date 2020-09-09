@@ -1,4 +1,3 @@
-import { NumericCriteria, OrCriteria } from "../contracts/search/criteria";
 import {
     AndExpression,
     BetweenExpression,
@@ -6,8 +5,10 @@ import {
     Expression,
     GreaterThanEqualExpression,
     LessThanEqualExpression,
+    NumericCriteria,
+    OrCriteria,
     OrExpression,
-} from "../contracts/search/expressions";
+} from "../contracts/search";
 
 export const optimizeExpression = <TEntity>(expression: Expression<TEntity>): Expression<TEntity> => {
     switch (expression.op) {

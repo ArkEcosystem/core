@@ -1,15 +1,15 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import {
-    ListOptions,
-    ListOrder,
-    ListPage,
-    ListResult,
+    Options,
     OrContainsCriteria,
     OrCriteria,
     OrEqualCriteria,
     OrLikeCriteria,
     OrNumericCriteria,
+    Pagination,
+    ResultsPage,
+    Sorting,
 } from "../search";
 
 export type TransactionCriteria = {
@@ -47,10 +47,10 @@ export interface TransactionHistoryService {
 
     listByCriteria(
         criteria: OrTransactionCriteria,
-        order: ListOrder,
-        page: ListPage,
-        options?: ListOptions,
-    ): Promise<ListResult<Interfaces.ITransactionData>>;
+        sorting: Sorting,
+        pagination: Pagination,
+        options?: Options,
+    ): Promise<ResultsPage<Interfaces.ITransactionData>>;
 
     findOneByCriteriaJoinBlock(criteria: OrTransactionCriteria): Promise<TransactionDataWithBlockData | undefined>;
 
@@ -58,8 +58,8 @@ export interface TransactionHistoryService {
 
     listByCriteriaJoinBlock(
         criteria: OrTransactionCriteria,
-        order: ListOrder,
-        page: ListPage,
-        options?: ListOptions,
-    ): Promise<ListResult<TransactionDataWithBlockData>>;
+        sorting: Sorting,
+        pagination: Pagination,
+        options?: Options,
+    ): Promise<ResultsPage<TransactionDataWithBlockData>>;
 }

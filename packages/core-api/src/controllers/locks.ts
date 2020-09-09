@@ -1,49 +1,47 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
-import Boom from "@hapi/boom";
+import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { LockResource, TransactionResource } from "../resources";
+import { Identifiers } from "../identifiers";
+import { TransactionResource } from "../resources";
+import { LockCriteria, lockCriteriaSchemaObject, LockResource } from "../resources-new";
+import { LockSearchService } from "../services";
 import { Controller } from "./controller";
 
 @Container.injectable()
 export class LocksController extends Controller {
+    @Container.inject(Identifiers.LockSearchService)
+    private readonly lockSearchService!: LockSearchService;
+
     @Container.inject(Container.Identifiers.TransactionHistoryService)
     private readonly transactionHistoryService!: Contracts.Shared.TransactionHistoryService;
 
-    @Container.inject(Container.Identifiers.WalletRepository)
-    @Container.tagged("state", "blockchain")
-    private readonly walletRepository!: Contracts.State.WalletRepository;
+    public index(request: Hapi.Request): Contracts.Search.ResultsPage<LockResource> {
+        const pagination = this.getQueryPagination(request.query);
+        const sorting = request.query.orderBy as Contracts.Search.Sorting;
+        const criteria = this.getQueryCriteria(request.query, lockCriteriaSchemaObject) as LockCriteria;
 
-    public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
-            ...request.query,
-            ...this.getListingPage(request),
-        });
-
-        return this.toPagination(locks, LockResource);
+        return this.lockSearchService.getLocksPage(pagination, sorting, criteria);
     }
 
-    public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const lock = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
-            lockId: request.params.id,
-        }).rows[0];
+    public search(request: Hapi.Request): Contracts.Search.ResultsPage<LockResource> {
+        const pagination = this.getQueryPagination(request.query);
+        const sorting = request.query.orderBy as Contracts.Search.Sorting;
+        const criteria = request.payload as LockCriteria;
 
-        if (!lock) {
-            return Boom.notFound("Lock not found");
+        return this.lockSearchService.getLocksPage(pagination, sorting, criteria);
+    }
+
+    public show(request: Hapi.Request): { data: LockResource } | Boom {
+        const lockId = request.params.id as string;
+
+        const lockResource = this.lockSearchService.getLock(lockId);
+        if (!lockResource) {
+            return notFound("Lock not found");
         }
 
-        return this.respondWithResource(lock, LockResource);
-    }
-
-    public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
-            ...request.payload,
-            ...request.query,
-            ...this.getListingPage(request),
-        });
-
-        return this.toPagination(locks, LockResource);
+        return { data: lockResource };
     }
 
     public async unlocked(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -59,6 +57,7 @@ export class LocksController extends Controller {
                 asset: request.payload.ids.map((lockId: string) => ({ refund: { lockTransactionId: lockId } })),
             },
         ];
+
         const transactionListResult = await this.transactionHistoryService.listByCriteria(
             criteria,
             this.getListingOrder(request),
