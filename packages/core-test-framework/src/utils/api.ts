@@ -180,4 +180,13 @@ export class ApiHelpers {
 
         return transaction;
     }
+
+    public async isTransactionForgedByDelegate(transactionId: string, delegatePublicKey: string): Promise<boolean> {
+        const transactionResponse = await this.request("GET", `transactions/${transactionId}`);
+        const blockId = transactionResponse.data.data.blockId;
+
+        const blockResponse = await this.request("GET", `blocks/${blockId}`);
+
+        return blockResponse.data.data.generator.publicKey === delegatePublicKey;
+    }
 }
