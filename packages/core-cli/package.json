@@ -45,7 +45,7 @@
         "reflect-metadata": "^0.1.13",
         "semver": "^6.3.0",
         "type-fest": "^0.16.0",
-        "yargs-parser": "^18.0.0"
+        "yargs-parser": "^20.0.0"
     },
     "devDependencies": {
         "@types/fast-levenshtein": "^0.0.1",
