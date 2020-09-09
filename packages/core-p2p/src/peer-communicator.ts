@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { httpie } from "@arkecosystem/core-utils";
 import { Blocks, Interfaces, Transactions, Validation } from "@arkecosystem/crypto";
+import { http } from "@arkecosystem/utils";
 import dayjs from "dayjs";
 import delay from "delay";
 import { SCClientSocket } from "socketcluster-client";
@@ -101,9 +101,9 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
                 peer.ports[name] = -1;
                 try {
-                    const { status } = await httpie.head(`http://${peer.ip}:${plugin.port}/`);
+                    const { statusCode } = await http.head(`http://${peer.ip}:${plugin.port}/`);
 
-                    if (status === 200) {
+                    if (statusCode === 200) {
                         peer.ports[name] = plugin.port;
                     }
                 } catch {

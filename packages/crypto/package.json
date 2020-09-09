@@ -30,7 +30,7 @@
         "prepublishOnly": "yarn build:rollup"
     },
     "dependencies": {
-        "@arkecosystem/utils": "^1.1",
+        "@arkecosystem/utils": "^1.2",
         "@types/bytebuffer": "^5.0.40",
         "ajv": "^6.10.2",
         "ajv-keywords": "^3.4.1",
