@@ -3,7 +3,7 @@ import "@packages/core-test-framework/src/matchers";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Enums, Identities, Utils } from "@arkecosystem/crypto";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
-import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
+import { ApiHelpers, snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
 import got from "got";
 
 import * as support from "./__support__";
@@ -13,7 +13,11 @@ const { passphrase, secondPassphrase } = support.passphrases;
 const { EpochTimestamp } = Enums.HtlcLockExpirationType;
 
 let app: Contracts.Kernel.Application;
-beforeAll(async () => (app = await support.setUp()));
+let apiHelpers: ApiHelpers;
+beforeAll(async () => {
+    app = await support.setUp();
+    apiHelpers = new ApiHelpers(app);
+});
 afterAll(async () => await support.tearDown());
 
 describe("Transaction Forging - HTLC Lock", () => {
@@ -150,10 +154,8 @@ describe("Transaction Forging - HTLC Lock", () => {
         const newWalletPassphrase = "this is a new wallet passphrase";
         // Initial Funds
         const initialBalance = 100 * 1e8;
-        const initialFunds = TransactionFactory.initialize(app).transfer(
-            Identities.Address.fromPassphrase(newWalletPassphrase),
-            initialBalance,
-        )
+        const initialFunds = TransactionFactory.initialize(app)
+            .transfer(Identities.Address.fromPassphrase(newWalletPassphrase), initialBalance)
             .withPassphrase(secrets[0])
             .createOne();
 
@@ -164,10 +166,12 @@ describe("Transaction Forging - HTLC Lock", () => {
         const delegateToVote = Identities.PublicKey.fromPassphrase(secrets[9]);
         const { body } = await got.get(`http://localhost:4003/api/delegates/${delegateToVote}`);
         const parsedBody = JSON.parse(body);
-        const initialDelegateVoteValance = Utils.BigNumber.make(parsedBody.data.votes);
+        const initialDelegateVoteBalance = Utils.BigNumber.make(parsedBody.data.votes);
+        let collectedFees = Utils.BigNumber.ZERO;
 
         // Submit a vote
-        const vote = TransactionFactory.initialize(app).vote(delegateToVote)
+        const vote = TransactionFactory.initialize(app)
+            .vote(delegateToVote)
             .withPassphrase(newWalletPassphrase)
             .createOne();
 
@@ -175,17 +179,22 @@ describe("Transaction Forging - HTLC Lock", () => {
         await snoozeForBlock(1);
         await expect(vote.id).toBeForged();
 
-        const expectedBalanceAfterVote = initialDelegateVoteValance.plus(initialBalance).minus(vote.fee);
-        await expect(delegateToVote).toHaveVoteBalance(expectedBalanceAfterVote.toString());
+        if (await apiHelpers.isTransactionForgedByDelegate(vote.id!, delegateToVote)) {
+            collectedFees = collectedFees.plus(vote.fee);
+        }
+
+        const expectedBalanceAfterVote = initialDelegateVoteBalance.plus(initialBalance).minus(vote.fee);
+        await expect(delegateToVote).toHaveVoteBalance(expectedBalanceAfterVote.plus(collectedFees).toString());
 
         // Submit htlc lock transaction
-        const lockTransaction = TransactionFactory.initialize(app).htlcLock({
-            secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
-            expiration: {
-                type: EpochTimestamp,
-                value: Crypto.Slots.getTime() + 1000,
-            },
-        })
+        const lockTransaction = TransactionFactory.initialize(app)
+            .htlcLock({
+                secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
+                expiration: {
+                    type: EpochTimestamp,
+                    value: Crypto.Slots.getTime() + 1000,
+                },
+            })
             .withPassphrase(newWalletPassphrase)
             .createOne();
 
@@ -193,31 +202,43 @@ describe("Transaction Forging - HTLC Lock", () => {
         await snoozeForBlock(1);
         await expect(lockTransaction.id).toBeForged();
 
+        if (await apiHelpers.isTransactionForgedByDelegate(lockTransaction.id!, delegateToVote)) {
+            collectedFees = collectedFees.plus(lockTransaction.fee);
+        }
+
         const expectedBalanceAfterLock = expectedBalanceAfterVote.minus(lockTransaction.fee);
-        await expect(delegateToVote).toHaveVoteBalance(expectedBalanceAfterLock.toString());
+        await expect(delegateToVote).toHaveVoteBalance(expectedBalanceAfterLock.plus(collectedFees).toString());
 
         // Unvote
-        const unvote = TransactionFactory.initialize(app).unvote(delegateToVote)
+        const unvote = TransactionFactory.initialize(app)
+            .unvote(delegateToVote)
             .withPassphrase(newWalletPassphrase)
             .createOne();
 
         await expect(unvote).toBeAccepted();
         await snoozeForBlock(1);
         await expect(unvote.id).toBeForged();
+        if (await apiHelpers.isTransactionForgedByDelegate(unvote.id!, delegateToVote)) {
+            collectedFees = collectedFees.plus(unvote.fee);
+        }
 
-        const expectedBalanceAfterUnvote = initialDelegateVoteValance;
-        await expect(delegateToVote).toHaveVoteBalance(expectedBalanceAfterUnvote.toString());
+        const expectedBalanceAfterUnvote = initialDelegateVoteBalance;
+        await expect(delegateToVote).toHaveVoteBalance(expectedBalanceAfterUnvote.plus(collectedFees).toString());
 
         // Vote again
-        const voteAgain = TransactionFactory.initialize(app).vote(delegateToVote)
+        const voteAgain = TransactionFactory.initialize(app)
+            .vote(delegateToVote)
             .withPassphrase(newWalletPassphrase)
             .createOne();
 
         await expect(voteAgain).toBeAccepted();
         await snoozeForBlock(1);
         await expect(voteAgain.id).toBeForged();
+        if (await apiHelpers.isTransactionForgedByDelegate(voteAgain.id!, delegateToVote)) {
+            collectedFees = collectedFees.plus(voteAgain.fee);
+        }
 
         const expectedBalanceAfterVoteAgain = expectedBalanceAfterLock.minus(unvote.fee).minus(voteAgain.fee);
-        await expect(delegateToVote).toHaveVoteBalance(expectedBalanceAfterVoteAgain.toString());
+        await expect(delegateToVote).toHaveVoteBalance(expectedBalanceAfterVoteAgain.plus(collectedFees).toString());
     });
 });
