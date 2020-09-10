@@ -11,7 +11,6 @@ import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/co
 import {
     EntityAlreadyRegisteredError,
     EntityAlreadyResignedError,
-    EntityDeactivatedError,
     EntityNameAlreadyRegisteredError,
     EntityNameDoesNotMatchDelegateError,
     EntityNotRegisteredError,
@@ -67,10 +66,6 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
     ): Promise<void> {
         if (Utils.isException(transaction)) {
             return;
-        }
-
-        if (this.isDeactivatedEntity(transaction)) {
-            throw new EntityDeactivatedError();
         }
 
         const staticFee: Utils.BigNumber = this.getConstructor().staticFee({ data: transaction.data });
@@ -287,12 +282,5 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
         }
 
         wallet.setAttribute("entities", entities);
-    }
-
-    private isDeactivatedEntity(transaction: Interfaces.ITransaction): boolean {
-        if (transaction.data.asset.type === Enums.EntityType.Bridgechain) {
-            return true;
-        }
-        return false;
     }
 }
