@@ -88,9 +88,9 @@ export class Slots {
 
         for (let i = 0; i < this.getMilestonesWhichAffectBlockTimes().length - 1; i++) {
             if (height < nextMilestone.height) {
-                const slotNumerUpUntilThisTimestamp = Math.floor((timestamp - lastSpanEndTime) / blockTime);
-                const slotNumber = totalSlotsFromLastSpan + slotNumerUpUntilThisTimestamp;
-                const startTime = lastSpanEndTime + slotNumerUpUntilThisTimestamp * blockTime;
+                const slotNumberUpUntilThisTimestamp = Math.floor((timestamp - lastSpanEndTime) / blockTime);
+                const slotNumber = totalSlotsFromLastSpan + slotNumberUpUntilThisTimestamp;
+                const startTime = lastSpanEndTime + slotNumberUpUntilThisTimestamp * blockTime;
                 const endTime = startTime + blockTime - 1;
                 const forgingStatus = timestamp < startTime + Math.floor(blockTime / 2);
 
@@ -113,9 +113,9 @@ export class Slots {
             }
         }
 
-        const slotNumerUpUntilThisTimestamp = Math.floor((timestamp - lastSpanEndTime) / blockTime);
-        let slotNumber = totalSlotsFromLastSpan + slotNumerUpUntilThisTimestamp - 1;
-        const startTime = lastSpanEndTime + slotNumerUpUntilThisTimestamp * blockTime;
+        const slotNumberUpUntilThisTimestamp = Math.floor((timestamp - lastSpanEndTime) / blockTime);
+        let slotNumber = totalSlotsFromLastSpan + slotNumberUpUntilThisTimestamp - 1;
+        const startTime = lastSpanEndTime + slotNumberUpUntilThisTimestamp * blockTime;
         const endTime = startTime + blockTime - 1;
         const forgingStatus = timestamp < startTime + Math.floor(blockTime / 2);
 
