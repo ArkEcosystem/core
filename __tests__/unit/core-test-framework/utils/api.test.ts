@@ -189,4 +189,50 @@ describe("ApiHelpers", () => {
             expect(spyOnRequest).toHaveBeenCalled();
         });
     });
+
+    describe("isTransactionForgedByDelegate", () => {
+        let spyOnRequest;
+
+        beforeEach(() => {
+            // @ts-ignore
+            spyOnRequest = jest
+                .spyOn(api, "request")
+                .mockImplementationOnce(async () => {
+                    return {
+                        data: {
+                            data: {
+                                blockId: "123",
+                            },
+                        },
+                    };
+                })
+                .mockImplementationOnce(async () => {
+                    return {
+                        data: {
+                            data: {
+                                generator: {
+                                    publicKey: "delegate_public_key",
+                                },
+                            },
+                        },
+                    };
+                });
+        });
+
+        it("should check if transaction is forged by delegate", async () => {
+            await expect(
+                api.isTransactionForgedByDelegate("dummy_transaction_id", "delegate_public_key"),
+            ).resolves.toBeTrue();
+
+            expect(spyOnRequest).toHaveBeenCalledTimes(2);
+        });
+
+        it("should not check if transaction is not forged by delegate", async () => {
+            await expect(
+                api.isTransactionForgedByDelegate("dummy_transaction_id", "another_delegate_public_key"),
+            ).resolves.toBeFalse();
+
+            expect(spyOnRequest).toHaveBeenCalledTimes(2);
+        });
+    });
 });
