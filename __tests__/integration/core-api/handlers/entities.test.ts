@@ -9,10 +9,10 @@ import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
 const entityRegistrationAsset: IEntityWallet = {
-    type: Enums.EntityType.Developer,
+    type: Enums.EntityType.Plugin,
     subType: 0,
     data: {
-        name: "iam_a_dev",
+        name: "iam_a_plugin",
         ipfsData: "Qdm2345ousd462",
     },
 };

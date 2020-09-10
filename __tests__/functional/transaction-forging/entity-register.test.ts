@@ -18,7 +18,7 @@ describe("Transaction Forging - Entity registration", () => {
             for (const { type, subType, name } of [
                 { type: Enums.EntityType.Business, subType: 0, name: "bzness" },
                 { type: Enums.EntityType.Delegate, subType: 1, name: "genesis_1" },
-                { type: Enums.EntityType.Developer, subType: 6, name: "dvloper" },
+                { type: Enums.EntityType.Product, subType: 6, name: "prduct" },
                 { type: Enums.EntityType.Plugin, subType: 255, name: "plgincore" },
                 { type: Enums.EntityType.Plugin, subType: 134, name: "plgindskt" },
                 { type: 255, subType: 134, name: "type255shouldwork" },
@@ -49,25 +49,6 @@ describe("Transaction Forging - Entity registration", () => {
                 await expect(entityRegistration.id).toBeForged();
                 await expect(entityRegistration).entityRegistered();
             }
-        });
-
-        it("should reject bridgechain entity registration, because it is deactivated [Signed with 1 Passphrase]", async () => {
-            // entity registration
-            const entityRegistration = TransactionFactory.entity({
-                type: Enums.EntityType.Bridgechain,
-                subType: 0,
-                action: Enums.EntityAction.Register,
-                data: {
-                    name: "plzacceptbridgechain",
-                },
-            })
-                .withPassphrase(secrets[0])
-                .createOne();
-
-            await expect(entityRegistration).toBeRejected();
-            await support.snoozeForBlock(1);
-            await expect(entityRegistration.id).not.toBeForged();
-            await expect(entityRegistration).not.entityRegistered();
         });
 
         it("should reject entity registration, because entity name contains unicode control characters [Signed with 1 Passphrase]", async () => {
@@ -216,11 +197,11 @@ describe("Transaction Forging - Entity registration", () => {
 
             // Registering entity
             const entityRegistration = TransactionFactory.entity({
-                type: Enums.EntityType.Developer,
+                type: Enums.EntityType.Module,
                 subType: 0,
                 action: Enums.EntityAction.Register,
                 data: {
-                    name: "iam_a_developer",
+                    name: "iam_a_module",
                 },
             })
                 .withSenderPublicKey(multiSigPublicKey)

@@ -57,14 +57,14 @@ export const invalidResigns: Interfaces.IEntityAsset[] = [
         data: {},
     },
     ...invalidAssetData.map(data => ({
-        type: Enums.EntityType.Developer,
+        type: Enums.EntityType.Module,
         subType: 0,
         action: Enums.EntityAction.Update,
         data,
     })),
     ...validAssetData.map(data => ({
         // even "valid" data are invalid for resign as we allow no property in data
-        type: Enums.EntityType.Developer,
+        type: Enums.EntityType.Module,
         subType: 0,
         action: Enums.EntityAction.Update,
         data,

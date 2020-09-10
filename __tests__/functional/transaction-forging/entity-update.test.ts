@@ -279,11 +279,11 @@ describe("Transaction Forging - Entity update", () => {
 
             // Registering entity
             const entityRegistration = TransactionFactory.entity({
-                type: Enums.EntityType.Developer,
+                type: Enums.EntityType.Module,
                 subType,
                 action: Enums.EntityAction.Register,
                 data: {
-                    name: "iam_a_developer",
+                    name: "iam_a_module",
                 },
             })
                 .withSenderPublicKey(multiSigPublicKey)
@@ -297,7 +297,7 @@ describe("Transaction Forging - Entity update", () => {
 
             // Updating entity
             const entityUpdate = TransactionFactory.entity({
-                type: Enums.EntityType.Developer,
+                type: Enums.EntityType.Module,
                 subType,
                 action: Enums.EntityAction.Update,
                 registrationId: entityRegistration.id,
