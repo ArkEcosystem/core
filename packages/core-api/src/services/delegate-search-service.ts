@@ -45,7 +45,7 @@ export class DelegateSearchService {
             delegateLastBlock = {
                 id: delegateAttribute.lastBlock.id,
                 height: delegateAttribute.lastBlock.height,
-                timestamp: delegateAttribute.lastBlock.timestamp,
+                timestamp: AppUtils.formatTimestamp(delegateAttribute.lastBlock.timestamp),
             };
         }
 
