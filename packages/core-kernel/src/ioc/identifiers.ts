@@ -38,6 +38,8 @@ export const Identifiers = {
     QueueService: Symbol.for("Service<Queue>"),
     ScheduleService: Symbol.for("Service<Schedule>"),
     SnapshotService: Symbol.for("Service<Snapshot>"),
+    StandardCriteriaService: Symbol.for("Service<StandardCriteriaService>"),
+    PaginationService: Symbol.for("Service<PaginationService>"),
     TriggerService: Symbol.for("Service<Actions>"),
     ProcessActionsService: Symbol.for("Service<ProcessActions>"),
     ValidationService: Symbol.for("Service<Validation>"),

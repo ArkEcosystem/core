@@ -7,8 +7,8 @@ import {
     BusinessRegistrationTransactionHandler,
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
+    EntityTransactionHandler,
 } from "./handlers";
-import { EntityTransactionHandler } from "./handlers/entity";
 import { bridgechainIndexer, businessIndexer, entityIndexer, MagistrateIndex } from "./wallet-indexes";
 
 export class ServiceProvider extends Providers.ServiceProvider {

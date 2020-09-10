@@ -2,7 +2,7 @@ import "@packages/core-test-framework/src/matchers";
 
 import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Crypto, Identities, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import { ApiHelpers, TransactionFactory } from "@packages/core-test-framework/src";
 
 import { setUp, tearDown } from "../__support__/setup";
@@ -60,187 +60,6 @@ describe("API 2.0 - Locks", () => {
         }
     });
 
-    describe("GET /locks", () => {
-        it("should GET all the locks", async () => {
-            const response = await api.request("GET", "locks");
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-
-            api.expectLock(response.data.data[0]);
-        });
-
-        it("should GET all the locks sorted by expirationValue,asc", async () => {
-            const response = await api.request("GET", "locks", { orderBy: "expirationValue:asc" });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data[0].expirationValue).toBe(0);
-        });
-
-        it("should GET all the locks by epoch expiration", async () => {
-            const response = await api.request("GET", "locks", { expirationType: 1 });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).not.toBeEmpty();
-            expect(response.data.data.every((lock) => lock.expirationType === 1)).toBeTrue();
-        });
-
-        it("should GET all the locks by height expiration", async () => {
-            const response = await api.request("GET", "locks", { expirationType: 2 });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).not.toBeEmpty();
-            expect(response.data.data.every((lock) => lock.expirationType === 2)).toBeTrue();
-        });
-
-        it("should GET all the locks that are expired", async () => {
-            const response = await api.request("GET", "locks", { isExpired: true });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).not.toBeEmpty();
-            expect(response.data.data.every((lock) => lock.isExpired)).toBeTrue();
-        });
-
-        it("should GET all the locks that are not expired", async () => {
-            const response = await api.request("GET", "locks", { isExpired: false });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).not.toBeEmpty();
-            expect(response.data.data.every((lock) => !lock.isExpired)).toBeTrue();
-        });
-
-        describe("orderBy", () => {
-            it("should be ordered by amount:desc", async () => {
-                const response = await api.request("GET", "locks", { orderBy: "amount:desc", expirationType: 2 });
-                expect(response).toBeSuccessfulResponse();
-                expect(response.data.data).toBeArray();
-
-                for (let i = 0; i < response.data.data.length - 1; i++) {
-                    const lockA = response.data.data[i];
-                    const lockB = response.data.data[i + 1];
-
-                    expect(Utils.BigNumber.make(lockA.amount).isGreaterThanEqual(lockB.amount)).toBeTrue();
-                }
-            });
-
-            it("should be ordered by amount:asc", async () => {
-                const response = await api.request("GET", "locks", { orderBy: "amount:asc", expirationType: 2 });
-                expect(response).toBeSuccessfulResponse();
-                expect(response.data.data).toBeArray();
-
-                for (let i = 0; i < response.data.data.length - 1; i++) {
-                    const lockA = response.data.data[i];
-                    const lockB = response.data.data[i + 1];
-
-                    expect(Utils.BigNumber.make(lockA.amount).isLessThanEqual(lockB.amount)).toBeTrue();
-                }
-            });
-        });
-    });
-
-    describe("GET /locks/:id", () => {
-        it("should GET a wallet by the given identifier", async () => {
-            const response = await api.request("GET", `locks/${lockIds[0]}`);
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeObject();
-
-            const lock = response.data.data;
-            api.expectLock(lock);
-            expect(lock.lockId).toBe(lockIds[0]);
-        });
-
-        describe("when requesting an unknown lock", () => {
-            it("should return ResourceNotFound error", async () => {
-                try {
-                    await api.request("GET", "locks/dummy");
-                } catch (error) {
-                    expect(error.response.status).toEqual(404);
-                }
-            });
-        });
-    });
-
-    describe("POST /locks/search", () => {
-        const createWallet = (secret: string, lock: Partial<Interfaces.IHtlcLock> = {}) => {
-            const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase(secret));
-            const transactionId = Crypto.HashAlgorithms.sha256(secret).toString("hex");
-
-            wallet.setAttribute("htlc.locks", {
-                [transactionId]: {
-                    ...{
-                        amount: Utils.BigNumber.make(10000),
-                        recipientId: wallet.address,
-                        secretHash: transactionId,
-                        expiration: {
-                            type: 1,
-                            value: 1000000,
-                        },
-                        timestamp: 9999,
-                        vendorField: "HTLC",
-                    },
-                    ...lock,
-                },
-            });
-
-            return wallet;
-        };
-
-        it("should POST a search for locks with the exact specified lockId", async () => {
-            const response = await api.request("POST", "locks/search", {
-                lockId: lockIds[0],
-            });
-
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-
-            expect(response.data.data).toHaveLength(1);
-
-            const lock = response.data.data[0];
-            api.expectLock(lock);
-            expect(lock.lockId).toBe(lockIds[0]);
-        });
-
-        it("should POST a search for locks with the exact vendorField", async () => {
-            const wallet = createWallet("secret", { vendorField: "HTLC" });
-            walletRepository.index(wallet);
-
-            const response = await api.request("POST", "locks/search", {
-                vendorField: "HTLC",
-            });
-
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-
-            expect(response.data.data).toHaveLength(1);
-
-            const lock = response.data.data[0];
-            api.expectLock(lock);
-            expect(lock.vendorField).toBe("HTLC");
-        });
-
-        it("should POST a search for locks within the timestamp range", async () => {
-            const wallet = createWallet("secret", { timestamp: 5000 });
-            walletRepository.index(wallet);
-
-            const response = await api.request("POST", "locks/search", {
-                timestamp: {
-                    from: 4000,
-                    to: 6000,
-                },
-            });
-
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-
-            expect(response.data.data).toHaveLength(1);
-
-            const lock = response.data.data[0];
-            api.expectLock(lock);
-            expect(lock.timestamp.unix).toBe(1490106200);
-            expect(lock.timestamp.epoch).toBe(5000);
-            expect(lock.timestamp.human).toBe("2017-03-21T14:23:20.000Z");
-        });
-    });
-
     describe("POST /locks/unlocked", () => {
         it("should find matching transactions for the given lock ids", async () => {
             const refundTransaction = TransactionFactory.initialize(app)
@@ -254,9 +73,9 @@ describe("API 2.0 - Locks", () => {
             );
 
             jest.spyOn(transactionRepository, "listByExpression").mockResolvedValueOnce({
-                rows: [{ ...refundTransaction.data, serialized: refundTransaction.serialized } as any],
-                count: 1,
-                countIsEstimate: false,
+                results: [{ ...refundTransaction.data, serialized: refundTransaction.serialized } as any],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const response = await api.request("POST", "locks/unlocked", {

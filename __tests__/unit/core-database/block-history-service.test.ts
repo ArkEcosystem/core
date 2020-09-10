@@ -2,7 +2,7 @@ import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import { BlockHistoryService } from "../../../packages/core-database/src/block-history-service";
 
-const defaultBlockOrder: Contracts.Search.ListOrder = [{ property: "height", direction: "asc" }];
+const defaultBlockSorting: Contracts.Search.Sorting = [{ property: "height", direction: "asc" }];
 
 const blockRepository = {
     findManyByExpression: jest.fn(),
@@ -60,7 +60,7 @@ describe("BlockHistoryService.findOneByCriteria", () => {
         const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(blockFilter.getExpression).toBeCalledWith(criteria);
-        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockOrder);
+        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockSorting);
         expect(modelConverter.getBlockData).toBeCalledWith([]);
         expect(result).toBeUndefined();
     });
@@ -79,7 +79,7 @@ describe("BlockHistoryService.findOneByCriteria", () => {
         const result = await blockHistoryService.findOneByCriteria(criteria);
 
         expect(blockFilter.getExpression).toBeCalledWith(criteria);
-        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockOrder);
+        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockSorting);
         expect(modelConverter.getBlockData).toBeCalledWith([model]);
 
         expect(result).toBe(data);
@@ -103,7 +103,7 @@ describe("BlockHistoryService.findManyByCriteria", () => {
         const result = await blockHistoryService.findManyByCriteria(criteria);
 
         expect(blockFilter.getExpression).toBeCalledWith(criteria);
-        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockOrder);
+        expect(blockRepository.findManyByExpression).toBeCalledWith(expression, defaultBlockSorting);
         expect(modelConverter.getBlockData).toBeCalledWith([model1, model2]);
 
         expect(result.length).toBe(2);
@@ -125,9 +125,9 @@ describe("BlockHistoryService.listByCriteria", () => {
 
         blockFilter.getExpression.mockResolvedValueOnce(expression);
         blockRepository.listByExpression.mockResolvedValueOnce({
-            rows: [model1, model2],
-            count: 2,
-            countIsEstimate: false,
+            results: [model1, model2],
+            totalCount: 2,
+            meta: { totalCountIsEstimate: false },
         });
         modelConverter.getBlockData.mockReturnValueOnce([data1, data2]);
 
@@ -138,9 +138,9 @@ describe("BlockHistoryService.listByCriteria", () => {
         expect(blockRepository.listByExpression).toBeCalledWith(expression, order, page, undefined);
         expect(modelConverter.getBlockData).toBeCalledWith([model1, model2]);
         expect(result).toEqual({
-            rows: [data1, data2],
-            count: 2,
-            countIsEstimate: false,
+            results: [data1, data2],
+            totalCount: 2,
+            meta: { totalCountIsEstimate: false },
         });
     });
 });

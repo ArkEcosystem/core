@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Application, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import { ServiceProvider } from "@packages/core-api/src";
 import { Sandbox } from "@packages/core-test-framework/src";
@@ -6,7 +6,7 @@ import { resolve } from "path";
 
 const sandbox: Sandbox = new Sandbox();
 
-export const setUp = async () => {
+export const setUp = async (): Promise<Application> => {
     jest.setTimeout(60000);
 
     process.env.DISABLE_P2P_SERVER = "true"; // no need for p2p socket server to run
@@ -22,68 +22,34 @@ export const setUp = async () => {
             list: [{ ip: "127.0.0.1", port: 4000 }], // need some peers defined for the app to run
         },
     });
+
     await sandbox
         .withCoreOptions({
             app: {
                 core: {
                     plugins: [
-                        {
-                            package: "@arkecosystem/core-state",
-                        },
-                        {
-                            package: "@arkecosystem/core-database",
-                        },
-                        {
-                            package: "@arkecosystem/core-transactions",
-                        },
-                        {
-                            package: "@arkecosystem/core-magistrate-transactions",
-                        },
-                        {
-                            package: "@arkecosystem/core-transaction-pool",
-                        },
-                        {
-                            package: "@arkecosystem/core-p2p",
-                        },
-                        {
-                            package: "@arkecosystem/core-blockchain",
-                        },
-                        {
-                            package: "@arkecosystem/core-forger",
-                        },
+                        { package: "@arkecosystem/core-state" },
+                        { package: "@arkecosystem/core-database" },
+                        { package: "@arkecosystem/core-transactions" },
+                        { package: "@arkecosystem/core-magistrate-transactions" },
+                        { package: "@arkecosystem/core-transaction-pool" },
+                        { package: "@arkecosystem/core-p2p" },
+                        { package: "@arkecosystem/core-blockchain" },
+                        { package: "@arkecosystem/core-forger" },
                     ],
                 },
                 relay: {
                     plugins: [
-                        {
-                            package: "@arkecosystem/core-state",
-                        },
-                        {
-                            package: "@arkecosystem/core-database",
-                        },
-                        {
-                            package: "@arkecosystem/core-transactions",
-                        },
-                        {
-                            package: "@arkecosystem/core-magistrate-transactions",
-                        },
-                        {
-                            package: "@arkecosystem/core-transaction-pool",
-                        },
-                        {
-                            package: "@arkecosystem/core-p2p",
-                        },
-                        {
-                            package: "@arkecosystem/core-blockchain",
-                        },
+                        { package: "@arkecosystem/core-state" },
+                        { package: "@arkecosystem/core-database" },
+                        { package: "@arkecosystem/core-transactions" },
+                        { package: "@arkecosystem/core-transaction-pool" },
+                        { package: "@arkecosystem/core-p2p" },
+                        { package: "@arkecosystem/core-blockchain" },
                     ],
                 },
                 forger: {
-                    plugins: [
-                        {
-                            package: "@arkecosystem/core-forger",
-                        },
-                    ],
+                    plugins: [{ package: "@arkecosystem/core-forger" }],
                 },
             },
         })
@@ -118,7 +84,9 @@ export const setUp = async () => {
     return sandbox.app;
 };
 
-export const tearDown = async () => sandbox.dispose();
+export const tearDown = async (): Promise<void> => {
+    await sandbox.dispose();
+};
 
 export const calculateRanks = async () => {
     const walletRepository = sandbox.app.getTagged<Contracts.State.WalletRepository>(

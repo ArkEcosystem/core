@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { Identifiers, Server } from "@arkecosystem/core-api";
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
+import querystring from "querystring";
 import { ITransactionData } from "@arkecosystem/crypto/src/interfaces";
 
 import secrets from "../internal/passphrases.json";
@@ -12,10 +13,7 @@ export class ApiHelpers {
 
     public async request(method: string, path: string, params = {}, headers = {}): Promise<any> {
         // Build URL params from _params_ object for GET / DELETE requests
-        const getParams = Object.entries(params)
-            .map(([key, val]) => `${key}=${val}`)
-            .join("&");
-
+        const getParams = querystring.stringify(params);
         const url = `http://localhost:4003/api/${path}`;
 
         // Injecting the request into Hapi server
@@ -24,9 +22,7 @@ export class ApiHelpers {
             url: ["GET", "DELETE"].includes(method) ? `${url}?${getParams}` : url,
             headers: {
                 ...headers,
-                ...{
-                    "Content-Type": "application/json",
-                },
+                "Content-Type": "application/json",
             },
             payload: ["GET", "DELETE"].includes(method) ? {} : params,
         };
@@ -151,6 +147,7 @@ export class ApiHelpers {
         expect(wallet).toHaveProperty("publicKey");
         expect(wallet).toHaveProperty("nonce");
         expect(wallet).toHaveProperty("balance");
+        expect(wallet).toHaveProperty("attributes");
         expect(wallet).toHaveProperty("isDelegate");
         expect(wallet).toHaveProperty("isResigned");
     }
@@ -183,5 +180,14 @@ export class ApiHelpers {
         await this.request("POST", "transactions", { transactions: [transaction] });
 
         return transaction;
+    }
+
+    public async isTransactionForgedByDelegate(transactionId: string, delegatePublicKey: string): Promise<boolean> {
+        const transactionResponse = await this.request("GET", `transactions/${transactionId}`);
+        const blockId = transactionResponse.data.data.blockId;
+
+        const blockResponse = await this.request("GET", `blocks/${blockId}`);
+
+        return blockResponse.data.data.generator.publicKey === delegatePublicKey;
     }
 }

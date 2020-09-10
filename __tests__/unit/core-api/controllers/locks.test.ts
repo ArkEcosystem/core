@@ -1,201 +1,211 @@
-import "jest-extended";
+import { LockSearchService, Resources } from "@arkecosystem/core-api";
+import { LocksController } from "@arkecosystem/core-api/src/controllers/locks";
+import { Identifiers } from "@arkecosystem/core-api/src/identifiers";
+import { Application, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Enums, Utils } from "@arkecosystem/crypto";
+import { Boom } from "@hapi/boom";
 
-import Hapi from "@hapi/hapi";
-import { LocksController } from "@packages/core-api/src/controllers/locks";
-import { Application, Contracts } from "@packages/core-kernel";
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import { Wallets } from "@packages/core-state";
-import { Mocks } from "@packages/core-test-framework";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
-import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@packages/crypto";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-
-import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
-import { htlcSecretHashHex } from "../../core-transactions/handlers/__fixtures__/htlc-secrets";
-
-let app: Application;
-let controller: LocksController;
-let walletRepository: Wallets.WalletRepository;
-
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
-
-const { EpochTimestamp } = Enums.HtlcLockExpirationType;
-
-const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
-    mockLastBlockData.height! + heightRelativeToLastBlock;
-const makeNotExpiredTimestamp = (type) =>
-    type === EpochTimestamp ? mockLastBlockData.timestamp! + 999 : makeBlockHeightTimestamp(9);
-
-const transactionHistoryService = {
-    listByCriteria: jest.fn(),
+const jestfn = <T extends (...args: unknown[]) => unknown>(
+    implementation?: (...args: Parameters<T>) => ReturnType<T>,
+) => {
+    return jest.fn(implementation);
 };
 
+const app = {
+    resolve: jestfn<Application["resolve"]>(),
+};
+
+const apiConfiguration = {
+    getOptional: jestfn<Providers.PluginConfiguration["getOptional"]>(),
+};
+
+const transactionHistoryService = {
+    listByCriteria: jestfn<Contracts.Shared.TransactionHistoryService["listByCriteria"]>(),
+};
+
+const lockSearchService = {
+    getLock: jestfn<LockSearchService["getLock"]>(),
+    getLocksPage: jestfn<LockSearchService["getLocksPage"]>(),
+};
+
+const container = new Container.Container();
+container.bind(Container.Identifiers.Application).toConstantValue(app);
+container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(apiConfiguration);
+container.bind(Identifiers.LockSearchService).toConstantValue(lockSearchService);
+container.bind(Container.Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
+
 beforeEach(() => {
-    app = initApp();
-    app.bind(Identifiers.TransactionHistoryService).toConstantValue(transactionHistoryService);
-
-    // Triggers registration of indexes
-    app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-
-    controller = app.resolve<LocksController>(LocksController);
-    walletRepository = app.get<Wallets.WalletRepository>(Identifiers.WalletRepository);
-
-    Mocks.StateStore.setBlock({ data: mockLastBlockData } as Interfaces.IBlock);
-    transactionHistoryService.listByCriteria.mockReset();
+    jest.resetAllMocks();
 });
 
-afterEach(() => {
-    try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.BusinessRegistrationTransaction,
-        );
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            MagistrateTransactions.BridgechainRegistrationTransaction,
-        );
-    } catch {}
-});
+const lockResource1: Resources.LockResource = {
+    lockId: "700bef5e3c2fcbbac83472b7320a635cf02fddb14e12d83f911f05faea8e540c",
+    senderPublicKey: "02fd0f9eb5ce005710616258c6742f372577698f172fdca0418c5cd1e9698fc002",
+    isExpired: false,
+    amount: Utils.BigNumber.make("1000"),
+    secretHash: "9929b94c6caf437576b458334b10605b4471086bda5dfdac6e3108043e349324",
+    recipientId: "AXm433vapiwt83xfh8x9ciNxYkVd76pbNe",
+    timestamp: {
+        epoch: 108158400,
+        unix: 1598259600,
+        human: "2020-08-24T09:00:00.000Z",
+    },
+    expirationType: Enums.HtlcLockExpirationType.EpochTimestamp,
+    expirationValue: 108158500,
+    vendorField: "ArkPool payments",
+};
 
-describe("LocksController", () => {
-    let lockWallet: Contracts.State.Wallet;
-    let htlcLockTransaction: Interfaces.ITransaction;
-
-    beforeEach(() => {
-        lockWallet = buildSenderWallet(app);
-
-        const expiration = {
-            type: EpochTimestamp,
-            value: makeNotExpiredTimestamp(EpochTimestamp),
+describe("LocksController.index", () => {
+    it("should get criteria from query and return locks page from LockSearchService", () => {
+        const locksPage: Contracts.Search.ResultsPage<Resources.LockResource> = {
+            results: [lockResource1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: false },
         };
+        lockSearchService.getLocksPage.mockReturnValueOnce(locksPage);
 
-        htlcLockTransaction = BuilderFactory.htlcLock()
-            .htlcLockAsset({
-                secretHash: htlcSecretHashHex,
-                expiration: expiration,
-            })
-            .recipientId(Identities.Address.fromPassphrase(passphrases[1]))
-            .amount("1")
-            .nonce("1")
-            .sign(passphrases[0])
-            .build();
-
-        lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make("1"));
-
-        lockWallet.setAttribute("htlc.locks", {
-            [htlcLockTransaction.id!]: {
-                amount: htlcLockTransaction.data.amount,
-                recipientId: htlcLockTransaction.data.recipientId,
-                timestamp: mockLastBlockData.timestamp,
-                ...htlcLockTransaction.data.asset!.lock,
+        const locksController = container.resolve(LocksController);
+        const result = locksController.index({
+            query: {
+                page: 1,
+                limit: 100,
+                orderBy: ["amount:desc", "timestamp.epoch:desc"],
+                senderPublicKey: "02fd0f9eb5ce005710616258c6742f372577698f172fdca0418c5cd1e9698fc002",
             },
         });
 
-        walletRepository.index(lockWallet);
+        expect(lockSearchService.getLocksPage).toBeCalledWith(
+            { offset: 0, limit: 100 },
+            ["amount:desc", "timestamp.epoch:desc"],
+            { senderPublicKey: "02fd0f9eb5ce005710616258c6742f372577698f172fdca0418c5cd1e9698fc002" },
+        );
+
+        expect(result).toBe(locksPage);
+    });
+});
+
+describe("LocksController.search", () => {
+    it("should get criteria from payload and return locks page from LockSearchService", () => {
+        const locksPage: Contracts.Search.ResultsPage<Resources.LockResource> = {
+            results: [lockResource1],
+            totalCount: 1,
+            meta: { totalCountIsEstimate: false },
+        };
+        lockSearchService.getLocksPage.mockReturnValueOnce(locksPage);
+
+        const locksController = container.resolve(LocksController);
+        const result = locksController.search({
+            query: {
+                page: 1,
+                limit: 100,
+                orderBy: ["amount:desc", "timestamp.epoch:desc"],
+            },
+            payload: {
+                recipientId: "AXm433vapiwt83xfh8x9ciNxYkVd76pbNe",
+            },
+        });
+
+        expect(lockSearchService.getLocksPage).toBeCalledWith(
+            { offset: 0, limit: 100 },
+            ["amount:desc", "timestamp.epoch:desc"],
+            { recipientId: "AXm433vapiwt83xfh8x9ciNxYkVd76pbNe" },
+        );
+
+        expect(result).toBe(locksPage);
+    });
+});
+
+describe("LocksController.show", () => {
+    it("should get lockId from pathname and return lock from LockSearchService", () => {
+        lockSearchService.getLock.mockReturnValueOnce(lockResource1);
+
+        const locksController = container.resolve(LocksController);
+        const result = locksController.show({
+            params: {
+                id: lockResource1.lockId,
+            },
+        });
+
+        expect(lockSearchService.getLock).toBeCalledWith(lockResource1.lockId);
+        expect(result).toEqual({ data: lockResource1 });
     });
 
-    describe("index", () => {
-        it("should return list of delegates", async () => {
-            const request: Hapi.Request = {
+    it("should return 404 if lock wasn't found", () => {
+        lockSearchService.getLock.mockReturnValueOnce(undefined);
+
+        const locksController = container.resolve(LocksController);
+        const result = locksController.show({
+            params: {
+                id: "non-existing-lock-id",
+            },
+        });
+
+        expect(lockSearchService.getLock).toBeCalledWith("non-existing-lock-id");
+        expect(result).toBeInstanceOf(Boom);
+    });
+});
+
+describe("LocksController.unlocked", () => {
+    it("should get lockIds from payload and return claim and refund transactions from TransactionHistoryService", async () => {
+        const lock1Id = "9929b94c6caf437576b458334b10605b4471086bda5dfdac6e3108043e349324";
+        const lock2Id = "a17e0cb719ee3e6149db9620e6a667f0b582765aeeb63b1bef83baa860734fdc";
+
+        const lock1Claim = {} as any;
+        const lock2Refund = {} as any;
+
+        apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+        app.resolve.mockReturnValue({
+            transform(resource) {
+                return resource;
+            },
+        });
+
+        transactionHistoryService.listByCriteria.mockResolvedValueOnce({
+            results: [lock1Claim, lock2Refund],
+            totalCount: 2,
+            meta: { totalCountIsEstimate: true },
+        });
+
+        const locksController = container.resolve(LocksController);
+        const result = await locksController.unlocked(
+            {
                 query: {
                     page: 1,
                     limit: 100,
-                    transform: false,
+                    orderBy: "amount:desc",
                 },
-            };
-
-            const response = (await controller.index(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    lockId: htlcLockTransaction.id,
-                }),
-            );
-        });
-    });
-
-    describe("show", () => {
-        it("should return lock", async () => {
-            const request: Hapi.Request = {
-                params: {
-                    id: htlcLockTransaction.id,
-                },
-            };
-
-            const response = (await controller.show(request, undefined)) as ItemResponse;
-
-            expect(response.data).toEqual(
-                expect.objectContaining({
-                    lockId: htlcLockTransaction.id,
-                }),
-            );
-        });
-
-        it("should return error if lock does not exists", async () => {
-            const request: Hapi.Request = {
-                params: {
-                    id: "non_existing_lock_id",
-                },
-            };
-
-            await expect(controller.show(request, undefined)).resolves.toThrowError("Lock not found");
-        });
-    });
-
-    describe("search", () => {
-        it("should return list of locks", async () => {
-            const request: Hapi.Request = {
-                params: {
-                    id: htlcLockTransaction.id,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    transform: false,
-                },
-            };
-
-            const response = (await controller.search(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    lockId: htlcLockTransaction.id,
-                }),
-            );
-        });
-    });
-
-    describe("unlocked", () => {
-        it("should return list of locks", async () => {
-            transactionHistoryService.listByCriteria.mockResolvedValueOnce({
-                rows: [Object.assign({}, htlcLockTransaction.data, { nonce: Utils.BigNumber.make("1") })],
-                count: 1,
-                countIsEstimate: false,
-            });
-
-            const request: Hapi.Request = {
-                query: {},
                 payload: {
-                    ids: [htlcLockTransaction.id],
+                    ids: [lock1Id, lock2Id],
                 },
-            };
+            },
+            undefined,
+        );
 
-            const response = (await controller.unlocked(request, undefined)) as PaginatedResponse;
+        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
 
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    id: htlcLockTransaction.id,
-                }),
-            );
+        expect(transactionHistoryService.listByCriteria).toBeCalledWith(
+            [
+                {
+                    typeGroup: Enums.TransactionTypeGroup.Core,
+                    type: Enums.TransactionType.HtlcClaim,
+                    asset: [{ claim: { lockTransactionId: lock1Id } }, { claim: { lockTransactionId: lock2Id } }],
+                },
+                {
+                    typeGroup: Enums.TransactionTypeGroup.Core,
+                    type: Enums.TransactionType.HtlcRefund,
+                    asset: [{ refund: { lockTransactionId: lock1Id } }, { refund: { lockTransactionId: lock2Id } }],
+                },
+            ],
+            [{ direction: "desc", property: "amount" }],
+            { limit: 100, offset: 0 },
+            { estimateTotalCount: true },
+        );
+
+        expect(result).toEqual({
+            totalCount: 2,
+            results: [lock1Claim, lock2Refund],
+            meta: { totalCountIsEstimate: true },
         });
     });
 });

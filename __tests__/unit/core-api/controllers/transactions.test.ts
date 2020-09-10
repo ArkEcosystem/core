@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { Contracts } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
 import { Application, Utils } from "@packages/core-kernel";
@@ -16,13 +17,19 @@ import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { initApp, ItemResponse, PaginatedResponse } from "../__support__";
 
+const jestfn = <T extends (...args: unknown[]) => unknown>(
+    implementation?: (...args: Parameters<T>) => ReturnType<T>,
+) => {
+    return jest.fn(implementation);
+};
+
 let app: Application;
 let controller: TransactionsController;
 
 const transactionHistoryService = {
-    findOneByCriteria: jest.fn(),
-    listByCriteria: jest.fn(),
-    listByCriteriaJoinBlock: jest.fn(),
+    findOneByCriteria: jestfn<Contracts.Shared.TransactionHistoryService["findOneByCriteria"]>(),
+    listByCriteria: jestfn<Contracts.Shared.TransactionHistoryService["listByCriteria"]>(),
+    listByCriteriaJoinBlock: jestfn<Contracts.Shared.TransactionHistoryService["listByCriteriaJoinBlock"]>(),
 };
 
 const blockHistoryService = {};
@@ -93,9 +100,9 @@ describe("TransactionsController", () => {
     describe("index", () => {
         it("should return list of transactions", async () => {
             transactionHistoryService.listByCriteria.mockResolvedValue({
-                rows: [transferTransaction.data],
-                count: 1,
-                countIsEstimate: false,
+                results: [transferTransaction.data],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const request: Hapi.Request = {
@@ -120,9 +127,9 @@ describe("TransactionsController", () => {
 
         it("should return list of transactions using transform", async () => {
             transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
-                rows: [{ data: transferTransaction.data, block: block }],
-                count: 1,
-                countIsEstimate: false,
+                results: [{ data: transferTransaction.data, block: block }],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const request: Hapi.Request = {
@@ -269,9 +276,9 @@ describe("TransactionsController", () => {
     describe("search", () => {
         it("should return list of transactions", async () => {
             transactionHistoryService.listByCriteria.mockResolvedValue({
-                rows: [transferTransaction.data],
-                count: 1,
-                countIsEstimate: false,
+                results: [transferTransaction.data],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const request: Hapi.Request = {
@@ -299,9 +306,9 @@ describe("TransactionsController", () => {
 
         it("should return list of transactions using transform", async () => {
             transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
-                rows: [{ data: transferTransaction.data, block: block }],
-                count: 1,
-                countIsEstimate: false,
+                results: [{ data: transferTransaction.data, block: block }],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const request: Hapi.Request = {
@@ -329,9 +336,9 @@ describe("TransactionsController", () => {
 
         it("should return paginated response when defined offset", async () => {
             transactionHistoryService.listByCriteria.mockResolvedValue({
-                rows: [transferTransaction.data],
-                count: 1,
-                countIsEstimate: false,
+                results: [transferTransaction.data],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
             });
 
             const request: Hapi.Request = {

@@ -8,6 +8,7 @@ import {
     ProcessActions,
     Queue,
     Schedule,
+    Search,
     Triggers,
     Validation,
 } from "../../services";
@@ -53,5 +54,7 @@ export class RegisterBaseServiceProviders implements Bootstrapper {
         await this.app.resolve(Validation.ServiceProvider).register();
 
         await this.app.resolve(Schedule.ServiceProvider).register();
+
+        await this.app.resolve(Search.ServiceProvider).register();
     }
 }

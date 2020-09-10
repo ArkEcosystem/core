@@ -270,7 +270,7 @@ describe("BlockRepository.listByExpression", () => {
     it("should return result page by height greaterThanEqual expression", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
-        const listResult = await blockRepository.listByExpression(
+        const resultsPage = await blockRepository.listByExpression(
             {
                 property: "height",
                 op: "greaterThanEqual",
@@ -283,17 +283,17 @@ describe("BlockRepository.listByExpression", () => {
             { offset: 0, limit: 2 },
             { estimateTotalCount: false },
         );
-        expect(listResult).toStrictEqual({
-            rows: [toBlockModel(block3), toBlockModel(block2)],
-            count: 3,
-            countIsEstimate: false,
+        expect(resultsPage).toStrictEqual({
+            results: [toBlockModel(block3), toBlockModel(block2)],
+            totalCount: 3,
+            meta: { totalCountIsEstimate: false },
         });
     });
 
     it("should return result page and estimate count by height greaterThanEqual expression", async () => {
         const blockRepository = getCustomRepository(BlockRepository);
         await blockRepository.saveBlocks([block1, block2, block3]);
-        const listResult = await blockRepository.listByExpression(
+        const resultsPage = await blockRepository.listByExpression(
             {
                 property: "height",
                 op: "greaterThanEqual",
@@ -305,8 +305,8 @@ describe("BlockRepository.listByExpression", () => {
             ],
             { offset: 0, limit: 2 },
         );
-        expect(listResult.countIsEstimate).toBe(true);
-        expect(listResult.rows).toStrictEqual([toBlockModel(block3), toBlockModel(block2)]);
+        expect(resultsPage.meta.totalCountIsEstimate).toBe(true);
+        expect(resultsPage.results).toStrictEqual([toBlockModel(block3), toBlockModel(block2)]);
     });
 });
 

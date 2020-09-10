@@ -1,44 +1,41 @@
 import { Controller } from "@arkecosystem/core-api";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import Boom from "@hapi/boom";
+import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { EntityResource } from "../resources";
+import { Identifiers } from "../identifiers";
+import { EntityCriteria, entityCriteriaSchemaObject, EntityResource } from "../resources";
+import { EntitySearchService } from "../services";
 
 @Container.injectable()
 export class EntityController extends Controller {
-    @Container.inject(Container.Identifiers.WalletRepository)
-    @Container.tagged("state", "blockchain")
-    protected readonly walletRepository!: Contracts.State.WalletRepository;
+    @Container.inject(Identifiers.EntitySearchService)
+    private readonly entitySearchService!: EntitySearchService;
 
-    public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const entities = this.walletRepository.search(Contracts.State.SearchScope.Entities, {
-            ...request.query,
-            ...this.getListingPage(request),
-        });
+    public index(request: Hapi.Request): Contracts.Search.ResultsPage<EntityResource> {
+        const pagination = this.getQueryPagination(request.query);
+        const sorting = request.query.orderBy as Contracts.Search.Sorting;
+        const criteria = this.getQueryCriteria(request.query, entityCriteriaSchemaObject) as EntityCriteria;
 
-        return this.toPagination(entities, EntityResource);
+        return this.entitySearchService.getEntitiesPage(pagination, sorting, criteria);
     }
 
-    public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const entity = this.walletRepository.search(Contracts.State.SearchScope.Entities, {
-            id: request.params.id,
-        }).rows[0];
+    public search(request: Hapi.Request): Contracts.Search.ResultsPage<EntityResource> {
+        const pagination = this.getQueryPagination(request.query);
+        const sorting = request.query.orderBy as Contracts.Search.Sorting;
+        const criteria = request.payload as EntityCriteria;
 
-        if (!entity) {
-            return Boom.notFound("Entity not found");
+        return this.entitySearchService.getEntitiesPage(pagination, sorting, criteria);
+    }
+
+    public show(request: Hapi.Request): { data: EntityResource } | Boom {
+        const entityId = request.params.id as string;
+        const entityResource = this.entitySearchService.getEntity(entityId);
+
+        if (!entityResource) {
+            return notFound("Entity not found");
         }
 
-        return this.respondWithResource(entity, EntityResource);
-    }
-
-    public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const entities = this.walletRepository.search(Contracts.State.SearchScope.Entities, {
-            ...request.payload,
-            ...request.query,
-            ...this.getListingPage(request),
-        });
-
-        return this.toPagination(entities, EntityResource);
+        return { data: entityResource };
     }
 }

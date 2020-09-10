@@ -1,6 +1,5 @@
 import "jest-extended";
 
-import { Contracts } from "@packages/core-kernel/src";
 import { Wallet, WalletRepository, WalletRepositoryClone } from "@packages/core-state/src/wallets";
 import {
     addressesIndexer,
@@ -44,62 +43,6 @@ describe("Wallet Repository Clone", () => {
         expect(walletRepoClone.getIndex("resignations").indexer).toEqual(resignationsIndexer);
         expect(walletRepoClone.getIndex("locks").indexer).toEqual(locksIndexer);
         expect(walletRepoClone.getIndex("ipfs").indexer).toEqual(ipfsIndexer);
-    });
-
-    describe("search", () => {
-        it("should throw if no wallet exists", () => {
-            expect(() => walletRepoClone.findByScope(Contracts.State.SearchScope.Wallets, "1")).toThrowError(
-                `Wallet 1 doesn't exist in indexes`,
-            );
-            expect(() => walletRepoClone.findByScope(Contracts.State.SearchScope.Delegates, "1")).toThrowError(
-                `Wallet 1 doesn't exist in indexes`,
-            );
-        });
-
-        // TODO: is this expected behaviour that you cannot search by these scopes
-        it("should throw when looking up via locks scope", () => {
-            expect(() => walletRepoClone.findByScope(Contracts.State.SearchScope.Locks, "1")).toThrowError(
-                `Unknown scope ${Contracts.State.SearchScope.Locks}`,
-            );
-        });
-
-        it("should throw when looking up via an unknown search scope", () => {
-            expect(() => walletRepoClone.findByScope("doesNotExist" as any, "1")).toThrowError(
-                `Unknown scope doesNotExist`,
-            );
-        });
-
-        // TODO: test behaves differently to WalletRepository due to inheritance
-        it.skip("should have to index wallet on original repo in order to search", () => {
-            const wallet = walletRepoClone.createWallet("abcd");
-            expect(() => walletRepoClone.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toThrow();
-
-            walletRepo.index(wallet);
-
-            expect(() =>
-                walletRepoClone.findByScope(Contracts.State.SearchScope.Wallets, wallet.address),
-            ).not.toThrow();
-            expect(walletRepoClone.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toEqual(wallet);
-        });
-
-        // TODO: test behaves differently to WalletRepository due to inheritance
-        it.skip("should retrieve existing wallet when searching Delegate Scope", () => {
-            const wallet = walletRepoClone.createWallet("abcd");
-            walletRepo.index(wallet);
-
-            expect(() =>
-                walletRepoClone.findByScope(Contracts.State.SearchScope.Delegates, wallet.address),
-            ).toThrowError(`Wallet abcd isn't delegate`);
-
-            wallet.setAttribute("delegate", true);
-            /**
-             * TODO: check that TemptempWalletRepo should throw here.
-             * WalletRepo does not.
-             */
-            expect(() =>
-                walletRepoClone.findByScope(Contracts.State.SearchScope.Delegates, wallet.address),
-            ).toThrowError(`Wallet abcd isn't delegate`);
-        });
     });
 
     // TODO: test behaves differently to WalletRepository due to inheritance

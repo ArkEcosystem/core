@@ -30,15 +30,15 @@ export class TransactionsController extends Controller {
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const criteria: Contracts.Shared.TransactionCriteria = request.query;
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
+        const sorting: Contracts.Search.Sorting = this.getListingOrder(request);
+        const pagination: Contracts.Search.Pagination = this.getListingPage(request);
+        const options: Contracts.Search.Options = this.getListingOptions();
 
         if (request.query.transform) {
             const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
                 criteria,
-                order,
-                page,
+                sorting,
+                pagination,
                 options,
             );
 
@@ -46,8 +46,8 @@ export class TransactionsController extends Controller {
         } else {
             const transactionListResult = await this.transactionHistoryService.listByCriteria(
                 criteria,
-                order,
-                page,
+                sorting,
+                pagination,
                 options,
             );
             return this.toPagination(transactionListResult, TransactionResource, false);
@@ -88,16 +88,20 @@ export class TransactionsController extends Controller {
     }
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const page: Contracts.Search.ListPage = super.getListingPage(request);
+        const pagination: Contracts.Search.Pagination = super.getListingPage(request);
         const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getFromHighestPriority());
-        const transactions: Interfaces.ITransaction[] = all.slice(page.offset, page.offset + page.limit);
-        const rows = transactions.map((t) => t.data);
-
-        return super.toPagination(
-            { rows, count: all.length, countIsEstimate: false },
-            TransactionResource,
-            !!request.query.transform,
+        const transactions: Interfaces.ITransaction[] = all.slice(
+            pagination.offset,
+            pagination.offset + pagination.limit,
         );
+        const results = transactions.map((t) => t.data);
+        const resultsPage = {
+            results,
+            totalCount: all.length,
+            meta: { totalCountIsEstimate: false },
+        };
+
+        return super.toPagination(resultsPage, TransactionResource, !!request.query.transform);
     }
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
@@ -116,15 +120,15 @@ export class TransactionsController extends Controller {
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const criteria: Contracts.Shared.TransactionCriteria = request.payload;
-        const order: Contracts.Search.ListOrder = this.getListingOrder(request);
-        const page: Contracts.Search.ListPage = this.getListingPage(request);
-        const options: Contracts.Search.ListOptions = this.getListingOptions();
+        const sorting: Contracts.Search.Sorting = this.getListingOrder(request);
+        const pagination: Contracts.Search.Pagination = this.getListingPage(request);
+        const options: Contracts.Search.Options = this.getListingOptions();
 
         if (request.query.transform) {
             const transactionListResult = await this.transactionHistoryService.listByCriteriaJoinBlock(
                 criteria,
-                order,
-                page,
+                sorting,
+                pagination,
                 options,
             );
 
@@ -132,8 +136,8 @@ export class TransactionsController extends Controller {
         } else {
             const transactionListResult = await this.transactionHistoryService.listByCriteria(
                 criteria,
-                order,
-                page,
+                sorting,
+                pagination,
                 options,
             );
             return this.toPagination(transactionListResult, TransactionResource, false);
