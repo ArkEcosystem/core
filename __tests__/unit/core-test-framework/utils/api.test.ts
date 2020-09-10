@@ -1,7 +1,9 @@
 import "jest-extended";
-import { Sandbox } from "@packages/core-test-framework";
+
 import { Identifiers } from "@packages/core-api";
+import { Sandbox } from "@packages/core-test-framework";
 import { ApiHelpers } from "@packages/core-test-framework/src/utils/api";
+
 import {
     blockResponse,
     delegateResponse,
@@ -14,9 +16,9 @@ import {
 let sandbox: Sandbox;
 let api: ApiHelpers;
 
-let mockResponse: any = '{test:"test"}';
+const mockResponse: any = '{test:"test"}';
 
-let mockServer = {
+const mockServer = {
     async inject(options: any) {
         return mockResponse;
     },
@@ -37,24 +39,19 @@ afterEach(() => {
 describe("ApiHelpers", () => {
     describe("request", () => {
         it("should return response", async () => {
-            let response = await api.request("GET", "blockchain", "dummy_params", {});
-            expect(response).toBe(response);
-        });
-
-        it("should return response", async () => {
-            let response = await api.request("POST", "blockchain", "dummy_params", {});
+            const response = await api.request("GET", "blockchain", "dummy_params", {});
             expect(response).toBe(response);
         });
 
         it("should return response - without params", async () => {
-            let response = await api.request("POST", "blockchain");
+            const response = await api.request("POST", "blockchain");
             expect(response).toBe(response);
         });
     });
 
     describe("expectJson", () => {
         it("should pass", async () => {
-            let response = {
+            const response = {
                 data: {},
             };
 
@@ -64,7 +61,7 @@ describe("ApiHelpers", () => {
 
     describe("expectStatus", () => {
         it("should pass", async () => {
-            let response = {
+            const response = {
                 status: 200,
             };
 
@@ -74,7 +71,7 @@ describe("ApiHelpers", () => {
 
     describe("expectResource", () => {
         it("should pass", async () => {
-            let response = {
+            const response = {
                 data: {
                     data: {},
                 },
@@ -86,7 +83,7 @@ describe("ApiHelpers", () => {
 
     describe("expectCollection", () => {
         it("should pass", async () => {
-            let response = {
+            const response = {
                 data: {
                     data: [],
                 },
@@ -98,7 +95,7 @@ describe("ApiHelpers", () => {
 
     describe("expectPaginator", () => {
         it("should pass", async () => {
-            let response = {
+            const response = {
                 data: {
                     meta: paginationResponseMeta,
                 },
@@ -110,7 +107,7 @@ describe("ApiHelpers", () => {
 
     describe("expectSuccessful", () => {
         it("should pass", async () => {
-            let response = {
+            const response = {
                 data: {},
                 status: 200,
             };
@@ -121,7 +118,7 @@ describe("ApiHelpers", () => {
 
     describe("expectError", () => {
         it("should pass", async () => {
-            let response = {
+            const response = {
                 data: {
                     statusCode: 404,
                     error: "Dummy error",
@@ -161,8 +158,6 @@ describe("ApiHelpers", () => {
 
     describe("expectWallet", () => {
         it("should pass", async () => {
-            // TODO: Check why is vote required
-
             api.expectWallet(walletResponse);
         });
     });
@@ -176,9 +171,9 @@ describe("ApiHelpers", () => {
     describe("createTransfer", () => {
         it("should create transfer transaction", async () => {
             // @ts-ignore
-            let spyOnRequest = jest.spyOn(api, "request");
+            const spyOnRequest = jest.spyOn(api, "request");
 
-            let transaction = await api.createTransfer();
+            const transaction = await api.createTransfer();
 
             expect(transaction).toBeObject();
             expect(transaction.id).toBeDefined();

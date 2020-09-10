@@ -1,31 +1,32 @@
 import "jest-extended";
-import { CoreOptions, CryptoOptions, Sandbox } from "@packages/core-test-framework/src/app";
-import { ServiceProvider as CoreStateServiceProvider } from "@packages/core-state";
-import { resolve } from "path";
+
 import { Container } from "@packages/core-kernel";
+import { ServiceProvider as CoreStateServiceProvider } from "@packages/core-state";
+import { CoreOptions, CryptoOptions, Sandbox } from "@packages/core-test-framework/src/app";
+import { resolve } from "path";
 
 describe("Sandbox", () => {
     it("should create app", async () => {
-        let sandbox = new Sandbox();
+        const sandbox = new Sandbox();
 
         expect(sandbox.app).toBeDefined();
     });
 
     it("should boot", async () => {
-        let sandbox = new Sandbox();
+        const sandbox = new Sandbox();
 
-        let callback = jest.fn();
+        const callback = jest.fn();
 
         await expect(sandbox.boot(callback)).toResolve();
         expect(callback).toHaveBeenCalled();
     });
 
     it("should boot with core options", async () => {
-        let sandbox = new Sandbox();
+        const sandbox = new Sandbox();
 
-        let callback = jest.fn();
+        const callback = jest.fn();
 
-        let coreOptions: CoreOptions = {
+        const coreOptions: CoreOptions = {
             flags: {
                 network: "dummynet",
                 token: "DARK",
@@ -37,11 +38,11 @@ describe("Sandbox", () => {
     });
 
     it("should boot with crypto options", async () => {
-        let sandbox = new Sandbox();
+        const sandbox = new Sandbox();
 
-        let callback = jest.fn();
+        const callback = jest.fn();
 
-        let coreOptions: CryptoOptions = {
+        const coreOptions: CryptoOptions = {
             flags: {
                 network: "dummynet",
                 premine: "15300000000000000",
@@ -65,9 +66,16 @@ describe("Sandbox", () => {
     });
 
     it("should dispose", async () => {
-        let sandbox = new Sandbox();
+        const sandbox = new Sandbox();
 
-        let callback = jest.fn();
+        await expect(sandbox.boot()).toResolve();
+        await expect(sandbox.dispose()).toResolve();
+    });
+
+    it("should dispose with callback", async () => {
+        const sandbox = new Sandbox();
+
+        const callback = jest.fn();
 
         await expect(sandbox.boot()).toResolve();
         await expect(sandbox.dispose(callback)).toResolve();
@@ -75,11 +83,11 @@ describe("Sandbox", () => {
     });
 
     it("should restore", async () => {
-        let sandbox = new Sandbox();
+        const sandbox = new Sandbox();
 
         sandbox.snapshot();
 
-        let testBinding = "test";
+        const testBinding = "test";
 
         sandbox.app.bind("test").toConstantValue(testBinding);
 
@@ -93,11 +101,11 @@ describe("Sandbox", () => {
     });
 
     it("should register service provider", async () => {
-        let sandbox = new Sandbox();
+        const sandbox = new Sandbox();
 
         sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue({});
 
-        let serviceProviderOptions = {
+        const serviceProviderOptions = {
             name: "@arkecosystem/core-state",
             path: resolve(__dirname, "../../../../packages/core-state"),
             klass: CoreStateServiceProvider,

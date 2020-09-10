@@ -411,37 +411,30 @@ export class TransactionFactory {
                 this.builder.data.timestamp = this.timestamp;
             }
 
-            if (this.senderPublicKey) {
-                this.builder.senderPublicKey(this.senderPublicKey);
-            }
-
             if (this.expiration) {
                 this.builder.expiration(this.expiration);
             }
 
-            let sign: boolean = true;
-            if (this.passphraseList && this.passphraseList.length) {
-                sign = this.builder.constructor.name === "MultiSignatureBuilder";
-
-                for (let i = 0; i < this.passphraseList.length; i++) {
-                    this.builder.multiSign(this.passphraseList[i], i);
-                }
-            }
+            this.builder.senderPublicKey(this.senderPublicKey);
 
             const isDevelop: boolean = !["mainnet", "devnet"].includes(Managers.configManager.get("network.name"));
 
-            if (sign) {
-                const aip11: boolean = Managers.configManager.getMilestone().aip11;
-                const htlcEnabled: boolean = Managers.configManager.getMilestone().htlcEnabled;
+            const aip11: boolean = Managers.configManager.getMilestone().aip11;
+            const htlcEnabled: boolean = Managers.configManager.getMilestone().htlcEnabled;
 
-                if (this.builder.data.version === 1 && aip11) {
-                    Managers.configManager.getMilestone().aip11 = false;
-                    Managers.configManager.getMilestone().htlcEnabled = false;
-                } else if (isDevelop) {
-                    Managers.configManager.getMilestone().aip11 = true;
-                    Managers.configManager.getMilestone().htlcEnabled = htlcEnabled;
+            if (this.builder.data.version === 1 && aip11) {
+                Managers.configManager.getMilestone().aip11 = false;
+                Managers.configManager.getMilestone().htlcEnabled = false;
+            } /* istanbul ignore else */ else if (isDevelop) {
+                Managers.configManager.getMilestone().aip11 = true;
+                Managers.configManager.getMilestone().htlcEnabled = htlcEnabled;
+            }
+
+            if (this.passphraseList && this.passphraseList.length) {
+                for (let i = 0; i < this.passphraseList.length; i++) {
+                    this.builder.multiSign(this.passphraseList[i], i);
                 }
-
+            } else {
                 this.builder.sign(this.passphrase);
 
                 if (this.secondPassphrase) {
@@ -451,6 +444,7 @@ export class TransactionFactory {
 
             const transaction = this.builder[method]();
 
+            /* istanbul ignore else */
             if (isDevelop) {
                 Managers.configManager.getMilestone().aip11 = true;
                 Managers.configManager.getMilestone().htlcEnabled = true;
