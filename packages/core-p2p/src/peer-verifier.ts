@@ -147,8 +147,6 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         }
 
         try {
-            const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blockHeader.height);
-
             const ownBlock: Interfaces.IBlock | undefined = this.app
                 .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
                 .getLastBlocks()
@@ -159,11 +157,9 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
                 return true;
             }
 
-            const claimedBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(
-                blockHeader,
-                blockTimeLookup,
-            );
-            if (claimedBlock && claimedBlock.verifySignature()) {
+            const roundInfo = Utils.roundCalculator.calculateRound(claimedHeight);
+            const delegates = await this.getDelegatesByRound(roundInfo);
+            if (await this.verifyPeerBlock(blockHeader, claimedHeight, delegates)) {
                 return true;
             }
 

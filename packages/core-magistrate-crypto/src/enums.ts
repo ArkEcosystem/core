@@ -17,20 +17,18 @@ export enum MagistrateTransactionStaticFees {
     BridgechainRegistration = "5000000000",
     BridgechainResignation = "5000000000",
     BridgechainUpdate = "5000000000",
-    Entity = "5000000000",
+    EntityRegister = "5000000000",
+    EntityUpdate = "500000000",
+    EntityResign = "500000000",
 }
 
+// Entity types can be any integer between 0-255 but this enum keeps track of what has been assigned already
 export enum EntityType {
     Business = 0,
-    Bridgechain = 1,
+    Bridgechain = 1, // not used anymore but type is kept in enum
     Developer = 2,
     Plugin = 3,
-}
-
-export enum EntitySubType {
-    None = 0,
-    PluginCore = 1,
-    PluginDesktop = 2,
+    Delegate = 4,
 }
 
 export enum EntityAction {

@@ -1,11 +1,9 @@
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Transactions, Utils } from "@arkecosystem/crypto";
+import { Transactions, Utils, Interfaces } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
 import {
     EntityAction,
-    EntitySubType,
-    EntityType,
     MagistrateTransactionGroup,
     MagistrateTransactionStaticFees,
     MagistrateTransactionType,
@@ -21,14 +19,10 @@ export class EntityTransaction extends Transactions.Transaction {
     public static key: string = "entity";
     public static version: number = 2;
 
-    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(MagistrateTransactionStaticFees.Entity);
-
     public static getSchema(): Transactions.schemas.TransactionSchema {
         const baseAssetDataProps = {
-            type: { enum: [EntityType.Business, EntityType.Bridgechain, EntityType.Developer, EntityType.Plugin] },
-            subType: {
-                enum: [EntitySubType.None, EntitySubType.PluginCore, EntitySubType.PluginDesktop],
-            }, // subType depends on type but the type/subType check is in handler
+            type: { type: "integer", minimum: 0, maximum: 255 },
+            subType: { type: "integer", minimum: 0, maximum: 255 },
             registrationId: { $ref: "transactionId" },
         };
 
@@ -75,12 +69,25 @@ export class EntityTransaction extends Transactions.Transaction {
         });
     }
 
+    public static staticFee(feeContext: { height?: number; data?: Interfaces.ITransactionData } = {}): Utils.BigNumber {
+        // there should always be a feeContext.data except for tx builder when setting default fee in constructor
+        return feeContext?.data?.asset ? this.staticFeeByAction[feeContext.data.asset.action] : this.defaultStaticFee;
+    }
+    protected static staticFeeByAction = {
+        [EntityAction.Register]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityRegister),
+        [EntityAction.Update]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityUpdate),
+        [EntityAction.Resign]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityResign),
+    };
+    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
+        MagistrateTransactionStaticFees.EntityRegister,
+    );
+
     public serialize(): ByteBuffer {
         const { data } = this;
 
         AppUtils.assert.defined<IEntityAsset>(data.asset);
 
-        const asset: IEntityAsset = data.asset;
+        const asset: IEntityAsset = data.asset as IEntityAsset;
 
         const buffer: ByteBuffer = new ByteBuffer();
 

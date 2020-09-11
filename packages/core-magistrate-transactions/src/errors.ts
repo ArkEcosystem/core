@@ -108,3 +108,21 @@ export class EntityWrongSubTypeError extends Errors.TransactionError {
         super("Failed to apply transaction, because the entity asset subtype does not match the wallet one.");
     }
 }
+
+export class EntityDeactivatedError extends Errors.TransactionError {
+    public constructor() {
+        super("Failed to apply transaction, because the entity type is deactivated.");
+    }
+}
+
+export class EntitySenderIsNotDelegateError extends Errors.TransactionError {
+    constructor() {
+        super("Failed to apply transaction, because entity sender wallet is not a delegate.");
+    }
+}
+
+export class EntityNameDoesNotMatchDelegateError extends Errors.TransactionError {
+    constructor() {
+        super("Failed to apply transaction, because entity name does not match delegate name.");
+    }
+}
