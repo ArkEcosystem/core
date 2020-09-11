@@ -596,7 +596,7 @@ describe("TransactionFactory", () => {
 
             entity.forEach((item) => {
                 expect(item.data.id).toBeDefined();
-                expect(item.data.signature).toBeUndefined();
+                expect(item.data.signature).toBeDefined();
                 expect(item.data.type).toBeDefined();
                 expect(item.data.typeGroup).toBeDefined();
                 expect(item.data.fee).toBeDefined();

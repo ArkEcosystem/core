@@ -430,11 +430,17 @@ export class TransactionFactory {
                 Managers.configManager.getMilestone().htlcEnabled = htlcEnabled;
             }
 
+            let sign = true;
+
             if (this.passphraseList && this.passphraseList.length) {
                 for (let i = 0; i < this.passphraseList.length; i++) {
                     this.builder.multiSign(this.passphraseList[i], i);
                 }
-            } else {
+
+                sign = this.builder.constructor.name === "MultiSignatureBuilder";
+            }
+
+            if (sign) {
                 this.builder.sign(this.passphrase);
 
                 if (this.secondPassphrase) {
