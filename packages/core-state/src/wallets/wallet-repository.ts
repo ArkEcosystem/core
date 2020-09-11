@@ -122,7 +122,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return Utils.BigNumber.ZERO;
     }
 
-    public index(wallets: Contracts.State.Wallet | ReadonlyArray<Contracts.State.Wallet>): void {
+    public index(wallets: Contracts.State.Wallet | Contracts.State.Wallet[]): void {
         if (!Array.isArray(wallets)) {
             this.indexWallet(wallets as Contracts.State.Wallet);
         } else {
