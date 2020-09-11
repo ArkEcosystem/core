@@ -1,6 +1,6 @@
 import { SATOSHI } from "../constants";
 import { ITransactionData } from "../interfaces";
-import { configManager } from "../managers/config";
+import { configManager } from "../managers";
 import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
 import { calculateBlockTime, isNewBlockTime } from "./block-time-calculator";

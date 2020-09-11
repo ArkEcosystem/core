@@ -5,14 +5,16 @@ import secrets from "../../internal/passphrases.json";
 import { Signer } from "../../internal/signer";
 import { FactoryBuilder } from "../factory-builder";
 
-const defaultblockTimestampLookup = (height: number): number => {
+const defaultBlockTimestampLookup = (height: number): number => {
+    /* istanbul ignore next */
     if (height === 1) return 0;
-    throw new Error(`Attemped to lookup block with height ${height}, but no lookup implementation was provided`);
+    /* istanbul ignore next */
+    throw new Error(`Attempted to lookup block with height ${height}, but no lookup implementation was provided`);
 };
 
 export const registerBlockFactory = (
     factory: FactoryBuilder,
-    blockTimestampLookup = defaultblockTimestampLookup,
+    blockTimestampLookup = defaultBlockTimestampLookup,
 ): void => {
     factory.set("Block", ({ options }) => {
         let previousBlock;

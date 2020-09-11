@@ -22,18 +22,16 @@ expect.extend({
 
             const parsedBody = JSON.parse(body);
 
-            pass = !!(parsedBody.data as any[]).find(tx => tx.id === transaction.id);
+            pass = !!(parsedBody.data as any[]).find((tx) => tx.id === transaction.id);
 
             error = JSON.stringify(parsedBody.errors);
         } catch (e) {
             error = e.message;
-            console.error(error);
         }
 
         return {
             pass,
-            message: () =>
-                /* istanbul ignore next */
+            message: /* istanbul ignore next */ () =>
                 // @ts-ignore
                 `expected ${transaction.id} ${this.isNot ? "not" : ""} to be unconfirmed (in the pool) ${
                     error ? "(error: " + error + ")" : ""

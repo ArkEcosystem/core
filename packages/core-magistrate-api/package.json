@@ -24,6 +24,8 @@
     "dependencies": {
         "@arkecosystem/core-api": "^3.0.0-alpha.9",
         "@arkecosystem/core-kernel": "^3.0.0-alpha.9",
+        "@arkecosystem/core-magistrate-crypto": "^3.0.0-alpha.9",
+        "@arkecosystem/core-magistrate-transactions": "^3.0.0-alpha.9",
         "@hapi/boom": "^9.0.0",
         "@hapi/hapi": "^19.0.0",
         "@hapi/joi": "^17.1.0"

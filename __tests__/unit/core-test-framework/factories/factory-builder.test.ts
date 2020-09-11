@@ -72,6 +72,13 @@ describe("FactoryBuilder", () => {
             valid: false,
         }));
 
+        factory.get("Transaction").afterMakingState("invalid", ({ entity }) => (entity.hooked = false));
+
+        expect(factory.get("Transaction").withStates("invalid").make()).toEqual({
+            valid: false,
+            hooked: false,
+        });
+
         factory.get("Transaction").afterMakingState("invalid", ({ entity }) => (entity.hooked = true));
 
         expect(factory.get("Transaction").withStates("invalid").make()).toEqual({

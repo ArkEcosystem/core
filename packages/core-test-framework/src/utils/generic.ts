@@ -3,8 +3,10 @@ import { Crypto, Managers, Utils } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
 
 const defaultblockTimestampLookup = (height: number): number => {
+    /* istanbul ignore next */
     if (height === 1) return 0;
-    throw new Error(`Attemped to lookup block with height ${height}, but no lookup implementation was provided`);
+    /* istanbul ignore next */
+    throw new Error(`Attempted to lookup block with height ${height}, but no lookup implementation was provided`);
 };
 
 export const snoozeForBlock = async (
@@ -43,6 +45,7 @@ export const resetBlockchain = async (app: Contracts.Kernel.Application) => {
     const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
     const height: number = blockchain.getLastBlock().data.height;
 
+    /* istanbul ignore else */
     if (height) {
         await blockchain.removeBlocks(height - 1);
     }

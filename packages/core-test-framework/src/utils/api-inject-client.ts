@@ -31,7 +31,7 @@ export class ApiInjectClient {
         return this.getResponse(response);
     }
 
-    private getUrl(path: string, params: Record<string, string | number> = {}): string {
+    private getUrl(path: string, params: Record<string, string | number>): string {
         return path.includes("?")
             ? `${this.server.uri}/api${path}&${querystring.stringify(params)}`
             : `${this.server.uri}/api${path}?${querystring.stringify(params)}`;

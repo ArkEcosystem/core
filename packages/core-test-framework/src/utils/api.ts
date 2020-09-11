@@ -1,8 +1,9 @@
 import "jest-extended";
 
-import { Identifiers } from "@arkecosystem/core-api";
+import { Identifiers, Server } from "@arkecosystem/core-api";
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import querystring from "querystring";
+import { ITransactionData } from "@arkecosystem/crypto/src/interfaces";
 
 import secrets from "../internal/passphrases.json";
 import { TransactionFactory } from "./transaction-factory";
@@ -10,7 +11,7 @@ import { TransactionFactory } from "./transaction-factory";
 export class ApiHelpers {
     public constructor(private readonly app: Contracts.Kernel.Application) {}
 
-    public async request(method, path, params = {}, headers = {}) {
+    public async request(method: string, path: string, params = {}, headers = {}): Promise<any> {
         // Build URL params from _params_ object for GET / DELETE requests
         const getParams = querystring.stringify(params);
         const url = `http://localhost:4003/api/${path}`;
@@ -26,33 +27,30 @@ export class ApiHelpers {
             payload: ["GET", "DELETE"].includes(method) ? {} : params,
         };
 
-        // @ts-ignore
-        const response = await this.app.get(Identifiers.HTTP).inject(injectOptions);
+        const response = await this.app.get<Server>(Identifiers.HTTP).inject(injectOptions);
 
-        const data = typeof response.result === "string" ? JSON.parse(response.result) : response.result;
-
-        Object.assign(response, { data, status: response.statusCode });
+        Object.assign(response, { data: response.result, status: response.statusCode });
 
         return response;
     }
 
-    public expectJson(response) {
+    public expectJson(response): void {
         expect(response.data).toBeObject();
     }
 
-    public expectStatus(response, code) {
+    public expectStatus(response, code): void {
         expect(response.status).toBe(code);
     }
 
-    public expectResource(response) {
+    public expectResource(response): void {
         expect(response.data.data).toBeObject();
     }
 
-    public expectCollection(response) {
+    public expectCollection(response): void {
         expect(Array.isArray(response.data.data)).toBe(true);
     }
 
-    public expectPaginator(response) {
+    public expectPaginator(response): void {
         expect(response.data.meta).toBeObject();
         expect(response.data.meta).toHaveProperty("count");
         expect(response.data.meta).toHaveProperty("pageCount");
@@ -64,13 +62,13 @@ export class ApiHelpers {
         expect(response.data.meta).toHaveProperty("last");
     }
 
-    public expectSuccessful(response, statusCode = 200) {
+    public expectSuccessful(response, statusCode = 200): void {
         this.expectStatus(response, statusCode);
 
         this.expectJson(response);
     }
 
-    public expectError(response, statusCode = 404) {
+    public expectError(response, statusCode = 404): void {
         this.expectStatus(response, statusCode);
 
         this.expectJson(response);
@@ -80,7 +78,7 @@ export class ApiHelpers {
         expect(response.data.message).toBeString();
     }
 
-    public expectTransaction(transaction) {
+    public expectTransaction(transaction): void {
         expect(transaction).toBeObject();
         expect(transaction).toHaveProperty("id");
         expect(transaction).toHaveProperty("blockId");
@@ -90,6 +88,7 @@ export class ApiHelpers {
         expect(transaction).toHaveProperty("fee");
         expect(transaction).toHaveProperty("sender");
 
+        /* istanbul ignore else */
         if ([1, 2].includes(transaction.type)) {
             expect(transaction.recipient).toBeString();
         }
@@ -98,7 +97,7 @@ export class ApiHelpers {
         expect(transaction.confirmations).toBeNumber();
     }
 
-    public expectBlock(block, expected: any = {}) {
+    public expectBlock(block, expected: any = {}): void {
         expect(block).toBeObject();
         expect(block.id).toBeString();
         expect(block.version).toBeNumber();
@@ -117,12 +116,12 @@ export class ApiHelpers {
         expect(block.signature).toBeString();
         expect(block.transactions).toBeNumber();
 
-        for (const attr of Object.keys(expected || {})) {
+        for (const attr of Object.keys(expected)) {
             expect(block[attr]).toEqual(expected[attr]);
         }
     }
 
-    public expectDelegate(delegate, expected: any = {}) {
+    public expectDelegate(delegate, expected: any = {}): void {
         expect(delegate).toBeObject();
         expect(delegate.username).toBeString();
         expect(delegate.address).toBeString();
@@ -137,12 +136,12 @@ export class ApiHelpers {
         expect(delegate.forged.rewards).toBeString();
         expect(delegate.forged.total).toBeString();
 
-        for (const attr of Object.keys(expected || {})) {
+        for (const attr of Object.keys(expected)) {
             expect(delegate[attr]).toBe(expected[attr]);
         }
     }
 
-    public expectWallet(wallet) {
+    public expectWallet(wallet): void {
         expect(wallet).toBeObject();
         expect(wallet).toHaveProperty("address");
         expect(wallet).toHaveProperty("publicKey");
@@ -151,7 +150,7 @@ export class ApiHelpers {
         expect(wallet).toHaveProperty("attributes");
     }
 
-    public expectLock(lock) {
+    public expectLock(lock): void {
         expect(lock).toBeObject();
         expect(lock).toHaveProperty("lockId");
         expect(lock).toHaveProperty("senderPublicKey");
@@ -168,7 +167,7 @@ export class ApiHelpers {
     }
 
     // todo: fix the use of the factory
-    public async createTransfer(passphrase?: string, nonce: number = 0) {
+    public async createTransfer(passphrase?: string, nonce: number = 0): Promise<ITransactionData> {
         const transaction = TransactionFactory.initialize()
             .withVersion(2)
             .transfer("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1", 100000000, "test")
