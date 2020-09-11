@@ -89,6 +89,9 @@ describe("Entity handler", () => {
         walletManager.reindex(senderWallet);
     });
 
+    const registerFee = "5000000000";
+    const updateAndResignFee = "500000000";
+
     describe("register", () => {
         describe("applyToSender", () => {
             it.each([validRegisters])("should set the wallet attribute", async asset => {
@@ -236,16 +239,25 @@ describe("Entity handler", () => {
             );
 
             describe("Entity delegate", () => {
-                const createEntityDelegateTx = name =>
-                    entityBuilder
-                        .asset({
-                            type: EntityType.Delegate,
-                            subType: 0,
-                            action: EntityAction.Register,
-                            data: { name },
-                        })
+                const entityId = "533384534cd561fc17f72be0bb57bf39961954ba0741f53c08e3f463ef19118c";
+                const type = EntityType.Delegate;
+                const subType = 0;
+                const createEntityDelegateTx = (name, action = EntityAction.Register) => {
+                    const asset: any = { type, subType, action, data: { name } };
+                    if (action !== EntityAction.Register) {
+                        asset.registrationId = entityId;
+                        asset.data = {};
+                    }
+                    if (action === EntityAction.Update) {
+                        asset.data = { ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khbttQidPfbpmNZ" };
+                    }
+
+                    return entityBuilder
+                        .asset(asset)
+                        .fee(action === EntityAction.Register ? registerFee : updateAndResignFee)
                         .sign(senderPassphrase)
                         .build();
+                };
 
                 it("should throw when the sender wallet is not a delegate", async () => {
                     const transaction = createEntityDelegateTx("anyname");
@@ -263,6 +275,25 @@ describe("Entity handler", () => {
                     await expect(
                         entityHandler.throwIfCannotBeApplied(transaction, senderWallet, walletManager),
                     ).rejects.toBeInstanceOf(EntityNameDoesNotMatchDelegateError);
+                });
+
+                it("should not throw on update or resign even when delegate does not match", async () => {
+                    // it should not throw because update or resign tx needs first a register tx
+                    // for which the delegate checks must have already be done
+                    const delegateName = "thedelegate";
+                    const transactionResign = createEntityDelegateTx(delegateName, EntityAction.Resign);
+                    const transactionUpdate = createEntityDelegateTx(delegateName, EntityAction.Update);
+
+                    senderWallet.setAttribute("entities", {
+                        [entityId]: { name: "somename", type, subType, data: {} },
+                    });
+
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transactionResign, senderWallet, walletManager),
+                    ).toResolve();
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transactionUpdate, senderWallet, walletManager),
+                    ).toResolve();
                 });
 
                 it("should not throw otherwise", async () => {
