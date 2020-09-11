@@ -96,6 +96,16 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
                     }
                 }
             }
+
+            // specific check for Delegate entity to ensure that the sender delegate username matches the entity name
+            if (transaction.data.asset.type === Enums.EntityType.Delegate) {
+                if (!wallet.hasAttribute("delegate.username")) {
+                    throw new EntitySenderIsNotDelegateError();
+                }
+                if (wallet.getAttribute("delegate.username") !== transaction.data.asset.data.name) {
+                    throw new EntityNameDoesNotMatchDelegateError();
+                }
+            }
         } else {
             // Resign or update share the same checks
             if (!walletEntities[transaction.data.asset.registrationId]) {
@@ -109,15 +119,6 @@ export class EntityTransactionHandler extends IHandlers.TransactionHandler {
             }
             if (walletEntities[transaction.data.asset.registrationId].subType !== transaction.data.asset.subType) {
                 throw new EntityWrongSubTypeError();
-            }
-        }
-
-        if (transaction.data.asset.type === Enums.EntityType.Delegate) {
-            if (!wallet.hasAttribute("delegate.username")) {
-                throw new EntitySenderIsNotDelegateError();
-            }
-            if (wallet.getAttribute("delegate.username") !== transaction.data.asset.data.name) {
-                throw new EntityNameDoesNotMatchDelegateError();
             }
         }
     }
