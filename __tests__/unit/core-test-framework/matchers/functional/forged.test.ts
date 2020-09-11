@@ -2,10 +2,10 @@ import "@packages/core-test-framework/src/matchers/functional/forged";
 import { Interfaces } from "@packages/crypto";
 import got from "got";
 
-let block: Partial<Interfaces.IBlockData>;
+let transaction: Partial<Interfaces.ITransactionData>;
 
 beforeEach(() => {
-    block = {
+    transaction = {
         id: "67219440c617ddaa7b7d102df462773c5b765ca1a1ba0827340f34ff32f495ef",
     };
 });
@@ -18,13 +18,13 @@ describe("Forged", () => {
                 return {
                     body: JSON.stringify({
                         data: {
-                            id: block.id,
+                            id: transaction.id,
                         },
                     }),
                 };
             });
 
-            await expect(block.id).toBeForged();
+            await expect(transaction.id).toBeForged();
             expect(spyOnPost).toHaveBeenCalled();
         });
 
@@ -34,7 +34,7 @@ describe("Forged", () => {
                 throw new Error();
             });
 
-            await expect(block.id).not.toBeForged();
+            await expect(transaction.id).not.toBeForged();
             expect(spyOnPost).toHaveBeenCalled();
         });
     });
