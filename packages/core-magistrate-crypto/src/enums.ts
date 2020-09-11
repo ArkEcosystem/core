@@ -25,9 +25,9 @@ export enum MagistrateTransactionStaticFees {
 // Entity types can be any integer between 0-255 but this enum keeps track of what has been assigned already
 export enum EntityType {
     Business = 0,
-    Bridgechain = 1, // not used anymore but type is kept in enum
-    Developer = 2,
-    Plugin = 3,
+    Product = 1,
+    Plugin = 2,
+    Module = 3,
     Delegate = 4,
 }
 

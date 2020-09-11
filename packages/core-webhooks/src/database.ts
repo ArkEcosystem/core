@@ -46,6 +46,7 @@ export class Database {
      * @memberof Database
      */
     public all(): Webhook[] {
+        // @ts-ignore
         return this.database.get("webhooks", []).value();
     }
 
@@ -64,6 +65,7 @@ export class Database {
      * @memberof Database
      */
     public findById(id: string): Webhook | undefined {
+        // @ts-ignore
         return this.database.get("webhooks").find({ id }).value();
     }
 
@@ -73,6 +75,7 @@ export class Database {
      * @memberof Database
      */
     public findByEvent(event: string): Webhook[] {
+        // @ts-ignore
         return this.database.get("webhooks").filter({ event }).value();
     }
 
@@ -84,6 +87,7 @@ export class Database {
     public create(data: Webhook): Webhook | undefined {
         data.id = uuidv4();
 
+        // @ts-ignore
         this.database.get("webhooks").push(data).write();
 
         return this.findById(data.id);
@@ -96,6 +100,7 @@ export class Database {
      * @memberof Database
      */
     public update(id: string, data: Webhook): Webhook {
+        // @ts-ignore
         return this.database.get("webhooks").find({ id }).assign(data).write();
     }
 
@@ -104,6 +109,7 @@ export class Database {
      * @memberof Database
      */
     public destroy(id: string): void {
+        // @ts-ignore
         this.database.get("webhooks").remove({ id }).write();
     }
 }

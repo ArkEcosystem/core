@@ -109,12 +109,6 @@ export class EntityWrongSubTypeError extends Errors.TransactionError {
     }
 }
 
-export class EntityDeactivatedError extends Errors.TransactionError {
-    public constructor() {
-        super("Failed to apply transaction, because the entity type is deactivated.");
-    }
-}
-
 export class EntitySenderIsNotDelegateError extends Errors.TransactionError {
     constructor() {
         super("Failed to apply transaction, because entity sender wallet is not a delegate.");

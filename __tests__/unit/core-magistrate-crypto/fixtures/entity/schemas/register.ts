@@ -11,11 +11,11 @@ export const validRegisters: Interfaces.IEntityAsset[] = [
         },
     },
     ...validAssetData.map(data => ({
-        type: Enums.EntityType.Developer,
+        type: Enums.EntityType.Module,
         subType: 0,
         action: Enums.EntityAction.Register,
         data: {
-            name: "my_developer",
+            name: "my_module",
             ...data,
         },
     })),
@@ -77,11 +77,11 @@ export const invalidRegisters: Interfaces.IEntityAsset[] = [
         },
     },
     ...invalidAssetData.map(data => ({
-        type: Enums.EntityType.Developer,
+        type: Enums.EntityType.Module,
         subType: 0,
         action: Enums.EntityAction.Update,
         data: {
-            name: "my developer",
+            name: "my_module",
             ...data,
         },
     })),
