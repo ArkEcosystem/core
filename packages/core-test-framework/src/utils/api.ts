@@ -148,8 +148,6 @@ export class ApiHelpers {
         expect(wallet).toHaveProperty("nonce");
         expect(wallet).toHaveProperty("balance");
         expect(wallet).toHaveProperty("attributes");
-        expect(wallet).toHaveProperty("isDelegate");
-        expect(wallet).toHaveProperty("isResigned");
     }
 
     public expectLock(lock): void {
