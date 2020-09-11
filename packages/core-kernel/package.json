@@ -28,6 +28,7 @@
         "chalk": "^4.0.0",
         "cron": "^1.7.2",
         "dayjs": "^1.8.17",
+        "deepmerge": "^4.2.2",
         "env-paths": "^2.2.0",
         "fs-extra": "^8.1.0",
         "import-fresh": "^3.2.1",

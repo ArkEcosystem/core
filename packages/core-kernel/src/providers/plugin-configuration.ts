@@ -1,3 +1,4 @@
+import deepmerge from "deepmerge";
 import { get, has, set, unset } from "@arkecosystem/utils";
 
 import { Identifiers, inject, injectable } from "../ioc";
@@ -68,8 +69,10 @@ export class PluginConfiguration {
      * @returns {this}
      * @memberof PluginConfiguration
      */
-    public merge(values: JsonObject): this {
-        this.items = { ...this.items, ...values };
+    public merge(values: JsonObject | undefined): this {
+        if (values) {
+            this.items = deepmerge(this.items, values);
+        }
 
         return this;
     }
@@ -186,6 +189,6 @@ export class PluginConfiguration {
             return;
         }
 
-        this.merge(this.configRepository.get(`app.pluginOptions.${name}`) || {});
+        this.merge(this.configRepository.get(`app.pluginOptions.${name}`));
     }
 }
