@@ -76,6 +76,18 @@ export class ValidConfigurationServiceProvider extends ServiceProvider {
     }
 }
 
+export class RequiredDependencyCanBeFoundServiceProvider extends ServiceProvider {
+    public async register(): Promise<void> {}
+
+    public name(): string {
+        return "stub";
+    }
+
+    public dependencies(): PluginDependency[] {
+        return [{ name: "dep", required: true }];
+    }
+}
+
 export class RequiredDependencyCannotBeFoundServiceProvider extends ServiceProvider {
     public async register(): Promise<void> {}
 

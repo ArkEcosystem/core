@@ -349,8 +349,16 @@ describe("MemoryEventDispatcher", () => {
     });
 
     describe(".getListeners", () => {
+        it("should return all listeners", () => {
+            emitter.listen("firstEvent", dummyListener);
+            emitter.listen("secondEvent", dummyListener);
+
+            expect(emitter.getListeners()).toEqual([dummyListener, dummyListener]);
+        });
+
         it("should return all listeners for the given event", () => {
             emitter.listen("firstEvent", dummyListener);
+            emitter.listen("secondEvent", dummyListener);
 
             expect(emitter.getListeners("firstEvent")).toEqual([dummyListener]);
         });

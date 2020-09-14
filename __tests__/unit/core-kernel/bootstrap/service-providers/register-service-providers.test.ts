@@ -27,6 +27,7 @@ import {
     StubServiceProvider,
     ValidConfigurationServiceProvider,
     RequiredDependencyVersionCanBeSatisfiedServiceProvider,
+    RequiredDependencyCanBeFoundServiceProvider,
 } from "./__stubs__/service-providers";
 
 let app: Application;
@@ -129,6 +130,22 @@ describe("RegisterServiceProviders", () => {
         expect(spyNotice).toHaveBeenCalledWith(
             'The "stub" package is required but missing. Please, make sure to install this library to take advantage of deps-required.',
         );
+    });
+
+    it("should bootstrap if a required dependency can be found", async () => {
+        const serviceProvider: ServiceProvider = new RequiredDependencyCanBeFoundServiceProvider();
+        serviceProvider.setManifest(app.resolve(PluginManifest));
+        serviceProvider.setConfig(app.resolve(PluginConfiguration));
+        serviceProviderRepository.set("stub", serviceProvider);
+        serviceProviderRepository.set("dep", new StubServiceProvider());
+
+        const spyNotice = jest.spyOn(logger, "notice");
+        const spyTerminate = jest.spyOn(app, "terminate");
+        await app.resolve<RegisterServiceProviders>(RegisterServiceProviders).bootstrap();
+
+        expect(serviceProviderRepository.failed("stub")).toBeFalse();
+        expect(spyNotice).not.toHaveBeenCalled();
+        expect(spyTerminate).not.toHaveBeenCalled();
     });
 
     it("should terminate if a required (async) dependency cannot be found", async () => {

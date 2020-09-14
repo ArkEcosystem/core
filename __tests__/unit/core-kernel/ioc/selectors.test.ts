@@ -1,5 +1,5 @@
-import { Container, inject, injectable, tagged } from "../../../../packages/core-kernel/src/ioc";
-import { anyAncestorOrTargetTaggedFirst } from "../../../../packages/core-kernel/src/ioc/selectors";
+import { anyAncestorOrTargetTaggedFirst } from "@packages/core-kernel/src/ioc/selectors";
+import { Container, inject, injectable, tagged } from "@packages/core-kernel/src/ioc";
 
 interface WalletRepository {}
 
@@ -20,7 +20,14 @@ class TransactionHandler {
 }
 
 @injectable()
-class TransactionHandlerUndefined {
+class TransactionHandlerUnknownKey {
+    @inject("WalletRepository")
+    @tagged("undefined", "blockchain")
+    public readonly walletRepository!: WalletRepository;
+}
+
+@injectable()
+class TransactionHandlerUnknownValue {
     @inject("WalletRepository")
     @tagged("state", "undefined")
     public readonly walletRepository!: WalletRepository;
@@ -75,7 +82,11 @@ describe("anyAncestorOrTargetTaggedFirst", () => {
         expect(() => container.resolve(TransactionHandler)).toThrow();
     });
 
-    it("should not match when attempting to load with undefined tag", () => {
-        expect(() => container.resolve(TransactionHandlerUndefined)).toThrow();
+    it("should not match when attempting to load with unknown key tag", () => {
+        expect(() => container.resolve(TransactionHandlerUnknownKey)).toThrow();
+    });
+
+    it("should not match when attempting to load with unknown value tag", () => {
+        expect(() => container.resolve(TransactionHandlerUnknownValue)).toThrow();
     });
 });
