@@ -106,7 +106,7 @@ export class RegisterServiceProviders implements Bootstrapper {
                 throw new InvalidPluginConfiguration(serviceProviderName, validator.errors());
             }
 
-            serviceProvider.setConfig(config.merge(validator.valid() || {}));
+            serviceProvider.setConfig(config.merge(/* istanbul ignore next */ validator.valid() || {}));
         }
     }
 

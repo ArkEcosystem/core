@@ -112,6 +112,18 @@ export class OptionalDependencyCannotBeFoundServiceProvider extends ServiceProvi
     }
 }
 
+export class RequiredDependencyVersionCanBeSatisfiedServiceProvider extends ServiceProvider {
+    public async register(): Promise<void> {}
+
+    public name(): string {
+        return "stub";
+    }
+
+    public dependencies(): PluginDependency[] {
+        return [{ name: "dep", version: "<=2.0.0", required: true }];
+    }
+}
+
 export class RequiredDependencyVersionCannotBeSatisfiedServiceProvider extends ServiceProvider {
     public async register(): Promise<void> {}
 

@@ -20,6 +20,13 @@ class TransactionHandler {
 }
 
 @injectable()
+class TransactionHandlerUndefined {
+    @inject("WalletRepository")
+    @tagged("state", "undefined")
+    public readonly walletRepository!: WalletRepository;
+}
+
+@injectable()
 class BlockchainState {
     @inject("TransactionHandler")
     @tagged("state", "blockchain")
@@ -66,5 +73,9 @@ describe("anyAncestorOrTargetTaggedFirst", () => {
 
     it("should not match when attempting to load without tag", () => {
         expect(() => container.resolve(TransactionHandler)).toThrow();
+    });
+
+    it("should not match when attempting to load with undefined tag", () => {
+        expect(() => container.resolve(TransactionHandlerUndefined)).toThrow();
     });
 });
