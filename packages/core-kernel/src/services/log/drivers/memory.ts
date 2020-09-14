@@ -158,7 +158,7 @@ export class MemoryLogger implements Logger {
      * @memberof MemoryLogger
      */
     private getTimestampDiff(): string {
-        const diff: number = this.lastTimestamp ? dayjs().diff(this.lastTimestamp) : 0;
+        const diff: number = dayjs().diff(this.lastTimestamp);
 
         this.lastTimestamp = dayjs.utc();
 
