@@ -645,12 +645,9 @@ describe("API 2.0 - Transactions", () => {
                     vote: "100000000",
                 },
                 "2": {
-                    bridgechainRegistration: "5000000000",
-                    bridgechainResignation: "5000000000",
-                    bridgechainUpdate: "5000000000",
-                    businessRegistration: "5000000000",
-                    businessResignation: "5000000000",
-                    businessUpdate: "5000000000",
+                    entityRegistration: "5000000000",
+                    entityResignation: "500000000",
+                    entityUpdate: "500000000",
                 },
             });
         });
