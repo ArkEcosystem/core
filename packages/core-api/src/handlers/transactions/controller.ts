@@ -170,7 +170,32 @@ export class TransactionsController extends Controller {
                 typeGroups[typeGroup][key] = constructor.staticFee({ height: currentHeight }).toFixed();
             }
 
-            return { data: typeGroups };
+            return {
+                data: {
+                    ...typeGroups,
+                    // TODO remove below in 3.0 and extend api response from magistrate
+                    "2": {
+                        entityRegistration: {
+                            avg: "5000000000",
+                            max: "5000000000",
+                            min: "5000000000",
+                            sum: "0",
+                        },
+                        entityResignation: {
+                            avg: "500000000",
+                            max: "500000000",
+                            min: "500000000",
+                            sum: "0",
+                        },
+                        entityUpdate: {
+                            avg: "500000000",
+                            max: "500000000",
+                            min: "500000000",
+                            sum: "0",
+                        },
+                    },
+                },
+            };
         } catch (error) {
             return Boom.badImplementation(error);
         }
