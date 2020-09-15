@@ -60,7 +60,7 @@ export class CoreGenerator extends Generator {
         if (this.options.core.peers) {
             writeJSONSync(filePath, this.options.core.peers, { spaces: 4 });
         } else {
-            writeJSONSync(filePath, this.options.core.peers ?? { list: [] }, { spaces: 4 });
+            writeJSONSync(filePath, { list: [] }, { spaces: 4 });
         }
     }
 

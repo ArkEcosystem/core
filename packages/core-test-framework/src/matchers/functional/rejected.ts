@@ -30,8 +30,7 @@ expect.extend({
 
         return {
             pass,
-            message: () =>
-                /* istanbul ignore next */
+            message: /* istanbul ignore next */ () =>
                 // @ts-ignore
                 `expected ${transaction.id} ${this.isNot ? "not" : ""} to be rejected, but: ${response}`,
         };
@@ -59,8 +58,7 @@ expect.extend({
 
         return {
             pass,
-            message: () =>
-                /* istanbul ignore next */
+            message: /* istanbul ignore next */ () =>
                 // @ts-ignore
                 `expected transactions ${this.isNot ? "not" : ""} to be rejected, but: ${response}`,
         };

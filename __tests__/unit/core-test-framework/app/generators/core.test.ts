@@ -1,9 +1,11 @@
 import "jest-extended";
+import _ from "lodash";
 
-import fsExtra from "fs-extra";
-import { PathLike } from "fs";
-import { CoreGenerator } from "@packages/core-test-framework/src/app/generators/core";
 import { CoreConfigPaths } from "@packages/core-test-framework/src";
+import { CoreGenerator } from "@packages/core-test-framework/src/app/generators/core";
+import { PathLike } from "fs";
+import fsExtra from "fs-extra";
+
 import { sandboxOptions } from "./__fixtures__/assets";
 
 afterEach(() => {
@@ -12,9 +14,9 @@ afterEach(() => {
 
 describe("CoreGenerator", () => {
     it("should generate core config paths", async () => {
-        let generator: CoreGenerator = new CoreGenerator();
+        const generator: CoreGenerator = new CoreGenerator();
 
-        let result: CoreConfigPaths = generator.generate();
+        const result: CoreConfigPaths = generator.generate();
 
         expect(result.root).toBeString();
         expect(result.env).toBeString();
@@ -24,9 +26,9 @@ describe("CoreGenerator", () => {
     });
 
     it("should generate core config paths with options", async () => {
-        let generator: CoreGenerator = new CoreGenerator(sandboxOptions);
+        const generator: CoreGenerator = new CoreGenerator(sandboxOptions);
 
-        let result: CoreConfigPaths = generator.generate();
+        const result: CoreConfigPaths = generator.generate();
 
         expect(result.root).toBeString();
         expect(result.env).toBeString();
@@ -35,12 +37,13 @@ describe("CoreGenerator", () => {
         expect(result.peers).toBeString();
     });
 
+
     it("should throw error if destination already exist", async () => {
         jest.spyOn(fsExtra, "existsSync").mockImplementation((path: PathLike): boolean => {
             return true;
         });
 
-        let generator: CoreGenerator = new CoreGenerator();
+        const generator: CoreGenerator = new CoreGenerator();
 
         expect(() => {
             generator.generate();

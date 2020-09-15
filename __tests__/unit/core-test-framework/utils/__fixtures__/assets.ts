@@ -1,5 +1,6 @@
-import { HtlcLockExpirationType } from "@packages/crypto/src/enums";
+import { EntityAction, EntitySubType, EntityType } from "@packages/core-magistrate-crypto/src/enums";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
+import { HtlcLockExpirationType } from "@packages/crypto/src/enums";
 
 export const paginationResponseMeta = {
     count: 100,
@@ -186,3 +187,13 @@ export const passphrasePairsAsset = [
         secondPassphrase: passphrases[4],
     },
 ];
+
+export const entityAsset = {
+    type: EntityType.Bridgechain,
+    subType: EntitySubType.None,
+    action: EntityAction.Register,
+    data: {
+        name: "DummyName",
+        ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ",
+    },
+};

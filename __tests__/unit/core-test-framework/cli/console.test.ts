@@ -1,10 +1,10 @@
 import "jest-extended";
 
-import { Console } from "@packages/core-test-framework/src";
-import { Commands, Container } from "@packages/core-cli";
 import Joi from "@hapi/joi";
+import { Commands, Container } from "@packages/core-cli";
+import { Console } from "@packages/core-test-framework/src";
 
-let spyOnExecute = jest.fn();
+const spyOnExecute = jest.fn();
 
 @Container.injectable()
 export class Command extends Commands.Command {
@@ -48,26 +48,65 @@ export class Command extends Commands.Command {
     }
 }
 
+afterEach(() => {
+    jest.clearAllMocks();
+});
+
 describe("Console", () => {
-    it("should execute", async () => {
-        let console = new Console();
+    describe("with default flags", () => {
+        it("should execute", async () => {
+            const console = new Console();
 
-        await expect(console.execute(Command)).toResolve();
-        expect(spyOnExecute).toHaveBeenCalledWith("test");
+            await expect(console.execute(Command)).toResolve();
+            expect(spyOnExecute).toHaveBeenCalledWith("test");
+        });
+
+        it("should execute with flags", async () => {
+            const console = new Console();
+
+            await expect(console.withFlags({ test: "flag_test" }).execute(Command)).toResolve();
+            expect(spyOnExecute).toHaveBeenCalledWith("flag_test");
+        });
+
+        // TODO: Add support for arguments in console class
+        it("should execute with arguments", async () => {
+            const console = new Console();
+
+            await expect(console.withArgs(["-test_arg test123"]).execute(Command)).toResolve();
+            expect(spyOnExecute).toHaveBeenCalledWith("test");
+        });
     });
 
-    it("should execute with flags", async () => {
-        let console = new Console();
+    describe("without default flags", () => {
+        it("should reject due missing flags", async () => {
+            const console = new Console(false);
 
-        await expect(console.withFlags({ test: "flag_test" }).execute(Command)).toResolve();
-        expect(spyOnExecute).toHaveBeenCalledWith("flag_test");
-    });
+            await expect(console.execute(Command)).toReject();
+            expect(spyOnExecute).not.toHaveBeenCalled();
+        });
 
-    // TODO: Add support for arguments in console class
-    it("should execute with arguments", async () => {
-        let console = new Console();
+        it("should execute with flags", async () => {
+            const console = new Console(false);
 
-        await expect(console.withArgs(["-test_arg test123"]).execute(Command)).toResolve();
-        expect(spyOnExecute).toHaveBeenCalledWith("test");
+            await expect(
+                console
+                    .withFlags({ test: "flag_test", token: "dummy_token", network: "dummy_network" })
+                    .execute(Command),
+            ).toResolve();
+            expect(spyOnExecute).toHaveBeenCalledWith("flag_test");
+        });
+
+        // TODO: Add support for arguments in console class
+        it("should execute with arguments", async () => {
+            const console = new Console(false);
+
+            await expect(
+                console
+                    .withFlags({ token: "dummy_token", network: "dummy_network" })
+                    .withArgs(["-test_arg test123"])
+                    .execute(Command),
+            ).toResolve();
+            expect(spyOnExecute).toHaveBeenCalledWith("test");
+        });
     });
 });

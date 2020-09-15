@@ -1,9 +1,9 @@
 import "jest-extended";
 
 import { Utils } from "@packages/core-kernel";
-import { Blocks, Interfaces } from "@packages/crypto";
-import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Generators } from "@packages/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import { Blocks, Interfaces } from "@packages/crypto";
 
 let factory: FactoryBuilder;
 
@@ -103,7 +103,7 @@ describe("BlockFactory", () => {
     });
 
     it("should create a single block with transactions in options", () => {
-        let config = Generators.generateCryptoConfigRaw();
+        const config = Generators.generateCryptoConfigRaw();
 
         const options = {
             transactionsCount: 1,

@@ -16,7 +16,6 @@ export interface WalletIndex {
     keys(): string[];
     walletKeys(wallet: Wallet): string[];
     clear(): void;
-    clone(): WalletIndex;
 }
 
 export type WalletIndexer = (index: WalletIndex, wallet: Wallet) => void;
