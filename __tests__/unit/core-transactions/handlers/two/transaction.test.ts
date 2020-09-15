@@ -15,9 +15,9 @@ import {
     InvalidSecondSignatureError,
     LegacyMultiSignatureError,
     SenderWalletMismatchError,
-    UnexpectedMultiSignatureError,
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
+    InvalidMultiSignaturesError
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -276,7 +276,7 @@ describe("General Tests", () => {
             const multiSigWallet = buildSenderWallet(factoryBuilder);
             multiSigWallet.setAttribute("multiSignature", multiSignatureAsset);
             await expect(handler.throwIfCannotBeApplied(transferTransaction, multiSigWallet)).rejects.toThrowError(
-                UnexpectedMultiSignatureError,
+                InvalidMultiSignaturesError,
             );
         });
 
@@ -303,7 +303,7 @@ describe("General Tests", () => {
                 "02687bd0f4a91be39daf648a5b1e1af5ffa4a3d4319b2e38b1fc2dc206db03f542f3b26c4803e0b4c8a53ddfb6cf4533b512d71ae869d4e4ccba989c4a4222396b",
             ];
             await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet)).rejects.toThrowError(
-                UnexpectedMultiSignatureError,
+                InvalidMultiSignaturesError,
             );
         });
 

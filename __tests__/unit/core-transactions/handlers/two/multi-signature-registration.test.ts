@@ -15,7 +15,7 @@ import {
     MultiSignatureAlreadyRegisteredError,
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
-    UnexpectedMultiSignatureError,
+    LegacyMultiSignatureRegistrationError,
 } from "@packages/core-transactions/src/errors";
 import { TransactionHandler } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -230,7 +230,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             handler.verifySignatures = jest.fn().mockReturnValue(true);
 
             await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet)).rejects.toThrow(
-                UnexpectedMultiSignatureError,
+                LegacyMultiSignatureRegistrationError,
             );
         });
 
