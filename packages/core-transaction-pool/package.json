@@ -25,11 +25,11 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-database": "^3.0.0-alpha.9",
-        "@arkecosystem/core-kernel": "^3.0.0-alpha.9",
-        "@arkecosystem/core-state": "^3.0.0-alpha.9",
-        "@arkecosystem/core-transactions": "^3.0.0-alpha.9",
-        "@arkecosystem/crypto": "^3.0.0-alpha.9",
+        "@arkecosystem/core-database": "workspace:packages/core-database",
+        "@arkecosystem/core-kernel": "workspace:packages/core-kernel",
+        "@arkecosystem/core-state": "workspace:packages/core-state",
+        "@arkecosystem/core-transactions": "workspace:packages/core-transactions",
+        "@arkecosystem/crypto": "workspace:packages/crypto",
         "@types/better-sqlite3": "^5.4.0",
         "@types/fs-extra": "^8.0.1",
         "better-sqlite3": "^7.0.0",

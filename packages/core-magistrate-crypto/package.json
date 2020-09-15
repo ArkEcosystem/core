@@ -21,8 +21,8 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-alpha.9",
-        "@arkecosystem/crypto": "^3.0.0-alpha.9",
+        "@arkecosystem/core-kernel": "workspace:packages/core-kernel",
+        "@arkecosystem/crypto": "workspace:packages/crypto",
         "bytebuffer": "^5.0.1"
     }
 }

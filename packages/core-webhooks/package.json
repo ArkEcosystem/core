@@ -20,8 +20,8 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-alpha.9",
-        "@arkecosystem/crypto": "^3.0.0-alpha.9",
+        "@arkecosystem/core-kernel": "workspace:packages/core-kernel",
+        "@arkecosystem/crypto": "workspace:packages/crypto",
         "@hapi/boom": "^9.0.0",
         "@hapi/hapi": "^19.0.0",
         "@hapi/joi": "^17.1.0",

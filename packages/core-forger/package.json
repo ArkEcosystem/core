@@ -22,10 +22,10 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-database": "^3.0.0-alpha.9",
-        "@arkecosystem/core-kernel": "^3.0.0-alpha.9",
-        "@arkecosystem/core-p2p": "^3.0.0-alpha.9",
-        "@arkecosystem/crypto": "^3.0.0-alpha.9",
+        "@arkecosystem/core-database": "workspace:packages/core-database",
+        "@arkecosystem/core-kernel": "workspace:packages/core-kernel",
+        "@arkecosystem/core-p2p": "workspace:packages/core-p2p",
+        "@arkecosystem/crypto": "workspace:packages/crypto",
         "@hapi/hapi": "^19.0.0",
         "node-forge": "^0.9.1",
         "otplib": "^12.0.0",

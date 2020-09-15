@@ -20,7 +20,7 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-alpha.9",
+        "@arkecosystem/core-kernel": "workspace:packages/core-kernel",
         "chalk": "^4.0.0",
         "pino": "^6.0.0",
         "pino-pretty": "^4.0.0",

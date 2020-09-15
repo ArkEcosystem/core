@@ -22,10 +22,10 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-database": "^3.0.0-alpha.9",
-        "@arkecosystem/core-kernel": "^3.0.0-alpha.9",
-        "@arkecosystem/core-transactions": "^3.0.0-alpha.9",
-        "@arkecosystem/crypto": "^3.0.0-alpha.9",
+        "@arkecosystem/core-database": "workspace:packages/core-database",
+        "@arkecosystem/core-kernel": "workspace:packages/core-kernel",
+        "@arkecosystem/core-transactions": "workspace:packages/core-transactions",
+        "@arkecosystem/crypto": "workspace:packages/crypto",
         "@arkecosystem/utils": "^1.2.0",
         "immutable": "^4.0.0-rc.12"
     },
