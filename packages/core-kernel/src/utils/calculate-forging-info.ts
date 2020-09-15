@@ -27,6 +27,21 @@ export const getMilestonesWhichAffectActiveDelegateCount = (): Array<MilestoneSe
     return milestones;
 };
 
+export const calculateForgingInfo = (
+    timestamp: number,
+    height: number,
+    getTimeStampForBlock: (blockheight: number) => number,
+): ForgingInfo => {
+    const slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock, timestamp, height);
+
+    const indexes = findIndex(height, slotInfo.slotNumber, getTimeStampForBlock);
+    const currentForger = indexes[0];
+    const nextForger = indexes[1];
+    const canForge = slotInfo.forgingStatus;
+
+    return { currentForger, nextForger, blockTimestamp: slotInfo.startTime, canForge };
+};
+
 const findIndex = (
     height: number,
     slotNumber: number,
@@ -86,19 +101,4 @@ const findIndex = (
     }
 
     return [currentForger, nextForger];
-};
-
-export const calculateForgingInfo = (
-    timestamp: number,
-    height: number,
-    getTimeStampForBlock: (blockheight: number) => number,
-): ForgingInfo => {
-    const slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock, timestamp, height);
-
-    const indexes = findIndex(height, slotInfo.slotNumber, getTimeStampForBlock);
-    const currentForger = indexes[0];
-    const nextForger = indexes[1];
-    const canForge = slotInfo.forgingStatus;
-
-    return { currentForger, nextForger, blockTimestamp: slotInfo.startTime, canForge };
 };
