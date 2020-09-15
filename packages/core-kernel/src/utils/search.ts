@@ -122,6 +122,7 @@ export const handleNumericCriteria = async <TEntity, TProperty extends keyof TEn
         if ("from" in criteria) {
             return { op: "greaterThanEqual", property, value: criteria.from };
         }
+        /* istanbul ignore else */
         if ("to" in criteria) {
             return { op: "lessThanEqual", property, value: criteria.to };
         }
