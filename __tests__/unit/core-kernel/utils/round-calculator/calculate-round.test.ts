@@ -44,20 +44,53 @@ describe("Round Calculator", () => {
                     { height: 131, round: 20, roundHeight: 131, nextRound: 20, activeDelegates: 51 },
                 ];
 
+                const anotherTestVector = [
+                    // { height: 1, round: 1, roundHeight: 1, nextRound: 1, activeDelegates: 2 },
+                    { height: 2, round: 1, roundHeight: 1, nextRound: 2, activeDelegates: 2 },
+                    // { height: 3, round: 2, roundHeight: 3, nextRound: 2, activeDelegates: 3 },
+                    { height: 4, round: 2, roundHeight: 3, nextRound: 2, activeDelegates: 3 },
+                    { height: 5, round: 2, roundHeight: 3, nextRound: 3, activeDelegates: 3 },
+                    // { height: 6, round: 3, roundHeight: 6, nextRound: 4, activeDelegates: 1 },
+                    { height: 7, round: 4, roundHeight: 7, nextRound: 5, activeDelegates: 1 },
+                    { height: 9, round: 6, roundHeight: 9, nextRound: 7, activeDelegates: 1 },
+                    // { height: 10, round: 7, roundHeight: 10, nextRound: 7, activeDelegates: 51 },
+                    { height: 60, round: 7, roundHeight: 10, nextRound: 8, activeDelegates: 51 },
+                    { height: 61, round: 8, roundHeight: 61, nextRound: 8, activeDelegates: 51 },
+                ];
+
                 const milestones = testVector.reduce((acc, vector) => acc.set(vector.height, vector), new Map());
 
                 Managers.configManager.set("milestones", [...milestones.values()]);
 
                 Managers.configManager.getMilestone = jest.fn().mockImplementation((height) => milestones.get(height));
 
-                testVector.forEach(({ height, round, roundHeight, nextRound, activeDelegates }) => {
-                    const result = calculateRound(height);
-                    expect(result.round).toBe(round);
-                    expect(result.roundHeight).toBe(roundHeight);
-                    expect(isNewRound(result.roundHeight)).toBeTrue();
-                    expect(result.nextRound).toBe(nextRound);
-                    expect(result.maxDelegates).toBe(activeDelegates);
-                });
+                testVector
+                    .concat(anotherTestVector)
+                    .forEach(({ height, round, roundHeight, nextRound, activeDelegates }) => {
+                        const result = calculateRound(height);
+                        expect(result.round).toBe(round);
+                        expect(result.roundHeight).toBe(roundHeight);
+                        expect(isNewRound(result.roundHeight)).toBeTrue();
+                        expect(result.nextRound).toBe(nextRound);
+                        expect(result.maxDelegates).toBe(activeDelegates);
+                    });
+            });
+
+            it("should throw if active delegates is not changed on new round", () => {
+                const testVector = [
+                    { height: 1, round: 1, roundHeight: 1, nextRound: 1, activeDelegates: 3 },
+                    { height: 3, round: 2, roundHeight: 3, nextRound: 2, activeDelegates: 4 },
+                ];
+
+                const milestones = testVector.reduce((acc, vector) => acc.set(vector.height, vector), new Map());
+
+                Managers.configManager.set("milestones", [...milestones.values()]);
+
+                Managers.configManager.getMilestone = jest.fn().mockImplementation((height) => milestones.get(height));
+
+                calculateRound(1);
+                calculateRound(2);
+                expect(() => calculateRound(3)).toThrowError();
             });
         });
     });

@@ -3,7 +3,6 @@ import assert from "assert";
 
 import { RoundInfo } from "../contracts/shared";
 
-// todo: review the implementation
 export const isNewRound = (height: number): boolean => {
     const milestones = Managers.configManager.get("milestones");
 
@@ -25,16 +24,16 @@ export const isNewRound = (height: number): boolean => {
     return height === 1 || (height - milestone.height) % milestone.activeDelegates === 0;
 };
 
-// todo: review the implementation
 export const calculateRound = (height: number): RoundInfo => {
     const milestones = Managers.configManager.get("milestones");
 
-    let round = 0;
-    let roundHeight = 1;
-    let nextRound = 0;
-    let maxDelegates = 0;
+    const result: RoundInfo = {
+        round: 0,
+        roundHeight: 1,
+        nextRound: 0,
+        maxDelegates: 0,
+    };
 
-    let milestoneHeight: number = height;
     let milestone;
 
     for (let i = 0, j = 0; i < milestones.length; i++) {
@@ -42,48 +41,48 @@ export const calculateRound = (height: number): RoundInfo => {
             milestone = milestones[i];
         }
 
-        maxDelegates = milestone.activeDelegates;
+        result.maxDelegates = milestone.activeDelegates;
 
-        let delegateCountChanged = false;
         let nextMilestoneHeight = milestone.height;
 
+        // Find next milestone that introduces delegate count change
         for (j = i + 1; j < milestones.length; j++) {
             const nextMilestone = milestones[j];
             if (nextMilestone.height > height) {
                 break;
             }
 
-            if (
-                nextMilestone.activeDelegates !== milestone.activeDelegates &&
-                nextMilestone.height > milestone.height
-            ) {
+            // If delegate count changed
+            if (nextMilestone.activeDelegates !== milestone.activeDelegates) {
                 assert(isNewRound(nextMilestone.height));
-                delegateCountChanged = true;
-                maxDelegates = nextMilestone.activeDelegates;
-                milestoneHeight = nextMilestone.height - milestone.height;
+                const milestoneHeight = nextMilestone.height - milestone.height;
+                assert(milestoneHeight % milestone.activeDelegates === 0);
+
+                result.maxDelegates = nextMilestone.activeDelegates;
+                result.round += milestoneHeight / milestone.activeDelegates;
+                result.roundHeight += milestoneHeight;
+
                 nextMilestoneHeight = nextMilestone.height;
                 i = j - 1;
+
                 break;
             }
         }
 
-        if (delegateCountChanged) {
-            assert(milestoneHeight % milestone.activeDelegates === 0);
-            round += milestoneHeight / milestone.activeDelegates;
-            roundHeight += milestoneHeight;
-        }
-
+        // If reached last relevant milestone
         if (i === milestones.length - 1 || milestones[i + 1].height > height) {
             const roundIncrease =
-                Math.floor((height - nextMilestoneHeight) / maxDelegates) + (delegateCountChanged ? 0 : 1);
-            round += roundIncrease;
-            roundHeight += (roundIncrease - 1) * maxDelegates;
-            nextRound = round + ((height - (nextMilestoneHeight - 1)) % maxDelegates === 0 ? 1 : 0);
+                Math.floor((height - nextMilestoneHeight) / result.maxDelegates) + 1;
+
+            const nextRoundIncrease = (height - (nextMilestoneHeight - 1)) % result.maxDelegates === 0 ? 1 : 0;
+
+            result.round += roundIncrease;
+            result.roundHeight += (roundIncrease - 1) * result.maxDelegates;
+            result.nextRound = result.round + nextRoundIncrease;
+
             break;
         }
-
-        delegateCountChanged = false;
     }
 
-    return { round, roundHeight, nextRound, maxDelegates };
+    return result;
 };
