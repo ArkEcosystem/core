@@ -22,13 +22,13 @@
     "jsdelivr": "dist/index.bundled.min.js",
     "types": "dist/index.d.ts",
     "scripts": {
-        "build": "yarn clean && tsc",
-        "build:rollup": "yarn clean && tsc && rollup -c",
-        "build:watch": "yarn clean && yarn compile -w",
-        "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
+        "build": "yarn run clean && tsc",
+        "build:rollup": "yarn run clean && tsc && rollup -c",
+        "build:watch": "yarn run clean && yarn run compile -w",
+        "build:docs": "typedoc --out docs src",
         "clean": "del dist",
-        "compile": "../../node_modules/typescript/bin/tsc",
-        "prepublishOnly": "yarn build:rollup"
+        "compile": "tsc",
+        "prepublishOnly": "yarn run build:rollup"
     },
     "dependencies": {
         "@arkecosystem/utils": "^1.2.0",

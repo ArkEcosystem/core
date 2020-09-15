@@ -14,11 +14,11 @@
     "main": "dist/index",
     "types": "dist/index",
     "scripts": {
-        "build": "yarn clean && tsc",
-        "build:watch": "yarn clean && yarn compile -w",
+        "build": "yarn run clean && tsc",
+        "build:watch": "yarn run clean && yarn run compile -w",
         "clean": "del dist",
-        "compile": "../../node_modules/typescript/bin/tsc",
-        "prepublishOnly": "yarn build"
+        "compile": "tsc",
+        "prepublishOnly": "yarn run build"
     },
     "dependencies": {
         "@arkecosystem/core-database": "workspace:packages/core-database",

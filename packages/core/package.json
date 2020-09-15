@@ -20,11 +20,11 @@
     },
     "scripts": {
         "ark": "./bin/run",
-        "build": "yarn clean && yarn compile",
-        "build:watch": "yarn clean && yarn compile -w",
-        "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
+        "build": "yarn run clean && yarn run compile",
+        "build:watch": "yarn run clean && yarn run compile -w",
+        "build:docs": "typedoc --out docs src",
         "clean": "del dist",
-        "compile": "../../node_modules/typescript/bin/tsc",
+        "compile": "tsc",
         "debug:forger": "node --inspect-brk yarn ark forger:run",
         "debug:relay": "node --inspect-brk yarn ark relay:run",
         "debug:start": "node --inspect-brk yarn ark core:run",
@@ -39,7 +39,7 @@
         "forger:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark forger:run --env=test --network=testnet",
         "full:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark core:run --networkStart --env=test --network=testnet",
         "manager:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark manager:run --env=test --network=testnet",
-        "prepublishOnly": "yarn build"
+        "prepublishOnly": "yarn run build"
     },
     "dependencies": {
         "@arkecosystem/core-api": "workspace:packages/core-api",

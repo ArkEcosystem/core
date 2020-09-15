@@ -12,12 +12,12 @@
         "dist"
     ],
     "scripts": {
-        "prepublishOnly": "yarn build",
-        "pretest": "yarn lint && yarn build",
-        "compile": "../../node_modules/typescript/bin/tsc",
-        "build": "yarn clean && yarn compile",
-        "build:watch": "yarn clean && yarn compile -w",
-        "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
+        "prepublishOnly": "yarn run build",
+        "pretest": "yarn lint && yarn run build",
+        "compile": "tsc",
+        "build": "yarn run clean && yarn run compile",
+        "build:watch": "yarn run clean && yarn run compile -w",
+        "build:docs": "typedoc --out docs src",
         "clean": "del dist"
     },
     "dependencies": {

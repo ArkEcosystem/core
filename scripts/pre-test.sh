@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 yarn lint
-yarn build
+yarn run build
 rm -rf ~/.core/database
