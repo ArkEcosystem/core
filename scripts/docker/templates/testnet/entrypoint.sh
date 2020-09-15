@@ -11,6 +11,6 @@ iptables -I POSTROUTING -t nat -p tcp --dport 5432 -d ${POSTGRES} -j SNAT --to $
 cd /core
 rm -rf node_modules package-lock.json > /dev/null 2>&1
 rm -rf packages/core/node_modules packages/core/package-lock.json 2>&1
-yarn setup
+yarn install --immutable --immutable-cache
 
 bash

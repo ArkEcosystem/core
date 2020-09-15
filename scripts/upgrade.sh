@@ -31,4 +31,4 @@ if [ -f .config/ark-core/mainnet/plugins.js ]; then
 fi
 
 cd ~/ark-core
-yarn setup
+yarn install --immutable --immutable-cache

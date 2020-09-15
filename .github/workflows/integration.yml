@@ -1,72 +1,72 @@
 name: Integration Testing
 
 on:
-    push:
-        branches:
-            - "master"
-            - "develop"
-    pull_request:
-        types: [ready_for_review, synchronize, opened]
+  push:
+    branches:
+      - "master"
+      - "develop"
+  pull_request:
+    types: [ready_for_review, synchronize, opened]
 
 jobs:
-    integration:
-        runs-on: ubuntu-latest
+  integration:
+    runs-on: ubuntu-latest
 
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
+    services:
+      postgres:
+        image: postgres:12
         env:
-            CORE_DB_DATABASE: ark_unitnet
-            CORE_DB_USERNAME: ark
-            POSTGRES_USER: ark
-            POSTGRES_PASSWORD: password
-            POSTGRES_DB: ark_unitnet
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
-        steps:
-            - uses: actions/checkout@v1
+    strategy:
+      matrix:
+        node-version: [12.x]
 
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
+    env:
+      CORE_DB_DATABASE: ark_unitnet
+      CORE_DB_USERNAME: ark
+      POSTGRES_USER: ark
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ark_unitnet
 
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
+    steps:
+      - uses: actions/checkout@v1
 
-            - name: Update system
-              run: sudo apt-get update -y
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
 
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
 
-            - name: Install and build packages
-              run: yarn setup
+      - name: Update system
+        run: sudo apt-get update -y
 
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
 
-            - name: Integration tests
-              run: yarn test:integration --coverage --coverageDirectory .coverage/integration/
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
 
-            - name: Codecov
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .coverage/integration/lcov.info
-                  flags: integration
-                  fail_ci_if_error: true
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Integration tests
+        run: yarn test:integration --coverage --coverageDirectory .coverage/integration/
+
+      - name: Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: .coverage/integration/lcov.info
+          flags: integration
+          fail_ci_if_error: true

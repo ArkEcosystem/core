@@ -1,1214 +1,1214 @@
 name: Functional Testing
 
 on:
-    push:
-        branches:
-            - "master"
-            - "develop"
-    pull_request:
-        types: [ready_for_review, synchronize, opened]
+  push:
+    branches:
+      - "master"
+      - "develop"
+  pull_request:
+    types: [ready_for_review, synchronize, opened]
 
 jobs:
-    codecov:
-        needs:
-            - core-database
-            - bridgechain-registration
-            - bridgechain-resignation
-            - bridgechain-update
-            - business-registration
-            - business-resignation
-            - business-update
-            - delegate-registration
-            - delegate-resignation
-            - htlc-claim
-            - htlc-lock
-            - htlc-refund
-            - ipfs
-            - multi-payment
-            - multi-signature-registration
-            - second-signature-registration
-            - transfer
-            - vote
-            - entity-register
-            - entity-resign
-            - entity-update
+  codecov:
+    needs:
+      - core-database
+      - bridgechain-registration
+      - bridgechain-resignation
+      - bridgechain-update
+      - business-registration
+      - business-resignation
+      - business-update
+      - delegate-registration
+      - delegate-resignation
+      - htlc-claim
+      - htlc-lock
+      - htlc-refund
+      - ipfs
+      - multi-payment
+      - multi-signature-registration
+      - second-signature-registration
+      - transfer
+      - vote
+      - entity-register
+      - entity-resign
+      - entity-update
 
-        runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-        strategy:
-            matrix:
-                node-version: [12.x]
+    strategy:
+      matrix:
+        node-version: [12.x]
 
-        steps:
-            - uses: actions/checkout@v1
+    steps:
+      - uses: actions/checkout@v1
 
-            - name: Download code coverage
-              uses: actions/download-artifact@v2
-              with:
-                  path: .artifacts
+      - name: Download code coverage
+        uses: actions/download-artifact@v2
+        with:
+          path: .artifacts
 
-            - name: Upload code coverage to codecov.io
-              uses: codecov/codecov-action@v1
-              with:
-                  file: .artifacts/*-coverage/lcov.info
-                  flags: functional
-                  fail_ci_if_error: true
+      - name: Upload code coverage to codecov.io
+        uses: codecov/codecov-action@v1
+        with:
+          file: .artifacts/*-coverage/lcov.info
+          flags: functional
+          fail_ci_if_error: true
 
-    core-database:
-        runs-on: ubuntu-latest
+  core-database:
+    runs-on: ubuntu-latest
 
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
+    services:
+      postgres:
+        image: postgres:12
         env:
-            CORE_DB_DATABASE: ark_unitnet
-            CORE_DB_USERNAME: ark
-            POSTGRES_USER: ark
-            POSTGRES_PASSWORD: password
-            POSTGRES_DB: ark_unitnet
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/core-database/ --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    bridgechain-registration:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    bridgechain-resignation:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    bridgechain-update:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-update.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    business-registration:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    business-resignation:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    business-update:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-update.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    delegate-registration:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/delegate-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    delegate-resignation:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/delegate-resignation.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    htlc-claim:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-claim.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    htlc-lock:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-lock.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    htlc-refund:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-refund.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    ipfs:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/ipfs.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    multi-payment:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ${{ github.job }}-coverage
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    multi-signature-registration:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    second-signature-registration:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/second-signature-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    transfer:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/transfer.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    vote:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/vote.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    entity-register:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/entity-register.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    entity-resign:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v2
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/entity-resign.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
-
-    entity-update:
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:12
-                env:
-                    POSTGRES_USER: ark
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: ark_unitnet
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        strategy:
-            matrix:
-                node-version: [12.x]
-
-        steps:
-            - uses: actions/checkout@v1
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: ${{ runner.os }}-node-
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v1
-              with:
-                  node-version: ${{ matrix.node-version }}
-
-            - name: Update system
-              run: sudo apt-get update -y
-
-            - name: Install xsel & postgresql-client
-              run: sudo apt-get install -q xsel postgresql-client
-
-            - name: Install and build packages
-              run: yarn setup
-
-            - name: Create .core/database directory
-              run: mkdir -p $HOME/.core/database
-
-            - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/entity-update.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-
-            - name: Archive code coverage
-              uses: actions/upload-artifact@v2
-              with:
-                  name: codecov-fun${{ github.job }}-ctional
-                  path: .coverage/functional/${{ github.job }}/lcov.info
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    env:
+      CORE_DB_DATABASE: ark_unitnet
+      CORE_DB_USERNAME: ark
+      POSTGRES_USER: ark
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ark_unitnet
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/core-database/ --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  bridgechain-registration:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/bridgechain-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  bridgechain-resignation:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  bridgechain-update:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/bridgechain-update.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  business-registration:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/business-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  business-resignation:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  business-update:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/business-update.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  delegate-registration:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/delegate-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  delegate-resignation:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/delegate-resignation.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  htlc-claim:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/htlc-claim.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  htlc-lock:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/htlc-lock.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  htlc-refund:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/htlc-refund.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  ipfs:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/ipfs.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  multi-payment:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-coverage
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  multi-signature-registration:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: codecov-fun${{ github.job }}-ctional
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  second-signature-registration:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/second-signature-registration.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: codecov-fun${{ github.job }}-ctional
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  transfer:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/transfer.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: codecov-fun${{ github.job }}-ctional
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  vote:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/vote.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: codecov-fun${{ github.job }}-ctional
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  entity-register:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/entity-register.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: codecov-fun${{ github.job }}-ctional
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  entity-resign:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/entity-resign.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: codecov-fun${{ github.job }}-ctional
+          path: .coverage/functional/${{ github.job }}/lcov.info
+
+  entity-update:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ark
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ark_unitnet
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Update system
+        run: sudo apt-get update -y
+
+      - name: Install xsel & postgresql-client
+        run: sudo apt-get install -q xsel postgresql-client
+
+      - name: Install and build packages
+        run: yarn install --immutable --immutable-cache
+
+      - name: Create .core/database directory
+        run: mkdir -p $HOME/.core/database
+
+      - name: Functional tests
+        run: yarn test __tests__/functional/transaction-forging/entity-update.test.ts --coverage --coverageDirectory .coverage/functional/${{ github.job }}
+        env:
+          CORE_DB_DATABASE: ark_unitnet
+          CORE_DB_USERNAME: ark
+
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: codecov-fun${{ github.job }}-ctional
+          path: .coverage/functional/${{ github.job }}/lcov.info

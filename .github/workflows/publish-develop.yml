@@ -1,47 +1,47 @@
 name: Publish (Develop)
 
 on:
-    push:
-        branches:
-            - "develop"
+  push:
+    branches:
+      - "develop"
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-            - uses: actions/setup-node@v1
-              with:
-                  node-version: 12
-                  registry-url: https://registry.npmjs.org/
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
 
-            - name: Install & Build
-              run: yarn setup
+      - name: Install & Build
+        run: yarn install --immutable --immutable-cache
 
-            - name: Publish to NPM
-              run: |
-                cd packages
-                cd crypto && npm publish --access public --tag alpha && cd ..
-                cd core-api && npm publish --access public --tag alpha && cd ..
-                cd core-blockchain && npm publish --access public --tag alpha && cd ..
-                cd core-cli && npm publish --access public --tag alpha && cd ..
-                cd core-database && npm publish --access public --tag alpha && cd ..
-                cd core-forger && npm publish --access public --tag alpha && cd ..
-                cd core-kernel && npm publish --access public --tag alpha && cd ..
-                cd core-logger-pino && npm publish --access public --tag alpha && cd ..
-                cd core-magistrate-api && npm publish --access public --tag alpha && cd ..
-                cd core-magistrate-crypto && npm publish --access public --tag alpha && cd ..
-                cd core-magistrate-transactions && npm publish --access public --tag alpha && cd ..
-                cd core-manager && npm publish --access public --tag alpha && cd ..
-                cd core-p2p && npm publish --access public --tag alpha && cd ..
-                cd core-snapshots && npm publish --access public --tag alpha && cd ..
-                cd core-state && npm publish --access public --tag alpha && cd ..
-                cd core-test-framework && npm publish --access public --tag alpha && cd ..
-                cd core-transaction-pool && npm publish --access public --tag alpha && cd ..
-                cd core-transactions && npm publish --access public --tag alpha && cd ..
-                cd core-webhooks && npm publish --access public --tag alpha && cd ..
-                cd core && npm publish --access public --tag alpha && cd ..
-              env:
-                  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - name: Publish to NPM
+        run: |
+          cd packages
+          cd crypto && npm publish --access public --tag alpha && cd ..
+          cd core-api && npm publish --access public --tag alpha && cd ..
+          cd core-blockchain && npm publish --access public --tag alpha && cd ..
+          cd core-cli && npm publish --access public --tag alpha && cd ..
+          cd core-database && npm publish --access public --tag alpha && cd ..
+          cd core-forger && npm publish --access public --tag alpha && cd ..
+          cd core-kernel && npm publish --access public --tag alpha && cd ..
+          cd core-logger-pino && npm publish --access public --tag alpha && cd ..
+          cd core-magistrate-api && npm publish --access public --tag alpha && cd ..
+          cd core-magistrate-crypto && npm publish --access public --tag alpha && cd ..
+          cd core-magistrate-transactions && npm publish --access public --tag alpha && cd ..
+          cd core-manager && npm publish --access public --tag alpha && cd ..
+          cd core-p2p && npm publish --access public --tag alpha && cd ..
+          cd core-snapshots && npm publish --access public --tag alpha && cd ..
+          cd core-state && npm publish --access public --tag alpha && cd ..
+          cd core-test-framework && npm publish --access public --tag alpha && cd ..
+          cd core-transaction-pool && npm publish --access public --tag alpha && cd ..
+          cd core-transactions && npm publish --access public --tag alpha && cd ..
+          cd core-webhooks && npm publish --access public --tag alpha && cd ..
+          cd core && npm publish --access public --tag alpha && cd ..
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

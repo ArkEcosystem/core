@@ -31,7 +31,7 @@ jobs:
                   node-version: ${{ matrix.node-version }}
 
             - name: Install & Build
-              run: yarn setup
+              run: yarn install --immutable --immutable-cache
 
             - name: Benchmark
               run: yarn bench
