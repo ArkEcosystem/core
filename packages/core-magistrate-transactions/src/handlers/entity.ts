@@ -1,8 +1,8 @@
 import { Container, Contracts, Utils as KernelUtils } from "@arkecosystem/core-kernel";
 import {
     Enums,
+    Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
-    Interfaces as MagistrateInterfaces
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces as CryptoInterfaces, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
@@ -18,7 +18,7 @@ import {
     EntityWrongTypeError,
     StaticFeeMismatchError,
 } from "../errors";
-import { IEntityWallet, IEntitiesWallet } from "../interfaces";
+import { IEntitiesWallet, IEntityWallet } from "../interfaces";
 import { MagistrateIndex } from "../wallet-indexes";
 
 @Container.injectable()
@@ -90,7 +90,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
 
                     if (
                         entityValues.some(
-                            entity =>
+                            (entity) =>
                                 entity.data.name!.toLowerCase() === transaction.data.asset!.data.name.toLowerCase() &&
                                 entity.type === transaction.data.asset!.type,
                         )
@@ -186,7 +186,9 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
         const entities = sender.getAttribute("entities", {});
         const registrationId: string = transaction.data.asset.registrationId;
 
-        const registrationTransaction = await this.transactionHistoryService.findOneByCriteria([{ id: registrationId }]);
+        const registrationTransaction = await this.transactionHistoryService.findOneByCriteria([
+            { id: registrationId },
+        ]);
 
         KernelUtils.assert.defined<Interfaces.ITransactionData>(registrationTransaction);
         KernelUtils.assert.defined<MagistrateInterfaces.IEntityAsset>(registrationTransaction.asset);

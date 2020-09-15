@@ -31,4 +31,4 @@ export enum PortsOffset {
     Peer = 0,
     Blocks = 10,
     Transactions = 20,
-};
+}

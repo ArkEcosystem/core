@@ -97,9 +97,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const senderWallet = this.walletRepository.findByPublicKey(
-            transaction.data.senderPublicKey,
-        );
+        const senderWallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         senderWallet.setAttribute("delegate.resigned", true);
 

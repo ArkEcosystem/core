@@ -1,5 +1,5 @@
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Transactions, Utils, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
 import {
@@ -18,6 +18,14 @@ export class EntityTransaction extends Transactions.Transaction {
     public static type: number = MagistrateTransactionType.Entity;
     public static key: string = "entity";
     public static version: number = 2;
+    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
+        MagistrateTransactionStaticFees.EntityRegister,
+    );
+    protected static staticFeeByAction = {
+        [EntityAction.Register]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityRegister),
+        [EntityAction.Update]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityUpdate),
+        [EntityAction.Resign]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityResign),
+    };
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         const baseAssetDataProps = {
@@ -73,21 +81,13 @@ export class EntityTransaction extends Transactions.Transaction {
         // there should always be a feeContext.data except for tx builder when setting default fee in constructor
         return feeContext?.data?.asset ? this.staticFeeByAction[feeContext.data.asset.action] : this.defaultStaticFee;
     }
-    protected static staticFeeByAction = {
-        [EntityAction.Register]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityRegister),
-        [EntityAction.Update]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityUpdate),
-        [EntityAction.Resign]: Utils.BigNumber.make(MagistrateTransactionStaticFees.EntityResign),
-    };
-    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
-        MagistrateTransactionStaticFees.EntityRegister,
-    );
 
     public serialize(): ByteBuffer {
         const { data } = this;
 
         AppUtils.assert.defined<IEntityAsset>(data.asset);
 
-        const asset: IEntityAsset = data.asset as IEntityAsset;
+        const asset: IEntityAsset = data.asset;
 
         const buffer: ByteBuffer = new ByteBuffer();
 

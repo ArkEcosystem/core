@@ -1,14 +1,14 @@
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 
+import { PortsOffset } from "../enums";
 import { plugin } from "../hapi-nes";
 import { AcceptPeerPlugin } from "./plugins/accept-peer";
 import { ValidatePlugin } from "./plugins/validate";
 import { WhitelistForgerPlugin } from "./plugins/whitelist-forger";
+import { BlocksRoute } from "./routes/blocks";
 import { InternalRoute } from "./routes/internal";
 import { PeerRoute } from "./routes/peer";
-import { PortsOffset } from "../enums";
-import { BlocksRoute } from "./routes/blocks";
 import { TransactionsRoute } from "./routes/transactions";
 
 // todo: review the implementation

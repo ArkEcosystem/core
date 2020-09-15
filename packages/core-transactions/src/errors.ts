@@ -78,19 +78,19 @@ export class UnexpectedSecondSignatureError extends TransactionError {
 }
 
 export class MissingMultiSignatureOnSenderError extends TransactionError {
-    constructor() {
+    public constructor() {
         super(`Failed to apply transaction, because sender does not have a multi signature.`);
     }
 }
 
 export class InvalidMultiSignaturesError extends TransactionError {
-    constructor() {
+    public constructor() {
         super(`Failed to apply transaction, because the multi signatures are invalid.`);
     }
 }
 
 export class UnsupportedMultiSignatureTransactionError extends TransactionError {
-    constructor() {
+    public constructor() {
         super(`Failed to apply transaction, because the transaction does not support multi signatures.`);
     }
 }
@@ -191,7 +191,7 @@ export class LegacyMultiSignatureError extends TransactionError {
 }
 
 export class LegacyMultiSignatureRegistrationError extends TransactionError {
-    constructor() {
+    public constructor() {
         super(`Failed to apply transaction, because legacy multi signature registrations are no longer supported.`);
     }
 }

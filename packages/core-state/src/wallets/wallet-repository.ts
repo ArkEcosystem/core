@@ -124,7 +124,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     public index(wallets: Contracts.State.Wallet | Contracts.State.Wallet[]): void {
         if (!Array.isArray(wallets)) {
-            this.indexWallet(wallets as Contracts.State.Wallet);
+            this.indexWallet(wallets);
         } else {
             for (const wallet of wallets) {
                 this.indexWallet(wallet);

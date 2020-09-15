@@ -214,7 +214,13 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         return true;
     }
 
-    private async emit(peer: Contracts.P2P.Peer, event: string, payload: any, timeout?: number, disconnectOnError: boolean = true) {
+    private async emit(
+        peer: Contracts.P2P.Peer,
+        event: string,
+        payload: any,
+        timeout?: number,
+        disconnectOnError: boolean = true,
+    ) {
         const port = getPeerPortForEvent(peer, event);
 
         let response;

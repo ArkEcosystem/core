@@ -1,7 +1,7 @@
+import { constants } from "../../constants";
+import { TransactionsController } from "../controllers/transactions";
 import { transactionsSchemas } from "../schemas/transactions";
 import { Route, RouteConfig } from "./route";
-import { TransactionsController } from "../controllers/transactions";
-import { constants } from "../../constants";
 
 export class TransactionsRoute extends Route {
     public getRoutesConfigByPath(): { [path: string]: RouteConfig } {
