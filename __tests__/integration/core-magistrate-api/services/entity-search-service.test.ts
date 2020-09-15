@@ -8,7 +8,7 @@ import { Identities } from "@arkecosystem/crypto";
 const entityId1 = "2a2498072a798318f5e321b312dfc7dcb87f33e10a251baf07ed8f950bd499ec";
 const entityAttribute1 = {
     type: Enums.EntityType.Business,
-    subType: Enums.EntitySubType.None,
+    subType: 0,
     action: Enums.EntityAction.Register,
     data: { name: "entity 1" },
 };
@@ -16,7 +16,7 @@ const entityAttribute1 = {
 const entityId2 = "f8d86fb5b1ec46a8034818f01ccb52fb38dca148cdb938e203464317743c3d0b";
 const entityAttribute2 = {
     type: Enums.EntityType.Business,
-    subType: Enums.EntitySubType.None,
+    subType: 0,
     action: Enums.EntityAction.Register,
     data: { name: "entity 2" },
 };
