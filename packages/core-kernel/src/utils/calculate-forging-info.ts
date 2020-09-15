@@ -34,9 +34,7 @@ export const calculateForgingInfo = (
 ): ForgingInfo => {
     const slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock, timestamp, height);
 
-    const indexes = findIndex(height, slotInfo.slotNumber, getTimeStampForBlock);
-    const currentForger = indexes[0];
-    const nextForger = indexes[1];
+    const [currentForger, nextForger] = findIndex(height, slotInfo.slotNumber, getTimeStampForBlock);
     const canForge = slotInfo.forgingStatus;
 
     return { currentForger, nextForger, blockTimestamp: slotInfo.startTime, canForge };
