@@ -124,7 +124,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     public index(wallets: Contracts.State.Wallet | Contracts.State.Wallet[]): void {
         if (!Array.isArray(wallets)) {
-            this.indexWallet(wallets as Contracts.State.Wallet);
+            this.indexWallet(wallets);
         } else {
             for (const wallet of wallets) {
                 this.indexWallet(wallet);
@@ -136,6 +136,24 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.clear();
         }
+    }
+
+    public cloneWallet(
+        origin: Contracts.State.WalletRepository,
+        wallet: Contracts.State.Wallet,
+    ): Contracts.State.Wallet {
+        const walletClone = wallet.clone();
+
+        for (const indexName of origin.getIndexNames()) {
+            const walletKeys = origin.getIndex(indexName).walletKeys(wallet);
+
+            const index = this.getIndex(indexName);
+            for (const key of walletKeys) {
+                index.set(key, walletClone);
+            }
+        }
+
+        return walletClone;
     }
 
     private indexWallet(wallet: Contracts.State.Wallet): void {
