@@ -88,50 +88,31 @@ export class Slots {
 
         for (let i = 0; i < this.getMilestonesWhichAffectBlockTimes().length - 1; i++) {
             if (height < nextMilestone.height) {
-                const slotNumberUpUntilThisTimestamp = Math.floor((timestamp - lastSpanEndTime) / blockTime);
-                const slotNumber = totalSlotsFromLastSpan + slotNumberUpUntilThisTimestamp;
-                const startTime = lastSpanEndTime + slotNumberUpUntilThisTimestamp * blockTime;
-                const endTime = startTime + blockTime - 1;
-                const forgingStatus = timestamp < startTime + Math.floor(blockTime / 2);
-
-                const slotInfo: SlotInfo = {
-                    blockTime,
-                    startTime,
-                    endTime,
-                    slotNumber,
-                    forgingStatus,
-                };
-
-                return slotInfo;
-            } else {
-                const spanStartTimestamp = getTimeStampForBlock(previousMilestoneHeight);
-                previousMilestoneHeight = nextMilestone.height - 1;
-                lastSpanEndTime = getTimeStampForBlock(nextMilestone.height - 1) + blockTime;
-                totalSlotsFromLastSpan += Math.floor((lastSpanEndTime - spanStartTimestamp) / blockTime);
-                blockTime = nextMilestone.data;
-                nextMilestone = configManager.getNextMilestoneWithNewKey(nextMilestone.height, "blocktime");
+                break;
             }
+
+            const spanStartTimestamp = getTimeStampForBlock(previousMilestoneHeight);
+            lastSpanEndTime = getTimeStampForBlock(nextMilestone.height - 1) + blockTime;
+            totalSlotsFromLastSpan += Math.floor((lastSpanEndTime - spanStartTimestamp) / blockTime);
+
+            blockTime = nextMilestone.data;
+            previousMilestoneHeight = nextMilestone.height;
+            nextMilestone = configManager.getNextMilestoneWithNewKey(nextMilestone.height, "blocktime");
         }
 
         const slotNumberUpUntilThisTimestamp = Math.floor((timestamp - lastSpanEndTime) / blockTime);
-        let slotNumber = totalSlotsFromLastSpan + slotNumberUpUntilThisTimestamp - 1;
+        const slotNumber = totalSlotsFromLastSpan + slotNumberUpUntilThisTimestamp;
         const startTime = lastSpanEndTime + slotNumberUpUntilThisTimestamp * blockTime;
         const endTime = startTime + blockTime - 1;
         const forgingStatus = timestamp < startTime + Math.floor(blockTime / 2);
 
-        if (this.getMilestonesWhichAffectBlockTimes().length <= 1) {
-            slotNumber++;
-        }
-
-        const slotInfo: SlotInfo = {
+        return {
             blockTime,
             startTime,
             endTime,
             slotNumber,
             forgingStatus,
         };
-
-        return slotInfo;
     }
 
     public static getMilestonesWhichAffectBlockTimes(): Array<MilestoneSearchResult> {
