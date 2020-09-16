@@ -76,6 +76,8 @@ export class PeerConnector implements P2P.IPeerConnector {
             ackTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
             perMessageDeflate: false,
             codecEngine: codec,
+            // @ts-ignore
+            maxPayload: 102400, // initialized to 100KB, will then be updated
         });
 
         const socket = (connection as any).transport.socket;
