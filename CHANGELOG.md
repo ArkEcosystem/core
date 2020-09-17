@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.57] - 2020-09-17
+
+### Fixed
+
+-   Only verify peer blocks < our height (c968e69d, @air1one)
+-   Stricter multipayment tx check (620027df, @air1one)
+-   Initialize maxPayload on connection create (3ac3eb17, @air1one)
+
 ## [2.6.54] - 2020-09-09
 
 ### Changed

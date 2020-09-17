@@ -22,12 +22,6 @@ export class PeerVerificationResult {
 // todo: review the implementation
 @Container.injectable()
 export class PeerVerifier implements Contracts.P2P.PeerVerifier {
-    /**
-     * A cache of verified blocks' ids. A block is verified if it is connected to a chain
-     * in which all blocks (including that one) are signed by the corresponding delegates.
-     */
-    private static readonly verifiedBlocks = new Utils.CappedSet();
-
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -157,10 +151,18 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
                 return true;
             }
 
-            const roundInfo = Utils.roundCalculator.calculateRound(claimedHeight);
-            const delegates = await this.getDelegatesByRound(roundInfo);
-            if (await this.verifyPeerBlock(blockHeader, claimedHeight, delegates)) {
-                return true;
+            if (claimedHeight < this.ourHeight()) {
+                const roundInfo = Utils.roundCalculator.calculateRound(claimedHeight);
+                const delegates = await this.getDelegatesByRound(roundInfo);
+                if (await this.verifyPeerBlock(blockHeader, claimedHeight, delegates)) {
+                    return true;
+                }
+            } else {
+                const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blockHeader.height);
+                const claimedBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockHeader, blockTimeLookup);
+                if (claimedBlock?.verifySignature()) {
+                    return true;
+                }
             }
 
             this.log(
@@ -496,15 +498,6 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
         expectedHeight: number,
         delegatesByPublicKey: Record<string, Contracts.State.Wallet>,
     ): Promise<boolean> {
-        if (PeerVerifier.verifiedBlocks.has(blockData.id)) {
-            this.log(
-                Severity.DEBUG_EXTRA,
-                `accepting block at height ${blockData.height}, already successfully verified before`,
-            );
-
-            return true;
-        }
-
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blockData.height);
 
         const block: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockData, blockTimeLookup);
@@ -534,8 +527,6 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
                 Severity.DEBUG_EXTRA,
                 `successfully verified block at height ${height}, signed by ` + block.data.generatorPublicKey,
             );
-
-            PeerVerifier.verifiedBlocks.add(block.data.id);
 
             return true;
         }
