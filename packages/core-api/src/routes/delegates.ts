@@ -7,8 +7,8 @@ import {
     delegateCriteriaQuerySchema,
     delegateSortingSchema,
     walletCriteriaQuerySchema,
-    walletSortingSchema,
     walletParamSchema,
+    walletSortingSchema,
 } from "../resources-new";
 import * as Schemas from "../schemas";
 

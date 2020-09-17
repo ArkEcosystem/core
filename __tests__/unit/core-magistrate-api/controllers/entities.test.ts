@@ -31,7 +31,7 @@ const entityResource1 = {
     publicKey: "03da05c1c1d4f9c6bda13695b2f29fbc65d9589edc070fc61fe97974be3e59c14e",
     isResigned: false,
     type: Enums.EntityType.Business,
-    subType: Enums.EntitySubType.None,
+    subType: 0,
     data: {
         name: "Stub entity",
         ipfsData: "02f83268bda7ba236a2fb953f970b396fc5f274cc09d0c5b7d28db5a8c3559c1",
@@ -85,13 +85,13 @@ describe("EntityController.search", () => {
                 limit: 100,
                 orderBy: ["data.name", "address"],
             },
-            payload: [{ type: Enums.EntityType.Business }, { type: Enums.EntityType.Bridgechain }],
+            payload: [{ type: Enums.EntityType.Business }, { type: Enums.EntityType.Plugin }],
         });
 
         expect(entitySearchService.getEntitiesPage).toBeCalledWith(
             { offset: 0, limit: 100 },
             ["data.name", "address"],
-            [{ type: Enums.EntityType.Business }, { type: Enums.EntityType.Bridgechain }],
+            [{ type: Enums.EntityType.Business }, { type: Enums.EntityType.Plugin }],
         );
 
         expect(result).toBe(entitiesPage);

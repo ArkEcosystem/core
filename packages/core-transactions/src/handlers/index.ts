@@ -8,5 +8,5 @@ export {
     TransactionHandler,
     TransactionHandlerConstructor,
     TransactionHandlerRegistry as Registry,
-    TransactionHandlerProvider
+    TransactionHandlerProvider,
 };

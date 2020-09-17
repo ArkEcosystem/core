@@ -3,7 +3,7 @@ import { Application, Container } from "@arkecosystem/core-kernel";
 
 import { Actions } from "../contracts";
 import { Identifiers } from "../ioc";
-import { parseProcessActionResponse, getOnlineProcesses, getCoreOrForgerProcessName } from "../utils";
+import { getCoreOrForgerProcessName, getOnlineProcesses, parseProcessActionResponse } from "../utils";
 
 @Container.injectable()
 export class Action implements Actions.Action {

@@ -191,8 +191,10 @@ export class Client {
         for (let i = 0; i < 10; i++) {
             for (const host of this.hosts) {
                 if (
-                    host.internalSocket && host.internalSocket._isReady()
-                    && host.blocksSocket && host.blocksSocket._isReady()
+                    host.internalSocket &&
+                    host.internalSocket._isReady() &&
+                    host.blocksSocket &&
+                    host.blocksSocket._isReady()
                 ) {
                     this.host = host;
                     return;
@@ -223,7 +225,7 @@ export class Client {
     private async emit<T = object>(event: string, payload: Record<string, any> = {}, timeout = 4000): Promise<T> {
         try {
             const socket = event === "p2p.blocks.postBlock" ? this.host.blocksSocket : this.host.internalSocket;
-            
+
             Utils.assert.defined<Nes.Client>(socket);
 
             const options = {
