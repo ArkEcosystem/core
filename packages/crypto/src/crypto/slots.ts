@@ -40,13 +40,13 @@ export class Slots {
             timestamp = this.getTime();
         }
 
-        const latestHeight = this.getLatestMilestoneHeight(height);
+        const latestHeight = this.getLatestHeight(height);
 
         return this.getSlotInfo(getTimeStampForBlock, timestamp, latestHeight).slotNumber;
     }
 
     public static getSlotTime(getTimeStampForBlock: GetBlockTimeStampLookup, slot: number, height?: number): number {
-        const latestHeight = this.getLatestMilestoneHeight(height);
+        const latestHeight = this.getLatestHeight(height);
 
         return this.calculateSlotTime(slot, latestHeight, getTimeStampForBlock);
     }
@@ -64,7 +64,7 @@ export class Slots {
             timestamp = this.getTime();
         }
 
-        const latestHeight = this.getLatestMilestoneHeight(height);
+        const latestHeight = this.getLatestHeight(height);
 
         return this.getSlotInfo(getTimeStampForBlock, timestamp, latestHeight).forgingStatus;
     }
@@ -78,7 +78,7 @@ export class Slots {
             timestamp = this.getTime();
         }
 
-        height = this.getLatestMilestoneHeight(height);
+        height = this.getLatestHeight(height);
 
         let blockTime = calculateBlockTime(1);
         let totalSlotsFromLastSpan = 0;
@@ -163,7 +163,7 @@ export class Slots {
         return lastSpanEndTime + (slotNumber - totalSlotsFromLastSpan) * blockTime;
     }
 
-    private static getLatestMilestoneHeight(height: number | undefined): number {
+    private static getLatestHeight(height: number | undefined): number {
         if (!height) {
             // TODO: is the config manager the best way to retrieve most recent height?
             // Or should this class maintain its own cache?

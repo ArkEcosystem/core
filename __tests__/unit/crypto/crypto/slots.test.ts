@@ -70,6 +70,16 @@ describe("Slots", () => {
         });
 
         describe("getSlotInfo", () => {
+            it("should return positive values when called without timestamp", () => {
+                const slotInfo = Slots.getSlotInfo(getTimeStampForBlock, undefined, undefined);
+
+                expect(slotInfo.startTime).toBePositive();
+                expect(slotInfo.endTime).toBePositive();
+                expect(slotInfo.blockTime).toBePositive();
+                expect(slotInfo.slotNumber).toBePositive();
+                expect(slotInfo.forgingStatus).toBeBoolean();
+            });
+
             it("should return correct values", () => {
                 /* eslint-disable */
                 const expectedResults = [
@@ -113,6 +123,11 @@ describe("Slots", () => {
 
         describe("getNextSlot", () => {
             it("returns next slot", () => {
+                expect(Slots.getNextSlot(getTimeStampForBlock)).toBeNumber();
+            });
+
+            it("returns next when height is defined in configManager", () => {
+                configManager.setHeight(12);
                 expect(Slots.getNextSlot(getTimeStampForBlock)).toBeNumber();
             });
         });
@@ -436,9 +451,11 @@ describe("Slots", () => {
         });
 
         describe("getSlotInfo", () => {
-            it("should calculate the next slot correctly when slots have been missed", () => {
+            let getTimeStampForBlock
+
+            beforeEach(() => {
                 const milestones = [
-                    { height: 1, blocktime: 4 },
+                    { height: 1, blocktime: 4, epoch: "2017-03-21T13:00:00.000Z" },
                     { height: 4, blocktime: 3 },
                     { height: 7, blocktime: 4 },
                 ];
@@ -446,7 +463,7 @@ describe("Slots", () => {
                 // @ts-ignore
                 configManager.setConfig(config);
 
-                const getTimeStampForBlock = (height: number) => {
+                getTimeStampForBlock = (height: number) => {
                     switch (height) {
                         case 1:
                             return 0;
@@ -460,7 +477,20 @@ describe("Slots", () => {
                             throw new Error(`Test scenarios should not hit this line`);
                     }
                 };
+            })
 
+            it("should return positive values when called without timestamp", () => {
+                const slotInfo = Slots.getSlotInfo(getTimeStampForBlock, undefined, undefined);
+
+                expect(slotInfo.startTime).toBePositive();
+                expect(slotInfo.endTime).toBePositive();
+                expect(slotInfo.blockTime).toBeGreaterThanOrEqual(3);
+                expect(slotInfo.blockTime).toBeLessThanOrEqual(4);
+                expect(slotInfo.slotNumber).toBePositive();
+                expect(slotInfo.forgingStatus).toBeBoolean();
+            });
+
+            it("should calculate the next slot correctly when slots have been missed", () => {
                 /* eslint-disable */
                 const expectedResults = [
                     { height: 1, timestamp: 0, startTime: 0, endTime: 3, blockTime: 4, slotNumber: 0,  forgingStatus: true },
@@ -513,7 +543,6 @@ describe("Slots", () => {
                         forgingStatus: item.forgingStatus,
                     });
                 });
-
             });
         });
     });
