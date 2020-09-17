@@ -39,6 +39,9 @@ export const validateTransactionLight = (transaction: any): boolean => {
                     return false;
                 }
             }
+            if (Object.keys(transaction.asset).length > 1) {
+                return false; // should only contain { payments: [...] }
+            }
         } else {
             // no "payments" asset, default to counting properties and checking vs maxProperties.
             // totally arbitrary as we could have transactions with more properties in asset,

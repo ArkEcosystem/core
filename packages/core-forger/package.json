@@ -31,7 +31,7 @@
         "delay": "^4.3.0",
         "lodash.isempty": "^4.4.0",
         "lodash.uniq": "^4.5.0",
-        "node-forge": "^0.9.0",
+        "node-forge": "^0.10.0",
         "pluralize": "^8.0.0",
         "socketcluster-client": "^14.2.2",
         "wif": "^2.0.6"
