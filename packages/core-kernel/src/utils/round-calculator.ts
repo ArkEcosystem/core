@@ -1,7 +1,6 @@
-import { Managers } from "@arkecosystem/crypto";
-import assert from "assert";
-
+import { Errors, Managers } from "@arkecosystem/crypto";
 import { RoundInfo } from "../contracts/shared";
+import { getMilestonesWhichAffectActiveDelegateCount } from "./calculate-forging-info";
 
 export const isNewRound = (height: number): boolean => {
     const milestones = Managers.configManager.get("milestones");
@@ -25,64 +24,49 @@ export const isNewRound = (height: number): boolean => {
 };
 
 export const calculateRound = (height: number): RoundInfo => {
-    const milestones = Managers.configManager.get("milestones");
-
     const result: RoundInfo = {
-        round: 0,
+        round: 1,
         roundHeight: 1,
         nextRound: 0,
         maxDelegates: 0,
     };
 
-    let milestone;
+    let nextMilestone = Managers.configManager.getNextMilestoneWithNewKey(1, "activeDelegates");
+    let activeDelegates = Managers.configManager.getMilestone(1).activeDelegates;
+    let milestoneHeight = 1;
 
-    for (let i = 0, j = 0; i < milestones.length; i++) {
-        if (!milestone || milestone.activeDelegates !== milestones[i].activeDelegates) {
-            milestone = milestones[i];
-        }
+    const milestones = getMilestonesWhichAffectActiveDelegateCount();
 
-        result.maxDelegates = milestone.activeDelegates;
-
-        let nextMilestoneHeight = milestone.height;
-
-        // Find next milestone that introduces delegate count change
-        for (j = i + 1; j < milestones.length; j++) {
-            const nextMilestone = milestones[j];
-            if (nextMilestone.height > height) {
-                break;
-            }
-
-            // If delegate count changed
-            if (nextMilestone.activeDelegates !== milestone.activeDelegates) {
-                assert(isNewRound(nextMilestone.height));
-                const milestoneHeight = nextMilestone.height - milestone.height;
-                assert(milestoneHeight % milestone.activeDelegates === 0);
-
-                result.maxDelegates = nextMilestone.activeDelegates;
-                result.round += milestoneHeight / milestone.activeDelegates;
-                result.roundHeight += milestoneHeight;
-
-                nextMilestoneHeight = nextMilestone.height;
-                i = j - 1;
-
-                break;
-            }
-        }
-
-        // If reached last relevant milestone
-        if (i === milestones.length - 1 || milestones[i + 1].height > height) {
-            const roundIncrease =
-                Math.floor((height - nextMilestoneHeight) / result.maxDelegates) + 1;
-
-            const nextRoundIncrease = (height - (nextMilestoneHeight - 1)) % result.maxDelegates === 0 ? 1 : 0;
-
-            result.round += roundIncrease;
-            result.roundHeight += (roundIncrease - 1) * result.maxDelegates;
-            result.nextRound = result.round + nextRoundIncrease;
-
+    for (let i = 0; i < milestones.length - 1; i++) {
+        if (height < nextMilestone.height) {
             break;
         }
+
+        const spanHeight = nextMilestone.height - milestoneHeight;
+        if (spanHeight % activeDelegates !== 0) {
+            throw new Errors.InvalidMilestoneConfigurationError(
+                `Bad milestone at height: ${height}. The number of delegates can only be changed at the beginning of a new round.`,
+            );
+        }
+
+        result.round += spanHeight / activeDelegates;
+        result.roundHeight = nextMilestone.height;
+        result.maxDelegates = nextMilestone.data;
+
+        activeDelegates = nextMilestone.data;
+        milestoneHeight = nextMilestone.height;
+
+        nextMilestone = Managers.configManager.getNextMilestoneWithNewKey(nextMilestone.height, "activeDelegates");
     }
+
+    const heightFromLastSpan = height - milestoneHeight;
+    const roundIncrease = Math.floor(heightFromLastSpan / activeDelegates);
+    const nextRoundIncrease = (heightFromLastSpan + 1) % activeDelegates === 0 ? 1 : 0;
+
+    result.round += roundIncrease;
+    result.roundHeight += roundIncrease * activeDelegates;
+    result.nextRound = result.round + nextRoundIncrease;
+    result.maxDelegates = activeDelegates;
 
     return result;
 };
