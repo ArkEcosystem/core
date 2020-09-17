@@ -174,7 +174,9 @@ describe("PeerVerifier", () => {
 
             it("should return PeerVerificationResult forked", async () => {
                 const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
-                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(ourHeader.height);
+                stateStore.getLastHeight = jest.fn()
+                    .mockReturnValueOnce(ourHeader.height)
+                    .mockReturnValueOnce(ourHeader.height);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: ourHeader.height }, getHeader: () => ourHeader }]);
@@ -257,7 +259,9 @@ describe("PeerVerifier", () => {
                 "should return PeerVerificationResult forked when claimed state block header is valid",
                 async (delegatesEmpty) => {
                     const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
-                    stateStore.getLastHeight = jest.fn().mockReturnValueOnce(claimedState.height);
+                    stateStore.getLastHeight = jest.fn()
+                        .mockReturnValueOnce(claimedState.height)
+                        .mockReturnValueOnce(claimedState.height);
                     stateStore.getLastBlocks = jest
                         .fn()
                         .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
@@ -355,7 +359,7 @@ describe("PeerVerifier", () => {
             });
 
             it("should throw when state.getLastHeight does not return a height", async () => {
-                stateStore.getLastHeight = jest.fn().mockRejectedValueOnce(undefined);
+                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(claimedState.height).mockRejectedValueOnce(undefined);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
@@ -375,7 +379,9 @@ describe("PeerVerifier", () => {
             });
 
             it("should return undefined when peer returns no common block", async () => {
-                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(claimedState.height);
+                stateStore.getLastHeight = jest.fn()
+                    .mockReturnValueOnce(claimedState.height)
+                    .mockReturnValueOnce(claimedState.height);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
@@ -397,7 +403,9 @@ describe("PeerVerifier", () => {
             });
 
             it("should return undefined when peer returns unexpected id for common block", async () => {
-                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(claimedState.height);
+                stateStore.getLastHeight = jest.fn()
+                    .mockReturnValueOnce(claimedState.height)
+                    .mockReturnValueOnce(claimedState.height);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
@@ -421,7 +429,9 @@ describe("PeerVerifier", () => {
             });
 
             it("should return undefined when peer returns unexpected height for common block", async () => {
-                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(claimedState.height);
+                stateStore.getLastHeight = jest.fn()
+                    .mockReturnValueOnce(claimedState.height)
+                    .mockReturnValueOnce(claimedState.height);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
@@ -447,7 +457,9 @@ describe("PeerVerifier", () => {
             it.each([[true], [false]])(
                 "should return undefined when getPeerBlocks returns empty or rejects",
                 async (returnEmpty) => {
-                    stateStore.getLastHeight = jest.fn().mockReturnValueOnce(claimedState.height);
+                    stateStore.getLastHeight = jest.fn()
+                        .mockReturnValueOnce(claimedState.height)
+                        .mockReturnValueOnce(claimedState.height);
                     stateStore.getLastBlocks = jest
                         .fn()
                         .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
@@ -481,7 +493,9 @@ describe("PeerVerifier", () => {
 
             it("should return undefined when peer returns block that does not verify", async () => {
                 const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
-                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(claimedState.height);
+                stateStore.getLastHeight = jest.fn()
+                    .mockReturnValueOnce(claimedState.height)
+                    .mockReturnValueOnce(claimedState.height);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
@@ -517,7 +531,9 @@ describe("PeerVerifier", () => {
 
             it("should return undefined when peer returns block that does not verify", async () => {
                 const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
-                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(claimedState.height);
+                stateStore.getLastHeight = jest.fn()
+                    .mockReturnValueOnce(claimedState.height)
+                    .mockReturnValueOnce(claimedState.height);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
@@ -552,7 +568,9 @@ describe("PeerVerifier", () => {
             it("should return undefined when peer returns block that is not signed by expected delegate", async () => {
                 const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
                 const randomPublicKey = "03c5282b639d0e8f94cfac7777242d1634d78a2c93cbd76c6ed2856a9f19cf6a13";
-                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(claimedState.height);
+                stateStore.getLastHeight = jest.fn()
+                    .mockReturnValueOnce(claimedState.height)
+                    .mockReturnValueOnce(claimedState.height);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
@@ -586,7 +604,9 @@ describe("PeerVerifier", () => {
 
             it("should throw when deadline is passed", async () => {
                 const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
-                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(claimedState.height);
+                stateStore.getLastHeight = jest.fn()
+                    .mockReturnValueOnce(claimedState.height)
+                    .mockReturnValueOnce(claimedState.height);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: claimedState.height }, getHeader: () => ourHeader }]);
@@ -657,6 +677,7 @@ describe("PeerVerifier", () => {
         });
 
         describe("when Case6. Peer height < our height and peer's latest block is not part of our chain", () => {
+            const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
             const claimedState: Contracts.P2P.PeerState = {
                 height: 12,
                 forgingAllowed: false,
@@ -664,6 +685,7 @@ describe("PeerVerifier", () => {
                 header: {
                     height: 12,
                     id: "13965046748333390338",
+                    generatorPublicKey,
                 },
             };
             const ourHeader = {
@@ -672,8 +694,9 @@ describe("PeerVerifier", () => {
             };
 
             it("should return PeerVerificationResult forked", async () => {
-                const generatorPublicKey = "03c5282b639d0e8f94cfac6c0ed242d1634d8a2c93cbd76c6ed2856a9f19cf6a13";
-                stateStore.getLastHeight = jest.fn().mockReturnValueOnce(ourHeader.height);
+                stateStore.getLastHeight = jest.fn()
+                    .mockReturnValueOnce(ourHeader.height)
+                    .mockReturnValueOnce(ourHeader.height);
                 stateStore.getLastBlocks = jest
                     .fn()
                     .mockReturnValueOnce([{ data: { height: ourHeader.height }, getHeader: () => ourHeader }]);
