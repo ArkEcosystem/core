@@ -1,6 +1,6 @@
 import "@packages/core-test-framework/src/matchers/functional/entity";
 
-import { EntitySubType, EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
+import { EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
 import got from "got";
 import _ from "lodash";
 
@@ -10,8 +10,8 @@ beforeEach(() => {
     entityTransaction = {
         id: "dummy_id",
         asset: {
-            type: EntityType.Bridgechain,
-            subType: EntitySubType.None,
+            type: EntityType.Business,
+            subType: 0,
             data: {
                 name: "dummy_name",
                 ipfsData: "dummy_ipfs_data",
@@ -51,7 +51,7 @@ describe("Entity", () => {
 
         it("should not pass if asset is different", async () => {
             const tmpEntityTransaction = _.cloneDeep(entityTransaction);
-            tmpEntityTransaction.asset.subType = EntitySubType.PluginCore;
+            tmpEntityTransaction.asset.subType = 1;
 
             await expect(tmpEntityTransaction).not.entityRegistered();
             expect(spyOnPost).toHaveBeenCalled();
@@ -192,7 +192,7 @@ describe("Entity", () => {
             const updateEntityTransaction = _.cloneDeep(entityTransaction);
             updateEntityTransaction.asset.registrationId = entityTransaction.id;
 
-            updateEntityTransaction.asset.subType = EntitySubType.PluginCore;
+            updateEntityTransaction.asset.subType = 1;
 
             await expect(updateEntityTransaction).not.entityUpdated();
             expect(spyOnPost).toHaveBeenCalled();

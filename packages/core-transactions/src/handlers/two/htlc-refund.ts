@@ -90,7 +90,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const hasRefund = this.poolQuery
             .getAll()
             .whereKind(transaction)
-            .wherePredicate(/* istanbul ignore next */(t) => t.data.asset?.refund?.lockTransactionId === lockId)
+            .wherePredicate(/* istanbul ignore next */ (t) => t.data.asset?.refund?.lockTransactionId === lockId)
             .has();
 
         if (hasRefund) {

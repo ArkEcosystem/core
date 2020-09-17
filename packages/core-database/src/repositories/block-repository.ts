@@ -1,4 +1,4 @@
-import {Contracts, Utils} from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { EntityRepository, In } from "typeorm";
 
@@ -79,7 +79,9 @@ export class BlockRepository extends AbstractRepository<Block> {
                 // @ts-ignore
                 (entity: Block & { transactions: Interfaces.ITransactionData[] }, _, value: Buffer[] | undefined) => {
                     if (value && value.length) {
-                        entity.transactions = value.map((buffer) => Transactions.TransactionFactory.fromBytesUnsafe(buffer).data);
+                        entity.transactions = value.map(
+                            (buffer) => Transactions.TransactionFactory.fromBytesUnsafe(buffer).data,
+                        );
                     } else {
                         entity.transactions = [];
                     }

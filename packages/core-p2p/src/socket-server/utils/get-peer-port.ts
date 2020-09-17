@@ -1,4 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
+
 import { PortsOffset } from "../../enums";
 
 const mapEventPrefixToPortOffset = {
@@ -14,9 +15,7 @@ export const getPeerPortForEvent = (peer: Contracts.P2P.Peer, event: string) => 
 };
 
 export const getAllPeerPorts = (peer: Contracts.P2P.Peer) => {
-    return [
-        PortsOffset.Peer,
-        PortsOffset.Blocks,
-        PortsOffset.Transactions
-    ].map((portOffset) => Number(peer.port) + portOffset);
+    return [PortsOffset.Peer, PortsOffset.Blocks, PortsOffset.Transactions].map(
+        (portOffset) => Number(peer.port) + portOffset,
+    );
 };
