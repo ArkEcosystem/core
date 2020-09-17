@@ -40,6 +40,7 @@ describe("Slots", () => {
                 expect(Slots.getSlotNumber(getTimeStampForBlock, 10, 2)).toBe(1);
                 expect(Slots.getSlotNumber(getTimeStampForBlock, 11, 2)).toBe(1);
                 expect(Slots.getSlotNumber(getTimeStampForBlock, 15, 2)).toBe(1);
+
                 expect(Slots.getSlotNumber(getTimeStampForBlock, 16, 3)).toBe(2);
                 expect(Slots.getSlotNumber(getTimeStampForBlock, 20, 3)).toBe(2);
 
@@ -118,7 +119,7 @@ describe("Slots", () => {
 
         describe("isForgingAllowed", () => {
             it("returns boolean", () => {
-                expect(Slots.isForgingAllowed(getTimeStampForBlock)).toBeDefined();
+                expect(Slots.isForgingAllowed(getTimeStampForBlock)).toBeBoolean();
             });
 
             it("returns true when over half the time in the block remains", () => {
@@ -211,8 +212,12 @@ describe("Slots", () => {
                             return 0;
                         case 2:
                             return 8;
+                        case 3:
+                            return 16;
                         case 5:
                             return 34;
+                        case 6:
+                            return 43;
                         case 7:
                             return 53;
                         default:
@@ -233,151 +238,7 @@ describe("Slots", () => {
         });
 
         describe("getSlotInfo", () => {
-            it("should return correct values - scenario 1", () => {
-                const milestones = [
-                    { height: 1, blocktime: 4 },
-                    { height: 4, blocktime: 3 },
-                    { height: 6, blocktime: 5 },
-                ];
-                const config = { ...devnet, milestones };
-                // @ts-ignore
-                configManager.setConfig(config);
-
-                const getTimeStampForBlock = (height: number) => {
-                    switch (height) {
-                        case 1:
-                            return 0;
-                        case 3:
-                            return 8;
-                        case 4:
-                            return 12;
-                        case 5:
-                            return 15;
-                        default:
-                            throw new Error(`Test scenarios should not hit this line`);
-                    }
-                };
-
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 0, 1)).toEqual(
-                    expect.objectContaining({
-                        startTime: 0,
-                        endTime: 3,
-                        slotNumber: 0,
-                        blockTime: 4,
-                    }),
-                );
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 3, 1)).toEqual(
-                    expect.objectContaining({
-                        startTime: 0,
-                        endTime: 3,
-                        slotNumber: 0,
-                        blockTime: 4,
-                    }),
-                );
-
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 4, 2)).toEqual(
-                    expect.objectContaining({
-                        startTime: 4,
-                        endTime: 7,
-                        slotNumber: 1,
-                        blockTime: 4,
-                    }),
-                );
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 7, 2)).toEqual(
-                    expect.objectContaining({
-                        startTime: 4,
-                        endTime: 7,
-                        slotNumber: 1,
-                        blockTime: 4,
-                    }),
-                );
-
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 8, 3)).toEqual(
-                    expect.objectContaining({
-                        startTime: 8,
-                        endTime: 11,
-                        slotNumber: 2,
-                        blockTime: 4,
-                    }),
-                );
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 11, 3)).toEqual(
-                    expect.objectContaining({
-                        startTime: 8,
-                        endTime: 11,
-                        slotNumber: 2,
-                    }),
-                );
-
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 12, 4)).toEqual(
-                    expect.objectContaining({
-                        startTime: 12,
-                        endTime: 14,
-                        slotNumber: 3,
-                        blockTime: 3,
-                    }),
-                );
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 14, 4)).toEqual(
-                    expect.objectContaining({
-                        startTime: 12,
-                        endTime: 14,
-                        slotNumber: 3,
-                        blockTime: 3,
-                    }),
-                );
-
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 15, 5)).toEqual(
-                    expect.objectContaining({
-                        startTime: 15,
-                        endTime: 17,
-                        slotNumber: 4,
-                        blockTime: 3,
-                    }),
-                );
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 17, 5)).toEqual(
-                    expect.objectContaining({
-                        startTime: 15,
-                        endTime: 17,
-                        slotNumber: 4,
-                        blockTime: 3,
-                    }),
-                );
-
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 18, 6)).toEqual(
-                    expect.objectContaining({
-                        startTime: 18,
-                        endTime: 22,
-                        slotNumber: 5,
-                        blockTime: 5,
-                    }),
-                );
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 22, 6)).toEqual(
-                    expect.objectContaining({
-                        startTime: 18,
-                        endTime: 22,
-                        slotNumber: 5,
-                        blockTime: 5,
-                    }),
-                );
-
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 23, 7)).toEqual(
-                    expect.objectContaining({
-                        startTime: 23,
-                        endTime: 27,
-                        slotNumber: 6,
-                        blockTime: 5,
-                    }),
-                );
-                expect(Slots.getSlotInfo(getTimeStampForBlock, 27, 7)).toEqual(
-                    expect.objectContaining({
-                        startTime: 23,
-                        endTime: 27,
-                        slotNumber: 6,
-                        blockTime: 5,
-                    }),
-                );
-            });
-
-            it("should return correct values - scenario 2", () => {
+            it("should return correct values", () => {
                 const milestones = [
                     { height: 1, blocktime: 8 },
                     { height: 2, blocktime: 4 },
@@ -431,11 +292,9 @@ describe("Slots", () => {
                     { height: 3, timestamp: 20, startTime: 20, endTime: 23, blockTime: 4, slotNumber: 4,  forgingStatus: true },
                     { height: 3, timestamp: 24, startTime: 24, endTime: 27, blockTime: 4, slotNumber: 5,  forgingStatus: true },
                     { height: 3, timestamp: 27, startTime: 24, endTime: 27, blockTime: 4, slotNumber: 5,  forgingStatus: false },
-
                     { height: 4, timestamp: 19, startTime: 19, endTime: 21, blockTime: 3, slotNumber: 4,  forgingStatus: true },
                     { height: 4, timestamp: 22, startTime: 22, endTime: 24, blockTime: 3, slotNumber: 5,  forgingStatus: true },
                     { height: 4, timestamp: 24, startTime: 22, endTime: 24, blockTime: 3, slotNumber: 5,  forgingStatus: false },
-
                     { height: 7, timestamp: 30, startTime: 30, endTime: 33, blockTime: 4, slotNumber: 7,  forgingStatus: true },
                     { height: 7, timestamp: 34, startTime: 34, endTime: 37, blockTime: 4, slotNumber: 8,  forgingStatus: true },
                     { height: 7, timestamp: 37, startTime: 34, endTime: 37, blockTime: 4, slotNumber: 8,  forgingStatus: false },
@@ -528,37 +387,51 @@ describe("Slots", () => {
                 // @ts-ignore
                 configManager.setConfig(config);
 
-                const blockdata = [
-                    { height: 1, timestamp: 0 },
-                    { height: 3, timestamp: 16 },
-                    { height: 6, timestamp: 29 },
-                ];
 
                 const getTimeStampForBlock = (height: number) => {
                     switch (height) {
-                        case blockdata[0].height:
-                            return blockdata[0].timestamp;
-                        case blockdata[1].height:
-                            return blockdata[1].timestamp;
-                        case blockdata[2].height:
-                            return blockdata[2].timestamp;
+                        case 1:
+                            return 0;
+                        case 3:
+                            return 8;
+                        case 4:
+                            return 12;
+                        case 6:
+                            return 18;
                         default:
                             throw new Error(`Test scenarios should not hit this line`);
                     }
                 };
 
-                expect(Slots.getSlotTime(getTimeStampForBlock, 0, 1)).toEqual(0);
-                expect(Slots.getSlotTime(getTimeStampForBlock, 1, 2)).toEqual(4);
-                expect(Slots.getSlotTime(getTimeStampForBlock, 2, 3)).toEqual(8);
-                expect(Slots.getSlotTime(getTimeStampForBlock, 3, 3)).toEqual(12);
-                expect(Slots.getSlotTime(getTimeStampForBlock, 4, 3)).toEqual(16);
-                expect(Slots.getSlotTime(getTimeStampForBlock, 5, 4)).toEqual(20);
-                expect(Slots.getSlotTime(getTimeStampForBlock, 6, 5)).toEqual(23);
-                expect(Slots.getSlotTime(getTimeStampForBlock, 7, 6)).toEqual(26);
-                expect(Slots.getSlotTime(getTimeStampForBlock, 8, 6)).toEqual(29);
-                expect(Slots.getSlotTime(getTimeStampForBlock, 9, 7)).toEqual(32);
-                expect(Slots.getSlotTime(getTimeStampForBlock, 10, 7)).toEqual(36);
-                expect(Slots.getSlotTime(getTimeStampForBlock, 11, 8)).toEqual(40);
+                const expectedResults = [
+                    { height: 1, slot: 0, slotTime: 0 },
+                    { height: 2, slot: 1, slotTime: 4 },
+                    { height: 3, slot: 2, slotTime: 8 },
+                    { height: 4, slot: 3, slotTime: 12 },
+                    { height: 5, slot: 4, slotTime: 15 },
+                    { height: 6, slot: 5, slotTime: 18 },
+                    { height: 7, slot: 6, slotTime: 21 },
+                    { height: 8, slot: 7, slotTime: 25 },
+                    { height: 9, slot: 8, slotTime: 29 },
+                    { height: 10, slot: 9, slotTime: 33 },
+                    { height: 11, slot: 10, slotTime: 37 },
+                ]
+
+                const missedBlocks = [
+                    { height: 2, slot: 2, slotTime: 8 },
+                    { height: 2, slot: 3, slotTime: 12 },
+                    { height: 2, slot: 9, slotTime: 36 },
+                    { height: 4, slot: 4, slotTime: 15 },
+                    { height: 4, slot: 14, slotTime: 45 },
+                    { height: 7, slot: 7, slotTime: 25 },
+                    { height: 7, slot: 8, slotTime: 29 },
+                    { height: 11, slot: 11, slotTime: 41 },
+                    { height: 11, slot: 21, slotTime: 81 },
+                ]
+
+                expectedResults.concat(missedBlocks).forEach((item) => {
+                    expect(Slots.getSlotTime(getTimeStampForBlock, item.slot, item.height)).toEqual(item.slotTime);
+                });
             });
         });
 
@@ -592,35 +465,46 @@ describe("Slots", () => {
                 const expectedResults = [
                     { height: 1, timestamp: 0, startTime: 0, endTime: 3, blockTime: 4, slotNumber: 0,  forgingStatus: true },
                     { height: 1, timestamp: 1, startTime: 0, endTime: 3, blockTime: 4, slotNumber: 0,  forgingStatus: true },
-                    { height: 1, timestamp: 2, startTime: 0, endTime: 3, blockTime: 4, slotNumber: 0,  forgingStatus: false },
-                    { height: 1, timestamp: 3, startTime: 0, endTime: 3, blockTime: 4, slotNumber: 0,  forgingStatus: false },
                     { height: 2, timestamp: 4, startTime: 4, endTime: 7, blockTime: 4, slotNumber: 1,  forgingStatus: true },
-                    { height: 2, timestamp: 7, startTime: 4, endTime: 7, blockTime: 4, slotNumber: 1,  forgingStatus: false },
                     { height: 3, timestamp: 8, startTime: 8, endTime: 11, blockTime: 4, slotNumber: 2,  forgingStatus: true },
-                    { height: 3, timestamp: 11, startTime: 8, endTime: 11, blockTime: 4, slotNumber: 2,  forgingStatus: false },
-                    { height: 3, timestamp: 12, startTime: 12, endTime: 15, blockTime: 4, slotNumber: 3,  forgingStatus: true },
-                    { height: 3, timestamp: 15, startTime: 12, endTime: 15, blockTime: 4, slotNumber: 3,  forgingStatus: false },
-                    { height: 3, timestamp: 16, startTime: 16, endTime: 19, blockTime: 4, slotNumber: 4,  forgingStatus: true },
-                    { height: 3, timestamp: 19, startTime: 16, endTime: 19, blockTime: 4, slotNumber: 4,  forgingStatus: false },
                     { height: 4, timestamp: 20, startTime: 20, endTime: 22, blockTime: 3, slotNumber: 5,  forgingStatus: true },
-                    { height: 4, timestamp: 22, startTime: 20, endTime: 22, blockTime: 3, slotNumber: 5,  forgingStatus: false },
                     { height: 5, timestamp: 23, startTime: 23, endTime: 25, blockTime: 3, slotNumber: 6,  forgingStatus: true },
-                    { height: 5, timestamp: 25, startTime: 23, endTime: 25, blockTime: 3, slotNumber: 6,  forgingStatus: false },
-                    { height: 5, timestamp: 26, startTime: 26, endTime: 28, blockTime: 3, slotNumber: 7,  forgingStatus: true },
-                    { height: 5, timestamp: 28, startTime: 26, endTime: 28, blockTime: 3, slotNumber: 7,  forgingStatus: false },
                     { height: 6, timestamp: 29, startTime: 29, endTime: 31, blockTime: 3, slotNumber: 8,  forgingStatus: true },
-                    { height: 6, timestamp: 31, startTime: 29, endTime: 31, blockTime: 3, slotNumber: 8,  forgingStatus: false },
                     { height: 7, timestamp: 32, startTime: 32, endTime: 35, blockTime: 4, slotNumber: 9,  forgingStatus: true },
-                    { height: 7, timestamp: 35, startTime: 32, endTime: 35, blockTime: 4, slotNumber: 9,  forgingStatus: false },
-                    { height: 7, timestamp: 36, startTime: 36, endTime: 39, blockTime: 4, slotNumber: 10,  forgingStatus: true },
-                    { height: 7, timestamp: 39, startTime: 36, endTime: 39, blockTime: 4, slotNumber: 10,  forgingStatus: false },
                     { height: 8, timestamp: 40, startTime: 40, endTime: 43, blockTime: 4, slotNumber: 11,  forgingStatus: true },
                     { height: 8, timestamp: 41, startTime: 40, endTime: 43, blockTime: 4, slotNumber: 11,  forgingStatus: true },
-                    { height: 8, timestamp: 42, startTime: 40, endTime: 43, blockTime: 4, slotNumber: 11,  forgingStatus: false },
-                    { height: 8, timestamp: 43, startTime: 40, endTime: 43, blockTime: 4, slotNumber: 11,  forgingStatus: false },
                 ];
 
-                expectedResults.forEach((item) => {
+                const offTimeResults = [
+                    { height: 1, timestamp: 2, startTime: 0, endTime: 3, blockTime: 4, slotNumber: 0,  forgingStatus: false },
+                    { height: 1, timestamp: 3, startTime: 0, endTime: 3, blockTime: 4, slotNumber: 0,  forgingStatus: false },
+                    { height: 2, timestamp: 7, startTime: 4, endTime: 7, blockTime: 4, slotNumber: 1,  forgingStatus: false },
+                    { height: 3, timestamp: 11, startTime: 8, endTime: 11, blockTime: 4, slotNumber: 2,  forgingStatus: false },
+                    { height: 4, timestamp: 22, startTime: 20, endTime: 22, blockTime: 3, slotNumber: 5,  forgingStatus: false },
+                    { height: 5, timestamp: 25, startTime: 23, endTime: 25, blockTime: 3, slotNumber: 6,  forgingStatus: false },
+                    { height: 6, timestamp: 31, startTime: 29, endTime: 31, blockTime: 3, slotNumber: 8,  forgingStatus: false },
+                    { height: 7, timestamp: 35, startTime: 32, endTime: 35, blockTime: 4, slotNumber: 9,  forgingStatus: false },
+                    { height: 8, timestamp: 42, startTime: 40, endTime: 43, blockTime: 4, slotNumber: 11,  forgingStatus: false },
+                    { height: 8, timestamp: 43, startTime: 40, endTime: 43, blockTime: 4, slotNumber: 11,  forgingStatus: false },
+                ]
+
+                const missedSlots = [
+                    { height: 3, timestamp: 12, startTime: 12, endTime: 15, blockTime: 4, slotNumber: 3,  forgingStatus: true },
+                    { height: 3, timestamp: 16, startTime: 16, endTime: 19, blockTime: 4, slotNumber: 4,  forgingStatus: true },
+                    { height: 5, timestamp: 26, startTime: 26, endTime: 28, blockTime: 3, slotNumber: 7,  forgingStatus: true },
+                    { height: 7, timestamp: 36, startTime: 36, endTime: 39, blockTime: 4, slotNumber: 10,  forgingStatus: true },
+
+                ]
+
+                const missedOffTimeResults = [
+                    { height: 3, timestamp: 15, startTime: 12, endTime: 15, blockTime: 4, slotNumber: 3,  forgingStatus: false },
+                    { height: 3, timestamp: 19, startTime: 16, endTime: 19, blockTime: 4, slotNumber: 4,  forgingStatus: false },
+                    { height: 5, timestamp: 28, startTime: 26, endTime: 28, blockTime: 3, slotNumber: 7,  forgingStatus: false },
+                    { height: 7, timestamp: 39, startTime: 36, endTime: 39, blockTime: 4, slotNumber: 10,  forgingStatus: false },
+
+                ]
+
+                expectedResults.concat(offTimeResults).concat(missedSlots).concat(missedOffTimeResults).forEach((item) => {
                     expect(Slots.getSlotInfo(getTimeStampForBlock, item.timestamp, item.height)).toEqual({
                         startTime: item.startTime,
                         endTime: item.endTime,

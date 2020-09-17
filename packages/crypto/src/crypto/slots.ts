@@ -141,21 +141,22 @@ export class Slots {
     ): number {
         let blockTime = calculateBlockTime(1);
         let totalSlotsFromLastSpan = 0;
-        let nextMilestone = configManager.getNextMilestoneWithNewKey(1, "blocktime");
-        let previousMilestoneHeight = 1;
+        let milestoneHeight = 1;
         let lastSpanEndTime = 0;
+
+        let nextMilestone = configManager.getNextMilestoneWithNewKey(1, "blocktime");
 
         for (let i = 0; i < this.getMilestonesWhichAffectBlockTimes().length - 1; i++) {
             if (height < nextMilestone.height) {
                 break;
             }
 
-            const spanStartTimestamp = getTimeStampForBlock(previousMilestoneHeight);
+            const spanStartTimestamp = getTimeStampForBlock(milestoneHeight);
             lastSpanEndTime = getTimeStampForBlock(nextMilestone.height - 1) + blockTime;
             totalSlotsFromLastSpan += Math.floor((lastSpanEndTime - spanStartTimestamp) / blockTime);
 
             blockTime = nextMilestone.data;
-            previousMilestoneHeight = nextMilestone.height;
+            milestoneHeight = nextMilestone.height;
             nextMilestone = configManager.getNextMilestoneWithNewKey(nextMilestone.height, "blocktime");
         }
 
