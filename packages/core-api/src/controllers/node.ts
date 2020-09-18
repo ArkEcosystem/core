@@ -1,7 +1,7 @@
 import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Crypto, Managers, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
 import { PortsResource } from "../resources";
@@ -93,6 +93,14 @@ export class NodeController extends Controller {
 
     public async fees(request: Hapi.Request) {
         // @ts-ignore
+        const handlers = this.nullHandlerRegistry.getRegisteredHandlers();
+        const handlersKey = {};
+        for (const handler of handlers) {
+            handlersKey[
+                `${handler.getConstructor().type}-${handler.getConstructor().typeGroup}`
+            ] = handler.getConstructor().key;
+        }
+
         const results = await this.transactionRepository.getFeeStatistics(request.query.days);
 
         const groupedByTypeGroup = {};
@@ -101,10 +109,9 @@ export class NodeController extends Controller {
                 groupedByTypeGroup[result.typeGroup] = {};
             }
 
-            const internalType = Transactions.InternalTransactionType.from(result.type, result.typeGroup);
-            const handler = this.nullHandlerRegistry.getRegisteredHandlerByType(internalType);
+            const handlerKey = handlersKey[`${result.type}-${result.typeGroup}`];
 
-            groupedByTypeGroup[result.typeGroup][handler.getConstructor().key] = {
+            groupedByTypeGroup[result.typeGroup][handlerKey] = {
                 avg: result.avg,
                 max: result.max,
                 min: result.min,
