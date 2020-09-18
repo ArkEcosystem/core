@@ -19,7 +19,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/delegates",
-        handler: controller.index,
+        handler: (request: Hapi.Request) => controller.index(request),
         options: {
             validate: {
                 query: Joi.object()
@@ -36,7 +36,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "POST",
         path: "/delegates/search",
-        handler: controller.search,
+        handler: (request: Hapi.Request) => controller.search(request),
         options: {
             validate: {
                 query: Joi.object().concat(delegateSortingSchema).concat(Schemas.pagination),
@@ -51,7 +51,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/delegates/{id}",
-        handler: controller.show,
+        handler: (request: Hapi.Request) => controller.show(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -64,7 +64,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/delegates/{id}/voters",
-        handler: controller.voters,
+        handler: (request: Hapi.Request) => controller.voters(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -84,7 +84,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/delegates/{id}/blocks",
-        handler: controller.blocks,
+        handler: (request: Hapi.Request) => controller.blocks(request),
         options: {
             validate: {
                 params: Joi.object({

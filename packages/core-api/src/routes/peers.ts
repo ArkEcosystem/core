@@ -11,7 +11,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/peers",
-        handler: controller.index,
+        handler: (request: Hapi.Request) => controller.index(request),
         options: {
             validate: {
                 query: Joi.object({
@@ -31,7 +31,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/peers/{ip}",
-        handler: controller.show,
+        handler: (request: Hapi.Request) => controller.show(request),
         options: {
             validate: {
                 params: Joi.object({
