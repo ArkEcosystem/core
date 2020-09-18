@@ -11,7 +11,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/blocks",
-        handler: controller.index,
+        handler: (request: Hapi.Request) => controller.index(request),
         options: {
             validate: {
                 query: Joi.object({
@@ -31,7 +31,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/blocks/first",
-        handler: controller.first,
+        handler: (request: Hapi.Request) => controller.first(request),
         options: {
             validate: {
                 query: Joi.object({
@@ -44,7 +44,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/blocks/last",
-        handler: controller.last,
+        handler: (request: Hapi.Request) => controller.last(request),
         options: {
             validate: {
                 query: Joi.object({
@@ -57,7 +57,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/blocks/{id}",
-        handler: controller.show,
+        handler: (request: Hapi.Request) => controller.show(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -73,7 +73,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/blocks/{id}/transactions",
-        handler: controller.transactions,
+        handler: (request: Hapi.Request) => controller.transactions(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -96,7 +96,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "POST",
         path: "/blocks/search",
-        handler: controller.search,
+        handler: (request: Hapi.Request) => controller.search(request),
         options: {
             validate: {
                 query: Joi.object({

@@ -17,7 +17,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/locks",
-        handler: controller.index,
+        handler: (request: Hapi.Request) => controller.index(request),
         options: {
             validate: {
                 query: Joi.object()
@@ -34,7 +34,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "POST",
         path: "/locks/search",
-        handler: controller.search,
+        handler: (request: Hapi.Request) => controller.search(request),
         options: {
             validate: {
                 query: Joi.object().concat(lockSortingSchema).concat(Schemas.pagination),
@@ -49,7 +49,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/locks/{id}",
-        handler: controller.show,
+        handler: (request: Hapi.Request) => controller.show(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -62,7 +62,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "POST",
         path: "/locks/unlocked",
-        handler: controller.unlocked,
+        handler: (request: Hapi.Request) => controller.unlocked(request),
         options: {
             validate: {
                 query: Joi.object({
