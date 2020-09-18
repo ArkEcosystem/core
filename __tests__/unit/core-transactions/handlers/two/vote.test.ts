@@ -28,6 +28,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
+import { rejects } from "assert";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -533,6 +534,27 @@ describe("VoteTransaction", () => {
 
                 expect(senderWallet.nonce.isZero()).toBeTrue();
                 expect(senderWallet.getAttribute("vote")).toBe(delegateWallet1.publicKey);
+            });
+        });
+
+        describe("vote+unvote", () => {
+            it("should revert when wallet has no vote", async () => {
+                senderWallet.nonce = Utils.BigNumber.make(1);
+
+                await handler.revert(voteUnvoteTransaction);
+
+                expect(senderWallet.hasAttribute("vote")).toBeFalse();
+            });
+        });
+
+        describe("unvote+vote", () => {
+            it("should revert when wallet has no vote", async () => {
+                senderWallet.setAttribute("vote", delegateWallet2.publicKey);
+                senderWallet.nonce = Utils.BigNumber.make(1);
+
+                await handler.revert(unvoteVoteTransaction);
+
+                expect(senderWallet.getAttribute("vote")).toEqual(delegateWallet1.publicKey);
             });
         });
     });
