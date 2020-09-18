@@ -28,7 +28,6 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { rejects } from "assert";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
