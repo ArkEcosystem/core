@@ -44,9 +44,11 @@ export class ProgressRenderer {
     }
 
     private handleStart(data: { table: string; count: number }): void {
+        /* istanbul ignore else */
         if (data.table && data.count) {
             this.count[data.table] = data.count;
 
+            /* istanbul ignore else */
             if (!this.isAnyStarted) {
                 this.isAnyStarted = true;
 
@@ -56,6 +58,7 @@ export class ProgressRenderer {
     }
 
     private handleUpdate(data: { table: string; value: number }): void {
+        /* istanbul ignore else */
         if (data.table && data.value) {
             this.progress[data.table] = this.calculatePercentage(this.count[data.table], data.value);
 
@@ -64,6 +67,7 @@ export class ProgressRenderer {
     }
 
     private handleComplete(data: { table: string }): void {
+        /* istanbul ignore else */
         if (data.table) {
             this.progress[data.table] = "100.00";
             this.render();
@@ -73,7 +77,7 @@ export class ProgressRenderer {
     private calculatePercentage(count: number, value: number): string {
         const percentage: string = ((value / count) * 100).toFixed(2);
 
-        // Append spaces to match ---.--
+        // Append spaces to match ---.-- pattern
         return `${" ".repeat(6 - percentage.length)}${percentage}`;
     }
 
