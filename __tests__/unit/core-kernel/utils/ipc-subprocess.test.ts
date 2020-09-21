@@ -41,6 +41,8 @@ describe("IpcSubprocess.sendRequest", () => {
         const ipcSubprocess = new IpcSubprocess<MyRpcInterface>(subprocess as any);
 
         const promise = ipcSubprocess.sendRequest("myRpcRequestMethod", 1, 2);
+
+        ipcSubprocess["onSubprocessMessage"]({ id: 2, result: "hello" }); // Unknown id, should be ignored
         ipcSubprocess["onSubprocessMessage"]({ id: 1, result: "hello" });
 
         await expect(promise).resolves.toBe("hello");
@@ -52,6 +54,8 @@ describe("IpcSubprocess.sendRequest", () => {
         const ipcSubprocess = new IpcSubprocess<MyRpcInterface>(subprocess as any);
 
         const promise = ipcSubprocess.sendRequest("myRpcRequestMethod", 1, 2);
+
+        ipcSubprocess["onSubprocessMessage"]({ id: 2, error: "failure" }); // Unknown id, should be ignored
         ipcSubprocess["onSubprocessMessage"]({ id: 1, error: "failure" });
 
         await expect(promise).rejects.toThrowError("failure");

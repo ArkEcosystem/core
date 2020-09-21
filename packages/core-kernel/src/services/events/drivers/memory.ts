@@ -256,7 +256,7 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
 
         let eventListeners: EventListener[] = [];
         if (this.listeners.has("*")) {
-            eventListeners = eventListeners.concat([...(this.getListenersByEvent("*") || [])]);
+            eventListeners = eventListeners.concat([...this.getListenersByEvent("*")]);
         }
 
         for (const match of matches) {

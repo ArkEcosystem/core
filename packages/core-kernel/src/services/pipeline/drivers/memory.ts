@@ -40,10 +40,10 @@ export class MemoryPipeline implements Pipeline {
      */
     public async process<T>(payload: T): Promise<T | undefined> {
         for (const stage of this.stages) {
-            if ("process" in stage) {
-                payload = await stage.process(payload);
-            } else if (typeof stage === "function") {
+            if (typeof stage === "function") {
                 payload = await stage(payload);
+            } else {
+                payload = await stage.process(payload);
             }
         }
 
@@ -60,10 +60,10 @@ export class MemoryPipeline implements Pipeline {
      */
     public processSync<T>(payload: T): T | undefined {
         for (const stage of this.stages) {
-            if ("process" in stage) {
-                payload = stage.process(payload);
-            } else if (typeof stage === "function") {
+            if (typeof stage === "function") {
                 payload = stage(payload);
+            } else {
+                payload = stage.process(payload);
             }
         }
 

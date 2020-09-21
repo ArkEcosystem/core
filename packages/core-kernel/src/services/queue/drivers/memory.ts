@@ -178,6 +178,7 @@ export class MemoryQueue implements Queue {
         if (from < this.jobs.length) {
             this.index = from;
 
+            /* istanbul ignore else */
             if (isRunning) {
                 this.isRunning = isRunning;
 

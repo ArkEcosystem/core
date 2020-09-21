@@ -1,6 +1,7 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { StandardCriteriaService } from "@arkecosystem/core-kernel/src/services/search/standard-criteria-service";
-import { Utils } from "@arkecosystem/crypto";
+import { Container, Contracts } from "@packages/core-kernel";
+import { InvalidCriteria, UnsupportedValue, UnexpectedError } from "@packages/core-kernel/src/services/search/errors";
+import { StandardCriteriaService } from "@packages/core-kernel/src/services/search/standard-criteria-service";
+import { Utils } from "@packages/crypto";
 
 const container = new Container.Container();
 
@@ -290,6 +291,18 @@ describe("StandardCriteriaService.testStandardCriterias", () => {
                 "Invalid criteria '[object Object]' (Object) at '*.0' for string value",
             );
         });
+
+        it("should re-throw error if called with multiple criteria", () => {
+            const value = {
+                owner: "alice",
+                user: "bob",
+            };
+
+            // @ts-ignore
+            expect(() => check(value, { user: 1, owner: "bob" })).toThrowError(
+                "Invalid criteria '1' (number) at 'user' for string value",
+            );
+        });
     });
 
     describe("when value is array", () => {
@@ -341,6 +354,44 @@ describe("StandardCriteriaService.testStandardCriterias", () => {
 
         it("should check delegate's last produced block", () => {
             expect(check(delegate, { blocks: { last: { height: 13368988 } } })).toBe(true);
+        });
+    });
+
+    describe("rethrowError", () => {
+        let service;
+
+        beforeEach(() => {
+            service = container.resolve(StandardCriteriaService);
+        });
+
+        it("should throw InvalidCriteria", () => {
+            const invalidCriteria = new InvalidCriteria("a", "b", ["original_key"]);
+
+            expect(() => {
+                service.rethrowError(invalidCriteria, "key");
+            }).toThrowError("Invalid criteria 'b' (string) at 'key.original_key' for string value");
+        });
+
+        it("should throw UnsupportedValue", () => {
+            const unsupportedValue = new UnsupportedValue("a", ["original_key"]);
+
+            expect(() => {
+                service.rethrowError(unsupportedValue, "key");
+            }).toThrowError("Unsupported value 'a' (string) at 'key.original_key'");
+        });
+
+        it("should throw UnexpectedError", () => {
+            const unexpectedError = new UnexpectedError(new Error("test"), ["original_key"]);
+
+            expect(() => {
+                service.rethrowError(unexpectedError, "key");
+            }).toThrowError("Unexpected error 'test' (Error) at 'key.original_key'");
+        });
+
+        it("should throw UnexpectedError from error", () => {
+            expect(() => {
+                service.rethrowError(new Error("test"), "key");
+            }).toThrowError("Unexpected error 'test' (Error) at 'key'");
         });
     });
 });

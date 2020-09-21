@@ -121,6 +121,7 @@ export class JoiValidator implements Validator {
         }
 
         for (const error of this.resultError) {
+            /* istanbul ignore else */
             if (error.context && error.context.key) {
                 errors[error.context.key] = error.context.value;
             }
@@ -155,6 +156,7 @@ export class JoiValidator implements Validator {
         for (const error of this.resultError) {
             const errorKey: string | number = error.path[0];
 
+            /* istanbul ignore else */
             if (!Array.isArray(errors[errorKey])) {
                 errors[errorKey] = [];
             }
