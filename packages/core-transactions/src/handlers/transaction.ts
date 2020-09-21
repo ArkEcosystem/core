@@ -6,13 +6,15 @@ import assert from "assert";
 import {
     ColdWalletError,
     InsufficientBalanceError,
-    InvalidMultiSignatureError,
+    InvalidMultiSignaturesError,
     InvalidSecondSignatureError,
     LegacyMultiSignatureError,
+    LegacyMultiSignatureRegistrationError,
+    MissingMultiSignatureOnSenderError,
     SenderWalletMismatchError,
-    UnexpectedMultiSignatureError,
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
+    UnsupportedMultiSignatureTransactionError,
 } from "../errors";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
@@ -226,7 +228,7 @@ export abstract class TransactionHandler {
             transaction.type === Enums.TransactionType.MultiSignature &&
             transaction.typeGroup === Enums.TransactionTypeGroup.Core;
         if (isMultiSignatureRegistration && !Managers.configManager.getMilestone().aip11) {
-            throw new UnexpectedMultiSignatureError();
+            throw new LegacyMultiSignatureRegistrationError();
         }
 
         if (sender.hasMultiSignature()) {
@@ -238,7 +240,7 @@ export abstract class TransactionHandler {
             );
 
             if (!dbSender.hasMultiSignature()) {
-                throw new UnexpectedMultiSignatureError();
+                throw new MissingMultiSignatureOnSenderError();
             }
 
             if (dbSender.hasAttribute("multiSignature.legacy")) {
@@ -246,10 +248,10 @@ export abstract class TransactionHandler {
             }
 
             if (!this.verifySignatures(dbSender, data, dbSender.getAttribute("multiSignature"))) {
-                throw new InvalidMultiSignatureError();
+                throw new InvalidMultiSignaturesError();
             }
         } else if (transaction.data.signatures && !isMultiSignatureRegistration) {
-            throw new UnexpectedMultiSignatureError();
+            throw new UnsupportedMultiSignatureTransactionError();
         }
     }
 

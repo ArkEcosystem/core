@@ -2,8 +2,8 @@ import "jest-extended";
 
 import { Identifiers, Server } from "@arkecosystem/core-api";
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
-import querystring from "querystring";
 import { ITransactionData } from "@arkecosystem/crypto/src/interfaces";
+import querystring from "querystring";
 
 import secrets from "../internal/passphrases.json";
 import { TransactionFactory } from "./transaction-factory";

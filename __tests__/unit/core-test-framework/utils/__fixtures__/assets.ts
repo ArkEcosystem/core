@@ -1,4 +1,4 @@
-import { EntityAction, EntitySubType, EntityType } from "@packages/core-magistrate-crypto/src/enums";
+import { EntityAction, EntityType } from "@packages/core-magistrate-crypto/src/enums";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { HtlcLockExpirationType } from "@packages/crypto/src/enums";
 
@@ -189,8 +189,8 @@ export const passphrasePairsAsset = [
 ];
 
 export const entityAsset = {
-    type: EntityType.Bridgechain,
-    subType: EntitySubType.None,
+    type: EntityType.Business,
+    subType: 0,
     action: EntityAction.Register,
     data: {
         name: "DummyName",

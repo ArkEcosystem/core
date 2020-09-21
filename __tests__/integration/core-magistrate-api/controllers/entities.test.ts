@@ -7,15 +7,13 @@ import { setUp, tearDown } from "../__support__/setup";
 
 let app: Application;
 
-beforeAll(async () => {
-    app = await setUp();
-});
-
 afterAll(async () => {
     await tearDown();
 });
 
-beforeAll(() => {
+beforeAll(async () => {
+    app = await setUp();
+
     const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
         Container.Identifiers.WalletRepository,
         "state",
@@ -26,7 +24,7 @@ beforeAll(() => {
     const wallets = walletRepository.allByPublicKey();
 
     let entityType = Enums.EntityType.Business;
-    let entitySubType = Enums.EntitySubType.None;
+    let entitySubType = 0;
 
     for (let i = 0; i < 10; i++) {
         const wallet = wallets[i];

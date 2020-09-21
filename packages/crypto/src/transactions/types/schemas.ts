@@ -137,7 +137,7 @@ export const vote = extend(transactionBaseSchema, {
                 votes: {
                     type: "array",
                     minItems: 1,
-                    maxItems: 1,
+                    maxItems: 2,
                     additionalItems: false,
                     items: { $ref: "walletVote" },
                 },

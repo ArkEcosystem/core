@@ -3,7 +3,7 @@ import "jest-extended";
 import { Container, Utils } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/core-magistrate-crypto";
 import { EntityBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
-import { EntitySubType, EntityType } from "@arkecosystem/core-magistrate-crypto/src/enums";
+import { EntityType, EntityAction } from "@arkecosystem/core-magistrate-crypto/src/enums";
 import { EntityTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
 import {
     EntityAlreadyRegisteredError,
@@ -12,6 +12,9 @@ import {
     EntityWrongSubTypeError,
     EntityWrongTypeError,
     StaticFeeMismatchError,
+    EntitySenderIsNotDelegateError,
+    EntityNameDoesNotMatchDelegateError,
+    EntityNameAlreadyRegisteredError,
 } from "@arkecosystem/core-magistrate-transactions/src/errors";
 import { EntityTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers/entity";
 import { Utils as CryptoUtils } from "@arkecosystem/crypto";
@@ -60,13 +63,31 @@ describe("Entity handler", () => {
         wallet = {
             getAttribute: jest
                 .fn()
-                .mockImplementation((attribute, defaultValue) => walletAttributes[attribute] || defaultValue),
+                .mockImplementation((attribute, defaultValue) => {
+                    const splitAttribute = attribute.split(".");
+                    return splitAttribute.length === 1
+                        ? walletAttributes[splitAttribute[0]] || defaultValue
+                        : (walletAttributes[splitAttribute[0]] || {})[splitAttribute[1]] || defaultValue;
+                }),
+            hasAttribute: jest
+                .fn()
+                .mockImplementation((attribute) => {
+                    const splitAttribute = attribute.split(".");
+                    return splitAttribute.length === 1
+                        ? !!walletAttributes[splitAttribute[0]]
+                        : !!walletAttributes[splitAttribute[0]] && !!walletAttributes[splitAttribute[0]][splitAttribute[1]];
+                }),
             setAttribute: jest.fn().mockImplementation((attribute, value) => (walletAttributes[attribute] = value)),
             forgetAttribute: jest.fn().mockImplementation((attribute) => delete walletAttributes[attribute]),
         };
 
         jest.spyOn(walletRepository, "findByPublicKey").mockReturnValue(wallet);
+
+        entityHandler = container.resolve(EntityTransactionHandler);
     });
+
+    const registerFee = "5000000000";
+    const updateAndResignFee = "500000000";
 
     describe("dependencies", () => {
         it("should return empty array", async () => {
@@ -91,7 +112,7 @@ describe("Entity handler", () => {
         });
 
         it("should return true if AIP36 is enabled", async () => {
-            Managers.configManager.setHeight(51);
+            Managers.configManager.setHeight(61);
 
             entityHandler = container.resolve(EntityTransactionHandler);
             const result = await entityHandler.isActivated();
@@ -100,12 +121,20 @@ describe("Entity handler", () => {
     });
 
     describe("dynamicFee", () => {
-        it("should return 5000000000", async () => {
+        const registerTx = (new EntityBuilder()).asset(validRegisters[0]).sign("passphrase").build();
+        const updateTx = (new EntityBuilder()).asset(validUpdates[0]).sign("passphrase").build();
+        const resignTx = (new EntityBuilder()).asset(validResigns[0]).sign("passphrase").build();
+        it.each([
+            [registerTx, registerFee],
+            [updateTx, updateAndResignFee],
+            [resignTx, updateAndResignFee],
+        ])("should return correct static fee", async (tx, fee) => {
+            
             entityHandler = container.resolve(EntityTransactionHandler);
             // @ts-ignore
-            const result = await entityHandler.dynamicFee({ height: 5 });
+            const result = await entityHandler.dynamicFee({ transaction: tx });
 
-            expect(result.toString()).toEqual(Utils.BigNumber.make(5000000000).toString());
+            expect(result.toString()).toEqual(Utils.BigNumber.make(fee).toString());
         });
     });
 
@@ -136,13 +165,6 @@ describe("Entity handler", () => {
         });
 
         it("should resolve", async () => {
-            await expect(entityHandler.bootstrap()).toResolve();
-        });
-
-        it("should resolve with initialized handlers", async () => {
-            // @ts-ignore
-            entityHandler.initializeHandlers();
-
             await expect(entityHandler.bootstrap()).toResolve();
         });
     });
@@ -178,15 +200,6 @@ describe("Entity handler", () => {
 
             await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
                 StaticFeeMismatchError,
-            );
-        });
-
-        it("should throw on wrong entity subtype", async () => {
-            // @ts-ignore
-            transaction.data.asset.subType = 9;
-
-            await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
-                EntityWrongSubTypeError,
             );
         });
     });
@@ -229,20 +242,6 @@ describe("Entity handler", () => {
             entityHandler = container.resolve(EntityTransactionHandler);
 
             await expect(entityHandler.revertForRecipient(transaction)).toResolve();
-        });
-    });
-
-    describe("getHandler", () => {
-        it("should return undefined if handler is not registered", async () => {
-            const builder = new EntityBuilder();
-            const transaction = builder.asset(validRegisters[0]).sign("passphrase").build();
-
-            entityHandler = container.resolve(EntityTransactionHandler);
-
-            // @ts-ignore
-            transaction.data.asset.type = 9;
-            // @ts-ignore
-            expect(entityHandler.getHandler(transaction)).toBeUndefined();
         });
     });
 
@@ -319,6 +318,138 @@ describe("Entity handler", () => {
                 entityHandler = container.resolve(EntityTransactionHandler);
                 await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).toResolve();
             });
+
+            it("should throw when fee does not match register fee", async () => {
+                const builder = new EntityBuilder();
+                const transaction = builder
+                    .asset({
+                        type: Enums.EntityType.Business,
+                        subType: 4,
+                        action: Enums.EntityAction.Register,
+                        data: { name: "thename", ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khattQidPfbpmNZ" },
+                    })
+                    .fee("500000000")
+                    .sign("passphrase")
+                    .build();
+
+                entityHandler = container.resolve(EntityTransactionHandler);
+                await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
+                    StaticFeeMismatchError,
+                );
+            });
+
+            it.each([validRegisters])("should throw when entity name is already registered for same type", async (asset) => {
+                const builder = new EntityBuilder();
+                const transaction = builder.asset(asset).sign("passphrase").build();
+
+                const walletSameEntityName = {
+                    hasAttribute: () => true,
+                    getAttribute: () => ({
+                        "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
+                            type: asset.type,
+                            subType: (asset.subType + 1) % 255, // different subType but still in the range [0, 255]
+                            data: asset.data,
+                        }}),
+                }
+                //@ts-ignore
+                jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
+
+                entityHandler = container.resolve(EntityTransactionHandler);
+                await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
+                    EntityNameAlreadyRegisteredError,
+                );
+            });
+
+            it.each([validRegisters])("should not throw when entity name is registered for a different type", async (asset) => {
+                const builder = new EntityBuilder();
+                const transaction = builder.asset(asset).sign("passphrase").build();
+
+                const walletSameEntityName = {
+                    hasAttribute: () => true,
+                    getAttribute: () => ({
+                        "7950c6a0d096eeb4883237feec12b9f37f36ab9343ff3640904befc75ce32ec2": {
+                            type: (asset.type + 1) % 255, // different type but still in the range [0, 255]
+                            subType: asset.subType,
+                            data: asset.data,
+                        }}),
+                }
+                //@ts-ignore
+                jest.spyOn(walletRepository, "getIndex").mockReturnValueOnce([walletSameEntityName]);
+
+                entityHandler = container.resolve(EntityTransactionHandler);
+                await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).toResolve();
+            });
+
+            describe("Entity delegate", () => {
+                const entityId = "533384534cd561fc17f72be0bb57bf39961954ba0741f53c08e3f463ef19118c";
+                const type = EntityType.Delegate;
+                const subType = 0;
+                const createEntityDelegateTx = (name, action = EntityAction.Register) => {
+                    const asset: any = { type, subType, action, data: { name } };
+                    if (action !== EntityAction.Register) {
+                        asset.registrationId = entityId;
+                        asset.data = {};
+                    }
+                    if (action === EntityAction.Update) {
+                        asset.data = { ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khbttQidPfbpmNZ" };
+                    }
+
+                    return (new EntityBuilder())
+                        .asset(asset)
+                        .fee(action === EntityAction.Register ? registerFee : updateAndResignFee)
+                        .sign("passphrase")
+                        .build();
+                };
+
+                it("should throw when the sender wallet is not a delegate", async () => {
+                    const transaction = createEntityDelegateTx("anyname");
+
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transaction, wallet),
+                    ).rejects.toBeInstanceOf(EntitySenderIsNotDelegateError);
+                });
+
+                it("should throw when the sender delegate name does not match the entity name", async () => {
+                    const username = "thedelegate";
+                    const transaction = createEntityDelegateTx(username);
+
+                    walletAttributes.delegate = { username: username + "s" };
+
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transaction, wallet),
+                    ).rejects.toBeInstanceOf(EntityNameDoesNotMatchDelegateError);
+                });
+
+                it("should not throw on update or resign even when delegate does not match", async () => {
+                    // it should not throw because update or resign tx needs first a register tx
+                    // for which the delegate checks must have already be done
+                    const delegateName = "thedelegate";
+                    const transactionResign = createEntityDelegateTx(delegateName, EntityAction.Resign);
+                    const transactionUpdate = createEntityDelegateTx(delegateName, EntityAction.Update);
+
+                    walletAttributes.entities = {
+                        [entityId]: { name: "somename", type, subType, data: {} },
+                    };
+
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transactionResign, wallet),
+                    ).toResolve();
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transactionUpdate, wallet),
+                    ).toResolve();
+                });
+
+                it("should not throw otherwise", async () => {
+                    const username = "therealdelegate";
+                    const transaction = createEntityDelegateTx(username);
+
+                    walletAttributes.delegate = { username };
+
+                    await expect(
+                        entityHandler.throwIfCannotBeApplied(transaction, wallet),
+                    ).toResolve();
+                });
+            })
         });
     });
 
@@ -326,7 +457,7 @@ describe("Entity handler", () => {
         describe("applyToSender", () => {
             it.each([validResigns])("should set the wallet entity attribute to resigned", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 const entityNotResigned = {
                     type: asset.type,
@@ -351,7 +482,7 @@ describe("Entity handler", () => {
         describe("revertForSender", () => {
             it.each([validResigns])("should delete the wallet entity 'resigned' attribute", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 // like the transaction was applied
                 const entityNotResigned = {
@@ -372,7 +503,7 @@ describe("Entity handler", () => {
         describe("throwIfCannotBeApplied", () => {
             it.each([validResigns])("should throw when entity does not exist", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 // entity does not exist
                 walletAttributes = { entities: {} };
@@ -385,7 +516,7 @@ describe("Entity handler", () => {
 
             it.each([validResigns])("should throw when entity is already resigned", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 // entity already resigned
                 const entityResigned = {
@@ -402,13 +533,33 @@ describe("Entity handler", () => {
                 );
             });
 
+            it("should throw when fee does not match resign fee", async () => {
+                const builder = new EntityBuilder();
+                const transaction = builder
+                    .asset({
+                        type: Enums.EntityType.Business,
+                        subType: 4,
+                        action: Enums.EntityAction.Resign,
+                        registrationId: "533384534cd561fc17f72be0bb57bf39961954ba0741f53c08e3f463ef19118c",
+                        data: {},
+                    })
+                    .fee("5000000000")
+                    .sign("passphrase")
+                    .build();
+
+                entityHandler = container.resolve(EntityTransactionHandler);
+                await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
+                    StaticFeeMismatchError,
+                );
+            });
+
             it.each([validResigns])("should throw when entity type does not match", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 // entity exists and is not resigned, but has not the same type as the resign asset
                 const entityNotResigned = {
-                    type: asset.type === EntityType.Developer ? EntityType.Plugin : EntityType.Developer,
+                    type: (asset.type + 1) % 255, // different type but still in the range [0, 255]
                     subType: asset.subType,
                     data: { name: "random name", description: "the current entity" },
                 };
@@ -422,12 +573,12 @@ describe("Entity handler", () => {
 
             it.each([validResigns])("should throw when entity subType does not match", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 // entity exists and is not resigned, but has not the same subtype as the resign asset
                 const entityNotResigned = {
                     type: asset.type,
-                    subType: asset.subType === EntitySubType.None ? EntitySubType.PluginCore : EntitySubType.None,
+                    subType: (asset.subType + 1) % 255, // different subType but still in the range [0, 255]
                     data: { name: "random name", description: "the current entity" },
                 };
                 walletAttributes = { entities: { [asset.registrationId]: entityNotResigned } };
@@ -440,7 +591,7 @@ describe("Entity handler", () => {
 
             it.each([validResigns])("should not throw otherwise", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 // entity exists and is not resigned
                 const entityNotResigned = {
@@ -460,7 +611,7 @@ describe("Entity handler", () => {
         describe("applyToSender", () => {
             it.each([validUpdates])("should apply the changes to the wallet entity", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 const entityBefore = {
                     type: asset.type,
@@ -489,7 +640,7 @@ describe("Entity handler", () => {
         describe("revertForSender", () => {
             it.each([validUpdates])("should restore the wallet to its previous state", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 const registrationTx = {
                     id: "e77a1d1d080ebce113dd17e1cb0a242ec8600fb72cd62eca4e46148bee1d3acc",
@@ -545,7 +696,7 @@ describe("Entity handler", () => {
         describe("throwIfCannotBeApplied", () => {
             it.each([validUpdates])("should throw when entity does not exist", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 // entity does not exist
                 walletAttributes = { entities: {} };
@@ -558,7 +709,7 @@ describe("Entity handler", () => {
 
             it.each([validUpdates])("should throw when entity is resigned", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 // entity resigned
                 const entityResigned = {
@@ -577,11 +728,11 @@ describe("Entity handler", () => {
 
             it.each([validUpdates])("should throw when entity type does not match", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 // entity exists and is not resigned, but has not the same type as the update asset
                 const entityNotResigned = {
-                    type: asset.type === EntityType.Developer ? EntityType.Plugin : EntityType.Developer,
+                    type: (asset.type + 1) % 255, // different type but still in the range [0, 255]
                     subType: asset.subType,
                     data: { name: "random name", description: "the current entity" },
                 };
@@ -593,14 +744,34 @@ describe("Entity handler", () => {
                 );
             });
 
+            it("should throw when fee does not match update fee", async () => {
+                const builder = new EntityBuilder();
+                const transaction = builder
+                    .asset({
+                        type: Enums.EntityType.Business,
+                        subType: 4,
+                        action: Enums.EntityAction.Update,
+                        registrationId: "533384534cd561fc17f72be0bb57bf39961954ba0741f53c08e3f463ef19118c",
+                        data: { ipfsData: "Qmbw6QmF6tuZpyV6WyEsTmExkEG3rW4khbttQidPfbpmNZ" },
+                    })
+                    .fee("5000000000")
+                    .sign("passphrase")
+                    .build();
+
+                entityHandler = container.resolve(EntityTransactionHandler);
+                await expect(entityHandler.throwIfCannotBeApplied(transaction, wallet)).rejects.toBeInstanceOf(
+                    StaticFeeMismatchError,
+                );
+            });
+
             it.each([validUpdates])("should throw when entity subType does not match", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 // entity exists and is not resigned, but has not the same subtype as the update asset
                 const entityNotResigned = {
                     type: asset.type,
-                    subType: asset.subType === EntitySubType.None ? EntitySubType.PluginCore : EntitySubType.None,
+                    subType: (asset.subType + 1) % 255, // different subType but still in the range [0, 255]
                     data: { name: "random name", description: "the current entity" },
                 };
                 walletAttributes = { entities: { [asset.registrationId]: entityNotResigned } };
@@ -613,7 +784,7 @@ describe("Entity handler", () => {
 
             it.each([validUpdates])("should not throw otherwise", async (asset) => {
                 const builder = new EntityBuilder();
-                const transaction = builder.asset(asset).sign("passphrase").build();
+                const transaction = builder.asset(asset).fee(updateAndResignFee).sign("passphrase").build();
 
                 // entity exists and is not resigned
                 const entityNotResigned = {

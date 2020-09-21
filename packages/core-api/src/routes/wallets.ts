@@ -20,7 +20,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets",
-        handler: controller.index,
+        handler: (request: Hapi.Request) => controller.index(request),
         options: {
             validate: {
                 query: Joi.object()
@@ -37,7 +37,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/top",
-        handler: controller.top,
+        handler: (request: Hapi.Request) => controller.top(request),
         options: {
             validate: {
                 query: Joi.object()
@@ -54,7 +54,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "POST",
         path: "/wallets/search",
-        handler: controller.search,
+        handler: (request: Hapi.Request) => controller.search(request),
         options: {
             validate: {
                 query: Joi.object().concat(walletSortingSchema).concat(Schemas.pagination),
@@ -69,7 +69,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}",
-        handler: controller.show,
+        handler: (request: Hapi.Request) => controller.show(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -82,7 +82,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}/locks",
-        handler: controller.locks,
+        handler: (request: Hapi.Request) => controller.locks(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -102,7 +102,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}/transactions",
-        handler: controller.transactions,
+        handler: (request: Hapi.Request) => controller.transactions(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -125,7 +125,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}/transactions/sent",
-        handler: controller.transactionsSent,
+        handler: (request: Hapi.Request) => controller.transactionsSent(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -148,7 +148,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}/transactions/received",
-        handler: controller.transactionsReceived,
+        handler: (request: Hapi.Request) => controller.transactionsReceived(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -171,7 +171,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/wallets/{id}/votes",
-        handler: controller.votes,
+        handler: (request: Hapi.Request) => controller.votes(request),
         options: {
             validate: {
                 params: Joi.object({

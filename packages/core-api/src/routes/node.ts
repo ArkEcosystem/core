@@ -10,31 +10,31 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/node/status",
-        handler: controller.status,
+        handler: (request: Hapi.Request) => controller.status(request),
     });
 
     server.route({
         method: "GET",
         path: "/node/syncing",
-        handler: controller.syncing,
+        handler: (request: Hapi.Request) => controller.syncing(request),
     });
 
     server.route({
         method: "GET",
         path: "/node/configuration",
-        handler: controller.configuration,
+        handler: (request: Hapi.Request) => controller.configuration(request),
     });
 
     server.route({
         method: "GET",
         path: "/node/configuration/crypto",
-        handler: controller.configurationCrypto,
+        handler: (request: Hapi.Request) => controller.configurationCrypto(request),
     });
 
     server.route({
         method: "GET",
         path: "/node/fees",
-        handler: controller.fees,
+        handler: (request: Hapi.Request) => controller.fees(request),
         options: {
             validate: {
                 query: Joi.object({

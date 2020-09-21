@@ -12,7 +12,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/transactions",
-        handler: controller.index,
+        handler: (request: Hapi.Request) => controller.index(request),
         options: {
             validate: {
                 query: Joi.object({
@@ -32,7 +32,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "POST",
         path: "/transactions",
-        handler: controller.store,
+        handler: (request: Hapi.Request) => controller.store(request),
         options: {
             plugins: {
                 "hapi-ajv": {
@@ -62,7 +62,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/transactions/{id}",
-        handler: controller.show,
+        handler: (request: Hapi.Request) => controller.show(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -78,7 +78,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/transactions/unconfirmed",
-        handler: controller.unconfirmed,
+        handler: (request: Hapi.Request) => controller.unconfirmed(request),
         options: {
             validate: {
                 query: Joi.object({
@@ -96,7 +96,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/transactions/unconfirmed/{id}",
-        handler: controller.showUnconfirmed,
+        handler: (request: Hapi.Request) => controller.showUnconfirmed(request),
         options: {
             validate: {
                 params: Joi.object({
@@ -109,7 +109,7 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "POST",
         path: "/transactions/search",
-        handler: controller.search,
+        handler: (request: Hapi.Request) => controller.search(request),
         options: {
             validate: {
                 query: Joi.object({
@@ -131,18 +131,18 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/transactions/types",
-        handler: controller.types,
+        handler: (request: Hapi.Request) => controller.types(request),
     });
 
     server.route({
         method: "GET",
         path: "/transactions/schemas",
-        handler: controller.schemas,
+        handler: (request: Hapi.Request) => controller.schemas(request),
     });
 
     server.route({
         method: "GET",
         path: "/transactions/fees",
-        handler: controller.fees,
+        handler: (request: Hapi.Request) => controller.fees(request),
     });
 };

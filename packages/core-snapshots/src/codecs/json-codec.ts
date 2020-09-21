@@ -1,5 +1,5 @@
-import { Container } from "@arkecosystem/core-kernel";
 import { Models } from "@arkecosystem/core-database";
+import { Container } from "@arkecosystem/core-kernel";
 import { camelizeKeys } from "xcase";
 
 import { Codec } from "../contracts";

@@ -13,11 +13,7 @@ export class WalletRepositoryClone extends WalletRepository {
         super.initialize();
 
         for (const wallet of this.blockchainWalletRepository.allByAddress()) {
-            const clone = wallet.clone();
-
-            for (const index of Object.values(this.indexes)) {
-                index.index(clone);
-            }
+            this.cloneWallet(this.blockchainWalletRepository, wallet);
         }
     }
 

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { EntityAction, EntitySubType, EntityType } from "@arkecosystem/core-magistrate-crypto/dist/enums";
+import { EntityAction, EntityType } from "@arkecosystem/core-magistrate-crypto/dist/enums";
 import { EntityTransaction } from "@arkecosystem/core-magistrate-crypto/dist/transactions";
 import { EntityBuilder } from "@packages/core-magistrate-crypto/src/builders";
 import { IEntityAsset } from "@packages/core-magistrate-crypto/src/interfaces";
@@ -9,8 +9,8 @@ import { Managers, Transactions } from "@packages/crypto";
 let builder: EntityBuilder;
 
 const entityAsset: IEntityAsset = {
-    type: EntityType.Bridgechain,
-    subType: EntitySubType.None,
+    type: EntityType.Business,
+    subType: 0,
     action: EntityAction.Register,
     registrationId: "dummy_registration_id",
     data: {

@@ -1,7 +1,7 @@
+import { constants } from "../../constants";
+import { BlocksController } from "../controllers/blocks";
 import { blocksSchemas } from "../schemas/blocks";
 import { Route, RouteConfig } from "./route";
-import { BlocksController } from "../controllers/blocks";
-import { constants } from "../../constants";
 
 export class BlocksRoute extends Route {
     public getRoutesConfigByPath(): { [path: string]: RouteConfig } {

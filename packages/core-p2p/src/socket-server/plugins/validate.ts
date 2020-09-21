@@ -1,9 +1,9 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 
+import { BlocksRoute } from "../routes/blocks";
 import { InternalRoute } from "../routes/internal";
 import { PeerRoute } from "../routes/peer";
-import { BlocksRoute } from "../routes/blocks";
 import { TransactionsRoute } from "../routes/transactions";
 
 @Container.injectable()

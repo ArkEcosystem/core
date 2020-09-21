@@ -42,35 +42,38 @@ export class VoteTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         Utils.assert.defined<string[]>(transaction.data.asset?.votes);
 
-        const vote: string = transaction.data.asset.votes[0];
-
         let walletVote: string | undefined;
-
-        const delegatePublicKey: string = vote.slice(1);
-        const delegateWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(delegatePublicKey);
-
         if (wallet.hasAttribute("vote")) {
             walletVote = wallet.getAttribute("vote");
         }
 
-        if (vote.startsWith("+")) {
-            if (walletVote) {
-                throw new AlreadyVotedError();
+        for (const vote of transaction.data.asset.votes) {
+            const delegatePublicKey: string = vote.slice(1);
+            const delegateWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(delegatePublicKey);
+
+            if (vote.startsWith("+")) {
+                if (walletVote) {
+                    throw new AlreadyVotedError();
+                }
+
+                if (delegateWallet.hasAttribute("delegate.resigned")) {
+                    throw new VotedForResignedDelegateError(vote);
+                }
+
+                walletVote = vote.slice(1);
+            } else {
+                if (!walletVote) {
+                    throw new NoVoteError();
+                } else if (walletVote !== vote.slice(1)) {
+                    throw new UnvoteMismatchError();
+                }
+
+                walletVote = undefined;
             }
 
-            if (delegateWallet.hasAttribute("delegate.resigned")) {
-                throw new VotedForResignedDelegateError(vote);
+            if (!delegateWallet.isDelegate()) {
+                throw new VotedForNonDelegateError(vote);
             }
-        } else {
-            if (!walletVote) {
-                throw new NoVoteError();
-            } else if (walletVote !== vote.slice(1)) {
-                throw new UnvoteMismatchError();
-            }
-        }
-
-        if (!delegateWallet.isDelegate()) {
-            throw new VotedForNonDelegateError(vote);
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet);
@@ -112,12 +115,12 @@ export class VoteTransactionHandler extends TransactionHandler {
 
         Utils.assert.defined<string[]>(transaction.data.asset?.votes);
 
-        const vote: string = transaction.data.asset.votes[0];
-
-        if (vote.startsWith("+")) {
-            sender.setAttribute("vote", vote.slice(1));
-        } else {
-            sender.forgetAttribute("vote");
+        for (const vote of transaction.data.asset.votes) {
+            if (vote.startsWith("+")) {
+                sender.setAttribute("vote", vote.slice(1));
+            } else {
+                sender.forgetAttribute("vote");
+            }
         }
     }
 
@@ -130,12 +133,12 @@ export class VoteTransactionHandler extends TransactionHandler {
 
         Utils.assert.defined<Interfaces.ITransactionAsset>(transaction.data.asset?.votes);
 
-        const vote: string = transaction.data.asset.votes[0];
-
-        if (vote.startsWith("+")) {
-            sender.forgetAttribute("vote");
-        } else {
-            sender.setAttribute("vote", vote.slice(1));
+        for (const vote of transaction.data.asset.votes.slice().reverse()) {
+            if (vote.startsWith("+")) {
+                sender.forgetAttribute("vote");
+            } else {
+                sender.setAttribute("vote", vote.slice(1));
+            }
         }
     }
 

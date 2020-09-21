@@ -6,8 +6,8 @@ import { EntityController } from "../controllers/entities";
 import {
     entityCriteriaPayloadSchema,
     entityCriteriaQuerySchema,
-    entitySortingSchema,
     entityParamSchema,
+    entitySortingSchema,
 } from "../resources";
 
 export const register = (server: Hapi.Server): void => {
