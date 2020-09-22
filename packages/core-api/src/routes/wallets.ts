@@ -4,7 +4,6 @@ import Joi from "@hapi/joi";
 import { WalletsController } from "../controllers/wallets";
 import {
     lockCriteriaQuerySchema,
-    lockParamSchema,
     lockSortingSchema,
     walletCriteriaPayloadSchema,
     walletCriteriaQuerySchema,
@@ -86,7 +85,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: Joi.object({
-                    id: lockParamSchema,
+                    id: server.app.schemas.walletId,
                 }),
                 query: Joi.object()
                     .concat(lockCriteriaQuerySchema)
