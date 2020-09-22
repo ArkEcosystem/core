@@ -14,8 +14,8 @@ export const getPeers = ({ service }: { service: P2P.IPeerService }): P2P.IPeerB
     return service
         .getStorage()
         .getPeers()
-        .map(peer => peer.toBroadcast())
-        .sort((a, b) => a.latency - b.latency);
+        .sort((a, b) => a.latency - b.latency)
+        .map(peer => peer.toBroadcast());
 };
 
 export const getCommonBlocks = async ({

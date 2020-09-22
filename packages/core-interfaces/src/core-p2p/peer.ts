@@ -33,10 +33,6 @@ export interface IPeer {
 
 export interface IPeerBroadcast {
     ip: string;
-    ports: IPeerPorts;
-    version: string;
-    height: number;
-    latency: number;
 }
 
 export interface IPeerState {

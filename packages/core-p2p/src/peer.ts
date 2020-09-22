@@ -40,12 +40,6 @@ export class Peer implements P2P.IPeer {
     }
 
     public toBroadcast(): P2P.IPeerBroadcast {
-        return {
-            ip: this.ip,
-            ports: this.ports,
-            version: this.version,
-            height: this.state.height,
-            latency: this.latency,
-        };
+        return { ip: this.ip };
     }
 }
