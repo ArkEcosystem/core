@@ -2,8 +2,7 @@ import "jest-extended";
 
 import { Application } from "@packages/core-kernel";
 
-import { initApp } from "../__support__";
-import { initServer } from "./__support__";
+import { initApp, initServer } from "../__support__";
 
 let app: Application;
 
