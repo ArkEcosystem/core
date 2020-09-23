@@ -12,29 +12,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 
 -   AIP36 (#3836) (36c1ca76, @air1one)
--   aip36 delegate entity (#3877) (9f2eb629, @air1one)
+-   Aip36 delegate entity (#3877) (9f2eb629, @air1one)
 
 ### Fixed
 
--   add missing return type to this.queue (#3817) (511e5755, @deanpress)
--   fix entity register bootstrap method (#3850) (bd5b1ad0, @air1one)
--   remove duplicates entity resigned/isResigned (#3858) (90bf42de, @air1one)
--   entity name only unique by type (#4008) (3b12c703, @air1one)
--   ignore random type errors thrown by lowdb on build (#4017) (785680c0, @deanpress)
--   delegate check only needed on entity register (#4024) (64b63b54, @air1one)
+-   Add missing return type to this.queue (#3817) (511e5755, @deanpress)
+-   Fix entity register bootstrap method (#3850) (bd5b1ad0, @air1one)
+-   Remove duplicates entity resigned/isResigned (#3858) (90bf42de, @air1one)
+-   Entity name only unique by type (#4008) (3b12c703, @air1one)
+-   Ignore random type errors thrown by lowdb on build (#4017) (785680c0, @deanpress)
+-   Delegate check only needed on entity register (#4024) (64b63b54, @air1one)
 
 ### Changed
 
--   add aip36 milestone for devnet (#3845) (1da58ebb, @air1one)
--   remove obsolete magistrate endpoints (AIP36) (#3847) (219a9408, @air1one)
--   accept peers in the 2.7 range (#3848) (aab40895, @faustbrian)
--   remove bridgechain from aip36 entities (#3937) (085ab675, @air1one)
--   add devnet exception (#3967) (78c49b4a, @air1one)
--   throw more specific multi-signature exceptions (#3976) (48e67e51, @faustbrian)
--   more flexible entity types / sub-types + fees update (#3986) (06261f99, @air1one)
--   activate all entity types + re-allocate entity type enum (#4020) (649aeace, @air1one)
--   custom entity fees for register/update/resign (#4029) (ed835c29, @air1one)
--   add devnet exception (#4031) (5da4f4df, @air1one)
+-   Add aip36 milestone for devnet (#3845) (1da58ebb, @air1one)
+-   Remove obsolete magistrate endpoints (AIP36) (#3847) (219a9408, @air1one)
+-   Accept peers in the 2.7 range (#3848) (aab40895, @faustbrian)
+-   Remove bridgechain from aip36 entities (#3937) (085ab675, @air1one)
+-   Add devnet exception (#3967) (78c49b4a, @air1one)
+-   Throw more specific multi-signature exceptions (#3976) (48e67e51, @faustbrian)
+-   More flexible entity types / sub-types + fees update (#3986) (06261f99, @air1one)
+-   Activate all entity types + re-allocate entity type enum (#4020) (649aeace, @air1one)
+-   Custom entity fees for register/update/resign (#4029) (ed835c29, @air1one)
+-   Add devnet exception (#4031) (5da4f4df, @air1one)
 
 ## [2.6.57] - 2020-09-17
 
