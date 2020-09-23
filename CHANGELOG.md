@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 
 -   AIP36 (#3836) (36c1ca76, @air1one)
--   Aip36 delegate entity (#3877) (9f2eb629, @air1one)
+-   AIP36 delegate entity (#3877) (9f2eb629, @air1one)
 
 ### Fixed
 
@@ -25,16 +25,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
--   Add aip36 milestone for devnet (#3845) (1da58ebb, @air1one)
+-   Add AIP36 milestone for devnet (#3845) (1da58ebb, @air1one)
 -   Remove obsolete magistrate endpoints (AIP36) (#3847) (219a9408, @air1one)
 -   Accept peers in the 2.7 range (#3848) (aab40895, @faustbrian)
--   Remove bridgechain from aip36 entities (#3937) (085ab675, @air1one)
+-   Remove bridgechain from AIP36 entities (#3937) (085ab675, @air1one)
 -   Add devnet exception (#3967) (78c49b4a, @air1one)
 -   Throw more specific multi-signature exceptions (#3976) (48e67e51, @faustbrian)
 -   More flexible entity types / sub-types + fees update (#3986) (06261f99, @air1one)
 -   Activate all entity types + re-allocate entity type enum (#4020) (649aeace, @air1one)
 -   Custom entity fees for register/update/resign (#4029) (ed835c29, @air1one)
 -   Add devnet exception (#4031) (5da4f4df, @air1one)
+-   AIP36 milestone for mainnet (#4053) (ec8cbb94, @air1one)
 
 ## [2.6.57] - 2020-09-17
 
@@ -1654,6 +1655,7 @@ Closed security vulnerabilities:
 [#4024]: https://github.com/ARKEcosystem/core/pull/4024
 [#4029]: https://github.com/ARKEcosystem/core/pull/4029
 [#4031]: https://github.com/ARKEcosystem/core/pull/4031
+[#4053]: https://github.com/ARKEcosystem/core/pull/4053
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
