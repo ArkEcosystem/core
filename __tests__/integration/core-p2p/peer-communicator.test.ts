@@ -4,6 +4,7 @@ import { eventEmitter } from "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
 import { Blocks, Transactions } from "@arkecosystem/crypto";
+import delay from "delay";
 import { getPeerConfig } from "../../../packages/core-p2p/src/socket-server/utils/get-peer-config";
 import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { TransactionFactory } from "../../helpers/transaction-factory";
@@ -41,11 +42,13 @@ afterAll(async () => {
     socketManager.stopServer();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
     ({ communicator, storage } = createPeerService());
 
     stubPeer = createStubPeer({ ip: "127.0.0.1", port: 4009 });
     storage.setPeer(stubPeer);
+
+    await delay(2000);
 });
 
 afterEach(() => socketManager.resetAllMocks());
