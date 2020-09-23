@@ -85,18 +85,15 @@ export class PeerConnector implements P2P.IPeerConnector {
         socket.on("ping", () => this.terminate(peer));
         socket.on("pong", () => this.terminate(peer));
         socket.on("message", data => {
-            if (data === "#1") {
-                // this is to establish some rate limit on #1 messages
-                // a simple rate limit of 1 per second doesnt seem to be enough, so decided to give some margin
-                // and allow up to 10 per second which should be more than enough
-                const timeNow: number = new Date().getTime();
-                socket._last10Pings = socket._last10Pings || [];
-                socket._last10Pings.push(timeNow);
-                if (socket._last10Pings.length >= 10) {
-                    socket._last10Pings = socket._last10Pings.slice(socket._last10Pings.length - 10);
-                    if (timeNow - socket._last10Pings[0] < 1000) {
-                        this.terminate(peer);
-                    }
+            // this is to establish some rate limit on socket messages
+            // 30 messages per second is enough for socketcluster's + our own messages
+            const timeNow: number = new Date().getTime();
+            socket._last30Messages = socket._last30Messages || [];
+            socket._last30Messages.push(timeNow);
+            if (socket._last30Messages.length >= 30) {
+                socket._last30Messages = socket._last30Messages.slice(socket._last30Messages.length - 30);
+                if (timeNow - socket._last30Messages[0] < 1000) {
+                    this.terminate(peer);
                 }
             }
         });
