@@ -2,32 +2,6 @@
 # yarn lockfile v1
 
 
-"@arkecosystem/crypto@^2.6":
-  version "2.6.57"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/crypto/-/crypto-2.6.57.tgz#56c29bdc0d9bce88954efba4b0285b1fc9ed8dc4"
-  integrity sha512-H3qjejdWJGaV9r4THMh1UgixY4WL3nm90x6aXryjcXrdcEXnUDh3TBqmfnwXTjo14pOZFbH9dPoBrShhh4hu6g==
-  dependencies:
-    "@arkecosystem/utils" "^1.2"
-    "@types/bytebuffer" "^5.0.40"
-    ajv "^6.10.2"
-    ajv-keywords "^3.4.1"
-    bcrypto "^5.2.0"
-    bip32 "^2.0.3"
-    bip39 "^3.0.2"
-    browserify-aes "^1.2.0"
-    bstring "^0.3.9"
-    buffer-xor "^2.0.2"
-    bytebuffer "^5.0.1"
-    dayjs "^1.8.15"
-    deepmerge "^4.0.0"
-    fast-memoize "^2.5.1"
-    ipaddr.js "^1.9.0"
-    lodash.get "^4.4.2"
-    lodash.set "^4.3.2"
-    lodash.sumby "^4.6.0"
-    tiny-glob "^0.2.6"
-    wif "^2.0.6"
-
 "@arkecosystem/exchange-json-rpc@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@arkecosystem/exchange-json-rpc/-/exchange-json-rpc-2.0.1.tgz#f026dd939334b9506710728ee0276c0fc4380452"
