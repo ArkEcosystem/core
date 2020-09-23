@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Entity name only unique by type (#4008) (3b12c703, @air1one)
 -   Ignore random type errors thrown by lowdb on build (#4017) (785680c0, @deanpress)
 -   Delegate check only needed on entity register (#4024) (64b63b54, @air1one)
+-   Rate limit and peer broadcast (#4054) (6988cdd4, @air1one)
 
 ### Changed
 
@@ -1656,6 +1657,7 @@ Closed security vulnerabilities:
 [#4029]: https://github.com/ARKEcosystem/core/pull/4029
 [#4031]: https://github.com/ARKEcosystem/core/pull/4031
 [#4053]: https://github.com/ARKEcosystem/core/pull/4053
+[#4054]: https://github.com/ARKEcosystem/core/pull/4054
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
