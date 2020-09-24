@@ -412,7 +412,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
                 acceptedBlocks.push(blockInstance);
-                this.stateStore.lastDownloadedBlock = blockInstance.data;
             } else {
                 if (lastProcessResult === BlockProcessorResult.Rollback) {
                     forkBlock = blockInstance;
