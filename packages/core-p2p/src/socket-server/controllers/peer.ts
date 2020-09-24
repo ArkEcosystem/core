@@ -18,13 +18,13 @@ export class PeerController extends Controller {
         return this.peerStorage
             .getPeers()
             .filter((peer) => peer.port !== -1)
-            .map((peer) => peer.toBroadcast())
             .sort((a, b) => {
                 Utils.assert.defined<number>(a.latency);
                 Utils.assert.defined<number>(b.latency);
 
                 return a.latency - b.latency;
-            });
+            })
+            .map((peer) => peer.toBroadcast());
     }
 
     public async getCommonBlocks(
