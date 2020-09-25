@@ -412,6 +412,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
                 acceptedBlocks.push(blockInstance);
+                this.stateStore.setLastBlock(blockInstance);
             } else {
                 if (lastProcessResult === BlockProcessorResult.Rollback) {
                     forkBlock = blockInstance;
@@ -474,6 +475,24 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             }
         } else if (forkBlock) {
             this.forkBlock(forkBlock);
+        } else if (lastProcessedBlock) {
+            // Not all blocks are accepted. Clear queue and start again
+
+            this.logger.warning(`Could not process block at height ${lastProcessedBlock.data.height}.`);
+
+            this.clearQueue();
+
+            await this.databaseInteraction.revertBlock(lastProcessedBlock);
+
+            const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
+            const lastHeight: number = lastBlock.data.height;
+            const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
+
+            this.stateStore.setLastBlock(lastBlock);
+            this.resetLastDownloadedBlock();
+
+            await this.database.deleteRound(deleteRoundsAfter + 1);
+            await this.databaseInteraction.loadBlocksFromCurrentRound();
         }
 
         return acceptedBlocks;
