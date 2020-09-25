@@ -7,7 +7,7 @@ import { MemoryLogger } from "@packages/core-kernel/src/services/log/drivers/mem
 import capcon from "capture-console";
 
 let logger: Logger;
-let message: string;
+let message: string | undefined;
 
 beforeEach(async () => {
     const app = new Application(new Container());
@@ -39,7 +39,7 @@ describe("Logger", () => {
     it("should modify the message if it is not a string", () => {
         logger.info(["Hello World"]);
 
-        expect(message.trim()).toBeString();
+        expect(message!.trim()).toBeString();
     });
 
     it("should log a message with the [emergency] level", () => {
@@ -96,6 +96,13 @@ describe("Logger", () => {
 
         expect(message).toMatch(/debug/);
         expect(message).toMatch(/debug_message/);
+    });
+
+    it("should log a message with the [undefined] level", () => {
+        // @ts-ignore
+        logger.log("", "message");
+
+        expect(message).toMatch(/message/);
     });
 
     it("should suppress console output", () => {

@@ -107,9 +107,7 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
     public async put(key: K, value: T, seconds?: number): Promise<boolean> {
         this.store.set(key, value);
 
-        if (this.has(key)) {
-            this.eventDispatcher.dispatch(CacheEvent.Written, { key, value, seconds });
-        }
+        this.eventDispatcher.dispatch(CacheEvent.Written, { key, value, seconds });
 
         return this.has(key);
     }
@@ -203,9 +201,7 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
     public async forget(key: K): Promise<boolean> {
         this.store.delete(key);
 
-        if (this.missing(key)) {
-            this.eventDispatcher.dispatch(CacheEvent.Forgotten, { key });
-        }
+        this.eventDispatcher.dispatch(CacheEvent.Forgotten, { key });
 
         return this.missing(key);
     }

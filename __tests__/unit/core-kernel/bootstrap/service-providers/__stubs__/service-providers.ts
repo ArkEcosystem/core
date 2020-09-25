@@ -76,6 +76,18 @@ export class ValidConfigurationServiceProvider extends ServiceProvider {
     }
 }
 
+export class RequiredDependencyCanBeFoundServiceProvider extends ServiceProvider {
+    public async register(): Promise<void> {}
+
+    public name(): string {
+        return "stub";
+    }
+
+    public dependencies(): PluginDependency[] {
+        return [{ name: "dep", required: true }];
+    }
+}
+
 export class RequiredDependencyCannotBeFoundServiceProvider extends ServiceProvider {
     public async register(): Promise<void> {}
 
@@ -109,6 +121,18 @@ export class OptionalDependencyCannotBeFoundServiceProvider extends ServiceProvi
 
     public dependencies(): PluginDependency[] {
         return [{ name: "deps-optional" }];
+    }
+}
+
+export class RequiredDependencyVersionCanBeSatisfiedServiceProvider extends ServiceProvider {
+    public async register(): Promise<void> {}
+
+    public name(): string {
+        return "stub";
+    }
+
+    public dependencies(): PluginDependency[] {
+        return [{ name: "dep", version: "<=2.0.0", required: true }];
     }
 }
 

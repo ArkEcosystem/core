@@ -1,1611 +1,923 @@
-3667# Changelog
+# Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-## [2.6.57] - 2020-09-17
-
-### Fixed
-
--   Only verify peer blocks < our height (c968e69d, @air1one)
--   Stricter multipayment tx check (620027df, @air1one)
--   Initialize maxPayload on connection create (3ac3eb17, @air1one)
-
-## [2.6.54] - 2020-09-09
-
-### Changed
-
--   Verify peer claimed state (24a8b044, @air1one)
-
-### Fixed
-
--   Use head from utils (da13465e, @air1one)
-
-## [2.6.52] - 2020-08-11
-
-### Fixed
-
--   Discard zero-padded R/S (#3950) (9f197fa1, @air1one)
--   Check sig length value vs r/s length (#3950) (c2d3f2e5, @air1one)
--   Find by address / public key before username (#3950) (ddd19cc2, @air1one)
-
-## [2.6.49] - 2020-07-22
-
-### Fixed
-
--   Use bundled file for `browser` field (#3904) (20d66cf3, @luciorubeens)
--   Reduce download block size when getting no block (#3905) (e2232875, @air1one)
--   Ping ports using head (#3905) (db226bd3, @air1one)
--   Stricter rate limit for getBlocks (#3905) (df7a3aa1, @air1one)
--   Allow to discard possibly invalid txs from pool (#3905) (0450ee84, @air1one)
--   Check sig length vs R and S length (#3905) (1b0863c3, @air1one)
--   Check that R and S is positive (#3905) (0783ec08, @air1one)
-
-## [2.6.42] - 2020-06-29
+## [3.0.0] - 2020-XX-XX
 
 ### Added
 
--   Add rollup config for browsers ([#3830]) (da0d8d5a, @luciorubeens)
+-   Unvote+vote transaction ([700b9cd6], [@rainydio])
+-   Wallet autoIndex option ([51d01a2d], [@sebastijankuzner])
+-   Implement peer blacklisting ([f18928dd], [@sebastijankuzner])
+-   Split into 3 ports for blocks / transactions / others ([9796d138], [@air1one])
+-   Enable registering routes with pagination ([47d3cf20], [@sebastijankuzner])
+-   Add block and transactions indexes migration ([b42bfb6f], [@sebastijankuzner])
+-   Forget unresponsive peer ([5222b5cf], [@sebastijankuzner])
+-   Include estimateTotalCount into peers response ([ed8a0e80], [@sebastijankuzner])
+-   Disable individual watchers ([e943e563], [@sebastijankuzner])
+-   Set up aip36 milestone to enable entity transactions ([d9fc0c09], [@air1one])
+-   Implement database query support ([8a2033ac], [@sebastijankuzner])
+-   Dispatch wallet events ([7cb916ab], [@sebastijankuzner])
+-   Implement AIP36 ([ce618cc3], [@air1one])
+-   Dispatch schedule events ([cc707383], [@sebastijankuzner])
+-   Dispatch queue events ([9ac9b453], [@sebastijankuzner])
+-   Implement `info.lastForgedBlock` action ([6f9887f9], [@sebastijankuzner])
+-   Dispatch webhook events ([7ca7d968], [@sebastijankuzner])
+-   Implement `watcher.getEvents` action ([4757531e], [@sebastijankuzner])
+-   Implement log watcher ([1bfc528a], [@sebastijankuzner])
+-   Disaptch additional transaction-pool events ([4190ed63], [@sebastijankuzner])
+-   Implements DatabaseLogger ([1c968188], [@sebastijankuzner])
+-   Implement events listener and events database ([29672aa9], [@sebastijankuzner])
+-   Implement `info.nextForgingSlot` action ([d204f752], [@sebastijankuzner])
+-   Implement workers ([d70c4227], [@rainydio])
+-   Implements `forger.nextSlot` process actions ([6dacdfbb], [@sebastijankuzner])
+-   Implement `info.currentDelegate` action ([85287670], [@sebastijankuzner])
+-   Implement `snapshots.restore` action ([bd0370e3], [@sebastijankuzner])
+-   Implements `forger.lastForgedBlock` process actions ([97746d0c], [@sebastijankuzner])
+-   Implement trigger method in ProcessManager ([cf8a401b], [@sebastijankuzner])
+-   EstimateTotalCount API parameter ([c52b6ab7], [@rainydio])
+-   Implement `snapshots.list` action ([7a8bb932], [@sebastijankuzner])
+-   Implements `forger.currentDelegate` process action ([052aae85], [@sebastijankuzner])
+-   Implement `snapshots.delete` action ([f87e146f], [@sebastijankuzner])
+-   Implement `snapshots.create` action ([82382fc9], [@sebastijankuzner])
+-   Implement process actions ([1cb7e23e], [@sebastijankuzner])
+-   Implement `log.log` action ([fa49ca80], [@sebastijankuzner])
+-   Implement `log.archived` action ([10e82175], [@sebastijankuzner])
+-   Implement `configuration.updatePlugins` action ([36a607ab], [@sebastijankuzner])
+-   Implement `configuration.updateEnv` action ([ca28f66f], [@sebastijankuzner])
+-   Implement `configuration.getPlugins` action ([dcfff76d], [@sebastijankuzner])
+-   Implement `configuration.getEnv` action ([ef450f9d], [@sebastijankuzner])
+-   Count estimation ([118be7ba], [@rainydio])
+-   Implement `process.list` action ([f31109fc], [@sebastijankuzner])
+-   Implement `process.stop` action ([7db01265], [@sebastijankuzner])
+-   Implement `process.start` action ([c8fdde97], [@sebastijankuzner])
+-   Implement `process.restart` action ([3559f71e], [@sebastijankuzner])
+-   Implement `info.databaseSize` action ([f28ba8db], [@sebastijankuzner])
+-   Implement `info.diskSpace` action ([67cd2c67], [@sebastijankuzner])
+-   Implement `info.blockchainHeight` action ([9c20c02e], [@sebastijankuzner])
+-   Implement `info.coreStatus` action ([40ddab0d], [@sebastijankuzner])
+-   Implement `info.coreVersion` action ([4ef29686], [@sebastijankuzner])
+-   Feat(core-manager) implement token authentication ([81ebb949], [@sebastijankuzner])
+-   Implement basic authentication ([c3042577], [@sebastijankuzner])
+-   Implement IP whitelisting ([9894e9ab], [@sebastijankuzner])
+-   Implement core-manager skeleton ([fed54c9d], [@sebastijankuzner])
+-   Implement core-snapshots package ([8df596ab], [@sebastijankuzner])
+-   Dynamic block times ([084b3962], [@bertiespell])
+-   Hapi/nes implementation ([4ff97a26], [@air1one])
+-   Integrate triggers and actions ([0d5390fd], [@sebastijankuzner])
+-   Add reusable mocks from tests ([a82a0943], [@sebastijankuzner])
+-   Transaction to string method ([4999fec6], [@rainydio])
+-   Initial draft implementation of pluggable CLI ([8465625e], [@faustbrian])
+-   Ioc tags ([ff8975a0], [@rainydio])
+-   Allow use of custom crypto configuration ([84aee929], [@faustbrian])
+-   Allow extension of cache and queue service ([daadf358], [@faustbrian])
+-   Manual registration of service providers and configuration options ([460c6faa], [@faustbrian])
+-   Versioned transaction types ([ae6cab5d], [@supaiku])
+-   Support modifiers in transaction factories ([5191f699], [@faustbrian])
+-   Implement peer factory ([cded589b], [@faustbrian])
+-   Implement transaction factories ([c7606208], [@faustbrian])
+-   Implement null drivers ([dd83c08b], [@faustbrian])
+-   Initial draft implementation ([a636dfd3], [@faustbrian])
+-   Dispatch cache events ([c4a8b70d], [@faustbrian])
+-   Implement in-memory logger as default ([a116e3f0], [@faustbrian])
+-   Implement block factory ([5a5b3d7f], [@faustbrian])
+-   Implement transfer factory ([de75e6ea], [@faustbrian])
+-   Implement peer factory ([e323bb50], [@faustbrian])
+-   Make roundInfo optional in databaseService.getActiveDelegates() ([6e59a43d], [@supaiku])
+-   Add ports to bridgechain registration/update ([7fc356c7], [@supaiku])
+-   Add command to clear transaction pool ([6d6b6d33], [@supaiku])
+-   Implement Address.fromWIF method ([193417e1], [@supaiku])
+-   Filter locks by expiration status ([a0096ffe], [@supaiku])
+-   Ensure unique genesisHash per bridgechain ([bdb7f946], [@supaiku])
+-   Add `isExpired` property to locks response ([2f734e4f], [@supaiku])
+-   Include business asset in wallet transformer ([7cf1b107], [@supaiku])
+-   Add additional fields to bridgechains search sc… ([34b7e34e], [@supaiku])
+-   Implement throttling on outgoing p2p communication ([03c2ea3b], [@supaiku])
+-   Add additional fields to businesses search sche… ([1b7d90ac], [@supaiku])
+-   Ensure unique bridgechain name per business ([cfda8572], [@supaiku])
+-   Implement businesses/bridgechains endpoint ([b337cbe3], [@supaiku])
+-   Add round and forger tracker ([044ca830], [@faustbrian])
+-   Implement rate-limiter-flexible plugin ([cb50a622], [@faustbrian])
+-   Validate the application configuration ([3f62bb54], [@faustbrian])
+-   Implement pipeline service ([be252260], [@faustbrian])
+-   Allow enabling/disabling log methods ([292d9e84], [@faustbrian])
+-   Introduce process specific application configurations ([1a4e1320], [@faustbrian])
+-   Add service provider events ([00f4964b], [@faustbrian])
+-   Implement factories and generators ([bb91fab5], [@faustbrian])
+-   Implement assertion utilities ([47275d67], [@faustbrian])
+-   Add flush methods for attributes ([5c404b69], [@faustbrian])
+-   Get dependencies and required state from manifest ([95a787c2], [@faustbrian])
+-   Implement plugin aliases ([213b71a1], [@faustbrian])
+-   Support numerical and reference keys for attributes ([c53f6f52], [@faustbrian])
+-   Scoped attribute indexes ([c78e5611], [@faustbrian])
+-   Install plugins from local tarballs ([8f7d0d31], [@faustbrian])
+-   Initial draft implementation (non-functional) ([2d5ea1aa], [@faustbrian])
+-   Install, update and remove plugins ([3753b290], [@faustbrian])
+-   Load crypto configuration from directory ([b37233e3], [@faustbrian])
+-   Allow CLI command configurations ([ad5e8230], [@faustbrian])
+-   Initial draft of attributes service ([08ca0fac], [@faustbrian])
+-   Implement app config to configure log service ([dd4c9aba], [@faustbrian])
+-   Initial draft of mixin service ([0367e8e1], [@faustbrian])
+-   Initial draft of queues ([5e5eb2a4], [@faustbrian])
+-   Schedule tasks by cron or block intervals ([cfd39d08], [@faustbrian])
+-   Watch configuration and restart core on change ([344de61a], [@faustbrian])
+-   Initial draft of new container ([583f5a92], [@faustbrian])
+-   Initial draft of actions ([1a823ee7], [@faustbrian])
+-   Implement reusable exceptions ([75c11774], [@faustbrian])
+-   Auto-discovery for package manifest and config ([d449340c], [@faustbrian])
+-   Ability to listen to bootstrapping events ([bf422244], [@faustbrian])
+-   Support creation of scoped child containers ([9d12bb1f], [@faustbrian])
+-   Validate and cast package configuration on register ([ade3a5d4], [@faustbrian])
+-   Required plugins to terminate on registration failure ([d44e29cc], [@faustbrian])
+-   Validation service ([1de4f3fc], [@faustbrian])
+-   Add relay:share command to share relay instances via ngrok ([42b0805c], [@faustbrian])
+-   Handle inclusion and exclusion of service providers ([fc157999], [@faustbrian])
+-   Conditional enabling and disabling of services ([77893fda], [@faustbrian])
+-   Implement builder pattern to support driver-based plugins ([9b368c95], [@faustbrian])
+-   Filesystem abstraction ([0f7e589b], [@faustbrian])
+-   Application and service provider bootstrappers ([85b6b605], [@faustbrian])
+-   Initial draft of cache ([3c413d43], [@faustbrian])
+-   Initial draft of event dispatcher ([5d96cbfc], [@faustbrian])
+-   Initial draft of scheduler ([a399f194], [@faustbrian])
+-   Initial draft of core-kernel ([f47b55c8], [@faustbrian])
 
 ### Changed
 
--   Update `bcrypto` dependency to v5 ([#3823]) (0b510429, @faustbrian)
+-   Extend /node/fees and /transactions/fees with entities static fees ([773eb8ce], [@air1one])
+-   Do not bind directly handler to class method to allow extending response ([bab1d914], [@air1one])
+-   CloneWallet method in wallet-repository ([d0775fdc], [@sebastijankuzner])
+-   Ts-ignore ([feb1970e], [@air1one])
+-   Lint ([24b164b1], [@air1one])
+-   Use deepmerge for plugin configuration ([77719976], [@sebastijankuzner])
+-   Add indexers export ([437f8cfd], [@air1one])
+-   Wallet repository search methods ([17fcaf37], [@rainydio])
+-   Add exports for bridgechains ([a27b6c3f], [@air1one])
+-   Set maxPayload on ws server ([bf892b53], [@sebastijankuzner])
+-   Include missing dependencies in package.json ([6bb4fedd], [@sebastijankuzner])
+-   Export state-builder ([ae160d6e], [@air1one])
+-   Add publickey verification ([44088992], [@sleepdefic1t])
+-   Initialize blockchain when resolved first time ([3f8727b2], [@rainydio])
+-   Remove forget methods and use index instead ([9a6358a5], [@sebastijankuzner])
+-   Dot-separated-query hapi plugin ([d6803913], [@rainydio])
+-   Pagination configuration through joi context ([8ebf8218], [@rainydio])
+-   Put configuration into Joi context ([0ff67a96], [@rainydio])
+-   Keep process var over .env var ([640b9a1a], [@sebastijankuzner])
+-   Get registered server route ([08d8c936], [@sebastijankuzner])
+-   Use HEAD HTTP request for ping ([fcbe909b], [@sebastijankuzner])
+-   Add 3.0.0 alpha channel to valid peer versions ([f2da0bd8], [@air1one])
+-   Trigger processes from ark-core or ark-forger ([f00e075d], [@sebastijankuzner])
+-   BlocksInCurrentRound and forgingDelegates are arrays ([50ce984e], [@sebastijankuzner])
+-   Remove excess code from hapi-nes ([f0fe8b93], [@sebastijankuzner])
+-   Remove obsolete matchers package from merge ([76e9317a], [@air1one])
+-   Bump xstate ([0601aea4], [@air1one])
+-   Ts ignore ([c03c2dcf], [@air1one])
+-   Upload codecov reports all at once ([60624a3f], [@rainydio])
+-   Union query typeGroup with number ([1a81aee4], [@rainydio])
+-   Skip verification of transactions sent from multisignature wallets ([fcde9544], [@sebastijankuzner])
+-   Remove app.events and all of its usages ([35ef5926], [@rainydio])
+-   Remove app.log and all of its usages ([bccf74d2], [@rainydio])
+-   Copy over `@hapi/nes` with forked code ([5700867d], [@air1one])
+-   Process blocks log line ([4e685146], [@rainydio])
+-   Upgrade typeorm and pg packages ([daf4bb48], [@rainydio])
+-   Use shorter default timeouts ([f4025bbc], [@alessiodf])
+-   Better locking ([f0acce87], [@rainydio])
+-   Remove custom wallet repository ([bb8cb129], [@rainydio])
+-   (Core-transaction-pool): better readd log ([d65c9de3], [@rainydio])
+-   Log milestone change ([cecf8929], [@rainydio])
+-   Fix configuration and plugin actions ([d0650b1a], [@sebastijankuzner])
+-   Update nsfw 2.0.0 to support node.js 14 ([5ef81ef7], [@rainydio])
+-   `GetPeerConfig` return plugins information ([a1246552], [@air1one])
+-   Support fedora ([a29466e8], [@alessiodf])
+-   Update bcrypto dependency ([c74e4ca7], [@sebastijankuzner])
+-   CentOS install fixes ([8bd81173], [@adrian69])
+-   Refactor(core-snapshot) improve snapshotService interface ([312a1a71], [@sebastijankuzner])
+-   Enable assumeChangesOnlyAffectDirectDependencies for TypeScript ([027c6dec], [@faustbrian])
+-   Use `export * as ns` syntax ([04436877], [@faustbrian])
+-   Block and transaction history services ([2038cd5a], [@rainydio])
+-   Update dependencies and apply formatting ([e6d579d6], [@faustbrian])
+-   Remove core-utils package ([e428af25], [@faustbrian])
+-   Merge index and reindex into one function inside WalletRepository ([af2d8dcf], [@bertiespell])
+-   Resolve merge conflicts ([27813b35], [@faustbrian])
+-   Segregate pools by wallets ([2aca6e17], [@rainydio])
+-   Define default value for maxTransactionBytes ([77e03662], [@air1one])
+-   Bump hapi/joi version to 17.1.0 ([d9b8bc56], [@air1one])
+-   Fix lint issues ([68f13e6c], [@air1one])
+-   Fix typescript errors ([0d726edf], [@air1one])
+-   Setup Wallaby.js configuration ([ac0c0fef], [@rainydio])
+-   Transaction broadcaster ([8fc18c1a], [@rainydio])
+-   Processor and errors ([acf34236], [@rainydio])
+-   Wallet repositories ([b87899a5], [@rainydio])
+-   Storage ([c558ddde], [@rainydio])
+-   Add symbol for TransactionHandlerProvider ([5834847a], [@sebastijankuzner])
+-   Htlc-lock recipient ([03b51cc6], [@rainydio])
+-   Use ioc for wallet repository indexes ([2eb295d5], [@rainydio])
+-   Add ability to inject plugin configuration ([d4acdfe2], [@rainydio])
+-   Collator service ([319f778c], [@rainydio])
+-   Use wallet repositort with `state=temp` tag instead of temp repository ([1d10acf5], [@rainydio])
+-   Tagged pool wallet repository usages state=pool ([f2a5852a], [@rainydio])
+-   Added state=blockchain tag to wallet repository and handler repository references ([72440be8], [@rainydio])
+-   Lifting singleton from transaction handler registry ([35710668], [@rainydio])
+-   Stricter eslint configuration ([88219cfd], [@faustbrian])
+-   Change handler dependency handling ([b51793a6], [@rainydio])
+-   IoC TransactionHandlerRegistry ([c11af3a1], [@rainydio])
+-   Take voteBalance updates out of apply/revert block functions ([e69e33c0], [@rainydio])
+-   Resolve various circular dependencies ([c84b9766], [@faustbrian])
+-   Update TypeORM to support PG12 ([905cac2f], [@faustbrian])
+-   Adjust to new infrastructure ([cad34570], [@faustbrian])
+-   Setup madge to detect circular dependencies ([82623ff7], [@faustbrian])
+-   Adjust to new infrastructure ([8482282a], [@faustbrian])
+-   Update dependencies ([dc68c251], [@faustbrian])
+-   Expect actions, jobs and event listeners to be classes ([84c47884], [@faustbrian])
+-   Create a real block via block factory ([5a82211f], [@faustbrian])
+-   Create a real wallet via wallet factory ([838ca5de], [@faustbrian])
+-   Expose queue service through a factory pattern ([4f3e8dce], [@faustbrian])
+-   Expose pipeline service through a factory pattern ([6529b133], [@faustbrian])
+-   Expose cache service through a factory pattern ([3eab947d], [@faustbrian])
+-   Expose internals for extension ([243f0bca], [@faustbrian])
+-   Update @hapi dependencies ([1e489b06], [@faustbrian])
+-   Remove until a proper rewrite ([f67c9137], [@faustbrian])
+-   Adjust to new infrastructure ([a7f3d03e], [@faustbrian])
+-   Adjust to new infrastructure ([f93a9118], [@faustbrian])
+-   Decouple wallet entity from container ([b3aab122], [@faustbrian])
+-   Flatten contract namespace ([5c3afa4a], [@faustbrian])
+-   Clearly separate event enums by type ([a9241c6c], [@faustbrian])
+-   Rename ActionService to TriggerService ([148e98f1], [@faustbrian])
+-   Better handling Debian/Ubuntu derivatives NodeJS install ([d8931255], [@supaiku])
+-   Handle Debian/Ubuntu derivate NodeJS install ([9d8de5de], [@supaiku])
+-   Set minimum fee on transaction types ([53cb5c4f], [@supaiku])
+-   Set transactionBaseSchema fee minimum to 0 ([169170e5], [@supaiku])
+-   More verbose static fee mismatch error ([218555a3], [@supaiku])
+-   Use transactionId ref in lockTransactionId schema definition ([1f5aee46], [@supaiku])
+-   Add schema for orderBy query param ([166b1dac], [@supaiku])
+-   Adjust generic name schema ([39455227], [@supaiku])
+-   Make deserializers static ([c5b5301b], [@supaiku])
+-   Move verifySignatures into Transactions.Verifier ([0cb6ba01], [@supaiku])
+-   Validate expiration type based on enum ([f471dd97], [@supaiku])
+-   Unique ipfs hashes ([b1efd04c], [@supaiku])
+-   Require static fee ([bd573137], [@supaiku])
+-   Remove misleading order by expirationValue ([168c0c79], [@supaiku])
+-   More restrictive wallet id schema ([905b8d22], [@supaiku])
+-   Use URI schema for website an… ([55a8bbb5], [@supaiku])
+-   Improve log message ([0acd17fd], [@supaiku])
+-   Update multipayment limits ([e516c544], [@supaiku])
+-   Change MaximumPaymentCountExceededError error ([d5d9b983], [@supaiku])
+-   Use 4 bytes instead of 8 byte… ([ea195e2b], [@supaiku])
+-   Don't allow multiple business or bri… ([8e5475d9], [@supaiku])
+-   Remove redundant bridgechain sc… ([317a89fe], [@Lemii])
+-   Convert htlc lock vendorfield to string during bootstrap ([1d9dd821], [@dated])
+-   Consolidate bridgechain schem… ([c08d15d4], [@supaiku])
+-   BridgechainUpdate errors ([8d8bb74f], [@Lemii])
+-   Use multiPaymentLimit from milestone if avail… ([7510239e], [@supaiku])
+-   Refactor searchBusinesses & searchBridgechains ([43ce7dd4], [@dated])
+-   Overwrite arrays when merging milestones ([d7e895c0], [@dated])
+-   Update docker to node.js 12 ([c88c3325], [@adrian69])
+-   Format timestamp of locks ([b96bb497], [@dated])
+-   Print more details in log messages ([f961d053], [@vasild])
+-   Sort peers by height, latency ([4a9afb4a], [@dated])
+-   Migrate to TypeORM ([c91073ee], [@supaiku])
+-   Simplify resource transformation and response caching ([dfc95a66], [@faustbrian])
+-   Pass the booted service provider to boot/disposeWhen ([acc5e16c], [@faustbrian])
+-   Split start into register and boot ([4fc0559e], [@faustbrian])
+-   Split start into register and boot ([6fe1e1e1], [@faustbrian])
+-   Split start into register and boot ([3131db9b], [@faustbrian])
+-   Rename enable/disableWhen to boot/disposeWhen ([83c56f15], [@faustbrian])
+-   Listen to InternalEvents.ServiceProviderBooted for enable/disableWhen ([8ca90006], [@faustbrian])
+-   Flatten the Enums namespace ([dbf7a07a], [@faustbrian])
+-   Ship app.json as default configuration ([bc53bce3], [@faustbrian])
+-   Remove AttributeService in favour of container bindings ([27668ace], [@faustbrian])
+-   Upgrade TypeScript ESLint to support TypeScript 3.7 ([7d449acb], [@faustbrian])
+-   Use assertion functions from TypeScript 3.7 ([a801c519], [@faustbrian])
+-   Update to TypeScript 3.7 ([65d98fb8], [@faustbrian])
+-   Add internal contracts and delete obsolete ones ([afd15125], [@faustbrian])
+-   Throw AssertionException instead of using assertions ([0a4a659b], [@faustbrian])
+-   Complete IoC migration and adjust tests ([2e7769a9], [@faustbrian])
+-   Emit sourcemaps ([25bab007], [@supaiku])
+-   Generate network configuration with votes and transfers ([196be48f], [@faustbrian])
+-   Support global and local use of attribute stores ([eb52b949], [@faustbrian])
+-   Enable strict mode and fix resulting issues ([c5d360fd], [@faustbrian])
+-   Use a map to store attributes ([d1cda3c9], [@faustbrian])
+-   Remove remote configuration driver ([a3e9749b], [@faustbrian])
+-   Make use of more @arkecosystem/utils methods ([8056ef85], [@faustbrian])
+-   Update TypeScript configuration ([db0ce174], [@faustbrian])
+-   Resolve plugin configurations from service provider repository ([b13d52d3], [@faustbrian])
+-   Make use of more @arkecosystem/utils methods ([b0c57992], [@faustbrian])
+-   Setup husky and commitlint ([5fa1df36], [@faustbrian])
+-   Leave comments for things that need reviews ([a60734a8], [@faustbrian])
+-   Use @arkecosystem/utils through @arkecosystem/core-kernel ([6645c131], [@faustbrian])
+-   Use cloneDeep, snakeCase and camelCase from @arkecosystem/utils ([3a34308e], [@faustbrian])
+-   Temporarily deprecate core-elasticsearch ([8697d1da], [@faustbrian])
+-   Make use of IoC in blockchain, p2p and transaction pool ([8059fb51], [@faustbrian])
+-   Always check for updates when something runs ([41a869a4], [@faustbrian])
+-   Replace proxy services with container bindings ([5d7d3d6c], [@faustbrian])
+-   Remove lodash dependencies & general housekeeping ([3c12f5a1], [@faustbrian])
+-   Break wallet manager into repository & state management ([b2271ceb], [@faustbrian])
+-   Deprecate core-explorer ([d98ada54], [@faustbrian])
+-   Deprecate core-exchange-json-rpc and core-http-utils ([7116976d], [@faustbrian])
+-   Remove the abstract logger ([bb528bf6], [@faustbrian])
+-   Deprecate core-vote-report ([c97357c7], [@faustbrian])
+-   Deprecate core-tester-cli ([789fdb70], [@faustbrian])
+-   Deprecate core-wallet-api ([6a1f5c1d], [@faustbrian])
+-   Merge server utils into an HttpServer class ([d5821761], [@faustbrian])
+-   Adapt to new container ([eceab20f], [@faustbrian])
+-   Merge core-utils ([56850c56], [@faustbrian])
+-   Adapt to new container ([67b10ddc], [@faustbrian])
+-   Deprecate core-error-tracker\* packages ([0c03165d], [@faustbrian])
+-   Implement RFC 5424 log levels ([c6137288], [@faustbrian])
+-   Deprecate core-logger-signale and core-logger-winston ([ab8cc65a], [@faustbrian])
+-   Guarantee package order in config through arrays ([dc4bc4ed], [@faustbrian])
+-   Simplify action implementation and remove awilix ([75199f71], [@faustbrian])
+-   Apply builder pattern to events service ([e6c9e9b6], [@faustbrian])
+-   Use symbols to avoid name clashes in container ([5f4c6e8c], [@faustbrian])
+-   Use object destructuring for event listeners ([d6a42f2e], [@faustbrian])
+-   Add container helper methods ([050ce16b], [@faustbrian])
+-   Group container and provider logic ([58478848], [@faustbrian])
+-   Setup documentation generation with TypeDoc ([01e47446], [@faustbrian])
+-   Replace tslint with typescript-eslint ([f407903b], [@faustbrian])
+-   Organise contracts and exceptions into namespaces ([aec0f5ad], [@faustbrian])
+-   Container friendly naming of bindings ([7c402ac2], [@faustbrian])
+-   Migrate plugin entry from objects to service providers ([0c55ea13], [@faustbrian])
+-   Remove deprecated folder ([d0c299eb], [@faustbrian])
+-   Clean slate for integration and unit tests ([659b881b], [@faustbrian])
 
 ### Fixed
 
--   Use incremental timestamps for `make:block` ([#3818]) (4612cd24, @deanpress)
-
-## [2.6.39] - 2020-06-17
-
-### Fixed
-
--   Block schema violation ([#3806])
-
-## [2.6.38] - 2020-05-27
-
-### Fixed
-
--   Discard late-forged blocks from forger ([#3746])
-
-## [2.6.37] - 2020-05-12
-
-### Changed
-
--   Custom validation for `postBlock` in `core-p2p` worker ([#3695])
-
-## [2.6.36] - 2020-05-04
-
-### Fixed
-
--   Update vote balance with htlc locked balance on vote transactions ([#3669])
--   Use sorted array (instead of tree) for storing transactions by fee and nonce ([#3678])
-
-## [2.6.34] - 2020-04-28
-
-### Fixed
-
--   Create a unique round ID for elasticsearch ([#3659])
-
-### Changed
-
--   Update @arkecosystem/utils dependency ([#3665])
--   Use tree memory structure to sort by fee and by sender nonce **(core-transaction-pool)** ([#3667])
-
-## [2.6.31] - 2020-03-25
-
-### Fixed
-
--   Allow transition to fork from idle ([#3614])
-
-## [2.6.30] - 2020-03-19
-
-### Changed
-
--   Optimize database adding indexes ([#3605])
--   Restrict some api sorting and filtering parameters that are not needed ([#3605])
-
-## [2.6.29] - 2020-03-13
-
-Re-release for NPM.
-
-## [2.6.28] - 2020-03-13
-
-### Changed
-
--   Reset missedBlocks before await call ([#3598])
-
-## [2.6.27] - 2020-03-12
-
-### Fixed
-
--   Always apply to sender wallet on `acceptChainedBlock` ([#3594])
--   Block incomplete sockets ([#3596])
-
-## [2.6.25] - 2020-03-09
-
-### Fixed
-
-Fix block apply issue where in some cases transaction could be applied twice to recipient in transaction pool ([#3590])
-
-## [2.6.24] - 2020-03-04
-
-### Fixed
-
--   add missing transactions.type_group index ([#3573])
-
-### Changed
-
--   update xstate to v4.8.0 ([#3575])
--   use application events from core-event-emitter ([#3574])
-
-## [2.6.21] - 2020-03-04
-
-### Fixed
-
--   Set height 1 on config manager for processing genesis block (blockchain replay) ([#3561])
--   Handle multiple installations of jemalloc ([#3562])
--   jemalloc compatibility for ubuntu 16.04 ([#3567])
--   Always call applyToRecipient ([#3570])
-
-### Changed
-
--   Allow multiple ports in bridgechain schema ([#3504])
--   Allow to resign business only when bridgechains are resigned ([#3524])
--   Make bridgechain genesis hash only unique per wallet ([#3523])
--   Add exceptions for business resignation ([#3551])
--   No default addonBytes for magistrate transactions ([#3560])
--   Use jemalloc as the memory allocator ([#3541])
-
-## [2.6.11] - 2020-02-26
-
-### Fixed
-
--   Only accept valid http path (SC http server) ([#3537])
-
-## [2.6.10] - 2020-02-20
-
-### Fixed
-
--   Disable permessage-deflate ([#3518])
-
-## [2.6.9] - 2020-02-19
-
-### Added
-
--   Filter peers by version range ([#3465])
--   Add flag to skip export of rolled back transactions ([#3459])
-
-### Fixed
-
--   Check for missed blocks before applying round ([#3507])
--   Make app.js optional as initially intended ([#3510])
--   Multisig legacy allow signatures property ([#3489])
-
-### Changed
-
--   Remove pm2 from docker ([#3505])
--   Use findByPublicKey to set both publickey and address on the multisig wallet ([#3498])
--   Remove long dependency ([#3502])
-
-## [2.6.1] - 2020-02-11
-
-### Changed
-
--   Update `@arkecosystem/exchange-json-rpc`
-
-## [2.6.0] - 2020-02-11
-
-### Added
-
--   Expose `isValidPeer` via ajv format rule ([#2960])
--   Implement AIP 102 ([#2773])
--   Implement AIP 103 ([#2858])
--   Implement MultiPayment (AIP11) ([#2669])
--   Implement nonces ([#2573])
--   Multi Signature support for WIF ([#2979])
--   Transaction type dependencies ([#2859])
--   Add nonce to wallet transformer ([#2760])
--   Allow easy retrieval of first and last block ([#2641])
--   Allow retrieval of raw blocks and transactions ([#2616])
--   Endpoints for locks/businesses/bridgechains ([#2940])
--   Find htlc unlock transactions ([#2976])
--   Include core version in node/configuration ([#2855])
--   Search transactions by asset ([#2618])
--   Enforce transactions' nonce order from blockProcessor ([#2873])
--   Change minimum version via milestone ([#2869])
--   Use compression on the p2p level ([#2886])
--   Add support for transaction nonces ([#2925])
--   Attributes getter/setter for wallet ([#2839])
--   Wallet Manager indexes ([#2845])
--   Register wallet attributes before accessing them ([#2867])
--   Allow CLI command configurations ([#2972])
--   Allow passing height to `configManager.isNewMilestone` ([#3001])
--   Expose transaction height, blockId and generatorPublicKey during bootstrap ([#3096])
--   Add `/transactions/schemas` endpoint ([#3083])
--   Implement businesses/bridgechains endpoint ([#3119])
--   Implement throttling on outgoing p2p communication ([#3170])
--   Implement Address.fromWIF method ([#3228])
-
-### Fixed
-
--   Always deserialize vendor field ([b537d6f327e939ff40b680ea7d558e8fdb3ac921])
--   Basic validation on incoming p2p data + terminate socket on error ([#3037])
--   Clone webhook before mutating it ([#2863])
--   Delete existing payload processor db ([#2864])
--   Do not sort transactions in forger / update purgeByBlock logic for handling nonces ([#2678])
--   HTLC refund handler to use performGenericWalletChecks ([#2944])
--   Move wallet manager "zero balance" check to transaction handlers ([#2896])
--   Multipayment balance / vote balance ([#2838])
--   Range selection in pool's getTransactions() ([#2952])
--   `/wallets/{id}/transactions` search parameters ([#2923])
--   Return block timestamp for v2 transactions ([#2906])
--   Return count of filtered peers ([#2814])
--   Clear queue on invalid block ([#2897])
--   Do not reset `noBlockCounter` when `downloadBlocks` succeeds ([#2968])
--   Only shift milestoneHeights[] if at that height ([#2904])
--   Round deletion during rollback ([#2970])
--   Prefix table names with schema ([#2830])
--   Store vendor field in bytea ([#3048])
--   Add missing typeGroup and emit StateStarting ([#2932])
--   Use correct IV length for encryption ([#3036])
--   Disconnect if api reports different network ([#2909])
--   Don't cause suspensions for unresponsive plugins ([34749bf84bcec3fecd0098c0d42f52deb1f6ba4a])
--   Fix the genesis block id during verify ([#2809])
--   Export/import transactions type_group ([#2996])
--   Remove bogus skipRoundRows ([#2973])
--   `buildDelegateRanking` called too early ([#2921])
--   `buildVoteBalances` called too early ([#2920])
--   Differentiate between wallets and delegates ([#2854])
--   Index recipient wallets during bootstrap ([#2947])
--   Copy vote target into temp wallet manager ([1209a36366c8fd3ba31fab2463011b7ce1a7d844])
--   Sort by fee, nonce ([#2937])
--   Implement Delegate resignation ([#3045])
--   Reject delegate resignation if not enough active delegates ([#2919])
--   Update wallet nonce when applying v1 transaction ([#2959])
--   Use supply calculator in delegate approval calculation ([#2918])
--   Cast params in condition checks ([#2887])
--   Add legacy multisignature schema ([#3040])
--   Ensure only one signature per participant ([#2889])
--   Handle mainnet address exceptions ([#3055])
--   HTLC lock buffer allocation ([#2936])
--   Legacy multi signature verification ([#2898])
--   Run ajv validator again when encountering exceptions ([#3008])
--   Use `anyOf` for transactions schema ([#2894])
--   Use 2 bytes to store number of payments ([#2928])
--   Use strict comparison to decide if a transaction should be enabled ([#3087])
--   Include typeGroup in `/transactions/fees` and `/node/fees` endpoints ([#3193])
--   Add missing offset handling to /api/peers ([#3075])
--   Use numerics for typeGroups in /transactions/types ([#3112])
--   Add transactions back to pool only after reverting all blocks ([#3138])
--   Pass IBlockData to processBlocks instead of IBlock ([#3426])
--   Don't assume blocksInCurrentRound is defined ([#3341])
--   Set last height before initializing last block to use correct milestones ([#3109])
--   Don't swallow BIP38 errors ([#3271])
--   Use the request origin to avoid 404s ([#3071])
--   Raise `getCommonBlocks` rate limit ([#3069])
--   Return error when app is not ready ([#3171])
--   Uncaught IPC timeout ([#3140])
--   Support nonces and chunk transactions before broadcast ([#3081])
--   Create new wallet if not found ([#3086])
--   Wallet-manager fallback to database wallet manager findByIndex() when no "local" match ([#3256])
--   Throw if transaction key is already taken ([#3095])
--   Update sender's wallet after validation ([#3291])
--   Prevent snapshot commands from running if core is running ([#3196])
--   Remove password flag constraint for core:forger command ([#3270])
--   Properly implement block size limit ([#3154])
--   Strengthen schema validation checks ([#3062])
-
-### Changed
-
--   Log the reason for discarding a block ([#2903])
--   Accept prerelease version ([#2911])
--   Add `round.missed` event ([#3011])
--   Do not temporary increment/decrement nonce when checking transaction validity ([#2587])
--   Increase transaction type size ([#2861])
--   Reject V1 transactions after milestone ([#2879])
--   Remove `vendorFieldHex` ([#3014])
--   Remove asset migration heuristic ([#2999])
--   Return all registered transaction types ([#2878])
--   Strengthen a nonce check in performGenericWalletChecks() ([#2949])
--   Add default transaction fees ([#2842])
--   Add `vendorField` and `timestamp` to `/locks` endpoint ([#3005])
--   Integrate hapi-pagination to replace fork ([#2994])
--   Use pagination configuration limit ([032caa1b990e91937e4bc1561bc1aeaeca9e37d9])
--   Break loop if block contains v1 transaction ([#2914])
--   Add nonce column ([#2844])
--   Emit `forging.missing` earlier ([#2893])
--   Emit missing `transaction.reverted` event and remove obsolete ones ([#2895])
--   Cleanup socket errors ([#3056])
--   Increase network timeouts ([#2828])
--   Make peer reply errors less verbose ([#2962])
--   Share rate limiter between workers ([#2912])
--   Expose current block for transaction handlers ([#2856])
--   Clear cached transaction ids after accepting block ([#2916])
--   Don't accept expired v1 transactions ([#2948])
--   Bootstrap transactions in batches ([#2997])
--   Elaborate the unexpected nonce error ([#2943])
--   HTLC implementation ([#2915])
--   Make handler functions asynchronous ([#2865])
--   Use default heap size regardless of available memory ([#2998])
--   Change maximum recipients of multipayment via milestone ([#2961])
--   Export abstract builder for use by plugins ([#2721])
--   Fallback to ECDSA signature for version 2 transactions ([#2584])
--   Make error more verbose ([#2938])
--   Move base58 functions to utils ([#2675])
--   ECDSA Signature deserialization for v2 transactions ([#2877])
--   Remove unnecessary check from validateTransactions() ([#2951])
--   Fallback to core typegroup if querying by type ([#3147])
--   Integrate hapi-pagination to replace fork ([#3034])
--   Sort peers by height, latency ([#3078])
--   Add `stateBuilder.finished` to ApplicationEvents ([#3084])
--   Make deserializers static ([#3234])
--   Fix genesis and exception transactions cache ([#3296])
--   Overwrite arrays when merging milestones ([#3108])
-
-### Performance
-
--   Avoid O(m\*n) when filtering pool txs and simplify the code ([#2941])
--   Ditch unnecessary reindex() in multi-payment bootstrap ([#3022])
--   Keep genesis block instance in-memory ([7a73aef8b29d40572d1524cf8b1bafbffa3b0964])
--   Use lodash to efficiently remove forged transactions ([#2942])
--   Add index on transactions.type ([#3043])
--   Speed up nonce checks at DB level ([#2910])
--   Make address network byte check part of serde ([#3000])
--   Memoize base58 de/encoding ([#3015])
--   Replace bignumber.js with native BigInt ([#3010])
--   Replace bs58check with bstring ([#2673])
--
-
-## [2.5.38] - 2020-01-21
-
-Rerelease of 2.5.37 due to some npm issues.
-
-## [2.5.37] - 2020-01-21
-
-### Fixed
-
--   Remove banning when peer opens multiple sockets ([#3409])
-
-## [2.5.36] - 2020-01-21
-
-### Fixed
-
--   Discard blocks containing too many transactions ([#3404])
--   Disconnect when multiple sockets are opened from same IP ([#3404])
--   Handle invalid WS opcodes ([#3404])
--   Disconnect for p2p SocketCluster events that do not have a handler ([#3404])
--   Handle payload with additional properties ([#3404])
-
-## [2.5.31] - 2019-12-19
-
-### Fixed
-
--   Handle disconnect packets ([#3354])
-
-## [2.5.30] - 2019-12-09
-
-### Fixed
-
--   Stricter p2p msg check + ip blocking ([#3331])
--   Purge ipLastError every hour ([#3331])
-
-## [2.5.28] - 2019-11-05
-
-### Fixed
-
--   Stricter WS/SC events/messages handling ([#3208])
--   Handle unwanted control frames ([#3208])
-
-### Changed
-
--   Prepare for upcoming 2.6 release ([#3208])
-
-## [2.5.26] - 2019-10-07
-
-### Changed
-
--   Integrate hapi-pagination to replace fork ([#3030])
-
-## [2.5.25] - 2019-09-19
-
-### Fixed
-
--   Terminate connection when not authorized ([#2945])
-
-## [2.5.24] - 2019-09-04
-
-### Fixed
-
--   Cast params in webhook condition checks ([#2887])
--   Drop connections with malformed messages ([#2907])
--   Terminate blocked client connections ([#2907])
--   Use `anyOf` for transactions schema ([#2894])
--   Use compression on the p2p level ([#2886])
-
-## [2.5.17] - 2019-08-06
-
-### Fixed
-
--   Differentiate between wallets and delegates ([#2854])
--   Clone webhook before mutating it ([#2863])
--   Delete existing db ([#2864])
-
-## [2.5.14] - 2019-07-30
-
-### Fixed
-
--   Add content-type header for all requests ([#2840])
--   Return data directly if cache is disabled in `core-api` ([#2831])
--   Internal server error caused by invalid orderBy field in `core-api` ([#2847])
--   Peer discovery limit ([#2850])
-
-### Changed
-
--   Lookup delegates by key to improve performance ([#2837])
--   Add ntp and google servers for ntpd to docker image ([#2823])
--   Improve performance of transactions endpoint in `core-p2p` ([#2848])
-
-## [2.5.7] - 2019-07-16
-
-### Fixed
-
--   Accepted versions ([#2802])
--   Fix the genesis block id during verification of snapshots ([#2809])
--   Average fee and wallet transaction retrieval in `@arkecosystem/core-exchange-json-rpc` ([1.0.3](https://github.com/ArkEcosystem/exchange-json-rpc/releases/tag/1.0.3))
-
-### Changed
-
--   Export dist/index.js for cjs and umd in `@arkecosystem/crypto` ([#2807])
--   Update dependencies to their latest versions ([#2808])
--   Lookup wallets by keys for improved performance ([#2810])
-
-## [2.5.1] - 2019-07-11
-
-### Fixed
-
--   SSL functionality of core-api ([#2800])
-
-## [2.5.0] - 2019-07-11
-
-### Added
-
--   Allow retrieval of raw blocks and transactions via API ([#2616])
--   Search transactions by asset via API ([#2618])
--   Allow easy retrieval of first and last block ([#2641])
--   Make it configurable whether to use estimates for `core-api` ([#2772])
-
-### Fixed
-
--   Impose the same rate limit as the public API ([#2717])
--   Add option to configure request timeouts for webhooks([#2710])
--   Use CORE_API_DISABLED variable in defaults ([#2711])
--   Always attempt to download blocks after start ([#2746])
--   Possible database corruption when writing and deleting blocks ([#2707])
--   Forget peer when socket is disconnected ([#2720])
--   Off-by-one error when fetching blocks from peer ([#2733])
--   Check for user confirmation in snapshot commands ([#2734])
--   Grant access if the whitelist is empty ([#2748])
--   Do not purge transactions when a block is not accepted ([#2751])
--   Previous round order calculation ([#2754])
--   Revert accepted blocks when saveBlocks fails ([#2761])
--   Do not restore genesis block with wrong id ([#2759])
--   Dvoid iterating on non-iterable peerBlocks ([#2763])
--   Correct estimate if less than limit rows ([#2764])
--   Try harder to return the requested number of transactions ([#2765])
--   Reject future and expired transaction timestamps ([#2757])
--   Delete last block if deserialization fails ([#2770])
--   Raise bignumber maximum ([#2777])
--   Allow future timestamps up to 3600 + blocktime seconds ([#2787])
--   Handle null url and malformed JSON payloads ([#2797])
-
-### Changed
-
--   **BREAKING:** Treat and return BigInt values as strings _(affects core-api)_ ([#2739])
--   Download serialized blocks to improve performance ([#2743])
--   Better peer block header check to improve performance ([#2719])
--   Exit on unexpected database errors ([#2744], [#2755])
--   Block peers when the rate limit is exceeded ([#2745])
--   Delay peer discovery until after state initialization is done ([#2727])
--   Improved P2P rate limiting ([#2729])
--   Only fetch block headers when verifying peers ([#2728])
--   Only look for new peers when below minimum peers ([#2714])
--   Always keep the Wallet API enabled ([#2715])
--   Respect the whitelist of the public API ([#2718])
--   Add foreign key on transactions block id ([#2671])
--   Remove the id column from rounds ([#2723])
--   Discover new peers sooner ([#2771])
--   Enforce chained blocks at database level ([#2753])
--   Increase timeout, check time left in slot ([#2788])
--   Refresh peer ports ([#2784])
--   Remove blockSender ([#2756])
-
-### Removed
-
--   Removed the `ark-node` legacy API known as `v1` ([#2577])
-
-## [2.4.15] - 2019-07-09
-
--   Backport various bug fixes from 2.5 ([#2782])
-
-## [2.4.14] - 2019-07-02
-
-### Fixed
-
--   Try harder to return the requested number of transactions ([#2766])
-
-## [2.4.13] - 2019-06-26
-
-### Changed
-
--   Do not purge transactions when a block is not accepted ([#2751])
-
-## [2.4.12] - 2019-06-14
-
-### Changed
-
--   Cache genesis transaction ids for improved performance ([#2699])
-
-### Fixed
-
--   Take milestones into account when downloading blocks in parallel ([#2700])
-
-## [2.4.1] - 2019-06-13
-
-### Fixed
-
--   Use SQL to calculate fee statistics ([#2692])
--   Increase rate limit to handle bigger networks ([#2482])
-
-## [2.4.0] - 2019-06-12
-
-All changes listed in this section are things that either alter how certain data in core is treated and processed or changes to the public API of a package.
-
-As we move towards 2.6 and the completion of AIP11, AIP18 and AIP29 there will be various breaking changes. The main concern of most developers will be breaking changes to `@arkecosystem/crypto` so go through the commits listed below and make sure you adjust everything in your application that is affected by a change.
-
-### Exchange JSON-RPC
-
-The JSON-RPC we offer, formerly known as `@arkecosystem/core-json-rpc`, has received a rework to turn it into a real RPC that is easier to use and maintain.
-
-#### Programmatic
-
-The biggest change is that it now offers programmatic use to make integration into ARK Core easier while simultaneously allowing it to run as a standalone application detached from a relay.
-
-**Standalone**
-https://github.com/ArkEcosystem/exchange-json-rpc
-
-**ARK Core Plugin**
-https://github.com/ArkEcosystem/core/tree/develop/packages/core-exchange-json-rpc
-
-> The `@arkecosystem/core-json-rpc` plugin has been deprecated and replaced by `@arkecosystem/core-exchange-json-rpc` because of different those 2 plugins work under the hood and their dependencies.
-
-#### Peers
-
-A few smaller improvements to how peers and faulty responses are being handled have also been made which should smoothen the experience without having to manually retry requests.
-
-#### Database
-
-The Exchange JSON-RPC uses SQLite under the hood to store all data. In previous versions it was using https://github.com/mapbox/node-sqlite3 which was known to cause random build issues for ARK Core and sometimes needed a dozen retries before it finally compiled.
-
-That dependency has been replaced with https://github.com/JoshuaWise/better-sqlite3 which is the same that ARK Core uses for its transaction pool. It provides better performance, receives updates and fixes when needed and build errors are a thing of the past.
-
-#### Migration
-
-If you've been using the JSON-RPC in the past together with ARK Core the migration to the Exchange JSON-RPC is as simple as following the steps at https://docs.ark.io/releases/v2.4/migrating_2.3_2.4.html#step-5-update-core-json-rpc-to-core-exchange-json-rpc.
-
-#### Disclaimer
-
-1. The Exchange JSON-RPC is only maintained for exchanges, as the name suggests. We do not offer any support or guidance unless you are an Exchange in which case you most likely will already be in touch with us.
-2. Do not use the Exchange JSON-RPC unless you are forced too and have no other options. The Public API provides much greater capabilities of searching and filtering data.
-
-### Added
-
--   Implement in `@arkecosystem/core-state` to manage the state of in-memory data ([#2479])
--   Implement a blockchain replay command ([#2526])
--   Save blocks in batches during sync ([#2500])
--   Implement v2/node/fees endpoint ([#2393])
--   Allow setting a vendor field for transactions created via `@arkecosystem/core-json-rpc` ([#2425])
--   Limit the number of accepted peers per subnet ([#2507])
--   **BREAKING:** Implement WebSockets with SocketCluster ([#2273])
--   Parallel block download ([#2433])
--   In-memory storage for last N blocks and transactions ([#2492])
--   **BREAKING:** Switch transaction expiration from seconds to chain height ([#2461])
--   Require the user to choose a snapshot if the blocks flag is missing in `@arkecosystem/core` commands ([#2522])
--   **BREAKING:** Implement Block.fromHex, Block.fromBytes and Block.fromData methods in `@arkecosystem/crypto` ([#2377])
--   **BREAKING:** Implement BlockFactory in `@arkecosystem/crypto` ([#2429])
--   **BREAKING:** Implement TransactionFactory in `@arkecosystem/crypto` ([#2437])
--   Integrate end-to-end tests ([#2468])
--   Initial Implementation of `core-wallet-api` ([#2544])
--   Accept block height to list block transactions in `core-api` ([#2567])
--   Functional test matchers for `core-jest-matchers` ([#2562])
--   Don't trust headers and verify config and plugin connectivity of peers ([#2559], [#2553], [#2552])
--   Proxy API calls to core-api until fully developed ([#2558])
--   Add database configuration command to CLI ([#2557], [#2563])
--   Add command to generate network configuration CLI ([#2582])
--   Initial implementation of `core-explorer` ([#2604])
-
-### Fixed
-
--   Insert the genesis block as soon as the database is ready ([#2376])
--   **BREAKING:** Purge invalid transactions after a milestone change ([#2499])
--   Use public API to auto-configure `@arkecosystem/core-tester-cli` ([#2517])
--   Parse only the last line of pm2 stdout to avoid parsing faulty input ([#2484])
--   Delete bad rounds after unclean shutdown ([#2581])
--   Divide blocks into smaller chunks for batch processing ([#2586])
--   Remove forged transactions from pool before discarding block ([#2555])
--   **BREAKING:** Make transaction amount required ([#2574])
--   Various sync issues with devnet and mainnet ([#2565])
--   Do not suspend peer for `AppNotReady` ([#2590])
--   Allow use of old and new block IDs via `core-json-rpc` ([#2593])
--   Assign calculated delegate ranks from temp wallets to prevent wrong ranks on boot ([#2611])
--   Camelize block keys before bignum transformation for snapshots ([#2615])
--   Deserialize transactions before they leave the pool to remove bad ones ([#2622])
--   Require all properties in schema and handle 404 resources for `core-webhooks` ([#2634])
--   Check if transactions can still be applied before forging ([#2635])
--   Off by one error in transaction confirmations via API ([#2645])
--   Set the correct channel if core was directly installed with `@next` ([#2646])
--   Invalid orderBy causes `Internal Server Error` via API ([#2653)
--   Avoid trying to INSERT duplicates in rounds via `core-snapshots` ([#2651])
--   Handle failing optional plugins gracefully ([#2657])
--   Correctly purge invalid transactions from disk on start ([#2665])
--   Don't append duplicate rounds rows to a snapshot ([#2662])
--   Use temporary wallets for transaction validation ([#2666])
--   Correctly display second signature if available via `core-api` ([#2670])
--   Missing block confirmations on v2 API endpoints ([#2674])
--   Delay transaction purge on start until after StateBuilder finished ([#2685])
--   Check claimed state of peer ([#2686])
--   Ignore overheight blocks and keep forging ([#2687])
-
-### Changed
-
--   **BREAKING:** Always use crypto identities to work with keys and addresses ([#2443])
--   **BREAKING:** Enforce BigNumber for satoshi based values ([#2391])
--   **BREAKING:** Move in-memory wallet logic to core-state ([#2489])
--   **BREAKING:** Replace bignumify with Utils.BigNumber.make ([#2416])
--   Replace Joi with AJV for internal validation ([#2426])
--   **BREAKING:** Bind plugin options before registering the plugin ([#2375])
--   **BREAKING:** Extend the node.js event emitter ([#2440])
--   **BREAKING:** Move the wallet interfaces to `@arkecosystem/core-state` ([#2515])
--   Remove height difference ban for peers ([#2360])
--   **BREAKING:** Simplify the transaction pool by not using insertion order ([#2495])
--   **BREAKING:** Drop no longer needed pagination from `@arkecosystem/core-webhooks` ([#2424])
--   **BREAKING:** Extract transaction signing and utils out of the model in `@arkecosystem/crypto` ([#2514])
--   **BREAKING:** Extract transaction verification out of the model in `@arkecosystem/crypto` ([#2506])
--   **BREAKING:** Make all `Slots.*` methods static in `@arkecosystem/crypto` ([#2473])
--   **BREAKING:** Move interfaces, types and models in `@arkecosystem/crypto` ([#2379])
--   Move mainnet exceptions to config in `@arkecosystem/crypto` ([#2529])
--   **BREAKING:** Remove extraneous Client class in `@arkecosystem/crypto` ([#2417])
--   **BREAKING:** Split the `Crypto` class into `Hash` and `Transaction` in `@arkecosystem/crypto` ([#2444])
--   Invalidate blocks with expired transactions ([#2528])
--   Transaction type agnostic wallet bootstrap to support AIP29 ([#2539])
--   Return all schema errors in hapi-ajv ([#2571])
--   Remove timeout banning ([#2597])
--   Use dayjs as it now has official UTC support ([#2592])
--   Require a minimum of 0 as pubKeyHash ([#2628])
--   **BREAKING:** Replaced `@arkecosystem/core-json-rpc` with `@arkecosystem/core-exchange-json-rpc` _(Use `@arkecosystem/core-exchange-json-rpc` programmatically)_ ([#2643])
--   Expire transactions that don't have an expiration ([#2672])
-
-### Removed
-
--   **BREAKING:** Remove unused methods to get/set/reset height from `Slots` ([#2467])
--   Remove peer caching ([#2606])
--   Remove peer banning ([#2612])
--   Remove coldstart period ([#2619])
--   Remove whitelist access log ([#2655])
-
-## [2.3.23] - 2019-05-21
-
-### Fixed
-
--   Allow the use of old and new block IDs via `core-json-rpc` ([#2593])
-
-## [2.3.22] - 2019-05-02
-
-### Changed
-
--   Return transaction timestamp instead of block timestamp for `/v2/*` endpoints in `core-api` ([#2513])
-    -   **Note that the transaction timestamp can be misleading as a transaction can be signed hours or days before it gets forged which is why you should rely on the block timestamp because that is the point in time when the blockchain becomes aware of a transaction.**
-
-## [2.3.21] - 2019-04-30
-
-### Fixed
-
--   Avoid getting stuck on a peer by picking a random one each time _(JSON-RPC)_ ([#2491])
--   Fix the asset import and include `rounds` in the snapshot to avoid issues with the peer verifier ([#2502])
--   Accept requests to /transactions regardless of suspension _(only caused issues for nodes that are completely locked down behind a firewall with no incoming connections)_ ([#2503])
-
-## [2.3.18] - 2019-04-26
-
-### Fixed
-
--   Reset unfinished round after importing a snapshot ([#2486])
--   Update the height of the crypto config manager for milestones in the forger _(only caused an issue for split setups)_ ([#2487])
-
-## [2.3.16] - 2019-04-25
-
-### Fixed
-
--   Initialise the crypto config manager with the latest height on boot ([#2482])
-
-## [2.3.15] - 2019-04-25
-
-Fix release of `2.3.14` due to npm connectivity issues.
-
-## [2.3.14] - 2019-04-25
-
-### Fixed
-
--   Added missing mainnet exceptions for transactions with invalid recipients ([#2471])
--   Remove support for old release channels from the 2.2 development period ([#2476])
-
-## [2.3.12] - 2019-04-24
-
-### Fixed
-
--   Use correct genesis block instead to verify snapshots ([#2462])
--   Don't pass suffix flag to bip38 and bip39 commands ([#2464])
-
-## [2.3.1] - 2019-04-23
-
-### Fixed
-
--   Deserialize type > 0 with vendor field instead of skipping it ([#2459])
-
-## [2.3.0] - 2019-04-23
-
-### Breaking Changes
-
--   Removed the `wallets` table from the database ([#2209])
-    -   **Core 2.0 has been fully reliant on in-memory wallets since the 2.0 release. This only removes the dumping of wallets into the database as it is wasted space and doesn't serve any purpose.**
-    -   **If you have applications that rely on the database you should migrate them as soon as possible to using the API as only that data is provided in real-time.**
--   Replace SQLite3 with [lowdb](https://github.com/typicode/lowdb) in `core-webhooks` ([#2124])
-    -   **This significantly reduces the size of the package and it's dependencies.**
-    -   **This requires you to recreate your webhooks as the storage method changed.**
--   Replaced `core-logger-winston` with `core-logger-pino` ([#2134])
-    -   **This significantly improves performance of logging when it occurs a lot in situations like syncing or rollbacks.**
--   Rewrote `core-tester-cli` from scratch ([#2133])
--   Merged `core-debugger-cli` into `core-tester-cli` and deprecated it ([#2133])
--   Use the node.js `EventEmitter` from `events` instead of `eventemitter3` ([#2329])
-
-### Added
-
--   Implement AIP29 ([#2122])
--   Search delegates by their username in `core-api` ([#2143])
--   Implemented the `ark reinstall` command in `core` ([#2192])
--   Added the `--force` flag to the `ark update` command in `core` ([#2190])
--   Added more parameters for delegate searches in `core-api` ([#2184])
--   Added restart flags to the `ark update` command in `core` ([#2218])
--   Added the `make:block` command to `core-tester-cli` to create blocks ([#2221])
--   Added the `core-error-tracker-rollbar` package ([#2287])
--   Added the `core-error-tracker-raygun` package ([#2288])
--   Added the `core-error-tracker-airbrake` package ([#2289])
--   Added the `core-logger-signale` package ([#2343])
--   Added more events for blocks and the transaction pool ([#2321])
--   Return `slip44` and `wif` via `v2/node/configuration` ([#2388])
--   Added an `asset` column to the `transactions` table ([#2236])
-
-### Fixed
-
--   Properly sort peers by their version ([#2229])
--   Memory leak in the monitoring process of `core-forger` ([#2341])
--   Handle dynamic round sizes with milestones ([#2370])
--   Validate that a transaction recipient is on the same network ([#2394])
--   Handle empty `rows` in `mapBlocksToTransactions` ([#2404])
--   Prevent indexing/creating of ghost wallets ([#2405])
--   Refuse transactions from senders with pending second signature registrations and do not rollback when refusing a block ([#2458])
-
-### Changed
-
--   Increased the vendor field length to 255 bytes ([#2159])
--   Replaced `micromatch` with `nanomatch` to improve performance ([#2165])
--   Replaced `axios` with `got` to resolve known timeout issues with `axios` ([#2203])
--   Switch block id to full SHA256 ([#2156])
-
-### Removed
-
--   Removed dead fast rebuild code that hasn't been used since 2.0 release ([#2210])
-
-## [2.2.2] - 2019-03-19
-
-### Removed
-
--   Remove `/api/v2/delegates/{id}/voters/balances` endpoint ([#2265])
-
-## [2.2.0] - 2019-03-11
-
-### Added
-
--   Implement a CLI with @oclif to replace commander ([#2100])
--   Add sorting to voters endpoint ([#2103])
--   Validate GET replies from other peers ([#2102])
--   Pass query to findAllByVote method ([#2142])
--   Fetch list of peers from at least a few others ([#2152])
-
-### Fixed
-
--   Pass the base flags for programmatic calls in `core-tester-cli` ([#2108])
--   Reduce complexity and fix wrong offset handling in `core-elasticsearch` ([#2108])
--   Stuck at not ready to accept new block ([#2139])
--   Properly sort BigNumber values ([#2144])
--   Properly update wallet balances if a vote transaction is reverted ([#2207])
--   Invalid transactions after a rollback because block timestamps were used as transaction timestamp ([#2217])
-
-### Changed
-
--   Replaced lodash.sortBy/orderBy with faster implementations ([#2106])
--   Improve fork handling in updatePeersOnMissingBlocks ([#2125])
--   Throw an error if the peers or plugins file are missing ([#2135])
--   Improve selection of peer for downloading blocks ([#2137])
--   Merge core-snapshot-cli commands into core ([#2149])
-
-### Removed
-
--   Remove unnecessary ping call in ([#2123])
--   Remove broken getRandomDownloadBlocksPeer ([#2121])
-
-## [2.1.2] - 2019-02-13
-
-### Fixed
-
--   Fix quorum related issues
--   Limit payload size
--   Remove `signatures` from transaction payload
-
-## [2.1.1] - 2019-02-12
-
-### Fixed
-
--   Configuration endpoint does not show dynamic fees ([#2082])
--   Return the correct supply for the legacy API ([#2083])
-
-## [2.1.0] - 2019-02-11
-
-### Added
-
--   Added a `milestoneHash` identifier to use for peer banning ([#1837])
--   Added TypeScript declarations for `core-logger` ([#1833])
--   Added TypeScript declarations for `core-logger-winston` ([#1887])
--   Added TypeScript declarations for `core-container` ([#1891])
--   Added TypeScript declarations for `core-database` ([#1901], [#1905])
--   Added TypeScript declarations for `core-transaction-pool` ([#1906])
--   Added TypeScript declarations for `core-blockchain` ([#1943])
--   Added TypeScript declarations for `core-snapshots` ([#1947])
--   Added TypeScript declarations for `core-api` ([#1948])
--   Added TypeScript declarations for `crypto` ([#1917])
--   Added the `core-jest-matchers` package ([#1926])
--   Added the `core-interfaces` package ([#1924])
--   Return the transaction expiration time via API ([#1927])
--   Added the ability to disable the public API cache ([#1930])
--   Return the vote of a wallet via public API ([#2009])
--   Upgrade script for 2.1 ([#1999])
--   Installation script for deb/rpm distros ([#2016])
--   Case specific errors for `crypto` ([#2038])
-
-### Changed
-
--   Migrated from JavaScript to TypeScript ([#1625])
--   Moved the `peers.json` configuration into `core-p2p` ([#1625])
--   Merged `core-transaction-pool-mem` into `core-transaction-pool` ([#1625])
--   Use a faster alternative to derive an estimate ([#1655])
--   Reworked crypto configuration to make it simpler ([#1733])
--   Moved the dynamic fees configuration into `core-transaction-pool` ([#1733])
--   Periodically check for new peers instead of retrying until finding some ([#1738])
--   Adjusted some banning times for peers to make network recovery smoother ([#1730])
--   Simplified configuration by further separating network and core ([#1733])
--   Take the `minFeeBroadcast` value into account for fee statistics ([#1873])
--   Only allow vendor fields for type 0 and 6 transactions ([#1931])
--   Improved the network quorum details and feedback ([#1898])
--   Only return errors when broadcast and pool fees are too low ([#1940])
--   Improved performance of BIP38 ([#1941])
--   Cleaned up the logic of block processing ([#1953])
--   Cleaned up the logic of serialise/deserialise in crypto ([#1969])
--   Replaced all ARK naming with CORE ([#1970])
--   Use system paths for data and configuration ([#1987])
--   Increased the maximum transaction age to 6 hours ([#1996])
--   Replaced progress bars with logging to reduce noise ([#2044])
--   Replaced commander.js with @oclif in `core-debugger-cli` ([#2049])
--   Replaced commander.js with @oclif in `core-snapshots-cli` ([#2050])
--   Replaced commander.js with @oclif in `core-tester-cli` ([#2051])
--   Moved docker files from `docker/*` to `docker/development/*` ([#2053])
--   Moved the genesis blocks from the `core` configuration to the network configuration in `crypto` ([#2052])
--   Separate business-logic from data-layer logic ([#2055])
-
-### Fixed
-
--   Resolved an issue with the `resolveOptions` method that would result in options being resolved for plugins that are not registered in the container ([#1625])
--   Malformed condition for filtering peers ([#1689])
--   Use the correct pagination schema for the v2 public API ([#1717])
--   Ensure that delegate searches can handle undefined values ([#1831])
--   Mark semantically invalid versions as invalid overall ([#1836])
--   Ordering of delegates via public API ([#1731])
--   Handle webhooks that have no conditions ([#1869])
--   Validate the network byte on transactions ([#1853])
--   Use correct schemas for address, public key and username validation in the public API ([#1954])
--   Populate the last block of all delegates ([#1919])
--   Return the transaction forging timestamp instead of signing timestamp ([#1957])
--   Mark cold wallets as not found in the legacy API ([#1955])
--   A malformed condition that resulted in wrong peer lists ([#1939])
--   Properly verify block slot timestamps ([#1985])
--   Return fixed peer states for v1 and v2 API responses ([#2027])
--   Validate IP ranges to detect loopbacks ([#2045])
--   https://github.com/ARKEcosystem/security-vulnerabilities/blob/master/core/core-sv-010.md ([#2046])
--   Check if the blockchain state storage is available before performing fork checks ([#2047])
--   Gracefully handle a corrupted cached `peers.json` file ([#2061])
--   Always sort transactions by sequence and the requested field to make API sorting deterministic ([#2058])
--   Disallow multiple registrations for same delegate ([#2080])
--   Remove already forged transactions from the pool ([#2659])
-
-### Removed
-
--   Removed the `transactionsFromIds` P2P endpoint ([#1911])
--   Removed the `validator` and `rules` fron `@arkecosystem/crypto` ([#2021])
--   Ended support for the legacy multisignatures from the previous LISK fork ([#2057])
-
-## [2.0.19] - 2019-01-31
-
-### Fixed
-
--   https://github.com/ARKEcosystem/security-vulnerabilities/blob/master/core/core-sv-009.md
--   https://github.com/ARKEcosystem/security-vulnerabilities/blob/master/core/core-sv-010.md
-
-## [2.0.18] - 2019-01-28
-
-### Fixed
-
--   https://github.com/ARKEcosystem/security-vulnerabilities/blob/master/core/core-sv-011.md
-
-## [2.0.17] - 2019-01-15
-
-### Fixed
-
--   https://github.com/ARKEcosystem/security-vulnerabilities/blob/master/core/core-sv-008.md
--   https://github.com/ARKEcosystem/security-vulnerabilities/blob/master/core/core-sv-007.md
-
-## [2.0.16] - 2018-12-17
-
-### Fixed
-
--   Prevent the list of peers to become too short. This is related to the nodes running behind a firewall.
-
-Closed security vulnerabilities:
-
--   [CORE-SV-004](https://github.com/ARKEcosystem/security-vulnerabilities/blob/master/core/core-sv-004.md)
--   [CORE-SV-003](https://github.com/ARKEcosystem/security-vulnerabilities/blob/master/core/core-sv-003.md)
--   [CORE-SV-002](https://github.com/ARKEcosystem/security-vulnerabilities/blob/master/core/core-sv-002.md)
--   [CORE-SV-001](https://github.com/ARKEcosystem/security-vulnerabilities/blob/master/core/core-sv-001.md)
-
-## [2.0.15] - 2018-12-11
-
-### Fixed
-
--   Ensure no local peers are enlisted and that the IP of the TCP connection is used ([#1695])
-
-## [2.0.14] - 2018-12-10
-
-### Fixed
-
--   Reset last downloaded block when block is discarded ([#1692])
-
-## [2.0.13] - 2018-12-07
-
-### Fixed
-
--   Ensure safe integer range for block height lookups via API ([#1673])
-
-## [2.0.12] - 2018-12-06
-
-### Fixed
-
--   Perform second-signature checks in the `canApply` logic of multi-signatures ([#1658])
--   return the encoded WIF for BIP38 wallets instead of the encrypted WIF ([#1653])
-
-## [2.0.11] - 2018-12-05
-
-### Added
-
--   Store executed migrations in the database ([#1648])
-
-### Changed
-
--   Increase cache generation timeout and make it configurable ([#1645], [#1646])
-
-## [2.0.1] - 2018-12-05
-
-### Added
-
--   Retrieve blocks via height or ID per public API ([#1626])
-
-### Changed
-
--   Improved performance for block and transaction queries by adding more indices on critical columns ([#1636], [#1638], [#1634])
-
-### Fixed
-
--   Take milestones into account for supply calculations ([#1640])
--   Use the raw transaction data in `acceptChainedBlock` to avoid timestamp mismatches and second signature double spend errors ([#1564])
--   Return the correct peer count for the v2 public API ([#1563])
-
-## [2.0.0] - 2018-12-03
-
--   Initial Release
-
-[unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
-[2.6.25]: https://github.com/ARKEcosystem/core/compare/2.6.49...2.6.25
-[2.6.49]: https://github.com/ARKEcosystem/core/compare/2.6.42...2.6.49
-[2.6.42]: https://github.com/ARKEcosystem/core/compare/2.6.39...2.6.42
-[2.6.39]: https://github.com/ARKEcosystem/core/compare/2.6.38...2.6.39
-[2.6.38]: https://github.com/ARKEcosystem/core/compare/2.6.37...2.6.38
-[2.6.37]: https://github.com/ARKEcosystem/core/compare/2.6.36...2.6.37
-[2.6.36]: https://github.com/ARKEcosystem/core/compare/2.6.34...2.6.36
-[2.6.34]: https://github.com/ARKEcosystem/core/compare/2.6.31...2.6.34
-[2.6.31]: https://github.com/ARKEcosystem/core/compare/2.6.30...2.6.31
-[2.6.30]: https://github.com/ARKEcosystem/core/compare/2.6.29...2.6.30
-[2.6.29]: https://github.com/ARKEcosystem/core/compare/2.6.28...2.6.29
-[2.6.28]: https://github.com/ARKEcosystem/core/compare/2.6.27...2.6.28
-[2.6.27]: https://github.com/ARKEcosystem/core/compare/2.6.25...2.6.27
-[2.6.25]: https://github.com/ARKEcosystem/core/compare/2.6.24...2.6.25
-[2.6.24]: https://github.com/ARKEcosystem/core/compare/2.6.21...2.6.24
-[2.6.21]: https://github.com/ARKEcosystem/core/compare/2.6.11...2.6.21
-[2.6.11]: https://github.com/ARKEcosystem/core/compare/2.6.10...2.6.11
-[2.6.10]: https://github.com/ARKEcosystem/core/compare/2.6.9...2.6.10
-[2.6.9]: https://github.com/ARKEcosystem/core/compare/2.6.1...2.6.9
-[2.6.1]: https://github.com/ARKEcosystem/core/compare/2.6.0...2.6.1
-[2.6.0]: https://github.com/ARKEcosystem/core/compare/2.5.38...2.6.0
-[2.5.38]: https://github.com/ARKEcosystem/core/compare/2.5.37...2.5.38
-[2.5.37]: https://github.com/ARKEcosystem/core/compare/2.5.36...2.5.37
-[2.5.36]: https://github.com/ARKEcosystem/core/compare/2.5.31...2.5.36
-[2.5.31]: https://github.com/ARKEcosystem/core/compare/2.5.30...2.5.31
-[2.5.30]: https://github.com/ARKEcosystem/core/compare/2.5.28...2.5.30
-[2.5.28]: https://github.com/ARKEcosystem/core/compare/2.5.26...2.5.28
-[2.5.26]: https://github.com/ARKEcosystem/core/compare/2.5.25...2.5.26
-[2.5.25]: https://github.com/ARKEcosystem/core/compare/2.5.24...2.5.25
-[2.5.24]: https://github.com/ARKEcosystem/core/compare/2.5.19...2.5.24
-[2.5.19]: https://github.com/ARKEcosystem/core/compare/2.5.17...2.5.19
-[2.5.17]: https://github.com/ARKEcosystem/core/compare/2.5.14...2.5.17
-[2.5.14]: https://github.com/ARKEcosystem/core/compare/2.5.7..2.5.14
-[2.5.7]: https://github.com/ARKEcosystem/core/compare/2.5.1...2.5.7
-[2.5.1]: https://github.com/ARKEcosystem/core/compare/2.5.0...2.5.1
-[2.5.0]: https://github.com/ARKEcosystem/core/compare/2.4.14...2.5.0
-[2.4.15]: https://github.com/ARKEcosystem/core/compare/2.4.14...2.4.15
-[2.4.14]: https://github.com/ARKEcosystem/core/compare/2.4.13...2.4.14
-[2.4.13]: https://github.com/ARKEcosystem/core/compare/2.4.12...2.4.13
-[2.4.12]: https://github.com/ARKEcosystem/core/compare/2.4.1...2.4.12
-[2.4.1]: https://github.com/ARKEcosystem/core/compare/2.4.0...2.4.1
-[2.4.0]: https://github.com/ARKEcosystem/core/compare/2.3.23...2.4.0
-[2.3.23]: https://github.com/ARKEcosystem/core/compare/2.3.22...2.3.23
-[2.3.22]: https://github.com/ARKEcosystem/core/compare/2.3.21...2.3.22
-[2.3.21]: https://github.com/ARKEcosystem/core/compare/2.3.18...2.3.21
-[2.3.18]: https://github.com/ARKEcosystem/core/compare/2.3.16...2.3.18
-[2.3.16]: https://github.com/ARKEcosystem/core/compare/2.3.15...2.3.16
-[2.3.15]: https://github.com/ARKEcosystem/core/compare/2.3.14...2.3.15
-[2.3.14]: https://github.com/ARKEcosystem/core/compare/2.3.12...2.3.14
-[2.3.12]: https://github.com/ARKEcosystem/core/compare/2.3.1...2.3.12
-[2.3.1]: https://github.com/ARKEcosystem/core/compare/2.3.0...2.3.1
-[2.3.0]: https://github.com/ARKEcosystem/core/compare/2.2.2...2.3.0
-[2.2.2]: https://github.com/ARKEcosystem/core/compare/2.2.1...2.2.2
-[2.2.1]: https://github.com/ARKEcosystem/core/compare/2.2.0...2.2.1
-[2.2.0]: https://github.com/ARKEcosystem/core/compare/2.1.2..2.2.0
-[2.1.2]: https://github.com/ARKEcosystem/core/compare/2.1.1..2.1.2
-[2.1.1]: https://github.com/ARKEcosystem/core/compare/2.1.0..2.1.1
-[2.1.0]: https://github.com/ARKEcosystem/core/compare/2.0.19...2.1.0
-[2.0.19]: https://github.com/ARKEcosystem/core/compare/2.0.18...2.0.19
-[2.0.18]: https://github.com/ARKEcosystem/core/compare/2.0.17...2.0.18
-[2.0.17]: https://github.com/ARKEcosystem/core/compare/2.0.16...2.0.17
-[2.0.16]: https://github.com/ARKEcosystem/core/compare/2.0.15...2.0.16
-[2.0.15]: https://github.com/ARKEcosystem/core/compare/2.0.14...2.0.15
-[2.0.14]: https://github.com/ARKEcosystem/core/compare/2.0.13...2.0.14
-[2.0.13]: https://github.com/ARKEcosystem/core/compare/2.0.12...2.0.13
-[2.0.12]: https://github.com/ARKEcosystem/core/compare/2.0.11...2.0.12
-[2.0.11]: https://github.com/ARKEcosystem/core/compare/2.0.1...2.0.11
-[2.0.1]: https://github.com/ARKEcosystem/core/compare/2.0.0...2.0.1
-[2.0.0]: https://github.com/ARKEcosystem/core/compare/0.1.1...2.0.0
-[#1563]: https://github.com/ARKEcosystem/core/pull/1563
-[#1564]: https://github.com/ARKEcosystem/core/pull/1564
-[#1625]: https://github.com/ARKEcosystem/core/pull/1625
-[#1626]: https://github.com/ARKEcosystem/core/pull/1626
-[#1634]: https://github.com/ARKEcosystem/core/pull/1634
-[#1636]: https://github.com/ARKEcosystem/core/pull/1636
-[#1638]: https://github.com/ARKEcosystem/core/pull/1638
-[#1640]: https://github.com/ARKEcosystem/core/pull/1640
-[#1645]: https://github.com/ARKEcosystem/core/pull/1645
-[#1646]: https://github.com/ARKEcosystem/core/pull/1646
-[#1648]: https://github.com/ARKEcosystem/core/pull/1648
-[#1653]: https://github.com/ARKEcosystem/core/pull/1653
-[#1655]: https://github.com/ARKEcosystem/core/pull/1655
-[#1658]: https://github.com/ARKEcosystem/core/pull/1658
-[#1673]: https://github.com/ARKEcosystem/core/pull/1673
-[#1689]: https://github.com/ARKEcosystem/core/pull/1689
-[#1692]: https://github.com/ARKEcosystem/core/pull/1692
-[#1695]: https://github.com/ARKEcosystem/core/pull/1695
-[#1717]: https://github.com/ARKEcosystem/core/pull/1717
-[#1730]: https://github.com/ARKEcosystem/core/pull/1730
-[#1731]: https://github.com/ARKEcosystem/core/pull/1731
-[#1732]: https://github.com/ARKEcosystem/core/pull/1732
-[#1733]: https://github.com/ARKEcosystem/core/pull/1733
-[#1738]: https://github.com/ARKEcosystem/core/pull/1738
-[#1831]: https://github.com/ARKEcosystem/core/pull/1831
-[#1833]: https://github.com/ARKEcosystem/core/pull/1833
-[#1836]: https://github.com/ARKEcosystem/core/pull/1836
-[#1837]: https://github.com/ARKEcosystem/core/pull/1837
-[#1853]: https://github.com/ARKEcosystem/core/pull/1853
-[#1869]: https://github.com/ARKEcosystem/core/pull/1869
-[#1873]: https://github.com/ARKEcosystem/core/pull/1873
-[#1887]: https://github.com/ARKEcosystem/core/pull/1887
-[#1891]: https://github.com/ARKEcosystem/core/pull/1891
-[#1898]: https://github.com/ARKEcosystem/core/pull/1898
-[#1901]: https://github.com/ARKEcosystem/core/pull/1901
-[#1905]: https://github.com/ARKEcosystem/core/pull/1905
-[#1906]: https://github.com/ARKEcosystem/core/pull/1906
-[#1911]: https://github.com/ARKEcosystem/core/pull/1911
-[#1917]: https://github.com/ARKEcosystem/core/pull/1917
-[#1919]: https://github.com/ARKEcosystem/core/pull/1919
-[#1924]: https://github.com/ARKEcosystem/core/pull/1924
-[#1926]: https://github.com/ARKEcosystem/core/pull/1926
-[#1927]: https://github.com/ARKEcosystem/core/pull/1927
-[#1930]: https://github.com/ARKEcosystem/core/pull/1930
-[#1931]: https://github.com/ARKEcosystem/core/pull/1931
-[#1939]: https://github.com/ARKEcosystem/core/pull/1939
-[#1940]: https://github.com/ARKEcosystem/core/pull/1940
-[#1941]: https://github.com/ARKEcosystem/core/pull/1941
-[#1943]: https://github.com/ARKEcosystem/core/pull/1943
-[#1947]: https://github.com/ARKEcosystem/core/pull/1947
-[#1948]: https://github.com/ARKEcosystem/core/pull/1948
-[#1953]: https://github.com/ARKEcosystem/core/pull/1953
-[#1954]: https://github.com/ARKEcosystem/core/pull/1954
-[#1955]: https://github.com/ARKEcosystem/core/pull/1955
-[#1957]: https://github.com/ARKEcosystem/core/pull/1957
-[#1969]: https://github.com/ARKEcosystem/core/pull/1969
-[#1970]: https://github.com/ARKEcosystem/core/pull/1970
-[#1985]: https://github.com/ARKEcosystem/core/pull/1985
-[#1987]: https://github.com/ARKEcosystem/core/pull/1987
-[#1996]: https://github.com/ARKEcosystem/core/pull/1996
-[#1999]: https://github.com/ARKEcosystem/core/pull/1999
-[#2009]: https://github.com/ARKEcosystem/core/pull/2009
-[#2016]: https://github.com/ARKEcosystem/core/pull/2016
-[#2021]: https://github.com/ARKEcosystem/core/pull/2021
-[#2038]: https://github.com/ARKEcosystem/core/pull/2038
-[#2044]: https://github.com/ARKEcosystem/core/pull/2044
-[#2045]: https://github.com/ARKEcosystem/core/pull/2045
-[#2046]: https://github.com/ARKEcosystem/core/pull/2046
-[#2047]: https://github.com/ARKEcosystem/core/pull/2047
-[#2049]: https://github.com/ARKEcosystem/core/pull/2049
-[#2050]: https://github.com/ARKEcosystem/core/pull/2050
-[#2051]: https://github.com/ARKEcosystem/core/pull/2051
-[#2052]: https://github.com/ARKEcosystem/core/pull/2052
-[#2053]: https://github.com/ARKEcosystem/core/pull/2053
-[#2055]: https://github.com/ARKEcosystem/core/pull/2055
-[#2057]: https://github.com/ARKEcosystem/core/pull/2057
-[#2058]: https://github.com/ARKEcosystem/core/pull/2058
-[#2061]: https://github.com/ARKEcosystem/core/pull/2061
-[#2080]: https://github.com/ARKEcosystem/core/pull/2080
-[#2082]: https://github.com/ARKEcosystem/core/pull/2082
-[#2083]: https://github.com/ARKEcosystem/core/pull/2083
-[#2091]: https://github.com/ARKEcosystem/core/pull/2091
-[#2100]: https://github.com/ARKEcosystem/core/pull/2100
-[#2102]: https://github.com/ARKEcosystem/core/pull/2102
-[#2103]: https://github.com/ARKEcosystem/core/pull/2103
-[#2106]: https://github.com/ARKEcosystem/core/pull/2106
-[#2108]: https://github.com/ARKEcosystem/core/pull/2108
-[#2119]: https://github.com/ARKEcosystem/core/pull/2119
-[#2121]: https://github.com/ARKEcosystem/core/pull/2121
-[#2122]: https://github.com/ARKEcosystem/core/pull/2122
-[#2123]: https://github.com/ARKEcosystem/core/pull/2123
-[#2124]: https://github.com/ARKEcosystem/core/pull/2124
-[#2125]: https://github.com/ARKEcosystem/core/pull/2125
-[#2133]: https://github.com/ARKEcosystem/core/pull/2133
-[#2134]: https://github.com/ARKEcosystem/core/pull/2134
-[#2135]: https://github.com/ARKEcosystem/core/pull/2135
-[#2137]: https://github.com/ARKEcosystem/core/pull/2137
-[#2139]: https://github.com/ARKEcosystem/core/pull/2139
-[#2142]: https://github.com/ARKEcosystem/core/pull/2142
-[#2143]: https://github.com/ARKEcosystem/core/pull/2143
-[#2144]: https://github.com/ARKEcosystem/core/pull/2144
-[#2149]: https://github.com/ARKEcosystem/core/pull/2149
-[#2152]: https://github.com/ARKEcosystem/core/pull/2152
-[#2156]: https://github.com/ARKEcosystem/core/pull/2156
-[#2159]: https://github.com/ARKEcosystem/core/pull/2159
-[#2165]: https://github.com/ARKEcosystem/core/pull/2165
-[#2184]: https://github.com/ARKEcosystem/core/pull/2184
-[#2190]: https://github.com/ARKEcosystem/core/pull/2190
-[#2192]: https://github.com/ARKEcosystem/core/pull/2192
-[#2203]: https://github.com/ARKEcosystem/core/pull/2203
-[#2205]: https://github.com/ARKEcosystem/core/pull/2205
-[#2207]: https://github.com/ARKEcosystem/core/pull/2207
-[#2209]: https://github.com/ARKEcosystem/core/pull/2209
-[#2210]: https://github.com/ARKEcosystem/core/pull/2210
-[#2217]: https://github.com/ARKEcosystem/core/pull/2217
-[#2218]: https://github.com/ARKEcosystem/core/pull/2218
-[#2221]: https://github.com/ARKEcosystem/core/pull/2221
-[#2229]: https://github.com/ARKEcosystem/core/pull/2229
-[#2236]: https://github.com/ARKEcosystem/core/pull/2236
-[#2273]: https://github.com/ARKEcosystem/core/pull/2273
-[#2287]: https://github.com/ARKEcosystem/core/pull/2287
-[#2288]: https://github.com/ARKEcosystem/core/pull/2288
-[#2289]: https://github.com/ARKEcosystem/core/pull/2289
-[#2321]: https://github.com/ARKEcosystem/core/pull/2321
-[#2329]: https://github.com/ARKEcosystem/core/pull/2329
-[#2341]: https://github.com/ARKEcosystem/core/pull/2341
-[#2343]: https://github.com/ARKEcosystem/core/pull/2343
-[#2360]: https://github.com/ARKEcosystem/core/pull/2360
-[#2370]: https://github.com/ARKEcosystem/core/pull/2370
-[#2375]: https://github.com/ARKEcosystem/core/pull/2375
-[#2376]: https://github.com/ARKEcosystem/core/pull/2376
-[#2377]: https://github.com/ARKEcosystem/core/pull/2377
-[#2379]: https://github.com/ARKEcosystem/core/pull/2379
-[#2388]: https://github.com/ARKEcosystem/core/pull/2388
-[#2391]: https://github.com/ARKEcosystem/core/pull/2391
-[#2393]: https://github.com/ARKEcosystem/core/pull/2393
-[#2394]: https://github.com/ARKEcosystem/core/pull/2394
-[#2404]: https://github.com/ARKEcosystem/core/pull/2404
-[#2405]: https://github.com/ARKEcosystem/core/pull/2405
-[#2416]: https://github.com/ARKEcosystem/core/pull/2416
-[#2417]: https://github.com/ARKEcosystem/core/pull/2417
-[#2424]: https://github.com/ARKEcosystem/core/pull/2424
-[#2425]: https://github.com/ARKEcosystem/core/pull/2425
-[#2426]: https://github.com/ARKEcosystem/core/pull/2426
-[#2429]: https://github.com/ARKEcosystem/core/pull/2429
-[#2433]: https://github.com/ARKEcosystem/core/pull/2433
-[#2437]: https://github.com/ARKEcosystem/core/pull/2437
-[#2439]: https://github.com/ARKEcosystem/core/pull/2439
-[#2440]: https://github.com/ARKEcosystem/core/pull/2440
-[#2443]: https://github.com/ARKEcosystem/core/pull/2443
-[#2444]: https://github.com/ARKEcosystem/core/pull/2444
-[#2458]: https://github.com/ARKEcosystem/core/pull/2458
-[#2459]: https://github.com/ARKEcosystem/core/pull/2459
-[#2461]: https://github.com/ARKEcosystem/core/pull/2461
-[#2462]: https://github.com/ARKEcosystem/core/pull/2462
-[#2464]: https://github.com/ARKEcosystem/core/pull/2464
-[#2467]: https://github.com/ARKEcosystem/core/pull/2467
-[#2468]: https://github.com/ARKEcosystem/core/pull/2468
-[#2471]: https://github.com/ARKEcosystem/core/pull/2471
-[#2473]: https://github.com/ARKEcosystem/core/pull/2473
-[#2476]: https://github.com/ARKEcosystem/core/pull/2476
-[#2479]: https://github.com/ARKEcosystem/core/pull/2479
-[#2482]: https://github.com/ARKEcosystem/core/pull/2482
-[#2484]: https://github.com/ARKEcosystem/core/pull/2484
-[#2486]: https://github.com/ARKEcosystem/core/pull/2486
-[#2487]: https://github.com/ARKEcosystem/core/pull/2487
-[#2489]: https://github.com/ARKEcosystem/core/pull/2489
-[#2491]: https://github.com/ARKEcosystem/core/pull/2491
-[#2492]: https://github.com/ARKEcosystem/core/pull/2492
-[#2495]: https://github.com/ARKEcosystem/core/pull/2495
-[#2496]: https://github.com/ARKEcosystem/core/pull/2496
-[#2499]: https://github.com/ARKEcosystem/core/pull/2499
-[#2500]: https://github.com/ARKEcosystem/core/pull/2500
-[#2502]: https://github.com/ARKEcosystem/core/pull/2502
-[#2503]: https://github.com/ARKEcosystem/core/pull/2503
-[#2506]: https://github.com/ARKEcosystem/core/pull/2506
-[#2507]: https://github.com/ARKEcosystem/core/pull/2507
-[#2513]: https://github.com/ARKEcosystem/core/pull/2513
-[#2514]: https://github.com/ARKEcosystem/core/pull/2514
-[#2515]: https://github.com/ARKEcosystem/core/pull/2515
-[#2517]: https://github.com/ARKEcosystem/core/pull/2517
-[#2522]: https://github.com/ARKEcosystem/core/pull/2522
-[#2526]: https://github.com/ARKEcosystem/core/pull/2526
-[#2528]: https://github.com/ARKEcosystem/core/pull/2528
-[#2529]: https://github.com/ARKEcosystem/core/pull/2529
-[#2539]: https://github.com/ARKEcosystem/core/pull/2539
-[#2544]: https://github.com/ARKEcosystem/core/pull/2544
-[#2552]: https://github.com/ARKEcosystem/core/pull/2552
-[#2553]: https://github.com/ARKEcosystem/core/pull/2553
-[#2555]: https://github.com/ARKEcosystem/core/pull/2555
-[#2557]: https://github.com/ARKEcosystem/core/pull/2557
-[#2558]: https://github.com/ARKEcosystem/core/pull/2558
-[#2559]: https://github.com/ARKEcosystem/core/pull/2559
-[#2562]: https://github.com/ARKEcosystem/core/pull/2562
-[#2563]: https://github.com/ARKEcosystem/core/pull/2563
-[#2565]: https://github.com/ARKEcosystem/core/pull/2565
-[#2567]: https://github.com/ARKEcosystem/core/pull/2567
-[#2571]: https://github.com/ARKEcosystem/core/pull/2571
-[#2573]: https://github.com/ARKEcosystem/core/pull/2573
-[#2574]: https://github.com/ARKEcosystem/core/pull/2574
-[#2577]: https://github.com/ARKEcosystem/core/pull/2577
-[#2578]: https://github.com/ARKEcosystem/core/pull/2578
-[#2581]: https://github.com/ARKEcosystem/core/pull/2581
-[#2582]: https://github.com/ARKEcosystem/core/pull/2582
-[#2584]: https://github.com/ARKEcosystem/core/pull/2584
-[#2586]: https://github.com/ARKEcosystem/core/pull/2586
-[#2587]: https://github.com/ARKEcosystem/core/pull/2587
-[#2590]: https://github.com/ARKEcosystem/core/pull/2590
-[#2592]: https://github.com/ARKEcosystem/core/pull/2592
-[#2593]: https://github.com/ARKEcosystem/core/pull/2593
-[#2597]: https://github.com/ARKEcosystem/core/pull/2597
-[#2604]: https://github.com/ARKEcosystem/core/pull/2604
-[#2606]: https://github.com/ARKEcosystem/core/pull/2606
-[#2611]: https://github.com/ARKEcosystem/core/pull/2611
-[#2612]: https://github.com/ARKEcosystem/core/pull/2612
-[#2615]: https://github.com/ARKEcosystem/core/pull/2615
-[#2616]: https://github.com/ARKEcosystem/core/pull/2616
-[#2618]: https://github.com/ARKEcosystem/core/pull/2618
-[#2619]: https://github.com/ARKEcosystem/core/pull/2619
-[#2622]: https://github.com/ARKEcosystem/core/pull/2622
-[#2628]: https://github.com/ARKEcosystem/core/pull/2628
-[#2634]: https://github.com/ARKEcosystem/core/pull/2634
-[#2635]: https://github.com/ARKEcosystem/core/pull/2635
-[#2641]: https://github.com/ARKEcosystem/core/pull/2641
-[#2643]: https://github.com/ARKEcosystem/core/pull/2643
-[#2645]: https://github.com/ARKEcosystem/core/pull/2645
-[#2646]: https://github.com/ARKEcosystem/core/pull/2646
-[#2651]: https://github.com/ARKEcosystem/core/pull/2651
-[#2653]: https://github.com/ARKEcosystem/core/pull/2653
-[#2655]: https://github.com/ARKEcosystem/core/pull/2655
-[#2657]: https://github.com/ARKEcosystem/core/pull/2657
-[#2659]: https://github.com/ARKEcosystem/core/pull/2659
-[#2662]: https://github.com/ARKEcosystem/core/pull/2662
-[#2665]: https://github.com/ARKEcosystem/core/pull/2665
-[#2666]: https://github.com/ARKEcosystem/core/pull/2666
-[#2669]: https://github.com/ARKEcosystem/core/pull/2669
-[#2670]: https://github.com/ARKEcosystem/core/pull/2670
-[#2671]: https://github.com/ARKEcosystem/core/pull/2671
-[#2672]: https://github.com/ARKEcosystem/core/pull/2672
-[#2673]: https://github.com/ARKEcosystem/core/pull/2673
-[#2674]: https://github.com/ARKEcosystem/core/pull/2674
-[#2675]: https://github.com/ARKEcosystem/core/pull/2675
-[#2678]: https://github.com/ARKEcosystem/core/pull/2678
-[#2685]: https://github.com/ARKEcosystem/core/pull/2685
-[#2686]: https://github.com/ARKEcosystem/core/pull/2686
-[#2687]: https://github.com/ARKEcosystem/core/pull/2687
-[#2692]: https://github.com/ARKEcosystem/core/pull/2692
-[#2699]: https://github.com/ARKEcosystem/core/pull/2699
-[#2700]: https://github.com/ARKEcosystem/core/pull/2700
-[#2707]: https://github.com/ARKEcosystem/core/pull/2707
-[#2710]: https://github.com/ARKEcosystem/core/pull/2710
-[#2711]: https://github.com/ARKEcosystem/core/pull/2711
-[#2714]: https://github.com/ARKEcosystem/core/pull/2714
-[#2715]: https://github.com/ARKEcosystem/core/pull/2715
-[#2717]: https://github.com/ARKEcosystem/core/pull/2717
-[#2718]: https://github.com/ARKEcosystem/core/pull/2718
-[#2719]: https://github.com/ARKEcosystem/core/pull/2719
-[#2720]: https://github.com/ARKEcosystem/core/pull/2720
-[#2721]: https://github.com/ARKEcosystem/core/pull/2721
-[#2723]: https://github.com/ARKEcosystem/core/pull/2723
-[#2727]: https://github.com/ARKEcosystem/core/pull/2727
-[#2728]: https://github.com/ARKEcosystem/core/pull/2728
-[#2729]: https://github.com/ARKEcosystem/core/pull/2729
-[#2733]: https://github.com/ARKEcosystem/core/pull/2733
-[#2734]: https://github.com/ARKEcosystem/core/pull/2734
-[#2739]: https://github.com/ARKEcosystem/core/pull/2739
-[#2743]: https://github.com/ARKEcosystem/core/pull/2743
-[#2744]: https://github.com/ARKEcosystem/core/pull/2744
-[#2745]: https://github.com/ARKEcosystem/core/pull/2745
-[#2746]: https://github.com/ARKEcosystem/core/pull/2746
-[#2748]: https://github.com/ARKEcosystem/core/pull/2748
-[#2751]: https://github.com/ARKEcosystem/core/pull/2751
-[#2753]: https://github.com/ARKEcosystem/core/pull/2753
-[#2754]: https://github.com/ARKEcosystem/core/pull/2754
-[#2756]: https://github.com/ARKEcosystem/core/pull/2756
-[#2757]: https://github.com/ARKEcosystem/core/pull/2757
-[#2759]: https://github.com/ARKEcosystem/core/pull/2759
-[#2760]: https://github.com/ARKEcosystem/core/pull/2760
-[#2761]: https://github.com/ARKEcosystem/core/pull/2761
-[#2763]: https://github.com/ARKEcosystem/core/pull/2763
-[#2764]: https://github.com/ARKEcosystem/core/pull/2764
-[#2765]: https://github.com/ARKEcosystem/core/pull/2765
-[#2766]: https://github.com/ARKEcosystem/core/pull/2766
-[#2770]: https://github.com/ARKEcosystem/core/pull/2770
-[#2771]: https://github.com/ARKEcosystem/core/pull/2771
-[#2772]: https://github.com/ARKEcosystem/core/pull/2772
-[#2773]: https://github.com/ARKEcosystem/core/pull/2773
-[#2777]: https://github.com/ARKEcosystem/core/pull/2777
-[#2782]: https://github.com/ARKEcosystem/core/pull/2782
-[#2784]: https://github.com/ARKEcosystem/core/pull/2784
-[#2787]: https://github.com/ARKEcosystem/core/pull/2787
-[#2788]: https://github.com/ARKEcosystem/core/pull/2788
-[#2797]: https://github.com/ARKEcosystem/core/pull/2797
-[#2800]: https://github.com/ARKEcosystem/core/pull/2800
-[#2802]: https://github.com/ARKEcosystem/core/pull/2802
-[#2807]: https://github.com/ARKEcosystem/core/pull/2807
-[#2808]: https://github.com/ARKEcosystem/core/pull/2808
-[#2809]: https://github.com/ARKEcosystem/core/pull/2809
-[#2810]: https://github.com/ARKEcosystem/core/pull/2810
-[#2814]: https://github.com/ARKEcosystem/core/pull/2814
-[#2823]: https://github.com/ARKEcosystem/core/pull/2823
-[#2828]: https://github.com/ARKEcosystem/core/pull/2828
-[#2830]: https://github.com/ARKEcosystem/core/pull/2830
-[#2831]: https://github.com/ARKEcosystem/core/pull/2831
-[#2837]: https://github.com/ARKEcosystem/core/pull/2837
-[#2838]: https://github.com/ARKEcosystem/core/pull/2838
-[#2839]: https://github.com/ARKEcosystem/core/pull/2839
-[#2840]: https://github.com/ARKEcosystem/core/pull/2840
-[#2842]: https://github.com/ARKEcosystem/core/pull/2842
-[#2844]: https://github.com/ARKEcosystem/core/pull/2844
-[#2845]: https://github.com/ARKEcosystem/core/pull/2845
-[#2847]: https://github.com/ARKEcosystem/core/pull/2847
-[#2848]: https://github.com/ARKEcosystem/core/pull/2848
-[#2850]: https://github.com/ARKEcosystem/core/pull/2850
-[#2854]: https://github.com/ARKEcosystem/core/pull/2854
-[#2855]: https://github.com/ARKEcosystem/core/pull/2855
-[#2856]: https://github.com/ARKEcosystem/core/pull/2856
-[#2858]: https://github.com/ARKEcosystem/core/pull/2858
-[#2859]: https://github.com/ARKEcosystem/core/pull/2859
-[#2861]: https://github.com/ARKEcosystem/core/pull/2861
-[#2863]: https://github.com/ARKEcosystem/core/pull/2863
-[#2864]: https://github.com/ARKEcosystem/core/pull/2864
-[#2865]: https://github.com/ARKEcosystem/core/pull/2865
-[#2867]: https://github.com/ARKEcosystem/core/pull/2867
-[#2869]: https://github.com/ARKEcosystem/core/pull/2869
-[#2873]: https://github.com/ARKEcosystem/core/pull/2873
-[#2875]: https://github.com/ARKEcosystem/core/pull/2875
-[#2877]: https://github.com/ARKEcosystem/core/pull/2877
-[#2878]: https://github.com/ARKEcosystem/core/pull/2878
-[#2879]: https://github.com/ARKEcosystem/core/pull/2879
-[#2886]: https://github.com/ARKEcosystem/core/pull/2886
-[#2887]: https://github.com/ARKEcosystem/core/pull/2887
-[#2889]: https://github.com/ARKEcosystem/core/pull/2889
-[#2892]: https://github.com/ARKEcosystem/core/pull/2892
-[#2893]: https://github.com/ARKEcosystem/core/pull/2893
-[#2894]: https://github.com/ARKEcosystem/core/pull/2894
-[#2895]: https://github.com/ARKEcosystem/core/pull/2895
-[#2896]: https://github.com/ARKEcosystem/core/pull/2896
-[#2897]: https://github.com/ARKEcosystem/core/pull/2897
-[#2898]: https://github.com/ARKEcosystem/core/pull/2898
-[#2903]: https://github.com/ARKEcosystem/core/pull/2903
-[#2904]: https://github.com/ARKEcosystem/core/pull/2904
-[#2906]: https://github.com/ARKEcosystem/core/pull/2906
-[#2907]: https://github.com/ARKEcosystem/core/pull/2907
-[#2909]: https://github.com/ARKEcosystem/core/pull/2909
-[#2910]: https://github.com/ARKEcosystem/core/pull/2910
-[#2911]: https://github.com/ARKEcosystem/core/pull/2911
-[#2912]: https://github.com/ARKEcosystem/core/pull/2912
-[#2914]: https://github.com/ARKEcosystem/core/pull/2914
-[#2915]: https://github.com/ARKEcosystem/core/pull/2915
-[#2916]: https://github.com/ARKEcosystem/core/pull/2916
-[#2918]: https://github.com/ARKEcosystem/core/pull/2918
-[#2919]: https://github.com/ARKEcosystem/core/pull/2919
-[#2920]: https://github.com/ARKEcosystem/core/pull/2920
-[#2921]: https://github.com/ARKEcosystem/core/pull/2921
-[#2923]: https://github.com/ARKEcosystem/core/pull/2923
-[#2925]: https://github.com/ARKEcosystem/core/pull/2925
-[#2926]: https://github.com/ARKEcosystem/core/pull/2926
-[#2928]: https://github.com/ARKEcosystem/core/pull/2928
-[#2929]: https://github.com/ARKEcosystem/core/pull/2929
-[#2932]: https://github.com/ARKEcosystem/core/pull/2932
-[#2933]: https://github.com/ARKEcosystem/core/pull/2933
-[#2936]: https://github.com/ARKEcosystem/core/pull/2936
-[#2937]: https://github.com/ARKEcosystem/core/pull/2937
-[#2938]: https://github.com/ARKEcosystem/core/pull/2938
-[#2940]: https://github.com/ARKEcosystem/core/pull/2940
-[#2941]: https://github.com/ARKEcosystem/core/pull/2941
-[#2942]: https://github.com/ARKEcosystem/core/pull/2942
-[#2943]: https://github.com/ARKEcosystem/core/pull/2943
-[#2944]: https://github.com/ARKEcosystem/core/pull/2944
-[#2945]: https://github.com/ARKEcosystem/core/pull/2945
-[#2947]: https://github.com/ARKEcosystem/core/pull/2947
-[#2948]: https://github.com/ARKEcosystem/core/pull/2948
-[#2949]: https://github.com/ARKEcosystem/core/pull/2949
-[#2951]: https://github.com/ARKEcosystem/core/pull/2951
-[#2952]: https://github.com/ARKEcosystem/core/pull/2952
-[#2959]: https://github.com/ARKEcosystem/core/pull/2959
-[#2960]: https://github.com/ARKEcosystem/core/pull/2960
-[#2961]: https://github.com/ARKEcosystem/core/pull/2961
-[#2962]: https://github.com/ARKEcosystem/core/pull/2962
-[#2967]: https://github.com/ARKEcosystem/core/pull/2967
-[#2968]: https://github.com/ARKEcosystem/core/pull/2968
-[#2970]: https://github.com/ARKEcosystem/core/pull/2970
-[#2972]: https://github.com/ARKEcosystem/core/pull/2972
-[#2973]: https://github.com/ARKEcosystem/core/pull/2973
-[#2974]: https://github.com/ARKEcosystem/core/pull/2974
-[#2976]: https://github.com/ARKEcosystem/core/pull/2976
-[#2979]: https://github.com/ARKEcosystem/core/pull/2979
-[#2980]: https://github.com/ARKEcosystem/core/pull/2980
-[#2994]: https://github.com/ARKEcosystem/core/pull/2994
-[#2996]: https://github.com/ARKEcosystem/core/pull/2996
-[#2997]: https://github.com/ARKEcosystem/core/pull/2997
-[#2998]: https://github.com/ARKEcosystem/core/pull/2998
-[#2999]: https://github.com/ARKEcosystem/core/pull/2999
-[#3000]: https://github.com/ARKEcosystem/core/pull/3000
-[#3001]: https://github.com/ARKEcosystem/core/pull/3001
-[#3005]: https://github.com/ARKEcosystem/core/pull/3005
-[#3008]: https://github.com/ARKEcosystem/core/pull/3008
-[#3010]: https://github.com/ARKEcosystem/core/pull/3010
-[#3011]: https://github.com/ARKEcosystem/core/pull/3011
-[#3014]: https://github.com/ARKEcosystem/core/pull/3014
-[#3015]: https://github.com/ARKEcosystem/core/pull/3015
-[#3022]: https://github.com/ARKEcosystem/core/pull/3022
-[#3023]: https://github.com/ARKEcosystem/core/pull/3023
-[#3025]: https://github.com/ARKEcosystem/core/pull/3025
-[#3027]: https://github.com/ARKEcosystem/core/pull/3027
-[#3030]: https://github.com/ARKEcosystem/core/pull/3030
-[#3034]: https://github.com/ARKEcosystem/core/pull/3034
-[#3036]: https://github.com/ARKEcosystem/core/pull/3036
-[#3037]: https://github.com/ARKEcosystem/core/pull/3037
-[#3040]: https://github.com/ARKEcosystem/core/pull/3040
-[#3041]: https://github.com/ARKEcosystem/core/pull/3041
-[#3043]: https://github.com/ARKEcosystem/core/pull/3043
-[#3045]: https://github.com/ARKEcosystem/core/pull/3045
-[#3046]: https://github.com/ARKEcosystem/core/pull/3046
-[#3048]: https://github.com/ARKEcosystem/core/pull/3048
-[#3049]: https://github.com/ARKEcosystem/core/pull/3049
-[#3050]: https://github.com/ARKEcosystem/core/pull/3050
-[#3055]: https://github.com/ARKEcosystem/core/pull/3055
-[#3056]: https://github.com/ARKEcosystem/core/pull/3056
-[#3062]: https://github.com/ARKEcosystem/core/pull/3062
-[#3069]: https://github.com/ARKEcosystem/core/pull/3069
-[#3071]: https://github.com/ARKEcosystem/core/pull/3071
-[#3075]: https://github.com/ARKEcosystem/core/pull/3075
-[#3078]: https://github.com/ARKEcosystem/core/pull/3078
-[#3081]: https://github.com/ARKEcosystem/core/pull/3081
-[#3083]: https://github.com/ARKEcosystem/core/pull/3083
-[#3084]: https://github.com/ARKEcosystem/core/pull/3084
-[#3086]: https://github.com/ARKEcosystem/core/pull/3086
-[#3087]: https://github.com/ARKEcosystem/core/pull/3087
-[#3095]: https://github.com/ARKEcosystem/core/pull/3095
-[#3096]: https://github.com/ARKEcosystem/core/pull/3096
-[#3108]: https://github.com/ARKEcosystem/core/pull/3108
-[#3109]: https://github.com/ARKEcosystem/core/pull/3109
-[#3112]: https://github.com/ARKEcosystem/core/pull/3112
-[#3119]: https://github.com/ARKEcosystem/core/pull/3119
-[#3138]: https://github.com/ARKEcosystem/core/pull/3138
-[#3140]: https://github.com/ARKEcosystem/core/pull/3140
-[#3147]: https://github.com/ARKEcosystem/core/pull/3147
-[#3154]: https://github.com/ARKEcosystem/core/pull/3154
-[#3170]: https://github.com/ARKEcosystem/core/pull/3170
-[#3171]: https://github.com/ARKEcosystem/core/pull/3171
-[#3193]: https://github.com/ARKEcosystem/core/pull/3193
-[#3196]: https://github.com/ARKEcosystem/core/pull/3196
-[#3208]: https://github.com/ARKEcosystem/core/pull/3208
-[#3208]: https://github.com/ARKEcosystem/core/pull/3208
-[#3228]: https://github.com/ARKEcosystem/core/pull/3228
-[#3234]: https://github.com/ARKEcosystem/core/pull/3234
-[#3256]: https://github.com/ARKEcosystem/core/pull/3256
-[#3270]: https://github.com/ARKEcosystem/core/pull/3270
-[#3271]: https://github.com/ARKEcosystem/core/pull/3271
-[#3291]: https://github.com/ARKEcosystem/core/pull/3291
-[#3296]: https://github.com/ARKEcosystem/core/pull/3296
-[#3331]: https://github.com/ARKEcosystem/core/pull/3331
-[#3341]: https://github.com/ARKEcosystem/core/pull/3341
-[#3354]: https://github.com/ARKEcosystem/core/pull/3354
-[#3404]: https://github.com/ARKEcosystem/core/pull/3404
-[#3409]: https://github.com/ARKEcosystem/core/pull/3409
-[#3426]: https://github.com/ARKEcosystem/core/pull/3426
-[#3459]: https://github.com/ARKEcosystem/core/pull/3459
-[#3465]: https://github.com/ARKEcosystem/core/pull/3465
-[#3489]: https://github.com/ARKEcosystem/core/pull/3489
-[#3498]: https://github.com/ARKEcosystem/core/pull/3498
-[#3502]: https://github.com/ARKEcosystem/core/pull/3502
-[#3504]: https://github.com/ARKEcosystem/core/pull/3504
-[#3505]: https://github.com/ARKEcosystem/core/pull/3505
-[#3507]: https://github.com/ARKEcosystem/core/pull/3507
-[#3510]: https://github.com/ARKEcosystem/core/pull/3510
-[#3518]: https://github.com/ARKEcosystem/core/pull/3518
-[#3523]: https://github.com/ARKEcosystem/core/pull/3523
-[#3524]: https://github.com/ARKEcosystem/core/pull/3524
-[#3537]: https://github.com/ARKEcosystem/core/pull/3537
-[#3541]: https://github.com/ARKEcosystem/core/pull/3541
-[#3551]: https://github.com/ARKEcosystem/core/pull/3551
-[#3560]: https://github.com/ARKEcosystem/core/pull/3560
-[#3561]: https://github.com/ARKEcosystem/core/pull/3561
-[#3562]: https://github.com/ARKEcosystem/core/pull/3562
-[#3567]: https://github.com/ARKEcosystem/core/pull/3567
-[#3570]: https://github.com/ARKEcosystem/core/pull/3570
-[#3573]: https://github.com/ARKEcosystem/core/pull/3573
-[#3574]: https://github.com/ARKEcosystem/core/pull/3574
-[#3575]: https://github.com/ARKEcosystem/core/pull/3575
-[#3590]: https://github.com/ARKEcosystem/core/pull/3590
-[#3594]: https://github.com/ARKEcosystem/core/pull/3594
-[#3596]: https://github.com/ARKEcosystem/core/pull/3596
-[#3598]: https://github.com/ARKEcosystem/core/pull/3598
-[#3605]: https://github.com/ARKEcosystem/core/pull/3605
-[#3614]: https://github.com/ARKEcosystem/core/pull/3614
-[#3659]: https://github.com/ARKEcosystem/core/pull/3659
-[#3665]: https://github.com/ARKEcosystem/core/pull/3665
-[#3667]: https://github.com/ARKEcosystem/core/pull/3667
-[#3669]: https://github.com/ARKEcosystem/core/pull/3669
-[#3678]: https://github.com/ARKEcosystem/core/pull/3678
-[#3695]: https://github.com/ARKEcosystem/core/pull/3695
-[#3746]: https://github.com/ARKEcosystem/core/pull/3746
-[#3806]: https://github.com/ARKEcosystem/core/pull/3806
-[#3818]: https://github.com/ARKEcosystem/core/pull/3818
-[#3823]: https://github.com/ARKEcosystem/core/pull/3823
-[#3830]: https://github.com/ARKEcosystem/core/pull/3830
-[#3904]: https://github.com/ARKEcosystem/core/pull/3904
-[#3905]: https://github.com/ARKEcosystem/core/pull/3905
-[#3950]: https://github.com/ARKEcosystem/core/pull/3950
-[032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
-[1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
-[34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
-[7a73aef8b29d40572d1524cf8b1bafbffa3b096]: https://github.com/ARKEcosystem/core/commit/7a73aef8b29d40572d1524cf8b1bafbffa3b0964
-[b537d6f327e939ff40b680ea7d558e8fdb3ac92]: https://github.com/ARKEcosystem/core/commit/b537d6f327e939ff40b680ea7d558e8fdb3ac921
+-   Use getRegisteredHandlers() to get all registered handlers in /node/fees controller ([a917e085], [@air1one])
+-   Slot, round and forgingInfo calculation for dynamic block times ([2d3fe091], [@sebastijankuzner])
+-   Wallet repository clone instantiation ([2fb47e6d], [@rainydio])
+-   Fix delegate.lastBlock.timestamp property ([66f39cb4], [@rainydio])
+-   Clone wallet on mempool wallet-repository ([140b860f], [@sebastijankuzner])
+-   Replace micromatch with nanomatch ([4387b1df], [@sebastijankuzner])
+-   Decouple database and state packages ([af5e5423], [@bertiespell])
+-   Dynamically import @pm2/io ([4fc57db6], [@sebastijankuzner])
+-   RevertBlock ([3565ef51], [@sebastijankuzner])
+-   Fix delegate search order ([f21af370], [@rainydio])
+-   Limit parameter (rollback #3940) ([39894a40], [@rainydio])
+-   Fix order in delegates/{id}/blocks ([50492b45], [@rainydio])
+-   Fix transactions/\${id} confirmations and timestamp fields ([a7b46a90], [@rainydio])
+-   Manually apply b0296e765700d0dc7c0356770bd3941da1609660 ([abfe43f8], [@air1one])
+-   Limit max retries form infinity to 1 ([184f5007], [@sebastijankuzner])
+-   Disconnect all sockets on peer disconnect ([95d6b2c2], [@sebastijankuzner])
+-   Expose two methods for findByHeightRangeWithTransactions ([dc431faf], [@sebastijankuzner])
+-   Sort transactions by sequence before saving block ([cd29f850], [@sebastijankuzner])
+-   Reset peer errorCounter after response ([1e7d11d4], [@sebastijankuzner])
+-   Remove unnecessary assertion check to enable devnet sync ([381e9c7a], [@bertiespell])
+-   Uses new promise instead Promise.race ([915263a2], [@sebastijankuzner])
+-   Guaranteed transaction order ([110ada8d], [@rainydio])
+-   Allow dynamic fees ([2400b8df], [@bertiespell])
+-   Remove obsolete check (unique per wallet now) ([d9c8b070], [@air1one])
+-   Handle when there is no business.bridgechains ([14a3af3a], [@air1one])
+-   Version 1 multi-signature handler should check milestone data ([74e1e379], [@bertiespell])
+-   Re-add unconfirmed matcher ([7123ff20], [@air1one])
+-   Entity handler bootstrap method, fetch transactions using asset type/subType as number ([4031a51d], [@air1one])
+-   Ensure peer port is always an integer to avoid socket validation errors ([4e7cca1f], [@bertiespell])
+-   Stream transactions during bootstrap ([8a6be81d], [@rainydio])
+-   Restrict internal routes to whitelisted IPs ([34672893], [@bertiespell])
+-   Union type with number in pool query ([cf43417e], [@rainydio])
+-   Respect CORE_API_RATE_LIMIT_DISABLED env variable ([c7d8242f], [@rainydio])
+-   Fix entity bootstrap methods ([89a7176f], [@air1one])
+-   Transaction builder should build and sign versioned transactions ([93937b28], [@bertiespell])
+-   Prevent watcher from calling app.reboot multiple times ([0d4b2102], [@rainydio])
+-   InitializeActiveDelegates just use current round ([7fa7af25], [@air1one])
+-   Return serialized transactions ([7e369b18], [@air1one])
+-   Fix round order ([9921a0d1], [@rainydio])
+-   Fix delete blocks ([b2fee486], [@rainydio])
+-   Transaction filter multipayment recipientId ([70700fa2], [@rainydio])
+-   Handle transaction deserialize error ([09e08927], [@rainydio])
+-   Return last common block ([b2196097], [@sebastijankuzner])
+-   Rebuild vs update race ([507f8112], [@rainydio])
+-   Replace ws connection logging method ([3525e860], [@sebastijankuzner])
+-   Log all unexpected errors ([9fc047a1], [@rainydio])
+-   Fix transaction resource responses ([b3e0b984], [@rainydio])
+-   Re-add transactions to pool when milestone changes ([eddb726f], [@rainydio])
+-   Set default orderBy value ([9ea9bb4e], [@rainydio])
+-   Introduce CORE_RESET_POOL env variable ([ba49d879], [@rainydio])
+-   Use hapi inject when creating transfer transaction ([3ac7a034], [@rainydio])
+-   Straight delete blocks during rollback ([b87a7a8a], [@rainydio])
+-   Round deletion when deleting blocks ([62f5ae96], [@rainydio])
+-   Fix wallet/transactions confirmations and timestamp fields ([666ba678], [@rainydio])
+-   Include multipayment in forged amount ([3439e528], [@rainydio])
+-   Handle multipayment recipientId during search ([67ae0c81], [@rainydio])
+-   Throw ERR_HIGH_FEE when fee is too high ([8a383b8d], [@sebastijankuzner])
+-   Get app version from package.json ([56107062], [@air1one])
+-   Show log levels <= defined threshold level ([e1921baa], [@air1one])
+-   Import scope ([37cb56ef], [@KovacZan])
+-   Add check in config-cli command to check whether the token flag has been set ([94c2da2b], [@bertiespell])
+-   Blockchain and p2p fixes to be able to launch a network ([e97a18ae], [@air1one])
+-   Change import scope from @package to @arkecosystem ([606faac8], [@KovacZan])
+-   Log warning when active delegates are under the required delegate count ([937ffa08], [@bertiespell])
+-   Undefined pool variable ([9a8ecde9], [@rainydio](origin/3.0))
+-   Allow string and number for rewardAmount ([f7c47410], [@faustbrian])
+-   Enable HTLC by default ([37728bdc], [@faustbrian])
+-   Add username and secondPublicKey to wallet resource ([c12064dc], [@faustbrian])
+-   CalculateLockExpirationStatus method signature ([fc672020], [@faustbrian])
+-   Adjust transaction factory for custom network configurations ([ab27881a], [@faustbrian])
+-   Use Joi.object() in schema definition ([2a325d19], [@air1one])
+-   Issues after merge ([8bea9241], [@faustbrian])
+-   Allow missing publicKey, since it isnt guaranteed to exist ([59a8eddd], [@supaiku])
+-   Inject ([29f4f6bf], [@supaiku])
+-   Search by genesisHash in show method ([ed5b17a6], [@supaiku])
+-   Use wallet publicKey for business id index ([3fd2b2ab], [@supaiku])
+-   Remove password flag constraint for core:forger command ([969732ce], [@supaiku])
+-   Don't swallow BIP38 errors ([344cbbdc], [@supaiku])
+-   Use genesisHash for bridgechainId ([b0494a3d], [@supaiku])
+-   Wallet-manager fallback to database wallet manager findByIndex() when no "local" match ([9af6aa0a], [@supaiku])
+-   Do not attempt to convert vendorfield ([a7034bf9], [@supaiku])
+-   Adjust genericName regex and add tests ([a9144f0a], [@supaiku])
+-   Case insensitive bridgechain comparison ([52b91a7f], [@supaiku])
+-   Add additional bridgechain registration exception handling ([7d7a4a81], [@supaiku])
+-   Htlc bootstrap ([f6a007d8], [@supaiku])
+-   Add ipfs exception handling ([693160ee], [@supaiku])
+-   Check for an exception before checking for invalid fees ([a44f9771], [@supaiku])
+-   Stricter WS/SC events/messages handling ([31abd8ee], [@supaiku])
+-   Allow unvoting a resigned delegate ([a742fac0], [@supaiku])
+-   Remove delegate.rank for resigned delegates ([6a97dcd4], [@supaiku])
+-   Fix(core-api) include typeGroup in `/transactions/fees` and `/node/fees` endpoints ([1fe6e1b1], [@supaiku])
+-   Validate address of multi payment recipients ([5122f084], [@supaiku])
+-   Reindex wallet when applying delegate resignation ([2ab25931], [@supaiku])
+-   Return error when app is not ready ([c7d9249c], [@supaiku])
+-   Call next() so that the request can proceed ([76c7f8d0], [@supaiku])
+-   Timeout promise race ([5a9a24c3], [@supaiku])
+-   Write accepted blocks to database before… ([28611aef], [@supaiku])
+-   Properly implement block size limit ([8e476bc3], [@supaiku])
+-   Improve 'name' field validation to… ([b5d6c14f], [@supaiku])
+-   Uncaught IPC timeout ([f1716e1f], [@supaiku])
+-   Add transactions back to pool only after… ([3b026d6e], [@supaiku])
+-   Parallel download ([80d6712b], [@vasild])
+-   Emit correct event ([02a575ca], [@dated])
+-   Use numerics for typeGroups in /transactions/typ… ([c199cd80], [@vasild])
+-   Set last height before initializing last bl… ([3f28e9da], [@supaiku])
+-   Properly terminate bad connections ([6f7b54cf], [@alessiodf])
+-   Throw if transaction key is already tak… ([eaadddc4], [@supaiku])
+-   Use strict comparison to decide if a transaction should be enabled ([27abce8e], [@faustbrian])
+-   Respect the include and exclude rules of the CLI ([6c41a083], [@faustbrian])
+-   Resolve issues and conflicts after 2.6 merge ([6a1f8d2b], [@faustbrian])
+-   Activate AIP11 at height 2 on testnet to avoid genesis collision ([2ca694f9], [@faustbrian])
+-   Resolve issues and conflicts after 2.6 merge ([bfa2c282], [@faustbrian])
+-   Transaction pool options access ([29e8485f], [@faustbrian])
+-   Resolve logger as log from container ([daf1d922], [@faustbrian])
+-   Get the basics running again ([53e4469f], [@faustbrian])
+-   Resolve build issues after core-kernel introduction ([e8a2d6be], [@faustbrian])
+-   Update core-interfaces imports to core-kernel ([c70bf0bb], [@faustbrian])
+
+[@adrian69]: https://github.com/adrian69
+[@air1one]: https://github.com/air1one
+[@alessiodf]: https://github.com/alessiodf
+[@bertiespell]: https://github.com/bertiespell
+[@dated]: https://github.com/dated
+[@faustbrian]: https://github.com/faustbrian
+[@kovaczan]: https://github.com/KovacZan
+[@lemii]: https://github.com/Lemii
+[@rainydio]: https://github.com/rainydio
+[@sebastijankuzner]: https://github.com/sebastijankuzner
+[@sleepdefic1t]: https://github.com/sleepdefic1t
+[@supaiku]: https://github.com/supaiku
+[@vasild]: https://github.com/vasild
+[a917e085]: https://github.com/ArkEcosystem/core/commit/a917e085
+[2d3fe091]: https://github.com/ArkEcosystem/core/commit/2d3fe091
+[2fb47e6d]: https://github.com/ArkEcosystem/core/commit/2fb47e6d
+[66f39cb4]: https://github.com/ArkEcosystem/core/commit/66f39cb4
+[140b860f]: https://github.com/ArkEcosystem/core/commit/140b860f
+[4387b1df]: https://github.com/ArkEcosystem/core/commit/4387b1df
+[af5e5423]: https://github.com/ArkEcosystem/core/commit/af5e5423
+[4fc57db6]: https://github.com/ArkEcosystem/core/commit/4fc57db6
+[3565ef51]: https://github.com/ArkEcosystem/core/commit/3565ef51
+[f21af370]: https://github.com/ArkEcosystem/core/commit/f21af370
+[39894a40]: https://github.com/ArkEcosystem/core/commit/39894a40
+[50492b45]: https://github.com/ArkEcosystem/core/commit/50492b45
+[a7b46a90]: https://github.com/ArkEcosystem/core/commit/a7b46a90
+[abfe43f8]: https://github.com/ArkEcosystem/core/commit/abfe43f8
+[184f5007]: https://github.com/ArkEcosystem/core/commit/184f5007
+[95d6b2c2]: https://github.com/ArkEcosystem/core/commit/95d6b2c2
+[dc431faf]: https://github.com/ArkEcosystem/core/commit/dc431faf
+[cd29f850]: https://github.com/ArkEcosystem/core/commit/cd29f850
+[1e7d11d4]: https://github.com/ArkEcosystem/core/commit/1e7d11d4
+[381e9c7a]: https://github.com/ArkEcosystem/core/commit/381e9c7a
+[915263a2]: https://github.com/ArkEcosystem/core/commit/915263a2
+[110ada8d]: https://github.com/ArkEcosystem/core/commit/110ada8d
+[2400b8df]: https://github.com/ArkEcosystem/core/commit/2400b8df
+[d9c8b070]: https://github.com/ArkEcosystem/core/commit/d9c8b070
+[14a3af3a]: https://github.com/ArkEcosystem/core/commit/14a3af3a
+[74e1e379]: https://github.com/ArkEcosystem/core/commit/74e1e379
+[7123ff20]: https://github.com/ArkEcosystem/core/commit/7123ff20
+[4031a51d]: https://github.com/ArkEcosystem/core/commit/4031a51d
+[4e7cca1f]: https://github.com/ArkEcosystem/core/commit/4e7cca1f
+[8a6be81d]: https://github.com/ArkEcosystem/core/commit/8a6be81d
+[34672893]: https://github.com/ArkEcosystem/core/commit/34672893
+[cf43417e]: https://github.com/ArkEcosystem/core/commit/cf43417e
+[c7d8242f]: https://github.com/ArkEcosystem/core/commit/c7d8242f
+[89a7176f]: https://github.com/ArkEcosystem/core/commit/89a7176f
+[93937b28]: https://github.com/ArkEcosystem/core/commit/93937b28
+[0d4b2102]: https://github.com/ArkEcosystem/core/commit/0d4b2102
+[7fa7af25]: https://github.com/ArkEcosystem/core/commit/7fa7af25
+[7e369b18]: https://github.com/ArkEcosystem/core/commit/7e369b18
+[9921a0d1]: https://github.com/ArkEcosystem/core/commit/9921a0d1
+[b2fee486]: https://github.com/ArkEcosystem/core/commit/b2fee486
+[70700fa2]: https://github.com/ArkEcosystem/core/commit/70700fa2
+[09e08927]: https://github.com/ArkEcosystem/core/commit/09e08927
+[b2196097]: https://github.com/ArkEcosystem/core/commit/b2196097
+[507f8112]: https://github.com/ArkEcosystem/core/commit/507f8112
+[3525e860]: https://github.com/ArkEcosystem/core/commit/3525e860
+[9fc047a1]: https://github.com/ArkEcosystem/core/commit/9fc047a1
+[b3e0b984]: https://github.com/ArkEcosystem/core/commit/b3e0b984
+[eddb726f]: https://github.com/ArkEcosystem/core/commit/eddb726f
+[9ea9bb4e]: https://github.com/ArkEcosystem/core/commit/9ea9bb4e
+[ba49d879]: https://github.com/ArkEcosystem/core/commit/ba49d879
+[3ac7a034]: https://github.com/ArkEcosystem/core/commit/3ac7a034
+[b87a7a8a]: https://github.com/ArkEcosystem/core/commit/b87a7a8a
+[62f5ae96]: https://github.com/ArkEcosystem/core/commit/62f5ae96
+[666ba678]: https://github.com/ArkEcosystem/core/commit/666ba678
+[3439e528]: https://github.com/ArkEcosystem/core/commit/3439e528
+[67ae0c81]: https://github.com/ArkEcosystem/core/commit/67ae0c81
+[8a383b8d]: https://github.com/ArkEcosystem/core/commit/8a383b8d
+[56107062]: https://github.com/ArkEcosystem/core/commit/56107062
+[e1921baa]: https://github.com/ArkEcosystem/core/commit/e1921baa
+[37cb56ef]: https://github.com/ArkEcosystem/core/commit/37cb56ef
+[94c2da2b]: https://github.com/ArkEcosystem/core/commit/94c2da2b
+[e97a18ae]: https://github.com/ArkEcosystem/core/commit/e97a18ae
+[606faac8]: https://github.com/ArkEcosystem/core/commit/606faac8
+[937ffa08]: https://github.com/ArkEcosystem/core/commit/937ffa08
+[9a8ecde9]: https://github.com/ArkEcosystem/core/commit/9a8ecde9
+[f7c47410]: https://github.com/ArkEcosystem/core/commit/f7c47410
+[37728bdc]: https://github.com/ArkEcosystem/core/commit/37728bdc
+[c12064dc]: https://github.com/ArkEcosystem/core/commit/c12064dc
+[fc672020]: https://github.com/ArkEcosystem/core/commit/fc672020
+[ab27881a]: https://github.com/ArkEcosystem/core/commit/ab27881a
+[2a325d19]: https://github.com/ArkEcosystem/core/commit/2a325d19
+[8bea9241]: https://github.com/ArkEcosystem/core/commit/8bea9241
+[59a8eddd]: https://github.com/ArkEcosystem/core/commit/59a8eddd
+[29f4f6bf]: https://github.com/ArkEcosystem/core/commit/29f4f6bf
+[ed5b17a6]: https://github.com/ArkEcosystem/core/commit/ed5b17a6
+[3fd2b2ab]: https://github.com/ArkEcosystem/core/commit/3fd2b2ab
+[969732ce]: https://github.com/ArkEcosystem/core/commit/969732ce
+[344cbbdc]: https://github.com/ArkEcosystem/core/commit/344cbbdc
+[b0494a3d]: https://github.com/ArkEcosystem/core/commit/b0494a3d
+[9af6aa0a]: https://github.com/ArkEcosystem/core/commit/9af6aa0a
+[a7034bf9]: https://github.com/ArkEcosystem/core/commit/a7034bf9
+[a9144f0a]: https://github.com/ArkEcosystem/core/commit/a9144f0a
+[52b91a7f]: https://github.com/ArkEcosystem/core/commit/52b91a7f
+[7d7a4a81]: https://github.com/ArkEcosystem/core/commit/7d7a4a81
+[f6a007d8]: https://github.com/ArkEcosystem/core/commit/f6a007d8
+[693160ee]: https://github.com/ArkEcosystem/core/commit/693160ee
+[a44f9771]: https://github.com/ArkEcosystem/core/commit/a44f9771
+[31abd8ee]: https://github.com/ArkEcosystem/core/commit/31abd8ee
+[a742fac0]: https://github.com/ArkEcosystem/core/commit/a742fac0
+[6a97dcd4]: https://github.com/ArkEcosystem/core/commit/6a97dcd4
+[1fe6e1b1]: https://github.com/ArkEcosystem/core/commit/1fe6e1b1
+[5122f084]: https://github.com/ArkEcosystem/core/commit/5122f084
+[2ab25931]: https://github.com/ArkEcosystem/core/commit/2ab25931
+[c7d9249c]: https://github.com/ArkEcosystem/core/commit/c7d9249c
+[76c7f8d0]: https://github.com/ArkEcosystem/core/commit/76c7f8d0
+[5a9a24c3]: https://github.com/ArkEcosystem/core/commit/5a9a24c3
+[28611aef]: https://github.com/ArkEcosystem/core/commit/28611aef
+[8e476bc3]: https://github.com/ArkEcosystem/core/commit/8e476bc3
+[b5d6c14f]: https://github.com/ArkEcosystem/core/commit/b5d6c14f
+[f1716e1f]: https://github.com/ArkEcosystem/core/commit/f1716e1f
+[3b026d6e]: https://github.com/ArkEcosystem/core/commit/3b026d6e
+[80d6712b]: https://github.com/ArkEcosystem/core/commit/80d6712b
+[02a575ca]: https://github.com/ArkEcosystem/core/commit/02a575ca
+[c199cd80]: https://github.com/ArkEcosystem/core/commit/c199cd80
+[3f28e9da]: https://github.com/ArkEcosystem/core/commit/3f28e9da
+[6f7b54cf]: https://github.com/ArkEcosystem/core/commit/6f7b54cf
+[eaadddc4]: https://github.com/ArkEcosystem/core/commit/eaadddc4
+[27abce8e]: https://github.com/ArkEcosystem/core/commit/27abce8e
+[6c41a083]: https://github.com/ArkEcosystem/core/commit/6c41a083
+[6a1f8d2b]: https://github.com/ArkEcosystem/core/commit/6a1f8d2b
+[2ca694f9]: https://github.com/ArkEcosystem/core/commit/2ca694f9
+[bfa2c282]: https://github.com/ArkEcosystem/core/commit/bfa2c282
+[29e8485f]: https://github.com/ArkEcosystem/core/commit/29e8485f
+[daf1d922]: https://github.com/ArkEcosystem/core/commit/daf1d922
+[53e4469f]: https://github.com/ArkEcosystem/core/commit/53e4469f
+[e8a2d6be]: https://github.com/ArkEcosystem/core/commit/e8a2d6be
+[c70bf0bb]: https://github.com/ArkEcosystem/core/commit/c70bf0bb
+[700b9cd6]: https://github.com/ArkEcosystem/core/commit/700b9cd6
+[51d01a2d]: https://github.com/ArkEcosystem/core/commit/51d01a2d
+[f18928dd]: https://github.com/ArkEcosystem/core/commit/f18928dd
+[9796d138]: https://github.com/ArkEcosystem/core/commit/9796d138
+[47d3cf20]: https://github.com/ArkEcosystem/core/commit/47d3cf20
+[b42bfb6f]: https://github.com/ArkEcosystem/core/commit/b42bfb6f
+[5222b5cf]: https://github.com/ArkEcosystem/core/commit/5222b5cf
+[ed8a0e80]: https://github.com/ArkEcosystem/core/commit/ed8a0e80
+[e943e563]: https://github.com/ArkEcosystem/core/commit/e943e563
+[d9fc0c09]: https://github.com/ArkEcosystem/core/commit/d9fc0c09
+[8a2033ac]: https://github.com/ArkEcosystem/core/commit/8a2033ac
+[7cb916ab]: https://github.com/ArkEcosystem/core/commit/7cb916ab
+[ce618cc3]: https://github.com/ArkEcosystem/core/commit/ce618cc3
+[cc707383]: https://github.com/ArkEcosystem/core/commit/cc707383
+[9ac9b453]: https://github.com/ArkEcosystem/core/commit/9ac9b453
+[6f9887f9]: https://github.com/ArkEcosystem/core/commit/6f9887f9
+[7ca7d968]: https://github.com/ArkEcosystem/core/commit/7ca7d968
+[4757531e]: https://github.com/ArkEcosystem/core/commit/4757531e
+[1bfc528a]: https://github.com/ArkEcosystem/core/commit/1bfc528a
+[4190ed63]: https://github.com/ArkEcosystem/core/commit/4190ed63
+[1c968188]: https://github.com/ArkEcosystem/core/commit/1c968188
+[29672aa9]: https://github.com/ArkEcosystem/core/commit/29672aa9
+[d204f752]: https://github.com/ArkEcosystem/core/commit/d204f752
+[d70c4227]: https://github.com/ArkEcosystem/core/commit/d70c4227
+[6dacdfbb]: https://github.com/ArkEcosystem/core/commit/6dacdfbb
+[85287670]: https://github.com/ArkEcosystem/core/commit/85287670
+[bd0370e3]: https://github.com/ArkEcosystem/core/commit/bd0370e3
+[97746d0c]: https://github.com/ArkEcosystem/core/commit/97746d0c
+[cf8a401b]: https://github.com/ArkEcosystem/core/commit/cf8a401b
+[c52b6ab7]: https://github.com/ArkEcosystem/core/commit/c52b6ab7
+[7a8bb932]: https://github.com/ArkEcosystem/core/commit/7a8bb932
+[052aae85]: https://github.com/ArkEcosystem/core/commit/052aae85
+[f87e146f]: https://github.com/ArkEcosystem/core/commit/f87e146f
+[82382fc9]: https://github.com/ArkEcosystem/core/commit/82382fc9
+[1cb7e23e]: https://github.com/ArkEcosystem/core/commit/1cb7e23e
+[fa49ca80]: https://github.com/ArkEcosystem/core/commit/fa49ca80
+[10e82175]: https://github.com/ArkEcosystem/core/commit/10e82175
+[36a607ab]: https://github.com/ArkEcosystem/core/commit/36a607ab
+[ca28f66f]: https://github.com/ArkEcosystem/core/commit/ca28f66f
+[dcfff76d]: https://github.com/ArkEcosystem/core/commit/dcfff76d
+[ef450f9d]: https://github.com/ArkEcosystem/core/commit/ef450f9d
+[118be7ba]: https://github.com/ArkEcosystem/core/commit/118be7ba
+[f31109fc]: https://github.com/ArkEcosystem/core/commit/f31109fc
+[7db01265]: https://github.com/ArkEcosystem/core/commit/7db01265
+[c8fdde97]: https://github.com/ArkEcosystem/core/commit/c8fdde97
+[3559f71e]: https://github.com/ArkEcosystem/core/commit/3559f71e
+[f28ba8db]: https://github.com/ArkEcosystem/core/commit/f28ba8db
+[67cd2c67]: https://github.com/ArkEcosystem/core/commit/67cd2c67
+[9c20c02e]: https://github.com/ArkEcosystem/core/commit/9c20c02e
+[40ddab0d]: https://github.com/ArkEcosystem/core/commit/40ddab0d
+[4ef29686]: https://github.com/ArkEcosystem/core/commit/4ef29686
+[81ebb949]: https://github.com/ArkEcosystem/core/commit/81ebb949
+[c3042577]: https://github.com/ArkEcosystem/core/commit/c3042577
+[9894e9ab]: https://github.com/ArkEcosystem/core/commit/9894e9ab
+[fed54c9d]: https://github.com/ArkEcosystem/core/commit/fed54c9d
+[8df596ab]: https://github.com/ArkEcosystem/core/commit/8df596ab
+[084b3962]: https://github.com/ArkEcosystem/core/commit/084b3962
+[4ff97a26]: https://github.com/ArkEcosystem/core/commit/4ff97a26
+[0d5390fd]: https://github.com/ArkEcosystem/core/commit/0d5390fd
+[a82a0943]: https://github.com/ArkEcosystem/core/commit/a82a0943
+[4999fec6]: https://github.com/ArkEcosystem/core/commit/4999fec6
+[8465625e]: https://github.com/ArkEcosystem/core/commit/8465625e
+[ff8975a0]: https://github.com/ArkEcosystem/core/commit/ff8975a0
+[84aee929]: https://github.com/ArkEcosystem/core/commit/84aee929
+[daadf358]: https://github.com/ArkEcosystem/core/commit/daadf358
+[460c6faa]: https://github.com/ArkEcosystem/core/commit/460c6faa
+[ae6cab5d]: https://github.com/ArkEcosystem/core/commit/ae6cab5d
+[5191f699]: https://github.com/ArkEcosystem/core/commit/5191f699
+[cded589b]: https://github.com/ArkEcosystem/core/commit/cded589b
+[c7606208]: https://github.com/ArkEcosystem/core/commit/c7606208
+[dd83c08b]: https://github.com/ArkEcosystem/core/commit/dd83c08b
+[a636dfd3]: https://github.com/ArkEcosystem/core/commit/a636dfd3
+[c4a8b70d]: https://github.com/ArkEcosystem/core/commit/c4a8b70d
+[a116e3f0]: https://github.com/ArkEcosystem/core/commit/a116e3f0
+[5a5b3d7f]: https://github.com/ArkEcosystem/core/commit/5a5b3d7f
+[de75e6ea]: https://github.com/ArkEcosystem/core/commit/de75e6ea
+[e323bb50]: https://github.com/ArkEcosystem/core/commit/e323bb50
+[6e59a43d]: https://github.com/ArkEcosystem/core/commit/6e59a43d
+[7fc356c7]: https://github.com/ArkEcosystem/core/commit/7fc356c7
+[6d6b6d33]: https://github.com/ArkEcosystem/core/commit/6d6b6d33
+[193417e1]: https://github.com/ArkEcosystem/core/commit/193417e1
+[a0096ffe]: https://github.com/ArkEcosystem/core/commit/a0096ffe
+[bdb7f946]: https://github.com/ArkEcosystem/core/commit/bdb7f946
+[2f734e4f]: https://github.com/ArkEcosystem/core/commit/2f734e4f
+[7cf1b107]: https://github.com/ArkEcosystem/core/commit/7cf1b107
+[34b7e34e]: https://github.com/ArkEcosystem/core/commit/34b7e34e
+[03c2ea3b]: https://github.com/ArkEcosystem/core/commit/03c2ea3b
+[1b7d90ac]: https://github.com/ArkEcosystem/core/commit/1b7d90ac
+[cfda8572]: https://github.com/ArkEcosystem/core/commit/cfda8572
+[b337cbe3]: https://github.com/ArkEcosystem/core/commit/b337cbe3
+[044ca830]: https://github.com/ArkEcosystem/core/commit/044ca830
+[cb50a622]: https://github.com/ArkEcosystem/core/commit/cb50a622
+[3f62bb54]: https://github.com/ArkEcosystem/core/commit/3f62bb54
+[be252260]: https://github.com/ArkEcosystem/core/commit/be252260
+[292d9e84]: https://github.com/ArkEcosystem/core/commit/292d9e84
+[1a4e1320]: https://github.com/ArkEcosystem/core/commit/1a4e1320
+[00f4964b]: https://github.com/ArkEcosystem/core/commit/00f4964b
+[bb91fab5]: https://github.com/ArkEcosystem/core/commit/bb91fab5
+[47275d67]: https://github.com/ArkEcosystem/core/commit/47275d67
+[5c404b69]: https://github.com/ArkEcosystem/core/commit/5c404b69
+[95a787c2]: https://github.com/ArkEcosystem/core/commit/95a787c2
+[213b71a1]: https://github.com/ArkEcosystem/core/commit/213b71a1
+[c53f6f52]: https://github.com/ArkEcosystem/core/commit/c53f6f52
+[c78e5611]: https://github.com/ArkEcosystem/core/commit/c78e5611
+[8f7d0d31]: https://github.com/ArkEcosystem/core/commit/8f7d0d31
+[2d5ea1aa]: https://github.com/ArkEcosystem/core/commit/2d5ea1aa
+[3753b290]: https://github.com/ArkEcosystem/core/commit/3753b290
+[b37233e3]: https://github.com/ArkEcosystem/core/commit/b37233e3
+[ad5e8230]: https://github.com/ArkEcosystem/core/commit/ad5e8230
+[08ca0fac]: https://github.com/ArkEcosystem/core/commit/08ca0fac
+[dd4c9aba]: https://github.com/ArkEcosystem/core/commit/dd4c9aba
+[0367e8e1]: https://github.com/ArkEcosystem/core/commit/0367e8e1
+[5e5eb2a4]: https://github.com/ArkEcosystem/core/commit/5e5eb2a4
+[cfd39d08]: https://github.com/ArkEcosystem/core/commit/cfd39d08
+[344de61a]: https://github.com/ArkEcosystem/core/commit/344de61a
+[583f5a92]: https://github.com/ArkEcosystem/core/commit/583f5a92
+[1a823ee7]: https://github.com/ArkEcosystem/core/commit/1a823ee7
+[75c11774]: https://github.com/ArkEcosystem/core/commit/75c11774
+[d449340c]: https://github.com/ArkEcosystem/core/commit/d449340c
+[bf422244]: https://github.com/ArkEcosystem/core/commit/bf422244
+[9d12bb1f]: https://github.com/ArkEcosystem/core/commit/9d12bb1f
+[ade3a5d4]: https://github.com/ArkEcosystem/core/commit/ade3a5d4
+[d44e29cc]: https://github.com/ArkEcosystem/core/commit/d44e29cc
+[1de4f3fc]: https://github.com/ArkEcosystem/core/commit/1de4f3fc
+[42b0805c]: https://github.com/ArkEcosystem/core/commit/42b0805c
+[fc157999]: https://github.com/ArkEcosystem/core/commit/fc157999
+[77893fda]: https://github.com/ArkEcosystem/core/commit/77893fda
+[9b368c95]: https://github.com/ArkEcosystem/core/commit/9b368c95
+[0f7e589b]: https://github.com/ArkEcosystem/core/commit/0f7e589b
+[85b6b605]: https://github.com/ArkEcosystem/core/commit/85b6b605
+[3c413d43]: https://github.com/ArkEcosystem/core/commit/3c413d43
+[5d96cbfc]: https://github.com/ArkEcosystem/core/commit/5d96cbfc
+[a399f194]: https://github.com/ArkEcosystem/core/commit/a399f194
+[f47b55c8]: https://github.com/ArkEcosystem/core/commit/f47b55c8
+[773eb8ce]: https://github.com/ArkEcosystem/core/commit/773eb8ce
+[bab1d914]: https://github.com/ArkEcosystem/core/commit/bab1d914
+[d0775fdc]: https://github.com/ArkEcosystem/core/commit/d0775fdc
+[feb1970e]: https://github.com/ArkEcosystem/core/commit/feb1970e
+[24b164b1]: https://github.com/ArkEcosystem/core/commit/24b164b1
+[77719976]: https://github.com/ArkEcosystem/core/commit/77719976
+[437f8cfd]: https://github.com/ArkEcosystem/core/commit/437f8cfd
+[17fcaf37]: https://github.com/ArkEcosystem/core/commit/17fcaf37
+[a27b6c3f]: https://github.com/ArkEcosystem/core/commit/a27b6c3f
+[bf892b53]: https://github.com/ArkEcosystem/core/commit/bf892b53
+[6bb4fedd]: https://github.com/ArkEcosystem/core/commit/6bb4fedd
+[ae160d6e]: https://github.com/ArkEcosystem/core/commit/ae160d6e
+[44088992]: https://github.com/ArkEcosystem/core/commit/44088992
+[3f8727b2]: https://github.com/ArkEcosystem/core/commit/3f8727b2
+[9a6358a5]: https://github.com/ArkEcosystem/core/commit/9a6358a5
+[d6803913]: https://github.com/ArkEcosystem/core/commit/d6803913
+[8ebf8218]: https://github.com/ArkEcosystem/core/commit/8ebf8218
+[0ff67a96]: https://github.com/ArkEcosystem/core/commit/0ff67a96
+[640b9a1a]: https://github.com/ArkEcosystem/core/commit/640b9a1a
+[08d8c936]: https://github.com/ArkEcosystem/core/commit/08d8c936
+[fcbe909b]: https://github.com/ArkEcosystem/core/commit/fcbe909b
+[f2da0bd8]: https://github.com/ArkEcosystem/core/commit/f2da0bd8
+[f00e075d]: https://github.com/ArkEcosystem/core/commit/f00e075d
+[50ce984e]: https://github.com/ArkEcosystem/core/commit/50ce984e
+[f0fe8b93]: https://github.com/ArkEcosystem/core/commit/f0fe8b93
+[76e9317a]: https://github.com/ArkEcosystem/core/commit/76e9317a
+[0601aea4]: https://github.com/ArkEcosystem/core/commit/0601aea4
+[c03c2dcf]: https://github.com/ArkEcosystem/core/commit/c03c2dcf
+[60624a3f]: https://github.com/ArkEcosystem/core/commit/60624a3f
+[1a81aee4]: https://github.com/ArkEcosystem/core/commit/1a81aee4
+[fcde9544]: https://github.com/ArkEcosystem/core/commit/fcde9544
+[35ef5926]: https://github.com/ArkEcosystem/core/commit/35ef5926
+[bccf74d2]: https://github.com/ArkEcosystem/core/commit/bccf74d2
+[5700867d]: https://github.com/ArkEcosystem/core/commit/5700867d
+[4e685146]: https://github.com/ArkEcosystem/core/commit/4e685146
+[daf4bb48]: https://github.com/ArkEcosystem/core/commit/daf4bb48
+[f4025bbc]: https://github.com/ArkEcosystem/core/commit/f4025bbc
+[f0acce87]: https://github.com/ArkEcosystem/core/commit/f0acce87
+[bb8cb129]: https://github.com/ArkEcosystem/core/commit/bb8cb129
+[d65c9de3]: https://github.com/ArkEcosystem/core/commit/d65c9de3
+[cecf8929]: https://github.com/ArkEcosystem/core/commit/cecf8929
+[d0650b1a]: https://github.com/ArkEcosystem/core/commit/d0650b1a
+[5ef81ef7]: https://github.com/ArkEcosystem/core/commit/5ef81ef7
+[a1246552]: https://github.com/ArkEcosystem/core/commit/a1246552
+[a29466e8]: https://github.com/ArkEcosystem/core/commit/a29466e8
+[c74e4ca7]: https://github.com/ArkEcosystem/core/commit/c74e4ca7
+[8bd81173]: https://github.com/ArkEcosystem/core/commit/8bd81173
+[312a1a71]: https://github.com/ArkEcosystem/core/commit/312a1a71
+[027c6dec]: https://github.com/ArkEcosystem/core/commit/027c6dec
+[04436877]: https://github.com/ArkEcosystem/core/commit/04436877
+[2038cd5a]: https://github.com/ArkEcosystem/core/commit/2038cd5a
+[e6d579d6]: https://github.com/ArkEcosystem/core/commit/e6d579d6
+[e428af25]: https://github.com/ArkEcosystem/core/commit/e428af25
+[af2d8dcf]: https://github.com/ArkEcosystem/core/commit/af2d8dcf
+[27813b35]: https://github.com/ArkEcosystem/core/commit/27813b35
+[2aca6e17]: https://github.com/ArkEcosystem/core/commit/2aca6e17
+[77e03662]: https://github.com/ArkEcosystem/core/commit/77e03662
+[d9b8bc56]: https://github.com/ArkEcosystem/core/commit/d9b8bc56
+[68f13e6c]: https://github.com/ArkEcosystem/core/commit/68f13e6c
+[0d726edf]: https://github.com/ArkEcosystem/core/commit/0d726edf
+[ac0c0fef]: https://github.com/ArkEcosystem/core/commit/ac0c0fef
+[8fc18c1a]: https://github.com/ArkEcosystem/core/commit/8fc18c1a
+[acf34236]: https://github.com/ArkEcosystem/core/commit/acf34236
+[b87899a5]: https://github.com/ArkEcosystem/core/commit/b87899a5
+[c558ddde]: https://github.com/ArkEcosystem/core/commit/c558ddde
+[5834847a]: https://github.com/ArkEcosystem/core/commit/5834847a
+[03b51cc6]: https://github.com/ArkEcosystem/core/commit/03b51cc6
+[2eb295d5]: https://github.com/ArkEcosystem/core/commit/2eb295d5
+[d4acdfe2]: https://github.com/ArkEcosystem/core/commit/d4acdfe2
+[319f778c]: https://github.com/ArkEcosystem/core/commit/319f778c
+[1d10acf5]: https://github.com/ArkEcosystem/core/commit/1d10acf5
+[f2a5852a]: https://github.com/ArkEcosystem/core/commit/f2a5852a
+[72440be8]: https://github.com/ArkEcosystem/core/commit/72440be8
+[35710668]: https://github.com/ArkEcosystem/core/commit/35710668
+[88219cfd]: https://github.com/ArkEcosystem/core/commit/88219cfd
+[b51793a6]: https://github.com/ArkEcosystem/core/commit/b51793a6
+[c11af3a1]: https://github.com/ArkEcosystem/core/commit/c11af3a1
+[e69e33c0]: https://github.com/ArkEcosystem/core/commit/e69e33c0
+[c84b9766]: https://github.com/ArkEcosystem/core/commit/c84b9766
+[905cac2f]: https://github.com/ArkEcosystem/core/commit/905cac2f
+[cad34570]: https://github.com/ArkEcosystem/core/commit/cad34570
+[82623ff7]: https://github.com/ArkEcosystem/core/commit/82623ff7
+[8482282a]: https://github.com/ArkEcosystem/core/commit/8482282a
+[dc68c251]: https://github.com/ArkEcosystem/core/commit/dc68c251
+[84c47884]: https://github.com/ArkEcosystem/core/commit/84c47884
+[5a82211f]: https://github.com/ArkEcosystem/core/commit/5a82211f
+[838ca5de]: https://github.com/ArkEcosystem/core/commit/838ca5de
+[4f3e8dce]: https://github.com/ArkEcosystem/core/commit/4f3e8dce
+[6529b133]: https://github.com/ArkEcosystem/core/commit/6529b133
+[3eab947d]: https://github.com/ArkEcosystem/core/commit/3eab947d
+[243f0bca]: https://github.com/ArkEcosystem/core/commit/243f0bca
+[1e489b06]: https://github.com/ArkEcosystem/core/commit/1e489b06
+[f67c9137]: https://github.com/ArkEcosystem/core/commit/f67c9137
+[a7f3d03e]: https://github.com/ArkEcosystem/core/commit/a7f3d03e
+[f93a9118]: https://github.com/ArkEcosystem/core/commit/f93a9118
+[b3aab122]: https://github.com/ArkEcosystem/core/commit/b3aab122
+[5c3afa4a]: https://github.com/ArkEcosystem/core/commit/5c3afa4a
+[a9241c6c]: https://github.com/ArkEcosystem/core/commit/a9241c6c
+[148e98f1]: https://github.com/ArkEcosystem/core/commit/148e98f1
+[d8931255]: https://github.com/ArkEcosystem/core/commit/d8931255
+[9d8de5de]: https://github.com/ArkEcosystem/core/commit/9d8de5de
+[53cb5c4f]: https://github.com/ArkEcosystem/core/commit/53cb5c4f
+[169170e5]: https://github.com/ArkEcosystem/core/commit/169170e5
+[218555a3]: https://github.com/ArkEcosystem/core/commit/218555a3
+[1f5aee46]: https://github.com/ArkEcosystem/core/commit/1f5aee46
+[166b1dac]: https://github.com/ArkEcosystem/core/commit/166b1dac
+[39455227]: https://github.com/ArkEcosystem/core/commit/39455227
+[c5b5301b]: https://github.com/ArkEcosystem/core/commit/c5b5301b
+[0cb6ba01]: https://github.com/ArkEcosystem/core/commit/0cb6ba01
+[f471dd97]: https://github.com/ArkEcosystem/core/commit/f471dd97
+[b1efd04c]: https://github.com/ArkEcosystem/core/commit/b1efd04c
+[bd573137]: https://github.com/ArkEcosystem/core/commit/bd573137
+[168c0c79]: https://github.com/ArkEcosystem/core/commit/168c0c79
+[905b8d22]: https://github.com/ArkEcosystem/core/commit/905b8d22
+[55a8bbb5]: https://github.com/ArkEcosystem/core/commit/55a8bbb5
+[0acd17fd]: https://github.com/ArkEcosystem/core/commit/0acd17fd
+[e516c544]: https://github.com/ArkEcosystem/core/commit/e516c544
+[d5d9b983]: https://github.com/ArkEcosystem/core/commit/d5d9b983
+[ea195e2b]: https://github.com/ArkEcosystem/core/commit/ea195e2b
+[8e5475d9]: https://github.com/ArkEcosystem/core/commit/8e5475d9
+[317a89fe]: https://github.com/ArkEcosystem/core/commit/317a89fe
+[1d9dd821]: https://github.com/ArkEcosystem/core/commit/1d9dd821
+[c08d15d4]: https://github.com/ArkEcosystem/core/commit/c08d15d4
+[8d8bb74f]: https://github.com/ArkEcosystem/core/commit/8d8bb74f
+[7510239e]: https://github.com/ArkEcosystem/core/commit/7510239e
+[43ce7dd4]: https://github.com/ArkEcosystem/core/commit/43ce7dd4
+[d7e895c0]: https://github.com/ArkEcosystem/core/commit/d7e895c0
+[c88c3325]: https://github.com/ArkEcosystem/core/commit/c88c3325
+[b96bb497]: https://github.com/ArkEcosystem/core/commit/b96bb497
+[f961d053]: https://github.com/ArkEcosystem/core/commit/f961d053
+[4a9afb4a]: https://github.com/ArkEcosystem/core/commit/4a9afb4a
+[c91073ee]: https://github.com/ArkEcosystem/core/commit/c91073ee
+[dfc95a66]: https://github.com/ArkEcosystem/core/commit/dfc95a66
+[acc5e16c]: https://github.com/ArkEcosystem/core/commit/acc5e16c
+[4fc0559e]: https://github.com/ArkEcosystem/core/commit/4fc0559e
+[6fe1e1e1]: https://github.com/ArkEcosystem/core/commit/6fe1e1e1
+[3131db9b]: https://github.com/ArkEcosystem/core/commit/3131db9b
+[83c56f15]: https://github.com/ArkEcosystem/core/commit/83c56f15
+[8ca90006]: https://github.com/ArkEcosystem/core/commit/8ca90006
+[dbf7a07a]: https://github.com/ArkEcosystem/core/commit/dbf7a07a
+[bc53bce3]: https://github.com/ArkEcosystem/core/commit/bc53bce3
+[27668ace]: https://github.com/ArkEcosystem/core/commit/27668ace
+[7d449acb]: https://github.com/ArkEcosystem/core/commit/7d449acb
+[a801c519]: https://github.com/ArkEcosystem/core/commit/a801c519
+[65d98fb8]: https://github.com/ArkEcosystem/core/commit/65d98fb8
+[afd15125]: https://github.com/ArkEcosystem/core/commit/afd15125
+[0a4a659b]: https://github.com/ArkEcosystem/core/commit/0a4a659b
+[2e7769a9]: https://github.com/ArkEcosystem/core/commit/2e7769a9
+[25bab007]: https://github.com/ArkEcosystem/core/commit/25bab007
+[196be48f]: https://github.com/ArkEcosystem/core/commit/196be48f
+[eb52b949]: https://github.com/ArkEcosystem/core/commit/eb52b949
+[c5d360fd]: https://github.com/ArkEcosystem/core/commit/c5d360fd
+[d1cda3c9]: https://github.com/ArkEcosystem/core/commit/d1cda3c9
+[a3e9749b]: https://github.com/ArkEcosystem/core/commit/a3e9749b
+[8056ef85]: https://github.com/ArkEcosystem/core/commit/8056ef85
+[db0ce174]: https://github.com/ArkEcosystem/core/commit/db0ce174
+[b13d52d3]: https://github.com/ArkEcosystem/core/commit/b13d52d3
+[b0c57992]: https://github.com/ArkEcosystem/core/commit/b0c57992
+[5fa1df36]: https://github.com/ArkEcosystem/core/commit/5fa1df36
+[a60734a8]: https://github.com/ArkEcosystem/core/commit/a60734a8
+[6645c131]: https://github.com/ArkEcosystem/core/commit/6645c131
+[3a34308e]: https://github.com/ArkEcosystem/core/commit/3a34308e
+[8697d1da]: https://github.com/ArkEcosystem/core/commit/8697d1da
+[8059fb51]: https://github.com/ArkEcosystem/core/commit/8059fb51
+[41a869a4]: https://github.com/ArkEcosystem/core/commit/41a869a4
+[5d7d3d6c]: https://github.com/ArkEcosystem/core/commit/5d7d3d6c
+[3c12f5a1]: https://github.com/ArkEcosystem/core/commit/3c12f5a1
+[b2271ceb]: https://github.com/ArkEcosystem/core/commit/b2271ceb
+[d98ada54]: https://github.com/ArkEcosystem/core/commit/d98ada54
+[7116976d]: https://github.com/ArkEcosystem/core/commit/7116976d
+[bb528bf6]: https://github.com/ArkEcosystem/core/commit/bb528bf6
+[c97357c7]: https://github.com/ArkEcosystem/core/commit/c97357c7
+[789fdb70]: https://github.com/ArkEcosystem/core/commit/789fdb70
+[6a1f5c1d]: https://github.com/ArkEcosystem/core/commit/6a1f5c1d
+[d5821761]: https://github.com/ArkEcosystem/core/commit/d5821761
+[eceab20f]: https://github.com/ArkEcosystem/core/commit/eceab20f
+[56850c56]: https://github.com/ArkEcosystem/core/commit/56850c56
+[67b10ddc]: https://github.com/ArkEcosystem/core/commit/67b10ddc
+[0c03165d]: https://github.com/ArkEcosystem/core/commit/0c03165d
+[c6137288]: https://github.com/ArkEcosystem/core/commit/c6137288
+[ab8cc65a]: https://github.com/ArkEcosystem/core/commit/ab8cc65a
+[dc4bc4ed]: https://github.com/ArkEcosystem/core/commit/dc4bc4ed
+[75199f71]: https://github.com/ArkEcosystem/core/commit/75199f71
+[e6c9e9b6]: https://github.com/ArkEcosystem/core/commit/e6c9e9b6
+[5f4c6e8c]: https://github.com/ArkEcosystem/core/commit/5f4c6e8c
+[d6a42f2e]: https://github.com/ArkEcosystem/core/commit/d6a42f2e
+[050ce16b]: https://github.com/ArkEcosystem/core/commit/050ce16b
+[58478848]: https://github.com/ArkEcosystem/core/commit/58478848
+[01e47446]: https://github.com/ArkEcosystem/core/commit/01e47446
+[f407903b]: https://github.com/ArkEcosystem/core/commit/f407903b
+[aec0f5ad]: https://github.com/ArkEcosystem/core/commit/aec0f5ad
+[7c402ac2]: https://github.com/ArkEcosystem/core/commit/7c402ac2
+[0c55ea13]: https://github.com/ArkEcosystem/core/commit/0c55ea13
+[d0c299eb]: https://github.com/ArkEcosystem/core/commit/d0c299eb
+[659b881b]: https://github.com/ArkEcosystem/core/commit/659b881b

@@ -110,10 +110,6 @@ export class Peer implements Contracts.P2P.Peer {
         return {
             ip: this.ip,
             port: this.port,
-            ports: this.ports,
-            version: this.version,
-            height: this.state.height,
-            latency: this.latency,
         };
     }
 }

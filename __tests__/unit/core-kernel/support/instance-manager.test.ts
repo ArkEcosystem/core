@@ -2,7 +2,9 @@ import { InstanceManager } from "../../../../packages/core-kernel/src/support/in
 
 interface MyDriver {}
 class MyMemoryDriver implements MyDriver {}
-class MyRemoteDriver implements MyDriver {}
+class MyRemoteDriver implements MyDriver {
+    name: "remote";
+}
 
 class MyManager extends InstanceManager<MyDriver> {
     protected getDefaultDriver(): string {
@@ -11,6 +13,10 @@ class MyManager extends InstanceManager<MyDriver> {
 
     protected async createMemoryDriver(): Promise<MyMemoryDriver> {
         return new MyMemoryDriver();
+    }
+
+    protected async createRemoteDriver(): Promise<MyRemoteDriver> {
+        return new MyRemoteDriver();
     }
 }
 
@@ -36,6 +42,16 @@ describe("ClassManager.driver", () => {
         const memoryDriver = manager.driver();
 
         expect(memoryDriver).toBeInstanceOf(MyMemoryDriver);
+    });
+
+    it("should return set driver instance", async () => {
+        const manager = new MyManager();
+        await manager.boot();
+        await manager.extend("remote", async () => new MyRemoteDriver());
+        manager.setDefaultDriver("remote");
+        const remoteDriver = manager.driver();
+
+        expect(remoteDriver).toBeInstanceOf(MyRemoteDriver);
     });
 
     it("should return driver instance", async () => {
