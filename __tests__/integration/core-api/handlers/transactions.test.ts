@@ -106,14 +106,269 @@ describe("API 2.0 - Transactions", () => {
 
             api.expectTransaction(response.data.data[0]);
         });
-    });
 
-    describe("GET /transactions?limit=5", () => {
         it("should GET few transactions", async () => {
             const response = await api.request("GET", "transactions", { limit: 5 });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data.length).toBe(5);
+        });
+
+        it("should GET transactions with the exact specified transactionId", async () => {
+            const response = await api.request("GET", "transactions", {
+                id: transactionId,
+            });
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(1);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.id).toBe(transactionId);
+            }
+        });
+
+        it("should GET transactions with the exact specified blockId", async () => {
+            const response = await api.request("GET", "transactions", { blockId });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(100);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.blockId).toBe(blockId);
+            }
+        });
+
+        it("should GET transactions with the exact specified type", async () => {
+            const response = await api.request("GET", "transactions", { type });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(51);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.type).toBe(type);
+            }
+        });
+
+        it("should GET transactions with the exact specified version", async () => {
+            const response = await api.request("GET", "transactions", { version });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(100);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.version).toBe(version);
+            }
+        });
+
+        it("should GET transactions with the exact specified senderPublicKey", async () => {
+            const response = await api.request("GET", "transactions", { senderPublicKey });
+
+            expect(response).toBeSuccessfulResponse();
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.sender).toBe(senderAddress);
+            }
+        });
+
+        it("should GET transactions with the exact specified senderId", async () => {
+            const response = await api.request("GET", "transactions", { senderId: senderAddress });
+
+            expect(response).toBeSuccessfulResponse();
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.sender).toBe(senderAddress);
+            }
+        });
+
+        it("should GET transactions with the exact specified senderId in descending order by nonce", async () => {
+            const response = await api.request("GET", "transactions", {
+                senderId: senderAddress,
+                orderBy: "nonce:desc",
+            });
+
+            expect(response).toBeSuccessfulResponse();
+
+            let prevNonce: number = 52;
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.sender).toBe(senderAddress);
+                expect(parseFloat(transaction.nonce)).toBeLessThan(prevNonce);
+                prevNonce = parseFloat(transaction.nonce);
+            }
+        });
+
+        it("should GET transactions with the exact specified recipientId (Address)", async () => {
+            const response = await api.request("GET", "transactions", { recipientId: recipientAddress });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(3);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.recipient).toBe(recipientAddress);
+            }
+        });
+
+        it("should GET transactions with the any of the specified addresses", async () => {
+            const response = await api.request("GET", "transactions", {
+                recipientId: [genesisTransactions[3].recipientId, genesisTransactions[8].recipientId],
+            });
+
+            expect(response).toBeSuccessfulResponse();
+
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(6);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+            }
+        });
+
+        it("should GET transactions with the exact specified timestamp", async () => {
+            const response = await api.request("GET", "transactions", { timestamp });
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(100);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.timestamp.epoch).toBe(timestamp);
+            }
+        });
+
+        // FIXME
+        it("should GET transactions with the specified timestamp range", async () => {
+            const response = await api.request("GET", "transactions", {
+                "timestamp.from": timestampFrom,
+                "timestamp.to": timestampTo,
+            });
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(100);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.timestamp.epoch).toBeGreaterThanOrEqual(timestampFrom);
+                expect(transaction.timestamp.epoch).toBeLessThanOrEqual(timestampTo);
+            }
+        });
+
+        it("should GET transactions with the exact specified amount", async () => {
+            const response = await api.request("GET", "transactions", { amount });
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(51);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(+transaction.amount).toBe(amount);
+            }
+        });
+
+        it("should GET transactions with the specified amount range", async () => {
+            const response = await api.request("GET", "transactions", {
+                "amount.from": amountFrom,
+                "amount.to": amountTo,
+            });
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(51);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(+transaction.amount).toBeGreaterThanOrEqual(amountFrom);
+                expect(+transaction.amount).toBeLessThanOrEqual(amountTo);
+            }
+        });
+
+        it("should GET transactions with the exact specified fee", async () => {
+            const response = await api.request("GET", "transactions", { fee });
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(100);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(+transaction.fee).toBe(fee);
+            }
+        });
+
+        it("should GET transactions with the specified fee range", async () => {
+            const response = await api.request("GET", "transactions", {
+                "fee.from": feeFrom,
+                "fee.to": feeTo,
+            });
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(100);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(+transaction.fee).toBeGreaterThanOrEqual(feeFrom);
+                expect(+transaction.fee).toBeLessThanOrEqual(feeTo);
+            }
+        });
+
+        it("should GET transactions with the exact specified vendorField", async () => {
+            const dummyTransaction = await api.createTransfer();
+
+            const response = await api.request("GET", "transactions", {
+                vendorField: dummyTransaction.vendorField,
+            });
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            // TODO: the response is sometimes empty. Racy test?
+            // expect(response.data.data).toHaveLength(1);
+
+            for (const transaction of response.data.data) {
+                api.expectTransaction(transaction);
+                expect(transaction.vendorField).toBe(dummyTransaction.vendorField);
+            }
+        });
+
+        it("should GET transactions with the wrong specified type", async () => {
+            const response = await api.request("GET", "transactions", {
+                id: transactionId,
+                type: wrongType,
+            });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(0);
+        });
+
+        it("should GET transactions with the specific criteria", async () => {
+            const response = await api.request("GET", "transactions", {
+                senderPublicKey,
+                type,
+                "timestamp.from": timestampFrom,
+                "timestamp.to": timestampTo,
+            });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            api.expectTransaction(response.data.data[0]);
+        });
+
+        it("should GET transactions with an wrong asset", async () => {
+            const response = await api.request("GET", "transactions", {
+                "asset.garbage": {},
+            });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(0);
         });
     });
 
@@ -230,281 +485,6 @@ describe("API 2.0 - Transactions", () => {
                     // Entity: 6, // no "Entity" because aip36 is not enabled
                 },
             });
-        });
-    });
-
-    describe("POST /transactions/search", () => {
-        it("should POST a search for transactions with the exact specified transactionId", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                id: transactionId,
-            });
-
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(1);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(transaction.id).toBe(transactionId);
-            }
-        });
-
-        it("should POST a search for transactions with the exact specified blockId", async () => {
-            const response = await api.request("POST", "transactions/search", { blockId });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(100);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(transaction.blockId).toBe(blockId);
-            }
-        });
-
-        it("should POST a search for transactions with the exact specified type", async () => {
-            const response = await api.request("POST", "transactions/search", { type });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(51);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(transaction.type).toBe(type);
-            }
-        });
-
-        it("should POST a search for transactions with the exact specified version", async () => {
-            const response = await api.request("POST", "transactions/search", { version });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(100);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(transaction.version).toBe(version);
-            }
-        });
-
-        it("should POST a search for transactions with the exact specified senderPublicKey", async () => {
-            const response = await api.request("POST", "transactions/search", { senderPublicKey });
-
-            expect(response).toBeSuccessfulResponse();
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(transaction.sender).toBe(senderAddress);
-            }
-        });
-
-        it("should POST a search for transactions with the exact specified senderId", async () => {
-            const response = await api.request("POST", "transactions/search", { senderId: senderAddress });
-
-            expect(response).toBeSuccessfulResponse();
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(transaction.sender).toBe(senderAddress);
-            }
-        });
-
-        it("should POST a search for transactions with the exact specified senderId in descending order by nonce", async () => {
-            const response = await api.request("POST", "transactions/search?orderBy=nonce:desc", {
-                senderId: senderAddress,
-            });
-
-            expect(response).toBeSuccessfulResponse();
-
-            let prevNonce: number = 52;
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(transaction.sender).toBe(senderAddress);
-                expect(parseFloat(transaction.nonce)).toBeLessThan(prevNonce);
-                prevNonce = parseFloat(transaction.nonce);
-            }
-        });
-
-        it("should POST a search for transactions with the exact specified recipientId (Address)", async () => {
-            const response = await api.request("POST", "transactions/search", { recipientId: recipientAddress });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(3);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(transaction.recipient).toBe(recipientAddress);
-            }
-        });
-
-        it("should POST a search for transactions with the any of the specified addresses", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                recipientId: [genesisTransactions[3].recipientId, genesisTransactions[8].recipientId],
-            });
-
-            expect(response).toBeSuccessfulResponse();
-
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(6);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-            }
-        });
-
-        it("should POST a search for transactions with the exact specified timestamp", async () => {
-            const response = await api.request("POST", "transactions/search", { timestamp });
-
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(100);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(transaction.timestamp.epoch).toBe(timestamp);
-            }
-        });
-
-        // FIXME
-        it("should POST a search for transactions with the specified timestamp range", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                timestamp: { from: timestampFrom, to: timestampTo },
-            });
-
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(100);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(transaction.timestamp.epoch).toBeGreaterThanOrEqual(timestampFrom);
-                expect(transaction.timestamp.epoch).toBeLessThanOrEqual(timestampTo);
-            }
-        });
-
-        it("should POST a search for transactions with the exact specified amount", async () => {
-            const response = await api.request("POST", "transactions/search", { amount });
-
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(51);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(+transaction.amount).toBe(amount);
-            }
-        });
-
-        it("should POST a search for transactions with the specified amount range", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                amount: { from: amountFrom, to: amountTo },
-            });
-
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(51);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(+transaction.amount).toBeGreaterThanOrEqual(amountFrom);
-                expect(+transaction.amount).toBeLessThanOrEqual(amountTo);
-            }
-        });
-
-        it("should POST a search for transactions with the exact specified fee", async () => {
-            const response = await api.request("POST", "transactions/search", { fee });
-
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(100);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(+transaction.fee).toBe(fee);
-            }
-        });
-
-        it("should POST a search for transactions with the specified fee range", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                fee: { from: feeFrom, to: feeTo },
-            });
-
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(100);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(+transaction.fee).toBeGreaterThanOrEqual(feeFrom);
-                expect(+transaction.fee).toBeLessThanOrEqual(feeTo);
-            }
-        });
-
-        it("should POST a search for transactions with the exact specified vendorField", async () => {
-            const dummyTransaction = await api.createTransfer();
-
-            const response = await api.request("POST", "transactions/search", {
-                vendorField: dummyTransaction.vendorField,
-            });
-
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            // TODO: the response is sometimes empty. Racy test?
-            // expect(response.data.data).toHaveLength(1);
-
-            for (const transaction of response.data.data) {
-                api.expectTransaction(transaction);
-                expect(transaction.vendorField).toBe(dummyTransaction.vendorField);
-            }
-        });
-
-        it("should POST a search for transactions with the wrong specified type", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                id: transactionId,
-                type: wrongType,
-            });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(0);
-        });
-
-        it("should POST a search for transactions with the specific criteria", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                senderPublicKey,
-                type,
-                timestamp: { from: timestampFrom, to: timestampTo },
-            });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            api.expectTransaction(response.data.data[0]);
-        });
-
-        it("should POST a search for transactions with an asset matching any delegate", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                asset: { delegate: {} },
-            });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(51);
-            api.expectTransaction(response.data.data[0]);
-        });
-
-        it("should POST a search for transactions with an asset matching any delegate and sender public key", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                asset: { delegate: {} },
-                senderPublicKey: "02275d8577a0ec2b75fc8683282d53c5db76ebc54514a80c2854e419b793ea259a",
-            });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(1);
-            api.expectTransaction(response.data.data[0]);
-        });
-
-        it("should POST a search for transactions with an wrong asset", async () => {
-            const response = await api.request("POST", "transactions/search", {
-                asset: { garbage: {} },
-            });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(0);
         });
     });
 
