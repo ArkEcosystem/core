@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.7.1] - 2020-09-28
+
+### Fixed
+
+-   Destroy connection after terminate (#4065) (a853d63f, @air1one)
+
 ## [2.7.0] - 2020-09-23
 
 ### Added
@@ -1658,6 +1664,7 @@ Closed security vulnerabilities:
 [#4031]: https://github.com/ARKEcosystem/core/pull/4031
 [#4053]: https://github.com/ARKEcosystem/core/pull/4053
 [#4054]: https://github.com/ARKEcosystem/core/pull/4054
+[#4065]: https://github.com/ARKEcosystem/core/pull/4065
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
