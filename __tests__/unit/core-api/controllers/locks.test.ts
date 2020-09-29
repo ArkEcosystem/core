@@ -85,37 +85,6 @@ describe("LocksController", () => {
         });
     });
 
-    describe("Search", () => {
-        it("should get criteria from payload and return locks page from LockSearchService", () => {
-            const locksPage: Contracts.Search.ResultsPage<Resources.LockResource> = {
-                results: [lockResource1],
-                totalCount: 1,
-                meta: { totalCountIsEstimate: false },
-            };
-            lockSearchService.getLocksPage.mockReturnValueOnce(locksPage);
-
-            const locksController = container.resolve(LocksController);
-            const result = locksController.search({
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: ["amount:desc", "timestamp.epoch:desc"],
-                },
-                payload: {
-                    recipientId: "AXm433vapiwt83xfh8x9ciNxYkVd76pbNe",
-                },
-            });
-
-            expect(lockSearchService.getLocksPage).toBeCalledWith(
-                { offset: 0, limit: 100 },
-                ["amount:desc", "timestamp.epoch:desc"],
-                { recipientId: "AXm433vapiwt83xfh8x9ciNxYkVd76pbNe" },
-            );
-
-            expect(result).toBe(locksPage);
-        });
-    });
-
     describe("Show", () => {
         it("should get lockId from pathname and return lock from LockSearchService", () => {
             lockSearchService.getLock.mockReturnValueOnce(lockResource1);

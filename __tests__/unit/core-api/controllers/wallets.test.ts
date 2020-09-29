@@ -142,37 +142,6 @@ describe("WalletsController", () => {
         });
     });
 
-    describe("Search", () => {
-        it("should get criteria from payload and return wallets page from WalletSearchService", () => {
-            const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
-                results: [walletResource1],
-                totalCount: 1,
-                meta: { totalCountIsEstimate: false },
-            };
-            walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
-
-            const walletsController = container.resolve(WalletsController);
-            const result = walletsController.search({
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: ["balance:desc", "address:asc"],
-                },
-                payload: {
-                    address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
-                },
-            });
-
-            expect(walletSearchService.getWalletsPage).toBeCalledWith(
-                { offset: 0, limit: 100 },
-                ["balance:desc", "address:asc"],
-                { address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu" },
-            );
-
-            expect(result).toBe(walletsPage);
-        });
-    });
-
     describe("Show", () => {
         it("should get wallet id from pathname and criteria from query and return wallet from WalletSearchService", () => {
             walletSearchService.getWallet.mockReturnValueOnce(walletResource1);

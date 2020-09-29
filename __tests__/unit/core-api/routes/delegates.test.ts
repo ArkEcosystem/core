@@ -41,25 +41,7 @@ describe("Delegates", () => {
         });
     });
 
-    describe("Search", () => {
-        it("should be called", async () => {
-            // @ts-ignore
-            const spyOnMethod = jest.spyOn(DelegatesController.prototype, "search").mockResolvedValue(paginatedResult);
-
-            const injectOptions = {
-                method: "POST",
-                url: "/delegates/search",
-                payload: {},
-            };
-
-            const result = await server.inject(injectOptions);
-
-            expect(result.statusCode).toEqual(200);
-            expect(spyOnMethod).toHaveBeenCalled();
-        });
-    });
-
-    describe("Index", () => {
+    describe("Show", () => {
         it("should be called", async () => {
             // @ts-ignore
             const spyOnMethod = jest.spyOn(DelegatesController.prototype, "show").mockResolvedValue({});

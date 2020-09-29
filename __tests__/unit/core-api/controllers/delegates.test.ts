@@ -125,37 +125,6 @@ describe("DelegatesController", () => {
         });
     });
 
-    describe("Search", () => {
-        it("should get criteria from payload and return delegates page from DelegateSearchService", () => {
-            const delegatesPage: Contracts.Search.ResultsPage<Resources.DelegateResource> = {
-                results: [delegateResource],
-                totalCount: 1,
-                meta: { totalCountIsEstimate: false },
-            };
-            delegateSearchService.getDelegatesPage.mockReturnValueOnce(delegatesPage);
-
-            const delegatesController = container.resolve(DelegatesController);
-            const result = delegatesController.search({
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: ["production.approval:desc", "rank:asc"],
-                },
-                payload: {
-                    isResigned: false,
-                },
-            });
-
-            expect(delegateSearchService.getDelegatesPage).toBeCalledWith(
-                { offset: 0, limit: 100 },
-                ["production.approval:desc", "rank:asc"],
-                { isResigned: false },
-            );
-
-            expect(result).toBe(delegatesPage);
-        });
-    });
-
     describe("Show", () => {
         it("should get delegate id from pathname and return delegate from DelegateSearchService", () => {
             walletSearchService.getWallet.mockReturnValue(delegateWalletResource);

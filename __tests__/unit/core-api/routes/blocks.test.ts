@@ -108,21 +108,4 @@ describe("Blockchain", () => {
             expect(spyOnMethod).toHaveBeenCalled();
         });
     });
-
-    describe("Search", () => {
-        it("should be called", async () => {
-            const spyOnMethod = jest.spyOn(BlocksController.prototype, "search").mockResolvedValue(paginatedResult);
-
-            const injectOptions = {
-                method: "POST",
-                url: "/blocks/search",
-                payload: {},
-            };
-
-            const result = await server.inject(injectOptions);
-
-            expect(result.statusCode).toEqual(200);
-            expect(spyOnMethod).toHaveBeenCalled();
-        });
-    });
 });

@@ -135,26 +135,6 @@ describe("Transactions", () => {
         });
     });
 
-    describe("Search", () => {
-        it("should be called", async () => {
-            // @ts-ignore
-            const spyOnMethod = jest
-                .spyOn(TransactionsController.prototype, "search")
-                .mockResolvedValue(paginatedResult);
-
-            const injectOptions = {
-                method: "POST",
-                url: "/transactions/search",
-                payload: {},
-            };
-
-            const result = await server.inject(injectOptions);
-
-            expect(result.statusCode).toEqual(200);
-            expect(spyOnMethod).toHaveBeenCalled();
-        });
-    });
-
     describe("Types", () => {
         it("should be called", async () => {
             // @ts-ignore

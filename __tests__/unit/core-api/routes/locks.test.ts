@@ -41,24 +41,6 @@ describe("Locks", () => {
         });
     });
 
-    describe("Search", () => {
-        it("should be called", async () => {
-            // @ts-ignore
-            const spyOnMethod = jest.spyOn(LocksController.prototype, "search").mockResolvedValue(paginatedResult);
-
-            const injectOptions = {
-                method: "POST",
-                url: "/locks/search",
-                payload: {},
-            };
-
-            const result = await server.inject(injectOptions);
-
-            expect(result.statusCode).toEqual(200);
-            expect(spyOnMethod).toHaveBeenCalled();
-        });
-    });
-
     describe("Show", () => {
         it("should be called", async () => {
             // @ts-ignore
