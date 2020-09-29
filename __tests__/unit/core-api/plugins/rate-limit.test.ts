@@ -3,9 +3,7 @@ import "jest-extended";
 import { Application } from "@packages/core-kernel";
 import { RLWrapperBlackAndWhite } from "rate-limiter-flexible";
 
-import { initApp } from "../__support__";
-import { initServer } from "./__support__";
-
+import { initApp, initServer } from "../__support__";
 let app: Application;
 
 beforeEach(() => {

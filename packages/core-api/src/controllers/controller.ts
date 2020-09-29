@@ -98,7 +98,6 @@ export class Controller {
         }
     }
 
-    /* istanbul ignore next */
     protected toCollection<T, R extends Resource>(
         items: T[],
         transformer: new () => R,

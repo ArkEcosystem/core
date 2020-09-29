@@ -81,11 +81,7 @@ describe("Peer", () => {
 
             const expectedBroadcast: Contracts.P2P.PeerBroadcast = {
                 ip,
-                ports: {},
                 port: 4000,
-                version: peer.version,
-                height: peer.state.height,
-                latency: peer.latency,
             };
 
             expect(peer.toBroadcast()).toEqual(expectedBroadcast);

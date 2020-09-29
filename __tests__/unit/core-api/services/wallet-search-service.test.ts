@@ -1,5 +1,5 @@
 import { WalletSearchService } from "@arkecosystem/core-api/src/services/wallet-search-service";
-import { Contracts, Services, Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
 const jestfn = <T extends (...args: unknown[]) => unknown>(
@@ -15,20 +15,19 @@ const walletRepository = {
     findByPublicKey: jestfn<Contracts.State.WalletRepository["findByPublicKey"]>(),
     hasByUsername: jestfn<Contracts.State.WalletRepository["hasByUsername"]>(),
     findByUsername: jestfn<Contracts.State.WalletRepository["findByUsername"]>(),
+    allByAddress: jest.fn(),
+    allByPublicKey: jest.fn(),
 };
 
 const standardCriteriaService = {
-    testStandardCriterias: jestfn<Services.Search.StandardCriteriaService["testStandardCriterias"]>(),
-};
-
-const paginationService = {
-    getPage: jestfn<Services.Search.PaginationService["getPage"]>(),
+    testStandardCriterias: jest.fn(),
 };
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.WalletRepository).toConstantValue(walletRepository);
 container.bind(Container.Identifiers.StandardCriteriaService).toConstantValue(standardCriteriaService);
-container.bind(Container.Identifiers.PaginationService).toConstantValue(paginationService);
+container.bind(Container.Identifiers.PaginationService).to(Services.Search.PaginationService);
+const walletSearchService = container.resolve(WalletSearchService);
 
 beforeEach(() => {
     jest.resetAllMocks();
@@ -78,54 +77,120 @@ const walletResource = {
     attributes: wallet.getAttributes(),
 };
 
-describe("WalletSearchService.getWallet", () => {
-    it("should return wallet resource by address", () => {
-        walletRepository.hasByAddress.mockReturnValueOnce(true);
-        walletRepository.findByAddress.mockReturnValueOnce(wallet as any);
+describe("WalletSearchService", () => {
+    describe("getWallet", () => {
+        it("should return wallet resource by address", () => {
+            walletRepository.hasByAddress.mockReturnValueOnce(true);
+            walletRepository.findByAddress.mockReturnValueOnce(wallet as any);
 
-        const walletSearchService = container.resolve(WalletSearchService);
-        const result = walletSearchService.getWallet(wallet.address);
+            const result = walletSearchService.getWallet(wallet.address);
 
-        expect(walletRepository.hasByAddress).toBeCalledWith(wallet.address);
-        expect(walletRepository.findByAddress).toBeCalledWith(wallet.address);
-        expect(result).toEqual(walletResource);
+            expect(walletRepository.hasByAddress).toBeCalledWith(wallet.address);
+            expect(walletRepository.findByAddress).toBeCalledWith(wallet.address);
+            expect(result).toEqual(walletResource);
+        });
+
+        it("should return wallet resource by public key", () => {
+            walletRepository.hasByAddress.mockReturnValueOnce(false);
+            walletRepository.hasByPublicKey.mockReturnValueOnce(true);
+            walletRepository.findByPublicKey.mockReturnValueOnce(wallet as any);
+
+            const result = walletSearchService.getWallet(wallet.publicKey);
+
+            expect(walletRepository.hasByPublicKey).toBeCalledWith(wallet.publicKey);
+            expect(walletRepository.findByPublicKey).toBeCalledWith(wallet.publicKey);
+            expect(result).toEqual(walletResource);
+        });
+
+        it("should return wallet resource by delegate username", () => {
+            walletRepository.hasByAddress.mockReturnValueOnce(false);
+            walletRepository.hasByPublicKey.mockReturnValueOnce(false);
+            walletRepository.hasByUsername.mockReturnValueOnce(true);
+            walletRepository.findByUsername.mockReturnValueOnce(wallet as any);
+
+            const result = walletSearchService.getWallet("binance_staking");
+
+            expect(walletRepository.hasByUsername).toBeCalledWith("binance_staking");
+            expect(walletRepository.findByUsername).toBeCalledWith("binance_staking");
+            expect(result).toEqual(walletResource);
+        });
+
+        it("should return undefined when wallet does not exist", () => {
+            walletRepository.hasByAddress.mockReturnValueOnce(false);
+            walletRepository.hasByPublicKey.mockReturnValueOnce(false);
+            walletRepository.hasByUsername.mockReturnValueOnce(false);
+
+            const result = walletSearchService.getWallet("none");
+
+            expect(result).toBe(undefined);
+        });
     });
 
-    it("should return wallet resource by public key", () => {
-        walletRepository.hasByAddress.mockReturnValueOnce(false);
-        walletRepository.hasByPublicKey.mockReturnValueOnce(true);
-        walletRepository.findByPublicKey.mockReturnValueOnce(wallet as any);
+    describe("getWalletsPage", () => {
+        it("should return wallets page with wallet on positive criteria tests", () => {
+            walletRepository.allByAddress.mockReturnValue([wallet]);
+            standardCriteriaService.testStandardCriterias.mockReturnValue(true);
 
-        const walletSearchService = container.resolve(WalletSearchService);
-        const result = walletSearchService.getWallet(wallet.publicKey);
+            const result = walletSearchService.getWalletsPage(
+                {
+                    offset: 0,
+                    limit: 100,
+                },
+                [],
+                [],
+            );
 
-        expect(walletRepository.hasByPublicKey).toBeCalledWith(wallet.publicKey);
-        expect(walletRepository.findByPublicKey).toBeCalledWith(wallet.publicKey);
-        expect(result).toEqual(walletResource);
+            expect(result.results).toEqual([walletResource]);
+        });
+
+        it("should return wallets page with empty array on negative criteria tests", () => {
+            walletRepository.allByAddress.mockReturnValue([wallet]);
+            standardCriteriaService.testStandardCriterias.mockReturnValue(false);
+
+            const result = walletSearchService.getWalletsPage(
+                {
+                    offset: 0,
+                    limit: 100,
+                },
+                [],
+                [],
+            );
+
+            expect(result.results).toEqual([]);
+        });
     });
 
-    it("should return wallet resource by delegate username", () => {
-        walletRepository.hasByAddress.mockReturnValueOnce(false);
-        walletRepository.hasByPublicKey.mockReturnValueOnce(false);
-        walletRepository.hasByUsername.mockReturnValueOnce(true);
-        walletRepository.findByUsername.mockReturnValueOnce(wallet as any);
+    describe("getActiveWalletsPage", () => {
+        it("should return wallets page with wallet on positive criteria tests", () => {
+            walletRepository.allByPublicKey.mockReturnValue([wallet]);
+            standardCriteriaService.testStandardCriterias.mockReturnValue(true);
 
-        const walletSearchService = container.resolve(WalletSearchService);
-        const result = walletSearchService.getWallet("binance_staking");
+            const result = walletSearchService.getActiveWalletsPage(
+                {
+                    offset: 0,
+                    limit: 100,
+                },
+                [],
+                [],
+            );
 
-        expect(walletRepository.hasByUsername).toBeCalledWith("binance_staking");
-        expect(walletRepository.findByUsername).toBeCalledWith("binance_staking");
-        expect(result).toEqual(walletResource);
-    });
+            expect(result.results).toEqual([walletResource]);
+        });
 
-    it("should return undefined when wallet does not exist", () => {
-        walletRepository.hasByAddress.mockReturnValueOnce(false);
-        walletRepository.hasByPublicKey.mockReturnValueOnce(false);
-        walletRepository.hasByUsername.mockReturnValueOnce(false);
+        it("should return wallets page with empty array on negative criteria tests", () => {
+            walletRepository.allByPublicKey.mockReturnValue([wallet]);
+            standardCriteriaService.testStandardCriterias.mockReturnValue(false);
 
-        const walletSearchService = container.resolve(WalletSearchService);
-        const result = walletSearchService.getWallet("none");
+            const result = walletSearchService.getActiveWalletsPage(
+                {
+                    offset: 0,
+                    limit: 100,
+                },
+                [],
+                [],
+            );
 
-        expect(result).toBe(undefined);
+            expect(result.results).toEqual([]);
+        });
     });
 });

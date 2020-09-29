@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts } from "@packages/core-kernel";
 import Hapi from "@hapi/hapi";
 import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
 import { Application, Utils } from "@packages/core-kernel";
@@ -32,7 +32,9 @@ const transactionHistoryService = {
     listByCriteriaJoinBlock: jestfn<Contracts.Shared.TransactionHistoryService["listByCriteriaJoinBlock"]>(),
 };
 
-const blockHistoryService = {};
+const blockHistoryService = {
+    findOneByCriteria: jestfn<Contracts.Shared.BlockHistoryService["findOneByCriteria"]>(),
+};
 
 const block: Interfaces.IBlockData = {
     version: 0,
@@ -186,6 +188,28 @@ describe("TransactionsController", () => {
                 },
                 query: {
                     transform: false,
+                },
+            };
+
+            const response = (await controller.show(request, undefined)) as ItemResponse;
+
+            expect(response.data).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
+        });
+
+        it("should return transaction using transform", async () => {
+            transactionHistoryService.findOneByCriteria.mockResolvedValue(transferTransaction.data);
+            blockHistoryService.findOneByCriteria.mockResolvedValue(block);
+
+            const request: Hapi.Request = {
+                params: {
+                    id: transferTransaction.id,
+                },
+                query: {
+                    transform: true,
                 },
             };
 

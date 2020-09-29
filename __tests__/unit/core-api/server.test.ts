@@ -71,6 +71,14 @@ describe("Server", () => {
         });
     });
 
+    describe("uri", () => {
+        it("should return server uri", async () => {
+            await expect(server.initialize("Test", serverConfig)).toResolve();
+
+            expect(server.uri).toEqual("http://0.0.0.0:4003");
+        });
+    });
+
     describe("route", () => {
         it("should add custom route", async () => {
             await expect(server.initialize("Test", serverConfig)).toResolve();

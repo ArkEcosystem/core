@@ -4,8 +4,7 @@ import Boom from "@hapi/boom";
 import { Application } from "@packages/core-kernel";
 import NodeCache from "node-cache";
 
-import { initApp } from "../__support__";
-import { initServer } from "./__support__";
+import { initApp, initServer } from "../__support__";
 
 let app: Application;
 
