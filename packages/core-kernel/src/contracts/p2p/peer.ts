@@ -34,10 +34,6 @@ export interface Peer {
 export interface PeerBroadcast {
     ip: string;
     port: number;
-    ports: PeerPorts;
-    version: string | undefined;
-    height: number | undefined;
-    latency: number | undefined;
 }
 
 export interface PeerState {

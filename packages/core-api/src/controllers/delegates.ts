@@ -35,14 +35,6 @@ export class DelegatesController extends Controller {
         return this.delegateSearchService.getDelegatesPage(pagination, sorting, criteria);
     }
 
-    public search(request: Hapi.Request): Contracts.Search.ResultsPage<DelegateResource> {
-        const pagination = this.getQueryPagination(request.query);
-        const sorting = request.query.orderBy as Contracts.Search.Sorting;
-        const criteria = request.payload as DelegateCriteria;
-
-        return this.delegateSearchService.getDelegatesPage(pagination, sorting, criteria);
-    }
-
     public show(request: Hapi.Request): { data: DelegateResource } | Boom {
         const walletId = request.params.id as string;
 

@@ -107,28 +107,6 @@ export const register = (server: Hapi.Server): void => {
     });
 
     server.route({
-        method: "POST",
-        path: "/transactions/search",
-        handler: (request: Hapi.Request) => controller.search(request),
-        options: {
-            validate: {
-                query: Joi.object({
-                    orderBy: server.app.schemas.transactionsOrderBy,
-                    transform: Joi.bool().default(true),
-                }).concat(Schemas.pagination),
-                payload: Joi.object({
-                    ...server.app.schemas.transactionCriteriaSchemas,
-                }),
-            },
-            plugins: {
-                pagination: {
-                    enabled: true,
-                },
-            },
-        },
-    });
-
-    server.route({
         method: "GET",
         path: "/transactions/types",
         handler: (request: Hapi.Request) => controller.types(request),
