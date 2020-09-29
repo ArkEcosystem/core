@@ -3,7 +3,6 @@ import Joi from "@hapi/joi";
 
 import { DelegatesController } from "../controllers/delegates";
 import {
-    delegateCriteriaPayloadSchema,
     delegateCriteriaQuerySchema,
     delegateSortingSchema,
     walletCriteriaQuerySchema,
@@ -26,21 +25,6 @@ export const register = (server: Hapi.Server): void => {
                     .concat(delegateCriteriaQuerySchema)
                     .concat(delegateSortingSchema)
                     .concat(Schemas.pagination),
-            },
-            plugins: {
-                pagination: { enabled: true },
-            },
-        },
-    });
-
-    server.route({
-        method: "POST",
-        path: "/delegates/search",
-        handler: (request: Hapi.Request) => controller.search(request),
-        options: {
-            validate: {
-                query: Joi.object().concat(delegateSortingSchema).concat(Schemas.pagination),
-                payload: delegateCriteriaPayloadSchema,
             },
             plugins: {
                 pagination: { enabled: true },

@@ -5,7 +5,6 @@ import { WalletsController } from "../controllers/wallets";
 import {
     lockCriteriaQuerySchema,
     lockSortingSchema,
-    walletCriteriaPayloadSchema,
     walletCriteriaQuerySchema,
     walletParamSchema,
     walletSortingSchema,
@@ -43,21 +42,6 @@ export const register = (server: Hapi.Server): void => {
                     .concat(walletCriteriaQuerySchema)
                     .concat(walletSortingSchema)
                     .concat(Schemas.pagination),
-            },
-            plugins: {
-                pagination: { enabled: true },
-            },
-        },
-    });
-
-    server.route({
-        method: "POST",
-        path: "/wallets/search",
-        handler: (request: Hapi.Request) => controller.search(request),
-        options: {
-            validate: {
-                query: Joi.object().concat(walletSortingSchema).concat(Schemas.pagination),
-                payload: walletCriteriaPayloadSchema,
             },
             plugins: {
                 pagination: { enabled: true },

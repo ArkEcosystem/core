@@ -46,14 +46,6 @@ export class WalletsController extends Controller {
         return this.walletSearchService.getWalletsPage(pagination, sorting, criteria);
     }
 
-    public search(request: Hapi.Request): Contracts.Search.ResultsPage<WalletResource> {
-        const pagination = this.getQueryPagination(request.query);
-        const sorting = request.query.orderBy as Contracts.Search.Sorting;
-        const criteria = request.payload as WalletCriteria;
-
-        return this.walletSearchService.getWalletsPage(pagination, sorting, criteria);
-    }
-
     public show(request: Hapi.Request): { data: WalletResource } | Boom {
         const walletId = request.params.id as string;
         const walletResource = this.walletSearchService.getWallet(walletId);

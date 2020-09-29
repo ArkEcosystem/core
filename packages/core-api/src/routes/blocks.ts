@@ -92,26 +92,4 @@ export const register = (server: Hapi.Server): void => {
             },
         },
     });
-
-    server.route({
-        method: "POST",
-        path: "/blocks/search",
-        handler: (request: Hapi.Request) => controller.search(request),
-        options: {
-            validate: {
-                query: Joi.object({
-                    orderBy: server.app.schemas.blocksOrderBy,
-                    transform: Joi.bool().default(true),
-                }).concat(Schemas.pagination),
-                payload: Joi.object({
-                    ...server.app.schemas.blockCriteriaSchemas,
-                }),
-            },
-            plugins: {
-                pagination: {
-                    enabled: true,
-                },
-            },
-        },
-    });
 };
