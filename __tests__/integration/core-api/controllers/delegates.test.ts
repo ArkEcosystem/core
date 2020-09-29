@@ -54,26 +54,3 @@ describe("/delegates", () => {
         }
     });
 });
-
-describe("/delegates/search", () => {
-    it("should return 10th, 11th, 12th ranked delegates", async () => {
-        const client = app.resolve(ApiInjectClient);
-        const response = await client.post("/delegates/search?orderBy=rank:asc", {
-            rank: [10, 11, 12],
-        });
-
-        expect(response).toMatchObject({
-            status: 200,
-            body: {
-                data: expect.toBeArray(),
-            },
-        });
-
-        const delegates = response.body.data;
-
-        expect(delegates.length).toBe(3);
-        expect(delegates[0].rank).toBe(10);
-        expect(delegates[1].rank).toBe(11);
-        expect(delegates[2].rank).toBe(12);
-    });
-});
