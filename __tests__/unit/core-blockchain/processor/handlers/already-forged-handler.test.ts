@@ -1,6 +1,6 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { AlreadyForgedHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/already-forged-handler";
-import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
+import { AlreadyForgedHandler } from "@packages/core-blockchain/src/processor/handlers/already-forged-handler";
+import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
 import { Interfaces } from "@arkecosystem/crypto";
 
 describe("AlreadyForgedHandler", () => {
