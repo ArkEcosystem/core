@@ -1,7 +1,7 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { ExceptionHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/exception-handler";
-import { AcceptBlockHandler } from "../../../../../packages/core-blockchain/src/processor/handlers/accept-block-handler";
-import { BlockProcessorResult } from "../../../../../packages/core-blockchain/src/processor";
+import { ExceptionHandler } from "@packages/core-blockchain/src/processor/handlers/exception-handler";
+import { AcceptBlockHandler } from "@packages/core-blockchain/src/processor/handlers/accept-block-handler";
+import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
 import { Interfaces } from "@arkecosystem/crypto";
 
 describe("ExceptionHandler", () => {
@@ -10,7 +10,6 @@ describe("ExceptionHandler", () => {
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
     const blockchain = { resetLastDownloadedBlock: jest.fn() };
     const database = { getBlock: jest.fn() };
-
     const application = { resolve: jest.fn() };
 
     beforeAll(() => {
@@ -28,7 +27,7 @@ describe("ExceptionHandler", () => {
     describe("execute", () => {
         const block = { data: { id: "123", height: 4445 } };
 
-        it("should return Rejected and resetLastDownloadedBlock when block already forged", async () => {
+        it("should return Rejected and resetLastDownloadedBlock if block is already forged", async () => {
             const exceptionHandler = container.resolve<ExceptionHandler>(ExceptionHandler);
 
             database.getBlock = jest.fn().mockResolvedValueOnce(block);
@@ -39,7 +38,7 @@ describe("ExceptionHandler", () => {
             expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
         });
 
-        it("should call AcceptHandler when block not already forged", async () => {
+        it("should call AcceptHandler if block is not forged yet", async () => {
             const exceptionHandler = container.resolve<ExceptionHandler>(ExceptionHandler);
 
             const mockAcceptHandler = {

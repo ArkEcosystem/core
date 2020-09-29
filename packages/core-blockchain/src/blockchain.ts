@@ -480,19 +480,21 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             this.logger.warning(`Could not process block at height ${lastProcessedBlock.data.height}.`);
 
+            if (this.stateStore.getLastBlock().data.height === lastProcessedBlock.data.height) {
+                await this.databaseInteraction.revertBlock(lastProcessedBlock);
+
+                const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
+                const lastHeight: number = lastBlock.data.height;
+                const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
+
+                this.stateStore.setLastBlock(lastBlock);
+
+                await this.database.deleteRound(deleteRoundsAfter + 1);
+                await this.databaseInteraction.loadBlocksFromCurrentRound();
+            }
+
             this.clearQueue();
-
-            await this.databaseInteraction.revertBlock(lastProcessedBlock);
-
-            const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
-            const lastHeight: number = lastBlock.data.height;
-            const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
-
-            this.stateStore.setLastBlock(lastBlock);
             this.resetLastDownloadedBlock();
-
-            await this.database.deleteRound(deleteRoundsAfter + 1);
-            await this.databaseInteraction.loadBlocksFromCurrentRound();
         }
 
         return acceptedBlocks;
