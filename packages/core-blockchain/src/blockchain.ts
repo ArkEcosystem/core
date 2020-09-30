@@ -370,18 +370,21 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Process the given block.
      */
     public async processBlocks(blocks: Interfaces.IBlockData[]): Promise<Interfaces.IBlock[] | undefined> {
-        if (blocks.length) {
-            const lastHeight = this.getLastBlock().data.height;
-            const fromHeight = blocks[0].height;
-            const toHeight = blocks[blocks.length - 1].height;
-            this.logger.debug(`Processing chunk of blocks [${fromHeight}, ${toHeight}] on top of ${lastHeight}`);
+        if (!blocks.length) {
+            return undefined;
         }
+
+        const lastHeight = this.getLastBlock().data.height;
+        const fromHeight = blocks[0].height;
+        const toHeight = blocks[blocks.length - 1].height;
+        this.logger.debug(`Processing chunk of blocks [${fromHeight}, ${toHeight}] on top of ${lastHeight}`);
 
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blocks[0].height);
 
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult | undefined;
 
+        // Check if block is chained or is exception
         if (
             blocks[0] &&
             !Utils.isBlockChained(this.getLastBlock().data, blocks[0], blockTimeLookup) &&
@@ -398,6 +401,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         let forkBlock: Interfaces.IBlock | undefined = undefined;
         let lastProcessedBlock: Interfaces.IBlock | undefined = undefined;
+
+        // TODO: Add try catch, because fromData can throw error
         for (const block of blocks) {
             const blockInstance = Blocks.BlockFactory.fromData(block, blockTimeLookup);
             Utils.assert.defined<Interfaces.IBlock>(blockInstance);
