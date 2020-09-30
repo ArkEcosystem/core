@@ -6,7 +6,7 @@ sudo rm -rf /home/node/.local/state/ark-core/*
 sudo chown node:node -R /home/node
 sudo ln -s /home/node/.yarn/bin/ark /usr/bin/ark
 ark config:publish --network=$NETWORK
-sudo rm -f /home/node/.config/ark-core/$NETWORK/.env
+echo > /home/node/.config/ark-core/$NETWORK/.env
 
 if [ "$MODE" = "forger" ]; then
   SECRET=`openssl rsautl -decrypt -inkey /run/secrets/secret.key -in /run/secrets/secret.dat`

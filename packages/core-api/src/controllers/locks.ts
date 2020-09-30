@@ -25,14 +25,6 @@ export class LocksController extends Controller {
         return this.lockSearchService.getLocksPage(pagination, sorting, criteria);
     }
 
-    public search(request: Hapi.Request): Contracts.Search.ResultsPage<LockResource> {
-        const pagination = this.getQueryPagination(request.query);
-        const sorting = request.query.orderBy as Contracts.Search.Sorting;
-        const criteria = request.payload as LockCriteria;
-
-        return this.lockSearchService.getLocksPage(pagination, sorting, criteria);
-    }
-
     public show(request: Hapi.Request): { data: LockResource } | Boom {
         const lockId = request.params.id as string;
 

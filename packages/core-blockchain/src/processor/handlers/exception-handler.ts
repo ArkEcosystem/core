@@ -6,7 +6,6 @@ import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "../contracts";
 import { AcceptBlockHandler } from "./accept-block-handler";
 
-// todo: remove the abstract and instead require a contract to be implemented
 @Container.injectable()
 export class ExceptionHandler implements BlockHandler {
     @Container.inject(Container.Identifiers.Application)

@@ -81,804 +81,775 @@ const wallet1LockResource1: Resources.LockResource = {
     vendorField: "ArkPool payments",
 };
 
-describe("WalletsController.index", () => {
-    it("should get criteria from query and return wallets page from WalletSearchService", () => {
-        const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
-            results: [walletResource1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: false },
-        };
-        walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
+describe("WalletsController", () => {
+    describe("Index", () => {
+        it("should get criteria from query and return wallets page from WalletSearchService", () => {
+            const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
+                results: [walletResource1],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
+            };
+            walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
 
-        const walletsController = container.resolve(WalletsController);
-        const result = walletsController.index({
-            query: {
-                page: 1,
-                limit: 100,
-                orderBy: ["balance:desc", "address:asc"],
-                address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
-            },
-        });
-
-        expect(walletSearchService.getWalletsPage).toBeCalledWith(
-            { offset: 0, limit: 100 },
-            ["balance:desc", "address:asc"],
-            { address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu" },
-        );
-
-        expect(result).toBe(walletsPage);
-    });
-});
-
-describe("WalletsController.top", () => {
-    // it is exact duplicate of WalletsController.index
-
-    it("should get criteria from query and return wallets page from WalletSearchService", () => {
-        const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
-            results: [walletResource1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: false },
-        };
-        walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
-
-        const walletsController = container.resolve(WalletsController);
-        const result = walletsController.top({
-            query: {
-                page: 1,
-                limit: 100,
-                orderBy: ["balance:desc", "address:asc"],
-                address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
-            },
-        });
-
-        expect(walletSearchService.getWalletsPage).toBeCalledWith(
-            { offset: 0, limit: 100 },
-            ["balance:desc", "address:asc"],
-            { address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu" },
-        );
-
-        expect(result).toBe(walletsPage);
-    });
-});
-
-describe("WalletsController.search", () => {
-    it("should get criteria from payload and return wallets page from WalletSearchService", () => {
-        const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
-            results: [walletResource1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: false },
-        };
-        walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
-
-        const walletsController = container.resolve(WalletsController);
-        const result = walletsController.search({
-            query: {
-                page: 1,
-                limit: 100,
-                orderBy: ["balance:desc", "address:asc"],
-            },
-            payload: {
-                address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
-            },
-        });
-
-        expect(walletSearchService.getWalletsPage).toBeCalledWith(
-            { offset: 0, limit: 100 },
-            ["balance:desc", "address:asc"],
-            { address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu" },
-        );
-
-        expect(result).toBe(walletsPage);
-    });
-});
-
-describe("WalletsController.show", () => {
-    it("should get wallet id from pathname and criteria from query and return wallet from WalletSearchService", () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
-
-        const walletsController = container.resolve(WalletsController);
-        const result = walletsController.show({
-            params: {
-                id: walletResource1.address,
-            },
-        });
-
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.address);
-        expect(result).toEqual({ data: walletResource1 });
-    });
-
-    it("should return 404 when wallet wasn't found", () => {
-        walletSearchService.getWallet.mockReturnValueOnce(undefined);
-
-        const walletsController = container.resolve(WalletsController);
-        const result = walletsController.show({
-            params: {
-                id: "non-existing-wallet-id",
-            },
-        });
-
-        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
-        expect(result).toBeInstanceOf(Boom);
-    });
-});
-
-describe("WalletsController.locks", () => {
-    it("should get wallet id from pathname and criteria from query and return locks page from LockSearchService", () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
-
-        const locksPage: Contracts.Search.ResultsPage<Resources.LockResource> = {
-            results: [wallet1LockResource1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: false },
-        };
-        lockSearchService.getWalletLocksPage.mockReturnValueOnce(locksPage);
-
-        const walletsController = container.resolve(WalletsController);
-        const result = walletsController.locks({
-            params: {
-                id: walletResource1.publicKey,
-            },
-            query: {
-                page: 1,
-                limit: 100,
-                orderBy: ["timestamp.unix:desc"],
-                isExpired: false,
-            },
-        });
-
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
-
-        expect(lockSearchService.getWalletLocksPage).toBeCalledWith(
-            { limit: 100, offset: 0 },
-            ["timestamp.unix:desc"],
-            walletResource1.address,
-            { isExpired: false },
-        );
-
-        expect(result).toBe(locksPage);
-    });
-
-    it("should return 404 when wallet wasn't found", () => {
-        walletSearchService.getWallet.mockReturnValueOnce(undefined);
-
-        const walletsController = container.resolve(WalletsController);
-        const result = walletsController.locks({
-            params: {
-                id: "non-existing-wallet-id",
-            },
-        });
-
-        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
-        expect(result).toBeInstanceOf(Boom);
-    });
-});
-
-describe("WalletsController.transactions", () => {
-    it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
-
-        const tx1 = {} as any;
-
-        apiConfiguration.getOptional.mockReturnValueOnce(true);
-
-        app.resolve.mockReturnValue({
-            raw(resource) {
-                return resource;
-            },
-        });
-
-        transactionHistoryService.listByCriteria.mockResolvedValueOnce({
-            results: [tx1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
-        });
-
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.transactions(
-            {
-                params: {
-                    id: walletResource1.publicKey,
-                },
+            const walletsController = container.resolve(WalletsController);
+            const result = walletsController.index({
                 query: {
                     page: 1,
                     limit: 100,
-                    orderBy: "amount:desc",
-                    transform: false,
-                    type: Enums.TransactionType.MultiPayment,
+                    orderBy: ["balance:desc", "address:asc"],
+                    address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
                 },
-            },
-            undefined,
-        );
+            });
 
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+            expect(walletSearchService.getWalletsPage).toBeCalledWith(
+                { offset: 0, limit: 100 },
+                ["balance:desc", "address:asc"],
+                { address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu" },
+            );
 
-        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
-
-        expect(transactionHistoryService.listByCriteria).toBeCalledWith(
-            {
-                type: Enums.TransactionType.MultiPayment,
-                address: walletResource1.address,
-
-                // not filtered out from criteria
-                page: 1,
-                limit: 100,
-                orderBy: "amount:desc",
-                transform: false,
-            },
-            [{ direction: "desc", property: "amount" }],
-            { limit: 100, offset: 0 },
-            { estimateTotalCount: true },
-        );
-
-        expect(result).toEqual({
-            totalCount: 1,
-            results: [tx1],
-            meta: { totalCountIsEstimate: true },
+            expect(result).toBe(walletsPage);
         });
     });
 
-    it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+    describe("Top", () => {
+        // it is exact duplicate of WalletsController.index
 
-        const tx1 = {} as any;
-        const tx1Block = {} as any;
+        it("should get criteria from query and return wallets page from WalletSearchService", () => {
+            const walletsPage: Contracts.Search.ResultsPage<Resources.WalletResource> = {
+                results: [walletResource1],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
+            };
+            walletSearchService.getWalletsPage.mockReturnValueOnce(walletsPage);
 
-        apiConfiguration.getOptional.mockReturnValueOnce(true);
-
-        app.resolve.mockReturnValue({
-            transform(resource) {
-                return resource.data;
-            },
-        });
-
-        transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
-            results: [{ data: tx1, block: tx1Block }],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
-        });
-
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.transactions(
-            {
-                params: {
-                    id: walletResource1.publicKey,
-                },
+            const walletsController = container.resolve(WalletsController);
+            const result = walletsController.top({
                 query: {
                     page: 1,
                     limit: 100,
-                    orderBy: "amount:desc",
-                    transform: true,
-                    type: Enums.TransactionType.MultiPayment,
+                    orderBy: ["balance:desc", "address:asc"],
+                    address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu",
                 },
-            },
-            undefined,
-        );
+            });
 
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+            expect(walletSearchService.getWalletsPage).toBeCalledWith(
+                { offset: 0, limit: 100 },
+                ["balance:desc", "address:asc"],
+                { address: "ATrkBiUXGDKduaSjqez2Ar7T9rQW6cnaeu" },
+            );
 
-        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
-
-        expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
-            {
-                type: Enums.TransactionType.MultiPayment,
-                address: walletResource1.address,
-
-                // not filtered out from criteria
-                page: 1,
-                limit: 100,
-                orderBy: "amount:desc",
-                transform: true,
-            },
-            [{ direction: "desc", property: "amount" }],
-            { limit: 100, offset: 0 },
-            { estimateTotalCount: true },
-        );
-
-        expect(result).toEqual({
-            totalCount: 1,
-            results: [tx1],
-            meta: { totalCountIsEstimate: true },
+            expect(result).toBe(walletsPage);
         });
     });
 
-    it("should return 404 when wallet wasn't found", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(undefined);
+    describe("Show", () => {
+        it("should get wallet id from pathname and criteria from query and return wallet from WalletSearchService", () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
 
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.transactions(
-            {
+            const walletsController = container.resolve(WalletsController);
+            const result = walletsController.show({
+                params: {
+                    id: walletResource1.address,
+                },
+            });
+
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.address);
+            expect(result).toEqual({ data: walletResource1 });
+        });
+
+        it("should return 404 when wallet wasn't found", () => {
+            walletSearchService.getWallet.mockReturnValueOnce(undefined);
+
+            const walletsController = container.resolve(WalletsController);
+            const result = walletsController.show({
                 params: {
                     id: "non-existing-wallet-id",
                 },
-            },
-            undefined,
-        );
+            });
 
-        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
-        expect(result).toBeInstanceOf(Boom);
+            expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+            expect(result).toBeInstanceOf(Boom);
+        });
     });
-});
 
-describe("WalletsController.transactionsSent", () => {
-    it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+    describe("Locks", () => {
+        it("should get wallet id from pathname and criteria from query and return locks page from LockSearchService", () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
 
-        const tx1 = {} as any;
+            const locksPage: Contracts.Search.ResultsPage<Resources.LockResource> = {
+                results: [wallet1LockResource1],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: false },
+            };
+            lockSearchService.getWalletLocksPage.mockReturnValueOnce(locksPage);
 
-        apiConfiguration.getOptional.mockReturnValueOnce(true);
-
-        app.resolve.mockReturnValue({
-            raw(resource) {
-                return resource;
-            },
-        });
-
-        transactionHistoryService.listByCriteria.mockResolvedValueOnce({
-            results: [tx1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
-        });
-
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.transactionsSent(
-            {
+            const walletsController = container.resolve(WalletsController);
+            const result = walletsController.locks({
                 params: {
                     id: walletResource1.publicKey,
                 },
                 query: {
                     page: 1,
                     limit: 100,
-                    orderBy: "amount:desc",
-                    transform: false,
-                    type: Enums.TransactionType.MultiPayment,
+                    orderBy: ["timestamp.unix:desc"],
+                    isExpired: false,
                 },
-            },
-            undefined,
-        );
+            });
 
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
 
-        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+            expect(lockSearchService.getWalletLocksPage).toBeCalledWith(
+                { limit: 100, offset: 0 },
+                ["timestamp.unix:desc"],
+                walletResource1.address,
+                { isExpired: false },
+            );
 
-        expect(transactionHistoryService.listByCriteria).toBeCalledWith(
-            {
-                type: Enums.TransactionType.MultiPayment,
-                senderPublicKey: walletResource1.publicKey,
-
-                // not filtered out from criteria
-                page: 1,
-                limit: 100,
-                orderBy: "amount:desc",
-                transform: false,
-            },
-            [{ direction: "desc", property: "amount" }],
-            { limit: 100, offset: 0 },
-            { estimateTotalCount: true },
-        );
-
-        expect(result).toEqual({
-            results: [tx1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
-        });
-    });
-
-    it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
-
-        const tx1 = {} as any;
-        const tx1Block = {} as any;
-
-        apiConfiguration.getOptional.mockReturnValueOnce(true);
-
-        app.resolve.mockReturnValue({
-            transform(resource) {
-                return resource.data;
-            },
+            expect(result).toBe(locksPage);
         });
 
-        transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
-            results: [{ data: tx1, block: tx1Block }],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
-        });
+        it("should return 404 when wallet wasn't found", () => {
+            walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.transactionsSent(
-            {
-                params: {
-                    id: walletResource1.publicKey,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: "amount:desc",
-                    transform: true,
-                    type: Enums.TransactionType.MultiPayment,
-                },
-            },
-            undefined,
-        );
-
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
-
-        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
-
-        expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
-            {
-                type: Enums.TransactionType.MultiPayment,
-                senderPublicKey: walletResource1.publicKey,
-
-                // not filtered out from criteria
-                page: 1,
-                limit: 100,
-                orderBy: "amount:desc",
-                transform: true,
-            },
-            [{ direction: "desc", property: "amount" }],
-            { limit: 100, offset: 0 },
-            { estimateTotalCount: true },
-        );
-
-        expect(result).toEqual({
-            totalCount: 1,
-            results: [tx1],
-            meta: { totalCountIsEstimate: true },
-        });
-    });
-
-    it("should return 404 when wallet wasn't found", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(undefined);
-
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.transactionsSent(
-            {
+            const walletsController = container.resolve(WalletsController);
+            const result = walletsController.locks({
                 params: {
                     id: "non-existing-wallet-id",
                 },
-            },
-            undefined,
-        );
+            });
 
-        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
-        expect(result).toBeInstanceOf(Boom);
+            expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+            expect(result).toBeInstanceOf(Boom);
+        });
     });
 
-    it("should return empty page when wallet is cold wallet", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource2Cold);
+    describe("Transactions", () => {
+        it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
 
-        const emptyPage = { results: [], totalCount: 0, meta: { totalCountIsEstimate: false } };
-        paginationService.getEmptyPage.mockReturnValueOnce(emptyPage);
+            const tx1 = {} as any;
 
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.transactionsSent(
-            {
-                params: {
-                    id: walletResource2Cold.address,
+            apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+            app.resolve.mockReturnValue({
+                raw(resource) {
+                    return resource;
                 },
-            },
-            undefined,
-        );
+            });
 
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource2Cold.address);
-        expect(paginationService.getEmptyPage).toBeCalled();
-        expect(result).toBe(emptyPage);
-    });
-});
+            transactionHistoryService.listByCriteria.mockResolvedValueOnce({
+                results: [tx1],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
 
-describe("WalletsController.transactionsReceived", () => {
-    it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
-
-        const tx1 = {} as any;
-
-        apiConfiguration.getOptional.mockReturnValueOnce(true);
-
-        app.resolve.mockReturnValue({
-            raw(resource) {
-                return resource;
-            },
-        });
-
-        transactionHistoryService.listByCriteria.mockResolvedValueOnce({
-            results: [tx1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
-        });
-
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.transactionsReceived(
-            {
-                params: {
-                    id: walletResource1.publicKey,
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.transactions(
+                {
+                    params: {
+                        id: walletResource1.publicKey,
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: "amount:desc",
+                        transform: false,
+                        type: Enums.TransactionType.MultiPayment,
+                    },
                 },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: "amount:desc",
-                    transform: false,
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+            expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+            expect(transactionHistoryService.listByCriteria).toBeCalledWith(
+                {
                     type: Enums.TransactionType.MultiPayment,
-                },
-            },
-            undefined,
-        );
+                    address: walletResource1.address,
 
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
-
-        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
-
-        expect(transactionHistoryService.listByCriteria).toBeCalledWith(
-            {
-                type: Enums.TransactionType.MultiPayment,
-                recipientId: walletResource1.address,
-
-                // not filtered out from criteria
-                page: 1,
-                limit: 100,
-                orderBy: "amount:desc",
-                transform: false,
-            },
-            [{ direction: "desc", property: "amount" }],
-            { limit: 100, offset: 0 },
-            { estimateTotalCount: true },
-        );
-
-        expect(result).toEqual({
-            totalCount: 1,
-            results: [tx1],
-            meta: { totalCountIsEstimate: true },
-        });
-    });
-
-    it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
-
-        const tx1 = {} as any;
-        const tx1Block = {} as any;
-
-        apiConfiguration.getOptional.mockReturnValueOnce(true);
-
-        app.resolve.mockReturnValue({
-            transform(resource) {
-                return resource.data;
-            },
-        });
-
-        transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
-            results: [{ data: tx1, block: tx1Block }],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
-        });
-
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.transactionsReceived(
-            {
-                params: {
-                    id: walletResource1.publicKey,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    orderBy: "amount:desc",
-                    transform: true,
-                    type: Enums.TransactionType.MultiPayment,
-                },
-            },
-            undefined,
-        );
-
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
-
-        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
-
-        expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
-            {
-                type: Enums.TransactionType.MultiPayment,
-                recipientId: walletResource1.address,
-
-                // not filtered out from criteria
-                page: 1,
-                limit: 100,
-                orderBy: "amount:desc",
-                transform: true,
-            },
-            [{ direction: "desc", property: "amount" }],
-            { limit: 100, offset: 0 },
-            { estimateTotalCount: true },
-        );
-
-        expect(result).toEqual({
-            results: [tx1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
-        });
-    });
-
-    it("should return 404 when wallet wasn't found", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(undefined);
-
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.transactionsReceived(
-            {
-                params: {
-                    id: "non-existing-wallet-id",
-                },
-            },
-            undefined,
-        );
-
-        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
-        expect(result).toBeInstanceOf(Boom);
-    });
-});
-
-describe("WalletsController.votes", () => {
-    it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
-
-        const tx1 = {} as any;
-
-        apiConfiguration.getOptional.mockReturnValueOnce(true);
-
-        app.resolve.mockReturnValue({
-            raw(resource) {
-                return resource;
-            },
-        });
-
-        transactionHistoryService.listByCriteria.mockResolvedValueOnce({
-            results: [tx1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
-        });
-
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.votes(
-            {
-                params: {
-                    id: walletResource1.publicKey,
-                },
-                query: {
+                    // not filtered out from criteria
                     page: 1,
                     limit: 100,
                     orderBy: "amount:desc",
                     transform: false,
                 },
-            },
-            undefined,
-        );
+                [{ direction: "desc", property: "amount" }],
+                { limit: 100, offset: 0 },
+                { estimateTotalCount: true },
+            );
 
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
-
-        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
-
-        expect(transactionHistoryService.listByCriteria).toBeCalledWith(
-            {
-                senderPublicKey: walletResource1.publicKey,
-                typeGroup: Enums.TransactionTypeGroup.Core,
-                type: Enums.TransactionType.Vote,
-
-                // not filtered out from criteria
-                page: 1,
-                limit: 100,
-                orderBy: "amount:desc",
-                transform: false,
-            },
-            [{ direction: "desc", property: "amount" }],
-            { limit: 100, offset: 0 },
-            { estimateTotalCount: true },
-        );
-
-        expect(result).toEqual({
-            results: [tx1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
-        });
-    });
-
-    it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
-
-        const tx1 = {} as any;
-        const tx1Block = {} as any;
-
-        apiConfiguration.getOptional.mockReturnValueOnce(true);
-
-        app.resolve.mockReturnValue({
-            transform(resource) {
-                return resource.data;
-            },
+            expect(result).toEqual({
+                totalCount: 1,
+                results: [tx1],
+                meta: { totalCountIsEstimate: true },
+            });
         });
 
-        transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
-            results: [{ data: tx1, block: tx1Block }],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
-        });
+        it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
 
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.votes(
-            {
-                params: {
-                    id: walletResource1.publicKey,
+            const tx1 = {} as any;
+            const tx1Block = {} as any;
+
+            apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+            app.resolve.mockReturnValue({
+                transform(resource) {
+                    return resource.data;
                 },
-                query: {
+            });
+
+            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
+                results: [{ data: tx1, block: tx1Block }],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.transactions(
+                {
+                    params: {
+                        id: walletResource1.publicKey,
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: "amount:desc",
+                        transform: true,
+                        type: Enums.TransactionType.MultiPayment,
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+            expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+            expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
+                {
+                    type: Enums.TransactionType.MultiPayment,
+                    address: walletResource1.address,
+
+                    // not filtered out from criteria
                     page: 1,
                     limit: 100,
                     orderBy: "amount:desc",
                     transform: true,
                 },
-            },
-            undefined,
-        );
+                [{ direction: "desc", property: "amount" }],
+                { limit: 100, offset: 0 },
+                { estimateTotalCount: true },
+            );
 
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+            expect(result).toEqual({
+                totalCount: 1,
+                results: [tx1],
+                meta: { totalCountIsEstimate: true },
+            });
+        });
 
-        expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+        it("should return 404 when wallet wasn't found", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(undefined);
 
-        expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
-            {
-                senderPublicKey: walletResource1.publicKey,
-                typeGroup: Enums.TransactionTypeGroup.Core,
-                type: Enums.TransactionType.Vote,
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.transactions(
+                {
+                    params: {
+                        id: "non-existing-wallet-id",
+                    },
+                },
+                undefined,
+            );
 
-                // not filtered out from criteria
-                page: 1,
-                limit: 100,
-                orderBy: "amount:desc",
-                transform: true,
-            },
-            [{ direction: "desc", property: "amount" }],
-            { limit: 100, offset: 0 },
-            { estimateTotalCount: true },
-        );
-
-        expect(result).toEqual({
-            results: [tx1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: true },
+            expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+            expect(result).toBeInstanceOf(Boom);
         });
     });
 
-    it("should return 404 when wallet wasn't found", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(undefined);
+    describe("TransactionsSent", () => {
+        it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
 
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.votes(
-            {
-                params: {
-                    id: "non-existing-wallet-id",
+            const tx1 = {} as any;
+
+            apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+            app.resolve.mockReturnValue({
+                raw(resource) {
+                    return resource;
                 },
-            },
-            undefined,
-        );
+            });
 
-        expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
-        expect(result).toBeInstanceOf(Boom);
+            transactionHistoryService.listByCriteria.mockResolvedValueOnce({
+                results: [tx1],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.transactionsSent(
+                {
+                    params: {
+                        id: walletResource1.publicKey,
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: "amount:desc",
+                        transform: false,
+                        type: Enums.TransactionType.MultiPayment,
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+            expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+            expect(transactionHistoryService.listByCriteria).toBeCalledWith(
+                {
+                    type: Enums.TransactionType.MultiPayment,
+                    senderPublicKey: walletResource1.publicKey,
+
+                    // not filtered out from criteria
+                    page: 1,
+                    limit: 100,
+                    orderBy: "amount:desc",
+                    transform: false,
+                },
+                [{ direction: "desc", property: "amount" }],
+                { limit: 100, offset: 0 },
+                { estimateTotalCount: true },
+            );
+
+            expect(result).toEqual({
+                results: [tx1],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
+        });
+
+        it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+            const tx1 = {} as any;
+            const tx1Block = {} as any;
+
+            apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+            app.resolve.mockReturnValue({
+                transform(resource) {
+                    return resource.data;
+                },
+            });
+
+            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
+                results: [{ data: tx1, block: tx1Block }],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.transactionsSent(
+                {
+                    params: {
+                        id: walletResource1.publicKey,
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: "amount:desc",
+                        transform: true,
+                        type: Enums.TransactionType.MultiPayment,
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+            expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+            expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
+                {
+                    type: Enums.TransactionType.MultiPayment,
+                    senderPublicKey: walletResource1.publicKey,
+
+                    // not filtered out from criteria
+                    page: 1,
+                    limit: 100,
+                    orderBy: "amount:desc",
+                    transform: true,
+                },
+                [{ direction: "desc", property: "amount" }],
+                { limit: 100, offset: 0 },
+                { estimateTotalCount: true },
+            );
+
+            expect(result).toEqual({
+                totalCount: 1,
+                results: [tx1],
+                meta: { totalCountIsEstimate: true },
+            });
+        });
+
+        it("should return 404 when wallet wasn't found", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(undefined);
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.transactionsSent(
+                {
+                    params: {
+                        id: "non-existing-wallet-id",
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+            expect(result).toBeInstanceOf(Boom);
+        });
+
+        it("should return empty page when wallet is cold wallet", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource2Cold);
+
+            const emptyPage = { results: [], totalCount: 0, meta: { totalCountIsEstimate: false } };
+            paginationService.getEmptyPage.mockReturnValueOnce(emptyPage);
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.transactionsSent(
+                {
+                    params: {
+                        id: walletResource2Cold.address,
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource2Cold.address);
+            expect(paginationService.getEmptyPage).toBeCalled();
+            expect(result).toBe(emptyPage);
+        });
     });
 
-    it("should return empty page when wallet is cold wallet", async () => {
-        walletSearchService.getWallet.mockReturnValueOnce(walletResource2Cold);
+    describe("TransactionsReceived", () => {
+        it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
 
-        const emptyPage = {
-            results: [],
-            totalCount: 0,
-            meta: { totalCountIsEstimate: false },
-        };
-        paginationService.getEmptyPage.mockReturnValueOnce(emptyPage);
+            const tx1 = {} as any;
 
-        const walletsController = container.resolve(WalletsController);
-        const result = await walletsController.votes(
-            {
-                params: {
-                    id: walletResource2Cold.address,
+            apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+            app.resolve.mockReturnValue({
+                raw(resource) {
+                    return resource;
                 },
-            },
-            undefined,
-        );
+            });
 
-        expect(walletSearchService.getWallet).toBeCalledWith(walletResource2Cold.address);
-        expect(paginationService.getEmptyPage).toBeCalled();
-        expect(result).toBe(emptyPage);
+            transactionHistoryService.listByCriteria.mockResolvedValueOnce({
+                results: [tx1],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.transactionsReceived(
+                {
+                    params: {
+                        id: walletResource1.publicKey,
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: "amount:desc",
+                        transform: false,
+                        type: Enums.TransactionType.MultiPayment,
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+            expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+            expect(transactionHistoryService.listByCriteria).toBeCalledWith(
+                {
+                    type: Enums.TransactionType.MultiPayment,
+                    recipientId: walletResource1.address,
+
+                    // not filtered out from criteria
+                    page: 1,
+                    limit: 100,
+                    orderBy: "amount:desc",
+                    transform: false,
+                },
+                [{ direction: "desc", property: "amount" }],
+                { limit: 100, offset: 0 },
+                { estimateTotalCount: true },
+            );
+
+            expect(result).toEqual({
+                totalCount: 1,
+                results: [tx1],
+                meta: { totalCountIsEstimate: true },
+            });
+        });
+
+        it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+            const tx1 = {} as any;
+            const tx1Block = {} as any;
+
+            apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+            app.resolve.mockReturnValue({
+                transform(resource) {
+                    return resource.data;
+                },
+            });
+
+            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
+                results: [{ data: tx1, block: tx1Block }],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.transactionsReceived(
+                {
+                    params: {
+                        id: walletResource1.publicKey,
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: "amount:desc",
+                        transform: true,
+                        type: Enums.TransactionType.MultiPayment,
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+            expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+            expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
+                {
+                    type: Enums.TransactionType.MultiPayment,
+                    recipientId: walletResource1.address,
+
+                    // not filtered out from criteria
+                    page: 1,
+                    limit: 100,
+                    orderBy: "amount:desc",
+                    transform: true,
+                },
+                [{ direction: "desc", property: "amount" }],
+                { limit: 100, offset: 0 },
+                { estimateTotalCount: true },
+            );
+
+            expect(result).toEqual({
+                results: [tx1],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
+        });
+
+        it("should return 404 when wallet wasn't found", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(undefined);
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.transactionsReceived(
+                {
+                    params: {
+                        id: "non-existing-wallet-id",
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+            expect(result).toBeInstanceOf(Boom);
+        });
+    });
+
+    describe("Votes", () => {
+        it("should get wallet id from pathname and return raw transactions from TransactionHistoryService", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+            const tx1 = {} as any;
+
+            apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+            app.resolve.mockReturnValue({
+                raw(resource) {
+                    return resource;
+                },
+            });
+
+            transactionHistoryService.listByCriteria.mockResolvedValueOnce({
+                results: [tx1],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.votes(
+                {
+                    params: {
+                        id: walletResource1.publicKey,
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: "amount:desc",
+                        transform: false,
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+            expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+            expect(transactionHistoryService.listByCriteria).toBeCalledWith(
+                {
+                    senderPublicKey: walletResource1.publicKey,
+                    typeGroup: Enums.TransactionTypeGroup.Core,
+                    type: Enums.TransactionType.Vote,
+
+                    // not filtered out from criteria
+                    page: 1,
+                    limit: 100,
+                    orderBy: "amount:desc",
+                    transform: false,
+                },
+                [{ direction: "desc", property: "amount" }],
+                { limit: 100, offset: 0 },
+                { estimateTotalCount: true },
+            );
+
+            expect(result).toEqual({
+                results: [tx1],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
+        });
+
+        it("should get wallet id from pathname and return transformed transactions from TransactionHistoryService", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource1);
+
+            const tx1 = {} as any;
+            const tx1Block = {} as any;
+
+            apiConfiguration.getOptional.mockReturnValueOnce(true);
+
+            app.resolve.mockReturnValue({
+                transform(resource) {
+                    return resource.data;
+                },
+            });
+
+            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValueOnce({
+                results: [{ data: tx1, block: tx1Block }],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.votes(
+                {
+                    params: {
+                        id: walletResource1.publicKey,
+                    },
+                    query: {
+                        page: 1,
+                        limit: 100,
+                        orderBy: "amount:desc",
+                        transform: true,
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource1.publicKey);
+
+            expect(apiConfiguration.getOptional).toBeCalledWith("options.estimateTotalCount", true);
+
+            expect(transactionHistoryService.listByCriteriaJoinBlock).toBeCalledWith(
+                {
+                    senderPublicKey: walletResource1.publicKey,
+                    typeGroup: Enums.TransactionTypeGroup.Core,
+                    type: Enums.TransactionType.Vote,
+
+                    // not filtered out from criteria
+                    page: 1,
+                    limit: 100,
+                    orderBy: "amount:desc",
+                    transform: true,
+                },
+                [{ direction: "desc", property: "amount" }],
+                { limit: 100, offset: 0 },
+                { estimateTotalCount: true },
+            );
+
+            expect(result).toEqual({
+                results: [tx1],
+                totalCount: 1,
+                meta: { totalCountIsEstimate: true },
+            });
+        });
+
+        it("should return 404 when wallet wasn't found", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(undefined);
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.votes(
+                {
+                    params: {
+                        id: "non-existing-wallet-id",
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith("non-existing-wallet-id");
+            expect(result).toBeInstanceOf(Boom);
+        });
+
+        it("should return empty page when wallet is cold wallet", async () => {
+            walletSearchService.getWallet.mockReturnValueOnce(walletResource2Cold);
+
+            const emptyPage = {
+                results: [],
+                totalCount: 0,
+                meta: { totalCountIsEstimate: false },
+            };
+            paginationService.getEmptyPage.mockReturnValueOnce(emptyPage);
+
+            const walletsController = container.resolve(WalletsController);
+            const result = await walletsController.votes(
+                {
+                    params: {
+                        id: walletResource2Cold.address,
+                    },
+                },
+                undefined,
+            );
+
+            expect(walletSearchService.getWallet).toBeCalledWith(walletResource2Cold.address);
+            expect(paginationService.getEmptyPage).toBeCalled();
+            expect(result).toBe(emptyPage);
+        });
     });
 });

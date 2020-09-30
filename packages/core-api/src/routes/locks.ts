@@ -3,7 +3,6 @@ import Joi from "@hapi/joi";
 
 import { LocksController } from "../controllers/locks";
 import {
-    lockCriteriaPayloadSchema,
     lockCriteriaQuerySchema,
     lockParamSchema,
     lockSortingSchema,
@@ -24,21 +23,6 @@ export const register = (server: Hapi.Server): void => {
                     .concat(lockCriteriaQuerySchema)
                     .concat(lockSortingSchema)
                     .concat(Schemas.pagination),
-            },
-            plugins: {
-                pagination: { enabled: true },
-            },
-        },
-    });
-
-    server.route({
-        method: "POST",
-        path: "/locks/search",
-        handler: (request: Hapi.Request) => controller.search(request),
-        options: {
-            validate: {
-                query: Joi.object().concat(lockSortingSchema).concat(Schemas.pagination),
-                payload: lockCriteriaPayloadSchema,
             },
             plugins: {
                 pagination: { enabled: true },

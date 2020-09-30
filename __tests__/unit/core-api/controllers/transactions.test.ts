@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts } from "@packages/core-kernel";
 import Hapi from "@hapi/hapi";
 import { TransactionsController } from "@packages/core-api/src/controllers/transactions";
 import { Application, Utils } from "@packages/core-kernel";
@@ -32,7 +32,9 @@ const transactionHistoryService = {
     listByCriteriaJoinBlock: jestfn<Contracts.Shared.TransactionHistoryService["listByCriteriaJoinBlock"]>(),
 };
 
-const blockHistoryService = {};
+const blockHistoryService = {
+    findOneByCriteria: jestfn<Contracts.Shared.BlockHistoryService["findOneByCriteria"]>(),
+};
 
 const block: Interfaces.IBlockData = {
     version: 0,
@@ -198,6 +200,28 @@ describe("TransactionsController", () => {
             );
         });
 
+        it("should return transaction using transform", async () => {
+            transactionHistoryService.findOneByCriteria.mockResolvedValue(transferTransaction.data);
+            blockHistoryService.findOneByCriteria.mockResolvedValue(block);
+
+            const request: Hapi.Request = {
+                params: {
+                    id: transferTransaction.id,
+                },
+                query: {
+                    transform: true,
+                },
+            };
+
+            const response = (await controller.show(request, undefined)) as ItemResponse;
+
+            expect(response.data).toEqual(
+                expect.objectContaining({
+                    id: transferTransaction.id,
+                }),
+            );
+        });
+
         it("should return error if transaction does not exist", async () => {
             const request: Hapi.Request = {
                 params: {
@@ -270,94 +294,6 @@ describe("TransactionsController", () => {
             };
 
             await expect(controller.showUnconfirmed(request, undefined)).resolves.toThrowError("Transaction not found");
-        });
-    });
-
-    describe("search", () => {
-        it("should return list of transactions", async () => {
-            transactionHistoryService.listByCriteria.mockResolvedValue({
-                results: [transferTransaction.data],
-                totalCount: 1,
-                meta: { totalCountIsEstimate: false },
-            });
-
-            const request: Hapi.Request = {
-                params: {
-                    id: transferTransaction.id,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    transform: false,
-                },
-            };
-
-            const response = (await controller.search(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    id: transferTransaction.id,
-                }),
-            );
-        });
-
-        it("should return list of transactions using transform", async () => {
-            transactionHistoryService.listByCriteriaJoinBlock.mockResolvedValue({
-                results: [{ data: transferTransaction.data, block: block }],
-                totalCount: 1,
-                meta: { totalCountIsEstimate: false },
-            });
-
-            const request: Hapi.Request = {
-                params: {
-                    id: transferTransaction.id,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    transform: true,
-                },
-            };
-
-            const response = (await controller.search(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
-            expect(response.results[0]).toEqual(
-                expect.objectContaining({
-                    id: transferTransaction.id,
-                }),
-            );
-        });
-
-        it("should return paginated response when defined offset", async () => {
-            transactionHistoryService.listByCriteria.mockResolvedValue({
-                results: [transferTransaction.data],
-                totalCount: 1,
-                meta: { totalCountIsEstimate: false },
-            });
-
-            const request: Hapi.Request = {
-                params: {
-                    id: transferTransaction.id,
-                },
-                query: {
-                    page: 1,
-                    limit: 100,
-                    offset: 1,
-                    transform: false,
-                },
-            };
-
-            const response = (await controller.search(request, undefined)) as PaginatedResponse;
-
-            expect(response.totalCount).toBeDefined();
-            expect(response.meta).toBeDefined();
-            expect(response.results).toBeDefined();
         });
     });
 

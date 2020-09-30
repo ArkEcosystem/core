@@ -49,7 +49,6 @@ class BlockNotReadyCounter {
     }
 }
 
-// todo: remove the abstract and instead require a contract to be implemented
 @Container.injectable()
 export class UnchainedHandler implements BlockHandler {
     public static notReadyCounter = new BlockNotReadyCounter();

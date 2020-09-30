@@ -57,6 +57,7 @@ export class DownloadBlocks implements Action {
 
             try {
                 this.blockchain.enqueueBlocks(blocks);
+                this.stateStore.lastDownloadedBlock = blocks[blocks.length - 1];
                 this.blockchain.dispatch("DOWNLOADED");
             } catch (error) {
                 this.logger.warning(`Failed to enqueue downloaded block.`);

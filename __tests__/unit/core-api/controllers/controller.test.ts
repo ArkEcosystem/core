@@ -1,28 +1,28 @@
 import "jest-extended";
 
+import Joi from "@hapi/joi";
 import { Controller } from "@packages/core-api/src/controllers/controller";
-import { BlockResource, BlockWithTransactionsResource } from "@packages/core-api/src/resources";
-import { Application } from "@packages/core-kernel";
+import { Resource } from "@packages/core-api/src/interfaces";
+import { Application, Container } from "@packages/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
-import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
-import { Identities, Transactions, Utils } from "@packages/crypto";
+import { Transactions } from "@packages/crypto";
 
 import { initApp } from "../__support__";
 
-class TestController extends Controller {
-    public runRespondWithResource(data: any, transformer: any): any {
-        return super.respondWithResource(data, transformer);
+@Container.injectable()
+class Transformer implements Resource {
+    public raw(resource): object {
+        return resource;
     }
-
-    public runToCollection(data: any, transformer: any, transform: boolean): any {
-        return super.toCollection(data, transformer, transform);
+    public transform(resource): object {
+        return resource;
     }
 }
 
 let app: Application;
-let controller: TestController;
+let controller: Controller;
 
 beforeEach(() => {
     app = initApp();
@@ -31,7 +31,7 @@ beforeEach(() => {
     // Triggers registration of indexes
     app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
-    controller = app.resolve<TestController>(TestController);
+    controller = app.resolve<Controller>(Controller);
 });
 
 afterEach(() => {
@@ -46,6 +46,124 @@ afterEach(() => {
 });
 
 describe("Controller", () => {
+    describe("getQueryPagination", () => {
+        // TODO: What if limit is missing
+        // TODO: getQueryPagination and getListingPage are duplicates
+        it("should return pagination if limit is defined", async () => {
+            const query = {
+                limit: 10,
+            };
+
+            // @ts-ignore
+            expect(controller.getQueryPagination(query)).toEqual({
+                offset: 0,
+                limit: 10,
+            });
+        });
+
+        it("should return pagination if limit and page are defined", async () => {
+            const query = {
+                page: 2,
+                limit: 10,
+            };
+
+            // @ts-ignore
+            expect(controller.getQueryPagination(query)).toEqual({
+                offset: 10,
+                limit: 10,
+            });
+        });
+
+        it("should return pagination if limit and offset are defined", async () => {
+            const query = {
+                offset: 15,
+                limit: 10,
+            };
+
+            // @ts-ignore
+            expect(controller.getQueryPagination(query)).toEqual({
+                offset: 15,
+                limit: 10,
+            });
+        });
+    });
+
+    describe("getQueryCriteria", () => {
+        it("should return criteria", async () => {
+            const schemaObject = {
+                username: Joi.string(),
+            };
+
+            const query = {
+                limit: 10,
+                username: "Alice",
+                excludedField: "Bob",
+            };
+
+            // @ts-ignore
+            expect(controller.getQueryCriteria(query, schemaObject)).toEqual({
+                username: "Alice",
+            });
+        });
+    });
+
+    describe("getListingPage", () => {
+        it("should return pagination if query is empty", async () => {
+            const request = {
+                query: {},
+            };
+
+            // @ts-ignore
+            expect(controller.getListingPage(request)).toEqual({
+                offset: 0,
+                limit: 100,
+            });
+        });
+
+        it("should return pagination if limit is defined", async () => {
+            const request = {
+                query: {
+                    limit: 20,
+                },
+            };
+
+            // @ts-ignore
+            expect(controller.getListingPage(request)).toEqual({
+                offset: 0,
+                limit: 20,
+            });
+        });
+
+        it("should return pagination if limit and page are defined", async () => {
+            const request = {
+                query: {
+                    page: 2,
+                    limit: 20,
+                },
+            };
+
+            // @ts-ignore
+            expect(controller.getListingPage(request)).toEqual({
+                offset: 20,
+                limit: 20,
+            });
+        });
+
+        it("should return pagination if offset is defined", async () => {
+            const request = {
+                query: {
+                    offset: 15,
+                },
+            };
+
+            // @ts-ignore
+            expect(controller.getListingPage(request)).toEqual({
+                offset: 15,
+                limit: 100,
+            });
+        });
+    });
+
     describe("getListingOrder", () => {
         it("should parse order", async () => {
             const request = {
@@ -55,7 +173,10 @@ describe("Controller", () => {
             };
 
             // @ts-ignore
-            expect(controller.getListingOrder(request)).toEqual([{"direction": "desc", "property": "test"}, {"direction": "asc", "property": "test2"}]);
+            expect(controller.getListingOrder(request)).toEqual([
+                { direction: "desc", property: "test" },
+                { direction: "asc", property: "test2" },
+            ]);
         });
 
         it("should return empty array if orderBy is not present", async () => {
@@ -68,62 +189,103 @@ describe("Controller", () => {
         });
     });
 
+    describe("getListingOptions", () => {
+        it("should return listing options", async () => {
+            // @ts-ignore
+            expect(controller.getListingOptions()).toEqual({
+                estimateTotalCount: expect.toBeBoolean(),
+            });
+        });
+    });
+
     describe("respondWithResource", () => {
+        it("should respond with resource", () => {
+            const data = { test: "test" };
+
+            // @ts-ignore
+            expect(controller.respondWithResource(data, Transformer)).toEqual({
+                data,
+            });
+        });
+
         it("should return error if data is undefined", async () => {
-            expect(controller.runRespondWithResource(undefined, undefined)).toBeInstanceOf(Error);
+            // @ts-ignore
+            expect(controller.respondWithResource(undefined, Transformer)).toBeInstanceOf(Error);
+        });
+    });
+
+    describe("respondWithCollection", () => {
+        it("should respond with collection", () => {
+            const data = [{ test: "test" }];
+
+            // @ts-ignore
+            expect(controller.respondWithCollection(data, Transformer)).toEqual({
+                data,
+            });
+        });
+    });
+
+    describe("toResource", () => {
+        it("should return raw item", () => {
+            const spyOnRaw = jest.spyOn(Transformer.prototype, "raw");
+
+            const data = { test: "test" };
+            // @ts-ignore
+            expect(controller.toResource(data, Transformer, false)).toEqual(data);
+
+            expect(spyOnRaw).toHaveBeenCalled();
+        });
+
+        it("should return transformed item", () => {
+            const spyOnRaw = jest.spyOn(Transformer.prototype, "transform");
+
+            const data = { test: "test" };
+            // @ts-ignore
+            expect(controller.toResource(data, Transformer)).toEqual(data);
+
+            expect(spyOnRaw).toHaveBeenCalled();
         });
     });
 
     describe("toCollection", () => {
-        it("should return raw data", async () => {
-            const resources = [
-                {
-                    id: "17184958558311101492",
-                    version: 2,
-                    height: 2,
-                    timestamp: 2,
-                    reward: Utils.BigNumber.make("100"),
-                    totalFee: Utils.BigNumber.make("200"),
-                    totalAmount: Utils.BigNumber.make("300"),
-                    generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
-                },
-            ];
+        it("should return raw item", () => {
+            const spyOnRaw = jest.spyOn(Transformer.prototype, "raw");
 
-            const expected = resources.map((d) =>
-                Object.assign({}, d, {
-                    reward: d.reward.toFixed(),
-                    totalFee: d.totalFee.toFixed(),
-                    totalAmount: d.totalAmount.toFixed(),
-                }),
-            );
+            const data = [{ test: "test" }];
+            // @ts-ignore
+            expect(controller.toCollection(data, Transformer, false)).toEqual(data);
 
-            expect(controller.runToCollection(resources, BlockResource, false)).toStrictEqual(expected);
+            expect(spyOnRaw).toHaveBeenCalled();
         });
 
-        it("should return transformed data", async () => {
-            const resources = [
-                {
-                    data: {
-                        id: "17184958558311101492",
-                        version: 2,
-                        height: 2,
-                        timestamp: 2,
-                        reward: Utils.BigNumber.make("100"),
-                        totalFee: Utils.BigNumber.make("200"),
-                        totalAmount: Utils.BigNumber.make("300"),
-                        generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
-                    },
-                    transactions: [],
-                },
-            ];
+        it("should return transformed item", () => {
+            const spyOnRaw = jest.spyOn(Transformer.prototype, "transform");
 
-            expect(controller.runToCollection(resources, BlockWithTransactionsResource, true)[0]).toEqual(
-                expect.objectContaining({
-                    height: 2,
-                    id: "17184958558311101492",
-                    version: 2,
-                }),
-            );
+            const data = [{ test: "test" }];
+            // @ts-ignore
+            expect(controller.toCollection(data, Transformer)).toEqual(data);
+
+            expect(spyOnRaw).toHaveBeenCalled();
+        });
+    });
+
+    describe("toPagination", () => {
+        it("should return result page", () => {
+            const spyOnRaw = jest.spyOn(Transformer.prototype, "transform");
+
+            const data = [{ test: "test" }];
+
+            const resultsPage = {
+                results: data,
+                totalCount: 1,
+                meta: {
+                    totalCountIsEstimate: true,
+                },
+            };
+
+            // @ts-ignore
+            expect(controller.toPagination(resultsPage, Transformer)).toEqual(resultsPage);
+            expect(spyOnRaw).toHaveBeenCalled();
         });
     });
 });

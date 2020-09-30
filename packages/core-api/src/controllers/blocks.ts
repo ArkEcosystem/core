@@ -105,28 +105,6 @@ export class BlocksController extends Controller {
         return this.toPagination(transactionListResult, TransactionResource, request.query.transform);
     }
 
-    public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        if (request.query.transform) {
-            const blockWithSomeTransactionsListResult = await this.blockHistoryService.listByCriteriaJoinTransactions(
-                request.payload,
-                { typeGroup: Enums.TransactionTypeGroup.Core, type: Enums.TransactionType.MultiPayment },
-                this.getListingOrder(request),
-                this.getListingPage(request),
-                this.getListingOptions(),
-            );
-
-            return this.toPagination(blockWithSomeTransactionsListResult, BlockWithTransactionsResource, true);
-        } else {
-            const blockListResult = await this.blockHistoryService.listByCriteria(
-                request.payload,
-                this.getListingOrder(request),
-                this.getListingPage(request),
-            );
-
-            return this.toPagination(blockListResult, BlockResource, false);
-        }
-    }
-
     private getBlockCriteriaByIdOrHeight(idOrHeight: string): Contracts.Shared.OrBlockCriteria {
         const asHeight = parseFloat(idOrHeight);
         return asHeight && asHeight <= this.blockchain.getLastHeight() ? { height: asHeight } : { id: idOrHeight };

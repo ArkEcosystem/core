@@ -1,4 +1,4 @@
-import { dotSeparatedQuery } from "../../../../packages/core-api/src/plugins/dot-separated-query";
+import { dotSeparatedQuery } from "@packages/core-api/src/plugins/dot-separated-query";
 
 describe("dotSeparatedQuery.register", () => {
     it("should register onRequest extension", () => {
