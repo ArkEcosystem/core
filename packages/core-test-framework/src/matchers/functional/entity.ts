@@ -1,4 +1,4 @@
-import { IEntityAsset } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
+import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 import { Interfaces } from "@arkecosystem/crypto";
 import got from "got";
 
@@ -27,7 +27,7 @@ expect.extend({
 
             errors = parsedBody.errors;
 
-            const entityAsset: IEntityAsset = transaction.asset as IEntityAsset;
+            const entityAsset: MagistrateInterfaces.IEntityAsset = transaction.asset as MagistrateInterfaces.IEntityAsset;
             pass =
                 parsedBody.errors === undefined &&
                 parsedBody.data.id === transaction.id &&
@@ -79,7 +79,7 @@ expect.extend({
 
         let errors;
         try {
-            const entityAsset: IEntityAsset = updateTransaction.asset as IEntityAsset;
+            const entityAsset: MagistrateInterfaces.IEntityAsset = updateTransaction.asset as MagistrateInterfaces.IEntityAsset;
 
             const { body } = await got.get(`http://localhost:4003/api/entities/${entityAsset.registrationId}`);
 

@@ -1,6 +1,5 @@
-import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
-import { ActionArguments } from "@arkecosystem/core-kernel/src/types";
-import { PeerProcessor } from "@arkecosystem/core-p2p/src/peer-processor";
+import { Container, Contracts, Services, Types } from "@arkecosystem/core-kernel";
+import { PeerProcessor } from "../peer-processor";
 
 export class ValidateAndAcceptPeerAction extends Services.Triggers.Action {
     private app: Contracts.Kernel.Application;
@@ -10,7 +9,7 @@ export class ValidateAndAcceptPeerAction extends Services.Triggers.Action {
         this.app = app;
     }
 
-    public async execute(args: ActionArguments): Promise<void> {
+    public async execute(args: Types.ActionArguments): Promise<void> {
         const peer: Contracts.P2P.Peer = args.peer;
         const options: Contracts.P2P.AcceptNewPeerOptions = args.options;
 

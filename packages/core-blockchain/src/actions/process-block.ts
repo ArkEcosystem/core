@@ -1,11 +1,10 @@
-import { Services } from "@arkecosystem/core-kernel";
-import { ActionArguments } from "@arkecosystem/core-kernel/src/types";
+import { Services, Types } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessor, BlockProcessorResult } from "../processor";
 
 export class ProcessBlockAction extends Services.Triggers.Action {
-    public async execute(args: ActionArguments): Promise<BlockProcessorResult> {
+    public async execute(args: Types.ActionArguments): Promise<BlockProcessorResult> {
         const blockProcessor: BlockProcessor = args.blockProcessor;
         const block: Interfaces.IBlock = args.block;
 

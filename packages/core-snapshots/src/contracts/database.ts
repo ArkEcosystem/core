@@ -1,5 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
-import { Meta, Options } from "@arkecosystem/core-snapshots/src/contracts/index";
+import { Meta, Options } from "./index";
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface DumpRange {
