@@ -1,7 +1,6 @@
 import { Keys } from "../identities";
 import { IKeyPair, IMessage } from "../interfaces";
 import { Network } from "../interfaces/networks";
-import { configManager } from "../managers";
 import { Hash } from "./hash";
 import { HashAlgorithms } from "./hash-algorithms";
 
@@ -17,10 +16,6 @@ export class Message {
     }
 
     public static signWithWif(message: string, wif: string, network?: Network): IMessage {
-        if (!network) {
-            network = configManager.get("network");
-        }
-
         const keys: IKeyPair = Keys.fromWIF(wif, network);
 
         return {
