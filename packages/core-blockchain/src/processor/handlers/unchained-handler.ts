@@ -120,6 +120,7 @@ export class UnchainedHandler implements BlockHandler {
                 `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()}`,
             );
 
+            // TODO: We've already cleared the queue. Move to clear queue
             // Also remove all remaining queued blocks. Since blocks are downloaded in batches,
             // it is very likely that all blocks will be disregarded at this point anyway.
             // NOTE: This isn't really elegant, but still better than spamming the log with

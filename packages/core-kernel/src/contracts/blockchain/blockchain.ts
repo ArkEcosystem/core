@@ -71,7 +71,7 @@ export interface Blockchain {
     /**
      * Process the given block.
      */
-    processBlocks(blocks: Interfaces.IBlockData[], callback): Promise<Interfaces.IBlock[] | undefined>;
+    processBlocks(blocks: Interfaces.IBlockData[], callback): Promise<Interfaces.IBlock[]>;
 
     /**
      * Reset the last downloaded block to last chained block.

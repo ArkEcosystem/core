@@ -369,9 +369,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     /**
      * Process the given block.
      */
-    public async processBlocks(blocks: Interfaces.IBlockData[]): Promise<Interfaces.IBlock[] | undefined> {
+    public async processBlocks(blocks: Interfaces.IBlockData[]): Promise<Interfaces.IBlock[]> {
         if (!blocks.length) {
-            return undefined;
+            return [];
         }
 
         const lastHeight = this.getLastBlock().data.height;
@@ -384,9 +384,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult | undefined;
 
-        // Check if block is chained or is exception
         if (
-            blocks[0] &&
             !Utils.isBlockChained(this.getLastBlock().data, blocks[0], blockTimeLookup) &&
             !CryptoUtils.isException(blocks[0])
         ) {
@@ -396,7 +394,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
             this.resetLastDownloadedBlock();
-            return undefined;
+            return [];
         }
 
         let forkBlock: Interfaces.IBlock | undefined = undefined;
@@ -428,6 +426,28 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             }
         }
 
+        const revert = async (blocksToRevert: Interfaces.IBlock[]) => {
+            // Rounds are saved while blocks are being processed and may now be out of sync with the last
+            // block that was written into the database.
+
+            const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
+            const lastHeight: number = lastBlock.data.height;
+            const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
+
+            this.logger.info(
+                `Reverting ${Utils.pluralize("block", blocksToRevert.length, true)} back to last height: ${lastHeight}`,
+            );
+
+            for (const block of blocksToRevert.reverse()) {
+                await this.databaseInteraction.revertBlock(block);
+            }
+
+            this.stateStore.setLastBlock(lastBlock);
+
+            await this.database.deleteRound(deleteRoundsAfter + 1);
+            await this.databaseInteraction.loadBlocksFromCurrentRound();
+        };
+
         if (acceptedBlocks.length > 0) {
             try {
                 await this.blockRepository.saveBlocks(acceptedBlocks);
@@ -436,32 +456,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
                 this.clearQueue();
 
-                // Rounds are saved while blocks are being processed and may now be out of sync with the last
-                // block that was written into the database.
+                await revert(acceptedBlocks);
 
-                const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
-                const lastHeight: number = lastBlock.data.height;
-                const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
-
-                this.logger.info(
-                    `Reverting ${Utils.pluralize(
-                        "block",
-                        acceptedBlocks.length,
-                        true,
-                    )} back to last height: ${lastHeight}`,
-                );
-
-                for (const block of acceptedBlocks.reverse()) {
-                    await this.databaseInteraction.revertBlock(block);
-                }
-
-                this.stateStore.setLastBlock(lastBlock);
                 this.resetLastDownloadedBlock();
 
-                await this.database.deleteRound(deleteRoundsAfter + 1);
-                await this.databaseInteraction.loadBlocksFromCurrentRound();
-
-                return undefined;
+                return [];
             }
         }
 
@@ -481,24 +480,15 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         } else if (forkBlock) {
             this.forkBlock(forkBlock);
         } else if (lastProcessedBlock) {
-            // Not all blocks are accepted. Clear queue and start again
-
+            // Some blocks were not accepted and saved. Check if last block was applied and revert it.
             this.logger.warning(`Could not process block at height ${lastProcessedBlock.data.height}.`);
 
+            this.clearQueue();
+
             if (this.stateStore.getLastBlock().data.height === lastProcessedBlock.data.height) {
-                await this.databaseInteraction.revertBlock(lastProcessedBlock);
-
-                const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
-                const lastHeight: number = lastBlock.data.height;
-                const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
-
-                this.stateStore.setLastBlock(lastBlock);
-
-                await this.database.deleteRound(deleteRoundsAfter + 1);
-                await this.databaseInteraction.loadBlocksFromCurrentRound();
+                await revert([lastProcessedBlock]);
             }
 
-            this.clearQueue();
             this.resetLastDownloadedBlock();
         }
 
