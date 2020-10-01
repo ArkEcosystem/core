@@ -25,7 +25,7 @@ export class DownloadBlocks implements Action {
             .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
             .downloadBlocksFromHeight(lastDownloadedBlock.height);
 
-        if (this.blockchain.isStopped) {
+        if (this.blockchain.isStopped()) {
             return;
         }
 

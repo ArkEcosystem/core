@@ -51,8 +51,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    // todo: make this private
-    public isStopped!: boolean;
+    private stopped!: boolean;
     // todo: make this private
     public options: any;
     // todo: make this private and use a queue instance from core-kernel
@@ -64,7 +63,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
     @Container.postConstruct()
     public initialize(): void {
-        this.isStopped = false;
+        this.stopped = false;
 
         // flag to force a network start
         this.stateStore.networkStart = this.configuration.getOptional("options.networkStart", false);
@@ -93,6 +92,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     }
 
     /**
+     * Determine if the blockchain is stopped.
+     */
+    public isStopped(): boolean {
+        return this.stopped;
+    }
+
+    /**
      * Dispatch an event to transition the state machine.
      * @param  {String} event
      * @return {void}
@@ -116,7 +122,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             return true;
         }
 
-        while (!this.stateStore.started && !this.isStopped) {
+        while (!this.stateStore.started && !this.stopped) {
             await Utils.sleep(1000);
         }
 
@@ -133,10 +139,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     }
 
     public async dispose(): Promise<void> {
-        if (!this.isStopped) {
+        if (!this.stopped) {
             this.logger.info("Stopping Blockchain Manager :chains:");
 
-            this.isStopped = true;
+            this.stopped = true;
             this.stateStore.clearWakeUpTimeout();
 
             this.dispatch("STOP");
