@@ -1,12 +1,18 @@
+import { PrivateKey as BasePrivateKey } from "@arkecosystem/crypto-identities";
+
+import { configManager } from "../managers";
 import { NetworkType } from "../types";
-import { Keys } from "./keys";
 
 export class PrivateKey {
     public static fromPassphrase(passphrase: string): string {
-        return Keys.fromPassphrase(passphrase).privateKey;
+        return BasePrivateKey.fromPassphrase(passphrase);
     }
 
     public static fromWIF(wif: string, network?: NetworkType): string {
-        return Keys.fromWIF(wif, network).privateKey;
+        if (!network) {
+            network = configManager.get("network.wif");
+        }
+
+        return BasePrivateKey.fromWIF(wif, { wif: (network as unknown) as number });
     }
 }

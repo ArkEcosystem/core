@@ -1,66 +1,61 @@
-import { HashAlgorithms } from "../crypto";
-import { PublicKeyError } from "../errors";
+import { Address as BaseAddress } from "@arkecosystem/crypto-identities";
+
 import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
 import { NetworkType } from "../types";
-import { Base58 } from "../utils/base58";
-import { PublicKey } from "./public-key";
 
 export class Address {
     public static fromPassphrase(passphrase: string, networkVersion?: number): string {
-        return Address.fromPublicKey(PublicKey.fromPassphrase(passphrase), networkVersion);
-    }
-
-    public static fromPublicKey(publicKey: string, networkVersion?: number): string {
-        if (!PublicKey.verify(publicKey)) {
-            throw new PublicKeyError(publicKey);
-        }
-
-        const buffer: Buffer = HashAlgorithms.ripemd160(Buffer.from(publicKey, "hex"));
-        const payload: Buffer = Buffer.alloc(21);
-
         if (!networkVersion) {
             networkVersion = configManager.get("network.pubKeyHash");
         }
 
+        return BaseAddress.fromPublicKey(passphrase, { pubKeyHash: (networkVersion as unknown) as number });
+    }
+
+    public static fromPublicKey(publicKey: string, networkVersion?: number): string {
         if (!networkVersion) {
-            throw new Error();
+            networkVersion = configManager.get("network.pubKeyHash");
         }
 
-        payload.writeUInt8(networkVersion, 0);
-        buffer.copy(payload, 1);
-
-        return this.fromBuffer(payload);
+        return BaseAddress.fromPublicKey(publicKey, { pubKeyHash: (networkVersion as unknown) as number });
     }
 
     public static fromWIF(wif: string, network?: NetworkType): string {
-        return Address.fromPublicKey(PublicKey.fromWIF(wif, network));
+        if (!network) {
+            network = configManager.get("network.wif");
+        }
+
+        return BaseAddress.fromWIF(wif, {
+            pubKeyHash: (configManager.get("network.pubKeyHash") as unknown) as number,
+            wif: (network as unknown) as number,
+        });
     }
 
     public static fromMultiSignatureAsset(asset: IMultiSignatureAsset, networkVersion?: number): string {
-        return this.fromPublicKey(PublicKey.fromMultiSignatureAsset(asset), networkVersion);
+        if (!networkVersion) {
+            networkVersion = configManager.get("network.pubKeyHash");
+        }
+
+        return BaseAddress.fromMultiSignatureAsset(asset, { pubKeyHash: (networkVersion as unknown) as number });
     }
 
     public static fromPrivateKey(privateKey, networkVersion?: number): string {
-        return Address.fromPublicKey(privateKey.publicKey, networkVersion);
+        if (!networkVersion) {
+            networkVersion = configManager.get("network.pubKeyHash");
+        }
+
+        return BaseAddress.fromPrivateKey(privateKey, { pubKeyHash: (networkVersion as unknown) as number });
     }
 
     public static fromBuffer(buffer: Buffer): string {
-        return Base58.encodeCheck(buffer);
+        return BaseAddress.fromBuffer(buffer);
     }
 
     public static toBuffer(address: string): { addressBuffer: Buffer; addressError?: string } {
-        const buffer: Buffer = Base58.decodeCheck(address);
-        const networkVersion: number = configManager.get("network.pubKeyHash");
-        const result: { addressBuffer: Buffer; addressError?: string } = {
-            addressBuffer: buffer,
-        };
-
-        if (buffer[0] !== networkVersion) {
-            result.addressError = `Expected address network byte ${networkVersion}, but got ${buffer[0]}.`;
-        }
-
-        return result;
+        return BaseAddress.toBuffer(address, {
+            pubKeyHash: (configManager.get("network.pubKeyHash") as unknown) as number,
+        });
     }
 
     public static validate(address: string, networkVersion?: number): boolean {
@@ -68,10 +63,6 @@ export class Address {
             networkVersion = configManager.get("network.pubKeyHash");
         }
 
-        try {
-            return Base58.decodeCheck(address)[0] === networkVersion;
-        } catch (err) {
-            return false;
-        }
+        return BaseAddress.validate(address, { pubKeyHash: (networkVersion as unknown) as number });
     }
 }
