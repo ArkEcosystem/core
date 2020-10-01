@@ -51,12 +51,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    private stopped!: boolean;
-    // todo: make this private
-    public options: any;
     // todo: make this private and use a queue instance from core-kernel
     // @ts-ignore
     public queue: async.AsyncQueue<any>;
+
+    private stopped!: boolean;
 
     private missedBlocks: number = 0;
     private lastCheckNetworkHealthTs: number = 0;

@@ -1,7 +1,6 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface Blockchain {
-    options: any;
     queue: any;
 
     isStopped(): boolean;
