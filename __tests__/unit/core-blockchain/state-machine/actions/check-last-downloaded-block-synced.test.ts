@@ -1,37 +1,36 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { CheckLastDownloadedBlockSynced } from "../../../../../packages/core-blockchain/src/state-machine/actions/check-last-downloaded-block-synced";
+import { Container } from "@packages/core-kernel";
+import { CheckLastDownloadedBlockSynced } from "@packages/core-blockchain/src/state-machine/actions/check-last-downloaded-block-synced";
 
 describe("CheckLastDownloadedBlockSynced", () => {
-    const container = new Container.Container();
+    let container: Container.Container;
+    let blockchain;
+    let stateStore;
+    let peerNetworkMonitor;
+    let logger;
 
-    const blockchain = {
-        isSynced: jest.fn(),
-        dispatch: jest.fn(),
-        queue: { length: jest.fn(), idle: jest.fn() },
-    };
-    const stateStore = {
-        noBlockCounter: undefined,
-        p2pUpdateCounter: undefined,
-        numberOfBlocksToRollback: undefined,
-        lastDownloadedBlock: undefined,
-        networkStart: undefined,
-    };
-    const peerNetworkMonitor = { checkNetworkHealth: jest.fn() };
-    const logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
+    beforeEach(() => {
+        jest.resetAllMocks();
 
-    const application = { resolve: jest.fn(), get: () => peerNetworkMonitor };
+        blockchain = {
+            isSynced: jest.fn(),
+            dispatch: jest.fn(),
+            getQueue: jest.fn().mockReturnValue({ length: jest.fn(), idle: jest.fn() }),
+        };
+        stateStore = {
+            noBlockCounter: undefined,
+            p2pUpdateCounter: undefined,
+            numberOfBlocksToRollback: undefined,
+            lastDownloadedBlock: undefined,
+            networkStart: undefined,
+        };
+        peerNetworkMonitor = { checkNetworkHealth: jest.fn() };
+        logger = { warn: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
 
-    beforeAll(() => {
-        container.unbindAll();
-        container.bind(Container.Identifiers.Application).toConstantValue(application);
+        container = new Container.Container();
         container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
         container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);
-    });
-
-    beforeEach(() => {
-        jest.resetAllMocks();
 
         process.env.CORE_ENV = "";
         stateStore.networkStart = false;
@@ -80,11 +79,11 @@ describe("CheckLastDownloadedBlockSynced", () => {
                 CheckLastDownloadedBlockSynced,
             );
 
-            blockchain.queue.length = jest.fn().mockReturnValue(101);
+            blockchain.getQueue().length = jest.fn().mockReturnValue(101);
 
             checkLastDownloadedBlockSynced.handle();
 
-            blockchain.queue.length = jest.fn();
+            blockchain.getQueue().length = jest.fn();
 
             expect(blockchain.dispatch).toBeCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("PAUSED");
@@ -93,7 +92,7 @@ describe("CheckLastDownloadedBlockSynced", () => {
         describe("when stateStore.noBlockCounter > 5 && blockchain.queue.idle()", () => {
             beforeEach(() => {
                 stateStore.noBlockCounter = 6;
-                blockchain.queue.idle = jest.fn().mockReturnValue(true);
+                blockchain.getQueue().idle = jest.fn().mockReturnValue(true);
             });
 
             describe("when stateStore.p2pUpdateCounter + 1 > 3", () => {

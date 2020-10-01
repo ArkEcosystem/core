@@ -35,17 +35,15 @@ describe("Initialize", () => {
     };
     const peerNetworkMonitor = { boot: jest.fn() };
 
-    const application = { get: () => peerNetworkMonitor };
-
     beforeAll(() => {
         container.unbindAll();
-        container.bind(Container.Identifiers.Application).toConstantValue(application);
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
         container.bind(Container.Identifiers.DatabaseInteraction).toConstantValue(databaseInteractions);
         container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPool);
         container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
+        container.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);
     });
 
     beforeEach(() => {

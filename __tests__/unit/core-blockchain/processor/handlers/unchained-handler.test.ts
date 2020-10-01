@@ -12,7 +12,7 @@ const blockchain = {
     resetLastDownloadedBlock: jest.fn(),
     clearQueue: jest.fn(),
     getLastBlock: jest.fn(),
-    queue: { length: jest.fn() },
+    getQueue: jest.fn().mockReturnValue({ length: jest.fn() }),
 };
 const stateStore = { numberOfBlocksToRollback: undefined };
 const database = {};
@@ -123,7 +123,7 @@ describe("UnchainedHandler", () => {
                     },
                 };
                 blockchain.getLastBlock = jest.fn().mockReturnValue(lastBlock);
-                blockchain.queue.length = jest.fn().mockReturnValueOnce(1);
+                blockchain.getQueue = jest.fn().mockReturnValue({ length: jest.fn().mockReturnValueOnce(1) });
 
                 for (let i = 0; i < 5; i++) {
                     expect(await unchainedHandler.execute(block as Interfaces.IBlock)).toBe(

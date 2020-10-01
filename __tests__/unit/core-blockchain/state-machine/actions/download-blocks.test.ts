@@ -1,41 +1,42 @@
-import { Container, Utils } from "@arkecosystem/core-kernel";
+import { DownloadBlocks } from "@packages/core-blockchain/src/state-machine/actions/download-blocks";
+import { Container, Utils } from "@packages/core-kernel";
 import delay from "delay";
 
-import { DownloadBlocks } from "../../../../../packages/core-blockchain/src/state-machine/actions/download-blocks";
-
 describe("DownloadBlocks", () => {
-    const container = new Container.Container();
+    let container: Container.Container;
+    let blockchain;
+    let lastBlock;
+    let stateStore;
+    let logger;
+    let peerNetworkMonitor;
+    let application;
 
-    const blockchain = {
-        isStopped: false,
-        dispatch: jest.fn(),
-        queue: { length: () => 0 },
-        clearQueue: jest.fn(),
-        enqueueBlocks: jest.fn(),
-    };
-    const lastBlock = { data: { id: "1234", height: 3333, timestamp: 11111 } };
-    const stateStore = {
-        lastDownloadedBlock: undefined,
-        getLastBlock: () => lastBlock,
-    };
-    const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
-    const peerNetworkMonitor = { downloadBlocksFromHeight: jest.fn() };
+    beforeEach(() => {
+        jest.resetAllMocks();
 
-    const application = { get: () => peerNetworkMonitor };
+        blockchain = {
+            isStopped: jest.fn().mockReturnValue(false),
+            dispatch: jest.fn(),
+            getQueue: jest.fn().mockReturnValue({ length: jest.fn().mockReturnValue(0) }),
+            clearQueue: jest.fn(),
+            enqueueBlocks: jest.fn(),
+        };
+        lastBlock = { data: { id: "1234", height: 3333, timestamp: 11111 } };
+        stateStore = {
+            lastDownloadedBlock: undefined,
+            getLastBlock: () => lastBlock,
+        };
+        logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
+        peerNetworkMonitor = { downloadBlocksFromHeight: jest.fn() };
 
-    beforeAll(() => {
-        container.unbindAll();
+        application = {};
+
+        container = new Container.Container();
         container.bind(Container.Identifiers.Application).toConstantValue(application);
         container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
         container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);
-    });
-
-    beforeEach(() => {
-        jest.resetAllMocks();
-
-        blockchain.isStopped = false;
 
         const getTimeStampForBlock = (height: number) => {
             switch (height) {
@@ -50,12 +51,11 @@ describe("DownloadBlocks", () => {
 
         spyblockTimeLookup.mockResolvedValue(getTimeStampForBlock);
     });
-
     describe("handle", () => {
         it("should do nothing when blockchain.isStopped", async () => {
             const downloadBlocks = container.resolve<DownloadBlocks>(DownloadBlocks);
 
-            blockchain.isStopped = true;
+            blockchain.isStopped = jest.fn().mockReturnValue(true);
             await downloadBlocks.handle();
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(0);

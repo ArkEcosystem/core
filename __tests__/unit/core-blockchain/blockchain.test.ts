@@ -294,6 +294,7 @@ describe("Blockchain", () => {
         it("should call queue.remove", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
+            // @ts-ignore
             const spyQueueRemove = jest.spyOn(blockchain.queue, "remove");
 
             blockchain.clearQueue();
@@ -461,6 +462,7 @@ describe("Blockchain", () => {
 
         it("should just return if blocks provided are an empty array", async () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+            // @ts-ignore
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
             blockchain.enqueueBlocks([]);
@@ -471,6 +473,7 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             stateStore.lastDownloadedBlock = { height: 23111 };
 
+            // @ts-ignore
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
             blockchain.enqueueBlocks([blockData]);
@@ -482,6 +485,7 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             stateStore.lastDownloadedBlock = { height: 23111 };
 
+            // @ts-ignore
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
             const blockWith150Txs = {
@@ -500,6 +504,7 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             stateStore.lastDownloadedBlock = { height: 23111 };
 
+            // @ts-ignore
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
             const blocksToEnqueue = [];
@@ -518,6 +523,7 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             stateStore.lastDownloadedBlock = { height: 7555 };
 
+            // @ts-ignore
             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
 
             const blockMilestone = { id: "123", height: 75600 } as Interfaces.IBlockData;
@@ -732,6 +738,7 @@ describe("Blockchain", () => {
                 blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
                 stateStore.lastDownloadedBlock = { height: 23111 };
 
+                // @ts-ignore
                 const spyQueuePush = jest.spyOn(blockchain.queue, "push");
                 const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
 
@@ -751,6 +758,7 @@ describe("Blockchain", () => {
                 blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
                 stateStore.lastDownloadedBlock = { height: 23111 };
 
+                // @ts-ignore
                 const spyQueuePush = jest.spyOn(blockchain.queue, "push");
                 const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
 

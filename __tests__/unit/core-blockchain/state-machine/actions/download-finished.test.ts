@@ -1,10 +1,10 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { DownloadFinished } from "../../../../../packages/core-blockchain/src/state-machine/actions/download-finished";
+import { DownloadFinished } from "@packages/core-blockchain/src/state-machine/actions/download-finished";
 
 describe("DownloadFinished", () => {
     const container = new Container.Container();
 
-    const blockchain = { dispatch: jest.fn(), queue: { idle: jest.fn() } };
+    const blockchain = { dispatch: jest.fn(), getQueue: jest.fn() };
     const stateStore = { networkStart: false };
     const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn(), error: jest.fn() };
 
@@ -33,19 +33,24 @@ describe("DownloadFinished", () => {
             expect(blockchain.dispatch).toHaveBeenCalledWith("SYNCFINISHED");
         });
 
-        it("should dispatch PROCESSFINISHED when blockchain.queue.idle()", () => {
+        it("should dispatch PROCESSFINISHED when blockchain.getQueue.idle()", () => {
             const downloadFinished = container.resolve<DownloadFinished>(DownloadFinished);
 
-            blockchain.queue.idle = jest.fn().mockReturnValueOnce(true);
+            blockchain.getQueue = jest.fn().mockReturnValueOnce({
+                idle: jest.fn().mockReturnValue(true),
+            });
             downloadFinished.handle();
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("PROCESSFINISHED");
         });
 
-        it("should dispatch nothing when !blockchain.queue.idle()", () => {
+        it("should dispatch nothing when !blockchain.getQueue.idle()", () => {
             const downloadFinished = container.resolve<DownloadFinished>(DownloadFinished);
 
+            blockchain.getQueue = jest.fn().mockReturnValueOnce({
+                idle: jest.fn().mockReturnValue(false),
+            });
             downloadFinished.handle();
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(0);
