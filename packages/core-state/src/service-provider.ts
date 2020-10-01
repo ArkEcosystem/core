@@ -11,7 +11,8 @@ import { StateStore } from "./stores/state";
 import { TransactionStore } from "./stores/transactions";
 import { TransactionValidator } from "./transaction-validator";
 import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "./wallets";
-import { registerFactories, registerIndexers } from "./wallets/indexers";
+import { registerIndexers } from "./wallets/indexers";
+import { walletFactory } from "./wallets/wallet-factory";
 
 export const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
     return async (
@@ -26,7 +27,6 @@ export const dposPreviousRoundStateProvider = (context: Container.interfaces.Con
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        registerFactories(this.app);
         registerIndexers(this.app);
 
         this.app
@@ -36,15 +36,39 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
 
         this.app
+            .bind(Container.Identifiers.WalletFactory)
+            .toFactory(({ container }) => {
+                return walletFactory(
+                    container.get(Container.Identifiers.WalletAttributes),
+                    container.get(Container.Identifiers.EventDispatcherService),
+                );
+            })
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
+
+        this.app
             .bind(Container.Identifiers.WalletRepository)
             .to(WalletRepositoryClone)
             .inRequestScope()
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "clone"));
 
         this.app
+            .bind(Container.Identifiers.WalletFactory)
+            .toFactory(({ container }) => {
+                return walletFactory(container.get(Container.Identifiers.WalletAttributes));
+            })
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "clone"));
+
+        this.app
             .bind(Container.Identifiers.WalletRepository)
             .to(WalletRepositoryCopyOnWrite)
             .inRequestScope()
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write"));
+
+        this.app
+            .bind(Container.Identifiers.WalletFactory)
+            .toFactory(({ container }) => {
+                return walletFactory(container.get(Container.Identifiers.WalletAttributes));
+            })
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write"));
 
         this.app.bind(Container.Identifiers.DposState).to(DposState);

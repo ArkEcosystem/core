@@ -1,33 +1,11 @@
 import { Contracts, Services } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
-import { cloneDeep } from "@arkecosystem/utils";
+import { WalletEvent } from "./wallet-event";
 
-/**
- * @remarks
- * The Wallet should be (for the most part) treated as a DTO!
- * Other entites and services should be responsible for managing it's state and mutations.
- *
- * @export
- * @class Wallet
- */
 export class Wallet implements Contracts.State.Wallet {
-    /**
-     * @type {(string | undefined)}
-     * @memberof Wallet
-     */
-    public publicKey: string | undefined;
-
-    /**
-     * @type {Utils.BigNumber}
-     * @memberof Wallet
-     */
-    public balance: Utils.BigNumber = Utils.BigNumber.ZERO;
-
-    /**
-     * @type {Utils.BigNumber}
-     * @memberof Wallet
-     */
-    public nonce: Utils.BigNumber = Utils.BigNumber.ZERO;
+    private _publicKey?: string;
+    private _balance: Utils.BigNumber = Utils.BigNumber.ZERO;
+    private _nonce: Utils.BigNumber = Utils.BigNumber.ZERO;
 
     /**
      * @param {string} address
@@ -36,7 +14,75 @@ export class Wallet implements Contracts.State.Wallet {
     public constructor(
         public readonly address: string,
         protected readonly attributes: Services.Attributes.AttributeMap,
-    ) {}
+        protected readonly events?: Contracts.Kernel.EventDispatcher,
+    ) {
+        if (this.events) {
+            this.events.dispatchSync(WalletEvent.PropertySet, {
+                publicKey: undefined,
+                key: "address",
+                value: address,
+                previousValue: undefined,
+                wallet: this,
+            });
+        }
+    }
+
+    public get publicKey(): string | undefined {
+        return this._publicKey;
+    }
+
+    public set publicKey(value: string | undefined) {
+        const previousValue = this._publicKey;
+        this._publicKey = value;
+
+        if (this.events) {
+            this.events.dispatchSync(WalletEvent.PropertySet, {
+                publicKey: this._publicKey,
+                key: "publicKey",
+                value,
+                previousValue,
+                wallet: this,
+            });
+        }
+    }
+
+    public get balance(): Utils.BigNumber {
+        return this._balance;
+    }
+
+    public set balance(value: Utils.BigNumber) {
+        const previousValue = this._balance;
+        this._balance = value;
+
+        if (this.events) {
+            this.events.dispatchSync(WalletEvent.PropertySet, {
+                publicKey: this._publicKey,
+                key: "balance",
+                value,
+                previousValue,
+                wallet: this,
+            });
+        }
+    }
+
+    public get nonce(): Utils.BigNumber {
+        return this._nonce;
+    }
+
+    public set nonce(value: Utils.BigNumber) {
+        const previousValue = this._nonce;
+        this._nonce = value;
+
+        if (this.events) {
+            this.events.dispatchSync(WalletEvent.PropertySet, {
+                publicKey: this._publicKey,
+                key: "nonce",
+                value,
+                previousValue,
+                wallet: this,
+            });
+        }
+    }
 
     /**
      * @returns {Record<string, any>}
@@ -65,7 +111,18 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public setAttribute<T = any>(key: string, value: T): boolean {
-        return this.attributes.set<T>(key, value);
+        const wasSet = this.attributes.set<T>(key, value);
+
+        if (this.events) {
+            this.events.dispatchSync(WalletEvent.PropertySet, {
+                publicKey: this._publicKey,
+                key: "balance",
+                value,
+                wallet: this,
+            });
+        }
+
+        return wasSet;
     }
 
     /**
@@ -74,7 +131,19 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public forgetAttribute(key: string): boolean {
-        return this.attributes.forget(key);
+        const previousValue = this.attributes.get(key, undefined);
+        const wasSet = this.attributes.forget(key);
+
+        if (this.events) {
+            this.events.dispatchSync(WalletEvent.PropertySet, {
+                publicKey: this._publicKey,
+                key: "balance",
+                previousValue,
+                wallet: this,
+            });
+        }
+
+        return wasSet;
     }
 
     /**
@@ -123,6 +192,10 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public clone(): Contracts.State.Wallet {
-        return cloneDeep(this);
+        const cloned = new Wallet(this.address, this.attributes.clone());
+        cloned.publicKey = this.publicKey;
+        cloned.balance = this.balance;
+        cloned.nonce = this.nonce;
+        return cloned;
     }
 }
