@@ -18,14 +18,15 @@ export class CheckLastDownloadedBlockSynced implements Action {
 
     public async handle(): Promise<void> {
         let event = "NOTSYNCED";
-        this.logger.debug(`Queued chunks of blocks (process: ${this.blockchain.getQueue().length()})`);
+        this.logger.debug(`Queued chunks of blocks (process: ${this.blockchain.getQueue().size()})`);
 
-        if (this.blockchain.getQueue().length() > 100) {
+        if (this.blockchain.getQueue().size() > 100) {
             event = "PAUSED";
         }
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
-        if (this.stateStore.noBlockCounter > 5 && this.blockchain.getQueue().idle()) {
+        // TODO: this.blockchain.getQueue().idle() support
+        if (this.stateStore.noBlockCounter > 5) { // && this.blockchain.getQueue().idle()
             this.logger.info("Tried to sync 5 times to different nodes, looks like the network is missing blocks");
 
             this.stateStore.noBlockCounter = 0;

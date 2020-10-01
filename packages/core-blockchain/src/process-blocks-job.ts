@@ -1,12 +1,12 @@
-import { BlockProcessor, BlockProcessorResult } from "@packages/core-blockchain/src/processor";
-import { DatabaseService, Repositories } from "@packages/core-database";
-import { Container, Services, Utils } from "@packages/core-kernel";
-import { Contracts } from "@packages/core-kernel/src";
-import { DatabaseInteraction } from "@packages/core-state";
-import { Blocks, Crypto, Interfaces, Utils as CryptoUtils } from "@packages/crypto";
+import { DatabaseService, Repositories } from "@arkecosystem/core-database";
+import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
+import { DatabaseInteraction } from "@arkecosystem/core-state";
+import { Blocks, Crypto, Interfaces, Utils as CryptoUtils } from "@arkecosystem/crypto";
+
+import { BlockProcessor, BlockProcessorResult } from "./processor";
 
 @Container.injectable()
-class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
+export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
     @Container.inject(Container.Identifiers.Application)
     public readonly app!: Contracts.Kernel.Application;
 
@@ -139,6 +139,10 @@ class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
 
                 this.blockchain.resetLastDownloadedBlock();
 
+                // TODO: remove
+                // @ts-ignore
+                this.blockchain.emitOnQueueDrain();
+
                 return [];
             }
         }
@@ -168,6 +172,10 @@ class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
 
             this.blockchain.resetLastDownloadedBlock();
         }
+
+        // TODO: remove
+        // @ts-ignore
+        this.blockchain.emitOnQueueDrain();
 
         return acceptedBlocks;
     }

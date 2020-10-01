@@ -126,8 +126,8 @@ export class UnchainedHandler implements BlockHandler {
             // it is very likely that all blocks will be disregarded at this point anyway.
             // NOTE: This isn't really elegant, but still better than spamming the log with
             //       useless `not ready to accept` messages.
-            if (this.blockchain.getQueue().length() > 0) {
-                this.logger.debug(`Discarded ${this.blockchain.getQueue().length()} chunks of downloaded blocks.`);
+            if (this.blockchain.getQueue().size() > 0) {
+                this.logger.debug(`Discarded ${this.blockchain.getQueue().size()} chunks of downloaded blocks.`);
             }
 
             // If we consecutively fail to accept the same block, our chain is likely forked. In this

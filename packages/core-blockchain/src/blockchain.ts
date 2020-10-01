@@ -1,9 +1,9 @@
 import { DatabaseService, Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Enums, Providers, Services, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Services, Types, Utils } from "@arkecosystem/core-kernel";
 import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
-import async from "async";
 
+import { ProcessBlocksJob } from "./process-blocks-job";
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { StateMachine } from "./state-machine";
 import { blockchainMachine } from "./state-machine/machine";
@@ -51,17 +51,15 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
+    // @Container.inject(Container.Identifiers.QueueService)
+    private queue!: Contracts.Kernel.Queue;
+
     private stopped!: boolean;
-
-    // todo: use a queue instance from core-kernel
-    // @ts-ignore
-    private queue: async.AsyncQueue<any>;
-
     private missedBlocks: number = 0;
     private lastCheckNetworkHealthTs: number = 0;
 
     @Container.postConstruct()
-    public initialize(): void {
+    public async initialize(): Promise<void> {
         this.stopped = false;
 
         // flag to force a network start
@@ -73,21 +71,23 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             );
         }
 
-        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }): Promise<
-            Interfaces.IBlock[] | undefined
-        > => {
-            try {
-                return await this.processBlocks(blockList.blocks);
-            } catch (error) {
-                this.logger.error(
-                    `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
-                );
-                return undefined;
-            }
-        }, 1);
+        this.queue = await this.app.get<Types.QueueFactory>(Container.Identifiers.QueueFactory)();
 
-        // @ts-ignore
-        this.queue.drain(() => this.dispatch("PROCESSFINISHED"));
+        // this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }): Promise<
+        //     Interfaces.IBlock[] | undefined
+        // > => {
+        //     try {
+        //         return await this.processBlocks(blockList.blocks);
+        //     } catch (error) {
+        //         this.logger.error(
+        //             `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
+        //         );
+        //         return undefined;
+        //     }
+        // }, 1);
+        //
+        // // @ts-ignore
+        // this.queue.drain(() => this.dispatch("PROCESSFINISHED"));
     }
 
     /**
@@ -97,7 +97,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         return this.stopped;
     }
 
-    public getQueue(): any {
+    public getQueue(): Contracts.Kernel.Queue {
         return this.queue;
     }
 
@@ -150,7 +150,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             this.dispatch("STOP");
 
-            this.queue.kill();
+            this.queue.stop();
         }
     }
 
@@ -197,7 +197,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public clearQueue(): void {
-        this.queue.remove(() => true);
+        this.queue.clear();
     }
 
     /**
@@ -269,7 +269,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 currentBlocksChunk.length >= Math.min(this.stateStore.getMaxLastBlocks(), 100) ||
                 nextMilestone
             ) {
-                this.queue.push({ blocks: currentBlocksChunk });
+                this.createQueueJob(currentBlocksChunk);
                 currentBlocksChunk = [];
                 currentTransactionsCount = 0;
                 if (nextMilestone) {
@@ -277,7 +277,25 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 }
             }
         }
-        this.queue.push({ blocks: currentBlocksChunk });
+        this.createQueueJob(currentBlocksChunk);
+    }
+
+    // TODO: Make private
+    public createQueueJob(blocks: Interfaces.IBlockData[]) {
+        const processBlocksJob = this.app.resolve<ProcessBlocksJob>(ProcessBlocksJob);
+        processBlocksJob.setBlocks(blocks);
+
+        this.queue.push(processBlocksJob);
+        this.queue.resume();
+
+        // TODO: Clear queue results
+    }
+
+    // TODO: Some other logic. Listen to event etc.
+    public emitOnQueueDrain() {
+        if (this.queue.size() === 0) {
+            this.dispatch("PROCESSFINISHED");
+        }
     }
 
     /**
@@ -383,6 +401,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         await this.databaseInteraction.loadBlocksFromCurrentRound();
     }
 
+    // TODO: remove
     /**
      * Process the given block.
      */
