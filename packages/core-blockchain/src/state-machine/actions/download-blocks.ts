@@ -17,13 +17,16 @@ export class DownloadBlocks implements Action {
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
 
+    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
+    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
+
     public async handle(): Promise<void> {
         const lastDownloadedBlock: Interfaces.IBlockData =
             this.stateStore.lastDownloadedBlock || this.stateStore.getLastBlock().data;
 
-        const blocks: Interfaces.IBlockData[] = await this.app
-            .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
-            .downloadBlocksFromHeight(lastDownloadedBlock.height);
+        const blocks: Interfaces.IBlockData[] = await this.networkMonitor.downloadBlocksFromHeight(
+            lastDownloadedBlock.height,
+        );
 
         if (this.blockchain.isStopped()) {
             return;
