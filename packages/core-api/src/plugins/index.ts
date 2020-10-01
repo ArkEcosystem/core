@@ -1,4 +1,5 @@
 import { dotSeparatedQuery } from "./dot-separated-query";
+import { commaArrayQuery } from "./comma-array-query";
 import { hapiAjv } from "./hapi-ajv";
 import { whitelist } from "./whitelist";
 
@@ -10,6 +11,7 @@ export const preparePlugins = (config) => [
         },
     },
     { plugin: hapiAjv },
+    { plugin: commaArrayQuery },
     { plugin: dotSeparatedQuery },
     {
         plugin: require("./cache"),

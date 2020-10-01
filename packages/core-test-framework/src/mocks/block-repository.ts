@@ -1,4 +1,4 @@
-import { BlockRepository } from "@arkecosystem/core-database/src/repositories";
+import { Repositories } from "@arkecosystem/core-database";
 
 export type DelegateForgedBlock = {
     generatorPublicKey: string;
@@ -19,7 +19,7 @@ export const setLastForgedBlocks = (blocks: LastForgedBlock[]) => {
     mockLastForgedBlocks = blocks;
 };
 
-class BlockRepositoryMock implements Partial<BlockRepository> {
+class BlockRepositoryMock implements Partial<Repositories.BlockRepository> {
     public async getDelegatesForgedBlocks() {
         return mockDelegatesForgedBlocks;
     }

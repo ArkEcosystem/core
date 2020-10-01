@@ -1,5 +1,4 @@
-import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
-import { ActionArguments } from "@arkecosystem/core-kernel/src/types";
+import { Container, Contracts, Services, Types } from "@arkecosystem/core-kernel";
 
 import { DatabaseInteraction } from "../database-interactions";
 
@@ -11,7 +10,7 @@ export class GetActiveDelegatesAction extends Services.Triggers.Action {
         this.app = app;
     }
 
-    public async execute(args: ActionArguments): Promise<Contracts.State.Wallet[]> {
+    public async execute(args: Types.ActionArguments): Promise<Contracts.State.Wallet[]> {
         const roundInfo: Contracts.Shared.RoundInfo = args.roundInfo;
         const delegates: Contracts.State.Wallet[] = args.delegates;
 

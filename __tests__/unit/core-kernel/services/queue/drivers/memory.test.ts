@@ -8,8 +8,8 @@ import { Sandbox } from "@packages/core-test-framework";
 class DummyClass implements Contracts.Kernel.QueueJob {
     public constructor(private readonly method?) {}
 
-    public handle(): void {
-        this.method();
+    public async handle(): Promise<void> {
+        await this.method();
     }
 }
 
@@ -64,6 +64,12 @@ describe("MemoryQueue", () => {
 
         await driver.start();
 
+        await new Promise((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, 100);
+        });
+
         expect(dummy).toHaveBeenCalled();
 
         expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(1);
@@ -116,7 +122,7 @@ describe("MemoryQueue", () => {
         expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Finished, expectEventData());
     });
 
-    it("should dipatch error if error in queue", async () => {
+    it("should dispatch error if error in queue", async () => {
         const dummy: jest.Mock = jest.fn().mockImplementation(() => {
             throw new Error();
         });
@@ -154,16 +160,16 @@ describe("MemoryQueue", () => {
     });
 
     it("should push the job onto queue with a 2 second delay", async () => {
-        expect(driver.size()).toBe(0);
-
         await driver.later(2000, new DummyClass());
+
+        expect(driver.size()).toBe(0);
 
         await sleep(2000);
 
         expect(driver.size()).toBe(1);
     });
 
-    it("should push the job onto queue", async () => {
+    it("should push multiple jobs onto queue", async () => {
         expect(driver.size()).toBe(0);
 
         await driver.bulk([new DummyClass(), new DummyClass()]);

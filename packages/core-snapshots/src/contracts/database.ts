@@ -1,6 +1,7 @@
 import { Contracts } from "@arkecosystem/core-kernel";
-import { Meta, Options } from "@arkecosystem/core-snapshots/src/contracts/index";
 import { Interfaces } from "@arkecosystem/crypto";
+import * as Meta from "./meta-data";
+import * as Options from "./options";
 
 export interface DumpRange {
     firstBlockHeight: number;

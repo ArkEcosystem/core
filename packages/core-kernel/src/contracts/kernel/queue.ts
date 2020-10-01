@@ -2,7 +2,7 @@
  * @interface QueueJob
  */
 export interface QueueJob {
-    handle(): void;
+    handle(): Promise<any>;
 }
 
 /**
