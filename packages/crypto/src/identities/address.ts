@@ -10,7 +10,7 @@ export class Address {
             networkVersion = configManager.get("network.pubKeyHash");
         }
 
-        return BaseAddress.fromPublicKey(passphrase, { pubKeyHash: (networkVersion as unknown) as number });
+        return BaseAddress.fromPassphrase(passphrase, { pubKeyHash: (networkVersion as unknown) as number });
     }
 
     public static fromPublicKey(publicKey: string, networkVersion?: number): string {
