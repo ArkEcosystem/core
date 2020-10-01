@@ -5,7 +5,6 @@ import { Interfaces } from "@arkecosystem/crypto";
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "../contracts";
 
-// todo: remove the abstract and instead require a contract to be implemented
 @Container.injectable()
 export class AcceptBlockHandler implements BlockHandler {
     @Container.inject(Container.Identifiers.Application)

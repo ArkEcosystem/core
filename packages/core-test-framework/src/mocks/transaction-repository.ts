@@ -1,5 +1,4 @@
-import { Transaction } from "@arkecosystem/core-database/src/models";
-import { TransactionRepository } from "@arkecosystem/core-database/src/repositories";
+import { Models, Repositories } from "@arkecosystem/core-database";
 
 export type FeeStatistics = {
     type: number;
@@ -10,15 +9,15 @@ export type FeeStatistics = {
     sum: string;
 };
 
-let mockTransaction: Partial<Transaction> | undefined;
-let mockTransactions: Partial<Transaction>[] = [];
+let mockTransaction: Partial<Models.Transaction> | undefined;
+let mockTransactions: Partial<Models.Transaction>[] = [];
 let mockFeeStatistics: FeeStatistics[] = [];
 
-export const setTransaction = (transaction: Partial<Transaction> | undefined) => {
+export const setTransaction = (transaction: Partial<Models.Transaction> | undefined) => {
     mockTransaction = transaction;
 };
 
-export const setTransactions = (transactions: Partial<Transaction>[]) => {
+export const setTransactions = (transactions: Partial<Models.Transaction>[]) => {
     mockTransactions = transactions;
 };
 
@@ -26,13 +25,13 @@ export const setFeeStatistics = (feeStatistics: FeeStatistics[]) => {
     mockFeeStatistics = feeStatistics;
 };
 
-class TransactionRepositoryMock implements Partial<TransactionRepository> {
-    public async findByIdAndType(type: number, id: string): Promise<Transaction | undefined> {
-        return mockTransaction ? (mockTransaction as Transaction) : undefined;
+class TransactionRepositoryMock implements Partial<Repositories.TransactionRepository> {
+    public async findByIdAndType(type: number, id: string): Promise<Models.Transaction | undefined> {
+        return mockTransaction ? (mockTransaction as Models.Transaction) : undefined;
     }
 
-    public async findById(id: string): Promise<Transaction> {
-        return mockTransaction as Transaction;
+    public async findById(id: string): Promise<Models.Transaction> {
+        return mockTransaction as Models.Transaction;
     }
 
     public async findByType(type: number, typeGroup: number, limit?: number, offset?: number) {
@@ -40,7 +39,7 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
     }
 
     public async findByIds(ids: any[]) {
-        return mockTransactions as Transaction[];
+        return mockTransactions as Models.Transaction[];
     }
 
     public async findReceivedTransactions(): Promise<{ recipientId: string; amount: string }[]> {
@@ -49,11 +48,11 @@ class TransactionRepositoryMock implements Partial<TransactionRepository> {
         });
     }
 
-    public async findByHtlcLocks(lockIds: string[]): Promise<Transaction[]> {
-        return mockTransactions as Transaction[];
+    public async findByHtlcLocks(lockIds: string[]): Promise<Models.Transaction[]> {
+        return mockTransactions as Models.Transaction[];
     }
 
-    public async getOpenHtlcLocks(): Promise<Array<Transaction & { open: boolean }>> {
+    public async getOpenHtlcLocks(): Promise<Array<Models.Transaction & { open: boolean }>> {
         return mockTransactions as any;
     }
 

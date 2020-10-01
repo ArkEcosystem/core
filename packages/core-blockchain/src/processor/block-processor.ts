@@ -35,6 +35,10 @@ export class BlockProcessor {
     @Container.inject(Container.Identifiers.DatabaseTransactionRepository)
     private readonly transactionRepository!: Repositories.TransactionRepository;
 
+    @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain")
+    private readonly walletRepository!: Contracts.State.WalletRepository;
+
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         if (Utils.isException({ ...block.data, transactions: block.transactions.map((tx) => tx.data) })) {
             return this.app.resolve<ExceptionHandler>(ExceptionHandler).execute(block);
@@ -167,9 +171,7 @@ export class BlockProcessor {
             const sender: string = data.senderPublicKey;
 
             if (nonceBySender[sender] === undefined) {
-                nonceBySender[sender] = this.app
-                    .get<any>(Container.Identifiers.DatabaseInteraction)
-                    .walletRepository.getNonce(sender);
+                nonceBySender[sender] = this.walletRepository.getNonce(sender);
             }
 
             AppUtils.assert.defined<string>(data.nonce);
