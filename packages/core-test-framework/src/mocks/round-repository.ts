@@ -1,15 +1,14 @@
-import { Round } from "@arkecosystem/core-database/src/models";
-import { RoundRepository } from "@arkecosystem/core-database/src/repositories";
+import { Models, Repositories } from "@arkecosystem/core-database";
 
-let mockRounds: Partial<Round>[] = [];
+let mockRounds: Partial<Models.Round>[] = [];
 
-export const setRounds = (rounds: Partial<Round>[]) => {
+export const setRounds = (rounds: Partial<Models.Round>[]) => {
     mockRounds = rounds;
 };
 
-class RoundRepositoryMock implements Partial<RoundRepository> {
-    public async findById(id: string): Promise<Round[]> {
-        return mockRounds as Round[];
+class RoundRepositoryMock implements Partial<Repositories.RoundRepository> {
+    public async findById(id: string): Promise<Models.Round[]> {
+        return mockRounds as Models.Round[];
     }
 }
 

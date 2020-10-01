@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Identifiers, Server } from "@arkecosystem/core-api";
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
-import { ITransactionData } from "@arkecosystem/crypto/src/interfaces";
+import { Interfaces } from "@arkecosystem/crypto";
 import querystring from "querystring";
 
 import secrets from "../internal/passphrases.json";
@@ -167,7 +167,7 @@ export class ApiHelpers {
     }
 
     // todo: fix the use of the factory
-    public async createTransfer(passphrase?: string, nonce: number = 0): Promise<ITransactionData> {
+    public async createTransfer(passphrase?: string, nonce: number = 0): Promise<Interfaces.ITransactionData> {
         const transaction = TransactionFactory.initialize()
             .withVersion(2)
             .transfer("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1", 100000000, "test")

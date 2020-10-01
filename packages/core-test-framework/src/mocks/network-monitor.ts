@@ -1,4 +1,4 @@
-import { NetworkMonitor } from "@arkecosystem/core-p2p/src/network-monitor";
+import { NetworkMonitor } from "@arkecosystem/core-p2p";
 
 let mockNetworkHeight: number = 0;
 

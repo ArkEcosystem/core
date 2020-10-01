@@ -1,6 +1,5 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Enums } from "@arkecosystem/core-magistrate-crypto";
-import { IEntityAsset, IEntityAssetData } from "@arkecosystem/core-magistrate-crypto/dist/interfaces";
+import { Enums, Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import {
@@ -76,9 +75,9 @@ export class EntityUpdateSubHandler {
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
         Utils.assert.defined<string>(transaction.id);
         Utils.assert.defined<string>(transaction.data.asset?.registrationId);
-        Utils.assert.defined<IEntityAssetData>(transaction.data.asset.data);
+        Utils.assert.defined<MagistrateInterfaces.IEntityAssetData>(transaction.data.asset.data);
 
-        const assetData: IEntityAssetData = transaction.data.asset.data;
+        const assetData: MagistrateInterfaces.IEntityAssetData = transaction.data.asset.data;
 
         const wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
@@ -113,7 +112,7 @@ export class EntityUpdateSubHandler {
         const registrationTransaction = await transactionHistoryService.findOneByCriteria([{ id: registrationId }]);
 
         Utils.assert.defined<Interfaces.ITransactionData>(registrationTransaction);
-        Utils.assert.defined<IEntityAsset>(registrationTransaction.asset);
+        Utils.assert.defined<MagistrateInterfaces.IEntityAsset>(registrationTransaction.asset);
 
         const baseEntity: IEntityWallet = {
             type: registrationTransaction.asset.type,
@@ -161,7 +160,10 @@ export class EntityUpdateSubHandler {
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 
-    private mergeAssetData(baseData: IEntityAssetData, dataToMerge: IEntityAssetData): IEntityAssetData {
+    private mergeAssetData(
+        baseData: MagistrateInterfaces.IEntityAssetData,
+        dataToMerge: MagistrateInterfaces.IEntityAssetData
+    ): MagistrateInterfaces.IEntityAssetData {
         return {
             ...baseData,
             ...dataToMerge,
