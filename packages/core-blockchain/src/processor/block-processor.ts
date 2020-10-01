@@ -39,6 +39,9 @@ export class BlockProcessor {
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
+    @Container.inject(Container.Identifiers.TriggerService)
+    private readonly triggers!: Services.Triggers.Triggers;
+
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         if (Utils.isException({ ...block.data, transactions: block.transactions.map((tx) => tx.data) })) {
             return this.app.resolve<ExceptionHandler>(ExceptionHandler).execute(block);
@@ -198,9 +201,9 @@ export class BlockProcessor {
         const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.data.height);
 
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
-        const delegates: Contracts.State.Wallet[] = (await this.app
-            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-            .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
+        const delegates: Contracts.State.Wallet[] = (await this.triggers.call("getActiveDelegates", {
+            roundInfo,
+        })) as Contracts.State.Wallet[];
 
         const forgingInfo: Contracts.Shared.ForgingInfo = AppUtils.forgingInfoCalculator.calculateForgingInfo(
             block.data.timestamp,

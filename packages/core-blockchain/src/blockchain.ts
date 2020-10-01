@@ -36,8 +36,17 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.StateMachine)
     private readonly stateMachine!: StateMachine;
 
+    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
+    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
+
+    @Container.inject(Container.Identifiers.PeerStorage)
+    private readonly peerStorage!: Contracts.P2P.PeerStorage;
+
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
+
+    @Container.inject(Container.Identifiers.TriggerService)
+    private readonly triggers!: Services.Triggers.Triggers;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
@@ -111,7 +120,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             await Utils.sleep(1000);
         }
 
-        this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).cleansePeers({
+        await this.networkMonitor.cleansePeers({
             forcePing: true,
             peerCount: 10,
         });
@@ -154,14 +163,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         this.setWakeUp();
     }
 
+    // TODO: Check if required
     /**
      * Update network status.
      * @return {void}
      */
     public async updateNetworkStatus(): Promise<void> {
-        await this.app
-            .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
-            .updateNetworkStatus();
+        await this.networkMonitor.updateNetworkStatus();
     }
 
     /**
@@ -292,7 +300,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             let newLastBlock: Interfaces.IBlock;
             if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
-                newLastBlock = this.app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
+                newLastBlock = this.stateStore.getGenesisBlock();
             } else {
                 const tempNewLastBlockData: Interfaces.IBlockData | undefined = blocksToRemove.pop();
 
@@ -381,9 +389,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blocks[0].height);
 
-        const acceptedBlocks: Interfaces.IBlock[] = [];
-        let lastProcessResult: BlockProcessorResult | undefined;
-
         if (
             !Utils.isBlockChained(this.getLastBlock().data, blocks[0], blockTimeLookup) &&
             !CryptoUtils.isException(blocks[0])
@@ -397,7 +402,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             return [];
         }
 
+        const acceptedBlocks: Interfaces.IBlock[] = [];
         let forkBlock: Interfaces.IBlock | undefined = undefined;
+        let lastProcessResult: BlockProcessorResult | undefined;
         let lastProcessedBlock: Interfaces.IBlock | undefined = undefined;
 
         // TODO: Add try catch, because fromData can throw error
@@ -405,12 +412,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const blockInstance = Blocks.BlockFactory.fromData(block, blockTimeLookup);
             Utils.assert.defined<Interfaces.IBlock>(blockInstance);
 
-            lastProcessResult = await this.app
-                .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-                .call("processBlock", {
-                    blockProcessor: this.app.get<BlockProcessor>(Container.Identifiers.BlockProcessor),
-                    block: blockInstance,
-                });
+            lastProcessResult = await this.triggers.call("processBlock", {
+                blockProcessor: this.app.get<BlockProcessor>(Container.Identifiers.BlockProcessor),
+                block: blockInstance,
+            });
+
             lastProcessedBlock = blockInstance;
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
@@ -426,7 +432,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             }
         }
 
-        const revert = async (blocksToRevert: Interfaces.IBlock[]) => {
+        const revertBlocks = async (blocksToRevert: Interfaces.IBlock[]) => {
             // Rounds are saved while blocks are being processed and may now be out of sync with the last
             // block that was written into the database.
 
@@ -456,7 +462,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
                 this.clearQueue();
 
-                await revert(acceptedBlocks);
+                await revertBlocks(acceptedBlocks);
 
                 this.resetLastDownloadedBlock();
 
@@ -473,9 +479,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 this.stateStore.started &&
                 Crypto.Slots.getSlotInfo(blockTimeLookup).startTime <= lastProcessedBlock.data.timestamp
             ) {
-                this.app
-                    .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
-                    .broadcastBlock(lastProcessedBlock);
+                this.networkMonitor.broadcastBlock(lastProcessedBlock);
             }
         } else if (forkBlock) {
             this.forkBlock(forkBlock);
@@ -486,7 +490,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.clearQueue();
 
             if (this.stateStore.getLastBlock().data.height === lastProcessedBlock.data.height) {
-                await revert([lastProcessedBlock]);
+                await revertBlocks([lastProcessedBlock]);
             }
 
             this.resetLastDownloadedBlock();
@@ -531,7 +535,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Determine if the blockchain is synced.
      */
     public isSynced(block?: Interfaces.IBlockData): boolean {
-        if (!this.app.get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage).hasPeers()) {
+        if (!this.peerStorage.hasPeers()) {
             return true;
         }
 
@@ -607,9 +611,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             }
             this.lastCheckNetworkHealthTs = nowTs;
 
-            const networkStatus = await this.app
-                .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
-                .checkNetworkHealth();
+            const networkStatus = await this.networkMonitor.checkNetworkHealth();
 
             if (networkStatus.forked) {
                 this.stateStore.numberOfBlocksToRollback = networkStatus.blocksToRollback;
