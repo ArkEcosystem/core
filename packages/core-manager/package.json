@@ -42,7 +42,7 @@
         "hapi-auth-bearer-token": "^6.1.6",
         "latest-version": "^5.1.0",
         "require-from-string": "^2.0.2",
-        "typeorm": "^0.2.25"
+        "typeorm": "0.2.25"
     },
     "devDependencies": {
         "nock": "^13.0.0"
