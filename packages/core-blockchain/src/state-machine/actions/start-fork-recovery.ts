@@ -35,6 +35,6 @@ export class StartForkRecovery implements Action {
             .refreshPeersAfterFork();
 
         this.blockchain.dispatch("SUCCESS");
-        this.blockchain.queue.resume();
+        this.blockchain.getQueue().resume();
     }
 }

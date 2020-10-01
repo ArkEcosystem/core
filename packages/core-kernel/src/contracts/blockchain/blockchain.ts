@@ -1,9 +1,9 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface Blockchain {
-    queue: any;
-
     isStopped(): boolean;
+
+    getQueue(): any;
 
     /**
      * Dispatch an event to transition the state machine.
