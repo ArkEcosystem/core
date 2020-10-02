@@ -1,11 +1,10 @@
 import "jest-extended";
 
-import { performance } from "perf_hooks";
-
 import { sleep } from "@arkecosystem/utils";
 import { Container, Contracts, Enums } from "@packages/core-kernel";
 import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
 import { Sandbox } from "@packages/core-test-framework";
+import { performance } from "perf_hooks";
 
 class DummyJob implements Contracts.Kernel.QueueJob {
     public constructor(private readonly method) {}
@@ -15,18 +14,23 @@ class DummyJob implements Contracts.Kernel.QueueJob {
     }
 }
 
-let sanbox: Sandbox;
+let sandbox: Sandbox;
 let driver: MemoryQueue;
 
-const mockEventDispatcher = {
+const eventDispatcher = {
     dispatch: jest.fn(),
 };
 
-beforeEach(() => {
-    sanbox = new Sandbox();
+const logger = {
+    warning: jest.fn(),
+};
 
-    sanbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(mockEventDispatcher);
-    driver = sanbox.app.resolve<MemoryQueue>(MemoryQueue);
+beforeEach(() => {
+    sandbox = new Sandbox();
+
+    sandbox.app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);
+    sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
+    driver = sandbox.app.resolve<MemoryQueue>(MemoryQueue);
 });
 
 afterEach(() => {
@@ -263,6 +267,7 @@ describe("MemoryQueue", () => {
             expect(driver.size()).toBe(1);
             expect(driver.isRunning()).toBe(false);
             expect(driver.isStarted()).toBe(false);
+            expect(logger.warning).toHaveBeenCalled();
         });
 
         it("should not process new jobs after pause", async () => {
@@ -516,7 +521,7 @@ describe("MemoryQueue", () => {
     });
 
     describe("DispatchEvents", () => {
-        const error = new Error("dummy_error")
+        const error = new Error("dummy_error");
 
         const expectEventData = () => {
             return expect.objectContaining({
@@ -545,8 +550,8 @@ describe("MemoryQueue", () => {
 
             expect(jobMethod).toHaveBeenCalledTimes(2);
 
-            expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(2);
-            expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Finished, expectEventData());
+            expect(eventDispatcher.dispatch).toHaveBeenCalledTimes(2);
+            expect(eventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Finished, expectEventData());
         });
 
         it("should dispatch 'queue.failed' after every failed job", async () => {
@@ -561,9 +566,10 @@ describe("MemoryQueue", () => {
             await sleep(10);
 
             expect(jobMethod).toHaveBeenCalledTimes(2);
+            expect(logger.warning).toHaveBeenCalledTimes(2);
 
-            expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(2);
-            expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Failed, expectEventErrorData());
+            expect(eventDispatcher.dispatch).toHaveBeenCalledTimes(2);
+            expect(eventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Failed, expectEventErrorData());
         });
     });
 });

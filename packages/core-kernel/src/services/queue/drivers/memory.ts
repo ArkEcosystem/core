@@ -1,6 +1,7 @@
 import { performance } from "perf_hooks";
 
 import { EventDispatcher } from "../../../contracts/kernel/events";
+import { Logger } from "../../../contracts/kernel/log";
 import {
     Queue,
     QueueJob,
@@ -20,6 +21,9 @@ import { Identifiers, inject, injectable } from "../../../ioc";
 export class MemoryQueue implements Queue {
     @inject(Identifiers.EventDispatcherService)
     private readonly events!: EventDispatcher;
+
+    @inject(Identifiers.LogService)
+    private readonly logger!: Logger;
 
     /**
      * @private
@@ -239,6 +243,8 @@ export class MemoryQueue implements Queue {
                     executionTime: performance.now() - start,
                     error: error,
                 });
+
+                this.logger.warning(`Queue error occurs when handling job: ${job}`);
 
                 if (this.onErrorCallback) {
                     this.onErrorCallback(job, error);
