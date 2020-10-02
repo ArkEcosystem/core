@@ -7,9 +7,9 @@ export interface QueueJob {
 
 export type QueueOnDrainFunction = () => void;
 
-export type QueueOnErrorFunction = () => { error: Error; job: QueueJob };
+export type QueueOnErrorFunction = (job: QueueJob, error: Error) => void;
 
-export type QueueOnDataFunction = () => { data: any; job: QueueJob };
+export type QueueOnDataFunction = (job: QueueJob, data: any) => void;
 
 /**
  * @export

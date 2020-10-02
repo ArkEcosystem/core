@@ -1,6 +1,6 @@
-import { performance } from "perf_hooks";
+// import { performance } from "perf_hooks";
 
-import { EventDispatcher } from "../../../contracts/kernel/events";
+// import { EventDispatcher } from "../../../contracts/kernel/events";
 import {
     Queue,
     QueueJob,
@@ -8,8 +8,9 @@ import {
     QueueOnDrainFunction,
     QueueOnErrorFunction,
 } from "../../../contracts/kernel/queue";
-import { QueueEvent } from "../../../enums";
-import { Identifiers, inject, injectable } from "../../../ioc";
+// import { QueueEvent } from "../../../enums";
+import { injectable } from "../../../ioc";
+// import { Identifiers, inject, injectable } from "../../../ioc";
 
 /**
  * @export
@@ -18,29 +19,15 @@ import { Identifiers, inject, injectable } from "../../../ioc";
  */
 @injectable()
 export class MemoryQueue implements Queue {
-    @inject(Identifiers.EventDispatcherService)
-    private readonly events!: EventDispatcher;
+    // @inject(Identifiers.EventDispatcherService)
+    // private readonly events!: EventDispatcher;
 
     /**
      * @private
      * @type {(QueueJob[])}
      * @memberof MemoryQueue
      */
-    private readonly jobs: QueueJob[] = [];
-
-    /**
-     * @private
-     * @type {Promise<any[]>}
-     * @memberof MemoryQueue
-     */
-    private lastQueue?: Promise<any[]>;
-
-    /**
-     * @private
-     * @type {any[]}
-     * @memberof MemoryQueue
-     */
-    private lastResults: any[] = [];
+    private jobs: QueueJob[] = [];
 
     /**
      * @private
@@ -48,13 +35,13 @@ export class MemoryQueue implements Queue {
      * @memberof MemoryQueue
      */
     private running: boolean = false;
+    private started: boolean = false;
 
-    /**
-     * @private
-     * @type {number}
-     * @memberof MemoryQueue
-     */
-    private index: number = -1;
+    private onDataCallback: QueueOnDataFunction | undefined = undefined;
+    private onErrorCallback: QueueOnErrorFunction | undefined = undefined;
+    private onDrainCallback: QueueOnDrainFunction | undefined = undefined;
+
+    private onProcessedCallbacks: QueueOnDrainFunction[] = [];
 
     /**
      * Create a new instance of the queue.
@@ -74,7 +61,11 @@ export class MemoryQueue implements Queue {
      * @memberof MemoryQueue
      */
     public async start(): Promise<void> {
-        this.lastQueue = this.lastQueue || this.processFromIndex(0);
+        this.started = true;
+
+        if (!this.running) {
+            this.processJobs();
+        }
     }
 
     /**
@@ -84,9 +75,13 @@ export class MemoryQueue implements Queue {
      * @memberof MemoryQueue
      */
     public async stop(): Promise<void> {
-        await this.pause();
+        this.started = false;
 
-        this.clear();
+        const promise = this.waitUntilProcessed();
+
+        await this.clear();
+
+        return promise;
     }
 
     /**
@@ -96,7 +91,9 @@ export class MemoryQueue implements Queue {
      * @memberof MemoryQueue
      */
     public async pause(): Promise<void> {
-        this.running = false;
+        this.started = false;
+
+        await this.waitUntilProcessed();
     }
 
     /**
@@ -106,7 +103,7 @@ export class MemoryQueue implements Queue {
      * @memberof MemoryQueue
      */
     public async resume(): Promise<void> {
-        this.lastQueue = this.processFromIndex(this.index + 1, this.lastResults);
+        await this.start();
     }
 
     /**
@@ -116,10 +113,7 @@ export class MemoryQueue implements Queue {
      * @memberof MemoryQueue
      */
     public async clear(): Promise<void> {
-        this.index = -1;
-        this.running = false;
-        this.lastQueue = undefined;
-        this.jobs.splice(0);
+        this.jobs = [];
     }
 
     /**
@@ -132,6 +126,8 @@ export class MemoryQueue implements Queue {
      */
     public async push(job: QueueJob): Promise<void> {
         this.jobs.push(job);
+
+        this.processJobs();
     }
 
     /**
@@ -171,65 +167,130 @@ export class MemoryQueue implements Queue {
     }
 
     public isStarted(): boolean {
-        return false;
+        return this.started;
     }
 
     public isRunning(): boolean {
-        return false;
+        return this.running;
     }
 
-    public onData(callback: QueueOnDataFunction): void {}
+    public onData(callback: QueueOnDataFunction): void {
+        this.onDataCallback = callback;
+    }
 
-    public onError(callback: QueueOnErrorFunction): void {}
+    public onError(callback: QueueOnErrorFunction): void {
+        this.onErrorCallback = callback;
+    }
 
-    public onDrain(callback: QueueOnDrainFunction): void {}
+    public onDrain(callback: QueueOnDrainFunction): void {
+        this.onDrainCallback = callback;
+    }
 
-    /**
-     * @private
-     * @param {number} from
-     * @param {any[]} [lastResults=[]]
-     * @param {boolean} [running=true]
-     * @returns {Promise<any[]>}
-     * @memberof MemoryQueue
-     */
-    private async processFromIndex(from: number, lastResults: any[] = [], running: boolean = true): Promise<any[]> {
-        this.lastResults = lastResults;
+    private waitUntilProcessed(): Promise<void> {
+        return new Promise((resolve) => {
+            if (this.running) {
+                const onProcessed = () => {
+                    resolve();
+                };
 
-        if (from < this.jobs.length) {
-            this.index = from;
-
-            /* istanbul ignore else */
-            if (running) {
-                this.running = running;
-
-                const start = performance.now();
-                try {
-                    lastResults.push(await this.jobs[from].handle());
-
-                    await this.events.dispatch(QueueEvent.Finished, {
-                        driver: "memory",
-                        executionTime: performance.now() - start,
-                    });
-
-                    return this.processFromIndex(from + 1, lastResults, this.running);
-                } catch (error) {
-                    this.running = false;
-
-                    await this.events.dispatch(QueueEvent.Failed, {
-                        driver: "memory",
-                        executionTime: performance.now() - start,
-                        error: error,
-                    });
-
-                    throw new Error(
-                        `Queue halted at job #${from + 1} due to error in handler ${this.jobs[this.index]}.`,
-                    );
-                }
+                this.onProcessedCallbacks.push(onProcessed);
+            } else {
+                resolve();
             }
-        } else {
-            this.running = false;
+        });
+    }
+
+    private resolveOnProcessed(): void {
+        while (this.onProcessedCallbacks.length) {
+            const onProcessed = this.onProcessedCallbacks.shift()!;
+
+            onProcessed();
+        }
+    }
+
+    private async processJobs(): Promise<void> {
+        // Prevent enter if already processing
+        if (this.isRunning()) {
+            return;
         }
 
-        return this.lastResults;
+        while (this.jobs.length) {
+            if (!this.started) {
+                break;
+            }
+
+            this.running = true;
+
+            const job = this.jobs.shift()!;
+
+            try {
+                const data = await job.handle();
+
+                if (this.onDataCallback) {
+                    this.onDataCallback(job, data);
+                }
+            } catch (error) {
+                if (this.onErrorCallback) {
+                    this.onErrorCallback(job, error);
+                }
+            }
+        }
+
+        this.running = false;
+
+        this.resolveOnProcessed();
+
+        if (!this.jobs.length && this.onDrainCallback) {
+            this.onDrainCallback();
+        }
     }
+
+    // /**
+    //  * @private
+    //  * @param {number} from
+    //  * @param {any[]} [lastResults=[]]
+    //  * @param {boolean} [running=true]
+    //  * @returns {Promise<any[]>}
+    //  * @memberof MemoryQueue
+    //  */
+    // private async processFromIndex(from: number, lastResults: any[] = [], running: boolean = true): Promise<any[]> {
+    //     this.lastResults = lastResults;
+    //
+    //     if (from < this.jobs.length) {
+    //         this.index = from;
+    //
+    //         /* istanbul ignore else */
+    //         if (running) {
+    //             this.running = running;
+    //
+    //             const start = performance.now();
+    //             try {
+    //                 lastResults.push(await this.jobs[from].handle());
+    //
+    //                 await this.events.dispatch(QueueEvent.Finished, {
+    //                     driver: "memory",
+    //                     executionTime: performance.now() - start,
+    //                 });
+    //
+    //                 return this.processFromIndex(from + 1, lastResults, this.running);
+    //             } catch (error) {
+    //                 this.running = false;
+    //
+    //                 await this.events.dispatch(QueueEvent.Failed, {
+    //                     driver: "memory",
+    //                     executionTime: performance.now() - start,
+    //                     error: error,
+    //                 });
+    //
+    //                 throw new Error(
+    //                     `Queue halted at job #${from + 1} due to error in handler ${this.jobs[this.index]}.`,
+    //                 );
+    //             }
+    //         }
+    //     } else {
+    //         this.running = false;
+    //     }
+    //
+    //     return this.lastResults;
+    // }
 }
