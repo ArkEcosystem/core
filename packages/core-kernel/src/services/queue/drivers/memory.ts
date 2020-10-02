@@ -1,7 +1,13 @@
 import { performance } from "perf_hooks";
 
 import { EventDispatcher } from "../../../contracts/kernel/events";
-import { Queue, QueueJob } from "../../../contracts/kernel/queue";
+import {
+    Queue,
+    QueueJob,
+    QueueOnDataFunction,
+    QueueOnDrainFunction,
+    QueueOnErrorFunction,
+} from "../../../contracts/kernel/queue";
 import { QueueEvent } from "../../../enums";
 import { Identifiers, inject, injectable } from "../../../ioc";
 
@@ -41,7 +47,7 @@ export class MemoryQueue implements Queue {
      * @type {boolean}
      * @memberof MemoryQueue
      */
-    private isRunning: boolean = false;
+    private running: boolean = false;
 
     /**
      * @private
@@ -90,7 +96,7 @@ export class MemoryQueue implements Queue {
      * @memberof MemoryQueue
      */
     public async pause(): Promise<void> {
-        this.isRunning = false;
+        this.running = false;
     }
 
     /**
@@ -111,7 +117,7 @@ export class MemoryQueue implements Queue {
      */
     public async clear(): Promise<void> {
         this.index = -1;
-        this.isRunning = false;
+        this.running = false;
         this.lastQueue = undefined;
         this.jobs.splice(0);
     }
@@ -164,23 +170,37 @@ export class MemoryQueue implements Queue {
         return this.jobs.length;
     }
 
+    public isStarted(): boolean {
+        return false;
+    }
+
+    public isRunning(): boolean {
+        return false;
+    }
+
+    public onData(callback: QueueOnDataFunction): void {}
+
+    public onError(callback: QueueOnErrorFunction): void {}
+
+    public onDrain(callback: QueueOnDrainFunction): void {}
+
     /**
      * @private
      * @param {number} from
      * @param {any[]} [lastResults=[]]
-     * @param {boolean} [isRunning=true]
+     * @param {boolean} [running=true]
      * @returns {Promise<any[]>}
      * @memberof MemoryQueue
      */
-    private async processFromIndex(from: number, lastResults: any[] = [], isRunning: boolean = true): Promise<any[]> {
+    private async processFromIndex(from: number, lastResults: any[] = [], running: boolean = true): Promise<any[]> {
         this.lastResults = lastResults;
 
         if (from < this.jobs.length) {
             this.index = from;
 
             /* istanbul ignore else */
-            if (isRunning) {
-                this.isRunning = isRunning;
+            if (running) {
+                this.running = running;
 
                 const start = performance.now();
                 try {
@@ -191,9 +211,9 @@ export class MemoryQueue implements Queue {
                         executionTime: performance.now() - start,
                     });
 
-                    return this.processFromIndex(from + 1, lastResults, this.isRunning);
+                    return this.processFromIndex(from + 1, lastResults, this.running);
                 } catch (error) {
-                    this.isRunning = false;
+                    this.running = false;
 
                     await this.events.dispatch(QueueEvent.Failed, {
                         driver: "memory",
@@ -207,7 +227,7 @@ export class MemoryQueue implements Queue {
                 }
             }
         } else {
-            this.isRunning = false;
+            this.running = false;
         }
 
         return this.lastResults;

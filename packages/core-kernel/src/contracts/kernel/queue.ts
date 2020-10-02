@@ -1,5 +1,3 @@
-import { EventEmitter } from "events";
-
 /**
  * @interface QueueJob
  */
@@ -7,11 +5,17 @@ export interface QueueJob {
     handle(): Promise<void>;
 }
 
+export type QueueOnDrainFunction = () => void;
+
+export type QueueOnErrorFunction = () => { error: Error; job: QueueJob };
+
+export type QueueOnDataFunction = () => { data: any; job: QueueJob };
+
 /**
  * @export
  * @interface Queue
  */
-export interface Queue extends EventEmitter {
+export interface Queue {
     /**
      * Create a new instance of the queue.
      *
@@ -105,4 +109,10 @@ export interface Queue extends EventEmitter {
     isStarted(): boolean;
 
     isRunning(): boolean;
+
+    onData(callback: QueueOnDataFunction): void;
+
+    onError(callback: QueueOnErrorFunction): void;
+
+    onDrain(callback: QueueOnDrainFunction): void;
 }
