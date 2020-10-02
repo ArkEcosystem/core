@@ -1,6 +1,6 @@
-// import { performance } from "perf_hooks";
+import { performance } from "perf_hooks";
 
-// import { EventDispatcher } from "../../../contracts/kernel/events";
+import { EventDispatcher } from "../../../contracts/kernel/events";
 import {
     Queue,
     QueueJob,
@@ -8,9 +8,8 @@ import {
     QueueOnDrainFunction,
     QueueOnErrorFunction,
 } from "../../../contracts/kernel/queue";
-// import { QueueEvent } from "../../../enums";
-import { injectable } from "../../../ioc";
-// import { Identifiers, inject, injectable } from "../../../ioc";
+import { QueueEvent } from "../../../enums";
+import { Identifiers, inject, injectable } from "../../../ioc";
 
 /**
  * @export
@@ -19,8 +18,8 @@ import { injectable } from "../../../ioc";
  */
 @injectable()
 export class MemoryQueue implements Queue {
-    // @inject(Identifiers.EventDispatcherService)
-    // private readonly events!: EventDispatcher;
+    @inject(Identifiers.EventDispatcherService)
+    private readonly events!: EventDispatcher;
 
     /**
      * @private
@@ -63,9 +62,7 @@ export class MemoryQueue implements Queue {
     public async start(): Promise<void> {
         this.started = true;
 
-        if (!this.running) {
-            this.processJobs();
-        }
+        this.processJobs();
     }
 
     /**
@@ -209,7 +206,7 @@ export class MemoryQueue implements Queue {
     }
 
     private async processJobs(): Promise<void> {
-        // Prevent enter if already processing
+        // Prevent entering if already processing
         if (this.isRunning()) {
             return;
         }
@@ -223,13 +220,26 @@ export class MemoryQueue implements Queue {
 
             const job = this.jobs.shift()!;
 
+            const start = performance.now();
             try {
                 const data = await job.handle();
+
+                await this.events.dispatch(QueueEvent.Finished, {
+                    driver: "memory",
+                    executionTime: performance.now() - start,
+                    data: data,
+                });
 
                 if (this.onDataCallback) {
                     this.onDataCallback(job, data);
                 }
             } catch (error) {
+                await this.events.dispatch(QueueEvent.Failed, {
+                    driver: "memory",
+                    executionTime: performance.now() - start,
+                    error: error,
+                });
+
                 if (this.onErrorCallback) {
                     this.onErrorCallback(job, error);
                 }
@@ -244,53 +254,4 @@ export class MemoryQueue implements Queue {
             this.onDrainCallback();
         }
     }
-
-    // /**
-    //  * @private
-    //  * @param {number} from
-    //  * @param {any[]} [lastResults=[]]
-    //  * @param {boolean} [running=true]
-    //  * @returns {Promise<any[]>}
-    //  * @memberof MemoryQueue
-    //  */
-    // private async processFromIndex(from: number, lastResults: any[] = [], running: boolean = true): Promise<any[]> {
-    //     this.lastResults = lastResults;
-    //
-    //     if (from < this.jobs.length) {
-    //         this.index = from;
-    //
-    //         /* istanbul ignore else */
-    //         if (running) {
-    //             this.running = running;
-    //
-    //             const start = performance.now();
-    //             try {
-    //                 lastResults.push(await this.jobs[from].handle());
-    //
-    //                 await this.events.dispatch(QueueEvent.Finished, {
-    //                     driver: "memory",
-    //                     executionTime: performance.now() - start,
-    //                 });
-    //
-    //                 return this.processFromIndex(from + 1, lastResults, this.running);
-    //             } catch (error) {
-    //                 this.running = false;
-    //
-    //                 await this.events.dispatch(QueueEvent.Failed, {
-    //                     driver: "memory",
-    //                     executionTime: performance.now() - start,
-    //                     error: error,
-    //                 });
-    //
-    //                 throw new Error(
-    //                     `Queue halted at job #${from + 1} due to error in handler ${this.jobs[this.index]}.`,
-    //                 );
-    //             }
-    //         }
-    //     } else {
-    //         this.running = false;
-    //     }
-    //
-    //     return this.lastResults;
-    // }
 }

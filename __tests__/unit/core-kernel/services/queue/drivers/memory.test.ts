@@ -3,7 +3,7 @@ import "jest-extended";
 import { performance } from "perf_hooks";
 
 import { sleep } from "@arkecosystem/utils";
-import { Container, Contracts } from "@packages/core-kernel/src";
+import { Container, Contracts, Enums } from "@packages/core-kernel";
 import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
 import { Sandbox } from "@packages/core-test-framework";
 
@@ -35,32 +35,9 @@ afterEach(() => {
 
 const jobMethod = jest.fn();
 
-// const expectEventData = () => {
-//     return expect.objectContaining({
-//         driver: "memory",
-//         executionTime: expect.toBeNumber(),
-//     });
-// };
-
-// const expectEventErrorData = () => {
-//     return expect.objectContaining({
-//         driver: "memory",
-//         executionTime: expect.toBeNumber(),
-//         error: expect.toBeObject(),
-//     });
-// };
-//
-// const delay = async (timeout) => {
-//     await new Promise((resolve) => {
-//         setTimeout(() => {
-//             resolve();
-//         }, timeout);
-//     });
-// };
-
 describe("MemoryQueue", () => {
     describe("Start", () => {
-        it("should process jobs start", async () => {
+        it("should process job", async () => {
             await driver.push(new DummyJob(jobMethod));
             await sleep(50);
 
@@ -70,9 +47,6 @@ describe("MemoryQueue", () => {
             await sleep(50);
 
             expect(jobMethod).toHaveBeenCalledTimes(1);
-
-            // expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(1);
-            // expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Finished, expectEventData());
         });
 
         it("should process on push if already started", async () => {
@@ -123,8 +97,8 @@ describe("MemoryQueue", () => {
             await sleep(150);
 
             expect(methodFinish2).toBeGreaterThan(methodFinish1);
-            expect(methodFinish2 - methodFinish1).toBeGreaterThan(45);
-            expect(methodFinish2 - methodFinish1).toBeLessThan(55);
+            expect(methodFinish2 - methodFinish1).toBeGreaterThan(40);
+            expect(methodFinish2 - methodFinish1).toBeLessThan(60);
 
             expect(onDrain).toHaveBeenCalledTimes(1);
         });
@@ -193,7 +167,7 @@ describe("MemoryQueue", () => {
             expect(driver.size()).toBe(0);
             expect(driver.isRunning()).toBe(false);
             expect(driver.isStarted()).toBe(false);
-            expect(jobMethod).toHaveBeenCalledTimes(1); // Fist job is run instantly
+            expect(jobMethod).toHaveBeenCalledTimes(1); // Fist job is run after start
         });
 
         it("should resolve multiple stop promises", async () => {
@@ -215,7 +189,7 @@ describe("MemoryQueue", () => {
             expect(driver.size()).toBe(0);
             expect(driver.isRunning()).toBe(false);
             expect(driver.isStarted()).toBe(false);
-            expect(jobMethod).toHaveBeenCalledTimes(1); // Fist job is run instantly
+            expect(jobMethod).toHaveBeenCalledTimes(1); // Fist job is run after start
 
             await expect(stop1).toResolve();
             await expect(stop2).toResolve();
@@ -228,7 +202,7 @@ describe("MemoryQueue", () => {
             await driver.push(new DummyJob(jobMethod));
             await driver.push(new DummyJob(jobMethod));
 
-            await sleep(50);
+            await sleep(10);
 
             expect(driver.size()).toBe(2);
             expect(driver.isRunning()).toBe(false);
@@ -402,8 +376,8 @@ describe("MemoryQueue", () => {
             await sleep(150);
 
             expect(methodFinish2).toBeGreaterThan(methodFinish1);
-            expect(methodFinish2 - methodFinish1).toBeGreaterThan(45);
-            expect(methodFinish2 - methodFinish1).toBeLessThan(55);
+            expect(methodFinish2 - methodFinish1).toBeGreaterThan(40);
+            expect(methodFinish2 - methodFinish1).toBeLessThan(60);
 
             expect(onDrain).toHaveBeenCalledTimes(1);
         });
@@ -437,8 +411,8 @@ describe("MemoryQueue", () => {
             await sleep(150);
 
             expect(methodFinish2).toBeGreaterThan(methodFinish1);
-            expect(methodFinish2 - methodFinish1).toBeGreaterThan(45);
-            expect(methodFinish2 - methodFinish1).toBeLessThan(55);
+            expect(methodFinish2 - methodFinish1).toBeGreaterThan(40);
+            expect(methodFinish2 - methodFinish1).toBeLessThan(60);
 
             expect(onDrain).toHaveBeenCalledTimes(1);
         });
@@ -477,7 +451,7 @@ describe("MemoryQueue", () => {
             await driver.push(job2);
             await driver.start();
 
-            await sleep(50);
+            await sleep(10);
 
             expect(jobMethod).toHaveBeenCalledTimes(2);
             expect(onData).toHaveBeenCalledTimes(2);
@@ -506,7 +480,7 @@ describe("MemoryQueue", () => {
             await driver.push(job2);
             await driver.start();
 
-            await sleep(50);
+            await sleep(10);
 
             expect(errorMethod).toHaveBeenCalledTimes(1);
             expect(jobMethod).toHaveBeenCalledTimes(1);
@@ -525,7 +499,7 @@ describe("MemoryQueue", () => {
             await driver.push(new DummyJob(jobMethod));
             await driver.start();
 
-            await sleep(50);
+            await sleep(10);
 
             // Second iteration
             expect(jobMethod).toHaveBeenCalledTimes(1);
@@ -534,111 +508,62 @@ describe("MemoryQueue", () => {
             await driver.push(new DummyJob(jobMethod));
             await driver.start();
 
-            await sleep(50);
+            await sleep(10);
 
             expect(jobMethod).toHaveBeenCalledTimes(2);
             expect(onDrain).toHaveBeenCalledTimes(2);
         });
     });
 
-    // it("should stop queue and not process new jobs", async () => {
-    //     const dummy: jest.Mock = jest.fn();
-    //
-    //     expect(driver.size()).toBe(0);
-    //
-    //     await driver.push(new DummyClass(dummy));
-    //
-    //     await driver.start();
-    //
-    //     await driver.stop();
-    //
-    //     await driver.push(new DummyClass(dummy));
-    //
-    //     expect(dummy).toHaveBeenCalled();
-    //
-    //     expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(1);
-    //     expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Finished, expectEventData());
-    // });
-    //
-    // it("should pause and resume queue", async () => {
-    //     const dummy: jest.Mock = jest.fn();
-    //
-    //     expect(driver.size()).toBe(0);
-    //
-    //     await driver.push(new DummyClass(dummy));
-    //
-    //     await driver.start();
-    //
-    //     await delay(100);
-    //
-    //     expect(dummy).toHaveBeenCalled();
-    //
-    //     await driver.pause();
-    //
-    //     await driver.bulk([new DummyClass(dummy), new DummyClass(dummy)]);
-    //
-    //     await driver.resume();
-    //
-    //     await delay(100);
-    //
-    //     expect(dummy).toHaveBeenCalledTimes(3);
-    //
-    //     expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(3);
-    //     expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Finished, expectEventData());
-    // });
-    //
-    // it("should dipatch error if error in queue", async () => {
-    //     const dummy: jest.Mock = jest.fn().mockImplementation(() => {
-    //         throw new Error();
-    //     });
-    //
-    //     await driver.push(new DummyClass(dummy));
-    //
-    //     driver.start();
-    //
-    //     // @ts-ignore
-    //     await expect(driver.lastQueue).rejects.toThrowError();
-    //
-    //     expect(dummy).toHaveBeenCalled();
-    //     expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(1);
-    //     expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Failed, expectEventErrorData());
-    // });
-    //
-    // it("should clear queue", async () => {
-    //     expect(driver.size()).toBe(0);
-    //
-    //     await driver.push(new DummyClass());
-    //
-    //     expect(driver.size()).toBe(1);
-    //
-    //     await driver.clear();
-    //
-    //     expect(driver.size()).toBe(0);
-    // });
-    //
-    // it("should push the job onto queue", async () => {
-    //     expect(driver.size()).toBe(0);
-    //
-    //     await driver.push(new DummyClass());
-    //
-    //     expect(driver.size()).toBe(1);
-    // });
-    //
-    // it("should push the job onto queue with a 2 second delay", async () => {
-    //     expect(driver.size()).toBe(0);
-    //
-    //     await driver.later(2000, new DummyClass());
-    //
-    //     await sleep(2000);
-    //
-    //     expect(driver.size()).toBe(1);
-    // });
-    //
-    // it("should push the job onto queue", async () => {
-    //     expect(driver.size()).toBe(0);
-    //
-    //     await driver.bulk([new DummyClass(), new DummyClass()]);
-    //
-    //     expect(driver.size()).toBe(2);
-    // });
+    describe("DispatchEvents", () => {
+        const error = new Error("dummy_error")
+
+        const expectEventData = () => {
+            return expect.objectContaining({
+                driver: "memory",
+                executionTime: expect.toBeNumber(),
+                data: "dummy_data",
+            });
+        };
+
+        const expectEventErrorData = () => {
+            return expect.objectContaining({
+                driver: "memory",
+                executionTime: expect.toBeNumber(),
+                error: expect.toBeOneOf([error]),
+            });
+        };
+
+        it("should dispatch 'queue.finished' after every processed job", async () => {
+            jobMethod.mockResolvedValue("dummy_data");
+
+            await driver.push(new DummyJob(jobMethod));
+            await driver.push(new DummyJob(jobMethod));
+
+            await driver.start();
+            await sleep(10);
+
+            expect(jobMethod).toHaveBeenCalledTimes(2);
+
+            expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(2);
+            expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Finished, expectEventData());
+        });
+
+        it("should dispatch 'queue.failed' after every failed job", async () => {
+            jobMethod.mockImplementation(async () => {
+                throw error;
+            });
+
+            await driver.push(new DummyJob(jobMethod));
+            await driver.push(new DummyJob(jobMethod));
+
+            await driver.start();
+            await sleep(10);
+
+            expect(jobMethod).toHaveBeenCalledTimes(2);
+
+            expect(mockEventDispatcher.dispatch).toHaveBeenCalledTimes(2);
+            expect(mockEventDispatcher.dispatch).toHaveBeenCalledWith(Enums.QueueEvent.Failed, expectEventErrorData());
+        });
+    });
 });
