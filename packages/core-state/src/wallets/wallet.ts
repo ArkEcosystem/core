@@ -3,9 +3,23 @@ import { Utils } from "@arkecosystem/crypto";
 import { WalletEvent } from "./wallet-event";
 
 export class Wallet implements Contracts.State.Wallet {
-    private _publicKey?: string;
-    private _balance: Utils.BigNumber = Utils.BigNumber.ZERO;
-    private _nonce: Utils.BigNumber = Utils.BigNumber.ZERO;
+    /**
+     * @type {(string | undefined)}
+     * @memberof Wallet
+     */
+    public publicKey: string | undefined;
+
+    /**
+     * @type {Utils.BigNumber}
+     * @memberof Wallet
+     */
+    public balance: Utils.BigNumber = Utils.BigNumber.ZERO;
+
+    /**
+     * @type {Utils.BigNumber}
+     * @memberof Wallet
+     */
+    public nonce: Utils.BigNumber = Utils.BigNumber.ZERO;
 
     /**
      * @param {string} address
@@ -16,72 +30,24 @@ export class Wallet implements Contracts.State.Wallet {
         protected readonly attributes: Services.Attributes.AttributeMap,
         protected readonly events?: Contracts.Kernel.EventDispatcher,
     ) {
-        if (this.events) {
-            this.events.dispatchSync(WalletEvent.PropertySet, {
-                publicKey: undefined,
-                key: "address",
-                value: address,
-                previousValue: undefined,
-                wallet: this,
-            });
-        }
-    }
+        const proxy = new Proxy<Wallet>(this, {
+            set: (_, key, value): boolean => {
+                const previousValue = this[key];
+                this[key] = value;
 
-    public get publicKey(): string | undefined {
-        return this._publicKey;
-    }
+                this.events?.dispatchSync(WalletEvent.PropertySet, {
+                    publicKey: undefined,
+                    key,
+                    value,
+                    previousValue,
+                    wallet: this,
+                });
 
-    public set publicKey(value: string | undefined) {
-        const previousValue = this._publicKey;
-        this._publicKey = value;
+                return true;
+            },
+        });
 
-        if (this.events) {
-            this.events.dispatchSync(WalletEvent.PropertySet, {
-                publicKey: this._publicKey,
-                key: "publicKey",
-                value,
-                previousValue,
-                wallet: this,
-            });
-        }
-    }
-
-    public get balance(): Utils.BigNumber {
-        return this._balance;
-    }
-
-    public set balance(value: Utils.BigNumber) {
-        const previousValue = this._balance;
-        this._balance = value;
-
-        if (this.events) {
-            this.events.dispatchSync(WalletEvent.PropertySet, {
-                publicKey: this._publicKey,
-                key: "balance",
-                value,
-                previousValue,
-                wallet: this,
-            });
-        }
-    }
-
-    public get nonce(): Utils.BigNumber {
-        return this._nonce;
-    }
-
-    public set nonce(value: Utils.BigNumber) {
-        const previousValue = this._nonce;
-        this._nonce = value;
-
-        if (this.events) {
-            this.events.dispatchSync(WalletEvent.PropertySet, {
-                publicKey: this._publicKey,
-                key: "nonce",
-                value,
-                previousValue,
-                wallet: this,
-            });
-        }
+        return proxy;
     }
 
     /**
@@ -113,14 +79,12 @@ export class Wallet implements Contracts.State.Wallet {
     public setAttribute<T = any>(key: string, value: T): boolean {
         const wasSet = this.attributes.set<T>(key, value);
 
-        if (this.events) {
-            this.events.dispatchSync(WalletEvent.PropertySet, {
-                publicKey: this._publicKey,
-                key: "balance",
-                value,
-                wallet: this,
-            });
-        }
+        this.events?.dispatchSync(WalletEvent.PropertySet, {
+            publicKey: this.publicKey,
+            key: key,
+            value,
+            wallet: this,
+        });
 
         return wasSet;
     }
@@ -134,14 +98,12 @@ export class Wallet implements Contracts.State.Wallet {
         const previousValue = this.attributes.get(key, undefined);
         const wasSet = this.attributes.forget(key);
 
-        if (this.events) {
-            this.events.dispatchSync(WalletEvent.PropertySet, {
-                publicKey: this._publicKey,
-                key: "balance",
-                previousValue,
-                wallet: this,
-            });
-        }
+        this.events?.dispatchSync(WalletEvent.PropertySet, {
+            publicKey: this.publicKey,
+            key,
+            previousValue,
+            wallet: this,
+        });
 
         return wasSet;
     }
