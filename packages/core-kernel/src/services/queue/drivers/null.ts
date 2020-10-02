@@ -1,3 +1,5 @@
+import { EventEmitter } from "events";
+
 import { Queue, QueueJob } from "../../../contracts/kernel/queue";
 import { injectable } from "../../../ioc";
 
@@ -7,7 +9,7 @@ import { injectable } from "../../../ioc";
  * @implements {Queue}
  */
 @injectable()
-export class NullQueue implements Queue {
+export class NullQueue extends EventEmitter implements Queue {
     /**
      * Create a new instance of the queue.
      *
@@ -112,5 +114,13 @@ export class NullQueue implements Queue {
      */
     public size(): number {
         return 0;
+    }
+
+    public isStarted(): boolean {
+        return false;
+    }
+
+    public isRunning(): boolean {
+        return false;
     }
 }

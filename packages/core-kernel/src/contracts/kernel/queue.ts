@@ -1,15 +1,17 @@
+import { EventEmitter } from "events";
+
 /**
  * @interface QueueJob
  */
 export interface QueueJob {
-    handle(): void;
+    handle(): Promise<void>;
 }
 
 /**
  * @export
  * @interface Queue
  */
-export interface Queue {
+export interface Queue extends EventEmitter {
     /**
      * Create a new instance of the queue.
      *
@@ -99,4 +101,8 @@ export interface Queue {
      * @memberof Queue
      */
     size(): number;
+
+    isStarted(): boolean;
+
+    isRunning(): boolean;
 }
