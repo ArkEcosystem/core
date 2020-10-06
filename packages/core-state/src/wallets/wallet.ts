@@ -95,7 +95,7 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public forgetAttribute(key: string): boolean {
-        const previousValue = this.attributes.get(key, undefined);
+        const previousValue = this.attributes.has(key) ? this.attributes.get(key) : undefined;
         const wasSet = this.attributes.forget(key);
 
         this.events?.dispatchSync(WalletEvent.PropertySet, {
