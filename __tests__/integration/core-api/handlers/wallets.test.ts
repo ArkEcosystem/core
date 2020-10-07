@@ -32,6 +32,24 @@ beforeAll(async () => {
 afterAll(async () => await tearDown());
 
 describe("API 2.0 - Wallets", () => {
+    describe("GET /wallets", () => {
+        it("should GET all the wallets", async () => {
+            const response = await api.request("GET", `wallets`);
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(52);
+        });
+
+        it("should GET the wallets for the specified addresses", async () => {
+            const address = ["APRiwbs17FdbaF8DYU9js2jChRehQc2e6P", "AReCSCQRssLGF4XyhTjxhQm6mBFAWTaDTz"];
+            const response = await api.request("GET", `wallets`, { address });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(2);
+            expect(response.data.data.map(w => w.address).sort()).toEqual(address.sort());
+        });
+    });
+
     describe("GET /wallets/:id/transactions", () => {
         it("should GET all the transactions for the given wallet by id", async () => {
             const response = await api.request("GET", `wallets/${address}/transactions`);
