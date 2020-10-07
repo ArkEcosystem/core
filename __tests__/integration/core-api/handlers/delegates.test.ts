@@ -47,6 +47,23 @@ beforeEach(() => {
 });
 
 describe("API 2.0 - Delegates", () => {
+    describe("GET /delegates", () => {
+        it("should GET all delegates", async () => {
+            const response = await api.request("GET", `delegates`);
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(51);
+        });
+
+        it("should GET the delegates for the specified addresses", async () => {
+            const address = ["APRiwbs17FdbaF8DYU9js2jChRehQc2e6P", "AReCSCQRssLGF4XyhTjxhQm6mBFAWTaDTz"];
+            const response = await api.request("GET", `delegates`, { address });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data.map(d => d.address).sort()).toEqual(address.sort());
+        });
+    });
+
     describe("GET /delegates/:id/blocks", () => {
         it("should GET all blocks for a delegate by the given identifier", async () => {
             const block2: Interfaces.IBlock = Factories.factory("Block")

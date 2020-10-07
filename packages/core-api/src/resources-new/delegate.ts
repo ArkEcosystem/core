@@ -68,5 +68,5 @@ export const delegateCriteriaSchemaObject = {
     },
 };
 
-export const delegateCriteriaQuerySchema = Joi.object(delegateCriteriaSchemaObject);
+export const delegateCriteriaSchema = Schemas.createCriteriaSchema(delegateCriteriaSchemaObject);
 export const delegateSortingSchema = Schemas.createSortingSchema(delegateCriteriaSchemaObject);
