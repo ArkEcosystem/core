@@ -20,14 +20,6 @@ export class EntityController extends Controller {
         return this.entitySearchService.getEntitiesPage(pagination, sorting, criteria);
     }
 
-    public search(request: Hapi.Request): Contracts.Search.ResultsPage<EntityResource> {
-        const pagination = this.getQueryPagination(request.query);
-        const sorting = request.query.orderBy as Contracts.Search.Sorting;
-        const criteria = request.payload as EntityCriteria;
-
-        return this.entitySearchService.getEntitiesPage(pagination, sorting, criteria);
-    }
-
     public show(request: Hapi.Request): { data: EntityResource } | Boom {
         const entityId = request.params.id as string;
         const entityResource = this.entitySearchService.getEntity(entityId);

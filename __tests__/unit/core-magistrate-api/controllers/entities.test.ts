@@ -68,36 +68,6 @@ describe("EntityController.index", () => {
     });
 });
 
-describe("EntityController.search", () => {
-    it("should get criteria from payload and return page from EntitySearchService", () => {
-        const entitiesPage: Contracts.Search.ResultsPage<Resources.EntityResource> = {
-            results: [entityResource1],
-            totalCount: 1,
-            meta: { totalCountIsEstimate: false },
-        };
-
-        entitySearchService.getEntitiesPage.mockReturnValueOnce(entitiesPage);
-
-        const entityController = container.resolve(EntityController);
-        const result = entityController.search({
-            query: {
-                page: 1,
-                limit: 100,
-                orderBy: ["data.name", "address"],
-            },
-            payload: [{ type: Enums.EntityType.Business }, { type: Enums.EntityType.Plugin }],
-        });
-
-        expect(entitySearchService.getEntitiesPage).toBeCalledWith(
-            { offset: 0, limit: 100 },
-            ["data.name", "address"],
-            [{ type: Enums.EntityType.Business }, { type: Enums.EntityType.Plugin }],
-        );
-
-        expect(result).toBe(entitiesPage);
-    });
-});
-
 describe("EntityController.show", () => {
     it("should get entity id from path and return entity from EntitySearchService", () => {
         entitySearchService.getEntity.mockReturnValueOnce(entityResource1);
