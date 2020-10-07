@@ -9,6 +9,7 @@ export const setUp = async (): Promise<Application> => {
     const app = new Application(new Container.Container());
 
     const triggersServiceProvider = app.resolve(Services.Triggers.ServiceProvider);
+    const eventsServiceProvider = app.resolve(Services.Events.ServiceProvider);
     const searchServiceProvider = app.resolve(Services.Search.ServiceProvider);
     const stateServiceProvider = app.resolve(StateServiceProvider);
     const transactionsServiceProvider = app.resolve(TransactionsServiceProvider);
@@ -26,6 +27,7 @@ export const setUp = async (): Promise<Application> => {
     );
 
     await triggersServiceProvider.register();
+    await eventsServiceProvider.register();
     await searchServiceProvider.register();
     await stateServiceProvider.register();
     await transactionsServiceProvider.register();
