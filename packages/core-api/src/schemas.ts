@@ -26,18 +26,16 @@ export type SchemaObject = {
     [x: string]: Joi.Schema | SchemaObject;
 };
 
-export const createCriteriaPayloadSchema = (schemaObject: SchemaObject): Joi.ArraySchema => {
-    const item = {};
+export const createCriteriaSchema = (schemaObject: SchemaObject): Joi.ObjectSchema => {
+    const schema = {};
 
     for (const [key, value] of Object.entries(schemaObject)) {
-        if (isSchema(value)) {
-            item[key] = Joi.array().single().items(value);
-        } else {
-            item[key] = createCriteriaPayloadSchema(value);
-        }
+        schema[key] = Joi.array()
+            .single()
+            .items(isSchema(value) ? value : createCriteriaSchema(value));
     }
 
-    return Joi.array().single().items(Joi.object(item));
+    return Joi.object(schema);
 };
 
 export const createRangeCriteriaSchema = (item: Joi.Schema): Joi.Schema => {

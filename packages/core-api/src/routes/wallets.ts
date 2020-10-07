@@ -3,9 +3,9 @@ import Joi from "@hapi/joi";
 
 import { WalletsController } from "../controllers/wallets";
 import {
-    lockCriteriaQuerySchema,
+    lockCriteriaSchema,
     lockSortingSchema,
-    walletCriteriaQuerySchema,
+    walletCriteriaSchema,
     walletParamSchema,
     walletSortingSchema,
 } from "../resources-new";
@@ -21,10 +21,7 @@ export const register = (server: Hapi.Server): void => {
         handler: (request: Hapi.Request) => controller.index(request),
         options: {
             validate: {
-                query: Joi.object()
-                    .concat(walletCriteriaQuerySchema)
-                    .concat(walletSortingSchema)
-                    .concat(Schemas.pagination),
+                query: Joi.object().concat(walletCriteriaSchema).concat(walletSortingSchema).concat(Schemas.pagination),
             },
             plugins: {
                 pagination: { enabled: true },
@@ -38,10 +35,7 @@ export const register = (server: Hapi.Server): void => {
         handler: (request: Hapi.Request) => controller.top(request),
         options: {
             validate: {
-                query: Joi.object()
-                    .concat(walletCriteriaQuerySchema)
-                    .concat(walletSortingSchema)
-                    .concat(Schemas.pagination),
+                query: Joi.object().concat(walletCriteriaSchema).concat(walletSortingSchema).concat(Schemas.pagination),
             },
             plugins: {
                 pagination: { enabled: true },
@@ -71,10 +65,7 @@ export const register = (server: Hapi.Server): void => {
                 params: Joi.object({
                     id: server.app.schemas.walletId,
                 }),
-                query: Joi.object()
-                    .concat(lockCriteriaQuerySchema)
-                    .concat(lockSortingSchema)
-                    .concat(Schemas.pagination),
+                query: Joi.object().concat(lockCriteriaSchema).concat(lockSortingSchema).concat(Schemas.pagination),
             },
             plugins: {
                 pagination: { enabled: true },
