@@ -1,5 +1,5 @@
 import { ApplicationFactory } from "@arkecosystem/core-cli";
-import { Container, Contracts, Providers, Services, Types } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
 
 import { ActionReader } from "./action-reader";
 import { DatabaseLogger } from "./database-logger";
@@ -12,7 +12,6 @@ import { PluginFactory } from "./server/plugins";
 import { Server } from "./server/server";
 import { Argon2id, SimpleTokenValidator } from "./server/validators";
 import { SnapshotsManager } from "./snapshots/snapshots-manager";
-import { WatcherWallet } from "./watcher-wallet";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -34,22 +33,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
                         new LogServiceWrapper(
                             logService,
                             this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService),
-                        ),
-                    );
-            }
-
-            if (this.config().getRequired<boolean>("watcher.watch.wallets")) {
-                this.app
-                    .bind(Container.Identifiers.WalletFactory)
-                    .toFactory<Contracts.State.Wallet>((context: Container.interfaces.Context) => (address: string) =>
-                        new WatcherWallet(
-                            context.container.get(Container.Identifiers.EventDispatcherService),
-                            address,
-                            new Services.Attributes.AttributeMap(
-                                context.container.get<Services.Attributes.AttributeSet>(
-                                    Container.Identifiers.WalletAttributes,
-                                ),
-                            ),
                         ),
                     );
             }

@@ -4,7 +4,6 @@ import { Application, Container, Providers } from "@packages/core-kernel";
 import { defaults } from "@packages/core-manager/src/defaults";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import { ServiceProvider } from "@packages/core-manager/src/service-provider";
-import { WatcherWallet } from "@packages/core-manager/src/watcher-wallet";
 import { cloneDeep } from "lodash";
 import path from "path";
 import { dirSync, setGracefulCleanup } from "tmp";
@@ -170,22 +169,5 @@ describe("ServiceProvider", () => {
 
     it("should not be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeFalse();
-    });
-
-    it("should create wallet", async () => {
-        const usedDefaults = cloneDeep(defaults);
-
-        usedDefaults.watcher.enabled = true;
-        usedDefaults.watcher.watch.wallets = true;
-
-        setPluginConfiguration(app, serviceProvider, usedDefaults);
-
-        await expect(serviceProvider.register()).toResolve();
-
-        // @ts-ignore
-        const wallet = app.get(Container.Identifiers.WalletFactory)("123");
-        expect(wallet).toBeInstanceOf(WatcherWallet);
-
-        await expect(serviceProvider.dispose()).toResolve();
     });
 });

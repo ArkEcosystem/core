@@ -1,4 +1,4 @@
-import { get, has, set, unset } from "@arkecosystem/utils";
+import { get, has, set, unset, cloneDeep } from "@arkecosystem/utils";
 import { strictEqual } from "assert";
 
 import { assert } from "../../utils";
@@ -92,6 +92,16 @@ export class AttributeMap {
         this.assertKnown(key);
 
         return has(this.attributes, key);
+    }
+
+    /**
+     * @returns {AttributeMap}
+     * @memberof AttributeMap
+     */
+    public clone(): AttributeMap {
+        const cloned = new AttributeMap(this.knownAttributes);
+        cloned.attributes = cloneDeep(this.attributes);
+        return cloned;
     }
 
     /**
