@@ -117,7 +117,7 @@ export class Updater {
             }
         }
 
-        const spinner = this.app.get<Spinner>(Identifiers.Spinner).render(`Installing ${this.packageVersion}`);
+        const spinner = this.app.get<Spinner>(Identifiers.Spinner).render(`Installing ${this.latestVersion}`);
 
         spinner.start();
 
