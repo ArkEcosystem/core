@@ -106,9 +106,6 @@
             },
             {
                 "package": "@arkecosystem/core-snapshots"
-            },
-            {
-                "package": "@arkecosystem/core-manager"
             }
         ]
     }
