@@ -1,7 +1,6 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions } from "@arkecosystem/crypto";
 
-import { AlreadyVotedError, NoVoteError, UnvoteMismatchError } from "../../errors";
 import { One } from "../index";
 import { TransactionHandlerConstructor } from "../transaction";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
