@@ -30,21 +30,13 @@ export class VoteTransactionHandler extends One.VoteTransactionHandler {
             AppUtils.assert.defined<string[]>(transaction.asset?.votes);
 
             const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-            const vote = transaction.asset.votes[0];
-            const hasVoted: boolean = wallet.hasAttribute("vote");
 
-            if (vote.startsWith("+")) {
-                if (hasVoted) {
-                    throw new AlreadyVotedError();
+            for (const vote of transaction.asset.votes) {
+                if (vote.startsWith("+")) {
+                    wallet.setAttribute("vote", vote.slice(1));
+                } else {
+                    wallet.forgetAttribute("vote");
                 }
-                wallet.setAttribute("vote", vote.slice(1));
-            } else {
-                if (!hasVoted) {
-                    throw new NoVoteError();
-                } else if (wallet.getAttribute("vote") !== vote.slice(1)) {
-                    throw new UnvoteMismatchError();
-                }
-                wallet.forgetAttribute("vote");
             }
         }
     }
