@@ -16,6 +16,9 @@ const emitter = {
 const configuration = {
     getRequired: jest.fn(),
 };
+const dynamicFeeMatcher = {
+    throwIfCannotEnterPool: jest.fn(),
+};
 const storage = {
     hasTransaction: jest.fn(),
     addTransaction: jest.fn(),
@@ -42,29 +45,14 @@ const container = new Container.Container();
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
 container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
+container.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).toConstantValue(dynamicFeeMatcher);
 container.bind(Container.Identifiers.TransactionPoolStorage).toConstantValue(storage);
 container.bind(Container.Identifiers.TransactionPoolMempool).toConstantValue(mempool);
 container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
 container.bind(Container.Identifiers.TransactionPoolExpirationService).toConstantValue(expirationService);
 
 beforeEach(() => {
-    logger.debug.mockReset();
-    logger.warning.mockReset();
-    logger.error.mockReset();
-    emitter.listen.mockReset();
-    configuration.getRequired.mockReset();
-    storage.hasTransaction.mockReset();
-    storage.addTransaction.mockReset();
-    storage.removeTransaction.mockReset();
-    storage.getAllTransactions.mockReset();
-    storage.flush.mockReset();
-    mempool.getSize.mockReset();
-    mempool.addTransaction.mockReset();
-    mempool.removeTransaction.mockReset();
-    mempool.acceptForgedTransaction.mockReset();
-    mempool.flush.mockReset();
-    poolQuery.getAll.mockReset();
-    poolQuery.getFromLowestPriority.mockReset();
+    jest.resetAllMocks();
 });
 
 Managers.configManager.getMilestone().aip11 = true;
@@ -158,6 +146,21 @@ describe("Service.addTransaction", () => {
 
         expect(emitter.dispatch).toHaveBeenCalledTimes(1);
         expect(emitter.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.AddedToPool, expect.anything());
+    });
+
+    it("should remove transaction from storage that failed dynamic fee check", async () => {
+        configuration.getRequired.mockReturnValue(10); // maxTransactionsInPool
+        mempool.getSize.mockReturnValue(0);
+        dynamicFeeMatcher.throwIfCannotEnterPool.mockRejectedValueOnce(new Error("Nope"));
+
+        const service = container.resolve(Service);
+        const promise = service.addTransaction(transaction1);
+
+        await expect(promise).rejects.toBeInstanceOf(Error);
+        expect(storage.addTransaction).toBeCalledWith(transaction1.id, transaction1.serialized);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+
+        expect(emitter.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RejectedByPool, expect.anything());
     });
 
     it("should remove transaction from storage that failed adding to mempool", async () => {
