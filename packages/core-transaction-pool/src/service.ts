@@ -9,6 +9,9 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly configuration!: Providers.PluginConfiguration;
 
+    @Container.inject(Container.Identifiers.TransactionPoolDynamicFeeMatcher)
+    private readonly dynamicFeeMatcher!: Contracts.TransactionPool.DynamicFeeMatcher;
+
     @Container.inject(Container.Identifiers.TransactionPoolStorage)
     private readonly storage!: Contracts.TransactionPool.Storage;
 
@@ -48,12 +51,15 @@ export class Service implements Contracts.TransactionPool.Service {
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         await this.lock.runNonExclusive(async () => {
             AppUtils.assert.defined<string>(transaction.id);
+
             if (this.storage.hasTransaction(transaction.id)) {
                 throw new TransactionAlreadyInPoolError(transaction);
             }
 
             this.storage.addTransaction(transaction.id, transaction.serialized);
+
             try {
+                await this.dynamicFeeMatcher.throwIfCannotEnterPool(transaction);
                 await this.addTransactionToMempool(transaction);
                 this.logger.debug(`${transaction} added to pool`);
                 this.events.dispatch(Enums.TransactionEvent.AddedToPool, transaction.data);

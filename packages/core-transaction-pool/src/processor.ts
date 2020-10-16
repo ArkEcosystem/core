@@ -34,7 +34,6 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
                 try {
                     const transaction = await this.getTransactionFromData(transactionData);
-                    await this.dynamicFeeMatcher.throwIfCannotEnterPool(transaction);
                     await this.pool.addTransaction(transaction);
                     this.accept.push(id);
 
