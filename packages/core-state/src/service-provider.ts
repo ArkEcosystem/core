@@ -13,6 +13,7 @@ import { TransactionValidator } from "./transaction-validator";
 import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "./wallets";
 import { registerIndexers } from "./wallets/indexers";
 import { walletFactory } from "./wallets/wallet-factory";
+import { WalletSyncService } from "./wallets/wallet-sync-service";
 
 export const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
     return async (
@@ -95,6 +96,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public async boot(): Promise<void> {
+        this.app.resolve<WalletSyncService>(WalletSyncService).boot();
+
         await this.app.get<DatabaseInteraction>(Container.Identifiers.DatabaseInteraction).initialize();
         await this.app.resolve<StateBuilder>(StateBuilder).run();
     }
