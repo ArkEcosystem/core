@@ -36,7 +36,6 @@ beforeEach(() => {
 
     logger = {
         error: jest.fn(),
-        info: jest.fn(),
         notice: jest.fn(),
         debug: jest.fn(),
     };
@@ -425,7 +424,7 @@ describe("Application", () => {
         await app.terminate("Hello World");
 
         // Assert
-        expect(logger.info).toHaveBeenCalledWith("Hello World");
+        expect(logger.notice).toHaveBeenCalledWith("Hello World");
         expect(spyDispose).toHaveBeenCalled();
         expect(app.isBooted()).toBeFalse();
     });
