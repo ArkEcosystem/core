@@ -333,7 +333,7 @@ export class Application implements Contracts.Kernel.Application {
         this.booted = false;
 
         if (reason) {
-            this.get<Contracts.Kernel.Logger>(Identifiers.LogService).info(reason);
+            this.get<Contracts.Kernel.Logger>(Identifiers.LogService).notice(reason);
         }
 
         if (error) {
