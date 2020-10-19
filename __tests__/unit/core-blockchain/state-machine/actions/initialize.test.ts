@@ -23,7 +23,6 @@ describe("Initialize", () => {
         walletRepository: {
             getNonce: jest.fn(),
         },
-        buildWallets: jest.fn(),
         restoreCurrentRound: jest.fn(),
         applyBlock: jest.fn(),
         getTopBlocks: jest.fn(),
