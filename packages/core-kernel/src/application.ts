@@ -333,14 +333,16 @@ export class Application implements Contracts.Kernel.Application {
         this.booted = false;
 
         if (reason) {
-            this.get<Contracts.Kernel.Logger>(Identifiers.LogService).notice(reason);
+            this.get<Contracts.Kernel.Logger>(Identifiers.LogService).critical(reason);
         }
 
         if (error) {
-            this.get<Contracts.Kernel.Logger>(Identifiers.LogService).notice(error.message);
+            this.get<Contracts.Kernel.Logger>(Identifiers.LogService).critical(error.message);
         }
 
         await this.disposeServiceProviders();
+
+        process.exit(100);
     }
 
     /**
