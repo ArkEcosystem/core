@@ -38,9 +38,9 @@ export class AttributeMap {
     public get<T>(key: string, defaultValue?: T): T {
         this.assertKnown(key);
 
-        const value: T | undefined = get(this.attributes, key, defaultValue);
+        const value: T | undefined = get(this.attributes, key) ?? defaultValue;
 
-        assert.defined<AttributeMap>(value);
+        assert.defined<T>(value);
 
         return value;
     }

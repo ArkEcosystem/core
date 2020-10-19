@@ -21,7 +21,7 @@ const transaction2 = Transactions.BuilderFactory.transfer()
     .build();
 
 const pool = { addTransaction: jest.fn() };
-const dynamicFeeMatcher = { throwIfCannotEnterPool: jest.fn(), throwIfCannotBroadcast: jest.fn() };
+const dynamicFeeMatcher = { throwIfCannotBroadcast: jest.fn() };
 const transactionBroadcaster = { broadcastTransactions: jest.fn() };
 const workerPool = { isTypeGroupSupported: jest.fn(), getTransactionFromData: jest.fn() };
 
@@ -32,21 +32,14 @@ container.bind(Container.Identifiers.PeerTransactionBroadcaster).toConstantValue
 container.bind(Container.Identifiers.TransactionPoolWorkerPool).toConstantValue(workerPool);
 
 beforeEach(() => {
-    pool.addTransaction.mockReset();
-    dynamicFeeMatcher.throwIfCannotEnterPool.mockReset();
-    dynamicFeeMatcher.throwIfCannotBroadcast.mockReset();
-    transactionBroadcaster.broadcastTransactions.mockReset();
-    workerPool.isTypeGroupSupported.mockReset();
-    workerPool.getTransactionFromData.mockReset();
+    jest.resetAllMocks();
 });
 
 describe("Processor.process", () => {
     it("should parse transactions through factory pool", async () => {
         workerPool.isTypeGroupSupported.mockReturnValue(true);
         workerPool.getTransactionFromData.mockResolvedValueOnce(transaction1).mockResolvedValueOnce(transaction2);
-        dynamicFeeMatcher.throwIfCannotEnterPool
-            .mockImplementationOnce(async (transaction) => {})
-            .mockImplementationOnce(async (transaction) => {});
+
         dynamicFeeMatcher.throwIfCannotBroadcast
             .mockImplementationOnce(async (transaction) => {
                 throw new TransactionFeeToLowError(transaction);
@@ -58,7 +51,6 @@ describe("Processor.process", () => {
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data, transaction2.data]);
 
-        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(2);
         expect(pool.addTransaction).toBeCalledTimes(2);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(2);
         expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
@@ -90,10 +82,10 @@ describe("Processor.process", () => {
         });
     });
 
-    it("should add eligible transactions to pool", async () => {
+    it("should add transactions to pool", async () => {
         workerPool.isTypeGroupSupported.mockReturnValue(false);
 
-        dynamicFeeMatcher.throwIfCannotEnterPool
+        pool.addTransaction
             .mockImplementationOnce(async (transaction) => {})
             .mockImplementationOnce(async (transaction) => {
                 throw new TransactionFeeToLowError(transaction);
@@ -102,8 +94,7 @@ describe("Processor.process", () => {
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data, transaction2.data]);
 
-        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(2);
-        expect(pool.addTransaction).toBeCalledTimes(1);
+        expect(pool.addTransaction).toBeCalledTimes(2);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(1);
         expect(transactionBroadcaster.broadcastTransactions).toBeCalledTimes(1);
 
@@ -127,7 +118,6 @@ describe("Processor.process", () => {
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data, transaction2.data]);
 
-        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(2);
         expect(pool.addTransaction).toBeCalledTimes(2);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(2);
         expect(transactionBroadcaster.broadcastTransactions).toBeCalled();
@@ -148,7 +138,6 @@ describe("Processor.process", () => {
 
         await expect(promise).rejects.toThrow();
 
-        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(1);
         expect(pool.addTransaction).toBeCalledTimes(1);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(0);
         expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
@@ -169,7 +158,6 @@ describe("Processor.process", () => {
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data]);
 
-        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(1);
         expect(pool.addTransaction).toBeCalledTimes(1);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(0);
         expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();

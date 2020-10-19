@@ -233,25 +233,26 @@ export class BlockState {
         ) {
             AppUtils.assert.defined<Interfaces.ITransactionAsset>(transaction.asset?.votes);
 
-            const vote: string = transaction.asset.votes[0];
-            const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(vote.substr(1));
-            let voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
-            const senderLockedBalance: Utils.BigNumber = sender.getAttribute(
-                "htlc.lockedBalance",
-                Utils.BigNumber.ZERO,
-            );
+            for (const vote of transaction.asset.votes) {
+                const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(vote.substr(1));
+                let voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
+                const senderLockedBalance: Utils.BigNumber = sender.getAttribute(
+                    "htlc.lockedBalance",
+                    Utils.BigNumber.ZERO,
+                );
 
-            if (vote.startsWith("+")) {
-                voteBalance = revert
-                    ? voteBalance.minus(sender.balance.minus(transaction.fee)).minus(senderLockedBalance)
-                    : voteBalance.plus(sender.balance).plus(senderLockedBalance);
-            } else {
-                voteBalance = revert
-                    ? voteBalance.plus(sender.balance).plus(senderLockedBalance)
-                    : voteBalance.minus(sender.balance.plus(transaction.fee)).minus(senderLockedBalance);
+                if (vote.startsWith("+")) {
+                    voteBalance = revert
+                        ? voteBalance.minus(sender.balance.minus(transaction.fee)).minus(senderLockedBalance)
+                        : voteBalance.plus(sender.balance).plus(senderLockedBalance);
+                } else {
+                    voteBalance = revert
+                        ? voteBalance.plus(sender.balance).plus(senderLockedBalance)
+                        : voteBalance.minus(sender.balance.plus(transaction.fee)).minus(senderLockedBalance);
+                }
+
+                delegate.setAttribute("delegate.voteBalance", voteBalance);
             }
-
-            delegate.setAttribute("delegate.voteBalance", voteBalance);
         } else {
             // Update vote balance of the sender's delegate
             if (sender.hasVoted()) {
