@@ -35,6 +35,8 @@ beforeEach(() => {
     app = new Application(container);
 
     logger = {
+        error: jest.fn(),
+        info: jest.fn(),
         notice: jest.fn(),
         debug: jest.fn(),
     };
@@ -423,7 +425,7 @@ describe("Application", () => {
         await app.terminate("Hello World");
 
         // Assert
-        expect(logger.notice).toHaveBeenCalledWith("Hello World");
+        expect(logger.info).toHaveBeenCalledWith("Hello World");
         expect(spyDispose).toHaveBeenCalled();
         expect(app.isBooted()).toBeFalse();
     });
@@ -442,11 +444,12 @@ describe("Application", () => {
 
         // Act
         serviceProviderRepository.load("stub");
+        const error = new Error("Hello World");
         await app.boot();
-        await app.terminate(undefined, new Error("Hello World"));
+        await app.terminate(undefined, error);
 
         // Assert
-        expect(logger.notice).toHaveBeenCalledWith("Hello World");
+        expect(logger.error).toHaveBeenCalledWith(error.stack);
         expect(spyDispose).toHaveBeenCalled();
         expect(app.isBooted()).toBeFalse();
     });
