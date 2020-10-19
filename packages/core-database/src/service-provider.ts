@@ -36,7 +36,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Container.Identifiers.DatabaseModelConverter).to(ModelConverter);
         this.app.bind(Container.Identifiers.DatabaseService).to(DatabaseService).inSingletonScope();
-        this.app.bind(Container.Identifiers.DatabaseWalletsTableService).to(WalletsTableService).inSingletonScope();
+        this.app.bind(Container.Identifiers.DatabaseWalletsTableService).to(WalletsTableService);
     }
 
     public async boot(): Promise<void> {

@@ -91,15 +91,20 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .toAutoFactory(Container.Identifiers.TransactionValidator);
 
         this.app.bind(Container.Identifiers.DatabaseInteraction).to(DatabaseInteraction);
+        this.app.bind(Container.Identifiers.StateWalletSyncService).to(WalletSyncService).inSingletonScope();
 
         this.registerActions();
     }
 
     public async boot(): Promise<void> {
-        this.app.resolve<WalletSyncService>(WalletSyncService).boot();
+        this.app.get<WalletSyncService>(Container.Identifiers.StateWalletSyncService).boot();
 
         await this.app.get<DatabaseInteraction>(Container.Identifiers.DatabaseInteraction).initialize();
         await this.app.resolve<StateBuilder>(StateBuilder).run();
+    }
+
+    public async dispose(): Promise<void> {
+        this.app.get<WalletSyncService>(Container.Identifiers.StateWalletSyncService).dispose();
     }
 
     public async bootWhen(serviceProvider?: string): Promise<boolean> {

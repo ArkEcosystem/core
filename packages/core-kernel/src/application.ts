@@ -341,9 +341,6 @@ export class Application implements Contracts.Kernel.Application {
         }
 
         await this.disposeServiceProviders();
-
-        await new Promise((resolve) => setTimeout(resolve, 100)); // a little bit of time to log message
-        process.exit(100);
     }
 
     /**
