@@ -11,7 +11,12 @@ export const initApp = (): Application => {
 
     app.bind(Identifiers.EventDispatcherService).to(MemoryEventDispatcher).inSingletonScope();
 
-    app.bind(Identifiers.LogService).toConstantValue({ info: jest.fn(), notice: jest.fn(), debug: jest.fn() });
+    app.bind(Identifiers.LogService).toConstantValue({
+        info: jest.fn(),
+        notice: jest.fn(),
+        debug: jest.fn(),
+        error: jest.fn(),
+    });
 
     app.bind("path.cache").toConstantValue(dirSync().name);
 
