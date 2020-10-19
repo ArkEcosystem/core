@@ -28,7 +28,11 @@ describe("ServiceProvider", () => {
             boot: jest.fn(),
             dispose: jest.fn(),
         });
-        app.rebind(Container.Identifiers.TransactionPoolService).toConstantValue({ boot: jest.fn() });
+
+        app.rebind(Container.Identifiers.TransactionPoolService).toConstantValue({
+            boot: jest.fn(),
+            dispose: jest.fn(),
+        });
 
         await expect(serviceProvider.boot()).toResolve();
 
