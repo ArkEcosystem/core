@@ -5,7 +5,7 @@ export class CreateWalletsTable20201013000000 implements MigrationInterface {
         await queryRunner.query(`
             CREATE TABLE wallets (
                 "address" VARCHAR(36) PRIMARY KEY NOT NULL,
-                "public_key" VARCHAR(66) UNIQUE NOT NULL,
+                "public_key" VARCHAR(66) UNIQUE,
                 "balance" BIGINT NOT NULL,
                 "nonce" BIGINT NOT NULL,
                 "attributes" JSONB NOT NULL
