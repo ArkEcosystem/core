@@ -87,6 +87,8 @@ export class Initialize implements Action {
              ******************************* */
             // Integrity Verification
 
+            await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
+
             await this.databaseInteraction.restoreCurrentRound(block.data.height);
             await this.transactionPool.readdTransactions();
 
