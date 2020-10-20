@@ -65,6 +65,7 @@ export class Initialize implements Action {
             await this.databaseService.deleteRound(roundInfo.round + 1);
 
             if (this.stateStore.networkStart) {
+                await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
                 await this.databaseInteraction.restoreCurrentRound(block.data.height);
                 await this.transactionPool.readdTransactions();
                 await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
@@ -75,6 +76,7 @@ export class Initialize implements Action {
             if (process.env.NODE_ENV === "test") {
                 this.logger.notice("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
+                await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
                 await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
 
                 return this.blockchain.dispatch("STARTED");
