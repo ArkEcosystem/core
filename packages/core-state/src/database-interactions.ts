@@ -90,6 +90,11 @@ export class DatabaseInteraction {
         await this.applyRound(height);
     }
 
+    public async loadBlocksFromCurrentRound(): Promise<void> {
+        // ! this should not be public, this.blocksInCurrentRound is used by DatabaseService only
+        this.blocksInCurrentRound = await this.getBlocksForRound();
+    }
+
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         await this.blockState.applyBlock(block);
 
@@ -153,6 +158,20 @@ export class DatabaseInteraction {
         }
     }
 
+    public async revertBlock(block: Interfaces.IBlock): Promise<void> {
+        await this.revertRound(block.data.height);
+        await this.blockState.revertBlock(block);
+
+        // ! blockState is already reverted if this check fails
+        assert(this.blocksInCurrentRound.pop()!.data.id === block.data.id);
+
+        for (let i = block.transactions.length - 1; i >= 0; i--) {
+            this.events.dispatch(Enums.TransactionEvent.Reverted, block.transactions[i].data);
+        }
+
+        this.events.dispatch(Enums.BlockEvent.Reverted, block.data);
+    }
+
     public async revertRound(height: number): Promise<void> {
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
         const { round, nextRound, maxDelegates } = roundInfo;
@@ -171,25 +190,6 @@ export class DatabaseInteraction {
             // ! this will only delete one round
             await this.databaseService.deleteRound(nextRound);
         }
-    }
-
-    public async loadBlocksFromCurrentRound(): Promise<void> {
-        // ! this should not be public, this.blocksInCurrentRound is used by DatabaseService only
-        this.blocksInCurrentRound = await this.getBlocksForRound();
-    }
-
-    public async revertBlock(block: Interfaces.IBlock): Promise<void> {
-        await this.revertRound(block.data.height);
-        await this.blockState.revertBlock(block);
-
-        // ! blockState is already reverted if this check fails
-        assert(this.blocksInCurrentRound.pop()!.data.id === block.data.id);
-
-        for (let i = block.transactions.length - 1; i >= 0; i--) {
-            this.events.dispatch(Enums.TransactionEvent.Reverted, block.transactions[i].data);
-        }
-
-        this.events.dispatch(Enums.BlockEvent.Reverted, block.data);
     }
 
     public async getBlocksForRound(roundInfo?: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock[]> {
