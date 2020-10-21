@@ -99,9 +99,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public async boot(): Promise<void> {
-        await this.app.get<DatabaseInteraction>(Container.Identifiers.DatabaseInteraction).initialize();
         this.app.get<WalletSyncService>(Container.Identifiers.StateWalletSyncService).boot();
-        await this.app.resolve<StateBuilder>(StateBuilder).run();
+        await this.app.get<DatabaseInteraction>(Container.Identifiers.DatabaseInteraction).initialize();
     }
 
     public async dispose(): Promise<void> {
