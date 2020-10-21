@@ -91,12 +91,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Container.Identifiers.DatabaseInteraction).to(DatabaseInteraction).inSingletonScope();
 
+        this.app.bind(Container.Identifiers.StateBuilder).to(StateBuilder);
+
         this.registerActions();
     }
 
     public async boot(): Promise<void> {
         await this.app.get<DatabaseInteraction>(Container.Identifiers.DatabaseInteraction).initialize();
-        await this.app.resolve<StateBuilder>(StateBuilder).run();
     }
 
     public async bootWhen(serviceProvider?: string): Promise<boolean> {

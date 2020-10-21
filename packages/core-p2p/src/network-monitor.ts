@@ -172,7 +172,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         for (const key of Object.keys(peerErrors)) {
             const peerCount = peerErrors[key].length;
-            this.logger.debug(`Removed ${peerCount} ${Utils.pluralize("peers", peerCount)} because of "${key}"`);
+            this.logger.debug(`Removed ${peerCount} ${Utils.pluralize("peer", peerCount)} because of "${key}"`);
         }
 
         if (this.initializing) {

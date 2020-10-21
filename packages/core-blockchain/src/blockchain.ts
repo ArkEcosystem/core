@@ -52,6 +52,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
     private missedBlocks: number = 0;
     private lastCheckNetworkHealthTs: number = 0;
+    private booted: boolean = false;
 
     @Container.postConstruct()
     public initialize(): void {
@@ -120,7 +121,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.events.listen(Enums.RoundEvent.Applied, { handle: this.resetMissedBlocks });
 
+        this.booted = true;
+
         return true;
+    }
+
+    public isBooted(): boolean {
+        return this.booted;
     }
 
     public async dispose(): Promise<void> {
