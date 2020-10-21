@@ -93,6 +93,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.DatabaseInteraction).to(DatabaseInteraction);
         this.app.bind(Container.Identifiers.StateWalletSyncService).to(WalletSyncService).inSingletonScope();
 
+        this.app.bind(Container.Identifiers.StateBuilder).to(StateBuilder);
+
         this.registerActions();
     }
 

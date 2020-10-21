@@ -33,8 +33,13 @@ describe("Initialize", () => {
         getActiveDelegates: jest.fn().mockReturnValue([]),
     };
     const peerNetworkMonitor = { boot: jest.fn() };
+    const stateBuilder = { run: jest.fn() };
 
-    const application = { get: () => peerNetworkMonitor };
+    const appGet = {
+        [Container.Identifiers.PeerNetworkMonitor]: peerNetworkMonitor,
+        [Container.Identifiers.StateBuilder]: stateBuilder,
+    }
+    const application = { get: (key) => appGet[key] };
 
     beforeAll(() => {
         container.unbindAll();
@@ -72,6 +77,7 @@ describe("Initialize", () => {
                 expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalledTimes(1);
                 expect(transactionPool.readdTransactions).toHaveBeenCalledTimes(1);
                 expect(peerNetworkMonitor.boot).toHaveBeenCalledTimes(1);
+                expect(stateBuilder.run).toHaveBeenCalledTimes(1);
                 expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
                 expect(blockchain.dispatch).toHaveBeenCalledWith("STARTED");
             });
@@ -197,6 +203,7 @@ describe("Initialize", () => {
                 expect(databaseInteractions.restoreCurrentRound).toHaveBeenCalledTimes(0);
                 expect(transactionPool.readdTransactions).toHaveBeenCalledTimes(0);
                 expect(peerNetworkMonitor.boot).toHaveBeenCalledTimes(1);
+                expect(stateBuilder.run).toHaveBeenCalledTimes(1);
                 expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
                 expect(blockchain.dispatch).toHaveBeenCalledWith("STARTED");
             });

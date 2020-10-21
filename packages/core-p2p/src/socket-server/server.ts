@@ -4,6 +4,7 @@ import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, Server
 import { PortsOffset } from "../enums";
 import { plugin } from "../hapi-nes";
 import { AcceptPeerPlugin } from "./plugins/accept-peer";
+import { IsAppReadyPlugin } from "./plugins/is-app-ready";
 import { ValidatePlugin } from "./plugins/validate";
 import { WhitelistForgerPlugin } from "./plugins/whitelist-forger";
 import { BlocksRoute } from "./routes/blocks";
@@ -83,6 +84,7 @@ export class Server {
         await this.transactionsServer.register({ plugin, options: { maxPayload: 10485760 } }); // 10 MB
 
         for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
+            this.app.resolve(IsAppReadyPlugin).register(server);
             this.app.resolve(ValidatePlugin).register(server);
         }
 
