@@ -213,7 +213,10 @@ export class DatabaseInteraction {
 
         // ? number of blocks in round may not equal roundInfo.maxDelegates
         // ? see round-calculator.ts handling milestone change
-        const blocks = await this.databaseService.getBlocks(roundInfo.roundHeight, roundInfo.maxDelegates);
+        const blocks = await this.databaseService.getBlocks(
+            roundInfo.roundHeight,
+            roundInfo.roundHeight + roundInfo.maxDelegates - 1,
+        );
 
         const builtBlockPromises: Promise<Interfaces.IBlock>[] = blocks.map(async (block: Interfaces.IBlockData) => {
             if (block.height === 1) {
