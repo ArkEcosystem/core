@@ -12,7 +12,6 @@ let app: Application;
 
 const logger = {
     error: jest.fn(),
-    info: jest.fn(),
     notice: jest.fn(),
     debug: jest.fn(),
 };
