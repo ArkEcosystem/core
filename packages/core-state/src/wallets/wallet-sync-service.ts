@@ -33,7 +33,7 @@ export class WalletSyncService implements Contracts.Kernel.EventListener {
     private disposed = false;
 
     public boot(): void {
-        if (this.configuration.getRequired("walletSync.enabled") || true) {
+        if (this.configuration.getRequired("walletSync.enabled")) {
             this.events.listen(Enums.StateEvent.BuilderFinished, this);
             this.events.listen(WalletEvent.AttributeSet, this);
             this.events.listen(WalletEvent.AttributeForget, this);
@@ -44,7 +44,7 @@ export class WalletSyncService implements Contracts.Kernel.EventListener {
     }
 
     public dispose(): void {
-        if (this.configuration.getRequired("walletSync.enabled") || true) {
+        if (this.configuration.getRequired("walletSync.enabled")) {
             this.events.forget(Enums.StateEvent.BuilderFinished, this);
             this.events.forget(WalletEvent.AttributeSet, this);
             this.events.forget(WalletEvent.AttributeForget, this);
