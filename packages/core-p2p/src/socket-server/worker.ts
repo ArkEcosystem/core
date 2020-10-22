@@ -118,6 +118,8 @@ export class Worker extends SCWorker {
         ws.prependListener("message", message => {
             if (req.socket._disconnected) {
                 return this.setErrorForIpAndDestroy(req.socket);
+            } else if (typeof message !== "string") {
+                return this.setErrorForIpAndDestroy(req.socket);
             } else if (message === "#2") {
                 const timeNow: number = new Date().getTime() / 1000;
                 if (req.socket._lastPingTime && timeNow - req.socket._lastPingTime < 1) {
