@@ -41,6 +41,24 @@ export class Triggers {
         return action;
     }
 
+    public unbind(name: string): Action {
+        const trigger = this.triggers.get(name);
+
+        if (!trigger) {
+            throw new InvalidArgumentException(`The given trigger [${name}] is not available.`);
+        }
+
+        this.triggers.delete(name);
+
+        return trigger;
+    }
+
+    public rebind(name: string, action: Action): Action {
+        this.unbind(name);
+
+        return this.bind(name, action);
+    }
+
     /**
      * Get an trigger.
      *
