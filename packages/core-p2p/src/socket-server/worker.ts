@@ -347,6 +347,7 @@ export class Worker extends SCWorker {
 
                 if (!data.authorized) {
                     req.socket.terminate();
+                    this.setErrorForIpAndDestroy(req.socket);
                     return;
                 }
             } else if (version === "peer") {
