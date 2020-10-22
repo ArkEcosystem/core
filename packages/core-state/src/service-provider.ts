@@ -90,7 +90,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.TransactionValidatorFactory)
             .toAutoFactory(Container.Identifiers.TransactionValidator);
 
-        this.app.bind(Container.Identifiers.DatabaseInteraction).to(DatabaseInteraction);
+        this.app.bind(Container.Identifiers.DatabaseInteraction).to(DatabaseInteraction).inSingletonScope();
         this.app.bind(Container.Identifiers.StateWalletSyncService).to(WalletSyncService).inSingletonScope();
 
         this.app.bind(Container.Identifiers.StateBuilder).to(StateBuilder);
