@@ -127,7 +127,7 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Data
     const reqHeadersOnly: boolean = !!req.data.headersOnly;
 
     const lastHeight: number = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastHeight();
-    if (reqBlockHeight >= lastHeight) {
+    if (reqBlockHeight > lastHeight) {
         return [];
     }
 
