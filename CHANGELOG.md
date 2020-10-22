@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.7.7] - 2020-10-22
+
+### Fixed
+
+-   Strict greater than (8006a8da, @air1one)
+
 ## [2.7.6] - 2020-10-22
 
 ### Changed
