@@ -284,7 +284,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         // then blocksToRemove[] will contain blocks [N - 1, H - 1].
         const blocksToRemove: Interfaces.IBlockData[] = await this.database.getBlocks(
             lastBlock.data.height - nblocks,
-            nblocks,
+            lastBlock.data.height,
         );
 
         const removedBlocks: Interfaces.IBlockData[] = [];
@@ -296,12 +296,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             await this.databaseInteraction.revertBlock(lastBlock);
             removedBlocks.push(lastBlock.data);
             removedTransactions.push(...[...lastBlock.transactions].reverse());
+            blocksToRemove.pop();
 
             let newLastBlock: Interfaces.IBlock;
             if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
                 newLastBlock = this.app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
             } else {
-                const tempNewLastBlockData: Interfaces.IBlockData | undefined = blocksToRemove.pop();
+                const tempNewLastBlockData: Interfaces.IBlockData = blocksToRemove[blocksToRemove.length - 1];
 
                 Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlockData);
 
