@@ -126,6 +126,11 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Data
     const reqBlockLimit: number = +req.data.blockLimit || 400;
     const reqHeadersOnly: boolean = !!req.data.headersOnly;
 
+    const lastHeight: number = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastHeight();
+    if (reqBlockHeight >= lastHeight) {
+        return [];
+    }
+
     const blocks: Database.IDownloadBlock[] = await database.getBlocksForDownload(
         reqBlockHeight,
         reqBlockLimit,
