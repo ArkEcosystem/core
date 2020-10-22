@@ -18,6 +18,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
     @Container.optional()
     private readonly transactionBroadcaster!: Contracts.P2P.TransactionBroadcaster | undefined;
 
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     public accept: string[] = [];
     public broadcast: string[] = [];
     public invalid: string[] = [];
@@ -61,7 +64,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
             }
         } finally {
             if (this.transactionBroadcaster && broadcastableTransactions.length !== 0) {
-                this.transactionBroadcaster.broadcastTransactions(broadcastableTransactions);
+                this.transactionBroadcaster.broadcastTransactions(broadcastableTransactions).catch(
+                    (error) => this.logger.error(error.stack)
+                );
                 for (const transaction of broadcastableTransactions) {
                     AppUtils.assert.defined<string>(transaction.id);
                     this.broadcast.push(transaction.id);
