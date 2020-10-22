@@ -34,6 +34,7 @@ export const defaults = {
         userCache: {
             expiresIn: process.env.CORE_API_RATE_LIMIT_USER_EXPIRES || 60000,
         },
+        trustProxy: true,
     },
     pagination: {
         limit: 100,
