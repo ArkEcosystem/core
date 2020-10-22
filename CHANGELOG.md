@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.7.6] - 2020-10-22
+
+### Changed
+
+-   Enable trustProxy option (850ade02, @air1one)
+-   Return [] if asked higher blocks than current (312899c9, @air1one)
+
+### Fixed
+
+-   Check that message is a string (5e1c5a33, @air1one)
+-   Ban if not authorized on internal (dd96ee49, @air1one)
+-   Htlc lock recipientId is required (380fb5b6, @air1one)
+
 ## [2.7.1] - 2020-09-28
 
 ### Fixed
