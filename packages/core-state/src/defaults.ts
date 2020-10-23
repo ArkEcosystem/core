@@ -4,6 +4,6 @@ export const defaults = {
         maxLastTransactionIds: 10000,
     },
     walletSync: {
-        enabled: false,
+        enabled: !!process.env.CORE_WALLET_SYNC_ENABLED,
     },
 };
