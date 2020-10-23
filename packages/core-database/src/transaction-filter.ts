@@ -94,7 +94,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
                     });
                 case "asset":
                     return handleOrCriteria(criteria.asset!, async (c) => {
-                        return { property: "asset", op: "contains", value: c };
+                        return this.handleAssetCriteria(c);
                     });
                 default:
                     return { op: "true" };
@@ -166,6 +166,72 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
                 expressions: [recipientIdExpression, multipaymentRecipientIdExpression],
             };
         }
+    }
+
+    private async handleAssetCriteria(
+        criteria: Contracts.Shared.TransactionCriteria,
+    ): Promise<Contracts.Search.Expression<Transaction>> {
+        let castLimit = 6;
+
+        const getCastValues = (value: unknown): unknown[] => {
+            if (Array.isArray(value)) {
+                let castValues: Array<unknown>[] = [[]];
+
+                for (const item of value) {
+                    const itemCastValues = getCastValues(item);
+
+                    castValues = castValues.flatMap((castValue) => {
+                        return itemCastValues.map((itemCastValue) => {
+                            return [...castValue, itemCastValue];
+                        });
+                    });
+                }
+
+                return castValues;
+            }
+
+            if (typeof value === "object" && value !== null) {
+                let castValues: object[] = [{}];
+
+                for (const key of Object.keys(value)) {
+                    const propertyCastValues = getCastValues(value[key]);
+
+                    castValues = castValues.flatMap((castValue) => {
+                        return propertyCastValues.map((propertyCastValue) => {
+                            return { ...castValue, [key]: propertyCastValue };
+                        });
+                    });
+                }
+
+                return castValues;
+            }
+
+            if (typeof value === "string" && String(Number(value)) === value) {
+                castLimit--;
+                if (castLimit === 0) {
+                    throw new Error("Asset cast property limit reached");
+                }
+
+                return [value, Number(value)];
+            }
+
+            if ((typeof value === "string" && value === "true") || value === "false") {
+                castLimit--;
+                if (castLimit === 0) {
+                    throw new Error("Asset cast property limit reached");
+                }
+
+                return [value, value === "true"];
+            }
+
+            return [value];
+        };
+
+        const expressions: Contracts.Search.Expression<Transaction>[] = getCastValues(criteria).map((c) => {
+            return { property: "asset", op: "contains", value: c };
+        });
+
+        return { op: "or", expressions };
     }
 
     private async getAutoTypeGroupExpression(

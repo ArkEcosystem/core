@@ -484,14 +484,173 @@ describe("TransactionFilter.getExpression", () => {
         it("should compare using contains expression", async () => {
             const transactionFilter = container.resolve(TransactionFilter);
             const expression = await transactionFilter.getExpression({
-                asset: { payments: [{ recipientId: "123" }] },
+                asset: { payments: [{ recipientId: "123a" }] },
             });
 
             expect(expression).toEqual({
                 property: "asset",
                 op: "contains",
-                value: { payments: [{ recipientId: "123" }] },
+                value: { payments: [{ recipientId: "123a" }] },
             });
+        });
+
+        it("should compare using or contains expressions when asset has number string", async () => {
+            const transactionFilter = container.resolve(TransactionFilter);
+            const expression = await transactionFilter.getExpression({
+                asset: { payments: [{ recipientId: "123" }] },
+            });
+
+            expect(expression).toEqual({
+                op: "or",
+                expressions: [
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: { payments: [{ recipientId: "123" }] },
+                    },
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: { payments: [{ recipientId: 123 }] },
+                    },
+                ],
+            });
+        });
+
+        it("should compare using or contains expressions when asset has boolean string", async () => {
+            const transactionFilter = container.resolve(TransactionFilter);
+            const expression = await transactionFilter.getExpression({
+                asset: { flags: ["true"] },
+            });
+
+            expect(expression).toEqual({
+                op: "or",
+                expressions: [
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: { flags: ["true"] },
+                    },
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: { flags: [true] },
+                    },
+                ],
+            });
+        });
+
+        it("should compare using or combination of contains expressions when asset has boolean and number string", async () => {
+            const transactionFilter = container.resolve(TransactionFilter);
+            const expression = await transactionFilter.getExpression({
+                asset: {
+                    recipientId: "123",
+                    flags: ["true", "false"],
+                },
+            });
+
+            expect(expression).toEqual({
+                op: "or",
+                expressions: [
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: {
+                            recipientId: "123",
+                            flags: ["true", "false"],
+                        },
+                    },
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: {
+                            recipientId: "123",
+                            flags: ["true", false],
+                        },
+                    },
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: {
+                            recipientId: "123",
+                            flags: [true, "false"],
+                        },
+                    },
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: {
+                            recipientId: "123",
+                            flags: [true, false],
+                        },
+                    },
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: {
+                            recipientId: 123,
+                            flags: ["true", "false"],
+                        },
+                    },
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: {
+                            recipientId: 123,
+                            flags: ["true", false],
+                        },
+                    },
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: {
+                            recipientId: 123,
+                            flags: [true, "false"],
+                        },
+                    },
+                    {
+                        property: "asset",
+                        op: "contains",
+                        value: {
+                            recipientId: 123,
+                            flags: [true, false],
+                        },
+                    },
+                ],
+            });
+        });
+
+        it("should throw when there are to many number string combinations", async () => {
+            const transactionFilter = container.resolve(TransactionFilter);
+            const criteria = {
+                asset: { recipientId: ["1", "2", "3", "4", "5", "6"] },
+            };
+
+            await expect(transactionFilter.getExpression(criteria)).rejects.toThrow(
+                "Asset cast property limit reached",
+            );
+        });
+
+        it("should throw when there are to many boolean string combinations", async () => {
+            const transactionFilter = container.resolve(TransactionFilter);
+            const criteria = {
+                asset: { recipientId: ["true", "true", "true", "false", "false", "false"] },
+            };
+
+            await expect(transactionFilter.getExpression(criteria)).rejects.toThrow(
+                "Asset cast property limit reached",
+            );
+        });
+
+        it("should throw when there are to many number or boolean string combinations", async () => {
+            const transactionFilter = container.resolve(TransactionFilter);
+            const criteria = {
+                asset: { recipientId: ["true", "1", "2", "false", "3", "4"] },
+            };
+
+            await expect(transactionFilter.getExpression(criteria)).rejects.toThrow(
+                "Asset cast property limit reached",
+            );
         });
     });
 
