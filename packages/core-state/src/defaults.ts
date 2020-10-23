@@ -3,4 +3,7 @@ export const defaults = {
         maxLastBlocks: 100,
         maxLastTransactionIds: 10000,
     },
+    walletSync: {
+        enabled: false,
+    },
 };

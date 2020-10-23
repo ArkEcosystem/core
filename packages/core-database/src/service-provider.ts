@@ -10,6 +10,7 @@ import { BlockRepository, RoundRepository, TransactionRepository } from "./repos
 import { TransactionFilter } from "./transaction-filter";
 import { TransactionHistoryService } from "./transaction-history-service";
 import { SnakeNamingStrategy } from "./utils/snake-naming-strategy";
+import { WalletsTableService } from "./wallets-table-service";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -35,6 +36,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Container.Identifiers.DatabaseModelConverter).to(ModelConverter);
         this.app.bind(Container.Identifiers.DatabaseService).to(DatabaseService).inSingletonScope();
+        this.app.bind(Container.Identifiers.DatabaseWalletsTableService).to(WalletsTableService);
     }
 
     public async boot(): Promise<void> {

@@ -337,7 +337,7 @@ export class Application implements Contracts.Kernel.Application {
         }
 
         if (error) {
-            this.get<Contracts.Kernel.Logger>(Identifiers.LogService).notice(error.message);
+            this.get<Contracts.Kernel.Logger>(Identifiers.LogService).error(error.stack);
         }
 
         await this.disposeServiceProviders();
