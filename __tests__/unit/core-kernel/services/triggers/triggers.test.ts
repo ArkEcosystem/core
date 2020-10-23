@@ -87,7 +87,7 @@ describe("Triggers", () => {
         });
 
         it("throws an error if a trigger is not registered", async () => {
-            expect(triggers.call("count")).rejects.toThrowError(
+            await expect(triggers.call("count")).rejects.toThrowError(
                 new InvalidArgumentException("The given trigger [count] is not available."),
             );
         });
@@ -107,8 +107,49 @@ describe("Triggers", () => {
         });
     });
 
+    describe("unbind", () => {
+        it("returns and remove the trigger", async () => {
+            triggers.bind("count", new DummyAction());
+
+            expect(triggers.get("count")).toBeInstanceOf(DummyAction);
+
+            expect(triggers.unbind("count")).toBeInstanceOf(Action);
+
+            expect(() => triggers.get("count")).toThrowError(
+                new InvalidArgumentException("The given trigger [count] is not available."),
+            );
+        });
+
+        it("throws an error if a trigger is not registered", async () => {
+            expect(() => triggers.unbind("count")).toThrowError(
+                new InvalidArgumentException("The given trigger [count] is not available."),
+            );
+        });
+    });
+
+    describe("rebind", () => {
+        it("returns new trigger and replaces it", async () => {
+            const trigger1 = new DummyAction();
+            const trigger2 = new DummyAction();
+
+            triggers.bind("count", trigger1);
+
+            expect(triggers.get("count")).toBe(trigger1);
+
+            expect(triggers.rebind("count", trigger2)).toBe(trigger2);
+
+            expect(triggers.get("count")).toBe(trigger2);
+        });
+
+        it("throws an error if a trigger is not registered", async () => {
+            expect(() => triggers.rebind("count", new DummyAction())).toThrowError(
+                new InvalidArgumentException("The given trigger [count] is not available."),
+            );
+        });
+    });
+
     describe("get", () => {
-        it("returns a trigger for the given trigger", async () => {
+        it("returns a trigger by name", async () => {
             triggers.bind("count", new DummyAction());
 
             expect(triggers.get("count")).toBeInstanceOf(Action);
@@ -122,7 +163,7 @@ describe("Triggers", () => {
     });
 
     describe("error handling", () => {
-        let dummyParams = {
+        const dummyParams = {
             returnValue: false,
         };
 
