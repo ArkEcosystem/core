@@ -215,7 +215,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
                 return [value, Number(value)];
             }
 
-            if ((typeof value === "string" && value === "true") || value === "false") {
+            if (value === "true" || value === "false") {
                 if (castLimit === 0) {
                     throw new Error("Asset cast property limit reached");
                 }
