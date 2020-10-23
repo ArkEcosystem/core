@@ -171,7 +171,7 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
     private async handleAssetCriteria(
         criteria: Contracts.Shared.TransactionCriteria,
     ): Promise<Contracts.Search.Expression<Transaction>> {
-        let castLimit = 6;
+        let castLimit = 5;
 
         const getCastValues = (value: unknown): unknown[] => {
             if (Array.isArray(value)) {
@@ -207,19 +207,19 @@ export class TransactionFilter implements Contracts.Database.TransactionFilter {
             }
 
             if (typeof value === "string" && String(Number(value)) === value) {
-                castLimit--;
                 if (castLimit === 0) {
                     throw new Error("Asset cast property limit reached");
                 }
+                castLimit--;
 
                 return [value, Number(value)];
             }
 
             if ((typeof value === "string" && value === "true") || value === "false") {
-                castLimit--;
                 if (castLimit === 0) {
                     throw new Error("Asset cast property limit reached");
                 }
+                castLimit--;
 
                 return [value, value === "true"];
             }
