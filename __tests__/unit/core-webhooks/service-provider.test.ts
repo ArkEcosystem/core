@@ -11,9 +11,9 @@ import { dirSync, setGracefulCleanup } from "tmp";
 let app: Application;
 
 const logger = {
-    debug: jest.fn(),
     error: jest.fn(),
     notice: jest.fn(),
+    debug: jest.fn(),
 };
 
 beforeEach(() => {

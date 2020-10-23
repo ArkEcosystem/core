@@ -62,6 +62,7 @@ export const Identifiers = {
     DatabaseTransactionFilter: Symbol.for("Database<TransactionFilter>"),
     DatabaseModelConverter: Symbol.for("Database<ModelConverter>"),
     DatabaseInteraction: Symbol.for("Database<DatabaseInteraction>"),
+    DatabaseWalletsTableService: Symbol.for("Database<WalletsTableService>"),
 
     // Kernel
     ConfigRepository: Symbol.for("Repository<Config>"),
@@ -75,6 +76,7 @@ export const Identifiers = {
     StateStore: Symbol.for("State<StateStore>"),
     StateBuilder: Symbol.for("State<StateBuilder>"),
     StateTransactionStore: Symbol.for("State<TransactionStore>"),
+    StateWalletSyncService: Symbol.for("State<WalletSyncService>"),
     WalletFactory: Symbol.for("State<WalletFactory>"),
     WalletRepository: Symbol.for("Repository<Wallet>"),
     WalletRepositoryIndexerIndex: Symbol.for("IndexerIndex<Repository<Wallet>>"),

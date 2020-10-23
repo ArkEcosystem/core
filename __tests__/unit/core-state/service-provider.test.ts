@@ -27,7 +27,7 @@ describe("ServiceProvider", () => {
 
     it("should boot correctly", async () => {
         const initializeSpy = jest.fn();
-        jest.spyOn(app, "get").mockReturnValue({ initialize: initializeSpy, bind: jest.fn() });
+        jest.spyOn(app, "get").mockReturnValue({ initialize: initializeSpy, bind: jest.fn(), boot: jest.fn() });
         await serviceProvider.register();
         expect(async () => await serviceProvider.boot()).not.toThrow();
         expect(initializeSpy).toHaveBeenCalled();

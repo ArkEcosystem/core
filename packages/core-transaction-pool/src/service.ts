@@ -32,15 +32,28 @@ export class Service implements Contracts.TransactionPool.Service {
 
     private readonly lock: AppUtils.Lock = new AppUtils.Lock();
 
+    private disposed = false;
+
     public async boot(): Promise<void> {
-        this.events.listen(Enums.CryptoEvent.MilestoneChanged, {
-            handle: () => this.readdTransactions(),
-        });
+        this.events.listen(Enums.CryptoEvent.MilestoneChanged, this);
 
         if (process.env.CORE_RESET_DATABASE || process.env.CORE_RESET_POOL) {
             await this.flush();
         } else {
             await this.readdTransactions();
+        }
+    }
+
+    public dispose(): void {
+        this.events.forget(Enums.CryptoEvent.MilestoneChanged, this);
+        this.disposed = true;
+    }
+
+    public handle({ name }): void {
+        switch (name) {
+            case Enums.CryptoEvent.MilestoneChanged:
+                this.readdTransactions();
+                break;
         }
     }
 
@@ -50,6 +63,10 @@ export class Service implements Contracts.TransactionPool.Service {
 
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         await this.lock.runNonExclusive(async () => {
+            if (this.disposed) {
+                return;
+            }
+
             AppUtils.assert.defined<string>(transaction.id);
 
             if (this.storage.hasTransaction(transaction.id)) {
@@ -74,6 +91,10 @@ export class Service implements Contracts.TransactionPool.Service {
 
     public async removeTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         await this.lock.runNonExclusive(async () => {
+            if (this.disposed) {
+                return;
+            }
+
             AppUtils.assert.defined<string>(transaction.id);
             if (this.storage.hasTransaction(transaction.id) === false) {
                 this.logger.error(`${transaction} not found`);
@@ -98,6 +119,10 @@ export class Service implements Contracts.TransactionPool.Service {
 
     public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         await this.lock.runNonExclusive(async () => {
+            if (this.disposed) {
+                return;
+            }
+
             AppUtils.assert.defined<string>(transaction.id);
             if (this.storage.hasTransaction(transaction.id) === false) {
                 return;
@@ -121,6 +146,10 @@ export class Service implements Contracts.TransactionPool.Service {
 
     public async readdTransactions(precedingTransactions?: Interfaces.ITransaction[]): Promise<void> {
         await this.lock.runExclusive(async () => {
+            if (this.disposed) {
+                return;
+            }
+
             this.mempool.flush();
 
             let precedingSuccessCount = 0;
@@ -184,6 +213,10 @@ export class Service implements Contracts.TransactionPool.Service {
 
     public async cleanUp(): Promise<void> {
         await this.lock.runNonExclusive(async () => {
+            if (this.disposed) {
+                return;
+            }
+
             await this.cleanExpired();
             await this.cleanLowestPriority();
         });
@@ -191,6 +224,10 @@ export class Service implements Contracts.TransactionPool.Service {
 
     public async flush(): Promise<void> {
         await this.lock.runExclusive(async () => {
+            if (this.disposed) {
+                return;
+            }
+
             this.mempool.flush();
             this.storage.flush();
         });
