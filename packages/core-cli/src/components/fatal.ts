@@ -1,6 +1,7 @@
 import { white } from "kleur";
 
-import { injectable } from "../ioc";
+import { Identifiers, inject, injectable } from "../ioc";
+import { Logger } from "../services";
 
 /**
  * @export
@@ -9,11 +10,20 @@ import { injectable } from "../ioc";
 @injectable()
 export class Fatal {
     /**
+     * @private
+     * @type {Logger}
+     * @memberof Command
+     */
+    @inject(Identifiers.Logger)
+    private readonly logger!: Logger;
+
+    /**
      * @static
      * @param {string} message
      * @memberof Fatal
      */
     public render(message: string): void {
-        throw new Error(white().bgRed(`[ERROR] ${message}`));
+        this.logger.error(white().bgRed(`[ERROR] ${message}`));
+        process.exit(1);
     }
 }
