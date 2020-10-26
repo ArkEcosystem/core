@@ -429,6 +429,7 @@ export class Client {
         if (this._settings.timeout) {
             record.timeout = setTimeout(() => {
                 record.timeout = null;
+                delete this._requests[request.id];
                 return record.reject(NesError("Request timed out", errorTypes.TIMEOUT));
             }, this._settings.timeout);
         }
