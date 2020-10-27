@@ -15,7 +15,7 @@ afterAll(() => setGracefulCleanup());
 describe("ListCommand", () => {
     it("should fail if the environment configuration doesn't exist", async () => {
         await expect(cli.execute(Command)).rejects.toThrow(
-            `[ERROR] No environment file found at ${process.env.CORE_PATH_CONFIG}/.env`,
+            `No environment file found at ${process.env.CORE_PATH_CONFIG}/.env`,
         );
     });
 
