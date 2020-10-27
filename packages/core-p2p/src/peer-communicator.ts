@@ -6,6 +6,7 @@ import { constants } from "./constants";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerVerifier } from "./peer-verifier";
+import { getCodec } from "./socket-server/utils/get-codec";
 import { replySchemas } from "./schemas";
 import { getPeerPortForEvent } from "./socket-server/utils/get-peer-port";
 import { isValidVersion } from "./utils";
@@ -222,8 +223,10 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         disconnectOnError: boolean = true,
     ) {
         const port = getPeerPortForEvent(peer, event);
+        const codec = getCodec(this.app, event);
 
         let response;
+        let parsedResponsePayload;
         try {
             this.connector.forgetError(peer);
 
@@ -231,16 +234,17 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
             await this.connector.connect(peer, port);
 
-            response = await this.connector.emit(peer, port, event, payload);
+            response = await this.connector.emit(peer, port, event, codec.request.serialize(payload));
+            parsedResponsePayload = codec.response.deserialize(response.payload);
 
             peer.sequentialErrorCounter = 0; // reset counter if response is successful, keep it after emit
 
             peer.latency = new Date().getTime() - timeBeforeSocketCall;
-            this.parseHeaders(peer, response.payload);
+            this.parseHeaders(peer, parsedResponsePayload);
 
-            if (!this.validateReply(peer, response.payload, event)) {
+            if (!this.validateReply(peer, parsedResponsePayload, event)) {
                 const validationError = new Error(
-                    `Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.payload)}`,
+                    `Response validation failed from peer ${peer.ip} : ${JSON.stringify(parsedResponsePayload)}`,
                 );
                 validationError.name = SocketErrors.Validation;
                 throw validationError;
@@ -250,7 +254,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             return undefined;
         }
 
-        return response.payload;
+        return parsedResponsePayload;
     }
 
     private handleSocketError(peer: Contracts.P2P.Peer, event: string, error: Error, disconnect: boolean = true): void {

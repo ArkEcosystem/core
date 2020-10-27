@@ -7,18 +7,11 @@
 */
 
 import WebSocket from "ws";
+import { parseNesMessage, stringifyNesMessage } from "./utils";
 
 /* eslint no-undef: 0 */
 const version = "2";
 const ignore = function () {};
-
-const stringify = function (message) {
-    try {
-        return JSON.stringify(message);
-    } catch (err) {
-        throw NesError(err, errorTypes.USER);
-    }
-};
 
 const nextTick = function (callback) {
     return (err) => {
@@ -91,7 +84,6 @@ export class Client {
     private _ids;
     private _requests;
     private _heartbeat;
-    private _packets;
     private _disconnectListeners;
     private _disconnectRequested;
 
@@ -123,7 +115,6 @@ export class Client {
         this._ids = 0; // Id counter
         this._requests = {}; // id -> { resolve, reject, timeout }
         this._heartbeat = null;
-        this._packets = [];
         this._disconnectListeners = null;
         this._disconnectRequested = false;
 
@@ -332,7 +323,6 @@ export class Client {
             ws.onmessage = null;
         }
 
-        this._packets = [];
         this.id = null;
 
         clearTimeout(this._heartbeat);
@@ -396,7 +386,7 @@ export class Client {
 
         let encoded;
         try {
-            encoded = stringify(request);
+            encoded = stringifyNesMessage(request);
         } catch (err) {
             return Promise.reject(err);
         }
@@ -460,28 +450,9 @@ export class Client {
         this._beat();
 
         let data = message.data;
-        const prefix = data[0];
-        if (prefix !== "{") {
-            this._packets.push(data.slice(1));
-            /* istanbul ignore else */
-            if (prefix !== "!") {
-                return;
-            }
-
-            /* istanbul ignore next */
-            data = this._packets.join("");
-            /* istanbul ignore next */
-            this._packets = [];
-        }
-
-        if (this._packets.length) {
-            this._packets = [];
-            this.onError(NesError("Received an incomplete message", errorTypes.PROTOCOL));
-        }
-
         let update;
         try {
-            update = JSON.parse(data);
+            update = parseNesMessage(data);
         } catch (err) {
             return this.onError(NesError(err, errorTypes.PROTOCOL));
         }
