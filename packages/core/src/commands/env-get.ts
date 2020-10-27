@@ -37,7 +37,11 @@ export class Command extends Commands.Command {
         this.definition
             .setFlag("token", "The name of the token.", Joi.string().default("ark"))
             .setFlag("network", "The name of the network.", Joi.string().valid(...Object.keys(Networks)))
-            .setFlag("key", "The name of the environment variable that you wish to get the value of.", Joi.string());
+            .setFlag(
+                "key",
+                "The name of the environment variable that you wish to get the value of.",
+                Joi.string().required(),
+            );
     }
 
     /**
