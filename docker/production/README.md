@@ -10,12 +10,12 @@ Official Production ready ARK Core images available now at [Docker Hub](https://
 
 ## Documentation
 
--   Development : https://learn.ark.dev/ 
--   Docker : https://guides.ark.dev/devops-guides/how-to-setup-a-node-with-docker 
+-   Development : https://learn.ark.dev/
+-   Docker : https://guides.ark.dev/devops-guides/how-to-setup-a-node-with-docker
 
 ## API Documentation
 
--   API : https://api.ark.dev/ 
+-   API : https://api.ark.dev/
 
 ## ARK Core Relay
 
@@ -93,8 +93,6 @@ CORE_API_HOST=0.0.0.0
 CORE_API_PORT=4003
 CORE_WEBHOOKS_HOST=0.0.0.0
 CORE_WEBHOOKS_PORT=4004
-CORE_EXCHANGE_JSON_RPC_HOST=0.0.0.0
-CORE_EXCHANGE_JSON_RPC_PORT=8080
 ```
 
 **_MainNet_**
@@ -169,8 +167,6 @@ CORE_API_HOST=0.0.0.0
 CORE_API_PORT=4003
 CORE_WEBHOOKS_HOST=0.0.0.0
 CORE_WEBHOOKS_PORT=4004
-CORE_EXCHANGE_JSON_RPC_HOST=0.0.0.0
-CORE_EXCHANGE_JSON_RPC_PORT=8080
 ```
 
 _If you prefer to use custom DB Name, DB User and DB Password simply adjust variables `POSTGRES_PASSWORD`, `POSTGRES_USER`, `POSTGRES_DB`, `CORE_DB_PASSWORD`, `CORE_DB_USERNAME` and `CORE_DB_DATABASE` correspondingly._
