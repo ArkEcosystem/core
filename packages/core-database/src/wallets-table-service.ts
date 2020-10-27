@@ -46,14 +46,14 @@ export class WalletsTableService implements Contracts.Database.WalletsTableServi
                         .join(", ");
 
                     const query = `
-                                    INSERT INTO wallets(address, public_key, balance, nonce, attributes) VALUES
-                                        ${values}
-                                    ON CONFLICT (address) DO UPDATE SET
-                                        public_key = EXCLUDED.public_key,
-                                        balance = EXCLUDED.balance,
-                                        nonce = EXCLUDED.nonce,
-                                        attributes = EXCLUDED.attributes
-                                `;
+                        INSERT INTO wallets(address, public_key, balance, nonce, attributes) VALUES
+                            ${values}
+                        ON CONFLICT (address) DO UPDATE SET
+                            public_key = EXCLUDED.public_key,
+                            balance = EXCLUDED.balance,
+                            nonce = EXCLUDED.nonce,
+                            attributes = EXCLUDED.attributes
+                    `;
 
                     await queryRunner.query(query, params);
                 }
