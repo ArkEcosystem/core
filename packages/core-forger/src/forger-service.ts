@@ -226,6 +226,7 @@ export class ForgerService {
         } catch (error) {
             if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
                 if (error.message.includes("blockchain isn't ready") || error.message.includes("App is not ready")) {
+                    /* istanbul ignore else */
                     if (this.logAppReady) {
                         this.logger.info("Waiting for relay to become ready.");
                         this.logAppReady = false;
