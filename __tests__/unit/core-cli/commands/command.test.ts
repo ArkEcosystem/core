@@ -56,12 +56,18 @@ describe("Command", () => {
             cmd.register(["env:paths", "-vvv"]);
         });
 
-        it("should register the command and encounter an error", () => {
+        it("should register the command and call fatal", () => {
             jest.spyOn(cli.app.get(Container.Identifiers.Output), "setVerbosity").mockImplementation(() => {
                 throw new Error("I am an error");
             });
 
-            expect(() => cmd.register(["env:paths", "--quiet"])).toThrow("I am an error");
+            const spyOnFatal = jest
+                .spyOn(cli.app.get(Container.Identifiers.ComponentFactory), "fatal")
+                .mockImplementation(() => {});
+
+            cmd.register(["env:paths", "--quiet"]);
+
+            expect(spyOnFatal).toHaveBeenCalledWith("I am an error");
         });
     });
 
@@ -118,10 +124,16 @@ describe("Command", () => {
         });
 
         it("should run the command and try to detect a network", async () => {
+            const spyOnFatal = jest
+                .spyOn(cli.app.get(Container.Identifiers.ComponentFactory), "fatal")
+                .mockImplementation(() => {});
+
             cmd.input.setFlag("token", "ark");
             cmd.input.setFlag("network", undefined);
 
-            await expect(cmd.run()).rejects.toThrow();
+            await cmd.run();
+
+            expect(spyOnFatal).toHaveBeenCalled();
         });
 
         it("should run the command and throw an error", async () => {
@@ -129,7 +141,13 @@ describe("Command", () => {
                 throw new Error("I am an error");
             });
 
-            await expect(cmd.run()).rejects.toThrow("I am an error");
+            const spyOnFatal = jest
+                .spyOn(cli.app.get(Container.Identifiers.ComponentFactory), "fatal")
+                .mockImplementation(() => {});
+
+            await cmd.run();
+
+            expect(spyOnFatal).toHaveBeenCalledWith("I am an error");
         });
     });
 
