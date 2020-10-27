@@ -216,7 +216,7 @@ export class ForgerService {
             return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup));
         } catch (error) {
             if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
-                if (error.message.includes("blockchain isn't ready") || error.message.includes("App is not ready.")) {
+                if (error.message.includes("blockchain isn't ready") || error.message.includes("App is not ready")) {
                     this.logger.info("Waiting for relay to become ready.");
                 } else {
                     this.logger.warning(error.message);
