@@ -43,8 +43,11 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         pagination: Contracts.Search.Pagination,
         options?: Contracts.Search.Options,
     ): Promise<Contracts.Search.ResultsPage<TEntity>> {
-        return await this.manager.transaction("REPEATABLE READ", async (entityManager) => {
-            const resultsQueryBuilder = entityManager.createQueryBuilder().select();
+        const queryRunner = this.manager.connection.createQueryRunner("slave");
+        await queryRunner.startTransaction("REPEATABLE READ");
+
+        try {
+            const resultsQueryBuilder = this.createQueryBuilder().setQueryRunner(queryRunner).select();
             this.addWhere(resultsQueryBuilder, expression);
             this.addOrderBy(resultsQueryBuilder, sorting);
             this.addSkipOffset(resultsQueryBuilder, pagination);
@@ -54,17 +57,22 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
             if (options?.estimateTotalCount === false) {
                 // typeorm@0.2.25 generates slow COUNT(DISTINCT primary_key_column) for getCount or getManyAndCount
 
-                const totalCountQueryBuilder = entityManager.createQueryBuilder().select("COUNT(*) AS total_count");
+                const totalCountQueryBuilder = this.createQueryBuilder()
+                    .setQueryRunner(queryRunner)
+                    .select("COUNT(*) AS total_count");
+
                 this.addWhere(totalCountQueryBuilder, expression);
 
                 const totalCountRow = await totalCountQueryBuilder.getRawOne();
-                const totalCount = totalCountRow["total_count"];
+                const totalCount = parseFloat(totalCountRow["total_count"]);
+
+                await queryRunner.commitTransaction();
 
                 return { results, totalCount, meta: { totalCountIsEstimate: false } };
             } else {
                 let totalCountEstimated = 0;
                 const [resultsSql, resultsParameters] = resultsQueryBuilder.getQueryAndParameters();
-                const resultsExplainedRows = await this.query(`EXPLAIN ${resultsSql}`, resultsParameters);
+                const resultsExplainedRows = await queryRunner.query(`EXPLAIN ${resultsSql}`, resultsParameters);
                 for (const resultsExplainedRow of resultsExplainedRows) {
                     const match = resultsExplainedRow["QUERY PLAN"].match(/rows=([0-9]+)/);
                     if (match) {
@@ -74,9 +82,16 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
 
                 const totalCount = Math.max(totalCountEstimated, results.length);
 
-                return { results, totalCount, meta: { totalCountIsEstimate: false } };
+                await queryRunner.commitTransaction();
+
+                return { results, totalCount, meta: { totalCountIsEstimate: true } };
             }
-        });
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
     }
 
     protected rawToEntity(
