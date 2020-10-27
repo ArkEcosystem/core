@@ -43,38 +43,40 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         pagination: Contracts.Search.Pagination,
         options?: Contracts.Search.Options,
     ): Promise<Contracts.Search.ResultsPage<TEntity>> {
-        const queryBuilder = this.createQueryBuilder().select();
-        this.addWhere(queryBuilder, expression);
-        this.addOrderBy(queryBuilder, sorting);
-        this.addSkipOffset(queryBuilder, pagination);
+        return await this.manager.transaction("REPEATABLE READ", async (entityManager) => {
+            const resultsQueryBuilder = entityManager.createQueryBuilder().select();
+            this.addWhere(resultsQueryBuilder, expression);
+            this.addOrderBy(resultsQueryBuilder, sorting);
+            this.addSkipOffset(resultsQueryBuilder, pagination);
 
-        if (options?.estimateTotalCount === false) {
-            const [results, totalCount]: [TEntity[], number] = await queryBuilder.getManyAndCount();
+            const results = await resultsQueryBuilder.getMany();
 
-            return {
-                results,
-                totalCount,
-                meta: { totalCountIsEstimate: false },
-            };
-        } else {
-            const results = await queryBuilder.getMany();
+            if (options?.estimateTotalCount === false) {
+                // typeorm@0.2.25 generates slow COUNT(DISTINCT primary_key_column) for getCount or getManyAndCount
 
-            let totalCount = 0;
-            const [query, parameters] = queryBuilder.getQueryAndParameters();
-            const explainedQuery = await this.query(`EXPLAIN ${query}`, parameters);
-            for (const row of explainedQuery) {
-                const match = row["QUERY PLAN"].match(/rows=([0-9]+)/);
-                if (match) {
-                    totalCount = parseFloat(match[1]);
+                const totalCountQueryBuilder = entityManager.createQueryBuilder().select("COUNT(*) AS total_count");
+                this.addWhere(totalCountQueryBuilder, expression);
+
+                const totalCountRow = await totalCountQueryBuilder.getRawOne();
+                const totalCount = totalCountRow["total_count"];
+
+                return { results, totalCount, meta: { totalCountIsEstimate: false } };
+            } else {
+                let totalCountEstimated = 0;
+                const [resultsSql, resultsParameters] = resultsQueryBuilder.getQueryAndParameters();
+                const resultsExplainedRows = await this.query(`EXPLAIN ${resultsSql}`, resultsParameters);
+                for (const resultsExplainedRow of resultsExplainedRows) {
+                    const match = resultsExplainedRow["QUERY PLAN"].match(/rows=([0-9]+)/);
+                    if (match) {
+                        totalCountEstimated = parseFloat(match[1]);
+                    }
                 }
-            }
 
-            return {
-                results,
-                totalCount: Math.max(totalCount, results.length),
-                meta: { totalCountIsEstimate: true },
-            };
-        }
+                const totalCount = Math.max(totalCountEstimated, results.length);
+
+                return { results, totalCount, meta: { totalCountIsEstimate: false } };
+            }
+        });
     }
 
     protected rawToEntity(
