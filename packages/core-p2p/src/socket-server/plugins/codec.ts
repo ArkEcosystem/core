@@ -39,7 +39,7 @@ export class CodecPlugin {
                     if (request.response.source) {
                         request.response.source = allRoutesConfigByPath[request.path].codec.response.serialize(request.response.source);
                     } else {
-                        request.response.source = allRoutesConfigByPath[request.path].codec.response.serialize(request.response.output.payload);
+                        // TODO if we're here it's because there was some error thrown, to be better handled
                         request.response.output.payload = allRoutesConfigByPath[request.path].codec.response.serialize(request.response.output.payload);
                     }
                 } catch (e) {

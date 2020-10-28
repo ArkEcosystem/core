@@ -90,6 +90,7 @@ export class Socket {
                 });
             }
         } catch (err) {
+            console.log(err);
             this.server.log(["nes", "serialization", "error"], message.type);
 
             /* istanbul ignore else */
@@ -174,6 +175,7 @@ export class Socket {
         delete message.payload.statusCode;
         message.headers = this._filterHeaders(message.headers);
 
+        message.payload = Buffer.from(JSON.stringify(message.payload));
         if (request) {
             message.type = request.type;
             message.id = request.id;

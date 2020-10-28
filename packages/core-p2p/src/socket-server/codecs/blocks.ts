@@ -1,18 +1,44 @@
+import { Utils } from "@arkecosystem/crypto";
+import { blocks } from "./proto/protos";
+
 export const getBlocks = {
     request: {
-        serialize: (obj): Buffer => Buffer.from(JSON.stringify(obj)),
-        deserialize: (payload: Buffer) => JSON.parse(payload.toString()),
+        serialize: (obj: blocks.IGetBlocksRequest): Buffer => Buffer.from(blocks.GetBlocksRequest.encode(obj).finish()),
+        deserialize: (payload: Buffer): blocks.IGetBlocksRequest => blocks.GetBlocksRequest.decode(payload),
     },
     response: {
-        serialize: (obj): Buffer => Buffer.from(JSON.stringify(obj)),
-        deserialize: (payload: Buffer) => JSON.parse(payload.toString()),
+        serialize: (obj): Buffer => {
+            return Buffer.from(blocks.GetBlocksResponse.encode(
+                {
+                    blocks: obj.map(b => ({
+                        ...b,
+                        totalAmount: b.totalAmount.toString(),
+                        totalFee: b.totalFee.toString(),
+                        reward: b.reward.toString(),
+                    }))
+                }
+            ).finish());
+        },
+        deserialize: (payload: Buffer) => blocks.GetBlocksResponse.decode(payload).blocks.map(b => ({
+            ...b,
+            totalAmount: new Utils.BigNumber(b.totalAmount as string),
+            totalFee: new Utils.BigNumber(b.totalFee as string),
+            reward: new Utils.BigNumber(b.reward as string),
+        })),
     },
 };
 
 export const postBlock = {
     request: {
-        serialize: (obj): Buffer => Buffer.from(JSON.stringify(obj)),
-        deserialize: (payload: Buffer) => JSON.parse(payload.toString()),
+        serialize: (obj: blocks.IPostBlockRequest): Buffer => {
+            return Buffer.from(blocks.PostBlockRequest.encode(obj).finish());
+        },
+        deserialize: (payload: Buffer) => {
+            const decoded = blocks.PostBlockRequest.decode(payload);
+            return {
+                block: Buffer.from(decoded.block),
+            };
+        },
     },
     response: {
         serialize: (status: boolean): Buffer => {

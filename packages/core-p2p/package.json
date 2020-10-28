@@ -18,6 +18,9 @@
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
         "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
+        "pbjs": "./node_modules/protobufjs/cli/bin/pbjs -t static-module -w commonjs src/socket-server/codecs/proto/*.proto -o src/socket-server/codecs/proto/protos.js",
+        "pbts": "./node_modules/protobufjs/cli/bin/pbts src/socket-server/codecs/proto/protos.js -o src/socket-server/codecs/proto/protos.d.ts",
+        "build:proto": "yarn pbjs && yarn pbts",
         "clean": "del dist",
         "compile": "../../node_modules/typescript/bin/tsc",
         "prepublishOnly": "yarn build",
@@ -47,6 +50,7 @@
         "nanomatch": "^1.2.13",
         "pluralize": "^8.0.0",
         "pretty-ms": "^7.0.0",
+        "protobufjs": "~6.10.1",
         "rate-limiter-flexible": "^1.1.0",
         "semver": "^6.3.0",
         "ws": "7.x"
