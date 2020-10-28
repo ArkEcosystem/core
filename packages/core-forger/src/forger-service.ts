@@ -74,6 +74,13 @@ export class ForgerService {
      */
     private initialized: boolean = false;
 
+    /**
+     * @private
+     * @type {boolean}
+     * @memberof ForgerService
+     */
+    private logAppReady: boolean = true;
+
     public getRound(): Contracts.P2P.CurrentRound | undefined {
         return this.round;
     }
@@ -213,11 +220,17 @@ export class ForgerService {
                     .call("forgeNewBlock", { forgerService: this, delegate, round: this.round, networkState });
             }
 
+            this.logAppReady = true;
+
             return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup));
         } catch (error) {
             if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
-                if (error.message.includes("blockchain isn't ready") || error.message.includes("App is not ready.")) {
-                    this.logger.info("Waiting for relay to become ready.");
+                if (error.message.includes("blockchain isn't ready") || error.message.includes("App is not ready")) {
+                    /* istanbul ignore else */
+                    if (this.logAppReady) {
+                        this.logger.info("Waiting for relay to become ready.");
+                        this.logAppReady = false;
+                    }
                 } else {
                     this.logger.warning(error.message);
                 }
