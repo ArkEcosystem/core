@@ -24,11 +24,11 @@ export class BlockFactory {
     }
 
     public static fromHex(hex: string, getBlockTimeStampLookup: GetBlockTimeStampLookup): IBlock {
-        return this.fromSerialized(hex, getBlockTimeStampLookup);
+        return this.fromSerialized(Buffer.from(hex, "hex"), getBlockTimeStampLookup);
     }
 
     public static fromBytes(buffer: Buffer, getBlockTimeStampLookup: GetBlockTimeStampLookup): IBlock {
-        return this.fromSerialized(buffer.toString("hex"), getBlockTimeStampLookup);
+        return this.fromSerialized(buffer, getBlockTimeStampLookup);
     }
 
     public static fromJson(json: IBlockJson, getBlockTimeStampLookup: GetBlockTimeStampLookup): IBlock | undefined {
@@ -56,7 +56,7 @@ export class BlockFactory {
         const block: IBlockData | undefined = Block.applySchema(data);
 
         if (block) {
-            const serialized: string = Serializer.serializeWithTransactions(data).toString("hex");
+            const serialized: Buffer = Serializer.serializeWithTransactions(data);
             const block: IBlock = new Block(
                 {
                     ...Deserializer.deserialize(serialized, false, options),
@@ -64,7 +64,7 @@ export class BlockFactory {
                 },
                 getBlockTimeStampLookup,
             );
-            block.serialized = serialized;
+            block.serialized = serialized.toString("hex");
 
             return block;
         }
@@ -72,7 +72,7 @@ export class BlockFactory {
         return undefined;
     }
 
-    private static fromSerialized(serialized: string, getBlockTimeStampLookup: GetBlockTimeStampLookup): IBlock {
+    private static fromSerialized(serialized: Buffer, getBlockTimeStampLookup: GetBlockTimeStampLookup): IBlock {
         const deserialized: { data: IBlockData; transactions: ITransaction[] } = Deserializer.deserialize(serialized);
 
         const validated: IBlockData | undefined = Block.applySchema(deserialized.data);
@@ -82,7 +82,7 @@ export class BlockFactory {
         }
 
         const block: IBlock = new Block(deserialized, getBlockTimeStampLookup);
-        block.serialized = serialized;
+        block.serialized = serialized.toString("hex");
 
         return block;
     }

@@ -8,16 +8,15 @@ import { Block } from "./block";
 
 export class Deserializer {
     public static deserialize(
-        serializedHex: string,
+        serialized: Buffer,
         headerOnly: boolean = false,
         options: { deserializeTransactionsUnchecked?: boolean } = {},
     ): { data: IBlockData; transactions: ITransaction[] } {
         const block = {} as IBlockData;
         let transactions: ITransaction[] = [];
 
-        const buffer = Buffer.from(serializedHex, "hex");
-        const buf: ByteBuffer = new ByteBuffer(buffer.length, true);
-        buf.append(buffer);
+        const buf: ByteBuffer = new ByteBuffer(serialized.length, true);
+        buf.append(serialized);
         buf.reset();
 
         this.deserializeHeader(block, buf);
