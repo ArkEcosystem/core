@@ -18,7 +18,7 @@ afterAll(() => setGracefulCleanup());
 
 describe("LogCommand", () => {
     it("should throw if the process does not exist", async () => {
-        await expect(cli.execute(Command)).rejects.toThrow('[ERROR] The "ark-relay" process does not exist.');
+        await expect(cli.execute(Command)).rejects.toThrow('The "ark-relay" process does not exist.');
     });
 
     it("should log to pm_out_log_path", async () => {
