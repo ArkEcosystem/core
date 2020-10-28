@@ -20,7 +20,7 @@ afterAll(() => setGracefulCleanup());
 describe("PublishCommand", () => {
     it("should throw if the network is invalid", async () => {
         await expect(cli.withFlags({ network: "invalid" }).execute(Command)).rejects.toThrow(
-            '[ERROR] "network" must be one of [devnet, mainnet, testnet]',
+            '"network" must be one of [devnet, mainnet, testnet]',
         );
     });
 
@@ -28,7 +28,7 @@ describe("PublishCommand", () => {
         jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
 
         await expect(cli.execute(Command)).rejects.toThrow(
-            "[ERROR] Please use the --reset flag if you wish to reset your configuration.",
+            "Please use the --reset flag if you wish to reset your configuration.",
         );
     });
 
@@ -105,7 +105,7 @@ describe("PublishCommand", () => {
         });
 
         await expect(cli.withFlags({ network: undefined }).execute(Command)).rejects.toThrow(
-            "[ERROR] You'll need to select the network to continue.",
+            "You'll need to select the network to continue.",
         );
 
         expect(spyEnsure).not.toHaveBeenCalled();
@@ -125,7 +125,7 @@ describe("PublishCommand", () => {
         });
 
         await expect(cli.withFlags({ network: undefined }).execute(Command)).rejects.toThrow(
-            "[ERROR] You'll need to confirm the network to continue.",
+            "You'll need to confirm the network to continue.",
         );
 
         expect(spyEnsure).not.toHaveBeenCalled();
