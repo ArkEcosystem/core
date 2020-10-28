@@ -14,7 +14,7 @@ describe("RestartCommand", () => {
         const missing = jest.spyOn(processManager, "missing").mockReturnValue(true);
         const isStopped = jest.spyOn(processManager, "isStopped").mockReturnValue(false);
 
-        await expect(cli.execute(Command)).rejects.toThrowError('[ERROR] The "ark-core" process does not exist.');
+        await expect(cli.execute(Command)).rejects.toThrowError('The "ark-core" process does not exist.');
 
         missing.mockReset();
         isStopped.mockReset();
@@ -24,7 +24,7 @@ describe("RestartCommand", () => {
         const missing = jest.spyOn(processManager, "missing").mockReturnValue(false);
         const isStopped = jest.spyOn(processManager, "isStopped").mockReturnValue(true);
 
-        await expect(cli.execute(Command)).rejects.toThrowError('[ERROR] The "ark-core" process is not running.');
+        await expect(cli.execute(Command)).rejects.toThrowError('The "ark-core" process is not running.');
 
         missing.mockReset();
         isStopped.mockReset();
