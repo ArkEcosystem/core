@@ -75,9 +75,10 @@ export class Command extends Commands.Command {
             .setFlag("token", "The name that is attributed to the token on the network.", Joi.string())
             .setFlag("symbol", "The character that is attributed to the token on the network.", Joi.string())
             .setFlag("explorer", "The URL that hosts the network explorer.", Joi.string())
+            .setFlag("distribute", "Distribute the premine evenly between all delegates?", Joi.boolean().default(false))
             .setFlag(
-                "distribute",
-                "Distribute the premine evenly between all delegates?",
+                "yes",
+                "Assume yes to confirmation prompt and skip other prompts.",
                 Joi.boolean().default(false),
             );
     }
@@ -97,35 +98,45 @@ export class Command extends Commands.Command {
             return this.generateNetwork(flags);
         }
 
-        const stringFlags: string[] = ["network", "premine", "token", "symbol", "explorer"];
-        const response = await prompts(
-            Object.keys(flagsDefinition)
-                .map(
-                    (flagName) =>
-                        ({
-                            type: stringFlags.includes(flagName) ? "text" : "number",
-                            name: flagName,
-                            message: flagsDefinition[flagName].description,
-                            initial: `${flags[flagName]}`,
-                        } as prompts.PromptObject<string>),
-                )
-                .concat({
-                    type: "confirm",
-                    name: "confirm",
-                    message: "Can you confirm?",
-                } as prompts.PromptObject<string>),
-        );
+        let response = {};
 
-        // TODO: check this fix is acceptable
-        // the distribute flag is a boolean in the pre-existing tests
-        // and it is defined as a number in this.generateCryptoGenesisBlock()
-        // If false or 0 are passed intentionally, this would fail (despite all flags being provided).
-        if (Object.keys(flagsDefinition).find((flagName) => response[flagName] === undefined)) {
-            this.components.fatal("Please provide all flags and try again!");
-        }
+        if (!flags.yes) {
+            const stringFlags: string[] = ["network", "premine", "token", "symbol", "explorer"];
+            response = await prompts(
+                Object.keys(flagsDefinition)
+                    .filter((flagName) => flagName !== "yes")
+                    .map(
+                        (flagName) =>
+                            ({
+                                type: stringFlags.includes(flagName) ? "text" : "number",
+                                name: flagName,
+                                message: flagsDefinition[flagName].description,
+                                initial: `${flags[flagName]}`,
+                            } as prompts.PromptObject<string>),
+                    )
+                    .concat({
+                        type: "confirm",
+                        name: "confirm",
+                        message: "Can you confirm?",
+                    } as prompts.PromptObject<string>),
+            );
 
-        if (!response.confirm) {
-            throw new Error("You'll need to confirm the input to continue.");
+            // TODO: check this fix is acceptable
+            // the distribute flag is a boolean in the pre-existing tests
+            // and it is defined as a number in this.generateCryptoGenesisBlock()
+            // If false or 0 are passed intentionally, this would fail (despite all flags being provided).
+            if (Object.keys(flagsDefinition).find((flagName) => response[flagName] === undefined)) {
+                throw new Error("Please provide all flags and try again!");
+            }
+
+            // @ts-ignore
+            if (!response.confirm) {
+                throw new Error("You'll need to confirm the input to continue.");
+            }
+        } else {
+            if (Object.keys(flagsDefinition).find((flagName) => flags[flagName] === undefined)) {
+                throw new Error("Please provide all flags and try again!");
+            }
         }
 
         await this.generateNetwork({ ...flags, ...response });
