@@ -3,8 +3,9 @@ import { Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosyst
 import Joi from "@hapi/joi";
 import { generateMnemonic } from "bip39";
 import ByteBuffer from "bytebuffer";
+import envPaths from "env-paths";
 import { copyFileSync, ensureDirSync, existsSync, writeFileSync, writeJSONSync } from "fs-extra";
-import { resolve } from "path";
+import { join, resolve } from "path";
 import prompts from "prompts";
 
 interface Wallet {
@@ -124,15 +125,16 @@ export class Command extends Commands.Command {
         }
 
         if (!response.confirm) {
-            this.components.fatal("You'll need to confirm the input to continue.");
+            throw new Error("You'll need to confirm the input to continue.");
         }
 
         await this.generateNetwork({ ...flags, ...response });
     }
 
     private async generateNetwork(flags: Contracts.AnyObject): Promise<void> {
-        const coreConfigDest: string = resolve(__dirname, `../../bin/config/${flags.network}`);
-        const cryptoConfigDest: string = resolve(__dirname, `../../../crypto/src/networks/${flags.network}`);
+        const paths = envPaths(flags.token, { suffix: "core" });
+        const coreConfigDest = join(paths.config, flags.network);
+        const cryptoConfigDest = join(coreConfigDest, "crypto");
 
         const delegates: any[] = this.generateCoreDelegates(flags.delegates, flags.pubKeyHash);
 
@@ -227,9 +229,12 @@ export class Command extends Commands.Command {
                         { spaces: 4 },
                     );
 
-                    copyFileSync(resolve(coreConfigDest, "../testnet/.env"), resolve(coreConfigDest, ".env"));
+                    copyFileSync(resolve(__dirname, "../../bin/config/testnet/.env"), resolve(coreConfigDest, ".env"));
 
-                    copyFileSync(resolve(coreConfigDest, "../testnet/app.json"), resolve(coreConfigDest, "app.json"));
+                    copyFileSync(
+                        resolve(__dirname, "../../bin/config/testnet/app.json"),
+                        resolve(coreConfigDest, "app.json"),
+                    );
                 },
             },
         ]);
