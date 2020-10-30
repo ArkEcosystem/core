@@ -31,7 +31,7 @@ export class MessagePackCodec implements Codec {
 
     public decodeBlock(buffer: Buffer): Models.Block {
         try {
-            return Blocks.Deserializer.deserialize(buffer.toString("hex"), false).data as Models.Block;
+            return Blocks.Deserializer.deserialize(buffer, false).data as Models.Block;
         } catch (err) {
             throw new CodecException.BlockDecodeException(undefined, err.message);
         }

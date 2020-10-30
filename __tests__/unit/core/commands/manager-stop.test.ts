@@ -15,7 +15,7 @@ describe("StopCommand", () => {
         const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
         const isStopped = jest.spyOn(processManager, "isStopped").mockReturnValue(false);
 
-        await expect(cli.execute(Command)).rejects.toThrowError('[ERROR] The "ark-manager" process does not exist.');
+        await expect(cli.execute(Command)).rejects.toThrowError('The "ark-manager" process does not exist.');
 
         missing.mockReset();
         isUnknown.mockReset();
@@ -28,7 +28,7 @@ describe("StopCommand", () => {
         const isStopped = jest.spyOn(processManager, "isStopped").mockReturnValue(false);
 
         await expect(cli.execute(Command)).rejects.toThrowError(
-            '[ERROR] The "ark-manager" process has entered an unknown state.',
+            'The "ark-manager" process has entered an unknown state.',
         );
 
         missing.mockReset();
@@ -41,7 +41,7 @@ describe("StopCommand", () => {
         const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
         const isStopped = jest.spyOn(processManager, "isStopped").mockReturnValue(true);
 
-        await expect(cli.execute(Command)).rejects.toThrowError('[ERROR] The "ark-manager" process is not running.');
+        await expect(cli.execute(Command)).rejects.toThrowError('The "ark-manager" process is not running.');
 
         missing.mockReset();
         isUnknown.mockReset();

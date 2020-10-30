@@ -143,10 +143,6 @@ export class Client {
      * @returns {Promise<Contracts.P2P.ForgingTransactions>}
      * @memberof Client
      */
-    /**
-     * @returns {Promise<Contracts.P2P.ForgingTransactions>}
-     * @memberof Client
-     */
     public async getTransactions(): Promise<Contracts.P2P.ForgingTransactions> {
         return this.emit<Contracts.P2P.ForgingTransactions>("p2p.internal.getUnconfirmedTransactions");
     }

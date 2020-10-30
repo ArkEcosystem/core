@@ -19,9 +19,8 @@ export class BlocksController extends Controller {
         );
 
         const blockBuffer: Buffer = request.payload.block;
-        const blockHex: string = blockBuffer.toString("hex");
 
-        const deserializedHeader = Blocks.Deserializer.deserialize(blockHex, true);
+        const deserializedHeader = Blocks.Deserializer.deserialize(blockBuffer, true);
 
         if (
             deserializedHeader.data.numberOfTransactions > Managers.configManager.getMilestone().block.maxTransactions
@@ -32,7 +31,7 @@ export class BlocksController extends Controller {
         const deserialized: {
             data: Interfaces.IBlockData;
             transactions: Interfaces.ITransaction[];
-        } = Blocks.Deserializer.deserialize(blockHex);
+        } = Blocks.Deserializer.deserialize(blockBuffer);
 
         const block: Interfaces.IBlockData = {
             ...deserialized.data,
