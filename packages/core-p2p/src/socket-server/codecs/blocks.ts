@@ -30,9 +30,7 @@ export const getBlocks = {
 
 export const postBlock = {
     request: {
-        serialize: (obj: blocks.IPostBlockRequest): Buffer => {
-            return Buffer.from(blocks.PostBlockRequest.encode(obj).finish());
-        },
+        serialize: (obj: blocks.IPostBlockRequest): Buffer => Buffer.from(blocks.PostBlockRequest.encode(obj).finish()),
         deserialize: (payload: Buffer) => {
             const decoded = blocks.PostBlockRequest.decode(payload);
             return {

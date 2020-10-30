@@ -11,6 +11,9 @@ export class CodecPlugin {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
 
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     public register(server) {
         const allRoutesConfigByPath = {
             ...this.app.resolve(InternalRoute).getRoutesConfigByPath(),
@@ -25,7 +28,6 @@ export class CodecPlugin {
                 try {
                     request.payload = allRoutesConfigByPath[request.path].codec.request.deserialize(request.payload);
                 } catch (e) {
-                    console.log(`Payload deserializing failed: ${e}`)
                     return Boom.badRequest(`Payload deserializing failed: ${e}`);
                 }
                 return h.continue;
@@ -34,17 +36,25 @@ export class CodecPlugin {
 
         server.ext({
             type: "onPreResponse",
-            async method(request, h) {
+            method: async (request, h) => {
                 try {
                     if (request.response.source) {
                         request.response.source = allRoutesConfigByPath[request.path].codec.response.serialize(request.response.source);
                     } else {
-                        // TODO if we're here it's because there was some error thrown, to be better handled
-                        request.response.output.payload = allRoutesConfigByPath[request.path].codec.response.serialize(request.response.output.payload);
+                        // if we're here it's because there was some error thrown, error description is in request.response.output.payload
+                        // as response payload needs to be Buffer, we convert error message to Buffer
+                        const errorMessage = request.response.output?.payload?.message ?? request.response.output?.payload?.error ?? "Error";
+                        request.response.output.payload = Buffer.from(errorMessage, "utf-8");
                     }
                 } catch (e) {
-                    console.log(`Response serializing failed: ${e}`)
-                    return Boom.badRequest(`Response serializing failed: ${e}`);
+                    request.response.statusCode = 500; // Internal server error (serializing failed)
+                    request.response.output = {
+                        statusCode: 500,
+                        payload: Buffer.from("Internal server error"),
+                        headers: {},
+                    };
+
+                    this.logger.error(`Response serializing failed: ${e}`);
                 }
                 return h.continue;
             },

@@ -462,7 +462,8 @@ export class Client {
         let error: any = null;
         if (update.statusCode && update.statusCode >= 400) {
             /* istanbul ignore next */
-            error = NesError(update.payload.message || update.payload.error || "Error", errorTypes.SERVER);
+            update.payload = update.payload instanceof Buffer ? (update.payload as Buffer).toString() : "Error";
+            error = NesError(update.payload, errorTypes.SERVER);
             error.statusCode = update.statusCode;
             error.data = update.payload;
             error.headers = update.headers;
