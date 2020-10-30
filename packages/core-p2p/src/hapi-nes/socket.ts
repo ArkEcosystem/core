@@ -90,7 +90,6 @@ export class Socket {
                 });
             }
         } catch (err) {
-            console.log(err);
             this.server.log(["nes", "serialization", "error"], message.type);
 
             /* istanbul ignore else */
