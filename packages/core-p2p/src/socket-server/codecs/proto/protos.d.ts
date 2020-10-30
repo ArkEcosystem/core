@@ -1749,3 +1749,187 @@ export namespace peer {
         }
     }
 }
+
+/** Namespace transactions. */
+export namespace transactions {
+
+    /** Properties of a PostTransactionsRequest. */
+    interface IPostTransactionsRequest {
+
+        /** PostTransactionsRequest transactions */
+        transactions?: (Uint8Array[]|null);
+    }
+
+    /** Represents a PostTransactionsRequest. */
+    class PostTransactionsRequest implements IPostTransactionsRequest {
+
+        /**
+         * Constructs a new PostTransactionsRequest.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: transactions.IPostTransactionsRequest);
+
+        /** PostTransactionsRequest transactions. */
+        public transactions: Uint8Array[];
+
+        /**
+         * Creates a new PostTransactionsRequest instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns PostTransactionsRequest instance
+         */
+        public static create(properties?: transactions.IPostTransactionsRequest): transactions.PostTransactionsRequest;
+
+        /**
+         * Encodes the specified PostTransactionsRequest message. Does not implicitly {@link transactions.PostTransactionsRequest.verify|verify} messages.
+         * @param message PostTransactionsRequest message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: transactions.IPostTransactionsRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified PostTransactionsRequest message, length delimited. Does not implicitly {@link transactions.PostTransactionsRequest.verify|verify} messages.
+         * @param message PostTransactionsRequest message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: transactions.IPostTransactionsRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a PostTransactionsRequest message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns PostTransactionsRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): transactions.PostTransactionsRequest;
+
+        /**
+         * Decodes a PostTransactionsRequest message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns PostTransactionsRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): transactions.PostTransactionsRequest;
+
+        /**
+         * Verifies a PostTransactionsRequest message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a PostTransactionsRequest message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns PostTransactionsRequest
+         */
+        public static fromObject(object: { [k: string]: any }): transactions.PostTransactionsRequest;
+
+        /**
+         * Creates a plain object from a PostTransactionsRequest message. Also converts values to other types if specified.
+         * @param message PostTransactionsRequest
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: transactions.PostTransactionsRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this PostTransactionsRequest to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of a PostTransactionsResponse. */
+    interface IPostTransactionsResponse {
+
+        /** PostTransactionsResponse accept */
+        accept?: (string[]|null);
+    }
+
+    /** Represents a PostTransactionsResponse. */
+    class PostTransactionsResponse implements IPostTransactionsResponse {
+
+        /**
+         * Constructs a new PostTransactionsResponse.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: transactions.IPostTransactionsResponse);
+
+        /** PostTransactionsResponse accept. */
+        public accept: string[];
+
+        /**
+         * Creates a new PostTransactionsResponse instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns PostTransactionsResponse instance
+         */
+        public static create(properties?: transactions.IPostTransactionsResponse): transactions.PostTransactionsResponse;
+
+        /**
+         * Encodes the specified PostTransactionsResponse message. Does not implicitly {@link transactions.PostTransactionsResponse.verify|verify} messages.
+         * @param message PostTransactionsResponse message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: transactions.IPostTransactionsResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified PostTransactionsResponse message, length delimited. Does not implicitly {@link transactions.PostTransactionsResponse.verify|verify} messages.
+         * @param message PostTransactionsResponse message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: transactions.IPostTransactionsResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a PostTransactionsResponse message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns PostTransactionsResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): transactions.PostTransactionsResponse;
+
+        /**
+         * Decodes a PostTransactionsResponse message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns PostTransactionsResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): transactions.PostTransactionsResponse;
+
+        /**
+         * Verifies a PostTransactionsResponse message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a PostTransactionsResponse message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns PostTransactionsResponse
+         */
+        public static fromObject(object: { [k: string]: any }): transactions.PostTransactionsResponse;
+
+        /**
+         * Creates a plain object from a PostTransactionsResponse message. Also converts values to other types if specified.
+         * @param message PostTransactionsResponse
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: transactions.PostTransactionsResponse, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this PostTransactionsResponse to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+}

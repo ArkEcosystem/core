@@ -4227,4 +4227,425 @@ $root.peer = (function() {
     return peer;
 })();
 
+$root.transactions = (function() {
+
+    /**
+     * Namespace transactions.
+     * @exports transactions
+     * @namespace
+     */
+    var transactions = {};
+
+    transactions.PostTransactionsRequest = (function() {
+
+        /**
+         * Properties of a PostTransactionsRequest.
+         * @memberof transactions
+         * @interface IPostTransactionsRequest
+         * @property {Array.<Uint8Array>|null} [transactions] PostTransactionsRequest transactions
+         */
+
+        /**
+         * Constructs a new PostTransactionsRequest.
+         * @memberof transactions
+         * @classdesc Represents a PostTransactionsRequest.
+         * @implements IPostTransactionsRequest
+         * @constructor
+         * @param {transactions.IPostTransactionsRequest=} [properties] Properties to set
+         */
+        function PostTransactionsRequest(properties) {
+            this.transactions = [];
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * PostTransactionsRequest transactions.
+         * @member {Array.<Uint8Array>} transactions
+         * @memberof transactions.PostTransactionsRequest
+         * @instance
+         */
+        PostTransactionsRequest.prototype.transactions = $util.emptyArray;
+
+        /**
+         * Creates a new PostTransactionsRequest instance using the specified properties.
+         * @function create
+         * @memberof transactions.PostTransactionsRequest
+         * @static
+         * @param {transactions.IPostTransactionsRequest=} [properties] Properties to set
+         * @returns {transactions.PostTransactionsRequest} PostTransactionsRequest instance
+         */
+        PostTransactionsRequest.create = function create(properties) {
+            return new PostTransactionsRequest(properties);
+        };
+
+        /**
+         * Encodes the specified PostTransactionsRequest message. Does not implicitly {@link transactions.PostTransactionsRequest.verify|verify} messages.
+         * @function encode
+         * @memberof transactions.PostTransactionsRequest
+         * @static
+         * @param {transactions.IPostTransactionsRequest} message PostTransactionsRequest message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        PostTransactionsRequest.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.transactions != null && message.transactions.length)
+                for (var i = 0; i < message.transactions.length; ++i)
+                    writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.transactions[i]);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified PostTransactionsRequest message, length delimited. Does not implicitly {@link transactions.PostTransactionsRequest.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof transactions.PostTransactionsRequest
+         * @static
+         * @param {transactions.IPostTransactionsRequest} message PostTransactionsRequest message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        PostTransactionsRequest.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a PostTransactionsRequest message from the specified reader or buffer.
+         * @function decode
+         * @memberof transactions.PostTransactionsRequest
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {transactions.PostTransactionsRequest} PostTransactionsRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        PostTransactionsRequest.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.transactions.PostTransactionsRequest();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    if (!(message.transactions && message.transactions.length))
+                        message.transactions = [];
+                    message.transactions.push(reader.bytes());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a PostTransactionsRequest message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof transactions.PostTransactionsRequest
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {transactions.PostTransactionsRequest} PostTransactionsRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        PostTransactionsRequest.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a PostTransactionsRequest message.
+         * @function verify
+         * @memberof transactions.PostTransactionsRequest
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        PostTransactionsRequest.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.transactions != null && message.hasOwnProperty("transactions")) {
+                if (!Array.isArray(message.transactions))
+                    return "transactions: array expected";
+                for (var i = 0; i < message.transactions.length; ++i)
+                    if (!(message.transactions[i] && typeof message.transactions[i].length === "number" || $util.isString(message.transactions[i])))
+                        return "transactions: buffer[] expected";
+            }
+            return null;
+        };
+
+        /**
+         * Creates a PostTransactionsRequest message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof transactions.PostTransactionsRequest
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {transactions.PostTransactionsRequest} PostTransactionsRequest
+         */
+        PostTransactionsRequest.fromObject = function fromObject(object) {
+            if (object instanceof $root.transactions.PostTransactionsRequest)
+                return object;
+            var message = new $root.transactions.PostTransactionsRequest();
+            if (object.transactions) {
+                if (!Array.isArray(object.transactions))
+                    throw TypeError(".transactions.PostTransactionsRequest.transactions: array expected");
+                message.transactions = [];
+                for (var i = 0; i < object.transactions.length; ++i)
+                    if (typeof object.transactions[i] === "string")
+                        $util.base64.decode(object.transactions[i], message.transactions[i] = $util.newBuffer($util.base64.length(object.transactions[i])), 0);
+                    else if (object.transactions[i].length)
+                        message.transactions[i] = object.transactions[i];
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a PostTransactionsRequest message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof transactions.PostTransactionsRequest
+         * @static
+         * @param {transactions.PostTransactionsRequest} message PostTransactionsRequest
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        PostTransactionsRequest.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.arrays || options.defaults)
+                object.transactions = [];
+            if (message.transactions && message.transactions.length) {
+                object.transactions = [];
+                for (var j = 0; j < message.transactions.length; ++j)
+                    object.transactions[j] = options.bytes === String ? $util.base64.encode(message.transactions[j], 0, message.transactions[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.transactions[j]) : message.transactions[j];
+            }
+            return object;
+        };
+
+        /**
+         * Converts this PostTransactionsRequest to JSON.
+         * @function toJSON
+         * @memberof transactions.PostTransactionsRequest
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        PostTransactionsRequest.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return PostTransactionsRequest;
+    })();
+
+    transactions.PostTransactionsResponse = (function() {
+
+        /**
+         * Properties of a PostTransactionsResponse.
+         * @memberof transactions
+         * @interface IPostTransactionsResponse
+         * @property {Array.<string>|null} [accept] PostTransactionsResponse accept
+         */
+
+        /**
+         * Constructs a new PostTransactionsResponse.
+         * @memberof transactions
+         * @classdesc Represents a PostTransactionsResponse.
+         * @implements IPostTransactionsResponse
+         * @constructor
+         * @param {transactions.IPostTransactionsResponse=} [properties] Properties to set
+         */
+        function PostTransactionsResponse(properties) {
+            this.accept = [];
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * PostTransactionsResponse accept.
+         * @member {Array.<string>} accept
+         * @memberof transactions.PostTransactionsResponse
+         * @instance
+         */
+        PostTransactionsResponse.prototype.accept = $util.emptyArray;
+
+        /**
+         * Creates a new PostTransactionsResponse instance using the specified properties.
+         * @function create
+         * @memberof transactions.PostTransactionsResponse
+         * @static
+         * @param {transactions.IPostTransactionsResponse=} [properties] Properties to set
+         * @returns {transactions.PostTransactionsResponse} PostTransactionsResponse instance
+         */
+        PostTransactionsResponse.create = function create(properties) {
+            return new PostTransactionsResponse(properties);
+        };
+
+        /**
+         * Encodes the specified PostTransactionsResponse message. Does not implicitly {@link transactions.PostTransactionsResponse.verify|verify} messages.
+         * @function encode
+         * @memberof transactions.PostTransactionsResponse
+         * @static
+         * @param {transactions.IPostTransactionsResponse} message PostTransactionsResponse message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        PostTransactionsResponse.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.accept != null && message.accept.length)
+                for (var i = 0; i < message.accept.length; ++i)
+                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.accept[i]);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified PostTransactionsResponse message, length delimited. Does not implicitly {@link transactions.PostTransactionsResponse.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof transactions.PostTransactionsResponse
+         * @static
+         * @param {transactions.IPostTransactionsResponse} message PostTransactionsResponse message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        PostTransactionsResponse.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a PostTransactionsResponse message from the specified reader or buffer.
+         * @function decode
+         * @memberof transactions.PostTransactionsResponse
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {transactions.PostTransactionsResponse} PostTransactionsResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        PostTransactionsResponse.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.transactions.PostTransactionsResponse();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    if (!(message.accept && message.accept.length))
+                        message.accept = [];
+                    message.accept.push(reader.string());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a PostTransactionsResponse message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof transactions.PostTransactionsResponse
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {transactions.PostTransactionsResponse} PostTransactionsResponse
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        PostTransactionsResponse.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a PostTransactionsResponse message.
+         * @function verify
+         * @memberof transactions.PostTransactionsResponse
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        PostTransactionsResponse.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.accept != null && message.hasOwnProperty("accept")) {
+                if (!Array.isArray(message.accept))
+                    return "accept: array expected";
+                for (var i = 0; i < message.accept.length; ++i)
+                    if (!$util.isString(message.accept[i]))
+                        return "accept: string[] expected";
+            }
+            return null;
+        };
+
+        /**
+         * Creates a PostTransactionsResponse message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof transactions.PostTransactionsResponse
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {transactions.PostTransactionsResponse} PostTransactionsResponse
+         */
+        PostTransactionsResponse.fromObject = function fromObject(object) {
+            if (object instanceof $root.transactions.PostTransactionsResponse)
+                return object;
+            var message = new $root.transactions.PostTransactionsResponse();
+            if (object.accept) {
+                if (!Array.isArray(object.accept))
+                    throw TypeError(".transactions.PostTransactionsResponse.accept: array expected");
+                message.accept = [];
+                for (var i = 0; i < object.accept.length; ++i)
+                    message.accept[i] = String(object.accept[i]);
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a PostTransactionsResponse message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof transactions.PostTransactionsResponse
+         * @static
+         * @param {transactions.PostTransactionsResponse} message PostTransactionsResponse
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        PostTransactionsResponse.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.arrays || options.defaults)
+                object.accept = [];
+            if (message.accept && message.accept.length) {
+                object.accept = [];
+                for (var j = 0; j < message.accept.length; ++j)
+                    object.accept[j] = message.accept[j];
+            }
+            return object;
+        };
+
+        /**
+         * Converts this PostTransactionsResponse to JSON.
+         * @function toJSON
+         * @memberof transactions.PostTransactionsResponse
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        PostTransactionsResponse.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return PostTransactionsResponse;
+    })();
+
+    return transactions;
+})();
+
 module.exports = $root;

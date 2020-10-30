@@ -9,7 +9,7 @@ export class TransactionsController extends Controller {
             Container.Identifiers.TransactionPoolProcessorFactory,
         );
         const processor: Contracts.TransactionPool.Processor = createProcessor();
-        await processor.process((request.payload as any).transactions);
+        await processor.process((request.payload as any).transactions as Buffer[]);
         return processor.accept;
     }
 }

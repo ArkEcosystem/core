@@ -47,7 +47,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         );
     }
 
-    public async postTransactions(peer: Contracts.P2P.Peer, transactions: Interfaces.ITransactionJson[]): Promise<any> {
+    public async postTransactions(peer: Contracts.P2P.Peer, transactions: Buffer[]): Promise<any> {
         const postTransactionsTimeout = 10000;
         return this.emit(peer, "p2p.transactions.postTransactions", { transactions }, postTransactionsTimeout);
     }
