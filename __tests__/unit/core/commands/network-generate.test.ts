@@ -3,11 +3,13 @@ import "jest-extended";
 import { Console } from "@arkecosystem/core-test-framework";
 import { Command } from "@packages/core/src/commands/network-generate";
 import fs from "fs-extra";
-import { resolve } from "path";
+import { join } from "path";
 import prompts from "prompts";
+import envPaths from "env-paths";
 
-const configCore: string = resolve(__dirname, "../../../../packages/core/bin/config/mynet7");
-const configCrypto: string = resolve(__dirname, "../../../../packages/crypto/src/networks/mynet7");
+const paths = envPaths("myn", { suffix: "core" });
+const configCore = join(paths.config, "testnet");
+const configCrypto = join(configCore, "crypto");
 
 let cli;
 beforeEach(() => (cli = new Console()));
@@ -24,7 +26,7 @@ describe("GenerateCommand", () => {
 
         await cli
             .withFlags({
-                network: "mynet7",
+                network: "testnet",
                 premine: "120000000000",
                 delegates: "47",
                 blocktime: "9",
@@ -37,7 +39,7 @@ describe("GenerateCommand", () => {
                 token: "myn",
                 symbol: "my",
                 explorer: "myex.io",
-                distribute: true,
+                distribute: "true",
             })
             .execute(Command);
 
@@ -59,7 +61,7 @@ describe("GenerateCommand", () => {
         await expect(
             cli
                 .withFlags({
-                    network: "mynet7",
+                    network: "testnet",
                     premine: "120000000000",
                     delegates: "47",
                     blocktime: "9",
@@ -84,7 +86,7 @@ describe("GenerateCommand", () => {
         await expect(
             cli
                 .withFlags({
-                    network: "mynet7",
+                    network: "testnet",
                     premine: "120000000000",
                     delegates: "47",
                     blocktime: "9",
@@ -103,7 +105,9 @@ describe("GenerateCommand", () => {
         ).rejects.toThrow(`${configCrypto} already exists.`);
     });
 
-    it("should throw if some properties are not provided", async () => {
+
+
+    it("should throw if some prompt properties are not provided", async () => {
         prompts.inject([
             undefined,
             undefined,
@@ -125,7 +129,7 @@ describe("GenerateCommand", () => {
 
     it("should throw if the properties are not confirmed", async () => {
         prompts.inject([
-            "mynet7",
+            "testnet",
             "120000000000",
             "47",
             "9",
@@ -147,7 +151,7 @@ describe("GenerateCommand", () => {
 
     it("should throw if any property is undefined", async () => {
         prompts.inject([
-            "mynet7",
+            "testnet",
             "120000000000",
             "47",
             "9",
@@ -175,7 +179,7 @@ describe("GenerateCommand", () => {
         const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
 
         prompts.inject([
-            "mynet7",
+            "testnet",
             "120000000000",
             "47",
             "9",
@@ -214,7 +218,7 @@ describe("GenerateCommand", () => {
         const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
 
         prompts.inject([
-            "mynet7",
+            "testnet",
             "120000000000",
             "47",
             "9",

@@ -46,6 +46,17 @@ export class Command extends Commands.Command {
      */
     public requiresNetwork: boolean = false;
 
+    private defaults = {
+        premine: "12500000000000000",
+        delegates: 51,
+        blocktime: 8,
+        maxTxPerBlock: 150,
+        maxBlockPayload: 2097152,
+        rewardHeight: 75600,
+        rewardAmount: "200000000",
+        distribute: false,
+    };
+
     /**
      * Configure the console command.
      *
@@ -55,32 +66,23 @@ export class Command extends Commands.Command {
     public configure(): void {
         this.definition
             .setFlag("network", "The name of the network.", Joi.string())
-            .setFlag(
-                "premine",
-                "The number of pre-mined tokens.",
-                Joi.alternatives().try(Joi.string(), Joi.number()).default("12500000000000000"),
-            )
-            .setFlag("delegates", "The number of delegates to generate.", Joi.number().default(51))
-            .setFlag("blocktime", "The network blocktime.", Joi.number().default(8))
-            .setFlag("maxTxPerBlock", "The maximum number of transactions per block.", Joi.number().default(150))
-            .setFlag("maxBlockPayload", "The maximum payload length by block.", Joi.number().default(2097152))
-            .setFlag("rewardHeight", "The height at which delegate block reward starts.", Joi.number().default(75600))
+            .setFlag("premine", "The number of pre-mined tokens.", Joi.alternatives().try(Joi.string(), Joi.number()))
+            .setFlag("delegates", "The number of delegates to generate.", Joi.number())
+            .setFlag("blocktime", "The network blocktime.", Joi.number())
+            .setFlag("maxTxPerBlock", "The maximum number of transactions per block.", Joi.number())
+            .setFlag("maxBlockPayload", "The maximum payload length by block.", Joi.number())
+            .setFlag("rewardHeight", "The height at which delegate block reward starts.", Joi.number())
             .setFlag(
                 "rewardAmount",
                 "The number of the block reward per forged block.",
-                Joi.alternatives().try(Joi.string(), Joi.number()).default("200000000"),
+                Joi.alternatives().try(Joi.string(), Joi.number()),
             )
             .setFlag("pubKeyHash", "The public key hash.", Joi.number())
             .setFlag("wif", "The WIF (Wallet Import Format) that should be used.", Joi.number())
             .setFlag("token", "The name that is attributed to the token on the network.", Joi.string())
             .setFlag("symbol", "The character that is attributed to the token on the network.", Joi.string())
             .setFlag("explorer", "The URL that hosts the network explorer.", Joi.string())
-            .setFlag("distribute", "Distribute the premine evenly between all delegates?", Joi.boolean().default(false))
-            .setFlag(
-                "yes",
-                "Assume yes to confirmation prompt and skip other prompts.",
-                Joi.boolean().default(false),
-            );
+            .setFlag("distribute", "Distribute the premine evenly between all delegates?", Joi.boolean());
     }
 
     /**
@@ -98,45 +100,35 @@ export class Command extends Commands.Command {
             return this.generateNetwork(flags);
         }
 
-        let response = {};
+        const stringFlags: string[] = ["network", "premine", "token", "symbol", "explorer"];
+        const response = await prompts(
+            Object.keys(flagsDefinition)
+                .map(
+                    (flagName) =>
+                        ({
+                            type: stringFlags.includes(flagName) ? "text" : "number",
+                            name: flagName,
+                            message: flagsDefinition[flagName].description,
+                            initial: `${this.defaults[flagName]}`,
+                        } as prompts.PromptObject<string>),
+                )
+                .concat({
+                    type: "confirm",
+                    name: "confirm",
+                    message: "Can you confirm?",
+                } as prompts.PromptObject<string>),
+        );
 
-        if (!flags.yes) {
-            const stringFlags: string[] = ["network", "premine", "token", "symbol", "explorer"];
-            response = await prompts(
-                Object.keys(flagsDefinition)
-                    .filter((flagName) => flagName !== "yes")
-                    .map(
-                        (flagName) =>
-                            ({
-                                type: stringFlags.includes(flagName) ? "text" : "number",
-                                name: flagName,
-                                message: flagsDefinition[flagName].description,
-                                initial: `${flags[flagName]}`,
-                            } as prompts.PromptObject<string>),
-                    )
-                    .concat({
-                        type: "confirm",
-                        name: "confirm",
-                        message: "Can you confirm?",
-                    } as prompts.PromptObject<string>),
-            );
+        // TODO: check this fix is acceptable
+        // the distribute flag is a boolean in the pre-existing tests
+        // and it is defined as a number in this.generateCryptoGenesisBlock()
+        // If false or 0 are passed intentionally, this would fail (despite all flags being provided).
+        if (Object.keys(flagsDefinition).find((flagName) => response[flagName] === undefined)) {
+            throw new Error("Please provide all flags and try again!");
+        }
 
-            // TODO: check this fix is acceptable
-            // the distribute flag is a boolean in the pre-existing tests
-            // and it is defined as a number in this.generateCryptoGenesisBlock()
-            // If false or 0 are passed intentionally, this would fail (despite all flags being provided).
-            if (Object.keys(flagsDefinition).find((flagName) => response[flagName] === undefined)) {
-                throw new Error("Please provide all flags and try again!");
-            }
-
-            // @ts-ignore
-            if (!response.confirm) {
-                throw new Error("You'll need to confirm the input to continue.");
-            }
-        } else {
-            if (Object.keys(flagsDefinition).find((flagName) => flags[flagName] === undefined)) {
-                throw new Error("Please provide all flags and try again!");
-            }
+        if (!response.confirm) {
+            throw new Error("You'll need to confirm the input to continue.");
         }
 
         await this.generateNetwork({ ...flags, ...response });
