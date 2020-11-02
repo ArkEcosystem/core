@@ -44,7 +44,7 @@ const transactionRepository = {
 const roundRepository = {
     getRound: jest.fn(),
     save: jest.fn(),
-    delete: jest.fn(),
+    deleteFrom: jest.fn(),
 };
 
 const events = {
@@ -69,42 +69,7 @@ container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eve
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
 beforeEach(() => {
-    app.get.mockReset();
-    app.terminate.mockReset();
-
-    connection.query.mockReset();
-    connection.close.mockReset();
-
-    blockRepository.findOne.mockReset();
-    blockRepository.findByHeightRange.mockReset();
-    blockRepository.findByHeightRangeWithTransactionsForDownload.mockReset();
-    blockRepository.findByHeightRangeWithTransactions.mockReset();
-    blockRepository.findByHeights.mockReset();
-    blockRepository.findLatest.mockReset();
-    blockRepository.findByIds.mockReset();
-    blockRepository.findRecent.mockReset();
-    blockRepository.findTop.mockReset();
-    blockRepository.count.mockReset();
-    blockRepository.getStatistics.mockReset();
-    blockRepository.saveBlocks.mockReset();
-    blockRepository.deleteBlocks.mockReset();
-
-    transactionRepository.find.mockReset();
-    transactionRepository.findOne.mockReset();
-    transactionRepository.findByBlockIds.mockReset();
-    transactionRepository.getStatistics.mockReset();
-
-    roundRepository.getRound.mockReset();
-    roundRepository.save.mockReset();
-    roundRepository.delete.mockReset();
-
-    logger.error.mockReset();
-    logger.warning.mockReset();
-    logger.info.mockReset();
-    logger.debug.mockReset();
-
-    events.call.mockReset();
-    events.dispatch.mockReset();
+    jest.resetAllMocks();
 });
 
 describe("DatabaseService.initialize", () => {
@@ -370,7 +335,7 @@ describe("DatabaseService.deleteRound", () => {
         const round = 2;
         await databaseService.deleteRound(round);
 
-        expect(roundRepository.delete).toBeCalledWith({ round });
+        expect(roundRepository.deleteFrom).toBeCalledWith(round);
     });
 });
 

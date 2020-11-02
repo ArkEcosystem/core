@@ -71,7 +71,7 @@ describe("RoundRepository.findById", () => {
     });
 });
 
-describe("RoundRepository.deleteRoundsFrom", () => {
+describe("RoundRepository.deleteFrom", () => {
     it("should delete many rounds", async () => {
         const roundRepository = getCustomRepository(RoundRepository);
 
@@ -81,7 +81,7 @@ describe("RoundRepository.deleteRoundsFrom", () => {
             new DelegateWalletMock("delegate1 public key", 3, Utils.BigNumber.make("100")),
         ] as unknown) as Contracts.State.Wallet[]);
 
-        await roundRepository.deleteRoundsFrom(2);
+        await roundRepository.deleteFrom(2);
 
         const round1Delegates = await roundRepository.getRound(1);
         const round2Delegates = await roundRepository.getRound(2);
