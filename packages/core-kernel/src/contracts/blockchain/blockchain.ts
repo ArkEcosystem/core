@@ -73,11 +73,6 @@ export interface Blockchain {
     removeTopBlocks(count: number): Promise<void>;
 
     /**
-     * Process the given block.
-     */
-    processBlocks(blocks: Interfaces.IBlockData[], callback): Promise<Interfaces.IBlock[]>;
-
-    /**
      * Reset the last downloaded block to last chained block.
      */
     resetLastDownloadedBlock(): void;
