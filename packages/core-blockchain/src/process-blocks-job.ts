@@ -46,9 +46,9 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
     /**
      * Process the given blocks.
      */
-    public async handle(): Promise<Interfaces.IBlock[]> {
+    public async handle(): Promise<void> {
         if (!this.blocks.length) {
-            return [];
+            return;
         }
 
         const lastHeight = this.blockchain.getLastBlock().data.height;
@@ -72,7 +72,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             // Discard remaining blocks as it won't go anywhere anyway.
             this.blockchain.clearQueue();
             this.blockchain.resetLastDownloadedBlock();
-            return [];
+            return;
         }
 
         const acceptedBlocks: Interfaces.IBlock[] = [];
@@ -143,7 +143,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
                 // @ts-ignore
                 this.blockchain.emitOnQueueDrain();
 
-                return [];
+                return;
             }
         }
 
@@ -177,6 +177,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
         // @ts-ignore
         this.blockchain.emitOnQueueDrain();
 
-        return acceptedBlocks;
+        // return acceptedBlocks;
+        return;
     }
 }
