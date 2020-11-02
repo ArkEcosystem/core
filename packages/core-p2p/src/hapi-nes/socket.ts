@@ -54,15 +54,6 @@ export class Socket {
         return this._removed;
     }
 
-    public send(message) {
-        const response = {
-            type: "update",
-            message,
-        };
-
-        return this._send(response);
-    }
-
     public isOpen() {
         return this._ws.readyState === 1;
     }
