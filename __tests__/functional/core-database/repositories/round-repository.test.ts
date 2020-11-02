@@ -70,3 +70,25 @@ describe("RoundRepository.findById", () => {
         ]);
     });
 });
+
+describe("RoundRepository.deleteRoundsFrom", () => {
+    it("should delete many rounds", async () => {
+        const roundRepository = getCustomRepository(RoundRepository);
+
+        await roundRepository.save(([
+            new DelegateWalletMock("delegate1 public key", 1, Utils.BigNumber.make("100")),
+            new DelegateWalletMock("delegate1 public key", 2, Utils.BigNumber.make("100")),
+            new DelegateWalletMock("delegate1 public key", 3, Utils.BigNumber.make("100")),
+        ] as unknown) as Contracts.State.Wallet[]);
+
+        await roundRepository.deleteRoundsFrom(2);
+
+        const round1Delegates = await roundRepository.getRound(1);
+        const round2Delegates = await roundRepository.getRound(2);
+        const round3Delegates = await roundRepository.getRound(3);
+
+        expect(round1Delegates.length).toBe(1);
+        expect(round2Delegates.length).toBe(0);
+        expect(round3Delegates.length).toBe(0);
+    });
+});
