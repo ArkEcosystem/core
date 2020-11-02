@@ -146,10 +146,6 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
 
                 this.blockchain.resetLastDownloadedBlock();
 
-                // TODO: remove
-                // @ts-ignore
-                this.blockchain.emitOnQueueDrain();
-
                 return;
             }
         }
@@ -180,11 +176,6 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             this.blockchain.resetLastDownloadedBlock();
         }
 
-        // TODO: remove
-        // @ts-ignore
-        this.blockchain.emitOnQueueDrain();
-
-        // return acceptedBlocks;
         return;
     }
 }

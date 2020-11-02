@@ -308,13 +308,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         // TODO: Clear queue results
     }
 
-    // TODO: Some other logic. Listen to event etc.
-    public emitOnQueueDrain() {
-        if (this.queue.size() === 0) {
-            this.dispatch("PROCESSFINISHED");
-        }
-    }
-
     /**
      * Remove N number of blocks.
      * @param  {Number} nblocks
