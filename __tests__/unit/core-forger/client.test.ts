@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { Blocks } from "@arkecosystem/crypto/src";
 import { Client } from "@arkecosystem/core-forger/src/client";
 import { Application, Container } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus, Nes } from "@arkecosystem/core-p2p";
@@ -24,6 +25,17 @@ beforeEach(() => {
 afterEach(() => {
     //jest.resetAllMocks();
 });
+
+describe.only("ss", () => {
+    it("should compare the buffer size vs base64", () => {
+        const bufBlock = Blocks.Serializer.serializeWithTransactions(
+            { ...forgedBlockWithTransactions.data, transactions: forgedBlockWithTransactions.transactions.map(t => t.data) }
+        );
+        console.log(bufBlock.byteLength);
+
+        console.log(Buffer.from(bufBlock.toString("base64"), "utf-8").byteLength)
+    })
+})
 
 describe("Client", () => {
     let client: Client;
