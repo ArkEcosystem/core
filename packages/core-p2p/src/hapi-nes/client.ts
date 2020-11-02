@@ -177,14 +177,13 @@ export class Client {
     public request(options) {
         if (typeof options === "string") {
             options = {
-                method: "GET",
                 path: options,
             };
         }
 
         const request = {
             type: "request",
-            method: options.method || "GET",
+            method: "POST",
             path: options.path,
             headers: options.headers,
             payload: options.payload,
@@ -512,6 +511,9 @@ export class Client {
             this.id = update.socket;
             if (update.heartbeat) {
                 this._heartbeatTimeout = update.heartbeat.interval + update.heartbeat.timeout;
+                if (this._heartbeatTimeout === 0) {
+                    this._heartbeatTimeout = false;
+                }
                 this._beat(); // Call again once timeout is set
             }
 
