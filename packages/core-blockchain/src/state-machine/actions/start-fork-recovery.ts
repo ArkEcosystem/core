@@ -33,6 +33,6 @@ export class StartForkRecovery implements Action {
         await this.networkMonitor.refreshPeersAfterFork();
 
         this.blockchain.dispatch("SUCCESS");
-        this.blockchain.getQueue().resume();
+        await this.blockchain.getQueue().resume();
     }
 }
