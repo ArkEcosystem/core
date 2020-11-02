@@ -96,7 +96,9 @@ export class Command extends Commands.Command {
 
         const flags: Contracts.AnyObject = this.getFlags();
 
-        if (!Object.keys(flagsDefinition).find((flagName) => !flags[flagName])) {
+        const allFlagsSet = !Object.keys(flagsDefinition).find((flagName) => flags[flagName] === undefined);
+
+        if (allFlagsSet) {
             return this.generateNetwork(flags);
         }
 
