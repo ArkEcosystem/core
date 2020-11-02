@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-database",
-    "version": "3.0.0-alpha.12",
+    "version": "3.0.0-next.7",
     "description": "Database Interface for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -22,13 +22,13 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-alpha.12",
-        "@arkecosystem/crypto": "^3.0.0-alpha.12",
+        "@arkecosystem/core-kernel": "^3.0.0-next.7",
+        "@arkecosystem/crypto": "^3.0.0-next.7",
         "@arkecosystem/utils": "^1.2.0",
         "dayjs": "^1.8.17",
         "pg": "^8.2.1",
         "reflect-metadata": "^0.1.13",
-        "typeorm": "^0.2.25"
+        "typeorm": "0.2.25"
     },
     "engines": {
         "node": ">=10.x"

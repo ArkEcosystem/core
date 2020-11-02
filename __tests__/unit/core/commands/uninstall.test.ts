@@ -6,6 +6,6 @@ beforeEach(() => (cli = new Console()));
 
 describe("UninstallCommand", () => {
     it("should throw since the command is not implemented", async () => {
-        await expect(cli.execute(Command)).rejects.toThrow("[ERROR] This command has not been implemented.");
+        await expect(cli.execute(Command)).rejects.toThrow("This command has not been implemented.");
     });
 });

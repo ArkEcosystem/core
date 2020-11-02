@@ -245,8 +245,11 @@ describe("Wallet Repository Copy On Write", () => {
             const wallet = walletRepo.createWallet("abc");
             wallet.setAttribute("delegate", { username: "test" });
             walletRepo.index(wallet);
+            const clone = walletRepoCopyOnWrite.findByIndex(Contracts.State.WalletIndexes.Usernames, "test");
 
-            expect(walletRepoCopyOnWrite.findByIndex(Contracts.State.WalletIndexes.Usernames, "test")).toEqual(wallet);
+            expect(clone).not.toBe(wallet);
+            expect(clone.address).toEqual(wallet.address);
+            expect(clone.getAttribute("delegate.username")).toEqual(wallet.getAttribute("delegate.username"));
         });
     });
 

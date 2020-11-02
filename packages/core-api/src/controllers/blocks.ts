@@ -106,7 +106,7 @@ export class BlocksController extends Controller {
     }
 
     private getBlockCriteriaByIdOrHeight(idOrHeight: string): Contracts.Shared.OrBlockCriteria {
-        const asHeight = parseFloat(idOrHeight);
+        const asHeight = Number(idOrHeight);
         return asHeight && asHeight <= this.blockchain.getLastHeight() ? { height: asHeight } : { id: idOrHeight };
     }
 }

@@ -536,6 +536,15 @@ describe("Blockchain", () => {
         });
     });
 
+    const blockHeight1 = {
+        data: {
+            id: "17184958558311101492",
+            version: 0,
+            timestamp: 0,
+            height: 1,
+        },
+        transactions: [],
+    };
     const blockHeight2 = {
         data: {
             id: "17882607875259085966",
@@ -580,15 +589,15 @@ describe("Blockchain", () => {
         it("should call revertBlock and setLastBlock for each block to be removed, and deleteBlocks with all blocks removed", async () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
 
-            const blocksToRemove = [blockHeight2, blockHeight3];
+            const blocksToRemove = [blockHeight1, blockHeight2, blockHeight3];
             stateStore.getLastBlock = jest
                 .fn()
-                .mockReturnValueOnce(blocksToRemove[1]) // called in clearAndStopQueue
-                .mockReturnValueOnce(blocksToRemove[1]) // called in removeBlocks
+                .mockReturnValueOnce(blocksToRemove[2]) // called in clearAndStopQueue
+                .mockReturnValueOnce(blocksToRemove[2]) // called in removeBlocks
+                .mockReturnValueOnce(blocksToRemove[2]) // called in __removeBlocks
+                .mockReturnValueOnce(blocksToRemove[2]) // called in revertLastBlock
                 .mockReturnValueOnce(blocksToRemove[1]) // called in __removeBlocks
-                .mockReturnValueOnce(blocksToRemove[1]) // called in revertLastBlock
-                .mockReturnValueOnce(blocksToRemove[0]) // called in __removeBlocks
-                .mockReturnValueOnce(blocksToRemove[0]); // called in revertLastBlock
+                .mockReturnValueOnce(blocksToRemove[1]); // called in revertLastBlock
             databaseService.getBlocks = jest
                 .fn()
                 .mockReturnValueOnce(blocksToRemove.map((b) => ({ ...b.data, transactions: b.transactions })));

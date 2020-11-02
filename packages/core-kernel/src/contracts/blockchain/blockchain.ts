@@ -20,6 +20,8 @@ export interface Blockchain {
      */
     boot(skipStartedCheck?: boolean): Promise<boolean>;
 
+    isBooted(): boolean;
+
     dispose(): Promise<void>;
 
     /**

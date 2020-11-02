@@ -1,15 +1,7 @@
 import { Contracts, Services } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
-import { cloneDeep } from "@arkecosystem/utils";
+import { WalletEvent } from "./wallet-event";
 
-/**
- * @remarks
- * The Wallet should be (for the most part) treated as a DTO!
- * Other entites and services should be responsible for managing it's state and mutations.
- *
- * @export
- * @class Wallet
- */
 export class Wallet implements Contracts.State.Wallet {
     /**
      * @type {(string | undefined)}
@@ -36,7 +28,27 @@ export class Wallet implements Contracts.State.Wallet {
     public constructor(
         public readonly address: string,
         protected readonly attributes: Services.Attributes.AttributeMap,
-    ) {}
+        protected readonly events?: Contracts.Kernel.EventDispatcher,
+    ) {
+        const proxy = new Proxy<Wallet>(this, {
+            set: (_, key, value): boolean => {
+                const previousValue = this[key];
+                this[key] = value;
+
+                this.events?.dispatchSync(WalletEvent.PropertySet, {
+                    publicKey: undefined,
+                    key,
+                    value,
+                    previousValue,
+                    wallet: this,
+                });
+
+                return true;
+            },
+        });
+
+        return proxy;
+    }
 
     /**
      * @returns {Record<string, any>}
@@ -65,7 +77,16 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public setAttribute<T = any>(key: string, value: T): boolean {
-        return this.attributes.set<T>(key, value);
+        const wasSet = this.attributes.set<T>(key, value);
+
+        this.events?.dispatchSync(WalletEvent.PropertySet, {
+            publicKey: this.publicKey,
+            key: key,
+            value,
+            wallet: this,
+        });
+
+        return wasSet;
     }
 
     /**
@@ -74,7 +95,18 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public forgetAttribute(key: string): boolean {
-        return this.attributes.forget(key);
+        const na = Symbol();
+        const previousValue = this.attributes.get(key, na);
+        const wasSet = this.attributes.forget(key);
+
+        this.events?.dispatchSync(WalletEvent.PropertySet, {
+            publicKey: this.publicKey,
+            key,
+            previousValue: previousValue === na ? undefined : previousValue,
+            wallet: this,
+        });
+
+        return wasSet;
     }
 
     /**
@@ -123,6 +155,10 @@ export class Wallet implements Contracts.State.Wallet {
      * @memberof Wallet
      */
     public clone(): Contracts.State.Wallet {
-        return cloneDeep(this);
+        const cloned = new Wallet(this.address, this.attributes.clone());
+        cloned.publicKey = this.publicKey;
+        cloned.balance = this.balance;
+        cloned.nonce = this.nonce;
+        return cloned;
     }
 }

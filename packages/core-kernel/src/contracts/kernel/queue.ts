@@ -2,8 +2,14 @@
  * @interface QueueJob
  */
 export interface QueueJob {
-    handle(): Promise<any>;
+    handle(): Promise<void>;
 }
+
+export type QueueOnDrainFunction = () => void;
+
+export type QueueOnErrorFunction = (job: QueueJob, error: Error) => void;
+
+export type QueueOnDataFunction = (job: QueueJob, data: any) => void;
 
 /**
  * @export
@@ -99,4 +105,14 @@ export interface Queue {
      * @memberof Queue
      */
     size(): number;
+
+    isStarted(): boolean;
+
+    isRunning(): boolean;
+
+    onData(callback: QueueOnDataFunction): void;
+
+    onError(callback: QueueOnErrorFunction): void;
+
+    onDrain(callback: QueueOnDrainFunction): void;
 }

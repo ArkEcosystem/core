@@ -51,7 +51,7 @@ describe("ReinstallCommand", () => {
 
         prompts.inject([false]);
 
-        await expect(cli.execute(Command)).rejects.toThrow("[ERROR] You'll need to confirm the reinstall to continue.");
+        await expect(cli.execute(Command)).rejects.toThrow("You'll need to confirm the reinstall to continue.");
 
         expect(sync).not.toHaveBeenCalled();
 

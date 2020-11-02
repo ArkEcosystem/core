@@ -51,5 +51,5 @@ export const lockCriteriaSchemaObject = {
 };
 
 export const lockParamSchema = transactionIdSchema;
-export const lockCriteriaQuerySchema = Joi.object(lockCriteriaSchemaObject);
+export const lockCriteriaSchema = Schemas.createCriteriaSchema(lockCriteriaSchemaObject);
 export const lockSortingSchema = Schemas.createSortingSchema(lockCriteriaSchemaObject);

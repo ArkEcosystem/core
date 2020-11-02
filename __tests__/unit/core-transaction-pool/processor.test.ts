@@ -21,32 +21,33 @@ const transaction2 = Transactions.BuilderFactory.transfer()
     .build();
 
 const pool = { addTransaction: jest.fn() };
-const dynamicFeeMatcher = { throwIfCannotEnterPool: jest.fn(), throwIfCannotBroadcast: jest.fn() };
-const transactionBroadcaster = { broadcastTransactions: jest.fn() };
+const dynamicFeeMatcher = { throwIfCannotBroadcast: jest.fn() };
+const spyBroadcastTransactions = jest.fn();
+const transactionBroadcaster = {
+    broadcastTransactions: () => {
+        spyBroadcastTransactions(); // some weird issue with jest, can't use directly jest.fn() mocking promise so using this trick
+        return Promise.resolve()
+    }
+};
 const workerPool = { isTypeGroupSupported: jest.fn(), getTransactionFromData: jest.fn() };
+const logger = { error: jest.fn() };
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(pool);
 container.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).toConstantValue(dynamicFeeMatcher);
 container.bind(Container.Identifiers.PeerTransactionBroadcaster).toConstantValue(transactionBroadcaster);
 container.bind(Container.Identifiers.TransactionPoolWorkerPool).toConstantValue(workerPool);
+container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
 beforeEach(() => {
-    pool.addTransaction.mockReset();
-    dynamicFeeMatcher.throwIfCannotEnterPool.mockReset();
-    dynamicFeeMatcher.throwIfCannotBroadcast.mockReset();
-    transactionBroadcaster.broadcastTransactions.mockReset();
-    workerPool.isTypeGroupSupported.mockReset();
-    workerPool.getTransactionFromData.mockReset();
+    jest.resetAllMocks();
 });
 
 describe("Processor.process", () => {
     it("should parse transactions through factory pool", async () => {
         workerPool.isTypeGroupSupported.mockReturnValue(true);
         workerPool.getTransactionFromData.mockResolvedValueOnce(transaction1).mockResolvedValueOnce(transaction2);
-        dynamicFeeMatcher.throwIfCannotEnterPool
-            .mockImplementationOnce(async (transaction) => {})
-            .mockImplementationOnce(async (transaction) => {});
+
         dynamicFeeMatcher.throwIfCannotBroadcast
             .mockImplementationOnce(async (transaction) => {
                 throw new TransactionFeeToLowError(transaction);
@@ -58,10 +59,9 @@ describe("Processor.process", () => {
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data, transaction2.data]);
 
-        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(2);
         expect(pool.addTransaction).toBeCalledTimes(2);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(2);
-        expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
+        expect(spyBroadcastTransactions).not.toBeCalled();
 
         expect(processor.accept).toEqual([transaction1.id, transaction2.id]);
         expect(processor.broadcast).toEqual([]);
@@ -90,10 +90,10 @@ describe("Processor.process", () => {
         });
     });
 
-    it("should add eligible transactions to pool", async () => {
+    it("should add transactions to pool", async () => {
         workerPool.isTypeGroupSupported.mockReturnValue(false);
 
-        dynamicFeeMatcher.throwIfCannotEnterPool
+        pool.addTransaction
             .mockImplementationOnce(async (transaction) => {})
             .mockImplementationOnce(async (transaction) => {
                 throw new TransactionFeeToLowError(transaction);
@@ -102,10 +102,9 @@ describe("Processor.process", () => {
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data, transaction2.data]);
 
-        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(2);
-        expect(pool.addTransaction).toBeCalledTimes(1);
+        expect(pool.addTransaction).toBeCalledTimes(2);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(1);
-        expect(transactionBroadcaster.broadcastTransactions).toBeCalledTimes(1);
+        expect(spyBroadcastTransactions).toBeCalledTimes(1);
 
         expect(processor.accept).toEqual([transaction1.id]);
         expect(processor.broadcast).toEqual([transaction1.id]);
@@ -127,10 +126,9 @@ describe("Processor.process", () => {
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data, transaction2.data]);
 
-        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(2);
         expect(pool.addTransaction).toBeCalledTimes(2);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(2);
-        expect(transactionBroadcaster.broadcastTransactions).toBeCalled();
+        expect(spyBroadcastTransactions).toBeCalled();
 
         expect(processor.accept).toEqual([transaction1.id, transaction2.id]);
         expect(processor.broadcast).toEqual([transaction1.id]);
@@ -148,10 +146,9 @@ describe("Processor.process", () => {
 
         await expect(promise).rejects.toThrow();
 
-        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(1);
         expect(pool.addTransaction).toBeCalledTimes(1);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(0);
-        expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
+        expect(spyBroadcastTransactions).not.toBeCalled();
 
         expect(processor.accept).toEqual([]);
         expect(processor.broadcast).toEqual([]);
@@ -169,10 +166,9 @@ describe("Processor.process", () => {
         const processor = container.resolve(Processor);
         await processor.process([transaction1.data]);
 
-        expect(dynamicFeeMatcher.throwIfCannotEnterPool).toBeCalledTimes(1);
         expect(pool.addTransaction).toBeCalledTimes(1);
         expect(dynamicFeeMatcher.throwIfCannotBroadcast).toBeCalledTimes(0);
-        expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
+        expect(spyBroadcastTransactions).not.toBeCalled();
 
         expect(processor.accept).toEqual([]);
         expect(processor.broadcast).toEqual([]);

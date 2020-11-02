@@ -1,6 +1,5 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions } from "@arkecosystem/crypto";
-
 import { AlreadyVotedError, NoVoteError, UnvoteMismatchError } from "../../errors";
 import { One } from "../index";
 import { TransactionHandlerConstructor } from "../transaction";
@@ -30,21 +29,25 @@ export class VoteTransactionHandler extends One.VoteTransactionHandler {
             AppUtils.assert.defined<string[]>(transaction.asset?.votes);
 
             const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-            const vote = transaction.asset.votes[0];
-            const hasVoted: boolean = wallet.hasAttribute("vote");
 
-            if (vote.startsWith("+")) {
-                if (hasVoted) {
-                    throw new AlreadyVotedError();
+            for (const vote of transaction.asset.votes) {
+                const hasVoted: boolean = wallet.hasAttribute("vote");
+
+                if (vote.startsWith("+")) {
+                    if (hasVoted) {
+                        throw new AlreadyVotedError();
+                    }
+
+                    wallet.setAttribute("vote", vote.slice(1));
+                } else {
+                    if (!hasVoted) {
+                        throw new NoVoteError();
+                    } else if (wallet.getAttribute("vote") !== vote.slice(1)) {
+                        throw new UnvoteMismatchError();
+                    }
+
+                    wallet.forgetAttribute("vote");
                 }
-                wallet.setAttribute("vote", vote.slice(1));
-            } else {
-                if (!hasVoted) {
-                    throw new NoVoteError();
-                } else if (wallet.getAttribute("vote") !== vote.slice(1)) {
-                    throw new UnvoteMismatchError();
-                }
-                wallet.forgetAttribute("vote");
             }
         }
     }

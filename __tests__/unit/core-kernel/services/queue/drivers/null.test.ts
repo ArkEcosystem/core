@@ -1,8 +1,8 @@
-import { NullQueue } from "../../../../../../packages/core-kernel/src/services/queue/drivers/null";
-import { QueueJob } from "../../../../../../packages/core-kernel/src/contracts/kernel/queue";
+import { QueueJob } from "@packages/core-kernel/src/contracts/kernel/queue";
+import { NullQueue } from "@packages/core-kernel/src/services/queue/drivers/null";
 
 class MyQueueJob implements QueueJob {
-    handle(): void {}
+    public async handle(): Promise<void> {}
 }
 
 describe("NullQueue.make", () => {
@@ -82,5 +82,45 @@ describe("NullQueue.size", () => {
         const driver = new NullQueue();
         const result = await driver.size();
         expect(result).toBe(0);
+    });
+});
+
+describe("NullQueue.isStarted", () => {
+    it("should return false", async () => {
+        const driver = new NullQueue();
+        const result = await driver.isStarted();
+        expect(result).toBe(false);
+    });
+});
+
+describe("NullQueue.isRunning", () => {
+    it("should return false", async () => {
+        const driver = new NullQueue();
+        const result = await driver.isRunning();
+        expect(result).toBe(false);
+    });
+});
+
+describe("NullQueue.onData", () => {
+    it("should accept function", async () => {
+        const driver = new NullQueue();
+        const onData = jest.fn();
+        driver.onData(onData);
+    });
+});
+
+describe("NullQueue.onError", () => {
+    it("should accept function", async () => {
+        const driver = new NullQueue();
+        const onError = jest.fn();
+        driver.onError(onError);
+    });
+});
+
+describe("NullQueue.onDrain", () => {
+    it("should accept function", async () => {
+        const driver = new NullQueue();
+        const onDrain = jest.fn();
+        driver.onDrain(onDrain);
     });
 });

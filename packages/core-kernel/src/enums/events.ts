@@ -124,5 +124,5 @@ export enum ScheduleEvent {
  */
 export enum QueueEvent {
     Finished = "queue.finished",
-    Failed = "queue.finished",
+    Failed = "queue.failed",
 }

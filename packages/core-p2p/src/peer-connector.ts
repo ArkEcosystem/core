@@ -68,13 +68,13 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
     }
 
     private async create(peer: Contracts.P2P.Peer, port: number): Promise<Client> {
-        const connection = new Client(`ws://${peer.ip}:${port}`);
+        const connection = new Client(`ws://${peer.ip}:${port}`, { timeout: 10000 });
 
         connection.onError = (error) => {
             this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
         };
 
-        await connection.connect({ retries: 1 });
+        await connection.connect({ retries: 1, timeout: 5000 });
 
         return connection;
     }

@@ -49,6 +49,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async dispose(): Promise<void> {
+        this.app.get<Service>(Container.Identifiers.TransactionPoolService).dispose();
         this.app.get<Storage>(Container.Identifiers.TransactionPoolStorage).dispose();
     }
 

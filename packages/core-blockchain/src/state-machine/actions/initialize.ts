@@ -7,6 +7,9 @@ import { Action } from "../contracts";
 
 @Container.injectable()
 export class Initialize implements Action {
+    @Container.inject(Container.Identifiers.Application)
+    public readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -65,6 +68,7 @@ export class Initialize implements Action {
             await this.databaseService.deleteRound(roundInfo.round + 1);
 
             if (this.stateStore.networkStart) {
+                await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
                 await this.databaseInteraction.restoreCurrentRound(block.data.height);
                 await this.transactionPool.readdTransactions();
                 await this.networkMonitor.boot();
@@ -75,6 +79,7 @@ export class Initialize implements Action {
             if (process.env.NODE_ENV === "test") {
                 this.logger.notice("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
+                await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
                 await this.networkMonitor.boot();
 
                 return this.blockchain.dispatch("STARTED");
@@ -86,6 +91,8 @@ export class Initialize implements Action {
              * database init                 *
              ******************************* */
             // Integrity Verification
+
+            await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
 
             await this.databaseInteraction.restoreCurrentRound(block.data.height);
             await this.transactionPool.readdTransactions();
