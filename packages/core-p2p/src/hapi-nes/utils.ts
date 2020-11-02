@@ -100,7 +100,7 @@ export const stringifyNesMessage = (messageObj: NesMessage): Buffer => {
     const bufHeader = Buffer.alloc(HEADER_BYTE_LENGTH);
 
     bufHeader.writeUInt8(Number.parseInt(messageObj.version || "0"), OFFSETS.VERSION);
-    bufHeader.writeUInt8(mapTypeStringToInt[messageObj.type || "undefined"], OFFSETS.TYPE);
+    bufHeader.writeUInt8(mapTypeStringToInt[messageObj.type ?? "undefined"] ?? mapTypeStringToInt["undefined"], OFFSETS.TYPE);
     bufHeader.writeUInt32BE(messageObj.id || 1, OFFSETS.ID);
     bufHeader.writeUInt16BE(messageObj.statusCode || 200, OFFSETS.STATUS_CODE);
     bufHeader.writeUInt8(pathBuf.byteLength, OFFSETS.PATH_LENGTH);
