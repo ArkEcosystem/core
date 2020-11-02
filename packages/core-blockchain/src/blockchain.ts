@@ -262,6 +262,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             return;
         }
 
+        const __createQueueJob = (blocks: Interfaces.IBlockData[]) => {
+            const processBlocksJob = this.app.resolve<ProcessBlocksJob>(ProcessBlocksJob);
+            processBlocksJob.setBlocks(blocks);
+
+            this.queue.push(processBlocksJob);
+            this.queue.resume();
+        };
+
         const lastDownloadedHeight: number = this.getLastDownloadedBlock().height;
         const milestoneHeights: number[] = Managers.configManager
             .getMilestones()
@@ -286,7 +294,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 currentBlocksChunk.length >= Math.min(this.stateStore.getMaxLastBlocks(), 100) ||
                 nextMilestone
             ) {
-                this.createQueueJob(currentBlocksChunk);
+                __createQueueJob(currentBlocksChunk);
                 currentBlocksChunk = [];
                 currentTransactionsCount = 0;
                 if (nextMilestone) {
@@ -294,18 +302,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 }
             }
         }
-        this.createQueueJob(currentBlocksChunk);
-    }
-
-    // TODO: Make private
-    public createQueueJob(blocks: Interfaces.IBlockData[]) {
-        const processBlocksJob = this.app.resolve<ProcessBlocksJob>(ProcessBlocksJob);
-        processBlocksJob.setBlocks(blocks);
-
-        this.queue.push(processBlocksJob);
-        this.queue.resume();
-
-        // TODO: Clear queue results
+        __createQueueJob(currentBlocksChunk);
     }
 
     /**
