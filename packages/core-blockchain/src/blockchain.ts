@@ -74,6 +74,16 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.queue = await this.app.get<Types.QueueFactory>(Container.Identifiers.QueueFactory)();
 
+        this.queue.onDrain(() => {
+            this.dispatch("PROCESSFINISHED");
+        });
+
+        this.queue.onError((job, error) => {
+            const blocks = (job as ProcessBlocksJob).getBlocks();
+
+            this.logger.error(`Failed to process ${blocks.length} blocks from height ${blocks[0].height} in queue.`);
+        });
+
         // this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }): Promise<
         //     Interfaces.IBlock[] | undefined
         // > => {
