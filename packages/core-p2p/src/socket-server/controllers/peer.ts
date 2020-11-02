@@ -6,6 +6,7 @@ import Hapi from "@hapi/hapi";
 import { MissingCommonBlockError } from "../../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { Controller } from "./controller";
+import { getPeerIp } from "../../utils/get-peer-ip";
 
 export class PeerController extends Controller {
     @Container.inject(Container.Identifiers.PeerStorage)
@@ -15,8 +16,11 @@ export class PeerController extends Controller {
     private readonly databaseInteraction!: DatabaseInteraction;
 
     public getPeers(request: Hapi.Request, h: Hapi.ResponseToolkit): Contracts.P2P.PeerBroadcast[] {
+        const peerIp = getPeerIp(request.socket);
+
         return this.peerStorage
             .getPeers()
+            .filter((peer) => peer.ip !== peerIp)
             .filter((peer) => peer.port !== -1)
             .sort((a, b) => {
                 Utils.assert.defined<number>(a.latency);

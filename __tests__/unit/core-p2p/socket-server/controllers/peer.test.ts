@@ -75,7 +75,7 @@ describe("PeerController", () => {
     });
 
     describe("getPeers", () => {
-        it("should return the peers sorted by latency", () => {
+        it("should return the peers except connected peer sorted by latency", () => {
             const peers = [
                 new Peer("180.177.54.4", 4000),
                 new Peer("181.177.54.4", 4000),
@@ -90,10 +90,39 @@ describe("PeerController", () => {
             peers[4].latency = 1197634;
             peerStorage.getPeers = jest.fn().mockReturnValueOnce(peers);
 
-            const peersBroadcast = peerController.getPeers({}, {});
-            expect(peersBroadcast).toEqual(
-                [peers[2], peers[1], peers[0], peers[3], peers[4]].map((p) => p.toBroadcast()),
-            );
+            const request = {
+                socket: {
+                    info: { remoteAddress: "180.177.54.4" },
+                },
+            };
+            const peersBroadcast = peerController.getPeers(request, {});
+
+            expect(peersBroadcast).toEqual([peers[2], peers[1], peers[3], peers[4]].map((p) => p.toBroadcast()));
+        });
+
+        it("should return the peers except forwarded peer sorted by latency", () => {
+            const peers = [
+                new Peer("180.177.54.4", 4000),
+                new Peer("181.177.54.4", 4000),
+                new Peer("182.177.54.4", 4000),
+                new Peer("183.177.54.4", 4000),
+                new Peer("184.177.54.4", 4000),
+            ];
+            peers[0].latency = 197634;
+            peers[1].latency = 120000;
+            peers[2].latency = 117634;
+            peers[3].latency = 297600;
+            peers[4].latency = 1197634;
+            peerStorage.getPeers = jest.fn().mockReturnValueOnce(peers);
+
+            const request = {
+                socket: {
+                    info: { remoteAddress: "1.2.3.4", "x-forwarded-for": "180.177.54.4" },
+                },
+            };
+            const peersBroadcast = peerController.getPeers(request, {});
+
+            expect(peersBroadcast).toEqual([peers[2], peers[1], peers[3], peers[4]].map((p) => p.toBroadcast()));
         });
     });
 
