@@ -75,7 +75,7 @@
         "ora": "^4.0.3",
         "pretty-bytes": "^5.2.0",
         "pretty-ms": "^7.0.0",
-        "prompts": "^2.1.0",
+        "prompts": "^2.4.0",
         "read-last-lines": "^1.7.1",
         "simple-git": "^2.0.0",
         "tar": "^6.0.0",

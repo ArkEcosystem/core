@@ -116,6 +116,7 @@ interface Options {
     symbol: string;
     explorer: string;
     distribute: boolean;
+    epoch: Date;
 }
 
 /**
@@ -165,6 +166,7 @@ export class Command extends Commands.Command {
         { name: "symbol", description: "The character that is attributed to the token on the network.", schema: Joi.string(), required: true, promptType: "text" },
         { name: "explorer", description: "The URL that hosts the network explorer.", schema: Joi.string(), required: true, promptType: "text" },
         { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.string(), required: true, promptType: "confirm", default: false },
+        { name: "epoch", description: "Start time of the network. (optional)", schema: Joi.string(), required: true, promptType: "date", default: new Date(Date.now()) },
     ];
     /*eslint-enable */
 
@@ -205,13 +207,14 @@ export class Command extends Commands.Command {
 
         const response = await prompts(
             this.flagSettings
+                .filter((flag) => flag.required)
                 .map(
                     (flag) =>
                         ({
                             type: flag.promptType,
                             name: flag.name,
                             message: flag.description,
-                            initial: `${flags[flag.name] || flag.default}`,
+                            initial: flags[flag.name] ? `${flags[flag.name]}` : flag.default || "undefined",
                         } as prompts.PromptObject<string>),
                 )
                 .concat({
@@ -226,7 +229,7 @@ export class Command extends Commands.Command {
             ...response,
         };
 
-        // if (Object.keys(flagsDefinition).find((flagName) => response[flagName] === undefined)) {
+        // if (Object.keys(flagsDefinityarn ion).find((flagName) => response[flagName] === undefined)) {
         //     throw new Error("Please provide all flags and try again!");
         // }
 
@@ -243,7 +246,7 @@ export class Command extends Commands.Command {
                 continue;
             }
 
-            if (flag.promptType === "confirm") {
+            if (["confirm", "date"].includes(flag.promptType)) {
                 continue;
             }
 
@@ -372,7 +375,7 @@ export class Command extends Commands.Command {
                     maxTransactions: options.maxTxPerBlock,
                     maxPayload: options.maxBlockPayload,
                 },
-                epoch: "2017-03-21T13:00:00.000Z",
+                epoch: options.epoch.toISOString(),
                 fees: {
                     staticFees: {
                         transfer: 10000000,
