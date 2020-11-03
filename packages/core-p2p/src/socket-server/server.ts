@@ -2,8 +2,7 @@ import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 
 import { PortsOffset } from "../enums";
-import { plugin } from "../hapi-nes";
-import { AcceptPeerPlugin } from "./plugins/accept-peer";
+import { plugin as hapiNesPlugin } from "../hapi-nes";
 import { IsAppReadyPlugin } from "./plugins/is-app-ready";
 import { ValidatePlugin } from "./plugins/validate";
 import { WhitelistForgerPlugin } from "./plugins/whitelist-forger";
@@ -11,6 +10,8 @@ import { BlocksRoute } from "./routes/blocks";
 import { InternalRoute } from "./routes/internal";
 import { PeerRoute } from "./routes/peer";
 import { TransactionsRoute } from "./routes/transactions";
+import { Socket } from "../hapi-nes/socket";
+import { getPeerIp } from "../utils/get-peer-ip";
 
 // todo: review the implementation
 @Container.injectable()
@@ -30,6 +31,9 @@ export class Server {
      */
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
+
+    @Container.inject(Container.Identifiers.PeerProcessor)
+    private readonly peerProcessor!: Contracts.P2P.PeerProcessor;
 
     /**
      * @private
@@ -70,18 +74,39 @@ export class Server {
 
         const address = optionsServer.hostname;
         const basePort = Number(optionsServer.port);
+        const onConnection = (socket: Socket) => {
+            this.peerProcessor.validateAndAcceptPeer({ ip: getPeerIp(socket) } as Contracts.P2P.Peer);
+        };
 
         this.peerServer = new HapiServer({ address, port: basePort + PortsOffset.Peer });
         this.peerServer.app = this.app;
-        await this.peerServer.register({ plugin, options: { maxPayload: 102400 } }); // 100 KB
+        await this.peerServer.register({
+            plugin: hapiNesPlugin,
+            options: {
+                maxPayload: 102400, // 100 KB
+                onConnection: onConnection,
+            },
+        });
 
         this.blocksServer = new HapiServer({ address, port: basePort + PortsOffset.Blocks });
         this.blocksServer.app = this.app;
-        await this.blocksServer.register({ plugin, options: { maxPayload: 20971520 } }); // 20 MB
+        await this.blocksServer.register({
+            plugin: hapiNesPlugin,
+            options: {
+                maxPayload: 20971520, // 20 MB
+                onConnection: onConnection,
+            },
+        });
 
         this.transactionsServer = new HapiServer({ address, port: basePort + PortsOffset.Transactions });
         this.transactionsServer.app = this.app;
-        await this.transactionsServer.register({ plugin, options: { maxPayload: 10485760 } }); // 10 MB
+        await this.transactionsServer.register({
+            plugin: hapiNesPlugin,
+            options: {
+                maxPayload: 10485760, // 10 MB
+                onConnection: onConnection,
+            },
+        });
 
         for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
             this.app.resolve(IsAppReadyPlugin).register(server);
@@ -91,7 +116,6 @@ export class Server {
         this.app.resolve(InternalRoute).register(this.peerServer);
         this.app.resolve(PeerRoute).register(this.peerServer);
         this.app.resolve(WhitelistForgerPlugin).register(this.peerServer);
-        this.app.resolve(AcceptPeerPlugin).register(this.peerServer);
 
         this.app.resolve(BlocksRoute).register(this.blocksServer);
 
