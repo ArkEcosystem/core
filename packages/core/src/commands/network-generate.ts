@@ -117,6 +117,19 @@ interface Options {
     explorer: string;
     distribute: boolean;
     epoch: Date;
+
+    // Static fee
+    feeStaticTransfer: number;
+    feeStaticSecondSignature: number;
+    feeStaticDelegateRegistration: number;
+    feeStaticVote: number;
+    feeStaticMultiSignature: number;
+    feeStaticIpfs: number;
+    feeStaticMultiPayment: number;
+    feeStaticDelegateResignation: number;
+    feeStaticHtlcLock: number;
+    feeStaticHtlcClaim: number;
+    feeStaticHtlcRefund: number;
 }
 
 /**
@@ -166,7 +179,20 @@ export class Command extends Commands.Command {
         { name: "symbol", description: "The character that is attributed to the token on the network.", schema: Joi.string(), required: true, promptType: "text" },
         { name: "explorer", description: "The URL that hosts the network explorer.", schema: Joi.string(), required: true, promptType: "text" },
         { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.string(), required: true, promptType: "confirm", default: false },
-        { name: "epoch", description: "Start time of the network. (optional)", schema: Joi.string(), required: true, promptType: "date", default: new Date(Date.now()) },
+        { name: "epoch", description: "Start time of the network. (optional)", schema: Joi.string(), required: true, promptType: "date", default: new Date(Date.now()) }, // TODO: Optional
+
+        // Static fee
+        { name: "feeStaticTransfer", description: "Fee for transfer transactions. (10000000)", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
+        { name: "feeStaticSecondSignature", description: "Fee for second signature transactions. (500000000)", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
+        { name: "feeStaticDelegateRegistration", description: "Fee for delegate registration transactions. (500000000)", schema: Joi.number(), required: false, promptType: "", default: 2500000000 },
+        { name: "feeStaticVote", description: "Fee for vote transactions. (100000000)", schema: Joi.number(), required: false, promptType: "", default: 100000000 },
+        { name: "feeStaticMultiSignature", description: "Fee for multi signature transactions. (500000000)", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
+        { name: "feeStaticIpfs", description: "Fee for ipfs transactions. (500000000)", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
+        { name: "feeStaticMultiPayment", description: "Fee for multi payment transactions. (10000000)", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
+        { name: "feeStaticDelegateResignation", description: "Fee for delegate resignation transactions. (2500000000)", schema: Joi.number(), required: false, promptType: "", default: 2500000000 },
+        { name: "feeStaticHtlcLock", description: "Fee for HTLC lock transactions. (10000000)", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
+        { name: "feeStaticHtlcClaim", description: "Fee for HTLC claim transactions. (0)", schema: Joi.number(), required: false, promptType: "", default: 0 },
+        { name: "feeStaticHtlcRefund", description: "Fee for HTLC refund transactions. (0)", schema: Joi.number(), required: false, promptType: "", default: 0 },
     ];
     /*eslint-enable */
 
@@ -224,7 +250,14 @@ export class Command extends Commands.Command {
                 } as prompts.PromptObject<string>),
         );
 
+        const defaults = this.flagSettings.reduce<any>((acc: any, flag: Flag) => {
+            acc[flag.name] = flag.default;
+
+            return acc;
+        }, {});
+
         const options = {
+            ...defaults,
             ...flags,
             ...response,
         };
@@ -253,7 +286,7 @@ export class Command extends Commands.Command {
             throw new Error(`Flag ${flag.name} is required.`);
         }
 
-        await this.generateNetwork({ ...flags, ...response });
+        await this.generateNetwork(options);
     }
 
     private async generateNetwork(flags: Options): Promise<void> {
@@ -378,17 +411,17 @@ export class Command extends Commands.Command {
                 epoch: options.epoch.toISOString(),
                 fees: {
                     staticFees: {
-                        transfer: 10000000,
-                        secondSignature: 500000000,
-                        delegateRegistration: 2500000000,
-                        vote: 100000000,
-                        multiSignature: 500000000,
-                        ipfs: 500000000,
-                        multiPayment: 10000000,
-                        delegateResignation: 2500000000,
-                        htlcLock: 10000000,
-                        htlcClaim: 0,
-                        htlcRefund: 0,
+                        transfer: options.feeStaticTransfer,
+                        secondSignature: options.feeStaticSecondSignature,
+                        delegateRegistration: options.feeStaticDelegateRegistration,
+                        vote: options.feeStaticVote,
+                        multiSignature: options.feeStaticMultiSignature,
+                        ipfs: options.feeStaticIpfs,
+                        multiPayment: options.feeStaticMultiPayment,
+                        delegateResignation: options.feeStaticDelegateResignation,
+                        htlcLock: options.feeStaticHtlcLock,
+                        htlcClaim: options.feeStaticHtlcClaim,
+                        htlcRefund: options.feeStaticHtlcRefund,
                     },
                 },
                 vendorFieldLength: 64,
