@@ -32,7 +32,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
         const broadcastableTransactions: Interfaces.ITransaction[] = [];
 
         try {
-            for (let i in data) {
+            for (let i = 0; i < data.length; i++) {
                 const transactionData = data[i];
 
                 try {
@@ -40,18 +40,18 @@ export class Processor implements Contracts.TransactionPool.Processor {
                         ? await this.getTransactionFromBuffer(transactionData)
                         : await this.getTransactionFromData(transactionData as Interfaces.ITransactionData);
                     await this.pool.addTransaction(transaction);
-                    this.accept.push(transactionData instanceof Buffer ? i : transactionData.id ?? i);
+                    this.accept.push(transactionData instanceof Buffer ? `${i}` : transactionData.id ?? `${i}`);
 
                     try {
                         await this.dynamicFeeMatcher.throwIfCannotBroadcast(transaction);
                         broadcastableTransactions.push(transaction);
                     } catch {}
                 } catch (error) {
-                    this.invalid.push(transactionData instanceof Buffer ? i : transactionData.id ?? i);
+                    this.invalid.push(transactionData instanceof Buffer ? `${i}` : transactionData.id ?? `${i}`);
 
                     if (error instanceof Contracts.TransactionPool.PoolError) {
                         if (error.type === "ERR_EXCEEDS_MAX_COUNT") {
-                            this.excess.push(transactionData instanceof Buffer ? i : transactionData.id ?? i);
+                            this.excess.push(transactionData instanceof Buffer ? `${i}` : transactionData.id ?? `${i}`);
                         }
 
                         if (!this.errors) this.errors = {};
