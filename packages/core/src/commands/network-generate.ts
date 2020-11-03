@@ -101,6 +101,23 @@ interface Flag {
     default?: any;
 }
 
+interface Options {
+    network: string;
+    premine: string;
+    delegates: number;
+    blocktime: number;
+    maxTxPerBlock: number;
+    maxBlockPayload: number;
+    rewardHeight: number;
+    rewardAmount: string | number;
+    pubKeyHash: number;
+    wif: number;
+    token: string;
+    symbol: string;
+    explorer: string;
+    distribute: boolean;
+}
+
 /**
  * @export
  * @class Command
@@ -135,7 +152,7 @@ export class Command extends Commands.Command {
     /*eslint-disable */
     private flagSettings: Flag[] = [
         { name: "network", description: "The name of the network.", schema: Joi.string(), required: true, promptType: "text" },
-        { name: "premine", description: "The number of pre-mined tokens.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), required: true, promptType: "text", default: "12500000000000000" },
+        { name: "premine", description: "The number of pre-mined tokens.", schema: Joi.string(), required: true, promptType: "text", default: "12500000000000000" },
         { name: "delegates", description: "The number of delegates to generate.", schema: Joi.number(), required: true, promptType: "number", default: 51 },
         { name: "blocktime", description: "The network blocktime.", schema: Joi.number(), required: true, promptType: "number", default: 8 },
         { name: "maxTxPerBlock", description: "The maximum number of transactions per block.", schema: Joi.number(), required: true, promptType: "number", default: 150 },
@@ -232,7 +249,7 @@ export class Command extends Commands.Command {
         await this.generateNetwork({ ...flags, ...response });
     }
 
-    private async generateNetwork(flags: Contracts.AnyObject): Promise<void> {
+    private async generateNetwork(flags: Options): Promise<void> {
         const paths = envPaths(flags.token, { suffix: "core" });
         const coreConfigDest = join(paths.config, flags.network);
         const cryptoConfigDest = join(coreConfigDest, "crypto");
@@ -266,40 +283,17 @@ export class Command extends Commands.Command {
             {
                 title: "Generate crypto network configuration.",
                 task: async () => {
-                    const genesisBlock = this.generateCryptoGenesisBlock(
-                        genesisWallet,
-                        delegates,
-                        flags.pubKeyHash,
-                        flags.premine,
-                        flags.distribute,
-                    );
+                    const genesisBlock = this.generateCryptoGenesisBlock(genesisWallet, delegates, flags);
 
                     writeJSONSync(
                         resolve(cryptoConfigDest, "network.json"),
-                        this.generateCryptoNetwork(
-                            flags.network,
-                            flags.pubKeyHash,
-                            genesisBlock.payloadHash,
-                            flags.wif,
-                            flags.token,
-                            flags.symbol,
-                            flags.explorer,
-                        ),
+                        this.generateCryptoNetwork(genesisBlock.payloadHash, flags),
                         { spaces: 4 },
                     );
 
-                    writeJSONSync(
-                        resolve(cryptoConfigDest, "milestones.json"),
-                        this.generateCryptoMilestones(
-                            flags.delegates,
-                            flags.blocktime,
-                            flags.maxTxPerBlock,
-                            flags.maxBlockPayload,
-                            flags.rewardHeight,
-                            flags.rewardAmount,
-                        ),
-                        { spaces: 4 },
-                    );
+                    writeJSONSync(resolve(cryptoConfigDest, "milestones.json"), this.generateCryptoMilestones(flags), {
+                        spaces: 4,
+                    });
 
                     writeJSONSync(resolve(cryptoConfigDest, "genesisBlock.json"), genesisBlock, { spaces: 4 });
 
@@ -341,53 +335,38 @@ export class Command extends Commands.Command {
         ]);
     }
 
-    private generateCryptoNetwork(
-        name: string,
-        pubKeyHash: number,
-        nethash: string,
-        wif: number,
-        token: string,
-        symbol: string,
-        explorer: string,
-    ) {
+    private generateCryptoNetwork(nethash: string, options: Options) {
         return {
-            name,
-            messagePrefix: `${name} message:\n`,
+            name: options.network,
+            messagePrefix: `${options.network} message:\n`,
             bip32: {
                 public: 70617039,
                 private: 70615956,
             },
-            pubKeyHash,
+            pubKeyHash: options.pubKeyHash,
             nethash,
-            wif,
+            wif: options.wif,
             slip44: 1,
             aip20: 0,
             client: {
-                token,
-                symbol,
-                explorer,
+                token: options.token,
+                symbol: options.symbol,
+                explorer: options.explorer,
             },
         };
     }
 
-    private generateCryptoMilestones(
-        activeDelegates: number,
-        blocktime: number,
-        maxTransactions: number,
-        maxPayload: number,
-        rewardHeight: number,
-        rewardAmount: string,
-    ) {
+    private generateCryptoMilestones(options: Options) {
         return [
             {
                 height: 1,
                 reward: "0",
-                activeDelegates,
-                blocktime,
+                activeDelegates: options.delegates,
+                blocktime: options.blocktime,
                 block: {
                     version: 0,
-                    maxTransactions,
-                    maxPayload,
+                    maxTransactions: options.maxTxPerBlock,
+                    maxPayload: options.maxBlockPayload,
                 },
                 epoch: "2017-03-21T13:00:00.000Z",
                 fees: {
@@ -410,8 +389,8 @@ export class Command extends Commands.Command {
                 aip11: true,
             },
             {
-                height: rewardHeight,
-                reward: rewardAmount,
+                height: options.rewardHeight,
+                reward: options.rewardAmount,
             },
             {
                 height: 100000,
@@ -426,30 +405,24 @@ export class Command extends Commands.Command {
         ];
     }
 
-    private generateCryptoGenesisBlock(
-        genesisWallet,
-        delegates,
-        pubKeyHash: number,
-        totalPremine: string,
-        distribute: number,
-    ) {
-        const premineWallet: Wallet = this.createWallet(pubKeyHash);
+    private generateCryptoGenesisBlock(genesisWallet, delegates, options: Options) {
+        const premineWallet: Wallet = this.createWallet(options.pubKeyHash);
 
         let transactions = [];
 
-        if (distribute) {
+        if (options.distribute) {
             transactions = transactions.concat(
-                ...this.createTransferTransactions(premineWallet, delegates, totalPremine, pubKeyHash),
+                ...this.createTransferTransactions(premineWallet, delegates, options.premine, options.pubKeyHash),
             );
         } else {
             transactions = transactions.concat(
-                this.createTransferTransaction(premineWallet, genesisWallet, totalPremine, pubKeyHash),
+                this.createTransferTransaction(premineWallet, genesisWallet, options.premine, options.pubKeyHash),
             );
         }
 
         transactions = transactions.concat(
-            ...this.buildDelegateTransactions(delegates, pubKeyHash),
-            ...this.buildVoteTransactions(delegates, pubKeyHash),
+            ...this.buildDelegateTransactions(delegates, options.pubKeyHash),
+            ...this.buildVoteTransactions(delegates, options.pubKeyHash),
         );
 
         return this.createGenesisBlock(premineWallet.keys, transactions, 0);
