@@ -33,4 +33,8 @@ export class RoundRepository extends Repository<Round> {
 
         return super.save(round) as never;
     }
+
+    public async deleteFrom(round: number): Promise<void> {
+        await this.createQueryBuilder().delete().where("round >= :round", { round }).execute();
+    }
 }
