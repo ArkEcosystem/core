@@ -130,6 +130,9 @@ interface Options {
     feeStaticHtlcLock: number;
     feeStaticHtlcClaim: number;
     feeStaticHtlcRefund: number;
+
+    // Env
+
 }
 
 /**
@@ -193,6 +196,9 @@ export class Command extends Commands.Command {
         { name: "feeStaticHtlcLock", description: "Fee for HTLC lock transactions. (10000000)", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
         { name: "feeStaticHtlcClaim", description: "Fee for HTLC claim transactions. (0)", schema: Joi.number(), required: false, promptType: "", default: 0 },
         { name: "feeStaticHtlcRefund", description: "Fee for HTLC refund transactions. (0)", schema: Joi.number(), required: false, promptType: "", default: 0 },
+
+        // Env
+
     ];
     /*eslint-enable */
 
@@ -364,7 +370,7 @@ export class Command extends Commands.Command {
                         { spaces: 4 },
                     );
 
-                    copyFileSync(resolve(__dirname, "../../bin/config/testnet/.env"), resolve(coreConfigDest, ".env"));
+                    writeFileSync(resolve(coreConfigDest, ".env"), this.generateEnvironmentVariables(flags));
 
                     copyFileSync(
                         resolve(__dirname, "../../bin/config/testnet/app.json"),
@@ -466,6 +472,30 @@ export class Command extends Commands.Command {
         );
 
         return this.createGenesisBlock(premineWallet.keys, transactions, 0);
+    }
+
+    private generateEnvironmentVariables(options: Options) {
+        let result = "";
+
+        result += "CORE_LOG_LEVEL=info\n";
+        result += "CORE_LOG_LEVEL_FILE=info\n\n";
+
+        result += "CORE_DB_HOST=localhost\n";
+        result += "CORE_DB_PORT=5432\n\n";
+
+        result += "CORE_P2P_HOST=0.0.0.0\n";
+        result += "CORE_P2P_PORT=4000\n\n";
+
+        result += "CORE_WEBHOOKS_HOST=0.0.0.0\n";
+        result += "CORE_WEBHOOKS_PORT=4004\n\n";
+
+        result += "CORE_MONITOR_HOST=0.0.0.0\n";
+        result += "CORE_MONITOR_PORT=4005\n\n";
+
+        result += "CORE_API_HOST=0.0.0.0\n";
+        result += "CORE_API_PORT=4003\n\n";
+
+        return result;
     }
 
     private generateCoreDelegates(activeDelegates: number, pubKeyHash: number): Wallet[] {
