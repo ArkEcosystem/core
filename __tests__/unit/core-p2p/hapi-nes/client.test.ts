@@ -672,7 +672,7 @@ describe("Client", () => {
             const a = { b: 1 };
 
             await expect(client.request({ method: "POST", path: "/", payload: a })).rejects.toThrowError(
-                /The first argument must be one of type string, Buffer, ArrayBuffer, Array, or Array-like Object. Received type object/,
+                /The first argument must be.*/,
             );
             await client.disconnect();
             await server.stop();
