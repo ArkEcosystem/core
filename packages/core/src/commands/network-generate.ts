@@ -132,7 +132,11 @@ interface Options {
     feeStaticHtlcRefund: number;
 
     // Env
-
+    coreDBHost: string;
+    coreDBPort: string;
+    coreDBUsername: string;
+    coreDBPassword: string;
+    coreDBDatabase: string;
 }
 
 /**
@@ -198,7 +202,11 @@ export class Command extends Commands.Command {
         { name: "feeStaticHtlcRefund", description: "Fee for HTLC refund transactions. (0)", schema: Joi.number(), required: false, promptType: "", default: 0 },
 
         // Env
-
+        { name: "coreDBHost", description: "Core database host. (localhost)", schema: Joi.string(), required: false, promptType: "", default: "localhost" },
+        { name: "coreDBPort", description: "Core database port. (5432)", schema: Joi.string(), required: false, promptType: "", default: "5432" },
+        { name: "coreDBUsername", description: "Core database username.", schema: Joi.string(), required: false, promptType: "" },
+        { name: "coreDBPassword", description: "Core database password.", schema: Joi.string(), required: false, promptType: "" },
+        { name: "coreDBDatabase", description: "Core database database.", schema: Joi.string(), required: false, promptType: "" },
     ];
     /*eslint-enable */
 
@@ -480,8 +488,11 @@ export class Command extends Commands.Command {
         result += "CORE_LOG_LEVEL=info\n";
         result += "CORE_LOG_LEVEL_FILE=info\n\n";
 
-        result += "CORE_DB_HOST=localhost\n";
-        result += "CORE_DB_PORT=5432\n\n";
+        result += `CORE_DB_HOST=${options.coreDBHost}\n`;
+        result += `CORE_DB_PORT=${options.coreDBPort}\n`;
+        result += options.coreDBUsername ? `CORE_DB_USERNAME=${options.coreDBUsername}\n` : "";
+        result += options.coreDBPassword ? `CORE_DB_PASSWORD=${options.coreDBPassword}\n` : "";
+        result += options.coreDBDatabase ? `CORE_DB_DATABASE=${options.coreDBDatabase}\n\n` : "\n";
 
         result += "CORE_P2P_HOST=0.0.0.0\n";
         result += "CORE_P2P_PORT=4000\n\n";
