@@ -152,7 +152,7 @@ export class Command extends Commands.Command {
     /*eslint-disable */
     private flagSettings: Flag[] = [
         { name: "network", description: "The name of the network.", schema: Joi.string(), required: true, promptType: "text" },
-        { name: "premine", description: "The number of pre-mined tokens.", schema: Joi.string(), required: true, promptType: "text", default: "12500000000000000" },
+        { name: "premine", description: "The number of pre-mined tokens.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), required: true, promptType: "text", default: "12500000000000000" },
         { name: "delegates", description: "The number of delegates to generate.", schema: Joi.number(), required: true, promptType: "number", default: 51 },
         { name: "blocktime", description: "The network blocktime.", schema: Joi.number(), required: true, promptType: "number", default: 8 },
         { name: "maxTxPerBlock", description: "The maximum number of transactions per block.", schema: Joi.number(), required: true, promptType: "number", default: 150 },
@@ -197,11 +197,11 @@ export class Command extends Commands.Command {
 
         const flags: Contracts.AnyObject = this.getFlags();
 
-        // const allFlagsSet = !Object.keys(flagsDefinition).find((flagName) => flags[flagName] === undefined);
-        //
-        // if (allFlagsSet) {
-        //     return this.generateNetwork(flags);
-        // }
+        const allFlagsSet = !this.flagSettings.find((flag) => flags[flag.name] === undefined);
+
+        if (allFlagsSet) {
+            return this.generateNetwork(flags as Options);
+        }
 
         const response = await prompts(
             this.flagSettings
