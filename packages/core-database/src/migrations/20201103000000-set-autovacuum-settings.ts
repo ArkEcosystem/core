@@ -23,6 +23,13 @@ export class SetAutovacuumSettings20201103000000 implements MigrationInterface {
                 autovacuum_vacuum_threshold = 10000,
                 autovacuum_analyze_threshold = 10000
             );
+
+            ALTER TABLE rounds SET (
+                autovacuum_vacuum_scale_factor = 0,
+                autovacuum_analyze_scale_factor = 0,
+                autovacuum_vacuum_threshold = 10000,
+                autovacuum_analyze_threshold = 10000
+            );
         `);
     }
 
@@ -43,6 +50,13 @@ export class SetAutovacuumSettings20201103000000 implements MigrationInterface {
             );
 
             ALTER TABLE wallets SET (
+                autovacuum_vacuum_scale_factor = 0.2,
+                autovacuum_analyze_scale_factor = 0.1,
+                autovacuum_vacuum_threshold = 50,
+                autovacuum_analyze_threshold = 50
+            );
+
+            ALTER TABLE rounds SET (
                 autovacuum_vacuum_scale_factor = 0.2,
                 autovacuum_analyze_scale_factor = 0.1,
                 autovacuum_vacuum_threshold = 50,
