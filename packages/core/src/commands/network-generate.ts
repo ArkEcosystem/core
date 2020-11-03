@@ -15,6 +15,92 @@ interface Wallet {
     username: string | undefined;
 }
 
+/*
+Network:
+- network Required
+- premine Required "12500000000000000"
+- delegates Required 51
+- blocktime Required 8
+- maxTxPerBlock Required 150
+- maxBlockPayload Required 2097152
+- pubKeyHash Required
+- wif Required
+- token Required
+- symbol Required
+- explorer Required ????
+
+- rewardHeight 75600
+- rewardAmount "200000000"
+
+- epoch
+- vendorFieldLength
+
+Other:
+- htlcEnabled
+
+Fees:
+- feeStaticTransfer
+- feeStaticSecondSignature
+- feeStaticDelegateRegistration
+- feeStaticVote
+- feeStaticMultiSignature
+- feeStaticIpfs
+- feeStaticMultiPayment
+- feeStaticDelegateResignation
+- feeStaticHtlcLock
+- feeStaticHtlcClaim
+- feeStaticHtlcRefund
+
+
+
+- feeDynamicEnabled ???
+- feeDynamicBroadcastMinFee ???
+- feeDynamicBytesTransfer
+- feeDynamicBytesSecondSignature
+- feeDynamicBytesDelegateRegistration
+- feeDynamicBytesVote
+- feeDynamicBytesMultiSignature
+- feeDynamicBytesIpfs
+- feeDynamicBytesMultiPayment
+- feeDynamicBytesDelegateResignation
+
+Gensis:
+- distribute Required false
+
+Env:
+- coreIp
+- p2pPort
+- apiPort
+- webhookPort
+- jsonRpcPort ???
+
+- dbHost
+- dbPort
+- dbUsername
+- dbPassword
+- dbDatabase
+
+Settings:
+- peers
+- prefixHash ???
+
+
+General:
+- configPath
+- overwriteConfig
+- force
+
+ */
+
+interface Flag {
+    name: string;
+    description: string;
+    schema: Joi.Schema;
+    required: boolean;
+    promptType: string;
+    default?: any;
+}
+
 /**
  * @export
  * @class Command
@@ -46,16 +132,24 @@ export class Command extends Commands.Command {
      */
     public requiresNetwork: boolean = false;
 
-    private defaults = {
-        premine: "12500000000000000",
-        delegates: 51,
-        blocktime: 8,
-        maxTxPerBlock: 150,
-        maxBlockPayload: 2097152,
-        rewardHeight: 75600,
-        rewardAmount: "200000000",
-        distribute: false,
-    };
+    /*eslint-disable */
+    private flagSettings: Flag[] = [
+        { name: "network", description: "The name of the network.", schema: Joi.string(), required: true, promptType: "text" },
+        { name: "premine", description: "The number of pre-mined tokens.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), required: true, promptType: "text", default: "12500000000000000" },
+        { name: "delegates", description: "The number of delegates to generate.", schema: Joi.number(), required: true, promptType: "number", default: 51 },
+        { name: "blocktime", description: "The network blocktime.", schema: Joi.number(), required: true, promptType: "number", default: 8 },
+        { name: "maxTxPerBlock", description: "The maximum number of transactions per block.", schema: Joi.number(), required: true, promptType: "number", default: 150 },
+        { name: "maxBlockPayload", description: "The maximum payload length by block.", schema: Joi.number(), required: true, promptType: "number", default: 2097152 },
+        { name: "rewardHeight", description: "The height at which delegate block reward starts.", schema: Joi.number(), required: true, promptType: "number", default: 75600 },
+        { name: "rewardAmount", description: "The number of the block reward per forged block.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), required: true, promptType: "number", default: "200000000" },
+        { name: "pubKeyHash", description: "The public key hash.", schema: Joi.number(), required: true, promptType: "number" },
+        { name: "wif", description: "The WIF (Wallet Import Format) that should be used.", schema: Joi.number(), required: true, promptType: "number" },
+        { name: "token", description: "The name that is attributed to the token on the network.", schema: Joi.string(), required: true, promptType: "text" },
+        { name: "symbol", description: "The character that is attributed to the token on the network.", schema: Joi.string(), required: true, promptType: "text" },
+        { name: "explorer", description: "The URL that hosts the network explorer.", schema: Joi.string(), required: true, promptType: "text" },
+        { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.string(), required: true, promptType: "confirm", default: false },
+    ];
+    /*eslint-enable */
 
     /**
      * Configure the console command.
@@ -64,25 +158,15 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public configure(): void {
-        this.definition
-            .setFlag("network", "The name of the network.", Joi.string())
-            .setFlag("premine", "The number of pre-mined tokens.", Joi.alternatives().try(Joi.string(), Joi.number()))
-            .setFlag("delegates", "The number of delegates to generate.", Joi.number())
-            .setFlag("blocktime", "The network blocktime.", Joi.number())
-            .setFlag("maxTxPerBlock", "The maximum number of transactions per block.", Joi.number())
-            .setFlag("maxBlockPayload", "The maximum payload length by block.", Joi.number())
-            .setFlag("rewardHeight", "The height at which delegate block reward starts.", Joi.number())
-            .setFlag(
-                "rewardAmount",
-                "The number of the block reward per forged block.",
-                Joi.alternatives().try(Joi.string(), Joi.number()),
-            )
-            .setFlag("pubKeyHash", "The public key hash.", Joi.number())
-            .setFlag("wif", "The WIF (Wallet Import Format) that should be used.", Joi.number())
-            .setFlag("token", "The name that is attributed to the token on the network.", Joi.string())
-            .setFlag("symbol", "The character that is attributed to the token on the network.", Joi.string())
-            .setFlag("explorer", "The URL that hosts the network explorer.", Joi.string())
-            .setFlag("distribute", "Distribute the premine evenly between all delegates?", Joi.boolean());
+        for (const flag of this.flagSettings) {
+            const flagSchema: Joi.Schema = flag.schema;
+
+            if (flag.default !== undefined) {
+                flagSchema.default(flag.default);
+            }
+
+            this.definition.setFlag(flag.name, flag.description, flag.schema);
+        }
     }
 
     /**
@@ -92,26 +176,25 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        const flagsDefinition = this.definition.getFlags();
+        // const flagsDefinition = this.definition.getFlags();
 
         const flags: Contracts.AnyObject = this.getFlags();
 
-        const allFlagsSet = !Object.keys(flagsDefinition).find((flagName) => flags[flagName] === undefined);
+        // const allFlagsSet = !Object.keys(flagsDefinition).find((flagName) => flags[flagName] === undefined);
+        //
+        // if (allFlagsSet) {
+        //     return this.generateNetwork(flags);
+        // }
 
-        if (allFlagsSet) {
-            return this.generateNetwork(flags);
-        }
-
-        const stringFlags: string[] = ["network", "premine", "token", "symbol", "explorer"];
         const response = await prompts(
-            Object.keys(flagsDefinition)
+            this.flagSettings
                 .map(
-                    (flagName) =>
+                    (flag) =>
                         ({
-                            type: stringFlags.includes(flagName) ? "text" : "number",
-                            name: flagName,
-                            message: flagsDefinition[flagName].description,
-                            initial: `${this.defaults[flagName]}`,
+                            type: flag.promptType,
+                            name: flag.name,
+                            message: flag.description,
+                            initial: `${flags[flag.name] || flag.default}`,
                         } as prompts.PromptObject<string>),
                 )
                 .concat({
@@ -121,16 +204,29 @@ export class Command extends Commands.Command {
                 } as prompts.PromptObject<string>),
         );
 
-        // TODO: check this fix is acceptable
-        // the distribute flag is a boolean in the pre-existing tests
-        // and it is defined as a number in this.generateCryptoGenesisBlock()
-        // If false or 0 are passed intentionally, this would fail (despite all flags being provided).
-        if (Object.keys(flagsDefinition).find((flagName) => response[flagName] === undefined)) {
-            throw new Error("Please provide all flags and try again!");
-        }
+        const options = {
+            ...flags,
+            ...response,
+        };
+
+        // if (Object.keys(flagsDefinition).find((flagName) => response[flagName] === undefined)) {
+        //     throw new Error("Please provide all flags and try again!");
+        // }
 
         if (!response.confirm) {
             throw new Error("You'll need to confirm the input to continue.");
+        }
+
+        for (const flag of this.flagSettings.filter((flag) => flag.required)) {
+            if (flag.promptType === "text" && options[flag.name] !== "undefined") {
+                continue;
+            }
+
+            if (flag.promptType === "number" && !Number.isNaN(options[flag.name])) {
+                continue;
+            }
+
+            throw new Error(`Flag ${flag.name} is required.`);
         }
 
         await this.generateNetwork({ ...flags, ...response });
