@@ -74,12 +74,6 @@ Env:
 - webhookPort
 - jsonRpcPort ???
 
-- dbHost
-- dbPort
-- dbUsername
-- dbPassword
-- dbDatabase
-
 Settings:
 - peers
 - prefixHash ???
@@ -133,10 +127,15 @@ interface Options {
 
     // Env
     coreDBHost: string;
-    coreDBPort: string;
-    coreDBUsername: string;
-    coreDBPassword: string;
-    coreDBDatabase: string;
+    coreDBPort: number;
+    coreDBUsername?: string;
+    coreDBPassword?: string;
+    coreDBDatabase?: string;
+
+    coreP2PPort: number;
+    coreAPIPort: number;
+    coreWebhooksPort: number;
+    coreMonitorPort: number;
 }
 
 /**
@@ -203,10 +202,15 @@ export class Command extends Commands.Command {
 
         // Env
         { name: "coreDBHost", description: "Core database host. (localhost)", schema: Joi.string(), required: false, promptType: "", default: "localhost" },
-        { name: "coreDBPort", description: "Core database port. (5432)", schema: Joi.string(), required: false, promptType: "", default: "5432" },
+        { name: "coreDBPort", description: "Core database port. (5432)", schema: Joi.number(), required: false, promptType: "", default: "5432" },
         { name: "coreDBUsername", description: "Core database username.", schema: Joi.string(), required: false, promptType: "" },
         { name: "coreDBPassword", description: "Core database password.", schema: Joi.string(), required: false, promptType: "" },
         { name: "coreDBDatabase", description: "Core database database.", schema: Joi.string(), required: false, promptType: "" },
+
+        { name: "coreP2PPort", description: "Core P2P port.", schema: Joi.number(), required: false, promptType: "", default: "4000" },
+        { name: "coreAPIPort", description: "Core API port.", schema: Joi.number(), required: false, promptType: "", default: "4003" },
+        { name: "coreWebhooksPort", description: "Core Webhooks port.", schema: Joi.number(), required: false, promptType: "", default: "4004" },
+        { name: "coreMonitorPort", description: "Core Webhooks port.", schema: Joi.number(), required: false, promptType: "", default: "4005" },
     ];
     /*eslint-enable */
 
@@ -495,16 +499,16 @@ export class Command extends Commands.Command {
         result += options.coreDBDatabase ? `CORE_DB_DATABASE=${options.coreDBDatabase}\n\n` : "\n";
 
         result += "CORE_P2P_HOST=0.0.0.0\n";
-        result += "CORE_P2P_PORT=4000\n\n";
-
-        result += "CORE_WEBHOOKS_HOST=0.0.0.0\n";
-        result += "CORE_WEBHOOKS_PORT=4004\n\n";
-
-        result += "CORE_MONITOR_HOST=0.0.0.0\n";
-        result += "CORE_MONITOR_PORT=4005\n\n";
+        result += `CORE_P2P_PORT=${options.coreP2PPort}\n\n`;
 
         result += "CORE_API_HOST=0.0.0.0\n";
-        result += "CORE_API_PORT=4003\n\n";
+        result += `CORE_API_PORT=${options.coreAPIPort}\n\n`;
+
+        result += "CORE_WEBHOOKS_HOST=0.0.0.0\n";
+        result += `CORE_WEBHOOKS_PORT=${options.coreWebhooksPort}\n\n`;
+
+        result += "CORE_MONITOR_HOST=0.0.0.0\n";
+        result += `CORE_MONITOR_PORT=${options.coreMonitorPort}\n\n`;
 
         return result;
     }
