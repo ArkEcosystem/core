@@ -243,6 +243,10 @@ export class Command extends Commands.Command {
                 continue;
             }
 
+            if (flag.promptType === "confirm") {
+                continue;
+            }
+
             throw new Error(`Flag ${flag.name} is required.`);
         }
 
