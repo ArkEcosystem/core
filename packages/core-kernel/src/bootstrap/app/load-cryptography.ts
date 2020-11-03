@@ -67,9 +67,13 @@ export class LoadCryptography implements Bootstrapper {
      * @memberof LoadCryptography
      */
     private fromConfigRepository(): void {
-        Managers.configManager.set("genesisBlock", this.configRepository.get("crypto.genesisBlock"));
-        Managers.configManager.set("exceptions", this.configRepository.get("crypto.exceptions"));
-        Managers.configManager.set("milestones", this.configRepository.get("crypto.milestones"));
-        Managers.configManager.set("network", this.configRepository.get("crypto.network"));
+        const config: Interfaces.NetworkConfig = {
+            network: this.configRepository.get<Interfaces.Network>("crypto.network")!,
+            exceptions: this.configRepository.get<Interfaces.IExceptions>("crypto.exceptions")!,
+            milestones: this.configRepository.get<Array<Record<string, any>>>("crypto.milestones")!,
+            genesisBlock: this.configRepository.get<Interfaces.IBlockJson>("crypto.genesisBlock")!,
+        };
+
+        Managers.configManager.setConfig(config);
     }
 }
