@@ -118,6 +118,7 @@ interface Options {
 
     // General
     configPath?: string;
+    overwriteConfig: boolean;
 }
 
 /**
@@ -199,6 +200,7 @@ export class Command extends Commands.Command {
 
         // General
         { name: "configPath", description: "Configuration path.", schema: Joi.string(), required: false, promptType: "" },
+        { name: "overwriteConfig", description: "Overwrite existing configuration.", schema: Joi.boolean(), required: false, promptType: "", default: false },
     ];
     /*eslint-enable */
 
@@ -310,11 +312,11 @@ export class Command extends Commands.Command {
             {
                 title: "Prepare directories.",
                 task: async () => {
-                    if (existsSync(coreConfigDest)) {
+                    if (existsSync(coreConfigDest) && !flags.overwriteConfig) {
                         throw new Error(`${coreConfigDest} already exists.`);
                     }
 
-                    if (existsSync(cryptoConfigDest)) {
+                    if (existsSync(cryptoConfigDest) && !flags.overwriteConfig) {
                         throw new Error(`${cryptoConfigDest} already exists.`);
                     }
 
