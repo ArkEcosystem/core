@@ -210,7 +210,9 @@ export class Command extends Commands.Command {
     public async execute(): Promise<void> {
         const flags: Contracts.AnyObject = this.getFlags();
 
-        // const allFlagsSet = !this.flagSettings.find((flag) => flags[flag.name] === undefined);
+        const allFlagsSet = !this.flagSettings
+            .filter((flag) => flag.required)
+            .find((flag) => flags[flag.name] === undefined);
 
         const defaults = this.flagSettings.reduce<any>((acc: any, flag: Flag) => {
             acc[flag.name] = flag.default;
@@ -223,7 +225,7 @@ export class Command extends Commands.Command {
             ...flags,
         };
 
-        if (flags.force) {
+        if (flags.force || allFlagsSet) {
             return this.generateNetwork(options as Options);
         }
 
