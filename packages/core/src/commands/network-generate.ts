@@ -422,6 +422,9 @@ export class Command extends Commands.Command {
                 },
                 vendorFieldLength: 64,
                 multiPaymentLimit: 256,
+            },
+            {
+                height: 2,
                 aip11: true,
             },
             {
