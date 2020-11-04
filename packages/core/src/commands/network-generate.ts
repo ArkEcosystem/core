@@ -119,6 +119,7 @@ interface Options {
     // General
     configPath?: string;
     overwriteConfig: boolean;
+    force: boolean;
 }
 
 /**
@@ -201,6 +202,7 @@ export class Command extends Commands.Command {
         // General
         { name: "configPath", description: "Configuration path.", schema: Joi.string(), required: false, promptType: "" },
         { name: "overwriteConfig", description: "Overwrite existing configuration.", schema: Joi.boolean(), required: false, promptType: "", default: false },
+        { name: "force", description: "Skip prompts and use given flags.", schema: Joi.boolean(), required: false, promptType: "", default: false },
     ];
     /*eslint-enable */
 
@@ -229,14 +231,23 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        // const flagsDefinition = this.definition.getFlags();
-
         const flags: Contracts.AnyObject = this.getFlags();
 
-        const allFlagsSet = !this.flagSettings.find((flag) => flags[flag.name] === undefined);
+        // const allFlagsSet = !this.flagSettings.find((flag) => flags[flag.name] === undefined);
 
-        if (allFlagsSet) {
-            return this.generateNetwork(flags as Options);
+        const defaults = this.flagSettings.reduce<any>((acc: any, flag: Flag) => {
+            acc[flag.name] = flag.default;
+
+            return acc;
+        }, {});
+
+        let options = {
+            ...defaults,
+            ...flags,
+        };
+
+        if (flags.force) {
+            return this.generateNetwork(options as Options);
         }
 
         const response = await prompts(
@@ -258,21 +269,11 @@ export class Command extends Commands.Command {
                 } as prompts.PromptObject<string>),
         );
 
-        const defaults = this.flagSettings.reduce<any>((acc: any, flag: Flag) => {
-            acc[flag.name] = flag.default;
-
-            return acc;
-        }, {});
-
-        const options = {
+        options = {
             ...defaults,
             ...flags,
             ...response,
         };
-
-        // if (Object.keys(flagsDefinityarn ion).find((flagName) => response[flagName] === undefined)) {
-        //     throw new Error("Please provide all flags and try again!");
-        // }
 
         if (!response.confirm) {
             throw new Error("You'll need to confirm the input to continue.");
