@@ -15,26 +15,6 @@ interface Wallet {
     username: string | undefined;
 }
 
-/*
-Network:
-- vendorFieldLength
-
-Other:
-- htlcEnabled
-
-- feeDynamicEnabled ???
-- feeDynamicBroadcastMinFee ???
-- feeDynamicBytesTransfer
-- feeDynamicBytesSecondSignature
-- feeDynamicBytesDelegateRegistration
-- feeDynamicBytesVote
-- feeDynamicBytesMultiSignature
-- feeDynamicBytesIpfs
-- feeDynamicBytesMultiPayment
-- feeDynamicBytesDelegateResignation
-
- */
-
 interface Flag {
     name: string;
     description: string;
