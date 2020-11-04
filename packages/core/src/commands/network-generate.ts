@@ -113,7 +113,11 @@ interface Options {
     coreWebhooksPort: number;
     coreMonitorPort: number;
 
+    // Peers
     peers: string;
+
+    // General
+    configPath?: string;
 }
 
 /**
@@ -191,8 +195,10 @@ export class Command extends Commands.Command {
         { name: "coreMonitorPort", description: "Core Webhooks port.", schema: Joi.number(), required: false, promptType: "", default: 4005 },
 
         // Peers
-        { name: "peers", description: "Peers IP addresses, separated with comma.", schema: Joi.string(), required: false, promptType: "" },
+        { name: "peers", description: "Peers IP addresses, separated with comma.", schema: Joi.string(), required: false, promptType: "", default: "" },
 
+        // General
+        { name: "configPath", description: "Configuration path.", schema: Joi.string(), required: false, promptType: "" },
     ];
     /*eslint-enable */
 
@@ -291,7 +297,9 @@ export class Command extends Commands.Command {
 
     private async generateNetwork(flags: Options): Promise<void> {
         const paths = envPaths(flags.token, { suffix: "core" });
-        const coreConfigDest = join(paths.config, flags.network);
+        const configPath = flags.configPath ? flags.configPath : paths.config;
+
+        const coreConfigDest = join(configPath, flags.network);
         const cryptoConfigDest = join(coreConfigDest, "crypto");
 
         const delegates: any[] = this.generateCoreDelegates(flags.delegates, flags.pubKeyHash);
