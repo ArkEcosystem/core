@@ -38,21 +38,6 @@ Network:
 Other:
 - htlcEnabled
 
-Fees:
-- feeStaticTransfer
-- feeStaticSecondSignature
-- feeStaticDelegateRegistration
-- feeStaticVote
-- feeStaticMultiSignature
-- feeStaticIpfs
-- feeStaticMultiPayment
-- feeStaticDelegateResignation
-- feeStaticHtlcLock
-- feeStaticHtlcClaim
-- feeStaticHtlcRefund
-
-
-
 - feeDynamicEnabled ???
 - feeDynamicBroadcastMinFee ???
 - feeDynamicBytesTransfer
@@ -64,15 +49,6 @@ Fees:
 - feeDynamicBytesMultiPayment
 - feeDynamicBytesDelegateResignation
 
-Gensis:
-- distribute Required false
-
-Env:
-- coreIp
-- p2pPort
-- apiPort
-- webhookPort
-- jsonRpcPort ???
 
 Settings:
 - peers
@@ -136,6 +112,8 @@ interface Options {
     coreAPIPort: number;
     coreWebhooksPort: number;
     coreMonitorPort: number;
+
+    peers: string;
 }
 
 /**
@@ -207,10 +185,14 @@ export class Command extends Commands.Command {
         { name: "coreDBPassword", description: "Core database password.", schema: Joi.string(), required: false, promptType: "" },
         { name: "coreDBDatabase", description: "Core database database.", schema: Joi.string(), required: false, promptType: "" },
 
-        { name: "coreP2PPort", description: "Core P2P port.", schema: Joi.number(), required: false, promptType: "", default: "4000" },
-        { name: "coreAPIPort", description: "Core API port.", schema: Joi.number(), required: false, promptType: "", default: "4003" },
-        { name: "coreWebhooksPort", description: "Core Webhooks port.", schema: Joi.number(), required: false, promptType: "", default: "4004" },
-        { name: "coreMonitorPort", description: "Core Webhooks port.", schema: Joi.number(), required: false, promptType: "", default: "4005" },
+        { name: "coreP2PPort", description: "Core P2P port.", schema: Joi.number(), required: false, promptType: "", default: 4000 },
+        { name: "coreAPIPort", description: "Core API port.", schema: Joi.number(), required: false, promptType: "", default: 4003 },
+        { name: "coreWebhooksPort", description: "Core Webhooks port.", schema: Joi.number(), required: false, promptType: "", default: 4004 },
+        { name: "coreMonitorPort", description: "Core Webhooks port.", schema: Joi.number(), required: false, promptType: "", default: 4005 },
+
+        // Peers
+        { name: "peers", description: "Peers IP addresses, separated with comma.", schema: Joi.string(), required: false, promptType: "" },
+
     ];
     /*eslint-enable */
 
@@ -374,7 +356,7 @@ export class Command extends Commands.Command {
             {
                 title: "Generate Core network configuration.",
                 task: async () => {
-                    writeJSONSync(resolve(coreConfigDest, "peers.json"), { list: [] }, { spaces: 4 });
+                    writeJSONSync(resolve(coreConfigDest, "peers.json"), this.generatePeers(flags), { spaces: 4 });
 
                     writeJSONSync(
                         resolve(coreConfigDest, "delegates.json"),
@@ -486,7 +468,7 @@ export class Command extends Commands.Command {
         return this.createGenesisBlock(premineWallet.keys, transactions, 0);
     }
 
-    private generateEnvironmentVariables(options: Options) {
+    private generateEnvironmentVariables(options: Options): string {
         let result = "";
 
         result += "CORE_LOG_LEVEL=info\n";
@@ -511,6 +493,20 @@ export class Command extends Commands.Command {
         result += `CORE_MONITOR_PORT=${options.coreMonitorPort}\n\n`;
 
         return result;
+    }
+
+    private generatePeers(options: Options): { list: { ip: string; port: number }[] } {
+        const list = options.peers
+            .replace(" ", "")
+            .split(",")
+            .map((ip) => {
+                return {
+                    ip,
+                    port: options.coreP2PPort,
+                };
+            });
+
+        return { list };
     }
 
     private generateCoreDelegates(activeDelegates: number, pubKeyHash: number): Wallet[] {
