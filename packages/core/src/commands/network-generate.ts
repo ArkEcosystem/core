@@ -17,22 +17,6 @@ interface Wallet {
 
 /*
 Network:
-- network Required
-- premine Required "12500000000000000"
-- delegates Required 51
-- blocktime Required 8
-- maxTxPerBlock Required 150
-- maxBlockPayload Required 2097152
-- pubKeyHash Required
-- wif Required
-- token Required
-- symbol Required
-- explorer Required ????
-
-- rewardHeight 75600
-- rewardAmount "200000000"
-
-- epoch
 - vendorFieldLength
 
 Other:
@@ -48,17 +32,6 @@ Other:
 - feeDynamicBytesIpfs
 - feeDynamicBytesMultiPayment
 - feeDynamicBytesDelegateResignation
-
-
-Settings:
-- peers
-- prefixHash ???
-
-
-General:
-- configPath
-- overwriteConfig
-- force
 
  */
 
@@ -172,7 +145,8 @@ export class Command extends Commands.Command {
         { name: "symbol", description: "The character that is attributed to the token on the network.", schema: Joi.string(), required: true, promptType: "text" },
         { name: "explorer", description: "The URL that hosts the network explorer.", schema: Joi.string(), required: true, promptType: "text" },
         { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.string(), required: true, promptType: "confirm", default: false },
-        { name: "epoch", description: "Start time of the network. (optional)", schema: Joi.string(), required: true, promptType: "date", default: new Date(Date.now()) }, // TODO: Optional
+
+        { name: "epoch", description: "Start time of the network. (optional)", schema: Joi.date(), required: false, promptType: "", default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z" },
 
         // Static fee
         { name: "feeStaticTransfer", description: "Fee for transfer transactions. (10000000)", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
@@ -413,6 +387,8 @@ export class Command extends Commands.Command {
     }
 
     private generateCryptoMilestones(options: Options) {
+        const epoch = new Date(options.epoch);
+
         return [
             {
                 height: 1,
@@ -424,7 +400,7 @@ export class Command extends Commands.Command {
                     maxTransactions: options.maxTxPerBlock,
                     maxPayload: options.maxBlockPayload,
                 },
-                epoch: options.epoch.toISOString(),
+                epoch: epoch.toISOString(),
                 fees: {
                     staticFees: {
                         transfer: options.feeStaticTransfer,
