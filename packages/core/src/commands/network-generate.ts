@@ -174,7 +174,7 @@ export class Command extends Commands.Command {
         { name: "coreMonitorPort", description: "Core Webhooks port.", schema: Joi.number(), required: false, promptType: "", default: 4005 },
 
         // Peers
-        { name: "peers", description: "Peers IP addresses, separated with comma. (127.0.0.1)", schema: Joi.string(), required: false, promptType: "", default: "127.0.0.1" },
+        { name: "peers", description: "Peers IP addresses, separated with comma. (127.0.0.1)", schema: Joi.string().allow(""), required: false, promptType: "", default: "127.0.0.1" },
 
         // General
         { name: "configPath", description: "Configuration path.", schema: Joi.string(), required: false, promptType: "" },

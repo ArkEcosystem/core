@@ -2,10 +2,10 @@ import "jest-extended";
 
 import { Console } from "@arkecosystem/core-test-framework";
 import { Command } from "@packages/core/src/commands/network-generate";
+import envPaths from "env-paths";
 import fs from "fs-extra";
 import { join } from "path";
 import prompts from "prompts";
-import envPaths from "env-paths";
 
 const paths = envPaths("myn", { suffix: "core" });
 const configCore = join(paths.config, "testnet");
@@ -406,6 +406,45 @@ describe("GenerateCommand", () => {
 
         expect(ensureDirSync).toHaveBeenCalledWith("/path/to/config/testnet");
         expect(ensureDirSync).toHaveBeenCalledWith("/path/to/config/testnet/crypto");
+
+        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
+
+        expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
+        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
+    });
+
+    it("should allow empty peers", async () => {
+        const existsSync = jest.spyOn(fs, "existsSync").mockImplementation();
+        const ensureDirSync = jest.spyOn(fs, "ensureDirSync").mockImplementation();
+        const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
+        const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
+        const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
+
+        await cli
+            .withFlags({
+                network: "testnet",
+                premine: "120000000000",
+                delegates: "47",
+                blocktime: "9",
+                maxTxPerBlock: "122",
+                maxBlockPayload: "123444",
+                rewardHeight: "23000",
+                rewardAmount: "66000",
+                pubKeyHash: "168",
+                wif: "27",
+                token: "myn",
+                symbol: "my",
+                explorer: "myex.io",
+                distribute: "true",
+                peers: "",
+            })
+            .execute(Command);
+
+        expect(existsSync).toHaveBeenCalledWith(configCore);
+        expect(existsSync).toHaveBeenCalledWith(configCrypto);
+
+        expect(ensureDirSync).toHaveBeenCalledWith(configCore);
+        expect(ensureDirSync).toHaveBeenCalledWith(configCrypto);
 
         expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
 
