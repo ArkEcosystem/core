@@ -1,4 +1,4 @@
-import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
+import { Commands, Container, Contracts, Services } from "@arkecosystem/core-cli";
 import { Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { generateMnemonic } from "bip39";
@@ -129,6 +129,9 @@ interface Options {
  */
 @Container.injectable()
 export class Command extends Commands.Command {
+    @Container.inject(Container.Identifiers.Logger)
+    private readonly logger!: Services.Logger;
+
     /**
      * The console command signature.
      *
@@ -311,7 +314,7 @@ export class Command extends Commands.Command {
 
         await this.components.taskList([
             {
-                title: "Prepare directories.",
+                title: `Prepare directories.`,
                 task: async () => {
                     if (existsSync(coreConfigDest) && !flags.overwriteConfig) {
                         throw new Error(`${coreConfigDest} already exists.`);
@@ -384,6 +387,8 @@ export class Command extends Commands.Command {
                 },
             },
         ]);
+
+        this.logger.info(`Configuration generated on location: ${coreConfigDest}`);
     }
 
     private generateCryptoNetwork(nethash: string, options: Options) {
