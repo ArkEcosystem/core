@@ -292,12 +292,14 @@ export class Command extends Commands.Command {
             {
                 title: `Prepare directories.`,
                 task: async () => {
-                    if (existsSync(coreConfigDest) && !flags.overwriteConfig) {
-                        throw new Error(`${coreConfigDest} already exists.`);
-                    }
+                    if (!flags.overwriteConfig) {
+                        if (existsSync(coreConfigDest)) {
+                            throw new Error(`${coreConfigDest} already exists.`);
+                        }
 
-                    if (existsSync(cryptoConfigDest) && !flags.overwriteConfig) {
-                        throw new Error(`${cryptoConfigDest} already exists.`);
+                        if (existsSync(cryptoConfigDest)) {
+                            throw new Error(`${cryptoConfigDest} already exists.`);
+                        }
                     }
 
                     ensureDirSync(coreConfigDest);
