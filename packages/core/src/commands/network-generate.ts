@@ -126,24 +126,24 @@ export class Command extends Commands.Command {
         { name: "explorer", description: "The URL that hosts the network explorer.", schema: Joi.string(), required: true, promptType: "text" },
         { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.string(), required: true, promptType: "confirm", default: false },
 
-        { name: "epoch", description: "Start time of the network. (optional)", schema: Joi.date(), required: false, promptType: "", default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z" },
+        { name: "epoch", description: "Start time of the network.", schema: Joi.date(), required: false, promptType: "", default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z" },
 
         // Static fee
-        { name: "feeStaticTransfer", description: "Fee for transfer transactions. (10000000)", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
-        { name: "feeStaticSecondSignature", description: "Fee for second signature transactions. (500000000)", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
-        { name: "feeStaticDelegateRegistration", description: "Fee for delegate registration transactions. (500000000)", schema: Joi.number(), required: false, promptType: "", default: 2500000000 },
-        { name: "feeStaticVote", description: "Fee for vote transactions. (100000000)", schema: Joi.number(), required: false, promptType: "", default: 100000000 },
-        { name: "feeStaticMultiSignature", description: "Fee for multi signature transactions. (500000000)", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
-        { name: "feeStaticIpfs", description: "Fee for ipfs transactions. (500000000)", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
-        { name: "feeStaticMultiPayment", description: "Fee for multi payment transactions. (10000000)", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
-        { name: "feeStaticDelegateResignation", description: "Fee for delegate resignation transactions. (2500000000)", schema: Joi.number(), required: false, promptType: "", default: 2500000000 },
-        { name: "feeStaticHtlcLock", description: "Fee for HTLC lock transactions. (10000000)", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
-        { name: "feeStaticHtlcClaim", description: "Fee for HTLC claim transactions. (0)", schema: Joi.number(), required: false, promptType: "", default: 0 },
-        { name: "feeStaticHtlcRefund", description: "Fee for HTLC refund transactions. (0)", schema: Joi.number(), required: false, promptType: "", default: 0 },
+        { name: "feeStaticTransfer", description: "Fee for transfer transactions.", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
+        { name: "feeStaticSecondSignature", description: "Fee for second signature transactions.", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
+        { name: "feeStaticDelegateRegistration", description: "Fee for delegate registration transactions.", schema: Joi.number(), required: false, promptType: "", default: 2500000000 },
+        { name: "feeStaticVote", description: "Fee for vote transactions.", schema: Joi.number(), required: false, promptType: "", default: 100000000 },
+        { name: "feeStaticMultiSignature", description: "Fee for multi signature transactions.", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
+        { name: "feeStaticIpfs", description: "Fee for ipfs transactions.", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
+        { name: "feeStaticMultiPayment", description: "Fee for multi payment transactions.", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
+        { name: "feeStaticDelegateResignation", description: "Fee for delegate resignation transactions.", schema: Joi.number(), required: false, promptType: "", default: 2500000000 },
+        { name: "feeStaticHtlcLock", description: "Fee for HTLC lock transactions.", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
+        { name: "feeStaticHtlcClaim", description: "Fee for HTLC claim transactions.", schema: Joi.number(), required: false, promptType: "", default: 0 },
+        { name: "feeStaticHtlcRefund", description: "Fee for HTLC refund transactions.", schema: Joi.number(), required: false, promptType: "", default: 0 },
 
         // Env
-        { name: "coreDBHost", description: "Core database host. (localhost)", schema: Joi.string(), required: false, promptType: "", default: "localhost" },
-        { name: "coreDBPort", description: "Core database port. (5432)", schema: Joi.number(), required: false, promptType: "", default: "5432" },
+        { name: "coreDBHost", description: "Core database host.", schema: Joi.string(), required: false, promptType: "", default: "localhost" },
+        { name: "coreDBPort", description: "Core database port.", schema: Joi.number(), required: false, promptType: "", default: "5432" },
         { name: "coreDBUsername", description: "Core database username.", schema: Joi.string(), required: false, promptType: "" },
         { name: "coreDBPassword", description: "Core database password.", schema: Joi.string(), required: false, promptType: "" },
         { name: "coreDBDatabase", description: "Core database database.", schema: Joi.string(), required: false, promptType: "" },
@@ -154,7 +154,7 @@ export class Command extends Commands.Command {
         { name: "coreMonitorPort", description: "Core Webhooks port.", schema: Joi.number(), required: false, promptType: "", default: 4005 },
 
         // Peers
-        { name: "peers", description: "Peers IP addresses, separated with comma. (127.0.0.1)", schema: Joi.string().allow(""), required: false, promptType: "", default: "127.0.0.1" },
+        { name: "peers", description: "Peers IP addresses, separated with comma.", schema: Joi.string().allow(""), required: false, promptType: "", default: "127.0.0.1" },
 
         // General
         { name: "configPath", description: "Configuration path.", schema: Joi.string(), required: false, promptType: "" },
@@ -175,6 +175,8 @@ export class Command extends Commands.Command {
 
             if (flag.default !== undefined) {
                 flagSchema.default(flag.default);
+
+                flag.description += ` (${flag.default.toString()})`;
             }
 
             this.definition.setFlag(flag.name, flag.description, flag.schema);
