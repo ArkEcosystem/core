@@ -51,8 +51,8 @@ describe("GenerateCommand", () => {
 
         expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
 
-        expect(writeFileSync).toHaveBeenCalled();
-        expect(copyFileSync).toHaveBeenCalledTimes(2);
+        expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
+        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
     });
 
     it("should throw if the core configuration destination already exists", async () => {
@@ -103,26 +103,6 @@ describe("GenerateCommand", () => {
                 })
                 .execute(Command),
         ).rejects.toThrow(`${configCrypto} already exists.`);
-    });
-
-    it.skip("should throw if some prompt properties are not provided", async () => {
-        prompts.inject([
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-        ]);
-
-        await expect(cli.execute(Command)).rejects.toThrow("Please provide all flags and try again!");
     });
 
     it("should throw if the properties are not confirmed", async () => {
@@ -226,8 +206,8 @@ describe("GenerateCommand", () => {
 
         expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
 
-        expect(writeFileSync).toHaveBeenCalled();
-        expect(copyFileSync).toHaveBeenCalledTimes(2);
+        expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
+        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
     });
 
     it("should generate a new configuration if the properties are confirmed and distribute is set to false", async () => {
@@ -265,7 +245,7 @@ describe("GenerateCommand", () => {
 
         expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
 
-        expect(writeFileSync).toHaveBeenCalled();
-        expect(copyFileSync).toHaveBeenCalledTimes(2);
+        expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
+        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
     });
 });
