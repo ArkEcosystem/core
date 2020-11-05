@@ -14,7 +14,7 @@ describe("CheckLastDownloadedBlockSynced", () => {
         blockchain = {
             isSynced: jest.fn(),
             dispatch: jest.fn(),
-            getQueue: jest.fn().mockReturnValue({ length: jest.fn(), idle: jest.fn() }),
+            getQueue: jest.fn().mockReturnValue({ size: jest.fn(), isRunning: jest.fn().mockReturnValue(true) }),
         };
         stateStore = {
             noBlockCounter: undefined,
@@ -37,62 +37,62 @@ describe("CheckLastDownloadedBlockSynced", () => {
     });
 
     describe("handle", () => {
-        it("should dispatch NOTSYNCED by default", () => {
+        it("should dispatch NOTSYNCED by default", async () => {
             const checkLastDownloadedBlockSynced = container.resolve<CheckLastDownloadedBlockSynced>(
                 CheckLastDownloadedBlockSynced,
             );
 
             process.env.CORE_ENV = "";
-            checkLastDownloadedBlockSynced.handle();
+            await checkLastDownloadedBlockSynced.handle();
 
             expect(blockchain.dispatch).toBeCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("NOTSYNCED");
         });
 
-        it("should dispatch TEST when process.env.CORE_ENV === 'test'", () => {
+        it("should dispatch TEST when process.env.CORE_ENV === 'test'", async () => {
             const checkLastDownloadedBlockSynced = container.resolve<CheckLastDownloadedBlockSynced>(
                 CheckLastDownloadedBlockSynced,
             );
 
             process.env.CORE_ENV = "test";
-            checkLastDownloadedBlockSynced.handle();
+            await checkLastDownloadedBlockSynced.handle();
 
             expect(blockchain.dispatch).toBeCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("TEST");
         });
 
-        it("should dispatch SYNCED when stateStore.networkStart", () => {
+        it("should dispatch SYNCED when stateStore.networkStart", async () => {
             const checkLastDownloadedBlockSynced = container.resolve<CheckLastDownloadedBlockSynced>(
                 CheckLastDownloadedBlockSynced,
             );
 
             stateStore.networkStart = true;
 
-            checkLastDownloadedBlockSynced.handle();
+            await checkLastDownloadedBlockSynced.handle();
 
             expect(blockchain.dispatch).toBeCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("SYNCED");
         });
 
-        it("should dispatch PAUSED when blockchain.queue.length() > 100", () => {
+        it("should dispatch PAUSED when blockchain.queue.length() > 100", async () => {
             const checkLastDownloadedBlockSynced = container.resolve<CheckLastDownloadedBlockSynced>(
                 CheckLastDownloadedBlockSynced,
             );
 
-            blockchain.getQueue().length = jest.fn().mockReturnValue(101);
+            blockchain.getQueue().size = jest.fn().mockReturnValue(101);
 
-            checkLastDownloadedBlockSynced.handle();
+            await checkLastDownloadedBlockSynced.handle();
 
-            blockchain.getQueue().length = jest.fn();
+            blockchain.getQueue().size = jest.fn();
 
             expect(blockchain.dispatch).toBeCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("PAUSED");
         });
 
-        describe("when stateStore.noBlockCounter > 5 && blockchain.queue.idle()", () => {
+        describe("when stateStore.noBlockCounter > 5 && !blockchain.getQueue().isRunning()", () => {
             beforeEach(() => {
                 stateStore.noBlockCounter = 6;
-                blockchain.getQueue().idle = jest.fn().mockReturnValue(true);
+                blockchain.getQueue().isRunning = jest.fn().mockReturnValue(false);
             });
 
             describe("when stateStore.p2pUpdateCounter + 1 > 3", () => {
@@ -132,12 +132,12 @@ describe("CheckLastDownloadedBlockSynced", () => {
                     stateStore.p2pUpdateCounter = 0;
                 });
 
-                it("should dispatch NETWORKHALTED and do stateStore.p2pUpdateCounter++", () => {
+                it("should dispatch NETWORKHALTED and do stateStore.p2pUpdateCounter++", async () => {
                     const checkLastDownloadedBlockSynced = container.resolve<CheckLastDownloadedBlockSynced>(
                         CheckLastDownloadedBlockSynced,
                     );
 
-                    checkLastDownloadedBlockSynced.handle();
+                    await checkLastDownloadedBlockSynced.handle();
 
                     expect(blockchain.dispatch).toBeCalledTimes(1);
                     expect(blockchain.dispatch).toHaveBeenLastCalledWith("NETWORKHALTED");
@@ -146,7 +146,7 @@ describe("CheckLastDownloadedBlockSynced", () => {
             });
         });
 
-        it("should dispatch SYNCED when stateStore.lastDownloadedBlock && blockchain.isSynced()", () => {
+        it("should dispatch SYNCED when stateStore.lastDownloadedBlock && blockchain.isSynced()", async () => {
             const checkLastDownloadedBlockSynced = container.resolve<CheckLastDownloadedBlockSynced>(
                 CheckLastDownloadedBlockSynced,
             );
@@ -154,7 +154,7 @@ describe("CheckLastDownloadedBlockSynced", () => {
             stateStore.lastDownloadedBlock = {};
             blockchain.isSynced = jest.fn().mockReturnValueOnce(true);
 
-            checkLastDownloadedBlockSynced.handle();
+            await checkLastDownloadedBlockSynced.handle();
 
             expect(blockchain.dispatch).toBeCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenLastCalledWith("SYNCED");

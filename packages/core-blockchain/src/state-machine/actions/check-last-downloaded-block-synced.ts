@@ -25,8 +25,7 @@ export class CheckLastDownloadedBlockSynced implements Action {
         }
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
-        // TODO: this.blockchain.getQueue().idle() support
-        if (this.stateStore.noBlockCounter > 5) { // && this.blockchain.getQueue().idle()
+        if (this.stateStore.noBlockCounter > 5 && !this.blockchain.getQueue().isRunning()) {
             this.logger.info("Tried to sync 5 times to different nodes, looks like the network is missing blocks");
 
             this.stateStore.noBlockCounter = 0;
