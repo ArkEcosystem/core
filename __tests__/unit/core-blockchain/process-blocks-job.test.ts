@@ -1,9 +1,10 @@
+import { ProcessBlockAction } from "@arkecosystem/core-blockchain/src/actions";
 import { Container, Services } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Networks } from "@arkecosystem/crypto";
 import { ProcessBlocksJob } from "@packages/core-blockchain/src/process-blocks-job";
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
-import { ProcessBlockAction } from "@arkecosystem/core-blockchain/src/actions";
 import { Sandbox } from "@packages/core-test-framework";
+
 import { Blocks } from "./__fixtures__";
 
 describe("Blockchain", () => {
@@ -46,6 +47,10 @@ describe("Blockchain", () => {
         processBlocksJob = sandbox.app.resolve(ProcessBlocksJob);
     });
 
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     describe("blocks", () => {
         it("should set and get blocks", async () => {
             // @ts-ignore
@@ -65,6 +70,10 @@ describe("Blockchain", () => {
         const lastBlock: Interfaces.IBlockData = { ...Blocks.block2.data, transactions: [] };
         // @ts-ignore
         const currentBlock: Interfaces.IBlockData = { ...Blocks.block3.data, transactions: [] };
+
+        it("should skip processing if blocks are not set", async () => {
+            await processBlocksJob.handle();
+        });
 
         it("should process a new chained block", async () => {
             blockchainService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock }); // TODO: Use stateStore
@@ -93,7 +102,7 @@ describe("Blockchain", () => {
             expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
         });
 
-        it("should not process the remaining block if one is not accepted", async () => {
+        it("should not process the remaining blocks if one is not accepted (BlockProcessorResult.Rollback)", async () => {
             const genesisBlock = Networks.testnet.genesisBlock;
             blockchainService.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Rollback);
@@ -105,6 +114,57 @@ describe("Blockchain", () => {
             expect(blockProcessor.process).toBeCalledTimes(1); // only 1 out of the 2 blocks
             expect(blockchainService.forkBlock).toBeCalledTimes(1); // because Rollback
         });
+
+        it("should not process the remaining blocks if one is not accepted (BlockProcessorResult.Rejected)", async () => {
+            const genesisBlock = Networks.testnet.genesisBlock;
+            blockchainService.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
+            blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Rejected);
+            stateStore.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
+            databaseService.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
+
+            blockchainService.clearQueue = jest.fn();
+            databaseInteraction.loadBlocksFromCurrentRound = jest.fn();
+            blockchainService.resetLastDownloadedBlock = jest.fn();
+
+            processBlocksJob.setBlocks([lastBlock, currentBlock]);
+            await processBlocksJob.handle();
+
+            expect(blockProcessor.process).toBeCalledTimes(1);
+            expect(blockchainService.clearQueue).toBeCalledTimes(1);
+            expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
+        });
+
+
+        // TODO Finish
+        // it("should not process the remaining blocks if second is not accepted (BlockProcessorResult.Rejected)", async () => {
+        //     const genesisBlock = Networks.testnet.genesisBlock;
+        //     blockchainService.getLastBlock = jest
+        //         .fn()
+        //         .mockReturnValueOnce({ data: genesisBlock })
+        //         .mockReturnValueOnce({ data: genesisBlock })
+        //         .mockReturnValueOnce(Blocks.block2);
+        //     blockProcessor.process = jest
+        //         .fn()
+        //         .mockReturnValueOnce(BlockProcessorResult.Accepted)
+        //         .mockReturnValueOnce(BlockProcessorResult.Rejected);
+        //     stateStore.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
+        //     databaseService.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
+        //
+        //     stateStore.setLastBlock = jest.fn();
+        //     blockchainService.clearQueue = jest.fn();
+        //     databaseInteraction.loadBlocksFromCurrentRound = jest.fn();
+        //     blockchainService.resetLastDownloadedBlock = jest.fn();
+        //     databaseBlockRepository.saveBlocks = jest.fn();
+        //
+        //     processBlocksJob.setBlocks([lastBlock, currentBlock]);
+        //     await processBlocksJob.handle();
+        //
+        //     expect(blockProcessor.process).toBeCalledTimes(1);
+        //     expect(stateStore.setLastBlock).toBeCalledTimes(1);
+        //     expect(databaseBlockRepository.saveBlocks).toBeCalledTimes(1);
+        //     expect(blockchainService.clearQueue).toBeCalledTimes(1);
+        //     expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
+        // });
 
         it("should revert block when blockRepository saveBlocks fails", async () => {
             blockchainService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });

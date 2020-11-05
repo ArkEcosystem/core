@@ -103,6 +103,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
                 acceptedBlocks.push(blockInstance);
                 this.stateStore.setLastBlock(blockInstance);
             } else {
+                /* istanbul ignore else */
                 if (lastProcessResult === BlockProcessorResult.Rollback) {
                     forkBlock = blockInstance;
                     this.stateStore.lastDownloadedBlock = blockInstance.data;
