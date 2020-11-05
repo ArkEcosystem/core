@@ -112,28 +112,6 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             }
         }
 
-        const revertBlocks = async (blocksToRevert: Interfaces.IBlock[]) => {
-            // Rounds are saved while blocks are being processed and may now be out of sync with the last
-            // block that was written into the database.
-
-            const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
-            const lastHeight: number = lastBlock.data.height;
-            const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
-
-            this.logger.info(
-                `Reverting ${Utils.pluralize("block", blocksToRevert.length, true)} back to last height: ${lastHeight}`,
-            );
-
-            for (const block of blocksToRevert.reverse()) {
-                await this.databaseInteraction.revertBlock(block);
-            }
-
-            this.stateStore.setLastBlock(lastBlock);
-
-            await this.database.deleteRound(deleteRoundsAfter + 1);
-            await this.databaseInteraction.loadBlocksFromCurrentRound();
-        };
-
         if (acceptedBlocks.length > 0) {
             try {
                 await this.blockRepository.saveBlocks(acceptedBlocks);
@@ -142,7 +120,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
 
                 this.blockchain.clearQueue();
 
-                await revertBlocks(acceptedBlocks);
+                await this.revertBlocks(acceptedBlocks);
 
                 this.blockchain.resetLastDownloadedBlock();
 
@@ -170,12 +148,35 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             this.blockchain.clearQueue();
 
             if (this.stateStore.getLastBlock().data.height === lastProcessedBlock.data.height) {
-                await revertBlocks([lastProcessedBlock]);
+                await this.revertBlocks([lastProcessedBlock]);
             }
 
             this.blockchain.resetLastDownloadedBlock();
         }
 
         return;
+    }
+
+    private async revertBlocks(blocksToRevert: Interfaces.IBlock[]): Promise<void> {
+        // Rounds are saved while blocks are being processed and may now be out of sync with the last
+        // block that was written into the database.
+        // TODO: ClearQueue
+
+        const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
+        const lastHeight: number = lastBlock.data.height;
+        const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
+
+        this.logger.info(
+            `Reverting ${Utils.pluralize("block", blocksToRevert.length, true)} back to last height: ${lastHeight}`,
+        );
+
+        for (const block of blocksToRevert.reverse()) {
+            await this.databaseInteraction.revertBlock(block);
+        }
+
+        this.stateStore.setLastBlock(lastBlock);
+
+        await this.database.deleteRound(deleteRoundsAfter + 1);
+        await this.databaseInteraction.loadBlocksFromCurrentRound();
     }
 }
