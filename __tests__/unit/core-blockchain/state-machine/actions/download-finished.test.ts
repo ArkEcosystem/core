@@ -23,35 +23,35 @@ describe("DownloadFinished", () => {
     });
 
     describe("handle", () => {
-        it("should dispatch SYNCFINISHED when stateStore.networkStart", () => {
+        it("should dispatch SYNCFINISHED when stateStore.networkStart", async () => {
             const downloadFinished = container.resolve<DownloadFinished>(DownloadFinished);
 
             stateStore.networkStart = true;
-            downloadFinished.handle();
+            await downloadFinished.handle();
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("SYNCFINISHED");
         });
 
-        it("should dispatch PROCESSFINISHED when blockchain.getQueue.idle()", () => {
+        it("should dispatch PROCESSFINISHED when !blockchain.getQueue.isRunning()", async () => {
             const downloadFinished = container.resolve<DownloadFinished>(DownloadFinished);
 
             blockchain.getQueue = jest.fn().mockReturnValueOnce({
-                idle: jest.fn().mockReturnValue(true),
+                isRunning: jest.fn().mockReturnValue(false),
             });
-            downloadFinished.handle();
+            await downloadFinished.handle();
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("PROCESSFINISHED");
         });
 
-        it("should dispatch nothing when !blockchain.getQueue.idle()", () => {
+        it("should dispatch nothing when blockchain.getQueue.isRunning()", async () => {
             const downloadFinished = container.resolve<DownloadFinished>(DownloadFinished);
 
             blockchain.getQueue = jest.fn().mockReturnValueOnce({
-                idle: jest.fn().mockReturnValue(false),
+                isRunning: jest.fn().mockReturnValue(true),
             });
-            downloadFinished.handle();
+            await downloadFinished.handle();
 
             expect(blockchain.dispatch).toHaveBeenCalledTimes(0);
         });
