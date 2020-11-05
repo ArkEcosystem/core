@@ -17,7 +17,7 @@ describe("DownloadBlocks", () => {
         blockchain = {
             isStopped: jest.fn().mockReturnValue(false),
             dispatch: jest.fn(),
-            getQueue: jest.fn().mockReturnValue({ length: jest.fn().mockReturnValue(0) }),
+            getQueue: jest.fn().mockReturnValue({ size: jest.fn().mockReturnValue(0) }),
             clearQueue: jest.fn(),
             enqueueBlocks: jest.fn(),
         };
