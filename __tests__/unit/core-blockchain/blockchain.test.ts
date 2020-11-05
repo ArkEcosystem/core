@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { ProcessBlockAction } from "@packages/core-blockchain/src/actions";
 import { Blockchain } from "@packages/core-blockchain/src/blockchain";
-import { BlockProcessorResult } from "@packages/core-blockchain/src/processor/block-processor";
+// import { BlockProcessorResult } from "@packages/core-blockchain/src/processor/block-processor";
 import { Container, Enums, Services, Utils as AppUtils } from "@packages/core-kernel";
 import { GetActiveDelegatesAction } from "@packages/core-state/src/actions";
 import { Sandbox } from "@packages/core-test-framework";
@@ -648,142 +648,54 @@ describe("Blockchain", () => {
         );
     });
 
-    describe("processBlocks", () => {
-        const lastBlock = { ...blockHeight2.data, transactions: [] };
-        const currentBlock = { ...blockHeight3.data, transactions: [] };
-
-        it("should process a new chained block", async () => {
-            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-
-            stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-            blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-            blockProcessor.validateGenerator = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-
-            await blockchain.processBlocks([currentBlock]);
-        });
-
-        it("should process a valid block already known", async () => {
-            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-
-            stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-            const spyClearQueue = jest.spyOn(blockchain, "clearQueue");
-            const spyResetLastDownloadedBlock = jest.spyOn(blockchain, "resetLastDownloadedBlock");
-
-            await blockchain.processBlocks([lastBlock]);
-
-            expect(spyClearQueue).toBeCalledTimes(1);
-            expect(spyResetLastDownloadedBlock).toBeCalledTimes(1);
-        });
-
-        it("should not process the remaining block if one is not accepted", async () => {
-            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-
-            const genesisBlock = Networks.testnet.genesisBlock;
-            stateStore.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
-            blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Rollback);
-            const spyForkBlock = jest.spyOn(blockchain, "forkBlock");
-
-            await blockchain.processBlocks([lastBlock, currentBlock]);
-
-            expect(blockProcessor.process).toBeCalledTimes(1); // only 1 out of the 2 blocks
-            expect(spyForkBlock).toBeCalledTimes(1); // because Rollback
-        });
-
-        it("should revert block when blockRepository saveBlocks fails", async () => {
-            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-
-            stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-            databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-            blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-            blockRepository.saveBlocks = jest.fn().mockRejectedValue(new Error("oops"));
-            const spyClearQueue = jest.spyOn(blockchain, "clearQueue");
-            const spyResetLastDownloadedBlock = jest.spyOn(blockchain, "resetLastDownloadedBlock");
-
-            await blockchain.processBlocks([currentBlock]);
-
-            expect(spyClearQueue).toBeCalledTimes(1);
-            expect(spyResetLastDownloadedBlock).toBeCalledTimes(1);
-            expect(databaseInteractions.revertBlock).toBeCalledTimes(1);
-        });
-
-        it("should broadcast a block if (Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
-            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-
-            const getTimeStampForBlock = (height: number) => {
-                switch (height) {
-                    case 1:
-                        return 0;
-                    default:
-                        throw new Error(`Test scenarios should not hit this line`);
-                }
-            };
-
-            let slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock);
-
-            // Wait until we get a timestamp at the first half of a slot (allows for computation time)
-            while (!slotInfo.forgingStatus) {
-                slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock);
-            }
-
-            const block = {
-                ...currentBlock,
-                timestamp: slotInfo.startTime,
-            };
-
-            stateStore.started = true;
-            stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-            databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-            blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-
-            await blockchain.processBlocks([block]);
-
-            expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(1);
-        });
-
-        describe("calling processBlocks from the queue", () => {
-            it("should call processBlocks from queue handler", async () => {
-                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-                stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-                blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-                stateStore.lastDownloadedBlock = { height: 23111 };
-
-                // @ts-ignore
-                const spyQueuePush = jest.spyOn(blockchain.queue, "push");
-                const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
-
-                blockchain.enqueueBlocks([currentBlock]);
-
-                expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [currentBlock] });
-                await delay(1000);
-
-                expect(spyProcessBlocks).toBeCalledTimes(1);
-            });
-
-            it("should log an error when processBlocks throws for any reason", async () => {
-                const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-                stateStore.getLastBlock = jest.fn().mockImplementationOnce(() => {
-                    throw new Error("oops");
-                });
-                blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-                stateStore.lastDownloadedBlock = { height: 23111 };
-
-                // @ts-ignore
-                const spyQueuePush = jest.spyOn(blockchain.queue, "push");
-                const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
-
-                const blocksToEnqueue = [currentBlock];
-                blockchain.enqueueBlocks(blocksToEnqueue);
-
-                expect(spyQueuePush).toHaveBeenCalledWith({ blocks: blocksToEnqueue });
-                await delay(1000);
-
-                expect(spyProcessBlocks).toBeCalledTimes(1);
-                expect(logService.error).toBeCalledWith(
-                    `Failed to process ${blocksToEnqueue.length} blocks from height ${blocksToEnqueue[0].height} in queue.`,
-                );
-            });
-        });
-    });
+    // describe("processBlocks", () => {
+    //     const lastBlock = { ...blockHeight2.data, transactions: [] };
+    //     const currentBlock = { ...blockHeight3.data, transactions: [] };
+    //
+    //     describe("calling processBlocks from the queue", () => {
+    //         it("should call processBlocks from queue handler", async () => {
+    //             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+    //             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
+    //             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
+    //             stateStore.lastDownloadedBlock = { height: 23111 };
+    //
+    //             // @ts-ignore
+    //             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
+    //             const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
+    //
+    //             blockchain.enqueueBlocks([currentBlock]);
+    //
+    //             expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [currentBlock] });
+    //             await delay(1000);
+    //
+    //             expect(spyProcessBlocks).toBeCalledTimes(1);
+    //         });
+    //
+    //         it("should log an error when processBlocks throws for any reason", async () => {
+    //             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+    //             stateStore.getLastBlock = jest.fn().mockImplementationOnce(() => {
+    //                 throw new Error("oops");
+    //             });
+    //             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
+    //             stateStore.lastDownloadedBlock = { height: 23111 };
+    //
+    //             // @ts-ignore
+    //             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
+    //             const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
+    //
+    //             const blocksToEnqueue = [currentBlock];
+    //             blockchain.enqueueBlocks(blocksToEnqueue);
+    //
+    //             expect(spyQueuePush).toHaveBeenCalledWith({ blocks: blocksToEnqueue });
+    //             await delay(1000);
+    //
+    //             expect(spyProcessBlocks).toBeCalledTimes(1);
+    //             expect(logService.error).toBeCalledWith(
+    //                 `Failed to process ${blocksToEnqueue.length} blocks from height ${blocksToEnqueue[0].height} in queue.`,
+    //             );
+    //         });
+    //     });
+    // });
 
     describe("resetLastDownloadedBlock", () => {
         it("should set this.state.lastDownloadedBlock = this.getLastBlock().data", () => {
