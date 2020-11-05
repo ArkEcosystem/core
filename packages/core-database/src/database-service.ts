@@ -195,7 +195,7 @@ export class DatabaseService {
     }
 
     public async deleteRound(round: number): Promise<void> {
-        await this.roundRepository.delete({ round });
+        await this.roundRepository.deleteFrom(round);
     }
 
     public async verifyBlockchain(lastBlock?: Interfaces.IBlock): Promise<boolean> {
