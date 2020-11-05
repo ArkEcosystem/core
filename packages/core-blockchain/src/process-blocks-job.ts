@@ -101,7 +101,6 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
                 acceptedBlocks.push(blockInstance);
-                this.stateStore.setLastBlock(blockInstance);
             } else {
                 /* istanbul ignore else */
                 if (lastProcessResult === BlockProcessorResult.Rollback) {

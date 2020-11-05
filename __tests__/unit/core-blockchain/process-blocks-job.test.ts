@@ -80,13 +80,11 @@ describe("Blockchain", () => {
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
             blockProcessor.validateGenerator = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
 
-            stateStore.setLastBlock = jest.fn();
             databaseBlockRepository.saveBlocks = jest.fn();
 
             processBlocksJob.setBlocks([currentBlock]);
             await processBlocksJob.handle();
 
-            expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
             expect(databaseBlockRepository.saveBlocks).toHaveBeenCalledTimes(1);
         });
 
@@ -189,7 +187,7 @@ describe("Blockchain", () => {
             expect(databaseInteraction.loadBlocksFromCurrentRound).toBeCalledTimes(1);
             expect(databaseService.deleteRound).toBeCalledTimes(1);
 
-            expect(stateStore.setLastBlock).toHaveBeenCalledTimes(2); // Set and revert
+            expect(stateStore.setLastBlock).toHaveBeenCalledTimes(1);
         });
 
         it("should broadcast a block if (Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
@@ -219,14 +217,12 @@ describe("Blockchain", () => {
             databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
 
-            stateStore.setLastBlock = jest.fn();
             databaseBlockRepository.saveBlocks = jest.fn();
             peerNetworkMonitor.broadcastBlock = jest.fn();
 
             processBlocksJob.setBlocks([block]);
             await processBlocksJob.handle();
 
-            expect(stateStore.setLastBlock).toBeCalledTimes(1);
             expect(databaseBlockRepository.saveBlocks).toBeCalledTimes(1);
 
             expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(1);
