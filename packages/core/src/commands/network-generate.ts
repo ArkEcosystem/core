@@ -195,7 +195,7 @@ export class Command extends Commands.Command {
 
         // Env
         { name: "coreDBHost", description: "Core database host.", schema: Joi.string(), default: "localhost" },
-        { name: "coreDBPort", description: "Core database port.", schema: Joi.number(), default: "5432" },
+        { name: "coreDBPort", description: "Core database port.", schema: Joi.number(), default: 5432 },
         { name: "coreDBUsername", description: "Core database username.", schema: Joi.string() },
         { name: "coreDBPassword", description: "Core database password.", schema: Joi.string() },
         { name: "coreDBDatabase", description: "Core database database.", schema: Joi.string() },
