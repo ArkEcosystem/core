@@ -19,8 +19,7 @@ interface Flag {
     name: string;
     description: string;
     schema: Joi.Schema;
-    required: boolean;
-    promptType: string;
+    promptType?: string;
     default?: any;
 }
 
@@ -146,71 +145,71 @@ export class Command extends Commands.Command {
 
     /*eslint-disable */
     private flagSettings: Flag[] = [
-        { name: "network", description: "The name of the network.", schema: Joi.string(), required: true, promptType: "text" },
-        { name: "premine", description: "The number of pre-mined tokens.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), required: true, promptType: "text", default: "12500000000000000" },
-        { name: "delegates", description: "The number of delegates to generate.", schema: Joi.number(), required: true, promptType: "number", default: 51 },
-        { name: "blocktime", description: "The network blocktime.", schema: Joi.number(), required: true, promptType: "number", default: 8 },
-        { name: "maxTxPerBlock", description: "The maximum number of transactions per block.", schema: Joi.number(), required: true, promptType: "number", default: 150 },
-        { name: "maxBlockPayload", description: "The maximum payload length by block.", schema: Joi.number(), required: true, promptType: "number", default: 2097152 },
-        { name: "rewardHeight", description: "The height at which delegate block reward starts.", schema: Joi.number(), required: true, promptType: "number", default: 75600 },
-        { name: "rewardAmount", description: "The number of the block reward per forged block.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), required: true, promptType: "number", default: "200000000" },
-        { name: "pubKeyHash", description: "The public key hash.", schema: Joi.number(), required: true, promptType: "number" },
-        { name: "wif", description: "The WIF (Wallet Import Format) that should be used.", schema: Joi.number(), required: true, promptType: "number" },
-        { name: "token", description: "The name that is attributed to the token on the network.", schema: Joi.string(), required: true, promptType: "text" },
-        { name: "symbol", description: "The character that is attributed to the token on the network.", schema: Joi.string(), required: true, promptType: "text" },
-        { name: "explorer", description: "The URL that hosts the network explorer.", schema: Joi.string(), required: true, promptType: "text" },
-        { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.string(), required: true, promptType: "confirm", default: false },
+        { name: "network", description: "The name of the network.", schema: Joi.string(), promptType: "text" },
+        { name: "premine", description: "The number of pre-mined tokens.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), promptType: "text", default: "12500000000000000" },
+        { name: "delegates", description: "The number of delegates to generate.", schema: Joi.number(), promptType: "number", default: 51 },
+        { name: "blocktime", description: "The network blocktime.", schema: Joi.number(), promptType: "number", default: 8 },
+        { name: "maxTxPerBlock", description: "The maximum number of transactions per block.", schema: Joi.number(), promptType: "number", default: 150 },
+        { name: "maxBlockPayload", description: "The maximum payload length by block.", schema: Joi.number(), promptType: "number", default: 2097152 },
+        { name: "rewardHeight", description: "The height at which delegate block reward starts.", schema: Joi.number(), promptType: "number", default: 75600 },
+        { name: "rewardAmount", description: "The number of the block reward per forged block.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), promptType: "number", default: "200000000" },
+        { name: "pubKeyHash", description: "The public key hash.", schema: Joi.number(), promptType: "number" },
+        { name: "wif", description: "The WIF (Wallet Import Format) that should be used.", schema: Joi.number(), promptType: "number" },
+        { name: "token", description: "The name that is attributed to the token on the network.", schema: Joi.string(), promptType: "text" },
+        { name: "symbol", description: "The character that is attributed to the token on the network.", schema: Joi.string(), promptType: "text" },
+        { name: "explorer", description: "The URL that hosts the network explorer.", schema: Joi.string(), promptType: "text" },
+        { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.string(), promptType: "confirm", default: false },
 
-        { name: "epoch", description: "Start time of the network.", schema: Joi.date(), required: false, promptType: "", default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z" },
+        { name: "epoch", description: "Start time of the network.", schema: Joi.date(), default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z" },
 
         // Static fee
-        { name: "feeStaticTransfer", description: "Fee for transfer transactions.", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
-        { name: "feeStaticSecondSignature", description: "Fee for second signature transactions.", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
-        { name: "feeStaticDelegateRegistration", description: "Fee for delegate registration transactions.", schema: Joi.number(), required: false, promptType: "", default: 2500000000 },
-        { name: "feeStaticVote", description: "Fee for vote transactions.", schema: Joi.number(), required: false, promptType: "", default: 100000000 },
-        { name: "feeStaticMultiSignature", description: "Fee for multi signature transactions.", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
-        { name: "feeStaticIpfs", description: "Fee for ipfs transactions.", schema: Joi.number(), required: false, promptType: "", default: 500000000 },
-        { name: "feeStaticMultiPayment", description: "Fee for multi payment transactions.", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
-        { name: "feeStaticDelegateResignation", description: "Fee for delegate resignation transactions.", schema: Joi.number(), required: false, promptType: "", default: 2500000000 },
-        { name: "feeStaticHtlcLock", description: "Fee for HTLC lock transactions.", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
-        { name: "feeStaticHtlcClaim", description: "Fee for HTLC claim transactions.", schema: Joi.number(), required: false, promptType: "", default: 0 },
-        { name: "feeStaticHtlcRefund", description: "Fee for HTLC refund transactions.", schema: Joi.number(), required: false, promptType: "", default: 0 },
+        { name: "feeStaticTransfer", description: "Fee for transfer transactions.", schema: Joi.number(), default: 10000000 },
+        { name: "feeStaticSecondSignature", description: "Fee for second signature transactions.", schema: Joi.number(), default: 500000000 },
+        { name: "feeStaticDelegateRegistration", description: "Fee for delegate registration transactions.", schema: Joi.number(), default: 2500000000 },
+        { name: "feeStaticVote", description: "Fee for vote transactions.", schema: Joi.number(), default: 100000000 },
+        { name: "feeStaticMultiSignature", description: "Fee for multi signature transactions.", schema: Joi.number(), default: 500000000 },
+        { name: "feeStaticIpfs", description: "Fee for ipfs transactions.", schema: Joi.number(), default: 500000000 },
+        { name: "feeStaticMultiPayment", description: "Fee for multi payment transactions.", schema: Joi.number(), default: 10000000 },
+        { name: "feeStaticDelegateResignation", description: "Fee for delegate resignation transactions.", schema: Joi.number(), default: 2500000000 },
+        { name: "feeStaticHtlcLock", description: "Fee for HTLC lock transactions.", schema: Joi.number(), default: 10000000 },
+        { name: "feeStaticHtlcClaim", description: "Fee for HTLC claim transactions.", schema: Joi.number(), default: 0 },
+        { name: "feeStaticHtlcRefund", description: "Fee for HTLC refund transactions.", schema: Joi.number(), default: 0 },
 
         // Dynamic fee
-        { name: "feeDynamicEnabled", description: "Dynamic fee enabled", schema: Joi.boolean(), required: false, promptType: "" },
-        { name: "feeDynamicMinFeePool", description: "Minimum dynamic fee to enter the pool.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicMinFeeBroadcast", description: "Minimum dynamic fee to broadcast.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicBytesTransfer", description: "Dynamic fee for transfer transactions.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicBytesSecondSignature", description: "Dynamic fee for second signature transactions.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicBytesDelegateRegistration", description: "Dynamic fee for delegate registration transactions.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicBytesVote", description: "Dynamic fee for vote transactions.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicBytesMultiSignature", description: "Dynamic fee for multi signature transactions.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicBytesIpfs", description: "Dynamic fee for IPFS transactions.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicBytesMultiPayment", description: "Dynamic fee for multi payment transactions.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicBytesDelegateResignation", description: "Dynamic fee for delegate registration transactions.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicBytesHtlcLock", description: "Dynamic fee for HTLC lock transactions.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicBytesHtlcClaim", description: "Dynamic fee for HTLC claim transactions.", schema: Joi.number(), required: false, promptType: "" },
-        { name: "feeDynamicBytesHtlcRefund", description: "Dynamic fee for HTLC refund transactions.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicEnabled", description: "Dynamic fee enabled", schema: Joi.boolean() },
+        { name: "feeDynamicMinFeePool", description: "Minimum dynamic fee to enter the pool.", schema: Joi.number() },
+        { name: "feeDynamicMinFeeBroadcast", description: "Minimum dynamic fee to broadcast.", schema: Joi.number() },
+        { name: "feeDynamicBytesTransfer", description: "Dynamic fee for transfer transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesSecondSignature", description: "Dynamic fee for second signature transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesDelegateRegistration", description: "Dynamic fee for delegate registration transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesVote", description: "Dynamic fee for vote transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesMultiSignature", description: "Dynamic fee for multi signature transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesIpfs", description: "Dynamic fee for IPFS transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesMultiPayment", description: "Dynamic fee for multi payment transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesDelegateResignation", description: "Dynamic fee for delegate registration transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesHtlcLock", description: "Dynamic fee for HTLC lock transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesHtlcClaim", description: "Dynamic fee for HTLC claim transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesHtlcRefund", description: "Dynamic fee for HTLC refund transactions.", schema: Joi.number() },
 
         // Env
-        { name: "coreDBHost", description: "Core database host.", schema: Joi.string(), required: false, promptType: "", default: "localhost" },
-        { name: "coreDBPort", description: "Core database port.", schema: Joi.number(), required: false, promptType: "", default: "5432" },
-        { name: "coreDBUsername", description: "Core database username.", schema: Joi.string(), required: false, promptType: "" },
-        { name: "coreDBPassword", description: "Core database password.", schema: Joi.string(), required: false, promptType: "" },
-        { name: "coreDBDatabase", description: "Core database database.", schema: Joi.string(), required: false, promptType: "" },
+        { name: "coreDBHost", description: "Core database host.", schema: Joi.string(), default: "localhost" },
+        { name: "coreDBPort", description: "Core database port.", schema: Joi.number(), default: "5432" },
+        { name: "coreDBUsername", description: "Core database username.", schema: Joi.string() },
+        { name: "coreDBPassword", description: "Core database password.", schema: Joi.string() },
+        { name: "coreDBDatabase", description: "Core database database.", schema: Joi.string() },
 
-        { name: "coreP2PPort", description: "Core P2P port.", schema: Joi.number(), required: false, promptType: "", default: 4000 },
-        { name: "coreAPIPort", description: "Core API port.", schema: Joi.number(), required: false, promptType: "", default: 4003 },
-        { name: "coreWebhooksPort", description: "Core Webhooks port.", schema: Joi.number(), required: false, promptType: "", default: 4004 },
-        { name: "coreMonitorPort", description: "Core Webhooks port.", schema: Joi.number(), required: false, promptType: "", default: 4005 },
+        { name: "coreP2PPort", description: "Core P2P port.", schema: Joi.number(), default: 4000 },
+        { name: "coreAPIPort", description: "Core API port.", schema: Joi.number(), default: 4003 },
+        { name: "coreWebhooksPort", description: "Core Webhooks port.", schema: Joi.number(), default: 4004 },
+        { name: "coreMonitorPort", description: "Core Webhooks port.", schema: Joi.number(), default: 4005 },
 
         // Peers
-        { name: "peers", description: "Peers IP addresses, separated with comma.", schema: Joi.string().allow(""), required: false, promptType: "", default: "127.0.0.1" },
+        { name: "peers", description: "Peers IP addresses, separated with comma.", schema: Joi.string().allow(""), default: "127.0.0.1" },
 
         // General
-        { name: "configPath", description: "Configuration path.", schema: Joi.string(), required: false, promptType: "" },
-        { name: "overwriteConfig", description: "Overwrite existing configuration.", schema: Joi.boolean(), required: false, promptType: "", default: false },
-        { name: "force", description: "Skip prompts and use given flags.", schema: Joi.boolean(), required: false, promptType: "", default: false },
+        { name: "configPath", description: "Configuration path.", schema: Joi.string() },
+        { name: "overwriteConfig", description: "Overwrite existing configuration.", schema: Joi.boolean(),  default: false },
+        { name: "force", description: "Skip prompts and use given flags.", schema: Joi.boolean(), default: false },
     ];
     /*eslint-enable */
 
@@ -244,7 +243,7 @@ export class Command extends Commands.Command {
         const flags: Contracts.AnyObject = this.getFlags();
 
         const allFlagsSet = !this.flagSettings
-            .filter((flag) => flag.required)
+            .filter((flag) => flag.promptType)
             .find((flag) => flags[flag.name] === undefined);
 
         const defaults = this.flagSettings.reduce<any>((acc: any, flag: Flag) => {
@@ -264,7 +263,7 @@ export class Command extends Commands.Command {
 
         const response = await prompts(
             this.flagSettings
-                .filter((flag) => flag.required)
+                .filter((flag) => flag.promptType) // Show prompt only for flags with defined promptType
                 .map(
                     (flag) =>
                         ({
@@ -291,7 +290,7 @@ export class Command extends Commands.Command {
             throw new Error("You'll need to confirm the input to continue.");
         }
 
-        for (const flag of this.flagSettings.filter((flag) => flag.required)) {
+        for (const flag of this.flagSettings.filter((flag) => flag.promptType)) {
             if (flag.promptType === "text" && options[flag.name] !== "undefined") {
                 continue;
             }
@@ -300,7 +299,7 @@ export class Command extends Commands.Command {
                 continue;
             }
 
-            if (["confirm", "date"].includes(flag.promptType)) {
+            if (["confirm", "date"].includes(flag.promptType!)) {
                 continue;
             }
 
