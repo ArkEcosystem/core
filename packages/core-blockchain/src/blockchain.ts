@@ -163,7 +163,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             this.dispatch("STOP");
 
-            this.queue.stop();
+            await this.queue.stop();
         }
     }
 
