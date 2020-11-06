@@ -297,7 +297,7 @@ describe("GenerateCommand", () => {
                 coreAPIPort: 3003,
                 coreWebhooksPort: 3004,
                 coreMonitorPort: 3005,
-                peers: "127.0.0.1,127.0.0.2",
+                peers: "127.0.0.1:4444,127.0.0.2",
             })
             .execute(Command);
 

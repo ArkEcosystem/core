@@ -204,7 +204,7 @@ export class Command extends Commands.Command {
         { name: "coreMonitorPort", description: "Core Webhooks port.", schema: Joi.number(), default: 4005 },
 
         // Peers
-        { name: "peers", description: "Peers IP addresses, separated with comma.", schema: Joi.string().allow(""), default: "127.0.0.1" },
+        { name: "peers", description: "Peers IP addresses (and ports), separated with comma.", schema: Joi.string().allow(""), default: "127.0.0.1" },
 
         // General
         { name: "configPath", description: "Configuration path.", schema: Joi.string() },
@@ -531,10 +531,12 @@ export class Command extends Commands.Command {
         const list = options.peers
             .replace(" ", "")
             .split(",")
-            .map((ip) => {
+            .map((peer) => {
+                const [ip, port] = peer.split(":");
+
                 return {
                     ip,
-                    port: options.coreP2PPort,
+                    port: Number.isNaN(parseInt(port)) ? options.coreP2PPort : parseInt(port),
                 };
             });
 
