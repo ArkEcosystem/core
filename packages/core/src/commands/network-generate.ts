@@ -4,7 +4,7 @@ import Joi from "@hapi/joi";
 import { generateMnemonic } from "bip39";
 import ByteBuffer from "bytebuffer";
 import envPaths from "env-paths";
-import { copyFileSync, ensureDirSync, existsSync, writeFileSync, writeJSONSync } from "fs-extra";
+import { ensureDirSync, existsSync, writeFileSync, writeJSONSync, readJSONSync } from "fs-extra";
 import { join, resolve } from "path";
 import prompts from "prompts";
 
@@ -372,10 +372,7 @@ export class Command extends Commands.Command {
 
                     writeFileSync(resolve(coreConfigDest, ".env"), this.generateEnvironmentVariables(flags));
 
-                    copyFileSync(
-                        resolve(__dirname, "../../bin/config/testnet/app.json"),
-                        resolve(coreConfigDest, "app.json"),
-                    );
+                    writeJSONSync(resolve(coreConfigDest, "app.json"), this.generateApp(flags), { spaces: 4 });
                 },
             },
         ]);
@@ -524,6 +521,12 @@ export class Command extends Commands.Command {
             });
 
         return { list };
+    }
+
+    private generateApp(options: Options): any {
+        const app = readJSONSync(resolve(__dirname, "../../bin/config/testnet/app.json"));
+
+        return app;
     }
 
     private generateCoreDelegates(activeDelegates: number, pubKeyHash: number): Wallet[] {
