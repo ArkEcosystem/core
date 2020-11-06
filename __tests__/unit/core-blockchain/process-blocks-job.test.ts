@@ -113,25 +113,24 @@ describe("Blockchain", () => {
             expect(blockchainService.forkBlock).toBeCalledTimes(1); // because Rollback
         });
 
-        it("should not process the remaining blocks if one is not accepted (BlockProcessorResult.Rejected)", async () => {
-            const genesisBlock = Networks.testnet.genesisBlock;
-            blockchainService.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
-            blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Rejected);
-            stateStore.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
-            databaseService.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
-
-            blockchainService.clearQueue = jest.fn();
-            databaseInteraction.loadBlocksFromCurrentRound = jest.fn();
-            blockchainService.resetLastDownloadedBlock = jest.fn();
-
-            processBlocksJob.setBlocks([lastBlock, currentBlock]);
-            await processBlocksJob.handle();
-
-            expect(blockProcessor.process).toBeCalledTimes(1);
-            expect(blockchainService.clearQueue).toBeCalledTimes(1);
-            expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
-        });
-
+        // it("should not process the remaining blocks if one is not accepted (BlockProcessorResult.Rejected)", async () => {
+        //     const genesisBlock = Networks.testnet.genesisBlock;
+        //     blockchainService.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
+        //     blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Rejected);
+        //     stateStore.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
+        //     databaseService.getLastBlock = jest.fn().mockReturnValue({ data: genesisBlock });
+        //
+        //     blockchainService.clearQueue = jest.fn();
+        //     databaseInteraction.loadBlocksFromCurrentRound = jest.fn();
+        //     blockchainService.resetLastDownloadedBlock = jest.fn();
+        //
+        //     processBlocksJob.setBlocks([lastBlock, currentBlock]);
+        //     await processBlocksJob.handle();
+        //
+        //     expect(blockProcessor.process).toBeCalledTimes(1);
+        //     expect(blockchainService.clearQueue).toBeCalledTimes(1);
+        //     expect(blockchainService.resetLastDownloadedBlock).toBeCalledTimes(1);
+        // });
 
         // TODO Finish
         // it("should not process the remaining blocks if second is not accepted (BlockProcessorResult.Rejected)", async () => {

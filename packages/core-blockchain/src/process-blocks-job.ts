@@ -141,18 +141,21 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             }
         } else if (forkBlock) {
             this.blockchain.forkBlock(forkBlock);
-        } else if (lastProcessedBlock) {
-            // Some blocks were not accepted and saved. Check if last block was applied and revert it.
-            this.logger.warning(`Could not process block at height ${lastProcessedBlock.data.height}.`);
-
-            this.blockchain.clearQueue();
-
-            if (this.stateStore.getLastBlock().data.height === lastProcessedBlock.data.height) {
-                await this.revertBlocks([lastProcessedBlock]);
-            }
-
-            this.blockchain.resetLastDownloadedBlock();
         }
+
+        // TODO: Check
+        // else if (lastProcessedBlock) {
+        //     // Some blocks were not accepted and saved. Check if last block was applied and revert it.
+        //     this.logger.warning(`Could not process block at height ${lastProcessedBlock.data.height}.`);
+        //
+        //     this.blockchain.clearQueue();
+        //
+        //     if (this.stateStore.getLastBlock().data.height === lastProcessedBlock.data.height) {
+        //         await this.revertBlocks([lastProcessedBlock]);
+        //     }
+        //
+        //     this.blockchain.resetLastDownloadedBlock();
+        // }
 
         return;
     }

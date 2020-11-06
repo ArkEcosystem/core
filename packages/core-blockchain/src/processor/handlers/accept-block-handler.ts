@@ -57,6 +57,8 @@ export class AcceptBlockHandler implements BlockHandler {
 
             return BlockProcessorResult.Accepted;
         } catch (error) {
+            // TODO: Revert block if is applied
+
             this.logger.warning(`Refused new block ${JSON.stringify(block.data)}`);
             this.logger.debug(error.stack);
 
