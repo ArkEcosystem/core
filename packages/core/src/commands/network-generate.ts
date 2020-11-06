@@ -41,7 +41,7 @@ interface Options {
     distribute: boolean;
     epoch: Date;
 
-    // Static fee
+    // Static Fee
     feeStaticTransfer: number;
     feeStaticSecondSignature: number;
     feeStaticDelegateRegistration: number;
@@ -53,6 +53,22 @@ interface Options {
     feeStaticHtlcLock: number;
     feeStaticHtlcClaim: number;
     feeStaticHtlcRefund: number;
+
+    // Dynamic Fee
+    feeDynamicEnabled?: boolean;
+    feeDynamicMinFeePool?: number;
+    feeDynamicMinFeeBroadcast?: number;
+    feeDynamicBytesTransfer?: number;
+    feeDynamicBytesSecondSignature?: number;
+    feeDynamicBytesDelegateRegistration?: number;
+    feeDynamicBytesVote?: number;
+    feeDynamicBytesMultiSignature?: number;
+    feeDynamicBytesIpfs?: number;
+    feeDynamicBytesMultiPayment?: number;
+    feeDynamicBytesDelegateResignation?: number;
+    feeDynamicBytesHtlcLock?: number;
+    feeDynamicBytesHtlcClaim?: number;
+    feeDynamicBytesHtlcRefund?: number;
 
     // Env
     coreDBHost: string;
@@ -140,6 +156,22 @@ export class Command extends Commands.Command {
         { name: "feeStaticHtlcLock", description: "Fee for HTLC lock transactions.", schema: Joi.number(), required: false, promptType: "", default: 10000000 },
         { name: "feeStaticHtlcClaim", description: "Fee for HTLC claim transactions.", schema: Joi.number(), required: false, promptType: "", default: 0 },
         { name: "feeStaticHtlcRefund", description: "Fee for HTLC refund transactions.", schema: Joi.number(), required: false, promptType: "", default: 0 },
+
+        // Dynamic fee
+        { name: "feeDynamicEnabled", description: "Dynamic fee enabled", schema: Joi.boolean(), required: false, promptType: "" },
+        { name: "feeDynamicMinFeePool", description: "Minimum dynamic fee to enter the pool.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicMinFeeBroadcast", description: "Minimum dynamic fee to broadcast.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicBytesTransfer", description: "Dynamic fee for transfer transactions.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicBytesSecondSignature", description: "Dynamic fee for second signature transactions.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicBytesDelegateRegistration", description: "Dynamic fee for delegate registration transactions.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicBytesVote", description: "Dynamic fee for vote transactions.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicBytesMultiSignature", description: "Dynamic fee for multi signature transactions.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicBytesIpfs", description: "Dynamic fee for IPFS transactions.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicBytesMultiPayment", description: "Dynamic fee for multi payment transactions.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicBytesDelegateResignation", description: "Dynamic fee for delegate registration transactions.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicBytesHtlcLock", description: "Dynamic fee for HTLC lock transactions.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicBytesHtlcClaim", description: "Dynamic fee for HTLC claim transactions.", schema: Joi.number(), required: false, promptType: "" },
+        { name: "feeDynamicBytesHtlcRefund", description: "Dynamic fee for HTLC refund transactions.", schema: Joi.number(), required: false, promptType: "" },
 
         // Env
         { name: "coreDBHost", description: "Core database host.", schema: Joi.string(), required: false, promptType: "", default: "localhost" },
