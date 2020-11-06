@@ -22,7 +22,6 @@ describe("GenerateCommand", () => {
         const ensureDirSync = jest.spyOn(fs, "ensureDirSync").mockImplementation();
         const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
         const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
-        const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
 
         await cli
             .withFlags({
@@ -49,10 +48,8 @@ describe("GenerateCommand", () => {
         expect(ensureDirSync).toHaveBeenCalledWith(configCore);
         expect(ensureDirSync).toHaveBeenCalledWith(configCrypto);
 
-        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
-
+        expect(writeJSONSync).toHaveBeenCalledTimes(8); // 5x Core + 2x Crypto + App
         expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
-        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
     });
 
     it("should throw if the core configuration destination already exists", async () => {
@@ -176,7 +173,6 @@ describe("GenerateCommand", () => {
         const ensureDirSync = jest.spyOn(fs, "ensureDirSync").mockImplementation();
         const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
         const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
-        const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
 
         prompts.inject([
             "testnet",
@@ -204,10 +200,8 @@ describe("GenerateCommand", () => {
         expect(ensureDirSync).toHaveBeenCalledWith(configCore);
         expect(ensureDirSync).toHaveBeenCalledWith(configCrypto);
 
-        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
-
+        expect(writeJSONSync).toHaveBeenCalledTimes(8); // 5x Core + 2x Crypto + App
         expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
-        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
     });
 
     it("should generate a new configuration if the properties are confirmed and distribute is set to false", async () => {
@@ -215,7 +209,6 @@ describe("GenerateCommand", () => {
         const ensureDirSync = jest.spyOn(fs, "ensureDirSync").mockImplementation();
         const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
         const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
-        const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
 
         prompts.inject([
             "testnet",
@@ -243,10 +236,8 @@ describe("GenerateCommand", () => {
         expect(ensureDirSync).toHaveBeenCalledWith(configCore);
         expect(ensureDirSync).toHaveBeenCalledWith(configCrypto);
 
-        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
-
+        expect(writeJSONSync).toHaveBeenCalledTimes(8); // 5x Core + 2x Crypto + App
         expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
-        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
     });
 
     it("should generate a new configuration with additional flags", async () => {
@@ -254,7 +245,6 @@ describe("GenerateCommand", () => {
         const ensureDirSync = jest.spyOn(fs, "ensureDirSync").mockImplementation();
         const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
         const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
-        const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
 
         await cli
             .withFlags({
@@ -273,6 +263,7 @@ describe("GenerateCommand", () => {
                 explorer: "myex.io",
                 distribute: "true",
                 epoch: "2020-11-04T00:00:00.000Z",
+                htlcEnabled: true,
                 feeStaticTransfer: 1,
                 feeStaticSecondSignature: 2,
                 feeStaticDelegateRegistration: 3,
@@ -284,6 +275,20 @@ describe("GenerateCommand", () => {
                 feeStaticHtlcLock: 9,
                 feeStaticHtlcClaim: 10,
                 feeStaticHtlcRefund: 11,
+                feeDynamicEnabled: true,
+                feeDynamicMinFeePool: 100,
+                feeDynamicMinFeeBroadcast: 200,
+                feeDynamicBytesTransfer: 1,
+                feeDynamicBytesSecondSignature: 2,
+                feeDynamicBytesDelegateRegistration: 3,
+                feeDynamicBytesVote: 4,
+                feeDynamicBytesMultiSignature: 5,
+                feeDynamicBytesIpfs: 6,
+                feeDynamicBytesMultiPayment: 7,
+                feeDynamicBytesDelegateResignation: 8,
+                feeDynamicBytesHtlcLock: 9,
+                feeDynamicBytesHtlcClaim: 10,
+                feeDynamicBytesHtlcRefund: 11,
                 coreDBHost: "127.0.0.1",
                 coreDBPort: 3001,
                 coreDBUsername: "username",
@@ -293,7 +298,7 @@ describe("GenerateCommand", () => {
                 coreAPIPort: 3003,
                 coreWebhooksPort: 3004,
                 coreMonitorPort: 3005,
-                peers: "127.0.0.1,127.0.0.2",
+                peers: "127.0.0.1:4444,127.0.0.2",
             })
             .execute(Command);
 
@@ -303,10 +308,8 @@ describe("GenerateCommand", () => {
         expect(ensureDirSync).toHaveBeenCalledWith(configCore);
         expect(ensureDirSync).toHaveBeenCalledWith(configCrypto);
 
-        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
-
+        expect(writeJSONSync).toHaveBeenCalledTimes(8); // 5x Core + 2x Crypto + App
         expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
-        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
     });
 
     it("should generate a new configuration using force option", async () => {
@@ -314,7 +317,6 @@ describe("GenerateCommand", () => {
         const ensureDirSync = jest.spyOn(fs, "ensureDirSync").mockImplementation();
         const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
         const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
-        const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
 
         await cli
             .withFlags({
@@ -329,10 +331,8 @@ describe("GenerateCommand", () => {
         expect(ensureDirSync).toHaveBeenCalledWith(configCore);
         expect(ensureDirSync).toHaveBeenCalledWith(configCrypto);
 
-        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
-
+        expect(writeJSONSync).toHaveBeenCalledTimes(8); // 5x Core + 2x Crypto + App
         expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
-        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
     });
 
     it("should overwrite if overwriteConfig is set", async () => {
@@ -340,7 +340,6 @@ describe("GenerateCommand", () => {
         const ensureDirSync = jest.spyOn(fs, "ensureDirSync").mockImplementation();
         const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
         const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
-        const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
 
         await cli
             .withFlags({
@@ -368,10 +367,8 @@ describe("GenerateCommand", () => {
         expect(ensureDirSync).toHaveBeenCalledWith(configCore);
         expect(ensureDirSync).toHaveBeenCalledWith(configCrypto);
 
-        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
-
+        expect(writeJSONSync).toHaveBeenCalledTimes(8); // 5x Core + 2x Crypto + App
         expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
-        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
     });
 
     it("should generate crypto on custom path", async () => {
@@ -379,7 +376,6 @@ describe("GenerateCommand", () => {
         const ensureDirSync = jest.spyOn(fs, "ensureDirSync").mockImplementation();
         const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
         const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
-        const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
 
         await cli
             .withFlags({
@@ -407,10 +403,8 @@ describe("GenerateCommand", () => {
         expect(ensureDirSync).toHaveBeenCalledWith("/path/to/config/testnet");
         expect(ensureDirSync).toHaveBeenCalledWith("/path/to/config/testnet/crypto");
 
-        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
-
+        expect(writeJSONSync).toHaveBeenCalledTimes(8); // 5x Core + 2x Crypto + App
         expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
-        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
     });
 
     it("should allow empty peers", async () => {
@@ -418,7 +412,6 @@ describe("GenerateCommand", () => {
         const ensureDirSync = jest.spyOn(fs, "ensureDirSync").mockImplementation();
         const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
         const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
-        const copyFileSync = jest.spyOn(fs, "copyFileSync").mockImplementation();
 
         await cli
             .withFlags({
@@ -446,9 +439,7 @@ describe("GenerateCommand", () => {
         expect(ensureDirSync).toHaveBeenCalledWith(configCore);
         expect(ensureDirSync).toHaveBeenCalledWith(configCrypto);
 
-        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
-
+        expect(writeJSONSync).toHaveBeenCalledTimes(8); // 5x Core + 2x Crypto + App
         expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
-        expect(copyFileSync).toHaveBeenCalledTimes(1); // App.json
     });
 });
