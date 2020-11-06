@@ -131,6 +131,16 @@ describe("Blockchain", () => {
             expect(logService.warning).toBeCalledTimes(0);
         });
     });
+
+    describe("getQueue", () => {
+        it("should return instance of queue", async () => {
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+            await blockchain.initialize();
+
+            expect(blockchain.getQueue()).toBeInstanceOf(MemoryQueue);
+        });
+    });
+
     describe("dispatch", () => {
         it("should call transition method on stateMachine with the event provided", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
@@ -148,11 +158,13 @@ describe("Blockchain", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
 
+            expect(blockchain.isBooted()).toBeFalse();
             stateStore.started = true;
             await blockchain.boot();
 
             expect(spyDispatch).toBeCalledTimes(1);
             expect(spyDispatch).toHaveBeenLastCalledWith("START");
+            expect(blockchain.isBooted()).toBeTrue();
         });
 
         it("should dispatch START and return true even if stateStore is not ready when skipStartedCheck === true", async () => {
@@ -227,11 +239,25 @@ describe("Blockchain", () => {
 
             const spyDispatch = jest.spyOn(blockchain, "dispatch");
 
+            expect(blockchain.isStopped()).toBeFalse();
             await blockchain.dispose();
 
             expect(stateStore.clearWakeUpTimeout).toBeCalledTimes(1);
             expect(spyDispatch).toBeCalledTimes(1);
             expect(spyDispatch).toHaveBeenLastCalledWith("STOP");
+            expect(blockchain.isStopped()).toBeTrue();
+        });
+
+        it("should ignore if already stopped", async () => {
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+            const spyDispatch = jest.spyOn(blockchain, "dispatch");
+
+            // @ts-ignore
+            blockchain.stopped = true;
+
+            await blockchain.dispose();
+
+            expect(spyDispatch).not.toHaveBeenCalled();
         });
     });
 
@@ -677,55 +703,6 @@ describe("Blockchain", () => {
         );
     });
 
-    // describe("processBlocks", () => {
-    //     const lastBlock = { ...blockHeight2.data, transactions: [] };
-    //     const currentBlock = { ...blockHeight3.data, transactions: [] };
-    //
-    //     describe("calling processBlocks from the queue", () => {
-    //         it("should call processBlocks from queue handler", async () => {
-    //             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-    //             stateStore.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
-    //             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-    //             stateStore.lastDownloadedBlock = { height: 23111 };
-    //
-    //             // @ts-ignore
-    //             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
-    //             const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
-    //
-    //             blockchain.enqueueBlocks([currentBlock]);
-    //
-    //             expect(spyQueuePush).toHaveBeenCalledWith({ blocks: [currentBlock] });
-    //             await delay(1000);
-    //
-    //             expect(spyProcessBlocks).toBeCalledTimes(1);
-    //         });
-    //
-    //         it("should log an error when processBlocks throws for any reason", async () => {
-    //             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
-    //             stateStore.getLastBlock = jest.fn().mockImplementationOnce(() => {
-    //                 throw new Error("oops");
-    //             });
-    //             blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
-    //             stateStore.lastDownloadedBlock = { height: 23111 };
-    //
-    //             // @ts-ignore
-    //             const spyQueuePush = jest.spyOn(blockchain.queue, "push");
-    //             const spyProcessBlocks = jest.spyOn(blockchain, "processBlocks");
-    //
-    //             const blocksToEnqueue = [currentBlock];
-    //             blockchain.enqueueBlocks(blocksToEnqueue);
-    //
-    //             expect(spyQueuePush).toHaveBeenCalledWith({ blocks: blocksToEnqueue });
-    //             await delay(1000);
-    //
-    //             expect(spyProcessBlocks).toBeCalledTimes(1);
-    //             expect(logService.error).toBeCalledWith(
-    //                 `Failed to process ${blocksToEnqueue.length} blocks from height ${blocksToEnqueue[0].height} in queue.`,
-    //             );
-    //         });
-    //     });
-    // });
-
     describe("resetLastDownloadedBlock", () => {
         it("should set this.state.lastDownloadedBlock = this.getLastBlock().data", () => {
             const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
@@ -916,6 +893,27 @@ describe("Blockchain", () => {
                 expect(peerNetworkMonitor.checkNetworkHealth).toHaveBeenCalledTimes(0);
             }
 
+            await blockchain.checkMissingBlocks();
+            expect(peerNetworkMonitor.checkNetworkHealth).toHaveBeenCalledTimes(1);
+        });
+
+        it("should skip checkNetworkHealth if last check occurs in past 10 minutes", async () => {
+            const blockchain = sandbox.app.resolve<Blockchain>(Blockchain);
+            jest.spyOn(Math, "random").mockReturnValue(0.7);
+
+            peerNetworkMonitor.checkNetworkHealth = jest.fn().mockReturnValue({});
+            // @ts-ignore
+            blockchain.missedBlocks = threshold;
+            // @ts-ignore
+            blockchain.lastCheckNetworkHealthTs = Date.now();
+
+            await blockchain.checkMissingBlocks();
+            expect(peerNetworkMonitor.checkNetworkHealth).toHaveBeenCalledTimes(0);
+
+            // @ts-ignore
+            blockchain.missedBlocks = threshold;
+            // @ts-ignore
+            blockchain.lastCheckNetworkHealthTs = Date.now() - 11 * 60 * 1000;
             await blockchain.checkMissingBlocks();
             expect(peerNetworkMonitor.checkNetworkHealth).toHaveBeenCalledTimes(1);
         });

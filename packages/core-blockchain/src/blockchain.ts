@@ -47,13 +47,12 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    // @Container.inject(Container.Identifiers.QueueService)
     private queue!: Contracts.Kernel.Queue;
 
     private stopped!: boolean;
+    private booted: boolean = false;
     private missedBlocks: number = 0;
     private lastCheckNetworkHealthTs: number = 0;
-    private booted: boolean = false;
 
     @Container.postConstruct()
     public async initialize(): Promise<void> {
@@ -79,22 +78,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             this.logger.error(`Failed to process ${blocks.length} blocks from height ${blocks[0].height} in queue.`);
         });
-
-        // this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }): Promise<
-        //     Interfaces.IBlock[] | undefined
-        // > => {
-        //     try {
-        //         return await this.processBlocks(blockList.blocks);
-        //     } catch (error) {
-        //         this.logger.error(
-        //             `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
-        //         );
-        //         return undefined;
-        //     }
-        // }, 1);
-        //
-        // // @ts-ignore
-        // this.queue.drain(() => this.dispatch("PROCESSFINISHED"));
     }
 
     /**
@@ -102,6 +85,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      */
     public isStopped(): boolean {
         return this.stopped;
+    }
+
+    public isBooted(): boolean {
+        return this.booted;
     }
 
     public getQueue(): Contracts.Kernel.Queue {
@@ -148,10 +135,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         this.booted = true;
 
         return true;
-    }
-
-    public isBooted(): boolean {
-        return this.booted;
     }
 
     public async dispose(): Promise<void> {
@@ -387,6 +370,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         await this.blockRepository.deleteBlocks(removedBlocks.reverse());
 
+        // TODO: Can transaction pool be null???
         if (this.transactionPool) {
             this.transactionPool.readdTransactions(removedTransactions.reverse());
         }
@@ -430,6 +414,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.clearAndStopQueue();
 
+        /* istanbul ignore else */
         if (numberOfBlockToRollback) {
             this.stateStore.numberOfBlocksToRollback = numberOfBlockToRollback;
         }
