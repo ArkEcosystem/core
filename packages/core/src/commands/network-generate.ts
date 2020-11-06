@@ -4,7 +4,7 @@ import Joi from "@hapi/joi";
 import { generateMnemonic } from "bip39";
 import ByteBuffer from "bytebuffer";
 import envPaths from "env-paths";
-import { ensureDirSync, existsSync, writeFileSync, writeJSONSync, readJSONSync } from "fs-extra";
+import { ensureDirSync, existsSync, readJSONSync, writeFileSync, writeJSONSync } from "fs-extra";
 import { join, resolve } from "path";
 import prompts from "prompts";
 
@@ -22,6 +22,25 @@ interface Flag {
     required: boolean;
     promptType: string;
     default?: any;
+}
+
+interface DynamicFees {
+    enabled?: boolean;
+    minFeePool?: number;
+    minFeeBroadcast?: number;
+    addonBytes: {
+        transfer?: number;
+        secondSignature?: number;
+        delegateRegistration?: number;
+        vote?: number;
+        multiSignature?: number;
+        ipfs?: number;
+        multiPayment?: number;
+        delegateResignation?: number;
+        htlcLock?: number;
+        htlcClaim?: number;
+        htlcRefund?: number;
+    };
 }
 
 interface Options {
@@ -524,7 +543,91 @@ export class Command extends Commands.Command {
     }
 
     private generateApp(options: Options): any {
+        const dynamicFees: DynamicFees = {
+            enabled: undefined,
+            minFeePool: undefined,
+            minFeeBroadcast: undefined,
+            addonBytes: {},
+        };
+
+        let includeDynamicFees = false;
+
+        if (options.feeDynamicEnabled) {
+            dynamicFees.enabled = options.feeDynamicEnabled;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicMinFeePool) {
+            dynamicFees.minFeePool = options.feeDynamicMinFeePool;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicMinFeeBroadcast) {
+            dynamicFees.minFeeBroadcast = options.feeDynamicMinFeeBroadcast;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesTransfer) {
+            dynamicFees.addonBytes.transfer = options.feeDynamicBytesTransfer;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesSecondSignature) {
+            dynamicFees.addonBytes.secondSignature = options.feeDynamicBytesSecondSignature;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesSecondSignature) {
+            dynamicFees.addonBytes.secondSignature = options.feeDynamicBytesSecondSignature;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesDelegateRegistration) {
+            dynamicFees.addonBytes.delegateRegistration = options.feeDynamicBytesDelegateRegistration;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesVote) {
+            dynamicFees.addonBytes.vote = options.feeDynamicBytesVote;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesMultiSignature) {
+            dynamicFees.addonBytes.multiSignature = options.feeDynamicBytesMultiSignature;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesIpfs) {
+            dynamicFees.addonBytes.ipfs = options.feeDynamicBytesIpfs;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesMultiPayment) {
+            dynamicFees.addonBytes.multiPayment = options.feeDynamicBytesMultiPayment;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesDelegateResignation) {
+            dynamicFees.addonBytes.delegateResignation = options.feeDynamicBytesDelegateResignation;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesHtlcLock) {
+            dynamicFees.addonBytes.htlcLock = options.feeDynamicBytesHtlcLock;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesHtlcClaim) {
+            dynamicFees.addonBytes.htlcClaim = options.feeDynamicBytesHtlcClaim;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesHtlcRefund) {
+            dynamicFees.addonBytes.htlcRefund = options.feeDynamicBytesHtlcRefund;
+            includeDynamicFees = true;
+        }
+
+        if (!Object.keys(dynamicFees.addonBytes).length) {
+            delete dynamicFees.addonBytes;
+        }
+
         const app = readJSONSync(resolve(__dirname, "../../bin/config/testnet/app.json"));
+
+        if (includeDynamicFees) {
+            app.core.plugins.find((plugin) => plugin.package === "@arkecosystem/core-transaction-pool").options = {
+                dynamicFees,
+            };
+
+            app.relay.plugins.find((plugin) => plugin.package === "@arkecosystem/core-transaction-pool").options = {
+                dynamicFees,
+            };
+        }
 
         return app;
     }
