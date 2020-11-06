@@ -58,6 +58,7 @@ interface Options {
     explorer: string;
     distribute: boolean;
     epoch: Date;
+    htlcEnabled?: boolean;
 
     // Static Fee
     feeStaticTransfer: number;
@@ -161,6 +162,7 @@ export class Command extends Commands.Command {
         { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.string(), promptType: "confirm", default: false },
 
         { name: "epoch", description: "Start time of the network.", schema: Joi.date(), default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z" },
+        { name: "htlcEnabled", description: "Enable HTLC transactions.", schema: Joi.boolean() },
 
         // Static fee
         { name: "feeStaticTransfer", description: "Fee for transfer transactions.", schema: Joi.number(), default: 10000000 },
@@ -451,6 +453,7 @@ export class Command extends Commands.Command {
                 },
                 vendorFieldLength: 64,
                 multiPaymentLimit: 256,
+                htlcEnabled: options.htlcEnabled,
             },
             {
                 height: 2,

@@ -263,6 +263,7 @@ describe("GenerateCommand", () => {
                 explorer: "myex.io",
                 distribute: "true",
                 epoch: "2020-11-04T00:00:00.000Z",
+                htlcEnabled: true,
                 feeStaticTransfer: 1,
                 feeStaticSecondSignature: 2,
                 feeStaticDelegateRegistration: 3,
