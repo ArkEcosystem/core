@@ -131,6 +131,7 @@ export class BlockProcessor {
                 }),
             );
 
+            /* istanbul ignore else */
             if (forgedIds.length > 0) {
                 this.logger.warning(
                     `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions`,
@@ -235,7 +236,7 @@ export class BlockProcessor {
                     block.data.generatorPublicKey
                 }) is allowed to forge block ${block.data.height.toLocaleString()}`,
             );
-        } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
+        } /* istanbul ignore next */ else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
             AppUtils.assert.defined<string>(forgingDelegate.publicKey);
 
             const forgingWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(forgingDelegate.publicKey);

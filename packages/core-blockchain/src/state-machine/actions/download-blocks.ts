@@ -81,6 +81,7 @@ export class DownloadBlocks implements Action {
                 this.blockchain.clearQueue();
             }
 
+            /* istanbul ignore else */
             if (this.blockchain.getQueue().size() === 0) {
                 this.stateStore.noBlockCounter++;
                 this.stateStore.lastDownloadedBlock = this.stateStore.getLastBlock().data;
