@@ -3,9 +3,9 @@ import Joi from "@hapi/joi";
 
 import { DelegatesController } from "../controllers/delegates";
 import {
-    delegateCriteriaQuerySchema,
+    delegateCriteriaSchema,
     delegateSortingSchema,
-    walletCriteriaQuerySchema,
+    walletCriteriaSchema,
     walletParamSchema,
     walletSortingSchema,
 } from "../resources-new";
@@ -22,7 +22,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 query: Joi.object()
-                    .concat(delegateCriteriaQuerySchema)
+                    .concat(delegateCriteriaSchema)
                     .concat(delegateSortingSchema)
                     .concat(Schemas.pagination),
             },
@@ -54,10 +54,7 @@ export const register = (server: Hapi.Server): void => {
                 params: Joi.object({
                     id: walletParamSchema,
                 }),
-                query: Joi.object()
-                    .concat(walletCriteriaQuerySchema)
-                    .concat(walletSortingSchema)
-                    .concat(Schemas.pagination),
+                query: Joi.object().concat(walletCriteriaSchema).concat(walletSortingSchema).concat(Schemas.pagination),
             },
             plugins: {
                 pagination: { enabled: true },

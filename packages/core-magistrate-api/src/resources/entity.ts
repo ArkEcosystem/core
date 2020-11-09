@@ -29,6 +29,5 @@ export const entityCriteriaSchemaObject = {
 };
 
 export const entityParamSchema = CoreResources.transactionIdSchema;
-export const entityCriteriaQuerySchema = Joi.object(entityCriteriaSchemaObject);
-export const entityCriteriaPayloadSchema = Schemas.createCriteriaPayloadSchema(entityCriteriaSchemaObject);
+export const entityCriteriaSchema = Schemas.createCriteriaSchema(entityCriteriaSchemaObject);
 export const entitySortingSchema = Schemas.createSortingSchema(entityCriteriaSchemaObject);

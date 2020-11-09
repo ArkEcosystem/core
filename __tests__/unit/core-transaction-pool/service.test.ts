@@ -9,12 +9,16 @@ const logger = {
     warning: jest.fn(),
     error: jest.fn(),
 };
-const emitter = {
+const events = {
     listen: jest.fn(),
+    forget: jest.fn(),
     dispatch: jest.fn(),
 };
 const configuration = {
     getRequired: jest.fn(),
+};
+const dynamicFeeMatcher = {
+    throwIfCannotEnterPool: jest.fn(),
 };
 const storage = {
     hasTransaction: jest.fn(),
@@ -40,31 +44,16 @@ const expirationService = {
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(emitter);
+container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(events);
 container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
+container.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).toConstantValue(dynamicFeeMatcher);
 container.bind(Container.Identifiers.TransactionPoolStorage).toConstantValue(storage);
 container.bind(Container.Identifiers.TransactionPoolMempool).toConstantValue(mempool);
 container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
 container.bind(Container.Identifiers.TransactionPoolExpirationService).toConstantValue(expirationService);
 
 beforeEach(() => {
-    logger.debug.mockReset();
-    logger.warning.mockReset();
-    logger.error.mockReset();
-    emitter.listen.mockReset();
-    configuration.getRequired.mockReset();
-    storage.hasTransaction.mockReset();
-    storage.addTransaction.mockReset();
-    storage.removeTransaction.mockReset();
-    storage.getAllTransactions.mockReset();
-    storage.flush.mockReset();
-    mempool.getSize.mockReset();
-    mempool.addTransaction.mockReset();
-    mempool.removeTransaction.mockReset();
-    mempool.acceptForgedTransaction.mockReset();
-    mempool.flush.mockReset();
-    poolQuery.getAll.mockReset();
-    poolQuery.getFromLowestPriority.mockReset();
+    jest.resetAllMocks();
 });
 
 Managers.configManager.getMilestone().aip11 = true;
@@ -108,14 +97,48 @@ describe("Service.boot", () => {
         }
     });
 
-    it("should readd stored transactions", async () => {
+    it("should subscribe to crypto and state events", async () => {
+        const service = container.resolve(Service);
+        await service.boot();
+
+        expect(events.listen).toBeCalledWith(Enums.StateEvent.BuilderFinished, service);
+        expect(events.listen).toBeCalledWith(Enums.CryptoEvent.MilestoneChanged, service);
+    });
+});
+
+describe("Service.dispose", () => {
+    it("should unsubscribe from crypto and state events", () => {
+        const service = container.resolve(Service);
+        service.dispose();
+
+        expect(events.forget).toBeCalledWith(Enums.StateEvent.BuilderFinished, service);
+        expect(events.forget).toBeCalledWith(Enums.CryptoEvent.MilestoneChanged, service);
+    });
+});
+
+describe("Service.handle", () => {
+    it("should re-add transactions after state builder had finished", async () => {
         storage.getAllTransactions.mockReturnValueOnce([
             { id: transaction1.id, serialized: transaction1.serialized },
             { id: transaction2.id, serialized: transaction2.serialized },
         ]);
 
         const service = container.resolve(Service);
-        await service.boot();
+        await service.handle({ name: Enums.StateEvent.BuilderFinished });
+
+        expect(mempool.flush).toBeCalled();
+        expect(mempool.addTransaction).toBeCalledWith(transaction1);
+        expect(mempool.addTransaction).toBeCalledWith(transaction2);
+    });
+
+    it("should re-add transactions after milestone had changed", async () => {
+        storage.getAllTransactions.mockReturnValueOnce([
+            { id: transaction1.id, serialized: transaction1.serialized },
+            { id: transaction2.id, serialized: transaction2.serialized },
+        ]);
+
+        const service = container.resolve(Service);
+        await service.handle({ name: Enums.CryptoEvent.MilestoneChanged });
 
         expect(mempool.flush).toBeCalled();
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
@@ -156,8 +179,23 @@ describe("Service.addTransaction", () => {
         expect(storage.addTransaction).toBeCalledWith(transaction1.id, transaction1.serialized);
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
 
-        expect(emitter.dispatch).toHaveBeenCalledTimes(1);
-        expect(emitter.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.AddedToPool, expect.anything());
+        expect(events.dispatch).toHaveBeenCalledTimes(1);
+        expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.AddedToPool, expect.anything());
+    });
+
+    it("should remove transaction from storage that failed dynamic fee check", async () => {
+        configuration.getRequired.mockReturnValue(10); // maxTransactionsInPool
+        mempool.getSize.mockReturnValue(0);
+        dynamicFeeMatcher.throwIfCannotEnterPool.mockRejectedValueOnce(new Error("Nope"));
+
+        const service = container.resolve(Service);
+        const promise = service.addTransaction(transaction1);
+
+        await expect(promise).rejects.toBeInstanceOf(Error);
+        expect(storage.addTransaction).toBeCalledWith(transaction1.id, transaction1.serialized);
+        expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
+
+        expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RejectedByPool, expect.anything());
     });
 
     it("should remove transaction from storage that failed adding to mempool", async () => {
@@ -172,7 +210,7 @@ describe("Service.addTransaction", () => {
         expect(storage.addTransaction).toBeCalledWith(transaction1.id, transaction1.serialized);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
 
-        expect(emitter.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RejectedByPool, expect.anything());
+        expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RejectedByPool, expect.anything());
     });
 
     it("should remove expired transactions when pool is full", async () => {
@@ -190,7 +228,7 @@ describe("Service.addTransaction", () => {
         expect(mempool.removeTransaction).toBeCalledWith(transaction2);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
 
-        expect(emitter.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RemovedFromPool, expect.anything());
+        expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RemovedFromPool, expect.anything());
     });
 
     it("should throw if fee isn't higher than lowest priority transaction when pool is full", async () => {
@@ -206,7 +244,7 @@ describe("Service.addTransaction", () => {
         await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
         await expect(promise).rejects.toHaveProperty("type", "ERR_POOL_FULL");
 
-        expect(emitter.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RejectedByPool, expect.anything());
+        expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RejectedByPool, expect.anything());
     });
 
     it("should remove low priority transactions when pool is full", async () => {
@@ -235,7 +273,7 @@ describe("Service.addTransaction", () => {
         expect(mempool.removeTransaction).toBeCalledWith(transaction2);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
 
-        expect(emitter.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RemovedFromPool, expect.anything());
+        expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RemovedFromPool, expect.anything());
     });
 });
 
@@ -260,7 +298,7 @@ describe("Service.removeTransaction", () => {
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
 
-        expect(emitter.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RemovedFromPool, expect.anything());
+        expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.RemovedFromPool, expect.anything());
     });
 
     it("should log error if transaction wasn't found in mempool", async () => {
@@ -435,7 +473,7 @@ describe("Service.cleanUp", () => {
         expect(mempool.removeTransaction).toBeCalledWith(transaction2);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
 
-        expect(emitter.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.Expired, expect.anything());
+        expect(events.dispatch).toHaveBeenCalledWith(Enums.TransactionEvent.Expired, expect.anything());
     });
 
     it("should remove lowest priority transactions", async () => {

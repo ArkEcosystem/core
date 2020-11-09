@@ -1,10 +1,11 @@
-import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
+import { Commands, Container, Contracts, Services } from "@arkecosystem/core-cli";
 import { Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { generateMnemonic } from "bip39";
 import ByteBuffer from "bytebuffer";
-import { copyFileSync, ensureDirSync, existsSync, writeFileSync, writeJSONSync } from "fs-extra";
-import { resolve } from "path";
+import envPaths from "env-paths";
+import { ensureDirSync, existsSync, readJSONSync, writeFileSync, writeJSONSync } from "fs-extra";
+import { join, resolve } from "path";
 import prompts from "prompts";
 
 interface Wallet {
@@ -14,6 +15,101 @@ interface Wallet {
     username: string | undefined;
 }
 
+interface Flag {
+    name: string;
+    description: string;
+    schema: Joi.Schema;
+    promptType?: string;
+    default?: any;
+}
+
+interface DynamicFees {
+    enabled?: boolean;
+    minFeePool?: number;
+    minFeeBroadcast?: number;
+    addonBytes: {
+        transfer?: number;
+        secondSignature?: number;
+        delegateRegistration?: number;
+        vote?: number;
+        multiSignature?: number;
+        ipfs?: number;
+        multiPayment?: number;
+        delegateResignation?: number;
+        htlcLock?: number;
+        htlcClaim?: number;
+        htlcRefund?: number;
+    };
+}
+
+interface Options {
+    network: string;
+    premine: string;
+    delegates: number;
+    blocktime: number;
+    maxTxPerBlock: number;
+    maxBlockPayload: number;
+    rewardHeight: number;
+    rewardAmount: string | number;
+    pubKeyHash: number;
+    wif: number;
+    token: string;
+    symbol: string;
+    explorer: string;
+    distribute: boolean;
+    epoch: Date;
+    htlcEnabled?: boolean;
+
+    // Static Fee
+    feeStaticTransfer: number;
+    feeStaticSecondSignature: number;
+    feeStaticDelegateRegistration: number;
+    feeStaticVote: number;
+    feeStaticMultiSignature: number;
+    feeStaticIpfs: number;
+    feeStaticMultiPayment: number;
+    feeStaticDelegateResignation: number;
+    feeStaticHtlcLock: number;
+    feeStaticHtlcClaim: number;
+    feeStaticHtlcRefund: number;
+
+    // Dynamic Fee
+    feeDynamicEnabled?: boolean;
+    feeDynamicMinFeePool?: number;
+    feeDynamicMinFeeBroadcast?: number;
+    feeDynamicBytesTransfer?: number;
+    feeDynamicBytesSecondSignature?: number;
+    feeDynamicBytesDelegateRegistration?: number;
+    feeDynamicBytesVote?: number;
+    feeDynamicBytesMultiSignature?: number;
+    feeDynamicBytesIpfs?: number;
+    feeDynamicBytesMultiPayment?: number;
+    feeDynamicBytesDelegateResignation?: number;
+    feeDynamicBytesHtlcLock?: number;
+    feeDynamicBytesHtlcClaim?: number;
+    feeDynamicBytesHtlcRefund?: number;
+
+    // Env
+    coreDBHost: string;
+    coreDBPort: number;
+    coreDBUsername?: string;
+    coreDBPassword?: string;
+    coreDBDatabase?: string;
+
+    coreP2PPort: number;
+    coreAPIPort: number;
+    coreWebhooksPort: number;
+    coreMonitorPort: number;
+
+    // Peers
+    peers: string;
+
+    // General
+    configPath?: string;
+    overwriteConfig: boolean;
+    force: boolean;
+}
+
 /**
  * @export
  * @class Command
@@ -21,6 +117,9 @@ interface Wallet {
  */
 @Container.injectable()
 export class Command extends Commands.Command {
+    @Container.inject(Container.Identifiers.Logger)
+    private readonly logger!: Services.Logger;
+
     /**
      * The console command signature.
      *
@@ -45,6 +144,77 @@ export class Command extends Commands.Command {
      */
     public requiresNetwork: boolean = false;
 
+    /*eslint-disable */
+    private flagSettings: Flag[] = [
+        { name: "network", description: "The name of the network.", schema: Joi.string(), promptType: "text" },
+        { name: "premine", description: "The number of pre-mined tokens.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), promptType: "text", default: "12500000000000000" },
+        { name: "delegates", description: "The number of delegates to generate.", schema: Joi.number(), promptType: "number", default: 51 },
+        { name: "blocktime", description: "The network blocktime.", schema: Joi.number(), promptType: "number", default: 8 },
+        { name: "maxTxPerBlock", description: "The maximum number of transactions per block.", schema: Joi.number(), promptType: "number", default: 150 },
+        { name: "maxBlockPayload", description: "The maximum payload length by block.", schema: Joi.number(), promptType: "number", default: 2097152 },
+        { name: "rewardHeight", description: "The height at which delegate block reward starts.", schema: Joi.number(), promptType: "number", default: 75600 },
+        { name: "rewardAmount", description: "The number of the block reward per forged block.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), promptType: "number", default: "200000000" },
+        { name: "pubKeyHash", description: "The public key hash.", schema: Joi.number(), promptType: "number" },
+        { name: "wif", description: "The WIF (Wallet Import Format) that should be used.", schema: Joi.number(), promptType: "number" },
+        { name: "token", description: "The name that is attributed to the token on the network.", schema: Joi.string(), promptType: "text" },
+        { name: "symbol", description: "The character that is attributed to the token on the network.", schema: Joi.string(), promptType: "text" },
+        { name: "explorer", description: "The URL that hosts the network explorer.", schema: Joi.string(), promptType: "text" },
+        { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.string(), promptType: "confirm", default: false },
+
+        { name: "epoch", description: "Start time of the network.", schema: Joi.date(), default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z" },
+        { name: "htlcEnabled", description: "Enable HTLC transactions.", schema: Joi.boolean() },
+
+        // Static fee
+        { name: "feeStaticTransfer", description: "Fee for transfer transactions.", schema: Joi.number(), default: 10000000 },
+        { name: "feeStaticSecondSignature", description: "Fee for second signature transactions.", schema: Joi.number(), default: 500000000 },
+        { name: "feeStaticDelegateRegistration", description: "Fee for delegate registration transactions.", schema: Joi.number(), default: 2500000000 },
+        { name: "feeStaticVote", description: "Fee for vote transactions.", schema: Joi.number(), default: 100000000 },
+        { name: "feeStaticMultiSignature", description: "Fee for multi signature transactions.", schema: Joi.number(), default: 500000000 },
+        { name: "feeStaticIpfs", description: "Fee for ipfs transactions.", schema: Joi.number(), default: 500000000 },
+        { name: "feeStaticMultiPayment", description: "Fee for multi payment transactions.", schema: Joi.number(), default: 10000000 },
+        { name: "feeStaticDelegateResignation", description: "Fee for delegate resignation transactions.", schema: Joi.number(), default: 2500000000 },
+        { name: "feeStaticHtlcLock", description: "Fee for HTLC lock transactions.", schema: Joi.number(), default: 10000000 },
+        { name: "feeStaticHtlcClaim", description: "Fee for HTLC claim transactions.", schema: Joi.number(), default: 0 },
+        { name: "feeStaticHtlcRefund", description: "Fee for HTLC refund transactions.", schema: Joi.number(), default: 0 },
+
+        // Dynamic fee
+        { name: "feeDynamicEnabled", description: "Dynamic fee enabled", schema: Joi.boolean() },
+        { name: "feeDynamicMinFeePool", description: "Minimum dynamic fee to enter the pool.", schema: Joi.number() },
+        { name: "feeDynamicMinFeeBroadcast", description: "Minimum dynamic fee to broadcast.", schema: Joi.number() },
+        { name: "feeDynamicBytesTransfer", description: "Dynamic fee for transfer transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesSecondSignature", description: "Dynamic fee for second signature transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesDelegateRegistration", description: "Dynamic fee for delegate registration transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesVote", description: "Dynamic fee for vote transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesMultiSignature", description: "Dynamic fee for multi signature transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesIpfs", description: "Dynamic fee for IPFS transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesMultiPayment", description: "Dynamic fee for multi payment transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesDelegateResignation", description: "Dynamic fee for delegate registration transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesHtlcLock", description: "Dynamic fee for HTLC lock transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesHtlcClaim", description: "Dynamic fee for HTLC claim transactions.", schema: Joi.number() },
+        { name: "feeDynamicBytesHtlcRefund", description: "Dynamic fee for HTLC refund transactions.", schema: Joi.number() },
+
+        // Env
+        { name: "coreDBHost", description: "Core database host.", schema: Joi.string(), default: "localhost" },
+        { name: "coreDBPort", description: "Core database port.", schema: Joi.number(), default: 5432 },
+        { name: "coreDBUsername", description: "Core database username.", schema: Joi.string() },
+        { name: "coreDBPassword", description: "Core database password.", schema: Joi.string() },
+        { name: "coreDBDatabase", description: "Core database database.", schema: Joi.string() },
+
+        { name: "coreP2PPort", description: "Core P2P port.", schema: Joi.number(), default: 4000 },
+        { name: "coreAPIPort", description: "Core API port.", schema: Joi.number(), default: 4003 },
+        { name: "coreWebhooksPort", description: "Core Webhooks port.", schema: Joi.number(), default: 4004 },
+        { name: "coreMonitorPort", description: "Core Webhooks port.", schema: Joi.number(), default: 4005 },
+
+        // Peers
+        { name: "peers", description: "Peers IP addresses (and ports), separated with comma.", schema: Joi.string().allow(""), default: "127.0.0.1" },
+
+        // General
+        { name: "configPath", description: "Configuration path.", schema: Joi.string() },
+        { name: "overwriteConfig", description: "Overwrite existing configuration.", schema: Joi.boolean(),  default: false },
+        { name: "force", description: "Skip prompts and use given flags.", schema: Joi.boolean(), default: false },
+    ];
+    /*eslint-enable */
+
     /**
      * Configure the console command.
      *
@@ -52,33 +222,17 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public configure(): void {
-        this.definition
-            .setFlag("network", "The name of the network.", Joi.string())
-            .setFlag(
-                "premine",
-                "The number of pre-mined tokens.",
-                Joi.alternatives().try(Joi.string(), Joi.number()).default("12500000000000000"),
-            )
-            .setFlag("delegates", "The number of delegates to generate.", Joi.number().default(51))
-            .setFlag("blocktime", "The network blocktime.", Joi.number().default(8))
-            .setFlag("maxTxPerBlock", "The maximum number of transactions per block.", Joi.number().default(150))
-            .setFlag("maxBlockPayload", "The maximum payload length by block.", Joi.number().default(2097152))
-            .setFlag("rewardHeight", "The height at which delegate block reward starts.", Joi.number().default(75600))
-            .setFlag(
-                "rewardAmount",
-                "The number of the block reward per forged block.",
-                Joi.alternatives().try(Joi.string(), Joi.number()).default("200000000"),
-            )
-            .setFlag("pubKeyHash", "The public key hash.", Joi.number())
-            .setFlag("wif", "The WIF (Wallet Import Format) that should be used.", Joi.number())
-            .setFlag("token", "The name that is attributed to the token on the network.", Joi.string())
-            .setFlag("symbol", "The character that is attributed to the token on the network.", Joi.string())
-            .setFlag("explorer", "The URL that hosts the network explorer.", Joi.string())
-            .setFlag(
-                "distribute",
-                "Distribute the premine evenly between all delegates?",
-                Joi.boolean().default(false),
-            );
+        for (const flag of this.flagSettings) {
+            const flagSchema: Joi.Schema = flag.schema;
+
+            if (flag.default !== undefined) {
+                flagSchema.default(flag.default);
+
+                flag.description += ` (${flag.default.toString()})`;
+            }
+
+            this.definition.setFlag(flag.name, flag.description, flag.schema);
+        }
     }
 
     /**
@@ -88,24 +242,37 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        const flagsDefinition = this.definition.getFlags();
-
         const flags: Contracts.AnyObject = this.getFlags();
 
-        if (!Object.keys(flagsDefinition).find((flagName) => !flags[flagName])) {
-            return this.generateNetwork(flags);
+        const allFlagsSet = !this.flagSettings
+            .filter((flag) => flag.promptType)
+            .find((flag) => flags[flag.name] === undefined);
+
+        const defaults = this.flagSettings.reduce<any>((acc: any, flag: Flag) => {
+            acc[flag.name] = flag.default;
+
+            return acc;
+        }, {});
+
+        let options = {
+            ...defaults,
+            ...flags,
+        };
+
+        if (flags.force || allFlagsSet) {
+            return this.generateNetwork(options as Options);
         }
 
-        const stringFlags: string[] = ["network", "premine", "token", "symbol", "explorer"];
         const response = await prompts(
-            Object.keys(flagsDefinition)
+            this.flagSettings
+                .filter((flag) => flag.promptType) // Show prompt only for flags with defined promptType
                 .map(
-                    (flagName) =>
+                    (flag) =>
                         ({
-                            type: stringFlags.includes(flagName) ? "text" : "number",
-                            name: flagName,
-                            message: flagsDefinition[flagName].description,
-                            initial: `${flags[flagName]}`,
+                            type: flag.promptType,
+                            name: flag.name,
+                            message: flag.description,
+                            initial: flags[flag.name] ? `${flags[flag.name]}` : flag.default || "undefined",
                         } as prompts.PromptObject<string>),
                 )
                 .concat({
@@ -115,24 +282,41 @@ export class Command extends Commands.Command {
                 } as prompts.PromptObject<string>),
         );
 
-        // TODO: check this fix is acceptable
-        // the distribute flag is a boolean in the pre-existing tests
-        // and it is defined as a number in this.generateCryptoGenesisBlock()
-        // If false or 0 are passed intentionally, this would fail (despite all flags being provided).
-        if (Object.keys(flagsDefinition).find((flagName) => response[flagName] === undefined)) {
-            this.components.fatal("Please provide all flags and try again!");
-        }
+        options = {
+            ...defaults,
+            ...flags,
+            ...response,
+        };
 
         if (!response.confirm) {
-            this.components.fatal("You'll need to confirm the input to continue.");
+            throw new Error("You'll need to confirm the input to continue.");
         }
 
-        await this.generateNetwork({ ...flags, ...response });
+        for (const flag of this.flagSettings.filter((flag) => flag.promptType)) {
+            if (flag.promptType === "text" && options[flag.name] !== "undefined") {
+                continue;
+            }
+
+            if (flag.promptType === "number" && !Number.isNaN(options[flag.name])) {
+                continue;
+            }
+
+            if (["confirm", "date"].includes(flag.promptType!)) {
+                continue;
+            }
+
+            throw new Error(`Flag ${flag.name} is required.`);
+        }
+
+        await this.generateNetwork(options);
     }
 
-    private async generateNetwork(flags: Contracts.AnyObject): Promise<void> {
-        const coreConfigDest: string = resolve(__dirname, `../../bin/config/${flags.network}`);
-        const cryptoConfigDest: string = resolve(__dirname, `../../../crypto/src/networks/${flags.network}`);
+    private async generateNetwork(flags: Options): Promise<void> {
+        const paths = envPaths(flags.token, { suffix: "core" });
+        const configPath = flags.configPath ? flags.configPath : paths.config;
+
+        const coreConfigDest = join(configPath, flags.network);
+        const cryptoConfigDest = join(coreConfigDest, "crypto");
 
         const delegates: any[] = this.generateCoreDelegates(flags.delegates, flags.pubKeyHash);
 
@@ -140,14 +324,16 @@ export class Command extends Commands.Command {
 
         await this.components.taskList([
             {
-                title: "Prepare directories.",
+                title: `Prepare directories.`,
                 task: async () => {
-                    if (existsSync(coreConfigDest)) {
-                        throw new Error(`${coreConfigDest} already exists.`);
-                    }
+                    if (!flags.overwriteConfig) {
+                        if (existsSync(coreConfigDest)) {
+                            throw new Error(`${coreConfigDest} already exists.`);
+                        }
 
-                    if (existsSync(cryptoConfigDest)) {
-                        throw new Error(`${cryptoConfigDest} already exists.`);
+                        if (existsSync(cryptoConfigDest)) {
+                            throw new Error(`${cryptoConfigDest} already exists.`);
+                        }
                     }
 
                     ensureDirSync(coreConfigDest);
@@ -163,40 +349,17 @@ export class Command extends Commands.Command {
             {
                 title: "Generate crypto network configuration.",
                 task: async () => {
-                    const genesisBlock = this.generateCryptoGenesisBlock(
-                        genesisWallet,
-                        delegates,
-                        flags.pubKeyHash,
-                        flags.premine,
-                        flags.distribute,
-                    );
+                    const genesisBlock = this.generateCryptoGenesisBlock(genesisWallet, delegates, flags);
 
                     writeJSONSync(
                         resolve(cryptoConfigDest, "network.json"),
-                        this.generateCryptoNetwork(
-                            flags.network,
-                            flags.pubKeyHash,
-                            genesisBlock.payloadHash,
-                            flags.wif,
-                            flags.token,
-                            flags.symbol,
-                            flags.explorer,
-                        ),
+                        this.generateCryptoNetwork(genesisBlock.payloadHash, flags),
                         { spaces: 4 },
                     );
 
-                    writeJSONSync(
-                        resolve(cryptoConfigDest, "milestones.json"),
-                        this.generateCryptoMilestones(
-                            flags.delegates,
-                            flags.blocktime,
-                            flags.maxTxPerBlock,
-                            flags.maxBlockPayload,
-                            flags.rewardHeight,
-                            flags.rewardAmount,
-                        ),
-                        { spaces: 4 },
-                    );
+                    writeJSONSync(resolve(cryptoConfigDest, "milestones.json"), this.generateCryptoMilestones(flags), {
+                        spaces: 4,
+                    });
 
                     writeJSONSync(resolve(cryptoConfigDest, "genesisBlock.json"), genesisBlock, { spaces: 4 });
 
@@ -219,7 +382,7 @@ export class Command extends Commands.Command {
             {
                 title: "Generate Core network configuration.",
                 task: async () => {
-                    writeJSONSync(resolve(coreConfigDest, "peers.json"), { list: [] }, { spaces: 4 });
+                    writeJSONSync(resolve(coreConfigDest, "peers.json"), this.generatePeers(flags), { spaces: 4 });
 
                     writeJSONSync(
                         resolve(coreConfigDest, "delegates.json"),
@@ -227,85 +390,78 @@ export class Command extends Commands.Command {
                         { spaces: 4 },
                     );
 
-                    copyFileSync(resolve(coreConfigDest, "../testnet/.env"), resolve(coreConfigDest, ".env"));
+                    writeFileSync(resolve(coreConfigDest, ".env"), this.generateEnvironmentVariables(flags));
 
-                    copyFileSync(resolve(coreConfigDest, "../testnet/app.json"), resolve(coreConfigDest, "app.json"));
+                    writeJSONSync(resolve(coreConfigDest, "app.json"), this.generateApp(flags), { spaces: 4 });
                 },
             },
         ]);
+
+        this.logger.info(`Configuration generated on location: ${coreConfigDest}`);
     }
 
-    private generateCryptoNetwork(
-        name: string,
-        pubKeyHash: number,
-        nethash: string,
-        wif: number,
-        token: string,
-        symbol: string,
-        explorer: string,
-    ) {
+    private generateCryptoNetwork(nethash: string, options: Options) {
         return {
-            name,
-            messagePrefix: `${name} message:\n`,
+            name: options.network,
+            messagePrefix: `${options.network} message:\n`,
             bip32: {
                 public: 70617039,
                 private: 70615956,
             },
-            pubKeyHash,
+            pubKeyHash: options.pubKeyHash,
             nethash,
-            wif,
+            wif: options.wif,
             slip44: 1,
             aip20: 0,
             client: {
-                token,
-                symbol,
-                explorer,
+                token: options.token,
+                symbol: options.symbol,
+                explorer: options.explorer,
             },
         };
     }
 
-    private generateCryptoMilestones(
-        activeDelegates: number,
-        blocktime: number,
-        maxTransactions: number,
-        maxPayload: number,
-        rewardHeight: number,
-        rewardAmount: string,
-    ) {
+    private generateCryptoMilestones(options: Options) {
+        const epoch = new Date(options.epoch);
+
         return [
             {
                 height: 1,
                 reward: "0",
-                activeDelegates,
-                blocktime,
+                activeDelegates: options.delegates,
+                blocktime: options.blocktime,
                 block: {
                     version: 0,
-                    maxTransactions,
-                    maxPayload,
+                    maxTransactions: options.maxTxPerBlock,
+                    maxPayload: options.maxBlockPayload,
                 },
-                epoch: "2017-03-21T13:00:00.000Z",
+                epoch: epoch.toISOString(),
                 fees: {
                     staticFees: {
-                        transfer: 10000000,
-                        secondSignature: 500000000,
-                        delegateRegistration: 2500000000,
-                        vote: 100000000,
-                        multiSignature: 500000000,
-                        ipfs: 500000000,
-                        multiPayment: 10000000,
-                        delegateResignation: 2500000000,
-                        htlcLock: 10000000,
-                        htlcClaim: 0,
-                        htlcRefund: 0,
+                        transfer: options.feeStaticTransfer,
+                        secondSignature: options.feeStaticSecondSignature,
+                        delegateRegistration: options.feeStaticDelegateRegistration,
+                        vote: options.feeStaticVote,
+                        multiSignature: options.feeStaticMultiSignature,
+                        ipfs: options.feeStaticIpfs,
+                        multiPayment: options.feeStaticMultiPayment,
+                        delegateResignation: options.feeStaticDelegateResignation,
+                        htlcLock: options.feeStaticHtlcLock,
+                        htlcClaim: options.feeStaticHtlcClaim,
+                        htlcRefund: options.feeStaticHtlcRefund,
                     },
                 },
                 vendorFieldLength: 64,
                 multiPaymentLimit: 256,
+                htlcEnabled: options.htlcEnabled,
+            },
+            {
+                height: 2,
                 aip11: true,
             },
             {
-                height: rewardHeight,
-                reward: rewardAmount,
+                height: options.rewardHeight,
+                reward: options.rewardAmount,
             },
             {
                 height: 100000,
@@ -320,33 +476,164 @@ export class Command extends Commands.Command {
         ];
     }
 
-    private generateCryptoGenesisBlock(
-        genesisWallet,
-        delegates,
-        pubKeyHash: number,
-        totalPremine: string,
-        distribute: number,
-    ) {
-        const premineWallet: Wallet = this.createWallet(pubKeyHash);
+    private generateCryptoGenesisBlock(genesisWallet, delegates, options: Options) {
+        const premineWallet: Wallet = this.createWallet(options.pubKeyHash);
 
         let transactions = [];
 
-        if (distribute) {
+        if (options.distribute) {
             transactions = transactions.concat(
-                ...this.createTransferTransactions(premineWallet, delegates, totalPremine, pubKeyHash),
+                ...this.createTransferTransactions(premineWallet, delegates, options.premine, options.pubKeyHash),
             );
         } else {
             transactions = transactions.concat(
-                this.createTransferTransaction(premineWallet, genesisWallet, totalPremine, pubKeyHash),
+                this.createTransferTransaction(premineWallet, genesisWallet, options.premine, options.pubKeyHash),
             );
         }
 
         transactions = transactions.concat(
-            ...this.buildDelegateTransactions(delegates, pubKeyHash),
-            ...this.buildVoteTransactions(delegates, pubKeyHash),
+            ...this.buildDelegateTransactions(delegates, options.pubKeyHash),
+            ...this.buildVoteTransactions(delegates, options.pubKeyHash),
         );
 
         return this.createGenesisBlock(premineWallet.keys, transactions, 0);
+    }
+
+    private generateEnvironmentVariables(options: Options): string {
+        let result = "";
+
+        result += "CORE_LOG_LEVEL=info\n";
+        result += "CORE_LOG_LEVEL_FILE=info\n\n";
+
+        result += `CORE_DB_HOST=${options.coreDBHost}\n`;
+        result += `CORE_DB_PORT=${options.coreDBPort}\n`;
+        result += options.coreDBUsername ? `CORE_DB_USERNAME=${options.coreDBUsername}\n` : "";
+        result += options.coreDBPassword ? `CORE_DB_PASSWORD=${options.coreDBPassword}\n` : "";
+        result += options.coreDBDatabase ? `CORE_DB_DATABASE=${options.coreDBDatabase}\n\n` : "\n";
+
+        result += "CORE_P2P_HOST=0.0.0.0\n";
+        result += `CORE_P2P_PORT=${options.coreP2PPort}\n\n`;
+
+        result += "CORE_API_HOST=0.0.0.0\n";
+        result += `CORE_API_PORT=${options.coreAPIPort}\n\n`;
+
+        result += "CORE_WEBHOOKS_HOST=0.0.0.0\n";
+        result += `CORE_WEBHOOKS_PORT=${options.coreWebhooksPort}\n\n`;
+
+        result += "CORE_MONITOR_HOST=0.0.0.0\n";
+        result += `CORE_MONITOR_PORT=${options.coreMonitorPort}\n\n`;
+
+        return result;
+    }
+
+    private generatePeers(options: Options): { list: { ip: string; port: number }[] } {
+        if (options.peers === "") {
+            return { list: [] };
+        }
+
+        const list = options.peers
+            .replace(" ", "")
+            .split(",")
+            .map((peer) => {
+                const [ip, port] = peer.split(":");
+
+                return {
+                    ip,
+                    port: Number.isNaN(parseInt(port)) ? options.coreP2PPort : parseInt(port),
+                };
+            });
+
+        return { list };
+    }
+
+    private generateApp(options: Options): any {
+        const dynamicFees: DynamicFees = {
+            enabled: undefined,
+            minFeePool: undefined,
+            minFeeBroadcast: undefined,
+            addonBytes: {},
+        };
+
+        let includeDynamicFees = false;
+
+        if (options.feeDynamicEnabled) {
+            dynamicFees.enabled = options.feeDynamicEnabled;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicMinFeePool) {
+            dynamicFees.minFeePool = options.feeDynamicMinFeePool;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicMinFeeBroadcast) {
+            dynamicFees.minFeeBroadcast = options.feeDynamicMinFeeBroadcast;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesTransfer) {
+            dynamicFees.addonBytes.transfer = options.feeDynamicBytesTransfer;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesSecondSignature) {
+            dynamicFees.addonBytes.secondSignature = options.feeDynamicBytesSecondSignature;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesSecondSignature) {
+            dynamicFees.addonBytes.secondSignature = options.feeDynamicBytesSecondSignature;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesDelegateRegistration) {
+            dynamicFees.addonBytes.delegateRegistration = options.feeDynamicBytesDelegateRegistration;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesVote) {
+            dynamicFees.addonBytes.vote = options.feeDynamicBytesVote;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesMultiSignature) {
+            dynamicFees.addonBytes.multiSignature = options.feeDynamicBytesMultiSignature;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesIpfs) {
+            dynamicFees.addonBytes.ipfs = options.feeDynamicBytesIpfs;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesMultiPayment) {
+            dynamicFees.addonBytes.multiPayment = options.feeDynamicBytesMultiPayment;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesDelegateResignation) {
+            dynamicFees.addonBytes.delegateResignation = options.feeDynamicBytesDelegateResignation;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesHtlcLock) {
+            dynamicFees.addonBytes.htlcLock = options.feeDynamicBytesHtlcLock;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesHtlcClaim) {
+            dynamicFees.addonBytes.htlcClaim = options.feeDynamicBytesHtlcClaim;
+            includeDynamicFees = true;
+        }
+        if (options.feeDynamicBytesHtlcRefund) {
+            dynamicFees.addonBytes.htlcRefund = options.feeDynamicBytesHtlcRefund;
+            includeDynamicFees = true;
+        }
+
+        if (!Object.keys(dynamicFees.addonBytes).length) {
+            delete dynamicFees.addonBytes;
+        }
+
+        const app = readJSONSync(resolve(__dirname, "../../bin/config/testnet/app.json"));
+
+        if (includeDynamicFees) {
+            app.core.plugins.find((plugin) => plugin.package === "@arkecosystem/core-transaction-pool").options = {
+                dynamicFees,
+            };
+
+            app.relay.plugins.find((plugin) => plugin.package === "@arkecosystem/core-transaction-pool").options = {
+                dynamicFees,
+            };
+        }
+
+        return app;
     }
 
     private generateCoreDelegates(activeDelegates: number, pubKeyHash: number): Wallet[] {

@@ -23,6 +23,21 @@ try {
     //
 }
 
-const CommandLineInterface = new (require("../dist").CommandLineInterface)(process.argv.slice(2));
+const main = async () => {
+    try {
+        const CommandLineInterface = new (require("../dist").CommandLineInterface)(process.argv.slice(2));
 
-CommandLineInterface.execute();
+        await CommandLineInterface.execute();
+
+        process.exit(0)
+    } catch (error) {
+        if (error.name !== "FatalException") {
+            console.error(error)
+        }
+
+        process.exit(1)
+    }
+}
+
+main()
+

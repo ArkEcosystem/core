@@ -919,6 +919,46 @@ describe("Client", () => {
                 await client.disconnect();
                 await server.stop();
             });
+
+            it("logs incoming message after timeout", async () => {
+                const server = Hapi.server();
+                await server.register({ plugin: plugin, options: {} });
+
+                server.route({
+                    method: "GET",
+                    path: "/",
+                    handler: async (request) => {
+                        await Hoek.wait(200);
+                        return "hello";
+                    },
+                });
+
+                await server.start();
+                const client = new Client("http://localhost:" + server.info.port, { timeout: 20 });
+
+                let logged;
+                client.onError = (err) => {
+                    logged = err;
+                };
+
+                await client.connect();
+
+                await expect(client.request("/")).rejects.toThrowError("Request timed out");
+
+                await new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve();
+                    }, 300);
+                });
+
+                // Message received after timeout
+                expect(logged.message).toEqual("Received response for unknown request");
+                expect(logged.type).toEqual("protocol");
+                expect(logged.isNes).toEqual(true);
+
+                await client.disconnect();
+                await server.stop();
+            });
         });
 
         describe("_beat()", () => {

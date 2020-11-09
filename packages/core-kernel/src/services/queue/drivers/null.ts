@@ -1,4 +1,10 @@
-import { Queue, QueueJob } from "../../../contracts/kernel/queue";
+import {
+    Queue,
+    QueueJob,
+    QueueOnDataFunction,
+    QueueOnDrainFunction,
+    QueueOnErrorFunction,
+} from "../../../contracts/kernel/queue";
 import { injectable } from "../../../ioc";
 
 /**
@@ -113,4 +119,18 @@ export class NullQueue implements Queue {
     public size(): number {
         return 0;
     }
+
+    public isStarted(): boolean {
+        return false;
+    }
+
+    public isRunning(): boolean {
+        return false;
+    }
+
+    public onData(callback: QueueOnDataFunction): void {}
+
+    public onError(callback: QueueOnErrorFunction): void {}
+
+    public onDrain(callback: QueueOnDrainFunction): void {}
 }

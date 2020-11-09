@@ -1,6 +1,5 @@
-import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 
-import { Wallet } from "../wallet";
 import {
     addressesIndexer,
     ipfsIndexer,
@@ -46,18 +45,4 @@ export const registerIndexers = (app: Contracts.Kernel.Application): void => {
         indexer: ipfsIndexer,
         autoIndex: true,
     });
-};
-
-export const registerFactories = (app: Contracts.Kernel.Application): void => {
-    if (!app.isBound(Container.Identifiers.WalletFactory)) {
-        app.bind(Container.Identifiers.WalletFactory).toFactory<Contracts.State.Wallet>(
-            (context: Container.interfaces.Context) => (address: string) =>
-                new Wallet(
-                    address,
-                    new Services.Attributes.AttributeMap(
-                        context.container.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes),
-                    ),
-                ),
-        );
-    }
 };

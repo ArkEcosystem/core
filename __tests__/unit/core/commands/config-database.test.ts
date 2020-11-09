@@ -148,7 +148,7 @@ describe("DatabaseCommand", () => {
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
             expect(parseFileSync).toHaveBeenCalledWith(envFile);
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_HOST=localhost");
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_DB_HOST=localhost"));
 
             // Reset
             existsSync.mockReset();
@@ -163,14 +163,14 @@ describe("DatabaseCommand", () => {
             const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
-            prompts.inject([undefined, 5432, undefined, undefined, undefined, true]);
+            prompts.inject([undefined, 5000, undefined, undefined, undefined, true]);
 
             await cli.execute(Command);
 
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
             expect(parseFileSync).toHaveBeenCalledWith(envFile);
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_PORT=5432");
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_DB_PORT=5000"));
 
             // Reset
             existsSync.mockReset();
@@ -192,7 +192,7 @@ describe("DatabaseCommand", () => {
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
             expect(parseFileSync).toHaveBeenCalledWith(envFile);
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_DATABASE=ark_mainnet");
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_DB_DATABASE=ark_mainnet"));
 
             // Reset
             existsSync.mockReset();
@@ -214,7 +214,7 @@ describe("DatabaseCommand", () => {
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
             expect(parseFileSync).toHaveBeenCalledWith(envFile);
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_USERNAME=ark");
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_DB_USERNAME=ark"));
 
             // Reset
             existsSync.mockReset();
@@ -236,7 +236,7 @@ describe("DatabaseCommand", () => {
             // Assert
             expect(existsSync).toHaveBeenCalledWith(envFile);
             expect(parseFileSync).toHaveBeenCalledWith(envFile);
-            expect(writeFileSync).toHaveBeenCalledWith(envFile, "CORE_DB_PASSWORD=password");
+            expect(writeFileSync).toHaveBeenCalledWith(envFile, expect.toInclude("CORE_DB_PASSWORD=password"));
 
             // Reset
             existsSync.mockReset();

@@ -43,37 +43,57 @@ export abstract class AbstractRepository<TEntity extends ObjectLiteral> extends 
         pagination: Contracts.Search.Pagination,
         options?: Contracts.Search.Options,
     ): Promise<Contracts.Search.ResultsPage<TEntity>> {
-        const queryBuilder = this.createQueryBuilder().select();
-        this.addWhere(queryBuilder, expression);
-        this.addOrderBy(queryBuilder, sorting);
-        this.addSkipOffset(queryBuilder, pagination);
+        const queryRunner = this.manager.connection.createQueryRunner("slave");
 
-        if (options?.estimateTotalCount === false) {
-            const [results, totalCount]: [TEntity[], number] = await queryBuilder.getManyAndCount();
+        try {
+            await queryRunner.startTransaction("REPEATABLE READ");
 
-            return {
-                results,
-                totalCount,
-                meta: { totalCountIsEstimate: false },
-            };
-        } else {
-            const results = await queryBuilder.getMany();
+            try {
+                const resultsQueryBuilder = this.createQueryBuilder().setQueryRunner(queryRunner).select();
+                this.addWhere(resultsQueryBuilder, expression);
+                this.addOrderBy(resultsQueryBuilder, sorting);
+                this.addSkipOffset(resultsQueryBuilder, pagination);
 
-            let totalCount = 0;
-            const [query, parameters] = queryBuilder.getQueryAndParameters();
-            const explainedQuery = await this.query(`EXPLAIN ${query}`, parameters);
-            for (const row of explainedQuery) {
-                const match = row["QUERY PLAN"].match(/rows=([0-9]+)/);
-                if (match) {
-                    totalCount = parseFloat(match[1]);
+                const results = await resultsQueryBuilder.getMany();
+
+                if (options?.estimateTotalCount === false) {
+                    // typeorm@0.2.25 generates slow COUNT(DISTINCT primary_key_column) for getCount or getManyAndCount
+
+                    const totalCountQueryBuilder = this.createQueryBuilder()
+                        .setQueryRunner(queryRunner)
+                        .select("COUNT(*) AS total_count");
+
+                    this.addWhere(totalCountQueryBuilder, expression);
+
+                    const totalCountRow = await totalCountQueryBuilder.getRawOne();
+                    const totalCount = parseFloat(totalCountRow["total_count"]);
+
+                    await queryRunner.commitTransaction();
+
+                    return { results, totalCount, meta: { totalCountIsEstimate: false } };
+                } else {
+                    let totalCountEstimated = 0;
+                    const [resultsSql, resultsParameters] = resultsQueryBuilder.getQueryAndParameters();
+                    const resultsExplainedRows = await queryRunner.query(`EXPLAIN ${resultsSql}`, resultsParameters);
+                    for (const resultsExplainedRow of resultsExplainedRows) {
+                        const match = resultsExplainedRow["QUERY PLAN"].match(/rows=([0-9]+)/);
+                        if (match) {
+                            totalCountEstimated = parseFloat(match[1]);
+                        }
+                    }
+
+                    const totalCount = Math.max(totalCountEstimated, results.length);
+
+                    await queryRunner.commitTransaction();
+
+                    return { results, totalCount, meta: { totalCountIsEstimate: true } };
                 }
+            } catch (error) {
+                await queryRunner.rollbackTransaction();
+                throw error;
             }
-
-            return {
-                results,
-                totalCount: Math.max(totalCount, results.length),
-                meta: { totalCountIsEstimate: true },
-            };
+        } finally {
+            await queryRunner.release();
         }
     }
 

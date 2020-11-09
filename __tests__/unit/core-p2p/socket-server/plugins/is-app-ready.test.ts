@@ -2,19 +2,16 @@ import { Server } from "@hapi/hapi";
 import Joi from "@hapi/joi";
 import { Container } from "@arkecosystem/core-kernel";
 
-import { AcceptPeerPlugin } from "@arkecosystem/core-p2p/src/socket-server/plugins/accept-peer";
+import { IsAppReadyPlugin } from "@arkecosystem/core-p2p/src/socket-server/plugins/is-app-ready";
 
 afterEach(() => {
     jest.clearAllMocks();
 });
 
-describe("AcceptPeerPlugin", () => {
-    let acceptPeerPlugin: AcceptPeerPlugin;
+describe("IsAppReadyPlugin", () => {
+    let isAppReadyPlugin: IsAppReadyPlugin;
 
     const container = new Container.Container();
-
-    const logger = { warning: jest.fn(), debug: jest.fn() };
-    const peerProcessor = { validateAndAcceptPeer: jest.fn() };
 
     const responsePayload = { status: "ok" };
     const mockRouteByPath = {
@@ -32,26 +29,30 @@ describe("AcceptPeerPlugin", () => {
             handler: mockRouteByPath["/p2p/peer/mockroute"].handler,
         },
     };
-    const app = { resolve: jest.fn().mockReturnValue({ getRoutesConfigByPath: () => mockRouteByPath }) };
+
+    const blockchainService = { isBooted: jest.fn().mockReturnValue(true) };
+    const app = {
+        isBound: jest.fn().mockReturnValue(true),
+        get: jest.fn().mockReturnValue(blockchainService),
+        resolve: jest.fn().mockReturnValue({ getRoutesConfigByPath: () => mockRouteByPath }),
+    };
 
     beforeAll(() => {
         container.unbindAll();
-        container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
-        container.bind(Container.Identifiers.PeerProcessor).toConstantValue(peerProcessor);
     });
 
     beforeEach(() => {
-        acceptPeerPlugin = container.resolve<AcceptPeerPlugin>(AcceptPeerPlugin);
+        isAppReadyPlugin = container.resolve<IsAppReadyPlugin>(IsAppReadyPlugin);
     });
 
-    it("should register the validate plugin", async () => {
+    it("should register the plugin", async () => {
         const server = new Server({ port: 4100 });
         server.route(mockRoute);
 
         const spyExt = jest.spyOn(server, "ext");
 
-        acceptPeerPlugin.register(server);
+        isAppReadyPlugin.register(server);
 
         expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreHandler" }));
 
@@ -65,8 +66,48 @@ describe("AcceptPeerPlugin", () => {
         });
         expect(JSON.parse(responseValid.payload)).toEqual(responsePayload);
         expect(responseValid.statusCode).toBe(200);
-        expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(1);
-        expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip: remoteAddress });
+        expect(app.isBound).toBeCalledTimes(1);
+        expect(blockchainService.isBooted).toBeCalledTimes(1);
+    });
+
+    it("should return a forbidden error when blockchain service is not bound", async () => {
+        const server = new Server({ port: 4100 });
+        server.route(mockRoute);
+        isAppReadyPlugin.register(server);
+
+        app.isBound.mockReturnValueOnce(false);
+
+        // try the route with a valid payload
+        const remoteAddress = "187.166.55.44";
+        const responseForbidden = await server.inject({
+            method: "POST",
+            url: "/p2p/peer/mockroute",
+            payload: {},
+            remoteAddress,
+        });
+        expect(responseForbidden.statusCode).toBe(403);
+        expect(app.isBound).toBeCalledTimes(1);
+        expect(blockchainService.isBooted).toBeCalledTimes(0);
+    });
+
+    it("should return a forbidden error when blockchain service is not booted", async () => {
+        const server = new Server({ port: 4100 });
+        server.route(mockRoute);
+        isAppReadyPlugin.register(server);
+
+        blockchainService.isBooted.mockReturnValueOnce(false);
+
+        // try the route with a valid payload
+        const remoteAddress = "187.166.55.44";
+        const responseForbidden = await server.inject({
+            method: "POST",
+            url: "/p2p/peer/mockroute",
+            payload: {},
+            remoteAddress,
+        });
+        expect(responseForbidden.statusCode).toBe(403);
+        expect(app.isBound).toBeCalledTimes(1);
+        expect(blockchainService.isBooted).toBeCalledTimes(1);
     });
 
     it("should not be called on another route", async () => {
@@ -86,7 +127,7 @@ describe("AcceptPeerPlugin", () => {
 
         const spyExt = jest.spyOn(server, "ext");
 
-        acceptPeerPlugin.register(server);
+        isAppReadyPlugin.register(server);
 
         expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreHandler" }));
 
@@ -100,6 +141,7 @@ describe("AcceptPeerPlugin", () => {
         });
         expect(JSON.parse(responseValid.payload)).toEqual(responsePayload);
         expect(responseValid.statusCode).toBe(200);
-        expect(peerProcessor.validateAndAcceptPeer).toBeCalledTimes(0);
+        expect(app.isBound).toBeCalledTimes(1);
+        expect(blockchainService.isBooted).toBeCalledTimes(1);
     });
 });

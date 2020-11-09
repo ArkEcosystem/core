@@ -59,5 +59,8 @@ export class Command extends Commands.Command {
                 "@arkecosystem/core-forger": await buildBIP38(flags, this.app.getCorePath("config")),
             },
         });
+
+        // Prevent resolving execute method
+        return new Promise(() => {});
     }
 }

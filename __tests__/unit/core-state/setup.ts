@@ -12,10 +12,11 @@ import { StateBuilder } from "@packages/core-state/src/state-builder";
 import { StateStore } from "@packages/core-state/src/stores/state";
 import { TransactionValidator } from "@packages/core-state/src/transaction-validator";
 import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "@packages/core-state/src/wallets";
-import { registerFactories, registerIndexers } from "@packages/core-state/src/wallets/indexers";
+import { registerIndexers } from "@packages/core-state/src/wallets/indexers";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Managers, Utils } from "@packages/crypto/src";
+import { walletFactory } from "@arkecosystem/core-state/src/wallets/wallet-factory";
 
 export interface Spies {
     applySpy: jest.SpyInstance;
@@ -31,6 +32,7 @@ export interface Spies {
     getSentTransactionSpy: jest.SpyInstance;
     getRegisteredHandlersSpy: jest.SpyInstance;
     dispatchSpy: jest.SpyInstance;
+    dispatchSyncSpy: jest.SpyInstance;
 }
 
 export interface Setup {
@@ -145,7 +147,6 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
     //     });
 
     registerIndexers(sandbox.app);
-    registerFactories(sandbox.app);
 
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
 
@@ -165,42 +166,6 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
     sandbox.app.bind(Container.Identifiers.StateStore).to(StateStore).inSingletonScope();
 
     const stateStore: StateStore = sandbox.app.get(Container.Identifiers.StateStore);
-
-    sandbox.app
-        .bind(Container.Identifiers.WalletRepository)
-        .to(WalletRepository)
-        .inSingletonScope()
-        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
-
-    sandbox.app
-        .bind(Container.Identifiers.WalletRepository)
-        .to(WalletRepositoryClone)
-        .inRequestScope()
-        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "clone"));
-
-    sandbox.app
-        .bind(Container.Identifiers.WalletRepository)
-        .to(WalletRepositoryCopyOnWrite)
-        .inRequestScope()
-        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write"));
-
-    const walletRepoClone: WalletRepositoryClone = sandbox.app.getTagged(
-        Container.Identifiers.WalletRepository,
-        "state",
-        "clone",
-    );
-
-    const walletRepo: WalletRepository = sandbox.app.getTagged(
-        Container.Identifiers.WalletRepository,
-        "state",
-        "blockchain",
-    );
-
-    const walletRepoCopyOnWrite: WalletRepositoryCopyOnWrite = sandbox.app.getTagged(
-        Container.Identifiers.WalletRepository,
-        "state",
-        "copy-on-write",
-    );
 
     const applySpy: jest.SpyInstance = jest.fn();
     const revertSpy: jest.SpyInstance = jest.fn();
@@ -244,17 +209,82 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
     }
 
     const dispatchSpy = jest.fn();
+    const dispatchSyncSpy = jest.fn();
 
     @Container.injectable()
     class MockEventDispatcher {
         public dispatch(data) {
             return dispatchSpy(data);
         }
+
+        public dispatchSync(data) {
+            return dispatchSyncSpy(data);
+        }
     }
 
     sandbox.app.container.bind(Container.Identifiers.DatabaseBlockRepository).to(MockBlockRepository);
     sandbox.app.container.bind(Container.Identifiers.DatabaseTransactionRepository).to(MockTransactionRepository);
     sandbox.app.container.bind(Container.Identifiers.EventDispatcherService).to(MockEventDispatcher);
+
+    sandbox.app
+        .bind(Container.Identifiers.WalletRepository)
+        .to(WalletRepository)
+        .inSingletonScope()
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
+
+    sandbox.app
+        .bind(Container.Identifiers.WalletFactory)
+        .toFactory(({ container }) => {
+            return walletFactory(
+                container.get(Container.Identifiers.WalletAttributes),
+                container.get(Container.Identifiers.EventDispatcherService),
+            );
+        })
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
+
+    sandbox.app
+        .bind(Container.Identifiers.WalletRepository)
+        .to(WalletRepositoryClone)
+        .inRequestScope()
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "clone"));
+
+    sandbox.app
+        .bind(Container.Identifiers.WalletFactory)
+        .toFactory(({ container }) => {
+            return walletFactory(container.get(Container.Identifiers.WalletAttributes));
+        })
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "clone"));
+
+    sandbox.app
+        .bind(Container.Identifiers.WalletRepository)
+        .to(WalletRepositoryCopyOnWrite)
+        .inRequestScope()
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write"));
+
+    sandbox.app
+        .bind(Container.Identifiers.WalletFactory)
+        .toFactory(({ container }) => {
+            return walletFactory(container.get(Container.Identifiers.WalletAttributes));
+        })
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write"));
+
+    const walletRepoClone: WalletRepositoryClone = sandbox.app.getTagged(
+        Container.Identifiers.WalletRepository,
+        "state",
+        "clone",
+    );
+
+    const walletRepo: WalletRepository = sandbox.app.getTagged(
+        Container.Identifiers.WalletRepository,
+        "state",
+        "blockchain",
+    );
+
+    const walletRepoCopyOnWrite: WalletRepositoryCopyOnWrite = sandbox.app.getTagged(
+        Container.Identifiers.WalletRepository,
+        "state",
+        "copy-on-write",
+    );
 
     sandbox.app.bind(Container.Identifiers.BlockState).to(BlockState);
 
@@ -323,6 +353,7 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
             getSentTransactionSpy,
             getRegisteredHandlersSpy,
             dispatchSpy,
+            dispatchSyncSpy,
         },
     };
 };
