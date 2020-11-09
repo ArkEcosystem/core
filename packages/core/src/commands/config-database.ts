@@ -67,7 +67,7 @@ export class Command extends Commands.Command {
         const envFile = this.app.getCorePath("config", ".env");
 
         if (this.validFlags.some((flag: string) => this.hasFlag(flag))) {
-            this.environment.updateVariables(envFile, this.conform(this.getFlags()));
+            this.environment.updateVariables(envFile, this.confirm(this.getFlags()));
 
             return;
         }
@@ -116,7 +116,7 @@ export class Command extends Commands.Command {
             this.components.fatal("You'll need to confirm the input to continue.");
         }
 
-        this.environment.updateVariables(envFile, this.conform(response));
+        this.environment.updateVariables(envFile, this.confirm(response));
     }
 
     /**
@@ -125,7 +125,7 @@ export class Command extends Commands.Command {
      * @returns {Contracts.AnyObject}
      * @memberof Command
      */
-    private conform(flags: Contracts.AnyObject): Contracts.AnyObject {
+    private confirm(flags: Contracts.AnyObject): Contracts.AnyObject {
         const variables: Contracts.AnyObject = {};
 
         for (const option of this.validFlags) {
