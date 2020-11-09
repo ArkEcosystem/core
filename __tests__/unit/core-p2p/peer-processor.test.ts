@@ -113,7 +113,7 @@ describe("PeerProcessor", () => {
             expect(peerStorage.setPendingPeer).toBeCalledTimes(1);
             expect(peerCommunicator.ping).toBeCalledTimes(1);
             expect(peerStorage.setPeer).toBeCalledTimes(0);
-            expect(peerConnector.disconnect).toBeCalledTimes(3); // disconnect on the 3 sockets (3 ports) for the peer
+            expect(peerConnector.disconnect).toBeCalledTimes(1);
         });
 
         it("should not do anything if peer is already added", async () => {
