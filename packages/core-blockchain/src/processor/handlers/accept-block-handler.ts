@@ -46,8 +46,6 @@ export class AcceptBlockHandler implements BlockHandler {
                 this.blockchain.resetWakeUp();
             }
 
-            this.state.setLastBlock(block);
-
             // Ensure the lastDownloadedBlock is never behind the last accepted block.
             if (this.state.lastDownloadedBlock && this.state.lastDownloadedBlock.height < block.data.height) {
                 this.state.lastDownloadedBlock = block.data;
@@ -55,8 +53,6 @@ export class AcceptBlockHandler implements BlockHandler {
 
             return BlockProcessorResult.Accepted;
         } catch (error) {
-            // TODO: Revert block if is applied
-
             this.logger.warning(`Refused new block ${JSON.stringify(block.data)}`);
             this.logger.debug(error.stack);
 
