@@ -228,8 +228,6 @@ export class Client {
 
             const options = {
                 path: event,
-                headers: {},
-                method: "POST",
                 payload: codec.request.serialize(payload),
             };
 
