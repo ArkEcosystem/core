@@ -70,7 +70,6 @@ export class Client {
     public onConnect;
     public onDisconnect;
     public onHeartbeatTimeout;
-    public onUpdate;
 
     public id;
 
@@ -124,7 +123,6 @@ export class Client {
         this.onConnect = ignore; // Called whenever a connection is established
         this.onDisconnect = ignore; // Called whenever a connection is lost: function(willReconnect)
         this.onHeartbeatTimeout = ignore; // Called when a heartbeat timeout will cause a disconnection
-        this.onUpdate = ignore;
 
         // Public properties
 
@@ -448,10 +446,12 @@ export class Client {
     private _onMessage(message) {
         this._beat();
 
-        let data = message.data;
         let update;
         try {
-            update = parseNesMessage(data);
+            if (!(message.data instanceof Buffer)) {
+                return this.onError(NesError("Received message is not a Buffer", errorTypes.PROTOCOL));
+            }
+            update = parseNesMessage(message.data);
         } catch (err) {
             return this.onError(NesError(err, errorTypes.PROTOCOL));
         }
@@ -461,7 +461,9 @@ export class Client {
         let error: any = null;
         if (update.statusCode && update.statusCode >= 400) {
             /* istanbul ignore next */
-            update.payload = update.payload instanceof Buffer ? (update.payload as Buffer).toString() : "Error";
+            update.payload = update.payload instanceof Buffer ?
+                (update.payload as Buffer).slice(0, 512).toString() // slicing to reduce possible intensive toString() call
+                : "Error";
             error = NesError(update.payload, errorTypes.SERVER);
             error.statusCode = update.statusCode;
             error.data = update.payload;
@@ -473,12 +475,6 @@ export class Client {
 
         if (update.type === "ping") {
             return this._send({ type: "ping" }, false).catch(ignore); // Ignore errors
-        }
-
-        // Broadcast and update
-
-        if (update.type === "update") {
-            return this.onUpdate(update.message);
         }
 
         // Lookup request (message must include an id from this point)

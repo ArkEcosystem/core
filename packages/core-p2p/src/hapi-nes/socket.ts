@@ -54,6 +54,11 @@ export class Socket {
         return this._removed;
     }
 
+    public terminate() {
+        this._ws.terminate();
+        return this._removed;
+    }
+
     public isOpen() {
         return this._ws.readyState === 1;
     }
@@ -177,9 +182,12 @@ export class Socket {
     private async _onMessage(message) {
         let request;
         try {
+            if (!(message instanceof Buffer)) {
+                return this.terminate();
+            }
             request = parseNesMessage(message);
         } catch (err) {
-            return this._error(Boom.badRequest("Cannot parse message"));
+            return this.terminate();
         }
 
         this._pinged = true;
@@ -203,7 +211,7 @@ export class Socket {
             }
         } catch (err) {
             Bounce.rethrow(err, "system");
-            this.disconnect();
+            this.terminate();
         }
 
         --this._processingCount;

@@ -6,6 +6,7 @@ import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 import { stringifyNesMessage, parseNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
 import { default as Ws } from "ws";
+import delay from "delay";
 
 describe("Socket", () => {
     it("exposes app namespace", async () => {
@@ -208,7 +209,7 @@ describe("Socket", () => {
             await server.stop();
         });
 
-        it("errors on invalid request message", async () => {
+        it("terminates on invalid request message", async () => {
             const server = Hapi.server();
             await server.register({ plugin: plugin, options: {} });
 
@@ -222,26 +223,17 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            const team = new Teamwork.Team();
-            client.on("message", (data) => {
-                const message = parseNesMessage(data);
-                expect(JSON.parse(message.payload.toString())).toEqual({
-                    error: "Bad Request",
-                    message: "Cannot parse message",
+            const sendInvalid = async () => new Promise((resolve, reject) => {
+                client.on("open", () => {
+                    client.send("{", {} as any, () => resolve());
                 });
+            })
 
-                expect(message.statusCode).toEqual(400);
+            await sendInvalid();
+            await delay(1000);
 
-                team.attend();
-            });
+            expect(client.readyState).toEqual(client.CLOSED);
 
-            client.on("open", () => {
-                client.send("{", (err) => {
-                    expect(err).toBeUndefined();
-                });
-            });
-
-            await team.work;
             client.close();
             await server.stop();
         });
