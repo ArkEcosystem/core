@@ -104,6 +104,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
                 acceptedBlocks.push(blockInstance);
             } else if (lastProcessResult === BlockProcessorResult.Corrupted) {
                 await this.handleCorrupted();
+                return;
             } else {
                 if (lastProcessResult === BlockProcessorResult.Rollback) {
                     forkBlock = blockInstance;
