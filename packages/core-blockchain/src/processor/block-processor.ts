@@ -19,6 +19,8 @@ export enum BlockProcessorResult {
     DiscardedButCanBeBroadcasted,
     Rejected,
     Rollback,
+    Reverted,
+    Corrupted,
 }
 
 @Container.injectable()

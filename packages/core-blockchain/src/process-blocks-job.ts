@@ -2,6 +2,7 @@ import { DatabaseService, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { Blocks, Crypto, Interfaces, Utils as CryptoUtils } from "@arkecosystem/crypto";
+import { RevertBlockHandler } from "./processor/handlers";
 
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 
@@ -101,8 +102,9 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
                 acceptedBlocks.push(blockInstance);
+            } else if (lastProcessResult === BlockProcessorResult.Corrupted) {
+                await this.handleCorrupted();
             } else {
-                /* istanbul ignore else */
                 if (lastProcessResult === BlockProcessorResult.Rollback) {
                     forkBlock = blockInstance;
                     this.stateStore.lastDownloadedBlock = blockInstance.data;
@@ -118,16 +120,13 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             } catch (error) {
                 this.logger.error(`Could not save ${acceptedBlocks.length} blocks to database : ${error.stack}`);
 
-                this.blockchain.clearQueue();
-
                 await this.revertBlocks(acceptedBlocks);
-
-                this.blockchain.resetLastDownloadedBlock();
 
                 return;
             }
         }
 
+        // TODO: Should we really broadcast only on this two types
         if (
             (lastProcessResult === BlockProcessorResult.Accepted ||
                 lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
@@ -139,20 +138,11 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             ) {
                 this.networkMonitor.broadcastBlock(lastProcessedBlock);
             }
-
-            return;
-        }
-
-        if (forkBlock) {
+        } else if (forkBlock) {
             this.blockchain.forkBlock(forkBlock);
-            return;
-        }
-
-        if (lastProcessedBlock) {
-            // Some blocks were not accepted and saved to DB. Check if last block was applied and revert it, to keep state consistency.
-            this.logger.warning(`Could not process block at height ${lastProcessedBlock.data.height}.`);
-
-            await this.revertBlocks([lastProcessedBlock]);
+        } else {
+            this.blockchain.clearQueue();
+            this.blockchain.resetLastDownloadedBlock();
         }
 
         return;
@@ -161,8 +151,8 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
     private async revertBlocks(blocksToRevert: Interfaces.IBlock[]): Promise<void> {
         // Rounds are saved while blocks are being processed and may now be out of sync with the last
         // block that was written into the database.
-        const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
-        const lastHeight: number = lastBlock.data.height;
+
+        const lastHeight: number = blocksToRevert[0].data.height;
         const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
 
         this.logger.info(
@@ -170,12 +160,13 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
         );
 
         for (const block of blocksToRevert.reverse()) {
-            await this.revertBlock(block);
+            if (
+                (await this.app.resolve<RevertBlockHandler>(RevertBlockHandler).execute(block)) ===
+                BlockProcessorResult.Corrupted
+            ) {
+                await this.handleCorrupted();
+            }
         }
-
-        Utils.assert.defined(lastBlock.data.height + 1 === blocksToRevert.reverse()[0].data.height); // Ensure block from DB is chained
-
-        this.stateStore.setLastBlock(lastBlock);
 
         await this.database.deleteRound(deleteRoundsAfter + 1);
         await this.databaseInteraction.loadBlocksFromCurrentRound();
@@ -184,18 +175,8 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
         this.blockchain.resetLastDownloadedBlock();
     }
 
-    private async revertBlock(block: Interfaces.IBlock): Promise<void> {
-        try {
-            // State store holds at least last chunk of processed blocks
-            if (this.stateStore.getLastBlock().data.height === block.data.height) {
-                await this.databaseInteraction.revertBlock(block);
-            }
-        } catch (error) {
-            // TODO: Shut down app
-            // State store is possibly corrupted, need to restart node
-            this.logger.error(
-                `Critical error occurs when reverting block at height ${block.data.height}. Possible state corruption.`,
-            );
-        }
+    private async handleCorrupted() {
+        this.logger.error("Shutting down app, because state is corrupted");
+        process.exit(1);
     }
 }
