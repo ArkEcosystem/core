@@ -28,6 +28,8 @@ const main = async () => {
         const CommandLineInterface = new (require("../dist").CommandLineInterface)(process.argv.slice(2));
 
         await CommandLineInterface.execute();
+
+        process.exit(0)
     } catch (error) {
         if (error.name !== "FatalException") {
             console.error(error)

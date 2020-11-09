@@ -42,7 +42,7 @@ const transactionRepository = {
 const roundRepository = {
     getRound: jest.fn(),
     save: jest.fn(),
-    delete: jest.fn(),
+    deleteFrom: jest.fn(),
 };
 
 const stateStore = {
@@ -124,65 +124,7 @@ container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(eve
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
 beforeEach(() => {
-    app.get.mockReset();
-    app.terminate.mockReset();
-    connection.query.mockReset();
-    connection.close.mockReset();
-    blockRepository.findOne.mockReset();
-    blockRepository.findByHeightRange.mockReset();
-    blockRepository.findByHeightRangeWithTransactionsForDownload.mockReset();
-    blockRepository.findByHeightRangeWithTransactions.mockReset();
-    blockRepository.findByHeights.mockReset();
-    blockRepository.findLatest.mockReset();
-    blockRepository.findByIds.mockReset();
-    blockRepository.findRecent.mockReset();
-    blockRepository.findTop.mockReset();
-    blockRepository.count.mockReset();
-    blockRepository.getStatistics.mockReset();
-    blockRepository.saveBlocks.mockReset();
-    blockRepository.deleteBlocks.mockReset();
-    transactionRepository.find.mockReset();
-    transactionRepository.findOne.mockReset();
-    transactionRepository.findByBlockIds.mockReset();
-    transactionRepository.getStatistics.mockReset();
-    roundRepository.getRound.mockReset();
-    roundRepository.save.mockReset();
-    roundRepository.delete.mockReset();
-
-    stateStore.setGenesisBlock.mockReset();
-    stateStore.getGenesisBlock.mockReset();
-    stateStore.setLastBlock.mockReset();
-    stateStore.getLastBlock.mockReset();
-    stateStore.getLastBlocksByHeight.mockReset();
-    stateStore.getCommonBlocks.mockReset();
-    stateStore.getLastBlockIds.mockReset();
-
-    stateBlockStore.resize.mockReset();
-    stateTransactionStore.resize.mockReset();
-
-    handlerRegistry.getActivatedHandlerForData.mockReset();
-
-    walletRepository.createWallet.mockReset();
-    walletRepository.findByPublicKey.mockReset();
-    walletRepository.findByUsername.mockReset();
-
-    blockState.applyBlock.mockReset();
-    blockState.revertBlock.mockReset();
-
-    dposState.buildDelegateRanking.mockReset();
-    dposState.setDelegatesRound.mockReset();
-    dposState.getRoundDelegates.mockReset();
-
-    getDposPreviousRoundState.mockReset();
-
-    triggers.call.mockReset();
-
-    logger.error.mockReset();
-    logger.warning.mockReset();
-    logger.info.mockReset();
-    logger.debug.mockReset();
-    events.call.mockReset();
-    events.dispatch.mockReset();
+    jest.resetAllMocks();
 });
 
 describe("DatabaseInteractions", () => {
@@ -517,7 +459,7 @@ describe("DatabaseInteraction.applyRound", () => {
         const check = () => databaseInteraction.applyRound(height);
 
         await expect(check()).rejects.toThrowError("Fail");
-        expect(roundRepository.delete).toBeCalledWith({ round: 2 });
+        expect(roundRepository.deleteFrom).toBeCalledWith(2);
     });
 
     it("should do nothing when next height is same round", async () => {
@@ -812,6 +754,6 @@ describe("DatabaseInteraction.revertRound", () => {
         expect(delegateWallet.setAttribute).toBeCalledWith("delegate.rank", prevRoundDelegateRank);
         // @ts-ignore
         expect(databaseInteraction.forgingDelegates).toEqual(forgingDelegates);
-        expect(roundRepository.delete).toBeCalledWith({ round: 2 });
+        expect(roundRepository.deleteFrom).toBeCalledWith(2);
     });
 });
