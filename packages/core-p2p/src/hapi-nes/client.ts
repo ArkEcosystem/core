@@ -446,10 +446,12 @@ export class Client {
     private _onMessage(message) {
         this._beat();
 
-        let data = message.data;
         let update;
         try {
-            update = parseNesMessage(data);
+            if (!(message.data instanceof Buffer)) {
+                return this.onError(NesError("Received message is not a Buffer", errorTypes.PROTOCOL));
+            }
+            update = parseNesMessage(message.data);
         } catch (err) {
             return this.onError(NesError(err, errorTypes.PROTOCOL));
         }
