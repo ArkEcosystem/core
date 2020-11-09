@@ -370,10 +370,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         await this.blockRepository.deleteBlocks(removedBlocks.reverse());
 
-        // TODO: Can transaction pool be null???
-        if (this.transactionPool) {
-            this.transactionPool.readdTransactions(removedTransactions.reverse());
-        }
+        await this.transactionPool.readdTransactions(removedTransactions.reverse());
     }
 
     /**

@@ -35,10 +35,8 @@ export class AcceptBlockHandler implements BlockHandler {
                 this.state.forkedBlock = undefined;
             }
 
-            if (this.transactionPool) {
-                for (const transaction of block.transactions) {
-                    this.transactionPool.acceptForgedTransaction(transaction);
-                }
+            for (const transaction of block.transactions) {
+                await this.transactionPool.acceptForgedTransaction(transaction);
             }
 
             // Reset wake-up timer after chaining a block, since there's no need to
