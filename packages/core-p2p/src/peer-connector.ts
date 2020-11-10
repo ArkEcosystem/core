@@ -75,32 +75,38 @@ export class PeerConnector implements P2P.IPeerConnector {
             port: peer.port,
             hostname: peer.ip,
             ackTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
+            autoConnect: false,
             perMessageDeflate: false,
             codecEngine: codec,
             // @ts-ignore
             maxPayload: 102400, // initialized to 100KB, will then be updated
         });
 
-        const socket = (connection as any).transport.socket;
+        connection.on("connecting", () => {
+            setImmediate(() => {
+                const socket = (connection as any).transport.socket;
 
-        socket.on("ping", () => this.terminate(peer));
-        socket.on("pong", () => this.terminate(peer));
-        socket.on("message", data => {
-            // this is to establish some rate limit on socket messages
-            // 30 messages per second is enough for socketcluster's + our own messages
-            const timeNow: number = new Date().getTime();
-            socket._last30Messages = socket._last30Messages || [];
-            socket._last30Messages.push(timeNow);
-            if (socket._last30Messages.length >= 30) {
-                socket._last30Messages = socket._last30Messages.slice(socket._last30Messages.length - 30);
-                if (timeNow - socket._last30Messages[0] < 1000) {
-                    this.terminate(peer);
-                }
-            }
+                socket.on("ping", () => this.terminate(peer));
+                socket.on("pong", () => this.terminate(peer));
+                socket.on("message", data => {
+                    // this is to establish some rate limit on socket messages
+                    // 30 messages per second is enough for socketcluster's + our own messages
+                    const timeNow: number = new Date().getTime();
+                    socket._last30Messages = socket._last30Messages || [];
+                    socket._last30Messages.push(timeNow);
+                    if (socket._last30Messages.length >= 30) {
+                        socket._last30Messages = socket._last30Messages.slice(socket._last30Messages.length - 30);
+                        if (timeNow - socket._last30Messages[0] < 1000) {
+                            this.terminate(peer);
+                        }
+                    }
+                });
+            });
         });
 
         connection.on("error", () => this.disconnect(peer));
 
+        connection.connect();
         return connection;
     }
 }
