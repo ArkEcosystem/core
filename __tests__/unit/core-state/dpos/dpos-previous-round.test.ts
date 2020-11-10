@@ -18,6 +18,7 @@ let dposPreviousRoundStateProv: DposPreviousRoundStateProvider;
 let walletRepo: WalletRepository;
 let factory;
 let blockState;
+let stateStore;
 
 let initialEnv;
 
@@ -28,6 +29,7 @@ beforeAll(async () => {
     walletRepo = initialEnv.walletRepo;
     factory = initialEnv.factory;
     blockState = initialEnv.blockState;
+    stateStore = initialEnv.stateStore;
 });
 
 afterEach(() => jest.clearAllMocks());
@@ -74,6 +76,11 @@ describe("dposPreviousRound", () => {
             const spyBuildDelegateRanking = jest.spyOn(dposState, "buildDelegateRanking");
             const spySetDelegatesRound = jest.spyOn(dposState, "setDelegatesRound");
             const spyRevertBlock = jest.spyOn(blockState, "revertBlock");
+            const spyGetLastBlock = jest.spyOn(stateStore, "getLastBlock").mockReturnValue({
+                data: {
+                    height: 1,
+                },
+            });
 
             /**
              * @FIXME
@@ -83,6 +90,7 @@ describe("dposPreviousRound", () => {
              */
             initialEnv.sandbox.app.rebind(Container.Identifiers.DposState).toConstantValue(dposState);
             initialEnv.sandbox.app.rebind(Container.Identifiers.BlockState).toConstantValue(blockState);
+            initialEnv.sandbox.app.rebind(Container.Identifiers.StateStore).toConstantValue(stateStore);
 
             const generatorWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
 
@@ -106,6 +114,7 @@ describe("dposPreviousRound", () => {
 
             await dposPreviousRoundStateProv([blocks[0]], round);
 
+            expect(spyGetLastBlock).toHaveBeenCalled();
             expect(spyBuildDelegateRanking).toHaveBeenCalled();
             expect(spySetDelegatesRound).toHaveBeenCalledWith(round);
             expect(spyRevertBlock).toHaveBeenCalledWith(blocks[0]);
