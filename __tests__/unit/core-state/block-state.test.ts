@@ -2,6 +2,7 @@ import "jest-extended";
 
 import { Contracts } from "@packages/core-kernel/src";
 import { BlockState } from "@packages/core-state/src/block-state";
+import { StateStore } from "@packages/core-state/src/stores/state";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
@@ -15,6 +16,7 @@ import { addTransactionsToBlock } from "./__utils__/transactions";
 import { setUp, setUpDefaults } from "./setup";
 
 let blockState: BlockState;
+let stateStore: StateStore;
 let factory: FactoryBuilder;
 let blocks: IBlock[];
 let walletRepo: WalletRepository;
@@ -48,6 +50,7 @@ beforeAll(async () => {
     const initialEnv = await setUp(setUpDefaults, true); // todo: why do I have to skip booting?
     walletRepo = initialEnv.walletRepo;
     blockState = initialEnv.blockState;
+    stateStore = initialEnv.stateStore;
     factory = initialEnv.factory;
     applySpy = initialEnv.spies.applySpy;
     revertSpy = initialEnv.spies.revertSpy;
@@ -135,21 +138,27 @@ afterEach(() => {
 
 describe("BlockState", () => {
     it("should apply sequentially the transactions of the block", async () => {
-        await blockState.applyBlock(blocks[0]);
+        stateStore.getLastBlock = jest.fn().mockReturnValue(blocks[0]);
 
-        for (let i = 0; i < blocks[0].transactions.length; i++) {
+        await blockState.applyBlock(blocks[1]);
+
+        for (let i = 0; i < blocks[1].transactions.length; i++) {
             expect(spyApplyTransaction).toHaveBeenNthCalledWith(i + 1, blocks[0].transactions[i]);
         }
     });
 
     it("should call the handler for each transaction", async () => {
-        await blockState.applyBlock(blocks[0]);
+        stateStore.getLastBlock = jest.fn().mockReturnValue(blocks[0]);
 
-        expect(applySpy).toHaveBeenCalledTimes(blocks[0].transactions.length);
+        await blockState.applyBlock(blocks[1]);
+
+        expect(applySpy).toHaveBeenCalledTimes(blocks[1].transactions.length);
         expect(revertSpy).not.toHaveBeenCalled();
     });
 
     it("should init foring wallet on genesis block", async () => {
+        stateStore.getLastBlock = jest.fn().mockReturnValue(blocks[0]);
+
         blocks[0].data.height = 1;
         await blockState.applyBlock(blocks[0]);
         expect(spyInitGenesisForgerWallet).toHaveBeenCalledWith(blocks[0].data.generatorPublicKey);
