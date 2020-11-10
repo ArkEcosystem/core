@@ -209,6 +209,25 @@ export class Worker extends SCWorker {
                     ) {
                         return true;
                     }
+                } else if (object.event === "p2p.peer.getCommonBlocks") {
+                    if (
+                        typeof object.data.data === "object" &&
+                        object.data.data.ids &&
+                        Array.isArray(object.data.data.ids) &&
+                        object.data.data.ids.length >= schema.properties.ids.minItems &&
+                        object.data.data.ids.length <= schema.properties.ids.maxItems
+                    ) {
+                        for (const id of object.data.data.ids) {
+                            if (
+                                typeof id !== "string" ||
+                                !(/^[0-9]{1,20}$/.test(id) || /^[0-9a-f]{16}$/i.test(id) || /^[0-9a-f]{64}$/i.test(id))
+                            ) {
+                                return true;
+                            }
+                        }
+                    } else {
+                        return true;
+                    }
                 } else if (schema && !ajv.validate(schema, object.data.data)) {
                     return true;
                 }
