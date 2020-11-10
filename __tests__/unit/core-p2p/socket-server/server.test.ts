@@ -29,15 +29,11 @@ describe("Server", () => {
         terminate: jest.fn(),
         resolve: jest.fn().mockReturnValue({ register: jest.fn() }),
     };
-    const peerProcessor = {
-        validateAndAcceptPeer: jest.fn(),
-    };
 
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
-        container.bind(Container.Identifiers.PeerProcessor).toConstantValue(peerProcessor);
         container.bind(serverSymbol).to(Server);
     });
 
@@ -67,34 +63,16 @@ describe("Server", () => {
             expect(spyHapiServer).toBeCalledTimes(3); // 3 servers listening on the 3 ports
             expect(hapiServer.register).toHaveBeenCalledWith({
                 plugin: Nes.plugin,
-                options: {
-                    maxPayload: 102400,
-                    onConnection: expect.any(Function),
-                },
+                options: { maxPayload: 102400 },
             });
             expect(hapiServer.register).toHaveBeenCalledWith({
                 plugin: Nes.plugin,
-                options: {
-                    maxPayload: 20971520,
-                    onConnection: expect.any(Function),
-                },
+                options: { maxPayload: 20971520 },
             });
             expect(hapiServer.register).toHaveBeenCalledWith({
                 plugin: Nes.plugin,
-                options: {
-                    maxPayload: 10485760,
-                    onConnection: expect.any(Function),
-                },
+                options: { maxPayload: 10485760 },
             });
-        });
-
-        it("should add peer for each new connection", async () => {
-            await server.initialize(name, options);
-
-            const onConnection = hapiServer.register.mock.calls[0][0].options.onConnection;
-            onConnection({ info: { remoteAddress: "1.2.3.4" } });
-
-            expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip: "1.2.3.4" });
         });
     });
 
