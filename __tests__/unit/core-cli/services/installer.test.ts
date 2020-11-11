@@ -20,52 +20,35 @@ beforeEach(() => {
 
 afterEach(() => jest.resetAllMocks());
 
-describe("Installer", () => {
-    describe("#install", () => {
-        it("should be ok if [stdout] output is present", () => {
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "stdout",
-                stderr: undefined,
-            });
-
-            installer.install("@arkecosystem/core");
-
-            expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core", { shell: true });
+describe("Installer.install", () => {
+    it("should install latest package when tag isn't provided", () => {
+        const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+            stdout: "stdout",
+            exitCode: 0,
         });
 
-        it("should not be ok if [stderr] output is present", () => {
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "stdout",
-                stderr: "stderr",
-            });
+        installer.install("@arkecosystem/core");
 
-            expect(() => installer.install("@arkecosystem/core")).toThrow("stderr");
-
-            expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core", { shell: true });
-        });
+        expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@latest", { shell: true });
     });
 
-    describe("#installFromChannel", () => {
-        it("should be ok if no [stderr] output is present", () => {
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "stdout",
-                stderr: undefined,
-            });
-
-            installer.installFromChannel("@arkecosystem/core", "latest");
-
-            expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@latest", { shell: true });
+    it("should install specific package when tag is provided", () => {
+        const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+            stdout: "stdout",
+            exitCode: 0,
         });
 
-        it("should be not ok if [stderr] output is present", () => {
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "stdout",
-                stderr: "stderr",
-            });
+        installer.install("@arkecosystem/core", "3.0.0");
 
-            expect(() => installer.installFromChannel("@arkecosystem/core", "latest")).toThrow("stderr");
+        expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@3.0.0", { shell: true });
+    });
 
-            expect(spySync).toHaveBeenCalledWith("yarn global add @arkecosystem/core@latest", { shell: true });
+    it("should throw when exit code isn't 0", () => {
+        const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+            stderr: "stderr",
+            exitCode: 1,
         });
+
+        expect(() => installer.install("@arkecosystem/core")).toThrow("stderr");
     });
 });
