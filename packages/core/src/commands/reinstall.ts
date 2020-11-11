@@ -79,7 +79,7 @@ export class Command extends Commands.Command {
 
         spinner.start();
 
-        this.installer.installFromChannel(this.pkg.name!, this.pkg.version!);
+        this.installer.install(this.pkg.name!, this.pkg.version!);
 
         spinner.succeed();
 
