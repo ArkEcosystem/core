@@ -2,6 +2,16 @@
 # yarn lockfile v1
 
 
+"@arkecosystem/crypto-identities@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-identities/-/crypto-identities-1.1.1.tgz#544efe6fab785abb4a64c7a912bc43c7fb6b9837"
+  integrity sha512-P6mEYIUzXWCRvrGPkGkAoMEROYL6GwSopG2vFVfnkl8A11qrdDjdJNu80OzxIsRDQg/iBJIyhCmuuWSpA1zWIg==
+  dependencies:
+    bcrypto "^5.3.0"
+    bstring "^0.3.9"
+    fast-memoize "^2.5.1"
+    wif "^2.0.6"
+
 "@arkecosystem/crypto-networks@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@arkecosystem/crypto-networks/-/crypto-networks-1.0.0.tgz#e262e20b7806413935882476cd49de18abef6209"

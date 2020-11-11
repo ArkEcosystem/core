@@ -1,8 +1,8 @@
 import "jest-extended";
 
+import { Errors } from "@arkecosystem/crypto-identities";
 import wif from "wif";
 
-import { NetworkVersionError } from "../../../../packages/crypto/src/errors";
 import { Address } from "../../../../packages/crypto/src/identities/address";
 import { Keys } from "../../../../packages/crypto/src/identities/keys";
 import { data, passphrase } from "./fixture.json";
@@ -75,7 +75,7 @@ describe("Identities - Keys", () => {
 
             expect(() => {
                 Keys.fromWIF("invalid");
-            }).toThrow(NetworkVersionError);
+            }).toThrow(Errors.NetworkVersionError);
         });
     });
 });

@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { InvalidMultiSignatureAssetError, PublicKeyError } from "@arkecosystem/crypto/src/errors";
+import { Errors } from "@arkecosystem/crypto-identities";
 
 import { PublicKey } from "../../../../packages/crypto/src/identities/public-key";
 import { data, passphrase } from "./fixture.json";
@@ -102,21 +102,21 @@ describe("Identities - Public Key", () => {
                     min: 7,
                     publicKeys: ["secret 1", "secret 2", "secret 3"].map((secret) => PublicKey.fromPassphrase(secret)),
                 });
-            }).toThrowError(InvalidMultiSignatureAssetError);
+            }).toThrowError(Errors.InvalidMultiSignatureAssetError);
 
             expect(() => {
                 PublicKey.fromMultiSignatureAsset({
                     min: 1,
                     publicKeys: [],
                 });
-            }).toThrowError(InvalidMultiSignatureAssetError);
+            }).toThrowError(Errors.InvalidMultiSignatureAssetError);
 
             expect(() => {
                 PublicKey.fromMultiSignatureAsset({
                     min: 1,
                     publicKeys: ["garbage"],
                 });
-            }).toThrowError(PublicKeyError);
+            }).toThrowError(Errors.PublicKeyError);
         });
     });
 
