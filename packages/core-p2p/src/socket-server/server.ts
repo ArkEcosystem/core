@@ -1,11 +1,11 @@
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 
-import { PortsOffset } from "../enums";
 import { plugin as hapiNesPlugin } from "../hapi-nes";
 import { AcceptPeerPlugin } from "./plugins/accept-peer";
 import { IsAppReadyPlugin } from "./plugins/is-app-ready";
 import { ValidatePlugin } from "./plugins/validate";
+import { CodecPlugin } from "./plugins/codec";
 import { WhitelistForgerPlugin } from "./plugins/whitelist-forger";
 import { BlocksRoute } from "./routes/blocks";
 import { InternalRoute } from "./routes/internal";
@@ -36,21 +36,7 @@ export class Server {
      * @type {HapiServer}
      * @memberof Server
      */
-    private peerServer!: HapiServer;
-
-    /**
-     * @private
-     * @type {HapiServer}
-     * @memberof Server
-     */
-    private blocksServer!: HapiServer;
-
-    /**
-     * @private
-     * @type {HapiServer}
-     * @memberof Server
-     */
-    private transactionsServer!: HapiServer;
+    private server!: HapiServer;
 
     /**
      * @private
@@ -69,42 +55,28 @@ export class Server {
         this.name = name;
 
         const address = optionsServer.hostname;
-        const basePort = Number(optionsServer.port);
+        const port = Number(optionsServer.port);
 
-        this.peerServer = new HapiServer({ address, port: basePort + PortsOffset.Peer });
-        this.peerServer.app = this.app;
-        await this.peerServer.register({
+        this.server = new HapiServer({ address, port });
+        this.server.app = this.app;
+        await this.server.register({
             plugin: hapiNesPlugin,
-            options: { maxPayload: 102400 }, // 100 KB
+            options: {
+                maxPayload: 20971520, // 20 MB TODO to adjust
+            }
         });
 
-        this.blocksServer = new HapiServer({ address, port: basePort + PortsOffset.Blocks });
-        this.blocksServer.app = this.app;
-        await this.blocksServer.register({
-            plugin: hapiNesPlugin,
-            options: { maxPayload: 20971520 }, // 20 MB
-        });
+        this.app.resolve(IsAppReadyPlugin).register(this.server);
+        this.app.resolve(CodecPlugin).register(this.server);
+        this.app.resolve(ValidatePlugin).register(this.server);
 
-        this.transactionsServer = new HapiServer({ address, port: basePort + PortsOffset.Transactions });
-        this.transactionsServer.app = this.app;
-        await this.transactionsServer.register({
-            plugin: hapiNesPlugin,
-            options: { maxPayload: 10485760 }, // 10 MB
-        });
+        this.app.resolve(InternalRoute).register(this.server);
+        this.app.resolve(PeerRoute).register(this.server);
+        this.app.resolve(BlocksRoute).register(this.server);
+        this.app.resolve(TransactionsRoute).register(this.server);
 
-        for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
-            this.app.resolve(IsAppReadyPlugin).register(server);
-            this.app.resolve(ValidatePlugin).register(server);
-        }
-
-        this.app.resolve(InternalRoute).register(this.peerServer);
-        this.app.resolve(PeerRoute).register(this.peerServer);
-        this.app.resolve(WhitelistForgerPlugin).register(this.peerServer);
-        this.app.resolve(AcceptPeerPlugin).register(this.peerServer);
-
-        this.app.resolve(BlocksRoute).register(this.blocksServer);
-
-        this.app.resolve(TransactionsRoute).register(this.transactionsServer);
+        this.app.resolve(WhitelistForgerPlugin).register(this.server);
+        this.app.resolve(AcceptPeerPlugin).register(this.server);
     }
 
     /**
@@ -113,14 +85,8 @@ export class Server {
      */
     public async boot(): Promise<void> {
         try {
-            await this.peerServer.start();
-            this.logger.info(`${this.name} P2P peer server started at ${this.peerServer.info.uri}`);
-
-            await this.blocksServer.start();
-            this.logger.info(`${this.name} P2P blocks server started at ${this.blocksServer.info.uri}`);
-
-            await this.transactionsServer.start();
-            this.logger.info(`${this.name} P2P transactions server started at ${this.transactionsServer.info.uri}`);
+            await this.server.start();
+            this.logger.info(`${this.name} P2P server started at ${this.server.info.uri}`);
         } catch {
             await this.app.terminate(`Failed to start ${this.name} Server!`);
         }
@@ -132,14 +98,8 @@ export class Server {
      */
     public async dispose(): Promise<void> {
         try {
-            await this.peerServer.stop();
-            this.logger.info(`${this.name} P2P peer server stopped at ${this.peerServer.info.uri}`);
-
-            await this.blocksServer.stop();
-            this.logger.info(`${this.name} P2P blocks server stopped at ${this.blocksServer.info.uri}`);
-
-            await this.transactionsServer.stop();
-            this.logger.info(`${this.name} P2P transactions server stopped at ${this.transactionsServer.info.uri}`);
+            await this.server.stop();
+            this.logger.info(`${this.name} P2P peer server stopped at ${this.server.info.uri}`);
         } catch {
             await this.app.terminate(`Failed to stop ${this.name} Server!`);
         }
@@ -152,9 +112,7 @@ export class Server {
      */
     // @todo: add proper types
     public async register(plugins: any | any[]): Promise<void> {
-        for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
-            await server.register(plugins);
-        }
+        await this.server.register(plugins);
     }
 
     /**
@@ -163,9 +121,7 @@ export class Server {
      * @memberof Server
      */
     public async route(routes: ServerRoute | ServerRoute[]): Promise<void> {
-        for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
-            await server.route(routes);
-        }
+        await this.server.route(routes);
     }
 
     /**
@@ -174,8 +130,6 @@ export class Server {
      * @memberof Server
      */
     public async inject(options: string | ServerInjectOptions): Promise<ServerInjectResponse> {
-        for (const server of [this.peerServer, this.blocksServer, this.transactionsServer]) {
-            await server.inject(options);
-        }
+        await this.server.inject(options);
     }
 }

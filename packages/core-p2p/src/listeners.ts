@@ -1,7 +1,6 @@
 import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 
 import { PeerConnector } from "./peer-connector";
-import { getAllPeerPorts } from "./socket-server/utils/get-peer-port";
 import { isValidVersion } from "./utils";
 
 /**
@@ -77,9 +76,7 @@ export class DisconnectPeer implements Contracts.Kernel.EventListener {
      * @memberof DisconnectPeer
      */
     public async handle({ data }): Promise<void> {
-        for (const port of getAllPeerPorts(data.peer)) {
-            this.connector.disconnect(data.peer, port);
-        }
+        this.connector.disconnect(data.peer);
 
         this.storage.forgetPeer(data.peer);
     }

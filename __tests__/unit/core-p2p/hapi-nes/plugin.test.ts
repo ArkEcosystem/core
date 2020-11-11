@@ -7,12 +7,13 @@ import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 describe("register()", () => {
     it("adds websocket support", async () => {
         const server = Hapi.server();
-        await server.register({ plugin: plugin, options: { headers: ["Content-Type"] } });
+        await server.register({ plugin });
 
+        const bufHello = Buffer.from("hello");
         server.route({
-            method: "GET",
+            method: "POST",
             path: "/",
-            handler: () => "hello",
+            handler: () => bufHello,
         });
 
         await server.start();
@@ -20,10 +21,9 @@ describe("register()", () => {
         await client.connect();
 
         // @ts-ignore
-        const { payload, statusCode, headers } = await client.request("/");
-        expect(payload).toEqual("hello");
+        const { payload, statusCode } = await client.request("/");
+        expect(payload).toEqual(bufHello);
         expect(statusCode).toEqual(200);
-        expect(headers).toEqual({ "content-type": "text/html; charset=utf-8" });
 
         await client.disconnect();
         await server.stop();
@@ -41,7 +41,7 @@ describe("register()", () => {
         await server.register({ plugin: plugin, options: { onConnection } });
 
         server.route({
-            method: "GET",
+            method: "POST",
             path: "/",
             handler: () => "hello",
         });
@@ -65,7 +65,7 @@ describe("register()", () => {
         await server.register({ plugin: plugin, options: { onDisconnection } });
 
         server.route({
-            method: "GET",
+            method: "POST",
             path: "/",
             handler: () => "hello",
         });

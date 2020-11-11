@@ -1,6 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
-
 import { BlockProcessorResult } from "@packages/core-blockchain/src/processor";
 import { AcceptBlockHandler } from "@packages/core-blockchain/src/processor/handlers/accept-block-handler";
 
@@ -14,6 +13,7 @@ describe("AcceptBlockHandler", () => {
         started: undefined,
         setLastBlock: jest.fn(),
         lastDownloadedBlock: undefined,
+        getLastBlock: jest.fn(),
     };
     const transactionPool = { acceptForgedTransaction: jest.fn() };
     const databaseInteractions = {
@@ -28,7 +28,10 @@ describe("AcceptBlockHandler", () => {
         deleteRound: jest.fn(),
         getActiveDelegates: jest.fn().mockReturnValue([]),
     };
-    const application = { get: jest.fn() };
+    const revertBlockHandler = {
+        execute: jest.fn(),
+    }
+    const application = { get: jest.fn(), resolve: jest.fn() };
 
     beforeAll(() => {
         container.unbindAll();
@@ -66,9 +69,6 @@ describe("AcceptBlockHandler", () => {
             expect(transactionPool.acceptForgedTransaction).toBeCalledTimes(2);
             expect(transactionPool.acceptForgedTransaction).toHaveBeenCalledWith(block.transactions[0]);
             expect(transactionPool.acceptForgedTransaction).toHaveBeenCalledWith(block.transactions[1]);
-
-            expect(state.setLastBlock).toBeCalledTimes(1);
-            expect(state.setLastBlock).toHaveBeenCalledWith(block);
         });
 
         it("should reset state.forkedBlock if incoming block has same height", async () => {
@@ -93,15 +93,53 @@ describe("AcceptBlockHandler", () => {
             expect(state.lastDownloadedBlock).toBe(block.data);
         });
 
-        it("should return Reject and resetLastDownloadedBlock when something throws", async () => {
-            const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
+        describe("Revert", () => {
+            it("should call revertBlockHandler when block is accepted, but execute throws", async () => {
+                revertBlockHandler.execute.mockReturnValue(BlockProcessorResult.Reverted);
+                application.resolve.mockReturnValue(revertBlockHandler);
+                state.getLastBlock.mockReturnValue({ data: { height: 5544 } });
 
-            databaseInteractions.applyBlock = jest.fn().mockRejectedValueOnce(new Error("oops"));
-            const result = await acceptBlockHandler.execute(block as Interfaces.IBlock);
+                const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
 
-            expect(result).toBe(BlockProcessorResult.Rejected);
+                databaseInteractions.applyBlock = jest.fn().mockRejectedValueOnce(new Error("oops"));
+                const result = await acceptBlockHandler.execute(block as Interfaces.IBlock);
 
-            expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
+                expect(result).toBe(BlockProcessorResult.Rejected);
+
+                expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
+                expect(revertBlockHandler.execute).toBeCalledTimes(1);
+            });
+
+            it("should call not revertBlockHandler when block not accepted and execute throws", async () => {
+                revertBlockHandler.execute.mockReturnValue(BlockProcessorResult.Reverted);
+                state.getLastBlock.mockReturnValue({ data: { height: 5543 } }); // Current block was not accpeted
+
+                const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
+
+                databaseInteractions.applyBlock = jest.fn().mockRejectedValueOnce(new Error("oops"));
+                const result = await acceptBlockHandler.execute(block as Interfaces.IBlock);
+
+                expect(result).toBe(BlockProcessorResult.Rejected);
+
+                expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
+                expect(revertBlockHandler.execute).not.toBeCalled();
+            });
+
+            it("should return Corrupted when reverting block fails", async () => {
+                revertBlockHandler.execute.mockReturnValue(BlockProcessorResult.Corrupted);
+                application.resolve.mockReturnValue(revertBlockHandler);
+                state.getLastBlock.mockReturnValue({ data: { height: 5544 } });
+
+                const acceptBlockHandler = container.resolve<AcceptBlockHandler>(AcceptBlockHandler);
+
+                databaseInteractions.applyBlock = jest.fn().mockRejectedValueOnce(new Error("oops"));
+                const result = await acceptBlockHandler.execute(block as Interfaces.IBlock);
+
+                expect(result).toBe(BlockProcessorResult.Corrupted);
+
+                expect(blockchain.resetLastDownloadedBlock).toBeCalledTimes(1);
+                expect(revertBlockHandler.execute).toBeCalledTimes(1);
+            });
         });
     });
 });

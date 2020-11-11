@@ -7,18 +7,11 @@
 */
 
 import WebSocket from "ws";
+import { parseNesMessage, stringifyNesMessage } from "./utils";
 
 /* eslint no-undef: 0 */
 const version = "2";
 const ignore = function () {};
-
-const stringify = function (message) {
-    try {
-        return JSON.stringify(message);
-    } catch (err) {
-        throw NesError(err, errorTypes.USER);
-    }
-};
 
 const nextTick = function (callback) {
     return (err) => {
@@ -77,7 +70,6 @@ export class Client {
     public onConnect;
     public onDisconnect;
     public onHeartbeatTimeout;
-    public onUpdate;
 
     public id;
 
@@ -91,7 +83,6 @@ export class Client {
     private _ids;
     private _requests;
     private _heartbeat;
-    private _packets;
     private _disconnectListeners;
     private _disconnectRequested;
 
@@ -123,7 +114,6 @@ export class Client {
         this._ids = 0; // Id counter
         this._requests = {}; // id -> { resolve, reject, timeout }
         this._heartbeat = null;
-        this._packets = [];
         this._disconnectListeners = null;
         this._disconnectRequested = false;
 
@@ -133,7 +123,6 @@ export class Client {
         this.onConnect = ignore; // Called whenever a connection is established
         this.onDisconnect = ignore; // Called whenever a connection is lost: function(willReconnect)
         this.onHeartbeatTimeout = ignore; // Called when a heartbeat timeout will cause a disconnection
-        this.onUpdate = ignore;
 
         // Public properties
 
@@ -186,14 +175,13 @@ export class Client {
     public request(options) {
         if (typeof options === "string") {
             options = {
-                method: "GET",
                 path: options,
             };
         }
 
         const request = {
             type: "request",
-            method: options.method || "GET",
+            method: "POST",
             path: options.path,
             headers: options.headers,
             payload: options.payload,
@@ -332,7 +320,6 @@ export class Client {
             ws.onmessage = null;
         }
 
-        this._packets = [];
         this.id = null;
 
         clearTimeout(this._heartbeat);
@@ -396,7 +383,7 @@ export class Client {
 
         let encoded;
         try {
-            encoded = stringify(request);
+            encoded = stringifyNesMessage(request);
         } catch (err) {
             return Promise.reject(err);
         }
@@ -459,29 +446,12 @@ export class Client {
     private _onMessage(message) {
         this._beat();
 
-        let data = message.data;
-        const prefix = data[0];
-        if (prefix !== "{") {
-            this._packets.push(data.slice(1));
-            /* istanbul ignore else */
-            if (prefix !== "!") {
-                return;
-            }
-
-            /* istanbul ignore next */
-            data = this._packets.join("");
-            /* istanbul ignore next */
-            this._packets = [];
-        }
-
-        if (this._packets.length) {
-            this._packets = [];
-            this.onError(NesError("Received an incomplete message", errorTypes.PROTOCOL));
-        }
-
         let update;
         try {
-            update = JSON.parse(data);
+            if (!(message.data instanceof Buffer)) {
+                return this.onError(NesError("Received message is not a Buffer", errorTypes.PROTOCOL));
+            }
+            update = parseNesMessage(message.data);
         } catch (err) {
             return this.onError(NesError(err, errorTypes.PROTOCOL));
         }
@@ -491,7 +461,10 @@ export class Client {
         let error: any = null;
         if (update.statusCode && update.statusCode >= 400) {
             /* istanbul ignore next */
-            error = NesError(update.payload.message || update.payload.error || "Error", errorTypes.SERVER);
+            update.payload = update.payload instanceof Buffer ?
+                (update.payload as Buffer).slice(0, 512).toString() // slicing to reduce possible intensive toString() call
+                : "Error";
+            error = NesError(update.payload, errorTypes.SERVER);
             error.statusCode = update.statusCode;
             error.data = update.payload;
             error.headers = update.headers;
@@ -502,12 +475,6 @@ export class Client {
 
         if (update.type === "ping") {
             return this._send({ type: "ping" }, false).catch(ignore); // Ignore errors
-        }
-
-        // Broadcast and update
-
-        if (update.type === "update") {
-            return this.onUpdate(update.message);
         }
 
         // Lookup request (message must include an id from this point)
@@ -540,6 +507,9 @@ export class Client {
             this.id = update.socket;
             if (update.heartbeat) {
                 this._heartbeatTimeout = update.heartbeat.interval + update.heartbeat.timeout;
+                if (this._heartbeatTimeout === 0) {
+                    this._heartbeatTimeout = false;
+                }
                 this._beat(); // Call again once timeout is set
             }
 

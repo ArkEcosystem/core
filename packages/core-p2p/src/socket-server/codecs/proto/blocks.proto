@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package blocks;
+
+message PostBlockRequest {
+    bytes block = 1;
+}
+
+message GetBlocksRequest {
+    uint32 lastBlockHeight = 1;
+    uint32 blockLimit = 2;
+    bool headersOnly = 3;
+    bool serialized = 4;
+}
+
+message GetBlocksResponse {
+    message BlockHeader {
+        string id = 1;
+        string idHex = 2;
+        uint32 version = 3;
+        uint32 timestamp = 4;
+        string previousBlock = 5;
+        string previousBlockHex = 6;
+        uint32 height = 7;
+        uint32 numberOfTransactions = 8;
+        string totalAmount = 9; // bignumber in core
+        string totalFee = 10; // bignumber in core
+        string reward = 11; // bignumber in core
+        uint32 payloadLength = 12;
+        string payloadHash = 13;
+        string generatorPublicKey = 14;
+        string blockSignature = 15;
+        repeated string transactions = 16;
+    }
+
+    repeated BlockHeader blocks = 1;
+}

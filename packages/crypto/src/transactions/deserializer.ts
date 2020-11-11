@@ -63,7 +63,7 @@ export class Deserializer {
         return instance;
     }
 
-    private static deserializeCommon(transaction: ITransactionData, buf: ByteBuffer): void {
+    public static deserializeCommon(transaction: ITransactionData, buf: ByteBuffer): void {
         buf.skip(1); // Skip 0xFF marker
         transaction.version = buf.readUint8();
         transaction.network = buf.readUint8();

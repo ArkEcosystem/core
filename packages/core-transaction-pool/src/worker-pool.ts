@@ -41,7 +41,7 @@ export class WorkerPool implements Contracts.TransactionPool.WorkerPool {
     }
 
     public async getTransactionFromData(
-        transactionData: Interfaces.ITransactionData,
+        transactionData: Interfaces.ITransactionData | Buffer,
     ): Promise<Interfaces.ITransaction> {
         const worker: Contracts.TransactionPool.Worker = this.workers.reduce((prev, next) => {
             if (prev.getQueueSize() < next.getQueueSize()) {

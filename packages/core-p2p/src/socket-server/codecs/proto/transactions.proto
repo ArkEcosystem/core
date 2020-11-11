@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package transactions;
+
+message PostTransactionsRequest {
+    repeated bytes transactions = 1;
+}
+
+message PostTransactionsResponse {
+    repeated string accept = 1;
+}

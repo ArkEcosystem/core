@@ -56,8 +56,11 @@ export class UnchainedHandler implements BlockHandler {
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.Application)
-    protected readonly app!: Contracts.Kernel.Application;
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly stateStore!: Contracts.State.StateStore;
+
+    @Container.inject(Container.Identifiers.TriggerService)
+    private readonly triggers!: Services.Triggers.Triggers;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
@@ -82,9 +85,9 @@ export class UnchainedHandler implements BlockHandler {
             case UnchainedBlockStatus.DoubleForging: {
                 const roundInfo: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(block.data.height);
 
-                const delegates: Contracts.State.Wallet[] = (await this.app
-                    .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-                    .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
+                const delegates: Contracts.State.Wallet[] = (await this.triggers.call("getActiveDelegates", {
+                    roundInfo,
+                })) as Contracts.State.Wallet[];
 
                 if (delegates.some((delegate) => delegate.publicKey === block.data.generatorPublicKey)) {
                     return BlockProcessorResult.Rollback;
@@ -94,9 +97,7 @@ export class UnchainedHandler implements BlockHandler {
             }
 
             case UnchainedBlockStatus.ExceededNotReadyToAcceptNewHeightMaxAttempts: {
-                this.app.get<Contracts.State.StateStore>(
-                    Container.Identifiers.StateStore,
-                ).numberOfBlocksToRollback = 5000; // TODO: find a better heuristic based on peer information
+                this.stateStore.numberOfBlocksToRollback = 5000; // TODO: find a better heuristic based on peer information
                 return BlockProcessorResult.Rollback;
             }
 
@@ -120,12 +121,13 @@ export class UnchainedHandler implements BlockHandler {
                 `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()}`,
             );
 
+            // TODO: We've already cleared the queue. Move to clear queue
             // Also remove all remaining queued blocks. Since blocks are downloaded in batches,
             // it is very likely that all blocks will be disregarded at this point anyway.
             // NOTE: This isn't really elegant, but still better than spamming the log with
             //       useless `not ready to accept` messages.
-            if (this.blockchain.queue.length() > 0) {
-                this.logger.debug(`Discarded ${this.blockchain.queue.length()} chunks of downloaded blocks.`);
+            if (this.blockchain.getQueue().size() > 0) {
+                this.logger.debug(`Discarded ${this.blockchain.getQueue().size()} chunks of downloaded blocks.`);
             }
 
             // If we consecutively fail to accept the same block, our chain is likely forked. In this

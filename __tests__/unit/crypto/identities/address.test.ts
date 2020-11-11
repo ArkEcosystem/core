@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { PublicKey } from "@arkecosystem/crypto/src/identities";
+import { Errors } from "@arkecosystem/crypto-identities";
 
-import { InvalidMultiSignatureAssetError, PublicKeyError } from "../../../../packages/crypto/src/errors";
 import { Address } from "../../../../packages/crypto/src/identities/address";
 import { Keys } from "../../../../packages/crypto/src/identities/keys";
 import { configManager } from "../../../../packages/crypto/src/managers";
@@ -23,7 +23,7 @@ describe("Identities - Address", () => {
         it("should fail with an invalid public key", () => {
             expect(() => {
                 Address.fromPublicKey("invalid");
-            }).toThrow(PublicKeyError);
+            }).toThrow(Errors.PublicKeyError);
         });
     });
 
@@ -75,21 +75,21 @@ describe("Identities - Address", () => {
                     min: 7,
                     publicKeys: ["secret 1", "secret 2", "secret 3"].map((secret) => PublicKey.fromPassphrase(secret)),
                 });
-            }).toThrowError(InvalidMultiSignatureAssetError);
+            }).toThrowError(Errors.InvalidMultiSignatureAssetError);
 
             expect(() => {
                 Address.fromMultiSignatureAsset({
                     min: 1,
                     publicKeys: [],
                 });
-            }).toThrowError(InvalidMultiSignatureAssetError);
+            }).toThrowError(Errors.InvalidMultiSignatureAssetError);
 
             expect(() => {
                 Address.fromMultiSignatureAsset({
                     min: 1,
                     publicKeys: ["garbage"],
                 });
-            }).toThrowError(PublicKeyError);
+            }).toThrowError(Errors.PublicKeyError);
         });
     });
 

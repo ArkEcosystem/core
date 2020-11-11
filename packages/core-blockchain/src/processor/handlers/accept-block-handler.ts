@@ -4,6 +4,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "../contracts";
+import { RevertBlockHandler } from "./revert-block-handler";
 
 @Container.injectable()
 export class AcceptBlockHandler implements BlockHandler {
@@ -35,20 +36,17 @@ export class AcceptBlockHandler implements BlockHandler {
                 this.state.forkedBlock = undefined;
             }
 
-            if (this.transactionPool) {
-                for (const transaction of block.transactions) {
-                    this.transactionPool.acceptForgedTransaction(transaction);
-                }
+            for (const transaction of block.transactions) {
+                await this.transactionPool.acceptForgedTransaction(transaction);
             }
 
             // Reset wake-up timer after chaining a block, since there's no need to
             // wake up at all if blocks arrive periodically. Only wake up when there are
             // no new blocks.
+            /* istanbul ignore else */
             if (this.state.started) {
                 this.blockchain.resetWakeUp();
             }
-
-            this.state.setLastBlock(block);
 
             // Ensure the lastDownloadedBlock is never behind the last accepted block.
             if (this.state.lastDownloadedBlock && this.state.lastDownloadedBlock.height < block.data.height) {
@@ -61,6 +59,15 @@ export class AcceptBlockHandler implements BlockHandler {
             this.logger.debug(error.stack);
 
             this.blockchain.resetLastDownloadedBlock();
+
+            // Revert block if accepted
+            if (this.state.getLastBlock().data.height === block.data.height) {
+                const revertResult = await this.app.resolve<RevertBlockHandler>(RevertBlockHandler).execute(block);
+
+                if (revertResult === BlockProcessorResult.Corrupted) {
+                    return revertResult;
+                }
+            }
 
             return BlockProcessorResult.Rejected;
         }

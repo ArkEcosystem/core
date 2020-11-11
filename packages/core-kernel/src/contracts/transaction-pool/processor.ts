@@ -12,7 +12,7 @@ export interface Processor {
     invalid: string[];
     errors?: { [id: string]: ProcessorError };
 
-    process(data: Interfaces.ITransactionData[]): Promise<void>;
+    process(data: Interfaces.ITransactionData[] | Buffer[]): Promise<void>;
 }
 
 export type ProcessorFactory = () => Processor;

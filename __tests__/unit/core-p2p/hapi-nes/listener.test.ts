@@ -5,6 +5,7 @@ import * as Hoek from "@hapi/hoek";
 import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 import { Socket } from "@packages/core-p2p/src/hapi-nes/socket";
+import { parseNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
 
 describe("Listener", () => {
     it("refuses connection while stopping", async () => {
@@ -104,13 +105,13 @@ describe("Listener", () => {
         let payload;
 
         beforeEach(async () => {
-            response = "a".repeat(10);
-            payload = "b".repeat(10);
+            response = Buffer.from("a".repeat(10));
+            payload = Buffer.from("b".repeat(10));
 
             server = Hapi.server();
             await server.register({ plugin: plugin, options: { maxPayload: 100 } });
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 handler: async () => {
                     return response;
@@ -133,7 +134,7 @@ describe("Listener", () => {
         });
 
         it("should resolve if response is greater than maxPayload", async () => {
-            response = "a".repeat(200);
+            response = Buffer.from("a".repeat(200));
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -210,7 +211,7 @@ describe("Listener", () => {
             });
 
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 handler: async () => {
                     await Hoek.wait(440);
@@ -270,7 +271,7 @@ describe("Listener", () => {
             const socketOnMessage = Socket.prototype._onMessage;
             // @ts-ignore
             Socket.prototype._onMessage = async function (message) {
-                if (JSON.parse(message).type === "hello") {
+                if (parseNesMessage(message).type === "hello") {
                     await helloTeam.work;
                 }
 
@@ -282,7 +283,7 @@ describe("Listener", () => {
             const _onMessage = canary._onMessage.bind(canary);
             // @ts-ignore
             canary._onMessage = function (message) {
-                if (message.data === '{"type":"ping"}') {
+                if (parseNesMessage(message.data).type === "ping") {
                     pingTeam.attend();
                 }
 

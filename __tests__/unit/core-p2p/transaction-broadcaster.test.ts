@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { TransactionBroadcaster } from "../../../packages/core-p2p/src/transaction-broadcaster";
 
@@ -43,8 +43,10 @@ describe("TransactionBroadcaster", () => {
             const peers = [{}, {}, {}];
             configuration.getRequired.mockReturnValue(3);
             storage.getPeers.mockReturnValue(peers);
-            const jsons = [{}];
-            const transactions: any[] = jsons.map((j) => ({ toJson: jest.fn().mockReturnValue(j) }));
+            const transactions = [{}];
+
+            const serializedTx = Buffer.alloc(0);
+            const spySerialize = jest.spyOn(Transactions.Serializer, "serialize").mockReturnValue(serializedTx);
 
             const broadcaster = container.resolve(TransactionBroadcaster);
             await broadcaster.broadcastTransactions(transactions as Interfaces.ITransaction[]);
@@ -52,9 +54,9 @@ describe("TransactionBroadcaster", () => {
             expect(configuration.getRequired).toBeCalledWith("maxPeersBroadcast");
             expect(storage.getPeers).toBeCalled();
             expect(logger.debug).toBeCalledWith("Broadcasting 1 transaction to 3 peers");
-            expect(transactions[0].toJson).toBeCalled();
-            expect(communicator.postTransactions).toBeCalledWith(peers[0], jsons);
-            expect(communicator.postTransactions).toBeCalledWith(peers[1], jsons);
+            expect(spySerialize).toBeCalled();
+            expect(communicator.postTransactions).toBeCalledWith(peers[0], [serializedTx]);
+            expect(communicator.postTransactions).toBeCalledWith(peers[1], [serializedTx]);
         });
     });
 });

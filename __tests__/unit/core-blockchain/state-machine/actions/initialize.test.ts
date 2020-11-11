@@ -50,6 +50,7 @@ describe("Initialize", () => {
         container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(transactionPool);
         container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
+        container.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);
     });
 
     beforeEach(() => {
