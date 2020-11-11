@@ -24,7 +24,7 @@ export class DownloadFinished implements Action {
             this.stateStore.networkStart = false;
 
             this.blockchain.dispatch("SYNCFINISHED");
-        } else if (this.blockchain.queue.idle()) {
+        } else if (!this.blockchain.getQueue().isRunning()) {
             this.blockchain.dispatch("PROCESSFINISHED");
         }
     }

@@ -2,6 +2,7 @@ import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 
 import { plugin as hapiNesPlugin } from "../hapi-nes";
+import { AcceptPeerPlugin } from "./plugins/accept-peer";
 import { IsAppReadyPlugin } from "./plugins/is-app-ready";
 import { ValidatePlugin } from "./plugins/validate";
 import { CodecPlugin } from "./plugins/codec";
@@ -10,8 +11,6 @@ import { BlocksRoute } from "./routes/blocks";
 import { InternalRoute } from "./routes/internal";
 import { PeerRoute } from "./routes/peer";
 import { TransactionsRoute } from "./routes/transactions";
-import { Socket } from "../hapi-nes/socket";
-import { getPeerIp } from "../utils/get-peer-ip";
 
 // todo: review the implementation
 @Container.injectable()
@@ -31,9 +30,6 @@ export class Server {
      */
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
-
-    @Container.inject(Container.Identifiers.PeerProcessor)
-    private readonly peerProcessor!: Contracts.P2P.PeerProcessor;
 
     /**
      * @private
@@ -60,9 +56,6 @@ export class Server {
 
         const address = optionsServer.hostname;
         const port = Number(optionsServer.port);
-        const onConnection = (socket: Socket) => {
-            this.peerProcessor.validateAndAcceptPeer({ ip: getPeerIp(socket) } as Contracts.P2P.Peer);
-        };
 
         this.server = new HapiServer({ address, port });
         this.server.app = this.app;
@@ -70,7 +63,6 @@ export class Server {
             plugin: hapiNesPlugin,
             options: {
                 maxPayload: 20971520, // 20 MB TODO to adjust
-                onConnection: onConnection,
             }
         });
 
@@ -84,6 +76,7 @@ export class Server {
         this.app.resolve(TransactionsRoute).register(this.server);
 
         this.app.resolve(WhitelistForgerPlugin).register(this.server);
+        this.app.resolve(AcceptPeerPlugin).register(this.server);
     }
 
     /**

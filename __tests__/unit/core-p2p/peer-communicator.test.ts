@@ -18,6 +18,10 @@ jest.mock("@arkecosystem/core-p2p/src/socket-server/utils/get-codec", () => ({
     getCodec: () => ({ request: { serialize: obj => obj }, response: { deserialize: obj => obj }})
 }));
 
+jest.mock("@arkecosystem/core-p2p/src/socket-server/utils/get-codec", () => ({
+    getCodec: () => ({ request: { serialize: obj => obj }, response: { deserialize: obj => obj }})
+}));
+
 Managers.configManager.getMilestone().aip11 = true;
 
 const cloneObject = (obj) => JSON.parse(JSON.stringify(obj));
