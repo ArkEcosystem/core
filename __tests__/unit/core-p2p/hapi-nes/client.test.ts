@@ -4,6 +4,46 @@ import * as Hapi from "@hapi/hapi";
 import * as Hoek from "@hapi/hoek";
 import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
+import { stringifyNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
+
+const createServerWithPlugin = async (pluginOptions = {}, serverOptions = {}, withPreResponseHandler = false) => {
+    const server = Hapi.server(serverOptions);
+    await server.register({ plugin: plugin, options: pluginOptions });
+
+    server.ext({
+        type: "onPostAuth",
+        async method(request, h) {
+            request.payload = (request.payload || Buffer.from("")).toString();
+            return h.continue;
+        },
+    });
+
+    if (withPreResponseHandler) {
+        server.ext({
+            type: "onPreResponse",
+            method: async (request, h) => {
+                try {
+                    if (request.response.source) {
+                        request.response.source = Buffer.from(request.response.source);
+                    } else {
+                        const errorMessage = request.response.output?.payload?.message ?? request.response.output?.payload?.error ?? "Error";
+                        request.response.output.payload = Buffer.from(errorMessage, "utf-8");
+                    }
+                } catch (e) {
+                    request.response.statusCode = 500; // Internal server error (serializing failed)
+                    request.response.output = {
+                        statusCode: 500,
+                        payload: Buffer.from("Internal server error"),
+                        headers: {},
+                    };
+                }
+                return h.continue;
+            },
+        });
+    }
+
+    return server;
+};
 
 describe("Client", () => {
     it("defaults options.ws.maxPayload to zero (node)", () => {
@@ -20,8 +60,7 @@ describe("Client", () => {
 
     describe("onError", () => {
         it("logs error to console by default", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
             await server.start();
 
             const client = new Client("http://localhost:" + server.info.port);
@@ -44,8 +83,7 @@ describe("Client", () => {
 
     describe("connect()", () => {
         it("reconnects when server initially down", async () => {
-            const server1 = Hapi.server();
-            await server1.register({ plugin: plugin, options: {} });
+            const server1 = await createServerWithPlugin();
             await server1.start();
             const port = server1.info.port;
             await server1.stop();
@@ -69,9 +107,8 @@ describe("Client", () => {
                 "Connection terminated while waiting to connect",
             );
 
-            const server2 = Hapi.server({ port });
-            server2.route({ path: "/", method: "GET", handler: () => "ok" });
-            await server2.register({ plugin: plugin, options: {} });
+            const server2 = await createServerWithPlugin({}, { port });
+            server2.route({ path: "/", method: "POST", handler: () => "ok" });
             await server2.start();
 
             await team.work;
@@ -80,7 +117,7 @@ describe("Client", () => {
 
             const res = await client.request("/");
             // @ts-ignore
-            expect(res.payload).toEqual("ok");
+            expect(res.payload).toEqual(Buffer.from("ok"));
 
             client.disconnect();
             await server2.stop();
@@ -94,8 +131,7 @@ describe("Client", () => {
         });
 
         it("errors if already connected", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
             await server.start();
 
             const client = new Client("http://localhost:" + server.info.port);
@@ -107,8 +143,7 @@ describe("Client", () => {
         });
 
         it("errors if set to reconnect", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
             await server.start();
 
             const client = new Client("http://localhost:" + server.info.port);
@@ -122,8 +157,7 @@ describe("Client", () => {
 
     describe("_connect()", () => {
         it("handles unknown error code", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
             await server.start();
 
             const client = new Client("http://localhost:" + server.info.port);
@@ -151,8 +185,7 @@ describe("Client", () => {
         });
 
         it("ignores when client is disconnecting", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -165,8 +198,7 @@ describe("Client", () => {
         });
 
         it("avoids closing a socket in closing state", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -182,8 +214,7 @@ describe("Client", () => {
         // });
 
         it("disconnects once", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -203,8 +234,7 @@ describe("Client", () => {
         });
 
         it("logs manual disconnection request", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -223,8 +253,7 @@ describe("Client", () => {
         });
 
         it("logs error disconnection request as not requested", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -245,8 +274,7 @@ describe("Client", () => {
         });
 
         it("logs error disconnection request as not requested after manual disconnect while already disconnected", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -268,11 +296,10 @@ describe("Client", () => {
         });
 
         it("allows closing from inside request callback", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 handler: () => "hello",
             });
@@ -298,8 +325,7 @@ describe("Client", () => {
 
     describe("_reconnect()", () => {
         it("reconnects automatically", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -337,8 +363,7 @@ describe("Client", () => {
         });
 
         it("aborts reconnecting", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -359,8 +384,7 @@ describe("Client", () => {
         });
 
         it("does not reconnect automatically", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -397,8 +421,7 @@ describe("Client", () => {
         });
 
         it("overrides max delay", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -428,8 +451,7 @@ describe("Client", () => {
         });
 
         it("reconnects automatically (with errors)", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const url = "http://localhost:" + server.info.port;
@@ -485,11 +507,10 @@ describe("Client", () => {
         });
 
         it("errors on pending request when closed", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 handler: async () => {
                     await Hoek.wait(10);
@@ -509,8 +530,7 @@ describe("Client", () => {
         });
 
         it("times out", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
 
@@ -550,8 +570,7 @@ describe("Client", () => {
         });
 
         it("limits retries", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -579,8 +598,7 @@ describe("Client", () => {
         });
 
         it("aborts reconnect if disconnect is called in between attempts", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             await server.start();
             const client = new Client("http://localhost:" + server.info.port);
@@ -610,12 +628,11 @@ describe("Client", () => {
     });
 
     describe("request()", () => {
-        it("defaults to GET", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: { headers: "*" } });
-
+        it("defaults to POST", async () => {
+            const server = await createServerWithPlugin({ headers: "*" });
+            
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 handler: () => "hello",
             });
@@ -625,10 +642,9 @@ describe("Client", () => {
             await client.connect();
 
             // @ts-ignore
-            const { payload, statusCode, headers } = await client.request({ path: "/" });
-            expect(payload).toEqual("hello");
+            const { payload, statusCode } = await client.request({ path: "/" });
+            expect(payload).toEqual(Buffer.from("hello"));
             expect(statusCode).toEqual(200);
-            expect(headers["content-type"]).toEqual("text/html; charset=utf-8");
 
             await client.disconnect();
             await server.stop();
@@ -641,8 +657,7 @@ describe("Client", () => {
         });
 
         it("errors on invalid payload", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             server.route({
                 method: "POST",
@@ -655,19 +670,16 @@ describe("Client", () => {
             await client.connect();
 
             const a = { b: 1 };
-            // @ts-ignore
-            a.a = a;
 
             await expect(client.request({ method: "POST", path: "/", payload: a })).rejects.toThrowError(
-                /Converting circular structure to JSON/,
+                /The first argument must be.*/,
             );
             await client.disconnect();
             await server.stop();
         });
 
         it("errors on invalid data", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
+            const server = await createServerWithPlugin();
 
             server.route({
                 method: "POST",
@@ -694,35 +706,34 @@ describe("Client", () => {
                 {
                     testName: "handles empty string, no content-type",
                     handler: (request, h) => h.response("").code(200),
-                    expectedPayload: "",
+                    expectedPayload: Buffer.alloc(0),
                 },
                 {
                     testName: "handles null, no content-type",
                     handler: () => null,
-                    expectedPayload: null,
+                    expectedPayload: Buffer.alloc(0),
                 },
                 {
                     testName: "handles null, application/json",
                     handler: (request, h) => h.response(null).type("application/json"),
-                    expectedPayload: null,
+                    expectedPayload: Buffer.alloc(0),
                 },
                 {
                     testName: "handles empty string, text/plain",
                     handler: (request, h) => h.response("").type("text/plain").code(200),
-                    expectedPayload: "",
+                    expectedPayload: Buffer.alloc(0),
                 },
                 {
                     testName: "handles null, text/plain",
                     handler: (request, h) => h.response(null).type("text/plain"),
-                    expectedPayload: null,
+                    expectedPayload: Buffer.alloc(0),
                 },
             ].forEach(({ testName, handler, expectedPayload }) => {
                 it(testName, async () => {
-                    const server = Hapi.server();
-                    await server.register({ plugin: plugin, options: { headers: "*" } });
+                    const server = await createServerWithPlugin({ headers: "*" });
 
                     server.route({
-                        method: "GET",
+                        method: "POST",
                         path: "/",
                         handler,
                     });
@@ -743,8 +754,7 @@ describe("Client", () => {
 
         describe("_send()", () => {
             it("catches send error without tracking", async () => {
-                const server = Hapi.server();
-                await server.register({ plugin: plugin, options: {} });
+                const server = await createServerWithPlugin();
 
                 await server.start();
                 const client = new Client("http://localhost:" + server.info.port);
@@ -765,15 +775,14 @@ describe("Client", () => {
 
         describe("_onMessage", () => {
             it("ignores invalid incoming message", async () => {
-                const server = Hapi.server();
-                await server.register({ plugin: plugin, options: {} });
-
+                const server = await createServerWithPlugin({}, {}, true);
+                
                 server.route({
-                    method: "GET",
+                    method: "POST",
                     path: "/",
                     handler: async (request) => {
                         request.server.plugins.nes._listener._sockets._forEach((socket) => {
-                            socket._ws.send("{");
+                            socket._ws.send(Buffer.from("{"));
                         });
 
                         await Hoek.wait(10);
@@ -792,43 +801,7 @@ describe("Client", () => {
                 await client.connect();
 
                 await client.request("/");
-                expect(logged.message).toMatch(/Unexpected end of(?: JSON)? input/);
-                expect(logged.type).toEqual("protocol");
-                expect(logged.isNes).toEqual(true);
-
-                await client.disconnect();
-                await server.stop();
-            });
-
-            it("reports incomplete message", async () => {
-                const server = Hapi.server();
-                await server.register({ plugin: plugin, options: {} });
-
-                server.route({
-                    method: "GET",
-                    path: "/",
-                    handler: async (request) => {
-                        request.server.plugins.nes._listener._sockets._forEach((socket) => {
-                            socket._ws.send("+abc");
-                        });
-
-                        await Hoek.wait(10);
-                        return "hello";
-                    },
-                });
-
-                await server.start();
-                const client = new Client("http://localhost:" + server.info.port);
-
-                let logged;
-                client.onError = (err) => {
-                    logged = err;
-                };
-
-                await client.connect();
-
-                await client.request("/");
-                expect(logged.message).toEqual("Received an incomplete message");
+                expect(logged.message).toMatch(/Nes message is below minimum length/);
                 expect(logged.type).toEqual("protocol");
                 expect(logged.isNes).toEqual(true);
 
@@ -837,16 +810,27 @@ describe("Client", () => {
             });
 
             it("ignores incoming message with unknown id", async () => {
-                const server = Hapi.server();
-                await server.register({ plugin: plugin, options: {} });
+                const server = await createServerWithPlugin({}, {}, true);
 
                 server.route({
-                    method: "GET",
+                    method: "POST",
                     path: "/",
                     handler: async (request) => {
                         request.server.plugins.nes._listener._sockets._forEach((socket) => {
                             socket._ws.send(
-                                '{"id":100,"type":"response","statusCode":200,"payload":"hello","headers":{}}',
+                                stringifyNesMessage({
+                                    "id":100,
+                                    "type":"request",
+                                    "statusCode":200,
+                                    "payload":Buffer.from("hello"),
+                                    path: "/",
+                                    version: "1",
+                                    socket: "socketid",
+                                    heartbeat: {
+                                        interval : 10000,
+                                        timeout: 5000,
+                                    }
+                                }),
                             );
                         });
 
@@ -874,17 +858,28 @@ describe("Client", () => {
                 await server.stop();
             });
 
-            it("ignores incoming message with unknown type", async () => {
-                const server = Hapi.server();
-                await server.register({ plugin: plugin, options: {} });
+            it("ignores incoming message with undefined type", async () => {
+                const server = await createServerWithPlugin({}, {}, true);
 
                 server.route({
-                    method: "GET",
+                    method: "POST",
                     path: "/",
                     handler: async (request) => {
                         request.server.plugins.nes._listener._sockets._forEach((socket) => {
                             socket._ws.send(
-                                '{"id":2,"type":"unknown","statusCode":200,"payload":"hello","headers":{}}',
+                                stringifyNesMessage({
+                                    "id":2,
+                                    "type":"undefined",
+                                    "statusCode":200,
+                                    "payload":Buffer.from("hello"),
+                                    path: "/",
+                                    version: "1",
+                                    socket: "socketid",
+                                    heartbeat: {
+                                        interval : 10000,
+                                        timeout: 5000,
+                                    }
+                                }),
                             );
                         });
 
@@ -908,7 +903,7 @@ describe("Client", () => {
                 await expect(client.request("/")).rejects.toThrowError("Received invalid response");
                 await team.work;
 
-                expect(logged[0].message).toEqual("Received unknown response type: unknown");
+                expect(logged[0].message).toEqual("Received unknown response type: undefined");
                 expect(logged[0].type).toEqual("protocol");
                 expect(logged[0].isNes).toEqual(true);
 
@@ -921,11 +916,10 @@ describe("Client", () => {
             });
 
             it("logs incoming message after timeout", async () => {
-                const server = Hapi.server();
-                await server.register({ plugin: plugin, options: {} });
+                const server = await createServerWithPlugin({}, {}, true);
 
                 server.route({
-                    method: "GET",
+                    method: "POST",
                     path: "/",
                     handler: async (request) => {
                         await Hoek.wait(200);
@@ -963,8 +957,7 @@ describe("Client", () => {
 
         describe("_beat()", () => {
             it("disconnects when server fails to ping", async () => {
-                const server = Hapi.server();
-                await server.register({ plugin: plugin, options: { heartbeat: { interval: 20, timeout: 10 } } });
+                const server = await createServerWithPlugin({ heartbeat: { interval: 20, timeout: 10 } });
 
                 await server.start();
                 const client = new Client("http://localhost:" + server.info.port);
@@ -991,8 +984,7 @@ describe("Client", () => {
             });
 
             it("disconnects when server fails to ping (after a few pings)", async () => {
-                const server = Hapi.server();
-                await server.register({ plugin: plugin, options: { heartbeat: { interval: 20, timeout: 10 } } });
+                const server = await createServerWithPlugin({ heartbeat: { interval: 20, timeout: 10 } });
 
                 await server.start();
                 const client = new Client("http://localhost:" + server.info.port);

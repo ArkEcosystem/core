@@ -9,9 +9,6 @@ export const blocksSchemas = {
     }),
 
     postBlock: Joi.object({
-        block: Joi.object({
-            type: "Buffer",
-            data: Joi.array(), // TODO better way to validate buffer ?
-        }),
+        block: Joi.binary(),
     }),
 };

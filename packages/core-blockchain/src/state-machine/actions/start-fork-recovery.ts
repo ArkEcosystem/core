@@ -4,9 +4,6 @@ import { Action } from "../contracts";
 
 @Container.injectable()
 export class StartForkRecovery implements Action {
-    @Container.inject(Container.Identifiers.Application)
-    public readonly app!: Contracts.Kernel.Application;
-
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -15,6 +12,9 @@ export class StartForkRecovery implements Action {
 
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
+
+    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
+    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
 
     public async handle(): Promise<void> {
         this.logger.info("Starting fork recovery");
@@ -30,11 +30,9 @@ export class StartForkRecovery implements Action {
 
         this.logger.info(`Removed ${AppUtils.pluralize("block", blocksToRemove, true)}`);
 
-        await this.app
-            .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
-            .refreshPeersAfterFork();
+        await this.networkMonitor.refreshPeersAfterFork();
 
         this.blockchain.dispatch("SUCCESS");
-        this.blockchain.queue.resume();
+        await this.blockchain.getQueue().resume();
     }
 }

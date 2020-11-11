@@ -4,20 +4,23 @@ import * as Hapi from "@hapi/hapi";
 import * as Hoek from "@hapi/hoek";
 import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
+import { stringifyNesMessage, parseNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
 import { default as Ws } from "ws";
+import delay from "delay";
 
 describe("Socket", () => {
     it("exposes app namespace", async () => {
         const server = Hapi.server();
 
+        const bufHello = Buffer.from("hello");
         const onConnection = (socket) => {
-            socket.app.x = "hello";
+            socket.app.x = bufHello;
         };
 
         await server.register({ plugin: plugin, options: { onConnection } });
 
         server.route({
-            method: "GET",
+            method: "POST",
             path: "/",
             handler: (request) => {
                 expect(request.socket.server).toBeDefined();
@@ -31,7 +34,7 @@ describe("Socket", () => {
 
         // @ts-ignore
         const { payload, statusCode } = await client.request("/");
-        expect(payload).toEqual("hello");
+        expect(payload).toEqual(bufHello);
         expect(statusCode).toEqual(200);
 
         await client.disconnect();
@@ -60,56 +63,6 @@ describe("Socket", () => {
         await server.stop();
     });
 
-    describe("send()", () => {
-        it("sends custom message", async () => {
-            const server = Hapi.server();
-            const onConnection = (socket) => socket.send("goodbye");
-            await server.register({ plugin: plugin, options: { onConnection } });
-
-            await server.start();
-            const client = new Client("http://localhost:" + server.info.port);
-
-            const team = new Teamwork.Team();
-            client.onUpdate = (message) => {
-                expect(message).toEqual("goodbye");
-                team.attend();
-            };
-
-            await client.connect();
-
-            await team.work;
-            await client.disconnect();
-            await server.stop();
-        });
-
-        it("sends custom message (callback)", async () => {
-            let sent = false;
-            const onConnection = async (socket) => {
-                await socket.send("goodbye");
-                sent = true;
-            };
-
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: { onConnection } });
-
-            await server.start();
-            const client = new Client("http://localhost:" + server.info.port);
-
-            const team = new Teamwork.Team();
-            client.onUpdate = (message) => {
-                expect(message).toEqual("goodbye");
-                expect(sent).toBeTrue();
-                team.attend();
-            };
-
-            await client.connect();
-
-            await team.work;
-            await client.disconnect();
-            await server.stop();
-        });
-    });
-
     describe("_send()", () => {
         it("errors on invalid message", async () => {
             const server = Hapi.server();
@@ -122,12 +75,10 @@ describe("Socket", () => {
             client.onError = Hoek.ignore;
             await client.connect();
 
-            const a = { id: 1, type: "other" };
-            // @ts-ignore
-            a.c = a; // Circular reference
+            const a = { payload: 11111111, type: "other" };
 
-            server.plugins.nes._listener._sockets._forEach((socket) => {
-                socket._send(a, null, Hoek.ignore);
+            server.plugins.nes._listener._sockets._forEach(async (socket) => {
+                try { await socket._send(a, null, Hoek.ignore) } catch {};
             });
 
             const [event] = await log;
@@ -140,11 +91,12 @@ describe("Socket", () => {
             const server = Hapi.server();
             await server.register({ plugin: plugin, options: {} });
 
+            const bufResponse = Buffer.from(JSON.stringify({ a: 1, b: 2 }));
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 handler: (request, h) => {
-                    return h.response(JSON.stringify({ a: 1, b: 2 })).type("application/json");
+                    return h.response(bufResponse);
                 },
             });
 
@@ -154,35 +106,7 @@ describe("Socket", () => {
 
             // @ts-ignore
             const { payload, statusCode } = await client.request("/");
-            expect(payload).toEqual({ a: 1, b: 2 });
-            expect(statusCode).toEqual(200);
-
-            await client.disconnect();
-            await server.stop();
-        });
-
-        it("ignores previously stringified value when no content-type header", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
-
-            server.route({
-                method: "GET",
-                path: "/",
-                handler: () => JSON.stringify({ a: 1, b: 2 }),
-            });
-
-            server.ext("onPreResponse", (request, h) => {
-                request.response._contentType = null;
-                return h.continue;
-            });
-
-            await server.start();
-            const client = new Client("http://localhost:" + server.info.port);
-            await client.connect();
-
-            // @ts-ignore
-            const { payload, statusCode } = await client.request("/");
-            expect(payload).toEqual('{"a":1,"b":2}');
+            expect(payload).toEqual(bufResponse);
             expect(statusCode).toEqual(200);
 
             await client.disconnect();
@@ -216,12 +140,13 @@ describe("Socket", () => {
             const server = Hapi.server();
             await server.register({ plugin: plugin, options: {} });
 
+            const bufHello = Buffer.from("hello");
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 config: {
                     id: "resource",
-                    handler: () => "hello",
+                    handler: () => bufHello,
                 },
             });
 
@@ -231,7 +156,7 @@ describe("Socket", () => {
 
             // @ts-ignore
             const { payload, statusCode } = await client.request("resource");
-            expect(payload).toEqual("hello");
+            expect(payload).toEqual(bufHello);
             expect(statusCode).toEqual(200);
 
             await client.disconnect();
@@ -243,7 +168,7 @@ describe("Socket", () => {
             await server.register({ plugin: plugin, options: {} });
 
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 config: {
                     id: "resource",
@@ -284,12 +209,12 @@ describe("Socket", () => {
             await server.stop();
         });
 
-        it("errors on invalid request message", async () => {
+        it("terminates on invalid request message", async () => {
             const server = Hapi.server();
             await server.register({ plugin: plugin, options: {} });
 
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 handler: () => "hello",
             });
@@ -298,63 +223,17 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            const team = new Teamwork.Team();
-            client.on("message", (data) => {
-                const message = JSON.parse(data);
-                expect(message.payload).toEqual({
-                    error: "Bad Request",
-                    message: "Cannot parse message",
+            const sendInvalid = async () => new Promise((resolve, reject) => {
+                client.on("open", () => {
+                    client.send("{", {} as any, () => resolve());
                 });
+            })
 
-                expect(message.statusCode).toEqual(400);
+            await sendInvalid();
+            await delay(1000);
 
-                team.attend();
-            });
+            expect(client.readyState).toEqual(client.CLOSED);
 
-            client.on("open", () => {
-                client.send("{", (err) => {
-                    expect(err).toBeUndefined();
-                });
-            });
-
-            await team.work;
-            client.close();
-            await server.stop();
-        });
-
-        it("errors on missing id", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
-
-            server.route({
-                method: "GET",
-                path: "/",
-                handler: () => "hello",
-            });
-
-            await server.start();
-            const client = new Ws("http://localhost:" + server.info.port);
-            client.onerror = Hoek.ignore;
-
-            const team = new Teamwork.Team();
-            client.on("message", (data) => {
-                const message = JSON.parse(data);
-                expect(message.payload).toEqual({
-                    error: "Bad Request",
-                    message: "Message missing id",
-                });
-
-                expect(message.statusCode).toEqual(400);
-                expect(message.type).toEqual("request");
-
-                team.attend();
-            });
-
-            client.on("open", () =>
-                client.send(JSON.stringify({ type: "request", method: "GET", path: "/" }), Hoek.ignore),
-            );
-
-            await team.work;
             client.close();
             await server.stop();
         });
@@ -364,7 +243,7 @@ describe("Socket", () => {
             await server.register({ plugin: plugin, options: {} });
 
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 handler: () => "hello",
             });
@@ -375,53 +254,13 @@ describe("Socket", () => {
 
             const team = new Teamwork.Team();
             client.on("message", (data) => {
-                const message = JSON.parse(data);
-                expect(message.payload.message).toEqual("Connection is not initialized");
+                const message = parseNesMessage(data);
+                expect(JSON.parse(message.payload.toString()).message).toEqual("Connection is not initialized");
 
                 team.attend();
             });
 
-            client.on("open", () => client.send(JSON.stringify({ id: 1, type: "request", path: "/" }), Hoek.ignore));
-
-            await team.work;
-            client.close();
-            await server.stop();
-        });
-
-        it("errors on missing method", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
-
-            server.route({
-                method: "GET",
-                path: "/",
-                handler: () => "hello",
-            });
-
-            await server.start();
-            const client = new Ws("http://localhost:" + server.info.port);
-            client.onerror = Hoek.ignore;
-
-            const team = new Teamwork.Team();
-            client.on("message", (data) => {
-                const message = JSON.parse(data);
-                if (message.id !== 2) {
-                    client.send(JSON.stringify({ id: 2, type: "request", path: "/" }), Hoek.ignore);
-                    return;
-                }
-
-                expect(message.payload).toEqual({
-                    error: "Bad Request",
-                    message: "Message missing method",
-                });
-
-                expect(message.statusCode).toEqual(400);
-                expect(message.type).toEqual("request");
-
-                team.attend();
-            });
-
-            client.on("open", () => client.send(JSON.stringify({ id: 1, type: "hello", version: "2" }), Hoek.ignore));
+            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "request", path: "/" }), Hoek.ignore));
 
             await team.work;
             client.close();
@@ -433,7 +272,7 @@ describe("Socket", () => {
             await server.register({ plugin: plugin, options: {} });
 
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 handler: () => "hello",
             });
@@ -444,13 +283,13 @@ describe("Socket", () => {
 
             const team = new Teamwork.Team();
             client.on("message", (data) => {
-                const message = JSON.parse(data);
+                const message = parseNesMessage(data);
                 if (message.id !== 2) {
-                    client.send(JSON.stringify({ id: 2, type: "request", method: "GET" }), Hoek.ignore);
+                    client.send(stringifyNesMessage({ id: 2, type: "request" }), Hoek.ignore);
                     return;
                 }
 
-                expect(message.payload).toEqual({
+                expect(JSON.parse(message.payload.toString())).toEqual({
                     error: "Bad Request",
                     message: "Message missing path",
                 });
@@ -461,7 +300,7 @@ describe("Socket", () => {
                 team.attend();
             });
 
-            client.on("open", () => client.send(JSON.stringify({ id: 1, type: "hello", version: "2" }), Hoek.ignore));
+            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "hello", version: "2" }), Hoek.ignore));
 
             await team.work;
             client.close();
@@ -473,7 +312,7 @@ describe("Socket", () => {
             await server.register({ plugin: plugin, options: {} });
 
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 handler: () => "hello",
             });
@@ -484,24 +323,24 @@ describe("Socket", () => {
 
             const team = new Teamwork.Team();
             client.on("message", (data) => {
-                const message = JSON.parse(data);
+                const message = parseNesMessage(data);
                 if (message.id !== 2) {
-                    client.send(JSON.stringify({ id: 2, type: "unknown" }), Hoek.ignore);
+                    client.send(stringifyNesMessage({ id: 2, type: "unknown" }), Hoek.ignore);
                     return;
                 }
 
-                expect(message.payload).toEqual({
+                expect(JSON.parse(message.payload.toString())).toEqual({
                     error: "Bad Request",
                     message: "Unknown message type",
                 });
 
                 expect(message.statusCode).toEqual(400);
-                expect(message.type).toEqual("unknown");
+                expect(message.type).toEqual("undefined");
 
                 team.attend();
             });
 
-            client.on("open", () => client.send(JSON.stringify({ id: 1, type: "hello", version: "2" }), Hoek.ignore));
+            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "hello", version: "2" }), Hoek.ignore));
 
             await team.work;
             client.close();
@@ -518,8 +357,8 @@ describe("Socket", () => {
 
             const team = new Teamwork.Team();
             client.on("message", (data) => {
-                const message = JSON.parse(data);
-                expect(message.payload).toEqual({
+                const message = parseNesMessage(data);
+                expect(JSON.parse(message.payload.toString())).toEqual({
                     error: "Bad Request",
                     message: "Incorrect protocol version (expected 2 but received 1)",
                 });
@@ -529,7 +368,7 @@ describe("Socket", () => {
                 team.attend();
             });
 
-            client.on("open", () => client.send(JSON.stringify({ id: 1, type: "hello", version: "1" }), Hoek.ignore));
+            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "hello", version: "1" }), Hoek.ignore));
 
             await team.work;
             client.close();
@@ -546,10 +385,10 @@ describe("Socket", () => {
 
             const team = new Teamwork.Team();
             client.on("message", (data) => {
-                const message = JSON.parse(data);
-                expect(message.payload).toEqual({
+                const message = parseNesMessage(data);
+                expect(JSON.parse(message.payload.toString())).toEqual({
                     error: "Bad Request",
-                    message: "Incorrect protocol version (expected 2 but received none)",
+                    message: "Incorrect protocol version (expected 2 but received 0)",
                 });
 
                 expect(message.statusCode).toEqual(400);
@@ -557,34 +396,7 @@ describe("Socket", () => {
                 team.attend();
             });
 
-            client.on("open", () => client.send(JSON.stringify({ id: 1, type: "hello" }), Hoek.ignore));
-
-            await team.work;
-            client.close();
-            await server.stop();
-        });
-
-        it("errors on missing type", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
-
-            await server.start();
-            const client = new Ws("http://localhost:" + server.info.port);
-            client.onerror = Hoek.ignore;
-
-            const team = new Teamwork.Team();
-            client.on("message", (data) => {
-                const message = JSON.parse(data);
-                expect(message.payload).toEqual({
-                    error: "Bad Request",
-                    message: "Cannot parse message",
-                });
-
-                expect(message.statusCode).toEqual(400);
-                team.attend();
-            });
-
-            client.on("open", () => client.send(JSON.stringify({ id: 1 }), Hoek.ignore));
+            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "hello" }), Hoek.ignore));
 
             await team.work;
             client.close();
@@ -598,7 +410,7 @@ describe("Socket", () => {
             await server.register({ plugin: plugin, options: {} });
 
             server.route({
-                method: "GET",
+                method: "POST",
                 path: "/",
                 handler: (request) => request.socket.id,
             });
@@ -609,53 +421,7 @@ describe("Socket", () => {
 
             // @ts-ignore
             const { payload } = await client.request("/");
-            expect(payload).toEqual(client.id);
-
-            await client.disconnect();
-            await server.stop();
-        });
-
-        it("passed headers", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: { headers: "*" } });
-
-            server.route({
-                method: "GET",
-                path: "/",
-                handler: (request) => "hello " + request.headers.a,
-            });
-
-            await server.start();
-            const client = new Client("http://localhost:" + server.info.port);
-            await client.connect();
-
-            // @ts-ignore
-            const { payload, statusCode, headers } = await client.request({ path: "/", headers: { a: "b" } });
-            expect(payload).toEqual("hello b");
-            expect(statusCode).toEqual(200);
-            expect(headers["content-type"]).toEqual("text/html; charset=utf-8");
-
-            await client.disconnect();
-            await server.stop();
-        });
-
-        it("errors on authorization header", async () => {
-            const server = Hapi.server();
-            await server.register({ plugin: plugin, options: {} });
-
-            server.route({
-                method: "GET",
-                path: "/",
-                handler: () => "hello",
-            });
-
-            await server.start();
-            const client = new Client("http://localhost:" + server.info.port);
-            await client.connect();
-
-            await expect(client.request({ path: "/", headers: { Authorization: "something" } })).rejects.toThrowError(
-                "Cannot include an Authorization header",
-            );
+            expect(payload).toEqual(Buffer.from(client.id));
 
             await client.disconnect();
             await server.stop();

@@ -106,7 +106,7 @@ describe("BlocksController", () => {
                 });
 
                 await expect(
-                    blocksController.postBlock({ payload: { block: { data: blockSerialized } } }, {}),
+                    blocksController.postBlock({ payload: { block: blockSerialized } }, {}),
                 ).rejects.toBeInstanceOf(TooManyTransactionsError);
             });
 
@@ -160,7 +160,7 @@ describe("BlocksController", () => {
                 await expect(
                     blocksController.postBlock(
                         {
-                            payload: { block: { data: blockSerialized } },
+                            payload: { block: blockSerialized },
                             info: { remoteAddress: "187.55.33.22" },
                         },
                         {},
@@ -188,7 +188,7 @@ describe("BlocksController", () => {
                         await expect(
                             blocksController.postBlock(
                                 {
-                                    payload: { block: { data: blockSerialized } },
+                                    payload: { block: blockSerialized },
                                     info: { remoteAddress: "187.55.33.22" },
                                 },
                                 {},
@@ -199,7 +199,7 @@ describe("BlocksController", () => {
                         await expect(
                             blocksController.postBlock(
                                 {
-                                    payload: { block: { data: blockSerialized } },
+                                    payload: { block: blockSerialized },
                                     info: { remoteAddress: "187.55.33.22" },
                                 },
                                 {},
@@ -222,7 +222,7 @@ describe("BlocksController", () => {
                 });
                 await blocksController.postBlock(
                     {
-                        payload: { block: { data: blockSerialized } },
+                        payload: { block: blockSerialized },
                         info: { remoteAddress: ip },
                     },
                     {},
@@ -246,7 +246,7 @@ describe("BlocksController", () => {
                 });
                 await blocksController.postBlock(
                     {
-                        payload: { block: { data: blockSerialized } },
+                        payload: { block: blockSerialized },
                         info: { remoteAddress: ip },
                     },
                     {},

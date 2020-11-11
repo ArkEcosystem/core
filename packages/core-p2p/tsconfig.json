@@ -1,7 +1,8 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "outDir": "dist"
+        "outDir": "dist",
+        "allowJs" : true
     },
-    "include": ["src/**/**.ts"]
+    "include": ["src/**/**.ts", "src/socket-server/codecs/proto/*.js"]
 }
