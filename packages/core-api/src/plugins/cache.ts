@@ -9,6 +9,7 @@ const generateCacheKey = (request: Hapi.Request): string =>
             params: request.params || {},
             payload: request.payload || {},
             query: request.query,
+            method: request.method,
         }),
     ).toString("hex");
 
