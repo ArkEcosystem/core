@@ -1,10 +1,9 @@
 import { DatabaseService, Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Enums, Providers, Services, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Types, Utils } from "@arkecosystem/core-kernel";
 import { DatabaseInteraction } from "@arkecosystem/core-state";
-import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
-import async from "async";
+import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
-import { BlockProcessor, BlockProcessorResult } from "./processor";
+import { ProcessBlocksJob } from "./process-blocks-job";
 import { StateMachine } from "./state-machine";
 import { blockchainMachine } from "./state-machine/machine";
 
@@ -36,27 +35,28 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.StateMachine)
     private readonly stateMachine!: StateMachine;
 
+    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
+    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
+
+    @Container.inject(Container.Identifiers.PeerStorage)
+    private readonly peerStorage!: Contracts.P2P.PeerStorage;
+
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    // todo: make this private
-    public isStopped!: boolean;
-    // todo: make this private
-    public options: any;
-    // todo: make this private and use a queue instance from core-kernel
-    // @ts-ignore
-    public queue: async.AsyncQueue<any>;
+    private queue!: Contracts.Kernel.Queue;
 
+    private stopped!: boolean;
+    private booted: boolean = false;
     private missedBlocks: number = 0;
     private lastCheckNetworkHealthTs: number = 0;
-    private booted: boolean = false;
 
     @Container.postConstruct()
-    public initialize(): void {
-        this.isStopped = false;
+    public async initialize(): Promise<void> {
+        this.stopped = false;
 
         // flag to force a network start
         this.stateStore.networkStart = this.configuration.getOptional("options.networkStart", false);
@@ -67,21 +67,32 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             );
         }
 
-        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }): Promise<
-            Interfaces.IBlock[] | undefined
-        > => {
-            try {
-                return await this.processBlocks(blockList.blocks);
-            } catch (error) {
-                this.logger.error(
-                    `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
-                );
-                return undefined;
-            }
-        }, 1);
+        this.queue = await this.app.get<Types.QueueFactory>(Container.Identifiers.QueueFactory)();
 
-        // @ts-ignore
-        this.queue.drain(() => this.dispatch("PROCESSFINISHED"));
+        this.queue.onDrain(() => {
+            this.dispatch("PROCESSFINISHED");
+        });
+
+        this.queue.onError((job, error) => {
+            const blocks = (job as ProcessBlocksJob).getBlocks();
+
+            this.logger.error(`Failed to process ${blocks.length} blocks from height ${blocks[0].height} in queue.`);
+        });
+    }
+
+    /**
+     * Determine if the blockchain is stopped.
+     */
+    public isStopped(): boolean {
+        return this.stopped;
+    }
+
+    public isBooted(): boolean {
+        return this.booted;
+    }
+
+    public getQueue(): Contracts.Kernel.Queue {
+        return this.queue;
     }
 
     /**
@@ -108,11 +119,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             return true;
         }
 
-        while (!this.stateStore.started && !this.isStopped) {
+        while (!this.stateStore.started && !this.stopped) {
             await Utils.sleep(1000);
         }
 
-        this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).cleansePeers({
+        await this.networkMonitor.cleansePeers({
             forcePing: true,
             peerCount: 10,
         });
@@ -126,20 +137,16 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         return true;
     }
 
-    public isBooted(): boolean {
-        return this.booted;
-    }
-
     public async dispose(): Promise<void> {
-        if (!this.isStopped) {
+        if (!this.stopped) {
             this.logger.info("Stopping Blockchain Manager :chains:");
 
-            this.isStopped = true;
+            this.stopped = true;
             this.stateStore.clearWakeUpTimeout();
 
             this.dispatch("STOP");
 
-            this.queue.kill();
+            await this.queue.stop();
         }
     }
 
@@ -161,14 +168,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         this.setWakeUp();
     }
 
+    // TODO: Check if required
     /**
      * Update network status.
      * @return {void}
      */
     public async updateNetworkStatus(): Promise<void> {
-        await this.app
-            .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
-            .updateNetworkStatus();
+        await this.networkMonitor.updateNetworkStatus();
     }
 
     /**
@@ -187,7 +193,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public clearQueue(): void {
-        this.queue.remove(() => true);
+        this.queue.clear();
     }
 
     /**
@@ -235,6 +241,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             return;
         }
 
+        const __createQueueJob = (blocks: Interfaces.IBlockData[]) => {
+            const processBlocksJob = this.app.resolve<ProcessBlocksJob>(ProcessBlocksJob);
+            processBlocksJob.setBlocks(blocks);
+
+            this.queue.push(processBlocksJob);
+            this.queue.resume();
+        };
+
         const lastDownloadedHeight: number = this.getLastDownloadedBlock().height;
         const milestoneHeights: number[] = Managers.configManager
             .getMilestones()
@@ -259,7 +273,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 currentBlocksChunk.length >= Math.min(this.stateStore.getMaxLastBlocks(), 100) ||
                 nextMilestone
             ) {
-                this.queue.push({ blocks: currentBlocksChunk });
+                __createQueueJob(currentBlocksChunk);
                 currentBlocksChunk = [];
                 currentTransactionsCount = 0;
                 if (nextMilestone) {
@@ -267,7 +281,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 }
             }
         }
-        this.queue.push({ blocks: currentBlocksChunk });
+        __createQueueJob(currentBlocksChunk);
     }
 
     /**
@@ -300,7 +314,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             let newLastBlock: Interfaces.IBlock;
             if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
-                newLastBlock = this.app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
+                newLastBlock = this.stateStore.getGenesisBlock();
             } else {
                 const tempNewLastBlockData: Interfaces.IBlockData = blocksToRemove[blocksToRemove.length - 1];
 
@@ -356,9 +370,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         await this.blockRepository.deleteBlocks(removedBlocks.reverse());
 
-        if (this.transactionPool) {
-            this.transactionPool.readdTransactions(removedTransactions.reverse());
-        }
+        await this.transactionPool.readdTransactions(removedTransactions.reverse());
     }
 
     /**
@@ -372,140 +384,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         await this.blockRepository.deleteTopBlocks(count);
         await this.databaseInteraction.loadBlocksFromCurrentRound();
-    }
-
-    /**
-     * Process the given block.
-     */
-    public async processBlocks(blocks: Interfaces.IBlockData[]): Promise<Interfaces.IBlock[] | undefined> {
-        if (blocks.length) {
-            const lastHeight = this.getLastBlock().data.height;
-            const fromHeight = blocks[0].height;
-            const toHeight = blocks[blocks.length - 1].height;
-            this.logger.debug(`Processing chunk of blocks [${fromHeight}, ${toHeight}] on top of ${lastHeight}`);
-        }
-
-        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blocks[0].height);
-
-        const acceptedBlocks: Interfaces.IBlock[] = [];
-        let lastProcessResult: BlockProcessorResult | undefined;
-
-        if (
-            blocks[0] &&
-            !Utils.isBlockChained(this.getLastBlock().data, blocks[0], blockTimeLookup) &&
-            !CryptoUtils.isException(blocks[0])
-        ) {
-            this.logger.warning(
-                Utils.getBlockNotChainedErrorMessage(this.getLastBlock().data, blocks[0], blockTimeLookup),
-            );
-            // Discard remaining blocks as it won't go anywhere anyway.
-            this.clearQueue();
-            this.resetLastDownloadedBlock();
-            return undefined;
-        }
-
-        let forkBlock: Interfaces.IBlock | undefined = undefined;
-        let lastProcessedBlock: Interfaces.IBlock | undefined = undefined;
-        for (const block of blocks) {
-            const blockInstance = Blocks.BlockFactory.fromData(block, blockTimeLookup);
-            Utils.assert.defined<Interfaces.IBlock>(blockInstance);
-
-            lastProcessResult = await this.app
-                .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-                .call("processBlock", {
-                    blockProcessor: this.app.get<BlockProcessor>(Container.Identifiers.BlockProcessor),
-                    block: blockInstance,
-                });
-            lastProcessedBlock = blockInstance;
-
-            if (lastProcessResult === BlockProcessorResult.Accepted) {
-                acceptedBlocks.push(blockInstance);
-                this.stateStore.setLastBlock(blockInstance);
-            } else {
-                if (lastProcessResult === BlockProcessorResult.Rollback) {
-                    forkBlock = blockInstance;
-                    this.stateStore.lastDownloadedBlock = blockInstance.data;
-                }
-
-                break; // if one block is not accepted, the other ones won't be chained anyway
-            }
-        }
-
-        if (acceptedBlocks.length > 0) {
-            try {
-                await this.blockRepository.saveBlocks(acceptedBlocks);
-            } catch (error) {
-                this.logger.error(`Could not save ${acceptedBlocks.length} blocks to database : ${error.stack}`);
-
-                this.clearQueue();
-
-                // Rounds are saved while blocks are being processed and may now be out of sync with the last
-                // block that was written into the database.
-
-                const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
-                const lastHeight: number = lastBlock.data.height;
-                const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
-
-                this.logger.info(
-                    `Reverting ${Utils.pluralize(
-                        "block",
-                        acceptedBlocks.length,
-                        true,
-                    )} back to last height: ${lastHeight}`,
-                );
-
-                for (const block of acceptedBlocks.reverse()) {
-                    await this.databaseInteraction.revertBlock(block);
-                }
-
-                this.stateStore.setLastBlock(lastBlock);
-                this.resetLastDownloadedBlock();
-
-                await this.database.deleteRound(deleteRoundsAfter + 1);
-                await this.databaseInteraction.loadBlocksFromCurrentRound();
-
-                return undefined;
-            }
-        }
-
-        if (
-            (lastProcessResult === BlockProcessorResult.Accepted ||
-                lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
-            lastProcessedBlock
-        ) {
-            if (
-                this.stateStore.started &&
-                Crypto.Slots.getSlotInfo(blockTimeLookup).startTime <= lastProcessedBlock.data.timestamp
-            ) {
-                this.app
-                    .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
-                    .broadcastBlock(lastProcessedBlock);
-            }
-        } else if (forkBlock) {
-            this.forkBlock(forkBlock);
-        } else if (lastProcessedBlock) {
-            // Not all blocks are accepted. Clear queue and start again
-
-            this.logger.warning(`Could not process block at height ${lastProcessedBlock.data.height}.`);
-
-            if (this.stateStore.getLastBlock().data.height === lastProcessedBlock.data.height) {
-                await this.databaseInteraction.revertBlock(lastProcessedBlock);
-
-                const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
-                const lastHeight: number = lastBlock.data.height;
-                const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
-
-                this.stateStore.setLastBlock(lastBlock);
-
-                await this.database.deleteRound(deleteRoundsAfter + 1);
-                await this.databaseInteraction.loadBlocksFromCurrentRound();
-            }
-
-            this.clearQueue();
-            this.resetLastDownloadedBlock();
-        }
-
-        return acceptedBlocks;
     }
 
     /**
@@ -533,6 +411,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.clearAndStopQueue();
 
+        /* istanbul ignore else */
         if (numberOfBlockToRollback) {
             this.stateStore.numberOfBlocksToRollback = numberOfBlockToRollback;
         }
@@ -544,7 +423,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Determine if the blockchain is synced.
      */
     public isSynced(block?: Interfaces.IBlockData): boolean {
-        if (!this.app.get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage).hasPeers()) {
+        if (!this.peerStorage.hasPeers()) {
             return true;
         }
 
@@ -620,9 +499,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             }
             this.lastCheckNetworkHealthTs = nowTs;
 
-            const networkStatus = await this.app
-                .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
-                .checkNetworkHealth();
+            const networkStatus = await this.networkMonitor.checkNetworkHealth();
 
             if (networkStatus.forked) {
                 this.stateStore.numberOfBlocksToRollback = networkStatus.blocksToRollback;

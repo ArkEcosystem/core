@@ -28,6 +28,9 @@ export class Initialize implements Action {
     @Container.inject(Container.Identifiers.DatabaseInteraction)
     private readonly databaseInteraction!: DatabaseInteraction;
 
+    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
+    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
+
     public async handle(): Promise<void> {
         try {
             const block: Interfaces.IBlock = this.stateStore.getLastBlock();
@@ -68,7 +71,7 @@ export class Initialize implements Action {
                 await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
                 await this.databaseInteraction.restoreCurrentRound(block.data.height);
                 await this.transactionPool.readdTransactions();
-                await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
+                await this.networkMonitor.boot();
 
                 return this.blockchain.dispatch("STARTED");
             }
@@ -77,7 +80,7 @@ export class Initialize implements Action {
                 this.logger.notice("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
                 await this.app.get<Contracts.State.StateBuilder>(Container.Identifiers.StateBuilder).run();
-                await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
+                await this.networkMonitor.boot();
 
                 return this.blockchain.dispatch("STARTED");
             }
@@ -94,7 +97,7 @@ export class Initialize implements Action {
             await this.databaseInteraction.restoreCurrentRound(block.data.height);
             await this.transactionPool.readdTransactions();
 
-            await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
+            await this.networkMonitor.boot();
 
             return this.blockchain.dispatch("STARTED");
         } catch (error) {

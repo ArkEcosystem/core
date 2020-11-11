@@ -1,31 +1,35 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { StartForkRecovery } from "../../../../../packages/core-blockchain/src/state-machine/actions/start-fork-recovery";
+import { StartForkRecovery } from "@packages/core-blockchain/src/state-machine/actions/start-fork-recovery";
+import { Container } from "@packages/core-kernel";
 
 describe("StartForkRecovery", () => {
-    const container = new Container.Container();
+    let container: Container.Container;
+    let logger;
+    let blockchain;
+    let stateStore;
+    let peerNetworkMonitor;
+    let application;
 
-    const logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
-    const blockchain = {
-        dispatch: jest.fn(),
-        clearAndStopQueue: jest.fn(),
-        removeBlocks: jest.fn(),
-        queue: { resume: jest.fn() },
-    };
-    const stateStore = { numberOfBlocksToRollback: undefined };
-    const peerNetworkMonitor = { refreshPeersAfterFork: jest.fn() };
+    beforeEach(() => {
+        jest.resetAllMocks();
 
-    const application = { get: () => peerNetworkMonitor };
+        logger = { warning: jest.fn(), debug: jest.fn(), info: jest.fn() };
+        blockchain = {
+            dispatch: jest.fn(),
+            clearAndStopQueue: jest.fn(),
+            removeBlocks: jest.fn(),
+            getQueue: jest.fn().mockReturnValue({ resume: jest.fn() }),
+        };
+        stateStore = { numberOfBlocksToRollback: undefined };
+        peerNetworkMonitor = { refreshPeersAfterFork: jest.fn() };
 
-    beforeAll(() => {
-        container.unbindAll();
+        application = {};
+
+        container = new Container.Container();
         container.bind(Container.Identifiers.Application).toConstantValue(application);
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
         container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
-    });
-
-    beforeEach(() => {
-        jest.resetAllMocks();
+        container.bind(Container.Identifiers.PeerNetworkMonitor).toConstantValue(peerNetworkMonitor);
     });
 
     describe("handle", () => {
@@ -42,7 +46,7 @@ describe("StartForkRecovery", () => {
             expect(peerNetworkMonitor.refreshPeersAfterFork).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("SUCCESS");
-            expect(blockchain.queue.resume).toHaveBeenCalledTimes(1);
+            expect(blockchain.getQueue().resume).toHaveBeenCalledTimes(1);
         });
 
         it("should remove stateStore.numberOfBlocksToRollback blocks when defined", async () => {
@@ -58,7 +62,7 @@ describe("StartForkRecovery", () => {
             expect(peerNetworkMonitor.refreshPeersAfterFork).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledTimes(1);
             expect(blockchain.dispatch).toHaveBeenCalledWith("SUCCESS");
-            expect(blockchain.queue.resume).toHaveBeenCalledTimes(1);
+            expect(blockchain.getQueue().resume).toHaveBeenCalledTimes(1);
         });
     });
 });

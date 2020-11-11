@@ -4,9 +4,6 @@ import { Action } from "../contracts";
 
 @Container.injectable()
 export class CheckLastDownloadedBlockSynced implements Action {
-    @Container.inject(Container.Identifiers.Application)
-    public readonly app!: Contracts.Kernel.Application;
-
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -16,16 +13,19 @@ export class CheckLastDownloadedBlockSynced implements Action {
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
 
+    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
+    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
+
     public async handle(): Promise<void> {
         let event = "NOTSYNCED";
-        this.logger.debug(`Queued chunks of blocks (process: ${this.blockchain.queue.length()})`);
+        this.logger.debug(`Queued chunks of blocks (process: ${this.blockchain.getQueue().size()})`);
 
-        if (this.blockchain.queue.length() > 100) {
+        if (this.blockchain.getQueue().size() > 100) {
             event = "PAUSED";
         }
 
         // tried to download but no luck after 5 tries (looks like network missing blocks)
-        if (this.stateStore.noBlockCounter > 5 && this.blockchain.queue.idle()) {
+        if (this.stateStore.noBlockCounter > 5 && !this.blockchain.getQueue().isRunning()) {
             this.logger.info("Tried to sync 5 times to different nodes, looks like the network is missing blocks");
 
             this.stateStore.noBlockCounter = 0;
@@ -34,9 +34,7 @@ export class CheckLastDownloadedBlockSynced implements Action {
             if (this.stateStore.p2pUpdateCounter + 1 > 3) {
                 this.logger.info("Network keeps missing blocks.");
 
-                const networkStatus = await this.app
-                    .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
-                    .checkNetworkHealth();
+                const networkStatus = await this.networkMonitor.checkNetworkHealth();
 
                 if (networkStatus.forked) {
                     this.stateStore.numberOfBlocksToRollback = networkStatus.blocksToRollback;
