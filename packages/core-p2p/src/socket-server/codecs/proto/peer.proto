@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package peer;
+
+message GetPeersResponse {
+    message Peer {
+        string ip = 1;
+        uint32 port = 2;
+    }
+
+    repeated Peer peers = 1;
+}
+
+message GetCommonBlocksRequest {
+    repeated string ids = 1;
+}
+
+message GetCommonBlocksResponse {
+    message Common {
+        uint32 height = 1;
+        string id = 2;
+    }
+
+    Common common = 1;
+}
+
+
+message GetStatusResponse {
+    message State {
+        message BlockHeader {
+            string id = 1;
+            string idHex = 2;
+            uint32 version = 3;
+            uint32 timestamp = 4;
+            string previousBlock = 5;
+            string previousBlockHex = 6;
+            uint32 height = 7;
+            uint32 numberOfTransactions = 8;
+            string totalAmount = 9; // bignumber in core
+            string totalFee = 10; // bignumber in core
+            string reward = 11; // bignumber in core
+            uint32 payloadLength = 12;
+            string payloadHash = 13;
+            string generatorPublicKey = 14;
+            string blockSignature = 15;
+        }
+        uint32 height = 1;
+        bool forgingAllowed = 2;
+        uint32 currentSlot = 3;
+        BlockHeader header = 4;
+    }
+
+    message Config {
+        message Network {
+            message Token {
+                string name = 1;
+                string symbol = 2;
+            }
+
+            string name = 1;
+            string nethash = 2;
+            string explorer = 3;
+            Token token = 4;
+            uint32 version = 5;
+        }
+
+        message Plugin {
+            uint32 port = 1;
+            bool enabled = 2;
+            bool estimateTotalCount = 3;
+        }
+
+        string version = 1;
+        Network network = 2;
+        map<string, Plugin> plugins = 3;
+    }
+
+    State state = 1;
+    Config config = 2;
+}

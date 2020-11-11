@@ -2,9 +2,9 @@
 
 import Boom from "@hapi/boom";
 import Bounce from "@hapi/bounce";
-import Cryptiles from "@hapi/cryptiles";
 import Hoek from "@hapi/hoek";
 import Teamwork from "@hapi/teamwork";
+import { parseNesMessage, stringifyNesMessage } from "./utils";
 
 const internals = {
     version: "2",
@@ -54,13 +54,9 @@ export class Socket {
         return this._removed;
     }
 
-    public send(message) {
-        const response = {
-            type: "update",
-            message,
-        };
-
-        return this._send(response);
+    public terminate() {
+        this._ws.terminate();
+        return this._removed;
     }
 
     public isOpen() {
@@ -83,7 +79,7 @@ export class Socket {
 
         let string;
         try {
-            string = JSON.stringify(message);
+            string = stringifyNesMessage(message);
             if (options.replace) {
                 Object.keys(options.replace).forEach((token) => {
                     string = string.replace(`"${token}"`, options.replace[token]);
@@ -174,6 +170,7 @@ export class Socket {
         delete message.payload.statusCode;
         message.headers = this._filterHeaders(message.headers);
 
+        message.payload = Buffer.from(JSON.stringify(message.payload));
         if (request) {
             message.type = request.type;
             message.id = request.id;
@@ -185,9 +182,12 @@ export class Socket {
     private async _onMessage(message) {
         let request;
         try {
-            request = JSON.parse(message);
+            if (!(message instanceof Buffer)) {
+                return this.terminate();
+            }
+            request = parseNesMessage(message);
         } catch (err) {
-            return this._error(Boom.badRequest("Cannot parse message"));
+            return this.terminate();
         }
 
         this._pinged = true;
@@ -211,7 +211,7 @@ export class Socket {
             }
         } catch (err) {
             Bounce.rethrow(err, "system");
-            this.disconnect();
+            this.terminate();
         }
 
         --this._processingCount;
@@ -243,6 +243,7 @@ export class Socket {
         // Endpoint request
 
         if (request.type === "request") {
+            request.method = "POST";
             return this._processRequest(request);
         }
 
@@ -317,7 +318,7 @@ export class Socket {
             method,
             url: path,
             payload: request.payload,
-            headers: request.headers,
+            headers: { ...request.headers, "content-type": "application/octet-stream" },
             auth: null,
             validate: false,
             plugins: {
@@ -338,18 +339,7 @@ export class Socket {
             headers: this._filterHeaders(res.headers),
         };
 
-        const options: any = {};
-        if (
-            typeof res.result === "string" &&
-            res.headers["content-type"] &&
-            res.headers["content-type"].match(/^application\/json/)
-        ) {
-            const token = Cryptiles.randomString(32);
-            options.replace = { [token]: res.result };
-            response.payload = token;
-        }
-
-        return { response, options };
+        return { response, options: {} };
     }
 
     private _filterHeaders(headers) {

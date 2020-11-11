@@ -51,7 +51,7 @@ export interface PeerData {
 export interface PeerConfig {
     version: string;
     network: {
-        version: string;
+        version: number;
         name: string;
         nethash: string;
         explorer: string;

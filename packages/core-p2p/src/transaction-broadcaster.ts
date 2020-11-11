@@ -1,5 +1,5 @@
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { PeerCommunicator } from "./peer-communicator";
 
@@ -31,7 +31,9 @@ export class TransactionBroadcaster implements Contracts.P2P.TransactionBroadcas
         const peersStr = Utils.pluralize("peer", peers.length, true);
         this.logger.debug(`Broadcasting ${transactionsStr} to ${peersStr}`);
 
-        const transactionsBroadcast: Interfaces.ITransactionJson[] = transactions.map((t) => t.toJson());
+        const transactionsBroadcast: Buffer[] = transactions.map(
+            (t) => Transactions.Serializer.serialize(t)
+        );
         const promises = peers.map((p) => this.communicator.postTransactions(p, transactionsBroadcast));
 
         await Promise.all(promises);

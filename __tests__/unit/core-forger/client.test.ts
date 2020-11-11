@@ -21,10 +21,6 @@ beforeEach(() => {
     app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 });
 
-afterEach(() => {
-    //jest.resetAllMocks();
-});
-
 describe("Client", () => {
     let client: Client;
 
@@ -101,9 +97,7 @@ describe("Client", () => {
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
             expect(nesClient.request).toHaveBeenCalledWith({
                 path: "p2p.blocks.postBlock",
-                headers: {},
-                method: "POST",
-                payload: { block: expect.anything() },
+                payload: expect.any(Buffer),
             });
             expect(logger.error).not.toHaveBeenCalled();
         });
@@ -160,9 +154,7 @@ describe("Client", () => {
             await client.getTransactions();
             expect(nesClient.request).toHaveBeenCalledWith({
                 path: "p2p.internal.getUnconfirmedTransactions",
-                headers: {},
-                method: "POST",
-                payload: {},
+                payload: Buffer.from(JSON.stringify({})),
             });
         });
     });
@@ -177,9 +169,7 @@ describe("Client", () => {
 
             expect(nesClient.request).toHaveBeenCalledWith({
                 path: "p2p.internal.getCurrentRound",
-                headers: {},
-                method: "POST",
-                payload: {},
+                payload: Buffer.from(JSON.stringify({})),
             });
         });
     });
@@ -193,9 +183,7 @@ describe("Client", () => {
 
             expect(nesClient.request).toHaveBeenCalledWith({
                 path: "p2p.internal.syncBlockchain",
-                headers: {},
-                method: "POST",
-                payload: {},
+                payload: Buffer.from(JSON.stringify({})),
             });
             expect(logger.debug).toHaveBeenCalledWith(`Sending wake-up check to relay node ${host.hostname}`);
         });
@@ -220,9 +208,7 @@ describe("Client", () => {
 
             expect(nesClient.request).toHaveBeenCalledWith({
                 path: "p2p.internal.getNetworkState",
-                headers: {},
-                method: "POST",
-                payload: {},
+                payload: Buffer.from(JSON.stringify({})),
             });
         });
 
@@ -248,12 +234,10 @@ describe("Client", () => {
 
             expect(nesClient.request).toHaveBeenCalledWith({
                 path: "p2p.internal.emitEvent",
-                headers: {},
-                method: "POST",
-                payload: {
-                    body: data,
+                payload: Buffer.from(JSON.stringify({
                     event: "test-event",
-                },
+                    body: data,
+                })),
             });
         });
 

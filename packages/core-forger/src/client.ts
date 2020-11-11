@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Nes, NetworkState, NetworkStateStatus, PortsOffset } from "@arkecosystem/core-p2p";
+import { Nes, NetworkState, NetworkStateStatus, PortsOffset, Codecs } from "@arkecosystem/core-p2p";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
@@ -224,18 +224,31 @@ export class Client {
 
             Utils.assert.defined<Nes.Client>(socket);
 
+            const codec = this.getCodec(event);
+
             const options = {
                 path: event,
-                headers: {},
-                method: "POST",
-                payload,
+                payload: codec.request.serialize(payload),
             };
 
             const response: any = await socket.request(options);
 
-            return response.payload;
+            return codec.response.deserialize(response.payload);
         } catch (error) {
             throw new RelayCommunicationError(`${this.host.hostname}:${this.host.port}<${event}>`, error.message);
         }
+    }
+
+    private getCodec(event: string) {
+        const codecs = {
+            "p2p.internal.emitEvent": Codecs.emitEvent,
+            "p2p.internal.getUnconfirmedTransactions": Codecs.getUnconfirmedTransactions,
+            "p2p.internal.getCurrentRound": Codecs.getCurrentRound,
+            "p2p.internal.getNetworkState": Codecs.getNetworkState,
+            "p2p.internal.syncBlockchain": Codecs.syncBlockchain,
+            "p2p.blocks.postBlock": Codecs.postBlock,
+        };
+
+        return codecs[event];
     }
 }

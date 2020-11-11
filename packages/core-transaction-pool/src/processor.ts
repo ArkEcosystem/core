@@ -1,3 +1,4 @@
+import ByteBuffer from "bytebuffer";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
@@ -27,33 +28,34 @@ export class Processor implements Contracts.TransactionPool.Processor {
     public excess: string[] = [];
     public errors?: { [id: string]: Contracts.TransactionPool.ProcessorError };
 
-    public async process(data: Interfaces.ITransactionData[]): Promise<void> {
+    public async process(data: Interfaces.ITransactionData[] | Buffer[]): Promise<void> {
         const broadcastableTransactions: Interfaces.ITransaction[] = [];
 
         try {
-            for (const transactionData of data) {
-                const id = transactionData.id;
-                AppUtils.assert.defined<string>(id);
+            for (let i = 0; i < data.length; i++) {
+                const transactionData = data[i];
 
                 try {
-                    const transaction = await this.getTransactionFromData(transactionData);
+                    const transaction = transactionData instanceof Buffer
+                        ? await this.getTransactionFromBuffer(transactionData)
+                        : await this.getTransactionFromData(transactionData as Interfaces.ITransactionData);
                     await this.pool.addTransaction(transaction);
-                    this.accept.push(id);
+                    this.accept.push(transactionData instanceof Buffer ? `${i}` : transactionData.id ?? `${i}`);
 
                     try {
                         await this.dynamicFeeMatcher.throwIfCannotBroadcast(transaction);
                         broadcastableTransactions.push(transaction);
                     } catch {}
                 } catch (error) {
-                    this.invalid.push(id);
+                    this.invalid.push(transactionData instanceof Buffer ? `${i}` : transactionData.id ?? `${i}`);
 
                     if (error instanceof Contracts.TransactionPool.PoolError) {
                         if (error.type === "ERR_EXCEEDS_MAX_COUNT") {
-                            this.excess.push(id);
+                            this.excess.push(transactionData instanceof Buffer ? `${i}` : transactionData.id ?? `${i}`);
                         }
 
                         if (!this.errors) this.errors = {};
-                        this.errors[id] = {
+                        this.errors[transactionData instanceof Buffer ? i : transactionData.id ?? i] = {
                             type: error.type,
                             message: error.message,
                         };
@@ -72,6 +74,24 @@ export class Processor implements Contracts.TransactionPool.Processor {
                     this.broadcast.push(transaction.id);
                 }
             }
+        }
+    }
+
+    private async getTransactionFromBuffer(
+        transactionData: Buffer,
+    ): Promise<Interfaces.ITransaction> {
+        try {
+            const transactionCommon = {} as Interfaces.ITransactionData;
+            const txByteBuffer = ByteBuffer.wrap(transactionData);
+            Transactions.Deserializer.deserializeCommon(transactionCommon, txByteBuffer);
+
+            if (this.workerPool.isTypeGroupSupported(transactionCommon.typeGroup!)) {
+                return await this.workerPool.getTransactionFromData(transactionData);
+            } else {
+                return Transactions.TransactionFactory.fromBytes(transactionData);
+            }
+        } catch (error) {
+            throw new InvalidTransactionDataError(error.message);
         }
     }
 

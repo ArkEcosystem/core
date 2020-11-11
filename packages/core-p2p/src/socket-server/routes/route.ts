@@ -4,10 +4,22 @@ import Joi from "@hapi/joi";
 
 import { Controller } from "../controllers/controller";
 
+export type Codec = {
+    request: {
+        serialize: any;
+        deserialize: any;
+    },
+    response: {
+        serialize: any;
+        deserialize: any;
+    },
+};
+
 export type RouteConfig = {
     id: string;
     handler: any;
     validation?: Joi.Schema;
+    codec: Codec;
     maxBytes?: number;
 };
 
