@@ -22,13 +22,7 @@ export interface RelayHost {
      * @type {Nes.Client}
      * @memberof RelayHost
      */
-    blocksSocket?: Nes.Client;
-
-    /**
-     * @type {Nes.Client}
-     * @memberof RelayHost
-     */
-    internalSocket?: Nes.Client;
+    socket?: Nes.Client;
 }
 
 /**

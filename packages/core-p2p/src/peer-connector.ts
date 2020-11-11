@@ -15,32 +15,32 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         return Array.from(this.connections, ([key, value]) => value);
     }
 
-    public connection(peer: Contracts.P2P.Peer, port: number): Client | undefined {
-        const connection: Client | undefined = this.connections.get(`${peer.ip}:${port}`);
+    public connection(peer: Contracts.P2P.Peer): Client | undefined {
+        const connection: Client | undefined = this.connections.get(`${peer.ip}`);
 
         return connection;
     }
 
-    public async connect(peer: Contracts.P2P.Peer, port: number): Promise<Client> {
-        const connection = this.connection(peer, port) || (await this.create(peer, port));
+    public async connect(peer: Contracts.P2P.Peer): Promise<Client> {
+        const connection = this.connection(peer) || (await this.create(peer));
 
-        this.connections.set(`${peer.ip}:${port}`, connection);
+        this.connections.set(`${peer.ip}`, connection);
 
         return connection;
     }
 
-    public disconnect(peer: Contracts.P2P.Peer, port: number): void {
-        const connection = this.connection(peer, port);
+    public disconnect(peer: Contracts.P2P.Peer): void {
+        const connection = this.connection(peer);
 
         if (connection) {
             connection.disconnect();
 
-            this.connections.delete(`${peer.ip}:${port}`);
+            this.connections.delete(`${peer.ip}`);
         }
     }
 
-    public async emit(peer: Contracts.P2P.Peer, port: number, event: string, payload: any): Promise<any> {
-        const connection: Client = await this.connect(peer, port);
+    public async emit(peer: Contracts.P2P.Peer, event: string, payload: any): Promise<any> {
+        const connection: Client = await this.connect(peer);
         const options = {
             path: event,
             headers: {},
@@ -67,8 +67,8 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         this.errors.delete(peer.ip);
     }
 
-    private async create(peer: Contracts.P2P.Peer, port: number): Promise<Client> {
-        const connection = new Client(`ws://${peer.ip}:${port}`, { timeout: 10000 });
+    private async create(peer: Contracts.P2P.Peer): Promise<Client> {
+        const connection = new Client(`ws://${peer.ip}:${peer.port}`, { timeout: 10000 });
 
         connection.onError = (error) => {
             this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
