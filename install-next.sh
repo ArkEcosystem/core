@@ -223,7 +223,7 @@ done
 
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
 export PATH=$(yarn global bin):$PATH
-ark config:publish
+ark config:publish --network=devnet
 ark config:cli --channel=next
 
 success "Installed ARK Core!"
