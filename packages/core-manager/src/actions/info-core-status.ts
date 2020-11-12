@@ -18,22 +18,25 @@ export class Action implements Actions.Action {
             token: {
                 type: "string",
             },
+            process: {
+                type: "string",
+            },
         },
     };
 
     public async execute(params: any): Promise<any> {
         return {
-            processStatus: this.getProcessStatus(params.token) || "undefined",
+            processStatus: this.getProcessStatus(params.token, params.process) || "undefined",
             syncing: await this.getSyncingStatus(),
         };
     }
 
-    private getProcessStatus(token: string = "ark"): Contracts.ProcessState | undefined {
+    private getProcessStatus(token: string = "ark", process: string = "core"): Contracts.ProcessState | undefined {
         const cli = this.app.get<Cli>(Identifiers.CLI);
 
         const processManager = cli.get<Services.ProcessManager>(CliContainer.Identifiers.ProcessManager);
 
-        return processManager.status(`${token}-core`);
+        return processManager.status(`${token}-${process}`);
     }
 
     private async getSyncingStatus(): Promise<boolean | undefined> {
