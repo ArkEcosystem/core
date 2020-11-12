@@ -1,10 +1,14 @@
-import { Container } from "@arkecosystem/core-kernel";
-import { Connection, ConnectionOptions, createConnection } from "typeorm";
+import { Application, Container } from "@arkecosystem/core-kernel";
+import { Identifiers } from "@arkecosystem/core-snapshots";
+import { Connection } from "typeorm";
 
 import { Actions } from "../contracts";
 
 @Container.injectable()
 export class Action implements Actions.Action {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Application;
+
     public name = "info.databaseSize";
 
     public async execute(): Promise<any> {
@@ -13,28 +17,11 @@ export class Action implements Actions.Action {
         };
     }
 
-    private getDatabaseDefaults() {
-        // todo: this has to be grabbed from the container for the alias `database` or the manager will only work with official plugins
-        return require("@arkecosystem/core-database/dist/defaults").defaults;
-    }
-
-    private getDatabaseName(): string {
-        return this.getDatabaseDefaults().connection.database;
-    }
-
     private async getDatabaseSize(): Promise<number> {
-        const connection = await this.connect();
+        const connection = this.app.get<Connection>(Identifiers.SnapshotDatabaseConnection);
 
-        try {
-            const result = await connection.query(`SELECT pg_database_size('${this.getDatabaseName()}');`);
+        const result = await connection.query(`SELECT pg_database_size('${connection.options.database}');`);
 
-            return Math.round(result[0].pg_database_size / 1024);
-        } finally {
-            await connection.close();
-        }
-    }
-
-    private async connect(): Promise<Connection> {
-        return createConnection(this.getDatabaseDefaults().connection as ConnectionOptions);
+        return Math.round(result[0].pg_database_size / 1024);
     }
 }
