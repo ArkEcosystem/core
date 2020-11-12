@@ -28,8 +28,10 @@ const createWebhook = (server, data?: any) => request(server, "POST", "webhooks"
 
 let server: Server;
 let serverOptions = {
-    host: "0.0.0.0",
-    port: 4004,
+    http: {
+        host: "0.0.0.0",
+        port: 4004,
+    }
 };
 
 beforeEach(async () => {
