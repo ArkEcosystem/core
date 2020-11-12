@@ -34,9 +34,9 @@ export const defaults = {
         },
     },
     plugins: {
-        whitelist: ["*"],
+        whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
         tokenAuthentication: {
-            enabled: true,
+            enabled: false,
             // Secret access token
             // token: "secret_token",
         },
