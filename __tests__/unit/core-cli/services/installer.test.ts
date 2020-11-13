@@ -63,7 +63,9 @@ describe("Installer.install", () => {
 
 describe("Installer.installPeerDependencies", () => {
     it("should install each peer dependency", () => {
-        const spyInstallVersion: jest.SpyInstance = jest.spyOn(installer, "installVersion").mockReturnValue(undefined);
+        const spyInstallRangeTop: jest.SpyInstance = jest
+            .spyOn(installer, "installRangeTop")
+            .mockReturnValue(undefined);
 
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stdout: JSON.stringify({ pm2: "4.5.0", somepkg: "^1.0.0" }),
@@ -76,12 +78,14 @@ describe("Installer.installPeerDependencies", () => {
             shell: true,
         });
 
-        expect(spyInstallVersion).toHaveBeenCalledWith("pm2", "4.5.0");
-        expect(spyInstallVersion).toHaveBeenCalledWith("somepkg", "^1.0.0");
+        expect(spyInstallRangeTop).toHaveBeenCalledWith("pm2", "4.5.0");
+        expect(spyInstallRangeTop).toHaveBeenCalledWith("somepkg", "^1.0.0");
     });
 
     it("should not install peer dependencies when there aren't any", () => {
-        const spyInstallVersion: jest.SpyInstance = jest.spyOn(installer, "installVersion").mockReturnValue(undefined);
+        const spyInstallRangeTop: jest.SpyInstance = jest
+            .spyOn(installer, "installRangeTop")
+            .mockReturnValue(undefined);
 
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
             stdout: JSON.stringify(null),
@@ -94,7 +98,7 @@ describe("Installer.installPeerDependencies", () => {
             shell: true,
         });
 
-        expect(spyInstallVersion).not.toHaveBeenCalled();
+        expect(spyInstallRangeTop).not.toHaveBeenCalled();
     });
 
     it("should throw error when yarn command fails", () => {
@@ -111,4 +115,21 @@ describe("Installer.installPeerDependencies", () => {
     });
 });
 
-describe("Installer.installVersion", () => {});
+describe("Installer.installRangeTop", () => {
+    it("should install highest matching version", () => {
+        const spyInstall: jest.SpyInstance = jest.spyOn(installer, "install").mockReturnValue(undefined);
+
+        const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+            stdout: JSON.stringify(["3.0.0", "3.0.0-next.9"]),
+            exitCode: 0,
+        });
+
+        installer.installRangeTop("@arkecosystem/core", "^3.0.0 <3.4.0");
+
+        expect(spySync).toHaveBeenCalledWith("yarn info @arkecosystem/core versions --json", {
+            shell: true,
+        });
+
+        expect(spyInstall).toHaveBeenCalledWith("@arkecosystem/core", "3.0.0");
+    });
+});
