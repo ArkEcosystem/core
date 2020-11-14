@@ -175,7 +175,10 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         }
 
         for (const block of peerBlocks) {
-            if (!block.transactions) {
+            if (headersOnly) {
+                // with headersOnly we still get block.transactions as empty array (protobuf deser) but in this case we actually
+                // don't want the transactions as a property at all (because it would make validation fail)
+                delete block.transactions;
                 continue;
             }
 
