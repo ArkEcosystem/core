@@ -426,11 +426,11 @@ describe("PeerCommunicator", () => {
             version: 0,
             timestamp: 46583330,
             height: 2,
-            reward: "0",
+            reward: Utils.BigNumber.ZERO,
             previousBlock: "17184958558311101492",
             numberOfTransactions: 0,
-            totalAmount: "0",
-            totalFee: "0",
+            totalAmount: Utils.BigNumber.ZERO,
+            totalFee: Utils.BigNumber.ZERO,
             payloadLength: 0,
             payloadHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             generatorPublicKey: "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
@@ -449,21 +449,24 @@ describe("PeerCommunicator", () => {
                 ).toString("hex"),
             ],
         };
+        const cloneBlock = (block) => ({
+            ...cloneObject(block),
+            reward: block.reward,
+            totalAmount: block.totalAmount,
+            totalFee: block.totalFee,
+        });
 
-        it.each([[true], [false]])("should use connector to emit p2p.blocks.getBlocks", async (withTransactions) => {
+        it("should use connector to emit p2p.blocks.getBlocks", async () => {
             const event = "p2p.blocks.getBlocks";
             const options = {
                 fromBlockHeight: 1,
                 blockLimit: 1,
-                headersOnly: true,
+                headersOnly: false,
             };
             const peer = new Peer("187.168.65.65", 4000);
 
-            const cloneBlock = cloneObject(block);
-            if (!withTransactions) {
-                delete cloneBlock.transactions;
-            }
-            const mockConnectorResponse = { payload: [cloneBlock] };
+            const mockConnectorResponse = { payload: [cloneBlock(block)] };
+            const cloneMockConnectorResponse = { payload: [cloneBlock(block)] };
             connector.emit = jest.fn().mockReturnValueOnce(mockConnectorResponse);
             const getPeerBlocksResult = await peerCommunicator.getPeerBlocks(peer, options);
 
@@ -475,7 +478,42 @@ describe("PeerCommunicator", () => {
             };
             expect(connector.emit).toBeCalledTimes(1);
             expect(connector.emit).toBeCalledWith(peer, event,  expectedEmitPayload);
-            expect(getPeerBlocksResult).toEqual(mockConnectorResponse.payload);
+            expect(getPeerBlocksResult).toEqual(cloneMockConnectorResponse.payload.map((b) => ({
+                ...b,
+                transactions: b.transactions.map((transaction) => {
+                    const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
+                    data.blockId = block.id;
+                    return data;
+                })
+            })));
+        });
+
+        it("should delete transactions field when using headersOnly==true", async () => {
+            const event = "p2p.blocks.getBlocks";
+            const options = {
+                fromBlockHeight: 1,
+                blockLimit: 1,
+                headersOnly: true,
+            };
+            const peer = new Peer("187.168.65.65", 4000);
+
+            const mockConnectorResponse = { payload: [cloneBlock(block)] };
+            const cloneMockConnectorResponse = { payload: [cloneBlock(block)] };
+            connector.emit = jest.fn().mockReturnValueOnce(mockConnectorResponse);
+            const getPeerBlocksResult = await peerCommunicator.getPeerBlocks(peer, options);
+
+            const expectedEmitPayload = {
+                lastBlockHeight: options.fromBlockHeight,
+                blockLimit: options.blockLimit,
+                headersOnly: options.headersOnly,
+                serialized: true,
+            };
+            expect(connector.emit).toBeCalledTimes(1);
+            expect(connector.emit).toBeCalledWith(peer, event,  expectedEmitPayload);
+            expect(getPeerBlocksResult).toEqual(cloneMockConnectorResponse.payload.map((b) => {
+                delete b.transactions;
+                return b;
+            }));
         });
 
         it("should log a debug message when peer did not return any block", async () => {
