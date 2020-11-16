@@ -44,29 +44,6 @@ describe("BIP38Command", () => {
         });
     });
 
-    it("should fail to configure from a prompt if it receives a valid bip39 and password but no confirmation", async () => {
-        await cli.withFlags({ bip39, password }).execute(Command);
-
-        expect(require(`${process.env.CORE_PATH_CONFIG}/delegates.json`)).toEqual({
-            bip38: "6PYTQC4c3Te5FCbnU5Z59uZCav121nypLmxanYn21ZoNTdc81eB9wTqeTe",
-            secrets: [],
-        });
-
-        jest.spyOn(cli.app.get(Container.Identifiers.Prompt), "render").mockReturnValue({
-            // @ts-ignore
-            bip39: bip39Prompt,
-            password,
-            confirm: false,
-        });
-
-        await cli.execute(Command);
-
-        expect(require(`${process.env.CORE_PATH_CONFIG}/delegates.json`)).toEqual({
-            bip38: "6PYTQC4c3Te5FCbnU5Z59uZCav121nypLmxanYn21ZoNTdc81eB9wTqeTe",
-            secrets: [],
-        });
-    });
-
     it("should fail to configure from a prompt if it receives an invalid bip39", async () => {
         await cli.withFlags({ bip39, password }).execute(Command);
 
@@ -75,11 +52,12 @@ describe("BIP38Command", () => {
             secrets: [],
         });
 
-        jest.spyOn(cli.app.get(Container.Identifiers.Prompt), "render").mockReturnValue({
+        jest.spyOn(cli.app.get(Container.Identifiers.Prompt), "render")
+            .mockReturnValueOnce({
             // @ts-ignore
             bip39: "random-string",
             password,
-            confirm: true,
+            passwordConfirmation: password,
         });
 
         await expect(cli.execute(Command)).rejects.toThrow("Failed to verify the given passphrase as BIP39 compliant.");
@@ -90,7 +68,7 @@ describe("BIP38Command", () => {
             // @ts-ignore
             bip39: null,
             password,
-            confirm: true,
+            passwordConfirmation: password,
         });
 
         await expect(cli.execute(Command)).rejects.toThrow("Failed to verify the given passphrase as BIP39 compliant.");

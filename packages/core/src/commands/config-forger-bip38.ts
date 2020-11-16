@@ -77,12 +77,9 @@ export class Command extends Commands.Command {
                 validate: /* istanbul ignore next */ (value) =>
                     typeof value !== "string" ? "The BIP38 password has to be a string." : true,
             },
-        ]);
-
-        await this.components.prompt([
             {
                 type: "password",
-                name: "password",
+                name: "passwordConfirmation",
                 message: "Confirm custom password that encrypts the BIP39. Referred to as BIP38.",
                 validate: /* istanbul ignore next */ (value) =>
                     value !== response.password ? "Confirm password does not match BIP38 password." : true,
@@ -90,11 +87,11 @@ export class Command extends Commands.Command {
         ]);
 
         if (!response.bip39 || !validateMnemonic(response.bip39 as string)) {
-            this.components.fatal("Failed to verify the given passphrase as BIP39 compliant.");
+            throw new Error("Failed to verify the given passphrase as BIP39 compliant.");
         }
 
         if (!response.password) {
-            this.components.fatal("The BIP38 password has to be a string.");
+            throw new Error("The BIP38 password has to be a string.");
         }
 
         return this.performConfiguration({ ...this.getFlags(), ...response });
