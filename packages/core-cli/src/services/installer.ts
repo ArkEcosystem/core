@@ -33,11 +33,11 @@ export class Installer {
         }
 
         for (const [peerPkg, peerPkgSemver] of Object.entries(JSON.parse(stdout) || {})) {
-            this.installRangeTop(peerPkg, peerPkgSemver as string);
+            this.installRangeLatest(peerPkg, peerPkgSemver as string);
         }
     }
 
-    public installRangeTop(pkg: string, range: string): void {
+    public installRangeLatest(pkg: string, range: string): void {
         const { stdout, stderr, exitCode } = sync(`yarn info ${pkg} versions --json`, { shell: true });
 
         if (exitCode !== 0) {

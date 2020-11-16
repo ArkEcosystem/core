@@ -63,8 +63,8 @@ describe("Installer.install", () => {
 
 describe("Installer.installPeerDependencies", () => {
     it("should install each peer dependency", () => {
-        const spyInstallRangeTop: jest.SpyInstance = jest
-            .spyOn(installer, "installRangeTop")
+        const spyInstallRangeLatest: jest.SpyInstance = jest
+            .spyOn(installer, "installRangeLatest")
             .mockReturnValue(undefined);
 
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
@@ -78,13 +78,13 @@ describe("Installer.installPeerDependencies", () => {
             shell: true,
         });
 
-        expect(spyInstallRangeTop).toHaveBeenCalledWith("pm2", "4.5.0");
-        expect(spyInstallRangeTop).toHaveBeenCalledWith("somepkg", "^1.0.0");
+        expect(spyInstallRangeLatest).toHaveBeenCalledWith("pm2", "4.5.0");
+        expect(spyInstallRangeLatest).toHaveBeenCalledWith("somepkg", "^1.0.0");
     });
 
     it("should not install peer dependencies when there aren't any", () => {
-        const spyInstallRangeTop: jest.SpyInstance = jest
-            .spyOn(installer, "installRangeTop")
+        const spyInstallRangeLatest: jest.SpyInstance = jest
+            .spyOn(installer, "installRangeLatest")
             .mockReturnValue(undefined);
 
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
@@ -98,7 +98,7 @@ describe("Installer.installPeerDependencies", () => {
             shell: true,
         });
 
-        expect(spyInstallRangeTop).not.toHaveBeenCalled();
+        expect(spyInstallRangeLatest).not.toHaveBeenCalled();
     });
 
     it("should throw error when yarn command fails", () => {
@@ -115,7 +115,7 @@ describe("Installer.installPeerDependencies", () => {
     });
 });
 
-describe("Installer.installRangeTop", () => {
+describe("Installer.installRangeLatest", () => {
     it("should install highest matching version", () => {
         const spyInstall: jest.SpyInstance = jest.spyOn(installer, "install").mockReturnValue(undefined);
 
@@ -124,7 +124,7 @@ describe("Installer.installRangeTop", () => {
             exitCode: 0,
         });
 
-        installer.installRangeTop("@arkecosystem/core", "^3.0.0 <3.4.0");
+        installer.installRangeLatest("@arkecosystem/core", "^3.0.0 <3.4.0");
 
         expect(spySync).toHaveBeenCalledWith("yarn info @arkecosystem/core versions --json", {
             shell: true,
