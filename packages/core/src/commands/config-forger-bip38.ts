@@ -77,10 +77,15 @@ export class Command extends Commands.Command {
                 validate: /* istanbul ignore next */ (value) =>
                     typeof value !== "string" ? "The BIP38 password has to be a string." : true,
             },
+        ]);
+
+        await this.components.prompt([
             {
-                type: "confirm",
-                name: "confirm",
-                message: "Can you confirm?",
+                type: "password",
+                name: "password",
+                message: "Confirm custom password that encrypts the BIP39. Referred to as BIP38.",
+                validate: /* istanbul ignore next */ (value) =>
+                    value !== response.password ? "Confirm password does not match BIP38 password." : true,
             },
         ]);
 
@@ -92,9 +97,7 @@ export class Command extends Commands.Command {
             this.components.fatal("The BIP38 password has to be a string.");
         }
 
-        if (response.confirm) {
-            return this.performConfiguration({ ...this.getFlags(), ...response });
-        }
+        return this.performConfiguration({ ...this.getFlags(), ...response });
     }
 
     /**
