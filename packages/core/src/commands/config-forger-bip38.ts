@@ -77,6 +77,9 @@ export class Command extends Commands.Command {
                 validate: /* istanbul ignore next */ (value) =>
                     typeof value !== "string" ? "The BIP38 password has to be a string." : true,
             },
+        ]);
+
+        await this.components.prompt([
             {
                 type: "password",
                 name: "passwordConfirmation",
