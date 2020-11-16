@@ -1,9 +1,11 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
+import { Queue } from "../kernel/queue";
+
 export interface Blockchain {
-    isStopped: boolean;
-    options: any;
-    queue: any;
+    isStopped(): boolean;
+
+    getQueue(): Queue;
 
     /**
      * Dispatch an event to transition the state machine.
@@ -69,11 +71,6 @@ export interface Blockchain {
      * @return {void}
      */
     removeTopBlocks(count: number): Promise<void>;
-
-    /**
-     * Process the given block.
-     */
-    processBlocks(blocks: Interfaces.IBlockData[], callback): Promise<Interfaces.IBlock[] | undefined>;
 
     /**
      * Reset the last downloaded block to last chained block.

@@ -18,7 +18,7 @@ export class BlocksController extends Controller {
             "@arkecosystem/core-p2p",
         );
 
-        const blockBuffer = Buffer.from(request.payload.block.data);
+        const blockBuffer: Buffer = request.payload.block;
 
         const deserializedHeader = Blocks.Deserializer.deserialize(blockBuffer, true);
 

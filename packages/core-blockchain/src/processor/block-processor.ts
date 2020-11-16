@@ -19,6 +19,8 @@ export enum BlockProcessorResult {
     DiscardedButCanBeBroadcasted,
     Rejected,
     Rollback,
+    Reverted,
+    Corrupted,
 }
 
 @Container.injectable()
@@ -38,6 +40,9 @@ export class BlockProcessor {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
+
+    @Container.inject(Container.Identifiers.TriggerService)
+    private readonly triggers!: Services.Triggers.Triggers;
 
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         if (Utils.isException({ ...block.data, transactions: block.transactions.map((tx) => tx.data) })) {
@@ -126,6 +131,7 @@ export class BlockProcessor {
                 }),
             );
 
+            /* istanbul ignore else */
             if (forgedIds.length > 0) {
                 this.logger.warning(
                     `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions`,
@@ -198,9 +204,9 @@ export class BlockProcessor {
         const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.data.height);
 
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
-        const delegates: Contracts.State.Wallet[] = (await this.app
-            .get<Services.Triggers.Triggers>(Container.Identifiers.TriggerService)
-            .call("getActiveDelegates", { roundInfo })) as Contracts.State.Wallet[];
+        const delegates: Contracts.State.Wallet[] = (await this.triggers.call("getActiveDelegates", {
+            roundInfo,
+        })) as Contracts.State.Wallet[];
 
         const forgingInfo: Contracts.Shared.ForgingInfo = AppUtils.forgingInfoCalculator.calculateForgingInfo(
             block.data.timestamp,
@@ -230,7 +236,7 @@ export class BlockProcessor {
                     block.data.generatorPublicKey
                 }) is allowed to forge block ${block.data.height.toLocaleString()}`,
             );
-        } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
+        } /* istanbul ignore next */ else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
             AppUtils.assert.defined<string>(forgingDelegate.publicKey);
 
             const forgingWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(forgingDelegate.publicKey);

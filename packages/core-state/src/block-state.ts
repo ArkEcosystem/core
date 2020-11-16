@@ -11,6 +11,9 @@ export class BlockState {
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
     private handlerRegistry!: Handlers.Registry;
 
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly state!: Contracts.State.StateStore;
+
     @Container.inject(Container.Identifiers.LogService)
     private logger!: Contracts.Kernel.Logger;
 
@@ -19,6 +22,7 @@ export class BlockState {
             this.initGenesisForgerWallet(block.data.generatorPublicKey);
         }
 
+        const previousBlock = this.state.getLastBlock();
         const forgerWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
         /**
          * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
@@ -35,12 +39,17 @@ export class BlockState {
                 appliedTransactions.push(transaction);
             }
             this.applyBlockToForger(forgerWallet, block.data);
+
+            this.state.setLastBlock(block);
         } catch (error) {
             this.logger.error(error.stack);
             this.logger.error("Failed to apply all transactions in block - reverting previous transactions");
             for (const transaction of appliedTransactions.reverse()) {
                 await this.revertTransaction(transaction);
             }
+
+            this.state.setLastBlock(previousBlock);
+
             throw error;
         }
     }

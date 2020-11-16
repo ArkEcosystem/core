@@ -7,7 +7,7 @@ export interface PeerCommunicator {
 
     postBlock(peer: Peer, block: Interfaces.IBlock);
 
-    postTransactions(peer: Peer, transactions: Interfaces.ITransactionJson[]): Promise<any>;
+    postTransactions(peer: Peer, transactions: Buffer[]): Promise<any>;
 
     ping(peer: Peer, timeoutMsec: number, force?: boolean): Promise<any>;
 

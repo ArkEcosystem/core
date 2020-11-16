@@ -26,9 +26,3 @@ export enum SocketErrors {
     SocketNotOpen = "CoreSocketNotOpenError",
     Validation = "CoreValidationError",
 }
-
-export enum PortsOffset {
-    Peer = 0,
-    Blocks = 10,
-    Transactions = 20,
-}

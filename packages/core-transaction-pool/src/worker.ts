@@ -23,7 +23,7 @@ export class Worker implements Contracts.TransactionPool.Worker {
     }
 
     public async getTransactionFromData(
-        transactionData: Interfaces.ITransactionData,
+        transactionData: Interfaces.ITransactionData | Buffer,
     ): Promise<Interfaces.ITransaction> {
         const currentHeight = Managers.configManager.getHeight()!;
         if (currentHeight !== this.lastHeight) {

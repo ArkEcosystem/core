@@ -80,10 +80,8 @@ describe("DisconnectPeer", () => {
 
             expect(storage.forgetPeer).toBeCalledTimes(1);
             expect(storage.forgetPeer).toBeCalledWith(peer);
-            expect(connector.disconnect).toBeCalledTimes(3);
-            expect(connector.disconnect).toBeCalledWith(peer, 4000);
-            expect(connector.disconnect).toBeCalledWith(peer, 4010);
-            expect(connector.disconnect).toBeCalledWith(peer, 4020);
+            expect(connector.disconnect).toBeCalledTimes(1);
+            expect(connector.disconnect).toBeCalledWith(peer);
         });
     });
 });

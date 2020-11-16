@@ -364,7 +364,7 @@ describe("ForgerService", () => {
                     forgerService.isForgingAllowed(mockNetworkState, delegates[0]),
                 ).toEqual(false);
 
-            expect(logger.info).toHaveBeenCalledWith("Fork 6 - Not enough quorum to forge next block. Will not forge.");
+            expect(logger.info).toHaveBeenCalledWith("Not enough quorum to forge next block. Will not forge.");
 
             expect(logger.debug).toHaveBeenCalledWith(`Network State: ${mockNetworkState.toJson()}`);
 

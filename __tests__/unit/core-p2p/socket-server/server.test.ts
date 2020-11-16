@@ -29,15 +29,11 @@ describe("Server", () => {
         terminate: jest.fn(),
         resolve: jest.fn().mockReturnValue({ register: jest.fn() }),
     };
-    const peerProcessor = {
-        validateAndAcceptPeer: jest.fn(),
-    };
 
     beforeAll(() => {
         container.unbindAll();
         container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         container.bind(Container.Identifiers.Application).toConstantValue(app);
-        container.bind(Container.Identifiers.PeerProcessor).toConstantValue(peerProcessor);
         container.bind(serverSymbol).to(Server);
     });
 
@@ -64,37 +60,11 @@ describe("Server", () => {
         it("should instantiate a new Hapi server", async () => {
             await server.initialize(name, options);
 
-            expect(spyHapiServer).toBeCalledTimes(3); // 3 servers listening on the 3 ports
+            expect(spyHapiServer).toBeCalledTimes(1);
             expect(hapiServer.register).toHaveBeenCalledWith({
                 plugin: Nes.plugin,
-                options: {
-                    maxPayload: 102400,
-                    onConnection: expect.any(Function),
-                },
+                options: { maxPayload: 20971520 },
             });
-            expect(hapiServer.register).toHaveBeenCalledWith({
-                plugin: Nes.plugin,
-                options: {
-                    maxPayload: 20971520,
-                    onConnection: expect.any(Function),
-                },
-            });
-            expect(hapiServer.register).toHaveBeenCalledWith({
-                plugin: Nes.plugin,
-                options: {
-                    maxPayload: 10485760,
-                    onConnection: expect.any(Function),
-                },
-            });
-        });
-
-        it("should add peer for each new connection", async () => {
-            await server.initialize(name, options);
-
-            const onConnection = hapiServer.register.mock.calls[0][0].options.onConnection;
-            onConnection({ info: { remoteAddress: "1.2.3.4" } });
-
-            expect(peerProcessor.validateAndAcceptPeer).toBeCalledWith({ ip: "1.2.3.4" });
         });
     });
 
@@ -103,7 +73,7 @@ describe("Server", () => {
             await server.initialize(name, options);
             await server.boot();
 
-            expect(hapiServer.start).toBeCalledTimes(3);
+            expect(hapiServer.start).toBeCalledTimes(1);
             expect(app.terminate).not.toBeCalled();
         });
 
@@ -123,7 +93,7 @@ describe("Server", () => {
             await server.initialize(name, options);
             await server.dispose();
 
-            expect(hapiServer.stop).toBeCalledTimes(3);
+            expect(hapiServer.stop).toBeCalledTimes(1);
             expect(app.terminate).not.toBeCalled();
         });
 
@@ -146,7 +116,7 @@ describe("Server", () => {
             const plugin = { name: "my plugin" };
             await server.register(plugin);
 
-            expect(hapiServer.register).toBeCalledTimes(3); // 3 servers listening on the 3 ports
+            expect(hapiServer.register).toBeCalledTimes(1);
             expect(hapiServer.register).toBeCalledWith(plugin);
         });
     });
@@ -159,7 +129,7 @@ describe("Server", () => {
             const route = { method: "POST", path: "/the/path" };
             await server.route(route);
 
-            expect(hapiServer.route).toBeCalledTimes(3); // 3 servers listening on the 3 ports
+            expect(hapiServer.route).toBeCalledTimes(1);
             expect(hapiServer.route).toBeCalledWith(route);
         });
     });
@@ -172,7 +142,7 @@ describe("Server", () => {
             const toInject = { name: "thing to inject" };
             await server.inject(toInject);
 
-            expect(hapiServer.inject).toBeCalledTimes(3); // 3 servers listening on the 3 ports
+            expect(hapiServer.inject).toBeCalledTimes(1);
             expect(hapiServer.inject).toBeCalledWith(toInject);
         });
     });
