@@ -52,6 +52,10 @@ describe("ServiceProvider", () => {
         serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
     });
 
+    it("should contain core-snapshot dependency", async () => {
+        await expect(serviceProvider.dependencies().length).toEqual(1);
+    });
+
     it("should register", async () => {
         const usedDefaults = cloneDeep(defaults);
 

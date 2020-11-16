@@ -1,26 +1,26 @@
 import "jest-extended";
 
 import { Action } from "@packages/core-manager/src/actions/info-database-size";
+import { Identifiers } from "@packages/core-snapshots";
 import { Sandbox } from "@packages/core-test-framework";
-import * as typeorm from "typeorm";
 
 let sandbox: Sandbox;
 let action: Action;
-
-// @ts-ignore
-jest.spyOn(typeorm, "createConnection").mockImplementation(async () => {
-    return {
-        query: jest.fn().mockResolvedValue([
-            {
-                pg_database_size: 1024,
-            },
-        ]),
-        close: jest.fn(),
-    };
-});
+const databaseConnection = {
+    query: jest.fn().mockReturnValue([
+        {
+            pg_database_size: 1024,
+        },
+    ]),
+    options: {
+        database: "database_name",
+    },
+};
 
 beforeEach(() => {
     sandbox = new Sandbox();
+
+    sandbox.app.bind(Identifiers.SnapshotDatabaseConnection).toConstantValue(databaseConnection);
 
     action = sandbox.app.resolve(Action);
 });
