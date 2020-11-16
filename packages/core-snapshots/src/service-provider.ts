@@ -1,5 +1,5 @@
 import { Models, Utils } from "@arkecosystem/core-database";
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Connection, createConnection, getCustomRepository } from "typeorm";
 
 import { SnapshotDatabaseService } from "./database-service";
@@ -24,15 +24,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async required(): Promise<boolean> {
         return true;
-    }
-
-    public dependencies(): Contracts.Kernel.PluginDependency[] {
-        return [
-            {
-                name: "@arkecosystem/core-snapshots",
-                required: true,
-            },
-        ];
     }
 
     private registerServices(): void {
