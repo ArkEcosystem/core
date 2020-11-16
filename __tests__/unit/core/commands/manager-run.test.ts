@@ -21,7 +21,13 @@ describe("RunCommand", () => {
         const spyBootstrap = jest.spyOn(app, "bootstrap").mockImplementation(undefined);
         const spyBoot = jest.spyOn(app, "boot").mockImplementation(undefined);
 
-        await executeCommand(Command);
+        executeCommand(Command);
+
+        await new Promise((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, 50);
+        });
 
         expect(spyBootstrap).toHaveBeenCalled();
         expect(spyBoot).toHaveBeenCalled();
