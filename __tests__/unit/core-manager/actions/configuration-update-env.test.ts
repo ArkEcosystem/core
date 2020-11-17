@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Container } from "@packages/core-kernel";
-import { Action } from "@packages/core-manager/src/actions/configuration-update-env";
+import { Action } from "@packages/core-manager/src/actions/configuration-set-env";
 import { Sandbox } from "@packages/core-test-framework";
 
 let sandbox: Sandbox;
@@ -21,9 +21,9 @@ beforeEach(() => {
     sandbox.app.environmentFile = jest.fn().mockReturnValue("/path/to/file");
 });
 
-describe("Configuration:UpdateEnv", () => {
+describe("Configuration:SetEnv", () => {
     it("should have name", () => {
-        expect(action.name).toEqual("configuration.updateEnv");
+        expect(action.name).toEqual("configuration.setEnv");
     });
 
     it("should validate and save configuration", async () => {
