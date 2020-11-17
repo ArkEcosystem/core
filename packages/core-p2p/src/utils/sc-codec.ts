@@ -79,7 +79,13 @@ export const decode = input => {
 
     try {
         return JSON.parse(message, base64ToBinaryReplacer);
-    } catch (err) {} // tslint:disable-line
+    } catch {
+        try {
+            return JSON.parse(message);
+        } catch {
+            //
+        }
+    }
 
     return message;
 };
