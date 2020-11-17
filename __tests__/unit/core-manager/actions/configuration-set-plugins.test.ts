@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Container } from "@packages/core-kernel";
-import { Action } from "@packages/core-manager/src/actions/configuration-update-plugins";
+import { Action } from "@packages/core-manager/src/actions/configuration-set-plugins";
 import { Sandbox } from "@packages/core-test-framework";
 
 let sandbox: Sandbox;
@@ -21,9 +21,9 @@ beforeEach(() => {
     sandbox.app.configPath = jest.fn().mockReturnValue("/path/to/file");
 });
 
-describe("Configuration:UpdatePlugins", () => {
+describe("Configuration:SetPlugins", () => {
     it("should have name", () => {
-        expect(action.name).toEqual("configuration.updatePlugins");
+        expect(action.name).toEqual("configuration.setPlugins");
     });
 
     it("should validate and save configuration", async () => {

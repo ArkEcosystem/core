@@ -10,7 +10,7 @@ export class Action implements Actions.Action {
     @Container.inject(Container.Identifiers.FilesystemService)
     private readonly filesystem!: Contracts.Kernel.Filesystem;
 
-    public name = "configuration.updatePlugins";
+    public name = "configuration.setPlugins";
 
     public schema = {
         type: "object",
