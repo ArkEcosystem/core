@@ -8,7 +8,7 @@ let sandbox: Sandbox;
 let action: Action;
 
 const mockFilesystem = {
-    get: jest.fn().mockResolvedValue("file_content"),
+    get: jest.fn().mockResolvedValue("STRING_VARIABLE=string\nNUMERIC_VARIABLE=123"),
 };
 
 beforeEach(() => {
@@ -29,6 +29,9 @@ describe("Configuration:EnvGet", () => {
 
         const result = await action.execute({});
 
-        await expect(result).toBe("file_content");
+        await expect(result).toEqual({
+            STRING_VARIABLE: "string",
+            NUMERIC_VARIABLE: 123,
+        });
     });
 });
