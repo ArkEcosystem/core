@@ -87,7 +87,7 @@ export class WalletSyncService implements Contracts.Kernel.EventListener {
                 await this.walletsTableService.flush();
                 await this.walletsTableService.sync(this.walletRepository.allByAddress());
 
-                this.logger.info(`Wallets table initialized at height ${blockHeight}`);
+                this.logger.info(`Wallets table initialized at height ${blockHeight.toLocaleString()}`);
             } catch (error) {
                 this.app.terminate("Failed to initialize wallets table", error);
             }
@@ -111,7 +111,7 @@ export class WalletSyncService implements Contracts.Kernel.EventListener {
 
                 await this.walletsTableService.sync(updatedWallets);
 
-                this.logger.info(`Wallets table synchronized at height ${blockHeight}`);
+                this.logger.info(`Wallets table synchronized at height ${blockHeight.toLocaleString()}`);
             } catch (error) {
                 this.app.terminate("Failed to synchronize wallets table", error);
             }

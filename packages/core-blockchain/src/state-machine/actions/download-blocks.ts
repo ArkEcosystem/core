@@ -72,7 +72,9 @@ export class DownloadBlocks implements Action {
         } else {
             if (empty) {
                 this.logger.info(
-                    `Could not download any blocks from any peer from height ${lastDownloadedBlock.height + 1}`,
+                    `Could not download any blocks from any peer from height ${(
+                        lastDownloadedBlock.height + 1
+                    ).toLocaleString()}`,
                 );
             } else {
                 this.logger.warning(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);

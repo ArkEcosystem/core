@@ -315,7 +315,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         const { highestCommonHeight } = peersMostCommonHeight[0].verificationResult;
         this.logger.info(
-            `Rolling back to most common height ${highestCommonHeight}. Own height: ${lastBlock.data.height}`,
+            `Rolling back to most common height ${highestCommonHeight.toLocaleString()}. Own height: ${lastBlock.data.height.toLocaleString()}`,
         );
 
         // Now rollback blocks equal to the distance to the most common height.

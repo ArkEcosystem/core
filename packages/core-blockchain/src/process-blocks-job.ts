@@ -157,7 +157,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
         const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
 
         this.logger.info(
-            `Reverting ${Utils.pluralize("block", blocksToRevert.length, true)} back to last height: ${lastHeight}`,
+            `Reverting ${Utils.pluralize("block", blocksToRevert.length, true)} back to last height: ${lastHeight.toLocaleString()}`,
         );
 
         for (const block of blocksToRevert.reverse()) {
