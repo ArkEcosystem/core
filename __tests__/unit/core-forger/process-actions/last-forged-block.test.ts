@@ -8,7 +8,9 @@ let sandbox: Sandbox;
 let action: LastForgedBlockRemoteAction;
 
 const mockBlock = {
-    id: "123",
+    data: {
+        id: "123",
+    },
 };
 
 const mockForgerService = {
@@ -25,6 +27,6 @@ beforeEach(() => {
 
 describe("LastForgedBlockProcessAction", () => {
     it("should return last forged block", async () => {
-        await expect(action.handler()).resolves.toEqual(mockBlock);
+        await expect(action.handler()).resolves.toEqual(mockBlock.data);
     });
 });
