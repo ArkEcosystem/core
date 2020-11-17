@@ -364,7 +364,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         for (let i = 0; i < chunksToDownload; i++) {
             const height: number = fromBlockHeight + this.downloadChunkSize * i;
             const isLastChunk: boolean = i === chunksToDownload - 1;
-            const blocksRange: string = `[${height + 1}, ${isLastChunk ? ".." : height + this.downloadChunkSize}]`;
+            const blocksRange: string = `[${(height + 1).toLocaleString()}, ${(isLastChunk
+                ? ".."
+                : height + this.downloadChunkSize
+            ).toLocaleString()}]`;
 
             //@ts-ignore
             downloadJobs.push(async () => {

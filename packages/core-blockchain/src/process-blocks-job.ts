@@ -2,9 +2,9 @@ import { DatabaseService, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 import { DatabaseInteraction } from "@arkecosystem/core-state";
 import { Blocks, Crypto, Interfaces, Utils as CryptoUtils } from "@arkecosystem/crypto";
-import { RevertBlockHandler } from "./processor/handlers";
 
 import { BlockProcessor, BlockProcessorResult } from "./processor";
+import { RevertBlockHandler } from "./processor/handlers";
 
 @Container.injectable()
 export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
@@ -62,7 +62,9 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
         const lastHeight = this.blockchain.getLastBlock().data.height;
         const fromHeight = this.blocks[0].height;
         const toHeight = this.blocks[this.blocks.length - 1].height;
-        this.logger.debug(`Processing chunk of blocks [${fromHeight}, ${toHeight}] on top of ${lastHeight}`);
+        this.logger.debug(
+            `Processing chunk of blocks [${fromHeight.toLocaleString()}, ${toHeight.toLocaleString()}] on top of ${lastHeight.toLocaleString()}`,
+        );
 
         const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, this.blocks[0].height);
 
@@ -119,7 +121,9 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             try {
                 await this.blockRepository.saveBlocks(acceptedBlocks);
             } catch (error) {
-                this.logger.error(`Could not save ${acceptedBlocks.length} blocks to database : ${error.stack}`);
+                this.logger.error(
+                    `Could not save ${acceptedBlocks.length.toLocaleString()} blocks to database : ${error.stack}`,
+                );
 
                 await this.revertBlocks(acceptedBlocks);
 
@@ -157,7 +161,11 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
         const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
 
         this.logger.info(
-            `Reverting ${Utils.pluralize("block", blocksToRevert.length, true)} back to last height: ${lastHeight.toLocaleString()}`,
+            `Reverting ${Utils.pluralize(
+                "block",
+                blocksToRevert.length,
+                true,
+            )} back to last height: ${lastHeight.toLocaleString()}`,
         );
 
         for (const block of blocksToRevert.reverse()) {

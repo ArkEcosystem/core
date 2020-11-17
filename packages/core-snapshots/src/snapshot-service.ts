@@ -111,7 +111,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             this.logger.info("Running ROLLBACK");
 
             if (!height || height <= 0) {
-                this.logger.error(`Rollback height ${height.toString()} is invalid.`);
+                this.logger.error(`Rollback height ${height.toLocaleString()} is invalid.`);
                 return;
             }
 
