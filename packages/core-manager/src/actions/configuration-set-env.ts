@@ -14,38 +14,26 @@ export class Action implements Actions.Action {
 
     public schema = {
         type: "object",
-        properties: {
-            content: {
-                type: "string",
-            },
-        },
-        required: ["content"],
+        properties: {},
     };
 
-    public async execute(params: { content: string }): Promise<any> {
-        await this.updateEnv(params.content);
+    public async execute(params: any): Promise<any> {
+        await this.updateEnv(params);
 
         return {};
     }
 
-    private validateEnv(content: string): void {
-        let count = 0;
-        for (const line of content.toString().split("\n")) {
-            count++;
-            if (line === "") {
-                continue;
-            }
-            const matches: RegExpExecArray | null = new RegExp(/^[A-Z][A-Z0-9_]*=\S\S*$/).exec(line);
+    private format(params: string): string {
+        let result = "";
 
-            if (!matches) {
-                throw new Error(`Invalid line [${count}]: ${line}`);
-            }
+        for (const [key, value] of Object.entries(params)) {
+            result += `${key}=${value}\n`;
         }
+
+        return result;
     }
 
-    private async updateEnv(content: string): Promise<void> {
-        this.validateEnv(content);
-
-        await this.filesystem.put(this.app.environmentFile(), content);
+    private async updateEnv(params: any): Promise<void> {
+        await this.filesystem.put(this.app.environmentFile(), this.format(params));
     }
 }
