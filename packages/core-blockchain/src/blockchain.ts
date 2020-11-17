@@ -84,7 +84,9 @@ export class Blockchain implements blockchain.IBlockchain {
         this.actions = stateMachine.actionMap(this);
         this.blockProcessor = new BlockProcessor(this);
 
-        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }): Promise<Interfaces.IBlock[] | undefined> => {
+        this.queue = async.queue(async (blockList: { blocks: Interfaces.IBlockData[] }): Promise<
+            Interfaces.IBlock[] | undefined
+        > => {
             try {
                 return await this.processBlocks(blockList.blocks);
             } catch (error) {
@@ -471,12 +473,7 @@ export class Blockchain implements blockchain.IBlockchain {
             lastProcessResult === BlockProcessorResult.Accepted ||
             lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
         ) {
-            // broadcast last processed block
-            const blocktime: number = config.getMilestone(lastProcessedBlock.data.height).blocktime;
-
-            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= lastProcessedBlock.data.timestamp) {
-                this.p2p.getMonitor().broadcastBlock(lastProcessedBlock);
-            }
+            this.p2p.getMonitor().broadcastBlock(lastProcessedBlock);
         } else if (forkBlock) {
             this.forkBlock(forkBlock);
         }
