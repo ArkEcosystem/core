@@ -1,24 +1,24 @@
 import "jest-extended";
 
-import { Container } from "@packages/core-kernel";
 import { Action } from "@packages/core-manager/src/actions/configuration-set-plugins";
 import { Sandbox } from "@packages/core-test-framework";
 
 let sandbox: Sandbox;
 let action: Action;
+import fs from "fs-extra";
 
-const mockFilesystem = {
-    put: jest.fn(),
-};
+const writeJSONSync = jest.spyOn(fs, "writeJSONSync").mockImplementation();
 
 beforeEach(() => {
     sandbox = new Sandbox();
 
-    sandbox.app.bind(Container.Identifiers.FilesystemService).toConstantValue(mockFilesystem);
-
     action = sandbox.app.resolve(Action);
 
     sandbox.app.configPath = jest.fn().mockReturnValue("/path/to/file");
+});
+
+afterEach(() => {
+    jest.clearAllMocks();
 });
 
 describe("Configuration:SetPlugins", () => {
@@ -27,26 +27,25 @@ describe("Configuration:SetPlugins", () => {
     });
 
     it("should validate and save configuration", async () => {
-        const content = '{ "core": { "plugins": [ { "package": "@arkecosystem/core-manager" } ] } }';
+        const params = { core: { plugins: [{ package: "@arkecosystem/core-manager" }] } };
 
-        const result = await action.execute({ content: content });
+        const result = await action.execute(params);
 
         expect(result).toEqual({});
-        expect(mockFilesystem.put).toHaveBeenCalledTimes(1);
-    });
-
-    it("should throw error - content cannot be resolved", async () => {
-        const content = "invalid_json";
-        await expect(action.execute({ content: content })).rejects.toThrow("Content cannot be resolved");
+        expect(writeJSONSync).toHaveBeenCalledWith("/path/to/file", params, { spaces: 4 });
     });
 
     it("should throw error - plugins keys are missing", async () => {
-        const content = '{ "core": { } }';
-        await expect(action.execute({ content: content })).rejects.toThrow("core plugins array is missing");
+        const params = { core: {} };
+        await expect(action.execute(params)).rejects.toThrow("core plugins array is missing");
+
+        expect(writeJSONSync).not.toHaveBeenCalled();
     });
 
     it("should throw error - plugin is not an abject", async () => {
-        const content = '{ "core": { "plugins": [ { "package": 123 } ] } }';
-        await expect(action.execute({ content: content })).rejects.toThrow("Package is not a string");
+        const params = { core: { plugins: [{ package: 123 }] } };
+        await expect(action.execute(params)).rejects.toThrow("Package is not a string");
+
+        expect(writeJSONSync).not.toHaveBeenCalled();
     });
 });
