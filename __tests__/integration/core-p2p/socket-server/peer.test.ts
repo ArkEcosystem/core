@@ -379,6 +379,10 @@ describe("Peer socket endpoint", () => {
                     data: {},
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
 
         it("should cancel the request when exceeding rate limit on a certain endpoint", async () => {
@@ -406,11 +410,11 @@ describe("Peer socket endpoint", () => {
                     headers,
                     data: {},
                 }),
-            ).toResolve();
+            ).rejects.toHaveProperty("name", "BadConnectionError"); // banned for 1 minute
 
-            await delay(4000);
-
-            await expect(postBlock()).toResolve();
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
 
         it("should close the connection when the event length is > 128", async () => {
