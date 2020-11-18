@@ -19,7 +19,7 @@ export class Installer {
         const { stdout, stderr, exitCode } = sync(`yarn global add ${pkg}@${tag}`, { shell: true });
 
         if (exitCode !== 0) {
-            throw new Error(stderr);
+            throw new Error(`"yarn global add ${pkg}@${tag}" exited with code ${exitCode}\n${stderr}`);
         }
 
         console.log(stdout);
@@ -29,7 +29,9 @@ export class Installer {
         const { stdout, stderr, exitCode } = sync(`yarn info ${pkg}@${tag} peerDependencies --json`, { shell: true });
 
         if (exitCode !== 0) {
-            throw new Error(stderr);
+            throw new Error(
+                `"yarn info ${pkg}@${tag} peerDependencies --json" exited with code ${exitCode}\n${stderr}`,
+            );
         }
 
         for (const [peerPkg, peerPkgSemver] of Object.entries(JSON.parse(stdout) || {})) {
@@ -41,7 +43,7 @@ export class Installer {
         const { stdout, stderr, exitCode } = sync(`yarn info ${pkg} versions --json`, { shell: true });
 
         if (exitCode !== 0) {
-            throw new Error(stderr);
+            throw new Error(`"yarn info ${pkg} versions --json" exited with code ${exitCode}\n${stderr}`);
         }
 
         const versions = (JSON.parse(stdout) as string[])
