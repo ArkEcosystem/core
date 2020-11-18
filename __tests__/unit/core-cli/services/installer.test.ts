@@ -120,7 +120,7 @@ describe("Installer.installRangeLatest", () => {
         const spyInstall: jest.SpyInstance = jest.spyOn(installer, "install").mockReturnValue(undefined);
 
         const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: JSON.stringify({ data: ["3.0.0", "3.0.0-next.9"] }),
+            stdout: JSON.stringify({ data: ["3.0.0", "3.1.0", "3.0.0-next.9"] }),
             exitCode: 0,
         });
 
@@ -130,7 +130,7 @@ describe("Installer.installRangeLatest", () => {
             shell: true,
         });
 
-        expect(spyInstall).toHaveBeenCalledWith("@arkecosystem/core", "3.0.0");
+        expect(spyInstall).toHaveBeenCalledWith("@arkecosystem/core", "3.1.0");
     });
 
     it("should throw error when command fails", () => {
