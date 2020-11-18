@@ -132,4 +132,32 @@ describe("Installer.installRangeLatest", () => {
 
         expect(spyInstall).toHaveBeenCalledWith("@arkecosystem/core", "3.0.0");
     });
+
+    it("should throw error when command fails", () => {
+        const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+            stderr: "stderr",
+            exitCode: 1,
+        });
+
+        expect(() => installer.installRangeLatest("@arkecosystem/core", "^3.0.0 <3.4.0")).toThrow("stderr");
+
+        expect(spySync).toHaveBeenCalledWith("yarn info @arkecosystem/core versions --json", {
+            shell: true,
+        });
+    });
+
+    it("should throw error when there is no version matching requested range", () => {
+        const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+            stdout: JSON.stringify({ data: ["3.0.0", "3.0.0-next.9"] }),
+            exitCode: 0,
+        });
+
+        expect(() => installer.installRangeLatest("@arkecosystem/core", "^4.0.0 <4.4.0")).toThrow(
+            "No @arkecosystem/core version to satisfy ^4.0.0 <4.4.0",
+        );
+
+        expect(spySync).toHaveBeenCalledWith("yarn info @arkecosystem/core versions --json", {
+            shell: true,
+        });
+    });
 });
