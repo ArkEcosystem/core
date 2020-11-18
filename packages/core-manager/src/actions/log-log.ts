@@ -95,11 +95,9 @@ export class Action implements Actions.Action {
                 break;
             }
 
-            if (i >= limit) {
+            if (++i === limit) {
                 break;
             }
-
-            i++;
         }
 
         rl.close();
