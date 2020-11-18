@@ -10,7 +10,8 @@ interface Params {
     useErrorLog: boolean;
     dateFrom?: number;
     dateTo?: number;
-    logLevel: string;
+    logLevel?: string;
+    contains?: string;
 }
 
 enum CanIncludeLineResult {
@@ -43,6 +44,9 @@ export class Action implements Actions.Action {
                 type: "number",
             },
             logLevel: {
+                type: "string",
+            },
+            contains: {
                 type: "string",
             },
         },
@@ -147,6 +151,10 @@ export class Action implements Actions.Action {
     }
 
     private canIncludeLineBySearchTerm(line: string, params: Params): CanIncludeLineResult {
-        return CanIncludeLineResult.ACCEPT;
+        if (!params.contains) {
+            return CanIncludeLineResult.ACCEPT;
+        }
+
+        return line.includes(params.contains) ? CanIncludeLineResult.ACCEPT : CanIncludeLineResult.SKIP;
     }
 }
