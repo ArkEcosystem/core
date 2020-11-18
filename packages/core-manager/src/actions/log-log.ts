@@ -31,11 +31,9 @@ export class Action implements Actions.Action {
         properties: {
             name: {
                 type: "string",
-                default: "core",
             },
             useErrorLog: {
                 type: "boolean",
-                default: false,
             },
             dateFrom: {
                 type: "number",
@@ -53,6 +51,12 @@ export class Action implements Actions.Action {
     };
 
     public async execute(params: Params): Promise<any> {
+        params = {
+            name: "ark-core",
+            useErrorLog: false,
+            ...params,
+        };
+
         return this.queryLog(params);
     }
 
@@ -74,8 +78,6 @@ export class Action implements Actions.Action {
         const result: string[] = [];
 
         for await (const line of rl) {
-            // console.log(`Line from file: ${line}`);
-
             const canIncludeLine = this.canIncludeLine(line, params);
 
             if (canIncludeLine === CanIncludeLineResult.ACCEPT) {
