@@ -3,10 +3,13 @@ import fs from "fs";
 import { join } from "path";
 import readline from "readline";
 import { Actions } from "../contracts";
+import dayjs from "dayjs";
 
 interface Params {
     name: string;
     useErrorLog: boolean;
+    dateFrom?: number;
+    dateTo?: number;
 }
 
 enum CanIncludeLineResult {
@@ -28,9 +31,15 @@ export class Action implements Actions.Action {
                 type: "string",
                 default: "core",
             },
-            showError: {
+            useErrorLog: {
                 type: "boolean",
                 default: false,
+            },
+            dateFrom: {
+                type: "number",
+            },
+            dateTo: {
+                type: "number",
             },
         },
     };
@@ -57,7 +66,7 @@ export class Action implements Actions.Action {
         const result: string[] = [];
 
         for await (const line of rl) {
-            console.log(`Line from file: ${line}`);
+            // console.log(`Line from file: ${line}`);
 
             const canIncludeLine = this.canIncludeLine(line, params);
 
@@ -98,6 +107,24 @@ export class Action implements Actions.Action {
     }
 
     private canIncludeLineByTimestamp(line: string, params: Params): CanIncludeLineResult {
+        if (!params.dateFrom && !params.dateTo) {
+            return CanIncludeLineResult.ACCEPT;
+        }
+
+        const lineTimestamp = dayjs(line.substring(1, 24));
+
+        if (!lineTimestamp.isValid()) {
+            return CanIncludeLineResult.SKIP;
+        }
+
+        if (params.dateTo && params.dateTo < lineTimestamp.unix()) {
+            return CanIncludeLineResult.END;
+        }
+
+        if (params.dateFrom && params.dateFrom > lineTimestamp.unix()) {
+            return CanIncludeLineResult.SKIP;
+        }
+
         return CanIncludeLineResult.ACCEPT;
     }
 
