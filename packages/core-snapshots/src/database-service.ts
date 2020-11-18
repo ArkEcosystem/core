@@ -58,7 +58,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
 
         Utils.assert.defined<Models.Block>(lastBlock);
 
-        this.logger.info(`Last block height is: ${lastBlock.height}`);
+        this.logger.info(`Last block height is: ${lastBlock.height.toLocaleString()}`);
 
         await this.blockRepository.rollback(roundInfo);
 
