@@ -10,6 +10,7 @@ interface Params {
     useErrorLog: boolean;
     dateFrom?: number;
     dateTo?: number;
+    logLevel: string;
 }
 
 enum CanIncludeLineResult {
@@ -41,6 +42,9 @@ export class Action implements Actions.Action {
             dateTo: {
                 type: "number",
             },
+            logLevel: {
+                type: "string",
+            },
         },
     };
 
@@ -61,7 +65,7 @@ export class Action implements Actions.Action {
         const rl = this.getLogStream(params);
 
         let i = 0;
-        const limit = 10;
+        const limit = 100;
 
         const result: string[] = [];
 
@@ -129,6 +133,16 @@ export class Action implements Actions.Action {
     }
 
     private canIncludeLineByLogType(line: string, params: Params): CanIncludeLineResult {
+        if (!params.logLevel) {
+            return CanIncludeLineResult.ACCEPT;
+        }
+
+        const lineLogLevel = line.substring(31, 31 + params.logLevel.length);
+
+        if (params.logLevel.toUpperCase() !== lineLogLevel) {
+            return CanIncludeLineResult.SKIP;
+        }
+
         return CanIncludeLineResult.ACCEPT;
     }
 
