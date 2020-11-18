@@ -1,14 +1,24 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { ExecaSyncReturnValue, sync } from "execa";
+import { Container } from "@arkecosystem/core-kernel";
+import fs from "fs";
 import { join } from "path";
-
+import readline from "readline";
 import { Actions } from "../contracts";
+
+interface Params {
+    name: string;
+    useErrorLog: boolean;
+}
+
+enum CanIncludeLineResult {
+    ACCEPT,
+    SKIP,
+    END,
+}
+
+type CanIncludeLineMethod = (line: string, params) => CanIncludeLineResult;
 
 @Container.injectable()
 export class Action implements Actions.Action {
-    @Container.inject(Container.Identifiers.FilesystemService)
-    private readonly filesystem!: Contracts.Kernel.Filesystem;
-
     public name = "log.log";
 
     public schema = {
@@ -16,62 +26,86 @@ export class Action implements Actions.Action {
         properties: {
             name: {
                 type: "string",
+                default: "core",
             },
             showError: {
                 type: "boolean",
-            },
-            fromLine: {
-                type: "integer",
-                minimum: 1,
-            },
-            range: {
-                type: "integer",
-                minimum: 1,
-                maximum: 10000,
+                default: false,
             },
         },
-        required: ["name"],
     };
 
-    public async execute(params: {
-        name: string;
-        fromLine?: number;
-        range?: number;
-        showError?: boolean;
-    }): Promise<any> {
-        return await this.getLog(params.name, params.fromLine, params.range, params.showError);
+    public async execute(params: Params): Promise<any> {
+        return this.queryLog(params);
     }
 
-    private getTotalLines(path: string): number {
-        const response: ExecaSyncReturnValue = sync(`wc -l ${path}`, { shell: true });
-
-        return parseInt(response.stdout);
-    }
-
-    private getLines(path: string, fromLine: number, range: number): string {
-        const response: ExecaSyncReturnValue = sync(`sed -n '${fromLine},${fromLine + range}p' ${path}`, {
-            shell: true,
-        });
-
-        return response.stdout;
-    }
-
-    private async getLog(
-        name: string,
-        fromLine: number = 1,
-        range: number = 100,
-        showError: boolean = false,
-    ): Promise<any> {
+    private getLogStream(params: Params): readline.Interface {
         const logsPath = `${process.env.HOME}/.pm2/logs`;
-        const filePath = join(logsPath, `${name}-${showError ? "error" : "out"}.log`);
+        const filePath = join(logsPath, `${params.name}-${params.useErrorLog ? "error" : "out"}.log`);
 
-        if (this.filesystem.exists(filePath)) {
-            return {
-                totalLines: this.getTotalLines(filePath),
-                lines: this.getLines(filePath, fromLine, range),
-            };
+        return readline.createInterface({
+            input: fs.createReadStream(filePath),
+        });
+    }
+
+    private async queryLog(params: Params): Promise<string[]> {
+        const rl = this.getLogStream(params);
+
+        let i = 0;
+        const limit = 10;
+
+        const result: string[] = [];
+
+        for await (const line of rl) {
+            console.log(`Line from file: ${line}`);
+
+            const canIncludeLine = this.canIncludeLine(line, params);
+
+            if (canIncludeLine === CanIncludeLineResult.ACCEPT) {
+                result.push(line);
+            } else if (canIncludeLine === CanIncludeLineResult.SKIP) {
+                continue;
+            } else {
+                break;
+            }
+
+            if (i >= limit) {
+                break;
+            }
+
+            i++;
         }
 
-        throw new Error("Cannot find log file");
+        return result;
+    }
+
+    private canIncludeLine(line, params: Params): CanIncludeLineResult {
+        const canIncludeLineMethods: CanIncludeLineMethod[] = [
+            this.canIncludeLineByTimestamp,
+            this.canIncludeLineByLogType,
+            this.canIncludeLineBySearchTerm,
+        ];
+
+        for (const canIncludeLine of canIncludeLineMethods) {
+            const result = canIncludeLine(line, params);
+
+            if (result !== CanIncludeLineResult.ACCEPT) {
+                return result;
+            }
+        }
+
+        return CanIncludeLineResult.ACCEPT;
+    }
+
+    private canIncludeLineByTimestamp(line: string, params: Params): CanIncludeLineResult {
+        return CanIncludeLineResult.ACCEPT;
+    }
+
+    private canIncludeLineByLogType(line: string, params: Params): CanIncludeLineResult {
+        return CanIncludeLineResult.ACCEPT;
+    }
+
+    private canIncludeLineBySearchTerm(line: string, params: Params): CanIncludeLineResult {
+        return CanIncludeLineResult.ACCEPT;
     }
 }
