@@ -154,7 +154,7 @@ export class Command extends Commands.Command {
         { name: "maxBlockPayload", description: "The maximum payload length by block.", schema: Joi.number(), promptType: "number", default: 2097152 },
         { name: "rewardHeight", description: "The height at which delegate block reward starts.", schema: Joi.number(), promptType: "number", default: 75600 },
         { name: "rewardAmount", description: "The number of the block reward per forged block.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), promptType: "number", default: "200000000" },
-        { name: "pubKeyHash", description: "The public key hash.", schema: Joi.number(), promptType: "number" },
+        { name: "pubKeyHash", description: "The public key hash.", schema: Joi.number(), promptType: "number", default: 30 },
         { name: "wif", description: "The WIF (Wallet Import Format) that should be used.", schema: Joi.number(), promptType: "number" },
         { name: "token", description: "The name that is attributed to the token on the network.", schema: Joi.string(), promptType: "text" },
         { name: "symbol", description: "The character that is attributed to the token on the network.", schema: Joi.string(), promptType: "text" },
