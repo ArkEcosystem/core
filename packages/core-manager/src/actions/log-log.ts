@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import fs from "fs";
 import { join } from "path";
 import readline from "readline";
@@ -17,13 +17,16 @@ interface Params {
 enum CanIncludeLineResult {
     ACCEPT,
     SKIP,
-    END,
+    END, // Prevent further search
 }
 
 type CanIncludeLineMethod = (line: string, params) => CanIncludeLineResult;
 
 @Container.injectable()
 export class Action implements Actions.Action {
+    @Container.inject(Container.Identifiers.FilesystemService)
+    private readonly filesystem!: Contracts.Kernel.Filesystem;
+
     public name = "log.log";
 
     public schema = {
@@ -60,9 +63,13 @@ export class Action implements Actions.Action {
         return this.queryLog(params);
     }
 
-    private getLogStream(params: Params): readline.Interface {
+    private async getLogStream(params: Params): Promise<readline.Interface> {
         const logsPath = `${process.env.HOME}/.pm2/logs`;
         const filePath = join(logsPath, `${params.name}-${params.useErrorLog ? "error" : "out"}.log`);
+
+        if (!(await this.filesystem.exists(filePath))) {
+            throw new Error("Cannot find log file");
+        }
 
         return readline.createInterface({
             input: fs.createReadStream(filePath),
@@ -70,7 +77,7 @@ export class Action implements Actions.Action {
     }
 
     private async queryLog(params: Params): Promise<string[]> {
-        const rl = this.getLogStream(params);
+        const rl = await this.getLogStream(params);
 
         let i = 0;
         const limit = 100;
@@ -94,6 +101,8 @@ export class Action implements Actions.Action {
 
             i++;
         }
+
+        rl.close();
 
         return result;
     }
