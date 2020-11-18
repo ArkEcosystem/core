@@ -63,12 +63,24 @@ describe("Log:Log", () => {
         await expect(action.execute({})).rejects.toThrowError("Cannot find log file");
     });
 
-    it("should return array of lines", async () => {
+    it("should return lines from out log", async () => {
         // @ts-ignore
         const result = await action.execute({});
 
         await expect(result).toBeArray();
         await expect(result.length).toEqual(3);
+
+        expect(mockFilesystem.exists).toHaveBeenCalledWith(expect.toInclude("ark-core-out.log"));
+    });
+
+    it("should return lines from error log", async () => {
+        // @ts-ignore
+        const result = await action.execute({ useErrorLog: true });
+
+        await expect(result).toBeArray();
+        await expect(result.length).toEqual(3);
+
+        expect(mockFilesystem.exists).toHaveBeenCalledWith(expect.toInclude("ark-core-error.log"));
     });
 
     it("should filter lines by log level", async () => {
@@ -93,6 +105,28 @@ describe("Log:Log", () => {
 
         await expect(result).toBeArray();
         await expect(result.length).toEqual(2);
+    });
+
+    it("should skip lines if date time is unrecognized", async () => {
+        logs = [
+            "unrecognized datetime",
+            "unrecognized datetime",
+            "unrecognized datetime",
+        ];
+
+        // @ts-ignore
+        const result = await action.execute({ dateTo: 1605657600 });
+
+        await expect(result).toBeArray();
+        await expect(result.length).toEqual(0);
+    });
+
+    it("should filter lines by search string", async () => {
+        // @ts-ignore
+        const result = await action.execute({ contains: "database" });
+
+        await expect(result).toBeArray();
+        await expect(result.length).toEqual(1);
     });
 
     it("should limit response to 100 lines", async () => {
