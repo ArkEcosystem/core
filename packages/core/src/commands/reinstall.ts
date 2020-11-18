@@ -16,6 +16,9 @@ export class Command extends Commands.Command {
     @Container.inject(Container.Identifiers.Installer)
     private readonly installer!: Services.Installer;
 
+    @Container.inject(Container.Identifiers.ProcessManager)
+    private readonly processManager!: Services.ProcessManager;
+
     /**
      * The console command signature.
      *
@@ -80,6 +83,8 @@ export class Command extends Commands.Command {
         spinner.start();
 
         this.installer.install(this.pkg.name!, this.pkg.version!);
+
+        this.processManager.update();
 
         spinner.succeed();
 
