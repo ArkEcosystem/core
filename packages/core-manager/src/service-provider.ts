@@ -84,6 +84,15 @@ export class ServiceProvider extends Providers.ServiceProvider {
         return false;
     }
 
+    public dependencies(): Contracts.Kernel.PluginDependency[] {
+        return [
+            {
+                name: "@arkecosystem/core-snapshots",
+                required: true,
+            },
+        ];
+    }
+
     private async buildServer(type: string, id: symbol): Promise<void> {
         this.app.bind<Server>(id).to(Server).inSingletonScope();
 
