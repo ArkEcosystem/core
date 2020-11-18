@@ -34,7 +34,7 @@ export class Installer {
             );
         }
 
-        for (const [peerPkg, peerPkgSemver] of Object.entries(JSON.parse(stdout) || {})) {
+        for (const [peerPkg, peerPkgSemver] of Object.entries(JSON.parse(stdout).data ?? {})) {
             this.installRangeLatest(peerPkg, peerPkgSemver as string);
         }
     }
@@ -46,9 +46,9 @@ export class Installer {
             throw new Error(`"yarn info ${pkg} versions --json" exited with code ${exitCode}\n${stderr}`);
         }
 
-        const versions = (JSON.parse(stdout) as string[])
-            .filter((v) => semver.satisfies(v, range))
-            .sort((a, b) => semver.rcompare(a, b));
+        const versions = (JSON.parse(stdout).data ?? [])
+            .filter((v: string) => semver.satisfies(v, range))
+            .sort((a: string, b: string) => semver.rcompare(a, b));
 
         if (versions.length === 0) {
             throw new Error(`No ${pkg} version to satisfy ${range}`);
