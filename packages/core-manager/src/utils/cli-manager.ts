@@ -8,7 +8,7 @@ export class CliManager {
     @Container.inject(Identifiers.CLI)
     private readonly cli!: Cli.Application;
 
-    public async runCommand(name: string, args: string = ""): Promise<any> {
+    public async runCommand(name: string, args: string = ""): Promise<void> {
         const commands = this.discoverCommands();
 
         const command: Cli.Commands.Command = commands[name];
@@ -24,8 +24,6 @@ export class CliManager {
         command.register(argv);
 
         await command.run();
-
-        return {};
     }
 
     private discoverCommands(): Cli.Contracts.CommandList {
