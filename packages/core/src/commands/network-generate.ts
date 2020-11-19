@@ -602,6 +602,7 @@ export class Command extends Commands.Command {
                 blocktime: options.blocktime,
                 block: {
                     version: 0,
+                    idFullSha256: true,
                     maxTransactions: options.maxTxPerBlock,
                     maxPayload: options.maxBlockPayload,
                 },
@@ -621,7 +622,7 @@ export class Command extends Commands.Command {
                         htlcRefund: options.feeStaticHtlcRefund,
                     },
                 },
-                vendorFieldLength: 64,
+                vendorFieldLength: 255,
                 multiPaymentLimit: 256,
                 htlcEnabled: options.htlcEnabled,
                 aip11: true,
@@ -629,16 +630,6 @@ export class Command extends Commands.Command {
             {
                 height: options.rewardHeight,
                 reward: options.rewardAmount,
-            },
-            {
-                height: 100000,
-                vendorFieldLength: 255,
-            },
-            {
-                height: 4000000,
-                block: {
-                    idFullSha256: true,
-                },
             },
         ];
     }
