@@ -69,6 +69,11 @@ describe("Log:Log", () => {
 
         await expect(result).toBeArray();
         await expect(result.length).toEqual(3);
+        await expect(result[0]).toEqual({
+            timestamp: 1605618710,
+            level: "INFO",
+            content: expect.toInclude("Connecting to database: ark_testnet"),
+        });
 
         expect(mockFilesystem.exists).toHaveBeenCalledWith(expect.toInclude("ark-core-out.log"));
     });
@@ -81,6 +86,21 @@ describe("Log:Log", () => {
         await expect(result.length).toEqual(3);
 
         expect(mockFilesystem.exists).toHaveBeenCalledWith(expect.toInclude("ark-core-error.log"));
+    });
+
+    it("should return lines when log line doesnt contains timestamp and log level", async () => {
+        logs = ["line to test"];
+
+        // @ts-ignore
+        const result = await action.execute({});
+
+        await expect(result).toBeArray();
+        await expect(result.length).toEqual(1);
+        await expect(result[0]).toEqual({
+            timestamp: undefined,
+            level: undefined,
+            content: "line to test",
+        });
     });
 
     it("should filter lines by log level", async () => {
@@ -108,11 +128,7 @@ describe("Log:Log", () => {
     });
 
     it("should skip lines if date time is unrecognized", async () => {
-        logs = [
-            "unrecognized datetime",
-            "unrecognized datetime",
-            "unrecognized datetime",
-        ];
+        logs = ["unrecognized datetime", "unrecognized datetime", "unrecognized datetime"];
 
         // @ts-ignore
         const result = await action.execute({ dateTo: 1605657600 });

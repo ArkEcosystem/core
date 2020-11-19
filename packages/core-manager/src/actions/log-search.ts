@@ -189,7 +189,9 @@ export class Action implements Actions.Action {
         result.level = this.parseLevel(line);
 
         if (result.timestamp && result.level) {
-            result.content = line.substring(31 + result.level.length + 13, line.length - 5);
+            result.content = line.substring(31 + result.level.length + 12, line.length - 5);
+
+            result.level = result.level.trim();
         } else {
             result.content = line;
         }
@@ -201,7 +203,7 @@ export class Action implements Actions.Action {
         let level = "";
 
         for (let i = 31; i < 41; i++) {
-            if (line.length > i && line[i] >= "A" && line[i] <= "Z") {
+            if (line.length > i && ((line[i] >= "A" && line[i] <= "Z") || line[i] === " ")) {
                 level += line[i];
             } else {
                 break;
