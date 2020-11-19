@@ -1,9 +1,10 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import dayjs from "dayjs";
 import fs from "fs";
 import { join } from "path";
 import readline from "readline";
+
 import { Actions } from "../contracts";
-import dayjs from "dayjs";
 
 interface Params {
     name: string;
@@ -12,6 +13,12 @@ interface Params {
     dateTo?: number;
     logLevel?: string;
     contains?: string;
+}
+
+interface Line {
+    timestamp?: number;
+    level?: string;
+    content: string;
 }
 
 enum CanIncludeLineResult {
@@ -76,19 +83,19 @@ export class Action implements Actions.Action {
         });
     }
 
-    private async queryLog(params: Params): Promise<string[]> {
+    private async queryLog(params: Params): Promise<Line[]> {
         const rl = await this.getLogStream(params);
 
         let i = 0;
         const limit = 100;
 
-        const result: string[] = [];
+        const result: Line[] = [];
 
         for await (const line of rl) {
             const canIncludeLine = this.canIncludeLine(line, params);
 
             if (canIncludeLine === CanIncludeLineResult.ACCEPT) {
-                result.push(line);
+                result.push(this.parseLine(line));
             } else if (canIncludeLine === CanIncludeLineResult.SKIP) {
                 continue;
             } else {
@@ -165,5 +172,42 @@ export class Action implements Actions.Action {
         }
 
         return line.includes(params.contains) ? CanIncludeLineResult.ACCEPT : CanIncludeLineResult.SKIP;
+    }
+
+    private parseLine(line: string): Line {
+        const result: Line = {
+            timestamp: undefined,
+            level: undefined,
+            content: "",
+        };
+
+        const timestampRaw = dayjs(line.substring(1, 24));
+        if (timestampRaw.isValid()) {
+            result.timestamp = timestampRaw.unix();
+        }
+
+        result.level = this.parseLevel(line);
+
+        if (result.timestamp && result.level) {
+            result.content = line.substring(31 + result.level.length + 13, line.length - 5);
+        } else {
+            result.content = line;
+        }
+
+        return result;
+    }
+
+    private parseLevel(line): string | undefined {
+        let level = "";
+
+        for (let i = 31; i < 41; i++) {
+            if (line.length > i && line[i] >= "A" && line[i] <= "Z") {
+                level += line[i];
+            } else {
+                break;
+            }
+        }
+
+        return level.length ? level : undefined;
     }
 }
