@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.7.13] - 2020-11-19
+
+### Changed
+
+-   Custom validation for getCommonBlocks (2b393635, @alessiodf)
+-   Add listeners on 'connecting' event (b5625926, @alessiodf)
+-   Add index on blocks.generator_public_key, blocks.height (6fb4ab90, @alessiodf)
+
+### Fixed
+
+-   Always broadcast last block (c291166f, @air1one)
+-   Terminate and ban on error (eecc40ce, @air1one)
+-   Parse without base64ToBinaryReplacer on error (8e41f069, @alessiodf)
+
 ## [2.7.7] - 2020-10-22
 
 ### Fixed
