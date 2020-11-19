@@ -70,7 +70,7 @@ describe("Log:Log", () => {
         await expect(result).toBeArray();
         await expect(result.length).toEqual(3);
         await expect(result[0]).toEqual({
-            timestamp: 1605618710,
+            timestamp: expect.toBeNumber(),
             level: "INFO",
             content: expect.toInclude("Connecting to database: ark_testnet"),
         });
