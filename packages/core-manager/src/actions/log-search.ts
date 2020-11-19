@@ -9,7 +9,7 @@ export class Action implements Actions.Action {
     @Container.inject(Container.Identifiers.FilesystemService)
     private readonly filesystem!: Contracts.Kernel.Filesystem;
 
-    public name = "log.log";
+    public name = "log.search";
 
     public schema = {
         type: "object",
