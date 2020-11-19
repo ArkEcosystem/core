@@ -158,8 +158,14 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
                     return true;
                 }
             } else {
-                const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blockHeader.height);
-                const claimedBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockHeader, blockTimeLookup);
+                const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(
+                    this.app,
+                    blockHeader.height,
+                );
+                const claimedBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(
+                    blockHeader,
+                    blockTimeLookup,
+                );
                 if (claimedBlock?.verifySignature()) {
                     return true;
                 }
@@ -302,7 +308,9 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
             }
 
             const ourBlocksPrint = ourBlocks.map((b) => `{ height=${b.height}, id=${b.id} }`).join(", ");
-            const rangePrint = `[${ourBlocks[0].height}, ${ourBlocks[ourBlocks.length - 1].height}]`;
+            const rangePrint = `[${ourBlocks[0].height.toLocaleString()}, ${ourBlocks[
+                ourBlocks.length - 1
+            ].height.toLocaleString()}]`;
 
             const msRemaining = this.throwIfPastDeadline(deadline);
 
