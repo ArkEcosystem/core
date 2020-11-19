@@ -791,9 +791,16 @@ describe("NetworkMonitor", () => {
 
             expect(downloadedBlocks).toEqual(expectedBlocks);
 
-            expect(mockFn.mock.calls.length).toEqual(numPeers);
+            // when downloading the chunk triggering the throw, it will try to download from all the other peers
+            // (so it will try (numPeers - 1) more times)
+            expect(mockFn.mock.calls.length).toEqual(numPeers + (numPeers - 1));
             for (let i = 0; i < numPeers; i++) {
-                expect(mockFn.mock.calls[i][1].fromBlockHeight).toEqual(fromHeight + i * downloadChunkSize);
+                if (i >= chunksToDownloadBeforeThrow && i < (chunksToDownloadBeforeThrow + numPeers)) {
+                    expect(mockFn.mock.calls[i][1].fromBlockHeight).toEqual(fromHeight + chunksToDownloadBeforeThrow * downloadChunkSize);
+
+                } else {
+                    expect(mockFn.mock.calls[i][1].fromBlockHeight).toEqual(fromHeight + i * downloadChunkSize);
+                }
             }
 
             // See that the downloaded higher 2 chunks would be returned from the cache.
@@ -888,7 +895,9 @@ describe("NetworkMonitor", () => {
                 const downloadedBlocks = await networkMonitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
 
                 expect(downloadedBlocks).toEqual([]);
-                expect(communicator.getPeerBlocks).toBeCalledTimes(maxParallelDownloads);
+                // getPeerBlocks fails every time for every peer, so it will try for each peer
+                // from all the other peers before reducing chunk size
+                expect(communicator.getPeerBlocks).toBeCalledTimes(numPeers * maxParallelDownloads);
                 expect(communicator.getPeerBlocks).toBeCalledWith(expect.anything(), {
                     fromBlockHeight: expect.any(Number),
                     blockLimit: expectedBlockLimit,
