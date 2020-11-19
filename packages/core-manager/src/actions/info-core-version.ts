@@ -24,7 +24,7 @@ export class Action implements Actions.Action {
     }
 
     private getChannel(): string {
-        const channels: string[] = ["alpha", "beta", "rc", "next"];
+        const channels: string[] = ["next"];
 
         let channel = "latest";
         for (const item of channels) {
