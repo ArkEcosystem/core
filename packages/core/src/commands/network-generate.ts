@@ -1,5 +1,5 @@
 import { Commands, Container, Contracts, Services } from "@arkecosystem/core-cli";
-import { Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Crypto, Identities, Interfaces, Transactions, Utils, Managers } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { generateMnemonic } from "bip39";
 import ByteBuffer from "bytebuffer";
@@ -154,12 +154,12 @@ export class Command extends Commands.Command {
         { name: "maxBlockPayload", description: "The maximum payload length by block.", schema: Joi.number(), promptType: "number", default: 2097152 },
         { name: "rewardHeight", description: "The height at which delegate block reward starts.", schema: Joi.number(), promptType: "number", default: 75600 },
         { name: "rewardAmount", description: "The number of the block reward per forged block.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), promptType: "number", default: "200000000" },
-        { name: "pubKeyHash", description: "The public key hash.", schema: Joi.number(), promptType: "number" },
+        { name: "pubKeyHash", description: "The public key hash.", schema: Joi.number(), promptType: "number", default: 30 },
         { name: "wif", description: "The WIF (Wallet Import Format) that should be used.", schema: Joi.number(), promptType: "number" },
         { name: "token", description: "The name that is attributed to the token on the network.", schema: Joi.string(), promptType: "text" },
         { name: "symbol", description: "The character that is attributed to the token on the network.", schema: Joi.string(), promptType: "text" },
         { name: "explorer", description: "The URL that hosts the network explorer.", schema: Joi.string(), promptType: "text" },
-        { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.string(), promptType: "confirm", default: false },
+        { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.bool(), promptType: "confirm", default: false },
 
         { name: "epoch", description: "Start time of the network.", schema: Joi.date(), default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z" },
         { name: "htlcEnabled", description: "Enable HTLC transactions.", schema: Joi.boolean() },
@@ -454,9 +454,6 @@ export class Command extends Commands.Command {
                 vendorFieldLength: 64,
                 multiPaymentLimit: 256,
                 htlcEnabled: options.htlcEnabled,
-            },
-            {
-                height: 2,
                 aip11: true,
             },
             {
@@ -477,6 +474,10 @@ export class Command extends Commands.Command {
     }
 
     private generateCryptoGenesisBlock(genesisWallet, delegates, options: Options) {
+        // we need to set aip11 and network.pubKeyHash for tx builder to build v2 txs without issue
+        Managers.configManager.getMilestone().aip11 = true;
+        Managers.configManager.set("network.pubKeyHash", options.pubKeyHash);
+
         const premineWallet: Wallet = this.createWallet(options.pubKeyHash);
 
         let transactions = [];
@@ -661,10 +662,12 @@ export class Command extends Commands.Command {
         };
     }
 
-    private createTransferTransaction(sender: Wallet, recipient: Wallet, amount: string, pubKeyHash: number): any {
+    private createTransferTransaction(sender: Wallet, recipient: Wallet, amount: string, pubKeyHash: number, nonce: number = 1): any {
         return this.formatGenesisTransaction(
             Transactions.BuilderFactory.transfer()
                 .network(pubKeyHash)
+                .version(2)
+                .nonce(nonce.toFixed())
                 .recipientId(recipient.address)
                 .amount(amount)
                 .sign(sender.passphrase).data,
@@ -680,8 +683,8 @@ export class Command extends Commands.Command {
     ): any {
         const amount: string = Utils.BigNumber.make(totalPremine).dividedBy(recipients.length).toString();
 
-        return recipients.map((recipientWallet: Wallet) =>
-            this.createTransferTransaction(sender, recipientWallet, amount, pubKeyHash),
+        return recipients.map((recipientWallet: Wallet, index: number) =>
+            this.createTransferTransaction(sender, recipientWallet, amount, pubKeyHash, index + 1),
         );
     }
 
@@ -690,6 +693,8 @@ export class Command extends Commands.Command {
             this.formatGenesisTransaction(
                 Transactions.BuilderFactory.delegateRegistration()
                     .network(pubKeyHash)
+                    .version(2)
+                    .nonce("1") // delegate registration tx is always the first one from sender
                     .usernameAsset(sender.username!)
                     .fee(`${25 * 1e8}`)
                     .sign(sender.passphrase).data,
@@ -703,6 +708,8 @@ export class Command extends Commands.Command {
             this.formatGenesisTransaction(
                 Transactions.BuilderFactory.vote()
                     .network(pubKeyHash)
+                    .version(2)
+                    .nonce("2") // vote transaction is always the 2nd tx from sender (1st one is delegate registration)
                     .votesAsset([`+${sender.keys.publicKey}`])
                     .fee(`${1 * 1e8}`)
                     .sign(sender.passphrase).data,
