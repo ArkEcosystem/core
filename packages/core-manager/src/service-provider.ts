@@ -12,6 +12,7 @@ import { PluginFactory } from "./server/plugins";
 import { Server } from "./server/server";
 import { Argon2id, SimpleTokenValidator } from "./server/validators";
 import { SnapshotsManager } from "./snapshots/snapshots-manager";
+import { CliManager } from "./utils/cli-manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -43,6 +44,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Identifiers.BasicCredentialsValidator).to(Argon2id).inSingletonScope();
         this.app.bind(Identifiers.TokenValidator).to(SimpleTokenValidator).inSingletonScope();
         this.app.bind(Identifiers.SnapshotsManager).to(SnapshotsManager).inSingletonScope();
+        this.app.bind(Identifiers.CliManager).to(CliManager).inSingletonScope();
 
         const pkg: Types.PackageJson = require("../package.json");
         this.app.bind(Identifiers.CLI).toConstantValue(ApplicationFactory.make(new Container.Container(), pkg));
