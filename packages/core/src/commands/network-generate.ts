@@ -52,6 +52,7 @@ interface Options {
     rewardHeight: number;
     rewardAmount: string | number;
     pubKeyHash: number;
+    vendorFieldLength?: number;
     wif: number;
     token: string;
     symbol: string;
@@ -202,6 +203,13 @@ export class Command extends Commands.Command {
             schema: Joi.number(),
             promptType: "number",
             default: 30,
+        },
+        {
+            name: "vendorFieldLength",
+            description: "The maximum length of transaction's vendor field",
+            schema: Joi.number().min(0).max(255),
+            promptType: "number",
+            default: 255,
         },
         {
             name: "wif",
@@ -622,7 +630,7 @@ export class Command extends Commands.Command {
                         htlcRefund: options.feeStaticHtlcRefund,
                     },
                 },
-                vendorFieldLength: 255,
+                vendorFieldLength: options.vendorFieldLength,
                 multiPaymentLimit: 256,
                 htlcEnabled: options.htlcEnabled,
                 aip11: true,
