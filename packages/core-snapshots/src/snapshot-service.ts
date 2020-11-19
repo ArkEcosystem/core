@@ -63,7 +63,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             await this.database.restore(meta!, { truncate: !!options.truncate });
 
             this.logger.info(
-                `Successfully restore  ${meta!.blocks.count} blocks, ${meta!.transactions.count} transactions, ${
+                `Successfully restore  ${meta!.blocks.count.toLocaleString()} blocks, ${meta!.transactions.count.toLocaleString()} transactions, ${
                     meta!.rounds.count
                 } rounds`,
             );
@@ -111,7 +111,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             this.logger.info("Running ROLLBACK");
 
             if (!height || height <= 0) {
-                this.logger.error(`Rollback height ${height.toString()} is invalid.`);
+                this.logger.error(`Rollback height ${height.toLocaleString()} is invalid.`);
                 return;
             }
 
@@ -133,7 +133,7 @@ export class SnapshotService implements Contracts.Snapshot.SnapshotService {
             const newLastBlock = await this.database.rollback(roundInfo);
 
             this.logger.info(
-                `Rolling back chain to last finished round ${roundInfo.round.toLocaleString()} with last block height ${newLastBlock.data.height.toString()}`,
+                `Rolling back chain to last finished round ${roundInfo.round.toLocaleString()} with last block height ${newLastBlock.data.height.toLocaleString()}`,
             );
         } catch (err) {
             this.logger.error("ROLLBACK failed");

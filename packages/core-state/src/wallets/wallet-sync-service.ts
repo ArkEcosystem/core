@@ -1,4 +1,5 @@
-import { Container, Contracts, Providers, Enums, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
+
 import { WalletEvent } from "./wallet-event";
 
 @Container.injectable()
@@ -82,12 +83,12 @@ export class WalletSyncService implements Contracts.Kernel.EventListener {
             }
 
             try {
-                this.logger.debug(`Initializing wallets table at height ${blockHeight}`);
+                this.logger.debug(`Initializing wallets table at height ${blockHeight.toLocaleString()}`);
 
                 await this.walletsTableService.flush();
                 await this.walletsTableService.sync(this.walletRepository.allByAddress());
 
-                this.logger.info(`Wallets table initialized at height ${blockHeight}`);
+                this.logger.info(`Wallets table initialized at height ${blockHeight.toLocaleString()}`);
             } catch (error) {
                 this.app.terminate("Failed to initialize wallets table", error);
             }
@@ -101,7 +102,7 @@ export class WalletSyncService implements Contracts.Kernel.EventListener {
             }
 
             try {
-                this.logger.debug(`Synchronizing wallets table at height ${blockHeight}`);
+                this.logger.debug(`Synchronizing wallets table at height ${blockHeight.toLocaleString()}`);
 
                 const updatedWallets = Array.from(this.updatedAddresses.values()).map((address) =>
                     this.walletRepository.findByAddress(address),
@@ -111,7 +112,7 @@ export class WalletSyncService implements Contracts.Kernel.EventListener {
 
                 await this.walletsTableService.sync(updatedWallets);
 
-                this.logger.info(`Wallets table synchronized at height ${blockHeight}`);
+                this.logger.info(`Wallets table synchronized at height ${blockHeight.toLocaleString()}`);
             } catch (error) {
                 this.app.terminate("Failed to synchronize wallets table", error);
             }

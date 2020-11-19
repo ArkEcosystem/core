@@ -315,7 +315,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         const { highestCommonHeight } = peersMostCommonHeight[0].verificationResult;
         this.logger.info(
-            `Rolling back to most common height ${highestCommonHeight}. Own height: ${lastBlock.data.height}`,
+            `Rolling back to most common height ${highestCommonHeight.toLocaleString()}. Own height: ${lastBlock.data.height.toLocaleString()}`,
         );
 
         // Now rollback blocks equal to the distance to the most common height.
@@ -364,7 +364,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         for (let i = 0; i < chunksToDownload; i++) {
             const height: number = fromBlockHeight + this.downloadChunkSize * i;
             const isLastChunk: boolean = i === chunksToDownload - 1;
-            const blocksRange: string = `[${height + 1}, ${isLastChunk ? ".." : height + this.downloadChunkSize}]`;
+            const blocksRange: string = `[${(height + 1).toLocaleString()}, ${(isLastChunk
+                ? ".."
+                : height + this.downloadChunkSize
+            ).toLocaleString()}]`;
 
             //@ts-ignore
             downloadJobs.push(async () => {

@@ -206,7 +206,7 @@ export class ForgerService {
 
             if (networkState.nodeHeight !== this.round.lastBlock.height) {
                 this.logger.warning(
-                    `The NetworkState height (${networkState.nodeHeight}) and round height (${this.round.lastBlock.height}) are out of sync. This indicates delayed blocks on the network.`,
+                    `The NetworkState height (${networkState.nodeHeight!.toLocaleString()}) and round height (${this.round.lastBlock.height.toLocaleString()}) are out of sync. This indicates delayed blocks on the network.`,
                 );
             }
 
