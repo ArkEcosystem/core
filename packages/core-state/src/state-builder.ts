@@ -63,7 +63,7 @@ export class StateBuilder {
             this.dposState.buildDelegateRanking();
 
             this.logger.info(
-                `Number of registered delegates: ${Object.keys(this.walletRepository.allByUsername()).length}`,
+                `Number of registered delegates: ${Object.keys(this.walletRepository.allByUsername()).length.toLocaleString()}`,
             );
 
             this.verifyWalletsConsistency();
