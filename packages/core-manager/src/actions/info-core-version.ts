@@ -29,7 +29,6 @@ export class Action implements Actions.Action {
     }
 
     private getChannel(): string {
-        const config = this.cli.resolve(Cli.Services.Config);
-        return config.get("channel");
+        return this.cli.resolve(Cli.Services.Config).get("channel");
     }
 }
