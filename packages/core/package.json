@@ -82,6 +82,9 @@
         "type-fest": "^0.16.0",
         "wif": "^2.0.6"
     },
+    "peerDependencies": {
+        "pm2": "4.5.0"
+    },
     "engines": {
         "node": ">=10.x"
     },

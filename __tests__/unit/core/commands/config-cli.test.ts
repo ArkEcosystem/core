@@ -45,34 +45,36 @@ describe("Command", () => {
 
     it("should change the channel and install the new version", async () => {
         jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: "stdout",
+            stdout: '"null"',
             stderr: undefined,
+            exitCode: 0,
         });
 
-        const installFromChannel: jest.SpyInstance = jest
-            .spyOn(cli.app.get(Container.Identifiers.Installer), "installFromChannel")
+        const install: jest.SpyInstance = jest
+            .spyOn(cli.app.get(Container.Identifiers.Installer), "install")
             .mockImplementation();
 
         await cli.withFlags({ channel: "latest" }).execute(Command);
 
         expect(config.get("channel")).toBe("latest");
-        expect(installFromChannel).toHaveBeenCalledWith("@arkecosystem/core", "latest");
+        expect(install).toHaveBeenCalledWith("@arkecosystem/core", "latest");
 
         await cli.withFlags({ channel: "next" }).execute(Command);
 
         expect(config.get("channel")).toBe("next");
-        expect(installFromChannel).toHaveBeenCalledWith("@arkecosystem/core", "next");
+        expect(install).toHaveBeenCalledWith("@arkecosystem/core", "next");
 
         await cli.withFlags({ channel: "latest" }).execute(Command);
 
         expect(config.get("channel")).toBe("latest");
-        expect(installFromChannel).toHaveBeenCalledWith("@arkecosystem/core", "latest");
+        expect(install).toHaveBeenCalledWith("@arkecosystem/core", "latest");
     });
 
     it("should fail to change the channel if the new and old are the same", async () => {
         jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: "stdout",
+            stdout: '"null"',
             stderr: undefined,
+            exitCode: 0,
         });
 
         await cli.withFlags({ channel: "latest" }).execute(Command);

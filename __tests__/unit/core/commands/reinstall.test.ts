@@ -17,36 +17,41 @@ beforeEach(() => {
 describe("ReinstallCommand", () => {
     it("should reinstall without a prompt if the [--force] flag is used", async () => {
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: "stdout",
+            stdout: '"null"',
             stderr: undefined,
+            exitCode: 0,
         });
 
         await cli.withFlags({ force: true }).execute(Command);
 
-        expect(sync).toHaveBeenCalledTimes(4); // install > check core > check relay > check forger
+        // yarn info peerDependencies > yarn global add > pm2 update > check core > check relay > check forger
+        expect(sync).toHaveBeenCalledTimes(6);
 
         sync.mockReset();
     });
 
     it("should reinstall with a prompt confirmation", async () => {
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: "stdout",
+            stdout: '"null"',
             stderr: undefined,
+            exitCode: 0,
         });
 
         prompts.inject([true]);
 
         await cli.execute(Command);
 
-        expect(sync).toHaveBeenCalledTimes(4); // install > check core > check relay > check forger
+        // yarn info peerDependencies > yarn global add > pm2 update > check core > check relay > check forger
+        expect(sync).toHaveBeenCalledTimes(6);
 
         sync.mockReset();
     });
 
     it("should not reinstall without a prompt confirmation", async () => {
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: "stdout",
+            stdout: '"null"',
             stderr: undefined,
+            exitCode: 0,
         });
 
         prompts.inject([false]);
@@ -60,8 +65,9 @@ describe("ReinstallCommand", () => {
 
     it("should should ask to restart processes if they are online", async () => {
         const sync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-            stdout: "stdout",
+            stdout: '"null"',
             stderr: undefined,
+            exitCode: 0,
         });
 
         const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
