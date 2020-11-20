@@ -18,6 +18,21 @@ export class Action implements Actions.Action {
     }
 
     private async getLatestVersion(): Promise<string> {
-        return latestVersion("@arkecosystem/core");
+        return latestVersion("@arkecosystem/core", {
+            version: this.getChannel(),
+        });
+    }
+
+    private getChannel(): string {
+        const channels: string[] = ["next"];
+
+        let channel = "latest";
+        for (const item of channels) {
+            if (this.app.version().includes(`-${item}`)) {
+                channel = item;
+            }
+        }
+
+        return channel;
     }
 }

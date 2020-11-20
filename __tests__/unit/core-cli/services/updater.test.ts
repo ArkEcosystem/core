@@ -103,11 +103,12 @@ describe("Updater", () => {
             nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
 
             const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "stdout",
+                stdout: '"null"',
                 stderr: undefined,
+                exitCode: 0,
             });
             const spySpinner = jest.spyOn(cli.app.get(Container.Identifiers.Spinner), "render");
-            const spyInstaller = jest.spyOn(cli.app.get(Container.Identifiers.Installer), "installFromChannel");
+            const spyInstaller = jest.spyOn(cli.app.get(Container.Identifiers.Installer), "install");
 
             // Act...
             await updater.check();
@@ -134,11 +135,12 @@ describe("Updater", () => {
             nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
 
             const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "stdout",
+                stdout: '"null"',
                 stderr: undefined,
+                exitCode: 0,
             });
             const spySpinner = jest.spyOn(cli.app.get(Container.Identifiers.Spinner), "render");
-            const spyInstaller = jest.spyOn(cli.app.get(Container.Identifiers.Installer), "installFromChannel");
+            const spyInstaller = jest.spyOn(cli.app.get(Container.Identifiers.Installer), "install");
 
             prompts.inject([true]);
 
@@ -167,11 +169,12 @@ describe("Updater", () => {
             nock(/.*/).get("/@arkecosystem%2Fcore").reply(200, response);
 
             const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
-                stdout: "stdout",
+                stdout: '"null"',
                 stderr: undefined,
+                exitCode: 0,
             });
             const spySpinner = jest.spyOn(cli.app.get(Container.Identifiers.Spinner), "render");
-            const spyInstaller = jest.spyOn(cli.app.get(Container.Identifiers.Installer), "installFromChannel");
+            const spyInstaller = jest.spyOn(cli.app.get(Container.Identifiers.Installer), "install");
 
             prompts.inject([false]);
 

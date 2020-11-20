@@ -58,7 +58,7 @@
         "@arkecosystem/core-transactions": "^3.0.0-next.9",
         "@arkecosystem/core-webhooks": "^3.0.0-next.9",
         "@arkecosystem/crypto": "^3.0.0-next.9",
-        "@arkecosystem/utils": "^1.2.0",
+        "@arkecosystem/utils": "^1.2.1",
         "@hapi/joi": "^17.1.0",
         "bip39": "^3.0.2",
         "boxen": "^4.2.0",
@@ -81,6 +81,9 @@
         "tar": "^6.0.0",
         "type-fest": "^0.16.0",
         "wif": "^2.0.6"
+    },
+    "peerDependencies": {
+        "pm2": "4.5.0"
     },
     "engines": {
         "node": ">=10.x"
