@@ -147,51 +147,211 @@ export class Command extends Commands.Command {
     /*eslint-disable */
     private flagSettings: Flag[] = [
         { name: "network", description: "The name of the network.", schema: Joi.string(), promptType: "text" },
-        { name: "premine", description: "The number of pre-mined tokens.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), promptType: "text", default: "12500000000000000" },
-        { name: "delegates", description: "The number of delegates to generate.", schema: Joi.number(), promptType: "number", default: 51 },
-        { name: "blocktime", description: "The network blocktime.", schema: Joi.number(), promptType: "number", default: 8 },
-        { name: "maxTxPerBlock", description: "The maximum number of transactions per block.", schema: Joi.number(), promptType: "number", default: 150 },
-        { name: "maxBlockPayload", description: "The maximum payload length by block.", schema: Joi.number(), promptType: "number", default: 2097152 },
-        { name: "rewardHeight", description: "The height at which delegate block reward starts.", schema: Joi.number(), promptType: "number", default: 75600 },
-        { name: "rewardAmount", description: "The number of the block reward per forged block.", schema: Joi.alternatives().try(Joi.string(), Joi.number()), promptType: "number", default: "200000000" },
-        { name: "pubKeyHash", description: "The public key hash.", schema: Joi.number(), promptType: "number", default: 30 },
-        { name: "wif", description: "The WIF (Wallet Import Format) that should be used.", schema: Joi.number(), promptType: "number" },
-        { name: "token", description: "The name that is attributed to the token on the network.", schema: Joi.string(), promptType: "text" },
-        { name: "symbol", description: "The character that is attributed to the token on the network.", schema: Joi.string(), promptType: "text" },
-        { name: "explorer", description: "The URL that hosts the network explorer.", schema: Joi.string(), promptType: "text" },
-        { name: "distribute", description: "Distribute the premine evenly between all delegates?", schema: Joi.bool(), promptType: "confirm", default: false },
+        {
+            name: "premine",
+            description: "The number of pre-mined tokens.",
+            schema: Joi.alternatives().try(Joi.string(), Joi.number()),
+            promptType: "text",
+            default: "12500000000000000",
+        },
+        {
+            name: "delegates",
+            description: "The number of delegates to generate.",
+            schema: Joi.number(),
+            promptType: "number",
+            default: 51,
+        },
+        {
+            name: "blocktime",
+            description: "The network blocktime.",
+            schema: Joi.number(),
+            promptType: "number",
+            default: 8,
+        },
+        {
+            name: "maxTxPerBlock",
+            description: "The maximum number of transactions per block.",
+            schema: Joi.number(),
+            promptType: "number",
+            default: 150,
+        },
+        {
+            name: "maxBlockPayload",
+            description: "The maximum payload length by block.",
+            schema: Joi.number(),
+            promptType: "number",
+            default: 2097152,
+        },
+        {
+            name: "rewardHeight",
+            description: "The height at which delegate block reward starts.",
+            schema: Joi.number(),
+            promptType: "number",
+            default: 75600,
+        },
+        {
+            name: "rewardAmount",
+            description: "The number of the block reward per forged block.",
+            schema: Joi.alternatives().try(Joi.string(), Joi.number()),
+            promptType: "number",
+            default: "200000000",
+        },
+        {
+            name: "pubKeyHash",
+            description: "The public key hash.",
+            schema: Joi.number(),
+            promptType: "number",
+            default: 30,
+        },
+        {
+            name: "wif",
+            description: "The WIF (Wallet Import Format) that should be used.",
+            schema: Joi.number(),
+            promptType: "number",
+        },
+        {
+            name: "token",
+            description: "The name that is attributed to the token on the network.",
+            schema: Joi.string(),
+            promptType: "text",
+        },
+        {
+            name: "symbol",
+            description: "The character that is attributed to the token on the network.",
+            schema: Joi.string(),
+            promptType: "text",
+        },
+        {
+            name: "explorer",
+            description: "The URL that hosts the network explorer.",
+            schema: Joi.string(),
+            promptType: "text",
+        },
+        {
+            name: "distribute",
+            description: "Distribute the premine evenly between all delegates?",
+            schema: Joi.bool(),
+            promptType: "confirm",
+            default: false,
+        },
 
-        { name: "epoch", description: "Start time of the network.", schema: Joi.date(), default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z" },
+        {
+            name: "epoch",
+            description: "Start time of the network.",
+            schema: Joi.date(),
+            default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z",
+        },
         { name: "htlcEnabled", description: "Enable HTLC transactions.", schema: Joi.boolean() },
 
         // Static fee
-        { name: "feeStaticTransfer", description: "Fee for transfer transactions.", schema: Joi.number(), default: 10000000 },
-        { name: "feeStaticSecondSignature", description: "Fee for second signature transactions.", schema: Joi.number(), default: 500000000 },
-        { name: "feeStaticDelegateRegistration", description: "Fee for delegate registration transactions.", schema: Joi.number(), default: 2500000000 },
+        {
+            name: "feeStaticTransfer",
+            description: "Fee for transfer transactions.",
+            schema: Joi.number(),
+            default: 10000000,
+        },
+        {
+            name: "feeStaticSecondSignature",
+            description: "Fee for second signature transactions.",
+            schema: Joi.number(),
+            default: 500000000,
+        },
+        {
+            name: "feeStaticDelegateRegistration",
+            description: "Fee for delegate registration transactions.",
+            schema: Joi.number(),
+            default: 2500000000,
+        },
         { name: "feeStaticVote", description: "Fee for vote transactions.", schema: Joi.number(), default: 100000000 },
-        { name: "feeStaticMultiSignature", description: "Fee for multi signature transactions.", schema: Joi.number(), default: 500000000 },
+        {
+            name: "feeStaticMultiSignature",
+            description: "Fee for multi signature transactions.",
+            schema: Joi.number(),
+            default: 500000000,
+        },
         { name: "feeStaticIpfs", description: "Fee for ipfs transactions.", schema: Joi.number(), default: 500000000 },
-        { name: "feeStaticMultiPayment", description: "Fee for multi payment transactions.", schema: Joi.number(), default: 10000000 },
-        { name: "feeStaticDelegateResignation", description: "Fee for delegate resignation transactions.", schema: Joi.number(), default: 2500000000 },
-        { name: "feeStaticHtlcLock", description: "Fee for HTLC lock transactions.", schema: Joi.number(), default: 10000000 },
-        { name: "feeStaticHtlcClaim", description: "Fee for HTLC claim transactions.", schema: Joi.number(), default: 0 },
-        { name: "feeStaticHtlcRefund", description: "Fee for HTLC refund transactions.", schema: Joi.number(), default: 0 },
+        {
+            name: "feeStaticMultiPayment",
+            description: "Fee for multi payment transactions.",
+            schema: Joi.number(),
+            default: 10000000,
+        },
+        {
+            name: "feeStaticDelegateResignation",
+            description: "Fee for delegate resignation transactions.",
+            schema: Joi.number(),
+            default: 2500000000,
+        },
+        {
+            name: "feeStaticHtlcLock",
+            description: "Fee for HTLC lock transactions.",
+            schema: Joi.number(),
+            default: 10000000,
+        },
+        {
+            name: "feeStaticHtlcClaim",
+            description: "Fee for HTLC claim transactions.",
+            schema: Joi.number(),
+            default: 0,
+        },
+        {
+            name: "feeStaticHtlcRefund",
+            description: "Fee for HTLC refund transactions.",
+            schema: Joi.number(),
+            default: 0,
+        },
 
         // Dynamic fee
         { name: "feeDynamicEnabled", description: "Dynamic fee enabled", schema: Joi.boolean() },
         { name: "feeDynamicMinFeePool", description: "Minimum dynamic fee to enter the pool.", schema: Joi.number() },
         { name: "feeDynamicMinFeeBroadcast", description: "Minimum dynamic fee to broadcast.", schema: Joi.number() },
-        { name: "feeDynamicBytesTransfer", description: "Dynamic fee for transfer transactions.", schema: Joi.number() },
-        { name: "feeDynamicBytesSecondSignature", description: "Dynamic fee for second signature transactions.", schema: Joi.number() },
-        { name: "feeDynamicBytesDelegateRegistration", description: "Dynamic fee for delegate registration transactions.", schema: Joi.number() },
+        {
+            name: "feeDynamicBytesTransfer",
+            description: "Dynamic fee for transfer transactions.",
+            schema: Joi.number(),
+        },
+        {
+            name: "feeDynamicBytesSecondSignature",
+            description: "Dynamic fee for second signature transactions.",
+            schema: Joi.number(),
+        },
+        {
+            name: "feeDynamicBytesDelegateRegistration",
+            description: "Dynamic fee for delegate registration transactions.",
+            schema: Joi.number(),
+        },
         { name: "feeDynamicBytesVote", description: "Dynamic fee for vote transactions.", schema: Joi.number() },
-        { name: "feeDynamicBytesMultiSignature", description: "Dynamic fee for multi signature transactions.", schema: Joi.number() },
+        {
+            name: "feeDynamicBytesMultiSignature",
+            description: "Dynamic fee for multi signature transactions.",
+            schema: Joi.number(),
+        },
         { name: "feeDynamicBytesIpfs", description: "Dynamic fee for IPFS transactions.", schema: Joi.number() },
-        { name: "feeDynamicBytesMultiPayment", description: "Dynamic fee for multi payment transactions.", schema: Joi.number() },
-        { name: "feeDynamicBytesDelegateResignation", description: "Dynamic fee for delegate registration transactions.", schema: Joi.number() },
-        { name: "feeDynamicBytesHtlcLock", description: "Dynamic fee for HTLC lock transactions.", schema: Joi.number() },
-        { name: "feeDynamicBytesHtlcClaim", description: "Dynamic fee for HTLC claim transactions.", schema: Joi.number() },
-        { name: "feeDynamicBytesHtlcRefund", description: "Dynamic fee for HTLC refund transactions.", schema: Joi.number() },
+        {
+            name: "feeDynamicBytesMultiPayment",
+            description: "Dynamic fee for multi payment transactions.",
+            schema: Joi.number(),
+        },
+        {
+            name: "feeDynamicBytesDelegateResignation",
+            description: "Dynamic fee for delegate registration transactions.",
+            schema: Joi.number(),
+        },
+        {
+            name: "feeDynamicBytesHtlcLock",
+            description: "Dynamic fee for HTLC lock transactions.",
+            schema: Joi.number(),
+        },
+        {
+            name: "feeDynamicBytesHtlcClaim",
+            description: "Dynamic fee for HTLC claim transactions.",
+            schema: Joi.number(),
+        },
+        {
+            name: "feeDynamicBytesHtlcRefund",
+            description: "Dynamic fee for HTLC refund transactions.",
+            schema: Joi.number(),
+        },
 
         // Env
         { name: "coreDBHost", description: "Core database host.", schema: Joi.string(), default: "localhost" },
@@ -206,11 +366,21 @@ export class Command extends Commands.Command {
         { name: "coreMonitorPort", description: "Core Webhooks port.", schema: Joi.number(), default: 4005 },
 
         // Peers
-        { name: "peers", description: "Peers IP addresses (and ports), separated with comma.", schema: Joi.string().allow(""), default: "127.0.0.1" },
+        {
+            name: "peers",
+            description: "Peers IP addresses (and ports), separated with comma.",
+            schema: Joi.string().allow(""),
+            default: "127.0.0.1",
+        },
 
         // General
         { name: "configPath", description: "Configuration path.", schema: Joi.string() },
-        { name: "overwriteConfig", description: "Overwrite existing configuration.", schema: Joi.boolean(),  default: false },
+        {
+            name: "overwriteConfig",
+            description: "Overwrite existing configuration.",
+            schema: Joi.boolean(),
+            default: false,
+        },
         { name: "force", description: "Skip prompts and use given flags.", schema: Joi.boolean(), default: false },
     ];
     /*eslint-enable */
@@ -662,7 +832,13 @@ export class Command extends Commands.Command {
         };
     }
 
-    private createTransferTransaction(sender: Wallet, recipient: Wallet, amount: string, pubKeyHash: number, nonce: number = 1): any {
+    private createTransferTransaction(
+        sender: Wallet,
+        recipient: Wallet,
+        amount: string,
+        pubKeyHash: number,
+        nonce: number = 1,
+    ): any {
         return this.formatGenesisTransaction(
             Transactions.BuilderFactory.transfer()
                 .network(pubKeyHash)
