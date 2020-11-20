@@ -1,14 +1,13 @@
-import * as Cli from "@arkecosystem/core-cli";
-import { Application, Container } from "@arkecosystem/core-kernel";
-import { resolve } from "path";
+import { Container } from "@arkecosystem/core-kernel";
 
 import { Actions } from "../contracts";
 import { Identifiers } from "../ioc";
+import { CliManager } from "../utils/cli-manager";
 
 @Container.injectable()
 export class Action implements Actions.Action {
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Application;
+    @Container.inject(Identifiers.CliManager)
+    private readonly cliManager!: CliManager;
 
     public name = "process.start";
 
@@ -25,44 +24,8 @@ export class Action implements Actions.Action {
         required: ["name", "args"],
     };
 
-    public async execute(params: any): Promise<any> {
-        return await this.startProcess(params.name, params.args);
-    }
-
-    private async startProcess(name: string, args: string): Promise<any> {
-        const commands = this.discoverCommands();
-
-        const command: Cli.Commands.Command = commands[`${name}:start`];
-
-        if (!command) {
-            throw new Error(`Command ${name}:start does not exists.`);
-        }
-
-        const splitArgs = args.replace(/\s+/g, " ").split(" ");
-
-        const argv = [`${name}:start`, ...splitArgs];
-
-        command.register(argv);
-
-        await command.run();
-
+    public async execute(params: { name: string; args: string }): Promise<any> {
+        await this.cliManager.runCommand(`${params.name}:start`, params.args);
         return {};
-    }
-
-    private discoverCommands(): Cli.Contracts.CommandList {
-        const cli = this.app.get<Cli.Application>(Identifiers.CLI);
-
-        const discoverer = cli.resolve(Cli.Commands.DiscoverCommands);
-        const commands = discoverer.within(resolve("./dist/commands"));
-
-        const startCommands = {};
-
-        for (const command of Object.keys(commands)) {
-            if (command.includes(":start")) {
-                startCommands[command] = commands[command];
-            }
-        }
-
-        return startCommands;
     }
 }

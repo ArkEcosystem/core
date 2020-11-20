@@ -7,31 +7,14 @@ import { Sandbox } from "@packages/core-test-framework";
 let sandbox: Sandbox;
 let action: Action;
 
-let mockCli;
-
-const mockCoreStart = {
-    register: jest.fn(),
-    run: jest.fn(),
+const mockCliManager = {
+    runCommand: jest.fn(),
 };
 
-let mockCommands;
-
 beforeEach(() => {
-    mockCommands = {
-        ["core:start"]: mockCoreStart,
-    };
-
-    mockCli = {
-        resolve: jest.fn().mockReturnValue({
-            within: jest.fn().mockImplementation(() => {
-                return mockCommands;
-            }),
-        }),
-    };
-
     sandbox = new Sandbox();
 
-    sandbox.app.bind(Identifiers.CLI).toConstantValue(mockCli);
+    sandbox.app.bind(Identifiers.CliManager).toConstantValue(mockCliManager);
 
     action = sandbox.app.resolve(Action);
 });
@@ -46,21 +29,10 @@ describe("Process:Start", () => {
         expect(action.name).toEqual("process.start");
     });
 
-    it("should start ", async () => {
+    it("should call start process", async () => {
         const result = await action.execute({ name: "core", args: "--network=testnet --env=test" });
 
         expect(result).toEqual({});
-    });
-
-    it("should throw error if name is command cannot be found ", async () => {
-        mockCommands = {
-            ["core:invalid"]: mockCoreStart,
-        };
-
-        await expect(action.execute({ name: "core", args: "--network=testnet --env=test" })).rejects.toThrowError();
-    });
-
-    it("should throw error if name is invalid ", async () => {
-        await expect(action.execute({ name: "invalid", args: "--network=testnet --env=test" })).rejects.toThrowError();
+        expect(mockCliManager.runCommand).toHaveBeenCalledWith("core:start", "--network=testnet --env=test");
     });
 });
