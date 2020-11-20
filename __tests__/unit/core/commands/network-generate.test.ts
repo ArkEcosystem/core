@@ -368,7 +368,7 @@ describe("GenerateCommand", () => {
                         maxTransactions: 122,
                         maxPayload: 123444,
                     },
-                    epoch: expect.any(String),
+                    epoch: "2020-11-04T00:00:00.000Z",
                     fees: {
                         staticFees: {
                             transfer: 1,
