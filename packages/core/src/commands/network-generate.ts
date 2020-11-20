@@ -59,6 +59,7 @@ interface Options {
     distribute: boolean;
     epoch: Date;
     htlcEnabled?: boolean;
+    vendorFieldLength: number;
 
     // Static Fee
     feeStaticTransfer: number;
@@ -242,6 +243,12 @@ export class Command extends Commands.Command {
             default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z",
         },
         { name: "htlcEnabled", description: "Enable HTLC transactions.", schema: Joi.boolean() },
+        {
+            name: "vendorFieldLength",
+            description: "The maximum length of transaction's vendor field",
+            schema: Joi.number().min(0).max(255),
+            default: 255,
+        },
 
         // Static fee
         {
@@ -602,6 +609,7 @@ export class Command extends Commands.Command {
                 blocktime: options.blocktime,
                 block: {
                     version: 0,
+                    idFullSha256: true,
                     maxTransactions: options.maxTxPerBlock,
                     maxPayload: options.maxBlockPayload,
                 },
@@ -621,7 +629,7 @@ export class Command extends Commands.Command {
                         htlcRefund: options.feeStaticHtlcRefund,
                     },
                 },
-                vendorFieldLength: 64,
+                vendorFieldLength: options.vendorFieldLength,
                 multiPaymentLimit: 256,
                 htlcEnabled: options.htlcEnabled,
                 aip11: true,
@@ -629,16 +637,6 @@ export class Command extends Commands.Command {
             {
                 height: options.rewardHeight,
                 reward: options.rewardAmount,
-            },
-            {
-                height: 100000,
-                vendorFieldLength: 255,
-            },
-            {
-                height: 4000000,
-                block: {
-                    idFullSha256: true,
-                },
             },
         ];
     }
