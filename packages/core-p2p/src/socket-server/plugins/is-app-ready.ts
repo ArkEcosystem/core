@@ -8,7 +8,7 @@ export class IsAppReadyPlugin {
 
     public register(server) {
         server.ext({
-            type: "onPreHandler",
+            type: "onRequest",
             method: async (request, h) => {
                 if (
                     this.app.isBound(Container.Identifiers.BlockchainService) &&
