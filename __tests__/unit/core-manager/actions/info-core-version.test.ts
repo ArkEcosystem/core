@@ -10,7 +10,7 @@ let action: Action;
 beforeEach(() => {
     sandbox = new Sandbox();
 
-    sandbox.app.bind(Container.Identifiers.ApplicationVersion).toConstantValue("dummyVersion");
+    sandbox.app.bind(Container.Identifiers.ApplicationVersion).toConstantValue("@arkecosystem/core");
 
     action = sandbox.app.resolve(Action);
 });
@@ -21,13 +21,26 @@ describe("Info:CoreVersion", () => {
     });
 
     it("should return current and latest version", async () => {
-        let promise = action.execute({});
+        const promise = action.execute({});
 
         await expect(promise).toResolve();
 
-        let result = await promise;
+        const result = await promise;
 
-        await expect(result.currentVersion).toBe("dummyVersion");
+        await expect(result.currentVersion).toBe("@arkecosystem/core");
+        await expect(result.latestVersion).toBeString();
+    });
+
+    it("should return current and latest version using channel", async () => {
+        sandbox.app.rebind(Container.Identifiers.ApplicationVersion).toConstantValue("@arkecosystem/core-next");
+
+        const promise = action.execute({});
+
+        await expect(promise).toResolve();
+
+        const result = await promise;
+
+        await expect(result.currentVersion).toBe("@arkecosystem/core-next");
         await expect(result.latestVersion).toBeString();
     });
 });
