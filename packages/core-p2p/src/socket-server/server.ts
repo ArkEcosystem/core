@@ -80,6 +80,8 @@ export class Server {
         // onPostAuth
         this.app.resolve(CodecPlugin).register(this.server);
         this.app.resolve(ValidatePlugin).register(this.server);
+
+        // onPreHandler
         this.app.resolve(AcceptPeerPlugin).register(this.server);
     }
 
