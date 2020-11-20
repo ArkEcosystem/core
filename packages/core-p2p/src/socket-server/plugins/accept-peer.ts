@@ -23,7 +23,7 @@ export class AcceptPeerPlugin {
         const peerProcessor = this.peerProcessor;
 
         server.ext({
-            type: "onPostResponse",
+            type: "onPostAuth",
             async method(request, h) {
                 if (routesConfigByPath[request.path]) {
                     const peerIp = request.socket ? getPeerIp(request.socket) : request.info.remoteAddress;
