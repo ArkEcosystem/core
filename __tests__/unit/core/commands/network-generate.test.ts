@@ -50,6 +50,48 @@ describe("GenerateCommand", () => {
 
         expect(writeJSONSync).toHaveBeenCalledTimes(8); // 5x Core + 2x Crypto + App
         expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
+
+        expect(writeJSONSync).toHaveBeenCalledWith(
+            expect.stringContaining("crypto/milestones.json"),
+            [
+                {
+                    height: 1,
+                    reward: "0",
+                    activeDelegates: 47,
+                    blocktime: 9,
+                    block: {
+                        version: 0,
+                        idFullSha256: true,
+                        maxTransactions: 122,
+                        maxPayload: 123444,
+                    },
+                    epoch: "2020-11-20T00:00:00.000Z",
+                    fees: {
+                        staticFees: {
+                            transfer: 10000000,
+                            secondSignature: 500000000,
+                            delegateRegistration: 2500000000,
+                            vote: 100000000,
+                            multiSignature: 500000000,
+                            ipfs: 500000000,
+                            multiPayment: 10000000,
+                            delegateResignation: 2500000000,
+                            htlcLock: 10000000,
+                            htlcClaim: 0,
+                            htlcRefund: 0,
+                        },
+                    },
+                    vendorFieldLength: 255,
+                    multiPaymentLimit: 256,
+                    aip11: true,
+                },
+                {
+                    height: 23000,
+                    reward: 66000,
+                },
+            ],
+            { spaces: 4 },
+        );
     });
 
     it("should throw if the core configuration destination already exists", async () => {
