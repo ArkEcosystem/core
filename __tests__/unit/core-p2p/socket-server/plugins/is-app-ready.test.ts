@@ -54,7 +54,7 @@ describe("IsAppReadyPlugin", () => {
 
         isAppReadyPlugin.register(server);
 
-        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreHandler" }));
+        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onRequest" }));
 
         // try the route with a valid payload
         const remoteAddress = "187.166.55.44";
@@ -129,7 +129,7 @@ describe("IsAppReadyPlugin", () => {
 
         isAppReadyPlugin.register(server);
 
-        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreHandler" }));
+        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onRequest" }));
 
         // try the route with a valid payload
         const remoteAddress = "187.166.55.44";
