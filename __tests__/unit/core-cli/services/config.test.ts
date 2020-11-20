@@ -97,4 +97,14 @@ describe("Config", () => {
             expect(config.get("plugins")).toEqual([]);
         });
     });
+
+    describe("#getRegistryChannel", () => {
+        it("should return latest", () => {
+            expect(config.getRegistryChannel("3.0.0")).toEqual("latest");
+        });
+
+        it("should return next", () => {
+            expect(config.getRegistryChannel("3.0.0-next.9")).toEqual("next");
+        });
+    });
 });
