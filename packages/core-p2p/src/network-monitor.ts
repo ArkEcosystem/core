@@ -388,6 +388,11 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 // If that peer fails then pick randomly from the remaining peers that have not
                 // been first-attempt for any job.
                 const peersToTry = [peersNotForked[i], ...Utils.shuffle(peersNotForked.slice(chunksToDownload))];
+                if (peersToTry.length === 1) {
+                    // special case where we don't have "backup peers" (that have not been first-attempt for any job)
+                    // so add peers that have been first-attempt as backup peers
+                    peersToTry.push(...peersNotForked.filter(p => p.ip !== peersNotForked[i].ip));
+                }
 
                 for (peer of peersToTry) {
                     peerPrint = `${peer.ip}:${peer.port}`;
@@ -403,6 +408,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                             );
                             downloadResults[i] = blocks;
                             return;
+                        } else {
+                            throw new Error("Received blocks length does not match asked length");
                         }
                     } catch (error) {
                         this.logger.info(

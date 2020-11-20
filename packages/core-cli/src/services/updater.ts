@@ -1,6 +1,6 @@
 import { dim, green, reset } from "kleur";
 import latestVersion from "latest-version";
-import { lte } from "semver";
+import * as semver from "semver";
 import { PackageJson } from "type-fest";
 
 import { Application } from "../application";
@@ -8,6 +8,7 @@ import { Confirm, Spinner, Warning } from "../components";
 import { Config } from "../contracts";
 import { Identifiers, inject, injectable } from "../ioc";
 import { Installer } from "./installer";
+import { ProcessManager } from "./process-manager";
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 
@@ -20,23 +21,23 @@ export class Updater {
     /**
      * @private
      * @type {Application}
-     * @memberof ComponentFactory
+     * @memberof Updater
      */
     @inject(Identifiers.Application)
     private readonly app!: Application;
 
     /**
      * @private
-     * @type {Application}
-     * @memberof DiscoverCommands
+     * @type {Config}
+     * @memberof Updater
      */
     @inject(Identifiers.Config)
     private readonly config!: Config;
 
     /**
      * @private
-     * @type {Application}
-     * @memberof DiscoverCommands
+     * @type {PackageJson}
+     * @memberof Updater
      */
     @inject(Identifiers.Package)
     private readonly pkg!: PackageJson;
@@ -44,10 +45,18 @@ export class Updater {
     /**
      * @private
      * @type {Installer}
-     * @memberof Command
+     * @memberof Updater
      */
     @inject(Identifiers.Installer)
     private readonly installer!: Installer;
+
+    /**
+     * @private
+     * @type {ProcessManager}
+     * @memberof Updater
+     */
+    @inject(Identifiers.ProcessManager)
+    private readonly processManager!: ProcessManager;
 
     /**
      * @private
@@ -71,7 +80,7 @@ export class Updater {
         this.latestVersion = this.config.get("latestVersion");
 
         if (this.latestVersion) {
-            this.config.forget("latestVersion");
+            this.config.forget("latestVersion"); // ? shouldn't it be moved after lastUpdateCheck
         }
 
         if (Date.now() - this.config.get<number>("lastUpdateCheck") < this.updateCheckInterval) {
@@ -121,7 +130,9 @@ export class Updater {
 
         spinner.start();
 
-        this.installer.installFromChannel(this.packageName, this.packageChannel);
+        this.installer.install(this.packageName, this.packageChannel);
+
+        this.processManager.update();
 
         spinner.succeed();
 
@@ -139,7 +150,7 @@ export class Updater {
                 version: this.packageChannel,
             });
 
-            if (lte(latest, this.packageVersion)) {
+            if (semver.lte(latest, this.packageVersion)) {
                 return undefined;
             }
 
