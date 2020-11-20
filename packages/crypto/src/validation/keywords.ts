@@ -135,7 +135,9 @@ const blockId = (ajv: Ajv) => {
         compile(schema) {
             return (data, dataPath, parentObject: any) => {
                 if (parentObject && parentObject.height === 1 && schema.allowNullWhenGenesis) {
-                    return !data || Number(data) === 0;
+                    if (!data || Number(data) === 0) {
+                        return true;
+                    }
                 }
 
                 if (typeof data !== "string") {
@@ -149,7 +151,7 @@ const blockId = (ajv: Ajv) => {
 
                 if (parentObject && parentObject.height) {
                     const height = schema.isPreviousBlock ? parentObject.height - 1 : parentObject.height;
-                    const constants = configManager.getMilestone(height);
+                    const constants = configManager.getMilestone(height ?? 1); // if height === 0 set it to 1
                     return constants.block.idFullSha256 ? isFullSha256 : isPartial;
                 }
 
