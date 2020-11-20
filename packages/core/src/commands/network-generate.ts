@@ -52,7 +52,6 @@ interface Options {
     rewardHeight: number;
     rewardAmount: string | number;
     pubKeyHash: number;
-    vendorFieldLength?: number;
     wif: number;
     token: string;
     symbol: string;
@@ -60,6 +59,7 @@ interface Options {
     distribute: boolean;
     epoch: Date;
     htlcEnabled?: boolean;
+    vendorFieldLength: number;
 
     // Static Fee
     feeStaticTransfer: number;
@@ -205,13 +205,6 @@ export class Command extends Commands.Command {
             default: 30,
         },
         {
-            name: "vendorFieldLength",
-            description: "The maximum length of transaction's vendor field",
-            schema: Joi.number().min(0).max(255),
-            promptType: "number",
-            default: 255,
-        },
-        {
             name: "wif",
             description: "The WIF (Wallet Import Format) that should be used.",
             schema: Joi.number(),
@@ -250,6 +243,12 @@ export class Command extends Commands.Command {
             default: new Date(Date.now()).toISOString().slice(0, 11) + "00:00:00.000Z",
         },
         { name: "htlcEnabled", description: "Enable HTLC transactions.", schema: Joi.boolean() },
+        {
+            name: "vendorFieldLength",
+            description: "The maximum length of transaction's vendor field",
+            schema: Joi.number().min(0).max(255),
+            default: 255,
+        },
 
         // Static fee
         {
