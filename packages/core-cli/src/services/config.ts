@@ -148,7 +148,7 @@ export class Config {
      * @memberof Config
      */
     private getRegistryChannel(version: string): string {
-        const channels: string[] = ["alpha", "beta", "rc", "next"];
+        const channels: string[] = ["next"];
 
         let channel = "latest";
         for (const item of channels) {

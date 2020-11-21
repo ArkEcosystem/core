@@ -50,6 +50,48 @@ describe("GenerateCommand", () => {
 
         expect(writeJSONSync).toHaveBeenCalledTimes(8); // 5x Core + 2x Crypto + App
         expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
+
+        expect(writeJSONSync).toHaveBeenCalledWith(
+            expect.stringContaining("crypto/milestones.json"),
+            [
+                {
+                    height: 1,
+                    reward: "0",
+                    activeDelegates: 47,
+                    blocktime: 9,
+                    block: {
+                        version: 0,
+                        idFullSha256: true,
+                        maxTransactions: 122,
+                        maxPayload: 123444,
+                    },
+                    epoch: expect.any(String),
+                    fees: {
+                        staticFees: {
+                            transfer: 10000000,
+                            secondSignature: 500000000,
+                            delegateRegistration: 2500000000,
+                            vote: 100000000,
+                            multiSignature: 500000000,
+                            ipfs: 500000000,
+                            multiPayment: 10000000,
+                            delegateResignation: 2500000000,
+                            htlcLock: 10000000,
+                            htlcClaim: 0,
+                            htlcRefund: 0,
+                        },
+                    },
+                    vendorFieldLength: 255,
+                    multiPaymentLimit: 256,
+                    aip11: true,
+                },
+                {
+                    height: 23000,
+                    reward: 66000,
+                },
+            ],
+            { spaces: 4 },
+        );
     });
 
     it("should throw if the core configuration destination already exists", async () => {
@@ -183,7 +225,7 @@ describe("GenerateCommand", () => {
             "123444",
             "23000",
             "66000",
-            "168",
+            168,
             "27",
             "myn",
             "my",
@@ -219,7 +261,7 @@ describe("GenerateCommand", () => {
             "123444",
             "23000",
             "66000",
-            "168",
+            168,
             "27",
             "myn",
             "my",
@@ -257,6 +299,7 @@ describe("GenerateCommand", () => {
                 rewardHeight: "23000",
                 rewardAmount: "66000",
                 pubKeyHash: "168",
+                vendorFieldLength: "64",
                 wif: "27",
                 token: "myn",
                 symbol: "my",
@@ -310,6 +353,49 @@ describe("GenerateCommand", () => {
 
         expect(writeJSONSync).toHaveBeenCalledTimes(8); // 5x Core + 2x Crypto + App
         expect(writeFileSync).toHaveBeenCalledTimes(2); // index.ts && .env
+
+        expect(writeJSONSync).toHaveBeenCalledWith(
+            expect.stringContaining("crypto/milestones.json"),
+            [
+                {
+                    height: 1,
+                    reward: "0",
+                    activeDelegates: 47,
+                    blocktime: 9,
+                    block: {
+                        version: 0,
+                        idFullSha256: true,
+                        maxTransactions: 122,
+                        maxPayload: 123444,
+                    },
+                    epoch: "2020-11-04T00:00:00.000Z",
+                    fees: {
+                        staticFees: {
+                            transfer: 1,
+                            secondSignature: 2,
+                            delegateRegistration: 3,
+                            vote: 4,
+                            multiSignature: 5,
+                            ipfs: 6,
+                            multiPayment: 7,
+                            delegateResignation: 8,
+                            htlcLock: 9,
+                            htlcClaim: 10,
+                            htlcRefund: 11,
+                        },
+                    },
+                    vendorFieldLength: 64,
+                    multiPaymentLimit: 256,
+                    htlcEnabled: true,
+                    aip11: true,
+                },
+                {
+                    height: 23000,
+                    reward: 66000,
+                },
+            ],
+            { spaces: 4 },
+        );
     });
 
     it("should generate a new configuration using force option", async () => {

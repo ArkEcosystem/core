@@ -8,7 +8,7 @@ let sandbox: Sandbox;
 let action: Action;
 
 const mockFilesystem = {
-    get: jest.fn().mockResolvedValue("STRING_VARIABLE=string\nNUMERIC_VARIABLE=123"),
+    get: jest.fn().mockResolvedValue("STRING_VARIABLE=string\n\nNUMERIC_VARIABLE=123"),
 };
 
 beforeEach(() => {
