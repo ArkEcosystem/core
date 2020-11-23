@@ -1,12 +1,17 @@
+import * as Cli from "@arkecosystem/core-cli";
 import { Application, Container } from "@arkecosystem/core-kernel";
 import latestVersion from "latest-version";
 
 import { Actions } from "../contracts";
+import { Identifiers } from "../ioc";
 
 @Container.injectable()
 export class Action implements Actions.Action {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Application;
+
+    @Container.inject(Identifiers.CLI)
+    private readonly cli!: Cli.Application;
 
     public name = "info.coreVersion";
 
@@ -24,15 +29,6 @@ export class Action implements Actions.Action {
     }
 
     private getChannel(): string {
-        const channels: string[] = ["next"];
-
-        let channel = "latest";
-        for (const item of channels) {
-            if (this.app.version().includes(`-${item}`)) {
-                channel = item;
-            }
-        }
-
-        return channel;
+        return this.cli.resolve(Cli.Services.Config).get("channel");
     }
 }
