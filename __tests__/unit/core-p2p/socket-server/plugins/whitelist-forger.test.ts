@@ -61,7 +61,7 @@ describe("WhitelistForgerPlugin", () => {
 
         whitelistForgerPlugin.register(server);
 
-        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreHandler" }));
+        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreAuth" }));
     });
 
     it("should authorize default whitelisted IPs", async () => {
@@ -72,7 +72,7 @@ describe("WhitelistForgerPlugin", () => {
 
         whitelistForgerPlugin.register(server);
 
-        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreHandler" }));
+        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreAuth" }));
 
         // try the route with a valid remoteAddress
         const remoteAddress = defaults.remoteAccess[0];
@@ -96,7 +96,7 @@ describe("WhitelistForgerPlugin", () => {
 
         whitelistForgerPlugin.register(server);
 
-        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreHandler" }));
+        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreAuth" }));
 
         // try the route with an invalid remoteAddress
         const remoteAddress = "187.166.55.44";
@@ -137,7 +137,7 @@ describe("WhitelistForgerPlugin", () => {
 
         whitelistForgerPlugin.register(server);
 
-        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreHandler" }));
+        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPreAuth" }));
 
         // try the route with a valid remoteAddress
         const remoteAddress = defaults.remoteAccess[0];

@@ -16,7 +16,7 @@ export class WhitelistForgerPlugin {
         const peerProcessor = this.peerProcessor;
 
         server.ext({
-            type: "onPreHandler",
+            type: "onPreAuth",
             async method(request, h) {
                 if (peerRoutesConfigByPath[request.path]) {
                     if (peerProcessor.isWhitelisted({ ip: request.info.remoteAddress } as Contracts.P2P.Peer)) {
