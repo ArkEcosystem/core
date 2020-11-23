@@ -80,7 +80,9 @@ beforeEach(() => {
                 merge: () => ({
                     all: () => ({
                         server: {
-                            port: "4004",
+                            http: {
+                                port: "4004",
+                            },
                         },
                     }),
                 }),
@@ -115,9 +117,7 @@ beforeEach(() => {
 })
 
 describe("getPeerConfig", () => {
-
-
-    it("should return own config from config manager", () => {
+    it("should return own config from config manager if using options.server.http configuration", () => {
         expect(getPeerConfig(app as any)).toEqual(result);
     });
 
@@ -125,22 +125,6 @@ describe("getPeerConfig", () => {
         // @ts-ignore
         mergedConfiguration.server.https = mergedConfiguration.server.http;
         delete mergedConfiguration.server.http;
-
-        expect(getPeerConfig(app as any)).toEqual(result);
-    });
-
-    it("should return own config from config manager if using options.server configuration", () => {
-        // @ts-ignore
-        mergedConfiguration.server.port = mergedConfiguration.server.http.port;
-        delete mergedConfiguration.server.http;
-
-        expect(getPeerConfig(app as any)).toEqual(result);
-    });
-
-    it("should return own config from config manager if using options configuration", () => {
-        // @ts-ignore
-        mergedConfiguration.port = mergedConfiguration.server.http.port;
-        delete mergedConfiguration.server;
 
         expect(getPeerConfig(app as any)).toEqual(result);
     });
@@ -155,4 +139,3 @@ describe("getPeerConfig", () => {
         expect(getPeerConfig(app as any)).toEqual(result);
     });
 });
-
