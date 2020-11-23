@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Container } from "@packages/core-kernel";
-import { Action } from "@packages/core-manager/src/actions/log-log";
+import { Action } from "@packages/core-manager/src/actions/log-search";
 import { Sandbox } from "@packages/core-test-framework";
 import fs from "fs";
 import readline from "readline";
@@ -51,9 +51,9 @@ beforeEach(() => {
     action = sandbox.app.resolve(Action);
 });
 
-describe("Log:Log", () => {
+describe("Log:Search", () => {
     it("should have name", () => {
-        expect(action.name).toEqual("log.log");
+        expect(action.name).toEqual("log.search");
     });
 
     it("should throw when log does not exist", async () => {
