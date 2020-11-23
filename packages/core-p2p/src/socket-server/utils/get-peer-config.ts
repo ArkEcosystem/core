@@ -8,12 +8,8 @@ const transformPlugins = (plugins: PluginConfig[]): Contracts.P2P.PeerPlugins =>
 
     for (const pluginConfig of plugins) {
         const name = pluginConfig.package;
-        const options =
-            pluginConfig.options?.server?.http ||
-            pluginConfig.options?.server?.https ||
-            pluginConfig.options?.server ||
-            pluginConfig.options ||
-            {}; // lots of options for server configuration... TODO review see if it can be cleaner
+        // @README: This is a core specific convention. If a server should not be publicly discovered it should avoid this convention.
+        const options = pluginConfig.options?.server?.http || pluginConfig.options?.server?.https || {};
 
         const port = Number(options.port);
 

@@ -80,7 +80,9 @@ beforeEach(() => {
                 merge: () => ({
                     all: () => ({
                         server: {
-                            port: "4004",
+                            http: {
+                                port: "4004",
+                            },
                         },
                     }),
                 }),
@@ -115,32 +117,44 @@ beforeEach(() => {
 })
 
 describe("getPeerConfig", () => {
+    it("should omit a plugin if it is storing the [port] at the root of the options", () => {
+        // @ts-ignore
+        mergedConfiguration = mergedConfiguration.server.http;
+        delete mergedConfiguration.server;
 
+        delete result.plugins["@arkecosystem/core-api"];
 
-    it("should return own config from config manager", () => {
         expect(getPeerConfig(app as any)).toEqual(result);
     });
 
-    it("should return own config from config manager if using options.server.https configuration", () => {
+    it("should omit a plugin if it is storing the [port] in the [options] key", () => {
+        // @ts-ignore
+        mergedConfiguration.options = mergedConfiguration.server.http;
+        delete mergedConfiguration.server;
+
+        delete result.plugins["@arkecosystem/core-api"];
+
+        expect(getPeerConfig(app as any)).toEqual(result);
+    });
+
+    it("should omit a plugin if it is storing the [port] in the [server] object", () => {
+        // @ts-ignore
+        mergedConfiguration.server = mergedConfiguration.server.http;
+        delete mergedConfiguration.server;
+
+        delete result.plugins["@arkecosystem/core-api"];
+
+        expect(getPeerConfig(app as any)).toEqual(result);
+    });
+
+    it("should accept a plugin if it is storing the [port] in the [server.http] object", () => {
+        expect(getPeerConfig(app as any)).toEqual(result);
+    });
+
+    it("should accept a plugin if it is storing the [port] in the [server.https] object", () => {
         // @ts-ignore
         mergedConfiguration.server.https = mergedConfiguration.server.http;
         delete mergedConfiguration.server.http;
-
-        expect(getPeerConfig(app as any)).toEqual(result);
-    });
-
-    it("should return own config from config manager if using options.server configuration", () => {
-        // @ts-ignore
-        mergedConfiguration.server.port = mergedConfiguration.server.http.port;
-        delete mergedConfiguration.server.http;
-
-        expect(getPeerConfig(app as any)).toEqual(result);
-    });
-
-    it("should return own config from config manager if using options configuration", () => {
-        // @ts-ignore
-        mergedConfiguration.port = mergedConfiguration.server.http.port;
-        delete mergedConfiguration.server;
 
         expect(getPeerConfig(app as any)).toEqual(result);
     });
@@ -155,4 +169,3 @@ describe("getPeerConfig", () => {
         expect(getPeerConfig(app as any)).toEqual(result);
     });
 });
-

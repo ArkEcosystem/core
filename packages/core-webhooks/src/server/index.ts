@@ -116,8 +116,12 @@ export class Server {
      * @memberof Server
      */
     private getServerOptions(options: Record<string, any>): object {
-        options = { ...options };
+        options = {
+            ...options.http,
+            whitelist: options.whitelist,
+        };
 
+        delete options.http;
         delete options.enabled;
         delete options.whitelist;
 
