@@ -96,11 +96,11 @@ export class DatabaseInteraction {
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
+        await this.detectMissedBlocks(block);
+
         await this.blockState.applyBlock(block);
 
         this.blocksInCurrentRound.push(block);
-
-        await this.detectMissedBlocks(block);
 
         await this.applyRound(block.data.height);
 
