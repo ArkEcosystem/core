@@ -292,6 +292,6 @@ export class Block implements IBlock {
 
     private applyGenesisBlockFix(id: string): void {
         this.data.id = id;
-        this.data.idHex = Block.toBytesHex(id);
+        this.data.idHex = id.length === 64 ? id : Block.toBytesHex(id); // if id.length is 64 it's already hex
     }
 }

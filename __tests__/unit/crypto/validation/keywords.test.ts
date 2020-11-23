@@ -101,10 +101,10 @@ describe("keyword blockId", () => {
         expect(validate({ height: 1, previousBlock: "" })).toBeTrue();
         expect(validate({ height: 1, previousBlock: undefined })).toBeTrue();
         expect(validate({ height: 1, previousBlock: 0 })).toBeTrue();
+        expect(validate({ height: 1, previousBlock: "1234" })).toBeTrue();
 
         expect(validate({ height: 1, previousBlock: "abc" })).toBeFalse();
         expect(validate({ height: 1, previousBlock: {} })).toBeFalse();
-        expect(validate({ height: 1, previousBlock: "1234" })).toBeFalse();
 
         expect(validate({ height: 2, previousBlock: "" })).toBeFalse();
         expect(validate({ height: 2, previousBlock: 0 })).toBeFalse();

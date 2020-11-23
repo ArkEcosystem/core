@@ -1,8 +1,7 @@
 import { Commands, Container, Contracts, Services } from "@arkecosystem/core-cli";
-import { Crypto, Identities, Interfaces, Transactions, Utils, Managers } from "@arkecosystem/crypto";
+import { Crypto, Identities, Interfaces, Transactions, Utils, Managers, Blocks } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { generateMnemonic } from "bip39";
-import ByteBuffer from "bytebuffer";
 import envPaths from "env-paths";
 import { ensureDirSync, existsSync, readJSONSync, writeFileSync, writeJSONSync } from "fs-extra";
 import { join, resolve } from "path";
@@ -645,6 +644,7 @@ export class Command extends Commands.Command {
         // we need to set aip11 and network.pubKeyHash for tx builder to build v2 txs without issue
         Managers.configManager.getMilestone().aip11 = true;
         Managers.configManager.set("network.pubKeyHash", options.pubKeyHash);
+        Managers.configManager.getMilestone().block = { idFullSha256: true }; // so that generated block has full sha256 id
 
         const premineWallet: Wallet = this.createWallet(options.pubKeyHash);
 
@@ -938,7 +938,7 @@ export class Command extends Commands.Command {
             timestamp,
             numberOfTransactions: transactions.length,
             payloadLength,
-            previousBlock: null,
+            previousBlock: "0000000000000000000000000000000000000000000000000000000000000000",
             // @ts-ignore
             generatorPublicKey: keys.publicKey.toString("hex"),
             transactions,
@@ -947,22 +947,11 @@ export class Command extends Commands.Command {
             blockSignature: undefined,
         };
 
-        block.id = this.getBlockId(block);
+        block.id = Blocks.Block.getId(block);
 
         block.blockSignature = this.signBlock(block, keys);
 
         return block;
-    }
-
-    private getBlockId(block): string {
-        const hash: Buffer = this.getHash(block);
-        const blockBuffer: Buffer = Buffer.alloc(8);
-
-        for (let i = 0; i < 8; i++) {
-            blockBuffer[i] = hash[7 - i];
-        }
-
-        return Utils.BigNumber.make(`0x${blockBuffer.toString("hex")}`).toString();
     }
 
     private signBlock(block, keys: Interfaces.IKeyPair): string {
@@ -970,38 +959,6 @@ export class Command extends Commands.Command {
     }
 
     private getHash(block): Buffer {
-        return Crypto.HashAlgorithms.sha256(this.getBytes(block));
-    }
-
-    private getBytes(genesisBlock): Buffer {
-        const size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 32 + 64;
-
-        const byteBuffer = new ByteBuffer(size, true);
-        byteBuffer.writeInt(genesisBlock.version);
-        byteBuffer.writeInt(genesisBlock.timestamp);
-        byteBuffer.writeInt(genesisBlock.height);
-
-        for (let i = 0; i < 8; i++) {
-            byteBuffer.writeByte(0); // no previous block
-        }
-
-        byteBuffer.writeInt(genesisBlock.numberOfTransactions);
-        byteBuffer.writeLong(genesisBlock.totalAmount);
-        byteBuffer.writeLong(genesisBlock.totalFee);
-        byteBuffer.writeLong(genesisBlock.reward);
-
-        byteBuffer.writeInt(genesisBlock.payloadLength);
-
-        for (const payloadHashByte of Buffer.from(genesisBlock.payloadHash, "hex")) {
-            byteBuffer.writeByte(payloadHashByte);
-        }
-
-        for (const generatorByte of Buffer.from(genesisBlock.generatorPublicKey, "hex")) {
-            byteBuffer.writeByte(generatorByte);
-        }
-
-        byteBuffer.flip();
-
-        return byteBuffer.toBuffer();
+        return Crypto.HashAlgorithms.sha256(Blocks.Serializer.serialize(block, false));
     }
 }
