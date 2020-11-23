@@ -117,11 +117,41 @@ beforeEach(() => {
 })
 
 describe("getPeerConfig", () => {
-    it("should return own config from config manager if using options.server.http configuration", () => {
+    it("should return an empty object if using using the root", () => {
+        // @ts-ignore
+        mergedConfiguration = mergedConfiguration.server.http;
+        delete mergedConfiguration.server;
+
+        delete result.plugins["@arkecosystem/core-api"];
+
         expect(getPeerConfig(app as any)).toEqual(result);
     });
 
-    it("should return own config from config manager if using options.server.https configuration", () => {
+    it("should return an empty object if using using options", () => {
+        // @ts-ignore
+        mergedConfiguration.options = mergedConfiguration.server.http;
+        delete mergedConfiguration.server;
+
+        delete result.plugins["@arkecosystem/core-api"];
+
+        expect(getPeerConfig(app as any)).toEqual(result);
+    });
+
+    it("should return an empty object if using using server", () => {
+        // @ts-ignore
+        mergedConfiguration.server = mergedConfiguration.server.http;
+        delete mergedConfiguration.server;
+
+        delete result.plugins["@arkecosystem/core-api"];
+
+        expect(getPeerConfig(app as any)).toEqual(result);
+    });
+
+    it("should return own config from config manager if using server.http configuration", () => {
+        expect(getPeerConfig(app as any)).toEqual(result);
+    });
+
+    it("should return own config from config manager if using server.https configuration", () => {
         // @ts-ignore
         mergedConfiguration.server.https = mergedConfiguration.server.http;
         delete mergedConfiguration.server.http;
