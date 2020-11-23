@@ -117,7 +117,7 @@ beforeEach(() => {
 })
 
 describe("getPeerConfig", () => {
-    it("should return an empty object if using using the root", () => {
+    it("should omit a plugin if it is storing the [port] at the root of the options", () => {
         // @ts-ignore
         mergedConfiguration = mergedConfiguration.server.http;
         delete mergedConfiguration.server;
@@ -127,7 +127,7 @@ describe("getPeerConfig", () => {
         expect(getPeerConfig(app as any)).toEqual(result);
     });
 
-    it("should return an empty object if using using options", () => {
+    it("should omit a plugin if it is storing the [port] in the [options] key", () => {
         // @ts-ignore
         mergedConfiguration.options = mergedConfiguration.server.http;
         delete mergedConfiguration.server;
@@ -137,7 +137,7 @@ describe("getPeerConfig", () => {
         expect(getPeerConfig(app as any)).toEqual(result);
     });
 
-    it("should return an empty object if using using server", () => {
+    it("should omit a plugin if it is storing the [port] in the [server] object", () => {
         // @ts-ignore
         mergedConfiguration.server = mergedConfiguration.server.http;
         delete mergedConfiguration.server;
@@ -147,11 +147,11 @@ describe("getPeerConfig", () => {
         expect(getPeerConfig(app as any)).toEqual(result);
     });
 
-    it("should return own config from config manager if using server.http configuration", () => {
+    it("should accept a plugin if it is storing the [port] in the [server.http] object", () => {
         expect(getPeerConfig(app as any)).toEqual(result);
     });
 
-    it("should return own config from config manager if using server.https configuration", () => {
+    it("should accept a plugin if it is storing the [port] in the [server.https] object", () => {
         // @ts-ignore
         mergedConfiguration.server.https = mergedConfiguration.server.http;
         delete mergedConfiguration.server.http;
