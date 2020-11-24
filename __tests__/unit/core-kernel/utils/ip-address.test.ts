@@ -15,6 +15,10 @@ describe("isIPv6Address", () => {
         expect(isIPv6Address("::")).toBeTrue();
     });
 
+    it("should return true for valid IPv6 address in brackets", () => {
+        expect(isIPv6Address("[2001:3984:3989::104]")).toBeTrue();
+    });
+
     it("should return false for valid IPv4 address", () => {
         expect(isIPv6Address("127.0.0.1")).toBeFalse();
     });
