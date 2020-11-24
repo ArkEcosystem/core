@@ -47,6 +47,8 @@ export class Socket {
         };
 
         this._ws.on("message", (message) => this._onMessage(message));
+        this._ws.on("ping", () => this.terminate());
+        this._ws.on("pong", () => this.terminate());
     }
 
     public disconnect() {

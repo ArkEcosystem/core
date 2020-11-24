@@ -282,9 +282,12 @@ export class Client {
         ws.onmessage = (message) => {
             return this._onMessage(message);
         };
+
+        ws.on("ping", () => this._disconnect(() => {}, true, true));
+        ws.on("pong", () => this._disconnect(() => {}, true, true));
     }
 
-    private _disconnect(next, isInternal) {
+    private _disconnect(next, isInternal, terminate = false) {
         this._reconnection = null;
         clearTimeout(this._reconnectionTimer);
         this._reconnectionTimer = null;
@@ -302,7 +305,12 @@ export class Client {
 
         this._disconnectRequested = requested;
         this._disconnectListeners = [next];
-        this._ws.close();
+
+        if (terminate) {
+            this._ws.terminate();
+        } else {
+            this._ws.close();
+        }
     }
 
     private _cleanup() {
