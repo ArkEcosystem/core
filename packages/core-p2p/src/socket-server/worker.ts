@@ -145,8 +145,7 @@ export class Worker extends SCWorker {
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
                         this.hasAdditionalProperties(parsed) ||
-                        (typeof parsed.cid !== "number" &&
-                            (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined")) ||
+                        (typeof parsed.cid !== "number" && typeof parsed.cid !== "undefined") ||
                         !this.handlers.includes(parsed.event)
                     ) {
                         return this.setErrorForIpAndDestroy(req.socket);
