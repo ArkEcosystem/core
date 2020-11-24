@@ -154,18 +154,11 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
             if (claimedHeight < this.ourHeight()) {
                 const roundInfo = Utils.roundCalculator.calculateRound(claimedHeight);
                 const delegates = await this.getDelegatesByRound(roundInfo);
-                if (await this.verifyPeerBlock(blockHeader, claimedHeight, delegates)) {
+                if (this.verifyPeerBlock(blockHeader, claimedHeight, delegates)) {
                     return true;
                 }
             } else {
-                const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(
-                    this.app,
-                    blockHeader.height,
-                );
-                const claimedBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(
-                    blockHeader,
-                    blockTimeLookup,
-                );
+                const claimedBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockHeader);
                 if (claimedBlock?.verifySignature()) {
                     return true;
                 }
@@ -401,7 +394,7 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
             }
             assert(hisBlocksByHeight[height] !== undefined);
 
-            if (!(await this.verifyPeerBlock(hisBlocksByHeight[height], height, delegates))) {
+            if (!this.verifyPeerBlock(hisBlocksByHeight[height], height, delegates)) {
                 return false;
             }
         }
@@ -501,14 +494,12 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
      * delegates must have signed the block
      * @return {Boolean} true if the block is legit (signed by the appropriate delegate)
      */
-    private async verifyPeerBlock(
+    private verifyPeerBlock(
         blockData: Interfaces.IBlockData,
         expectedHeight: number,
         delegatesByPublicKey: Record<string, Contracts.State.Wallet>,
-    ): Promise<boolean> {
-        const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, blockData.height);
-
-        const block: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockData, blockTimeLookup);
+    ): boolean {
+        const block: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockData);
 
         Utils.assert.defined<Interfaces.IBlock>(block);
 

@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { Connection } from "typeorm";
 
@@ -80,9 +80,7 @@ export class DatabaseService {
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
-
-        return Blocks.BlockFactory.fromData(block, blockTimeLookup);
+        return Blocks.BlockFactory.fromData(block);
     }
 
     // ! three methods below (getBlocks, getBlocksForDownload, getBlocksByHeight) can be merged into one
@@ -129,8 +127,6 @@ export class DatabaseService {
             return undefined;
         }
 
-        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
-
         const transactions: Array<{
             id: string;
             blockId: string;
@@ -141,7 +137,7 @@ export class DatabaseService {
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block, blockTimeLookup)!;
+        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
 
         return lastBlock;
     }

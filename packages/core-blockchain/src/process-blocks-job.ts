@@ -90,9 +90,21 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
         let lastProcessResult: BlockProcessorResult | undefined;
         let lastProcessedBlock: Interfaces.IBlock | undefined = undefined;
 
+        const acceptedBlockTimeLookup = (height: number) => {
+            return acceptedBlocks.find((b) => b.data.height === height)?.data.timestamp ?? blockTimeLookup(height);
+        };
+
         // TODO: Add try catch, because fromData can throw error
         for (const block of this.blocks) {
-            const blockInstance = Blocks.BlockFactory.fromData(block, blockTimeLookup);
+            const currentSlot: number = Crypto.Slots.getSlotNumber(acceptedBlockTimeLookup);
+            const blockSlot: number = Crypto.Slots.getSlotNumber(acceptedBlockTimeLookup, block.timestamp);
+
+            if (blockSlot > currentSlot) {
+                this.logger.error(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
+                break;
+            }
+
+            const blockInstance = Blocks.BlockFactory.fromData(block);
             Utils.assert.defined<Interfaces.IBlock>(blockInstance);
 
             lastProcessResult = await this.triggers.call("processBlock", {
