@@ -4,10 +4,6 @@ import { Blocks } from "@arkecosystem/crypto";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import block1760000 from "./__fixtures__/block1760000";
 
-const getTimeStampForBlock = () => {
-    throw new Error("Unreachable");
-};
-
 const app = {
     get: jest.fn(),
     terminate: jest.fn(),
@@ -133,7 +129,7 @@ describe("DatabaseService.getBlock", () => {
     it("should return block", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const block = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const block = Blocks.BlockFactory.fromData(block1760000);
         // @ts-ignore
         blockRepository.findOne.mockResolvedValueOnce({ ...block.data });
         // @ts-ignore
@@ -247,7 +243,7 @@ describe("DatabaseService.getLastBlock", () => {
     it("should return last block from repository", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = Blocks.BlockFactory.fromData(block1760000);
         blockRepository.findLatest.mockResolvedValueOnce({ ...lastBlock.data });
         transactionRepository.findByBlockIds.mockResolvedValueOnce(lastBlock.transactions);
 
@@ -264,7 +260,7 @@ describe("DatabaseService.getTopBlocks", () => {
     it("should return top blocks with transactions", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const block = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const block = Blocks.BlockFactory.fromData(block1760000);
         blockRepository.findTop.mockResolvedValueOnce([block.data]);
 
         const dbTransactions = block.transactions.map((t) => ({
@@ -364,7 +360,7 @@ describe("DatabaseService.verifyBlockchain", () => {
     it("should return false when there are discrepancies", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = Blocks.BlockFactory.fromData(block1760000);
 
         const numberOfBlocks = 1760000;
         const numberOfTransactions = 999999;
@@ -394,7 +390,7 @@ describe("DatabaseService.verifyBlockchain", () => {
     it("should check last block statistics", async () => {
         const databaseService = container.resolve(DatabaseService);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = Blocks.BlockFactory.fromData(block1760000);
 
         const numberOfBlocks = 1760000;
         const numberOfTransactions = 999999;
