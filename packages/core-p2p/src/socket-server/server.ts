@@ -11,6 +11,7 @@ import { BlocksRoute } from "./routes/blocks";
 import { InternalRoute } from "./routes/internal";
 import { PeerRoute } from "./routes/peer";
 import { TransactionsRoute } from "./routes/transactions";
+import { RateLimitPlugin } from "./plugins/rate-limit";
 
 // todo: review the implementation
 @Container.injectable()
@@ -76,6 +77,7 @@ export class Server {
 
         // onPreAuth
         this.app.resolve(WhitelistForgerPlugin).register(this.server);
+        this.app.resolve(RateLimitPlugin).register(this.server);
 
         // onPostAuth
         this.app.resolve(CodecPlugin).register(this.server);
