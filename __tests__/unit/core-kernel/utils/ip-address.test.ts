@@ -1,6 +1,41 @@
 import "jest-extended";
 
-import { isIPv6Address, normalizeAddress } from "@packages/core-kernel/src/utils/ip-address";
+import { isValidAddress, isIPv6Address, normalizeAddress } from "@packages/core-kernel/src/utils/ip-address";
+
+describe("isValidAddress", () => {
+    it("should return true for valid IPv6 address", () => {
+        expect(isValidAddress("2001:3984:3989::104")).toBeTrue();
+    });
+
+    it("should return true for localhost IPv6 address", () => {
+        expect(isValidAddress("::1")).toBeTrue();
+    });
+
+    it("should return true for :: IPv6 address", () => {
+        expect(isValidAddress("::")).toBeTrue();
+    });
+
+    it("should return true for valid IPv6 address in brackets", () => {
+        expect(isValidAddress("[2001:3984:3989::104]")).toBeTrue();
+    });
+
+    it("should return false for invalid IPv6 address", () => {
+        expect(isValidAddress("2001:3984:3989:104:1:2001:3984:3989:10")).toBeFalse(); // Too long address
+    });
+
+    it("should return true for valid IPv4 address", () => {
+        expect(isValidAddress("127.0.0.1")).toBeTrue();
+    });
+
+    it("should return true for invalid IPv4 address", () => {
+        expect(isValidAddress("127.0.0.300")).toBeFalse();
+    });
+
+
+    it("should return false for random string", () => {
+        expect(isValidAddress("random")).toBeFalse();
+    });
+});
 
 describe("isIPv6Address", () => {
     it("should return true for valid IPv6 address", () => {
