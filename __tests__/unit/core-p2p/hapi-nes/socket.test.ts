@@ -402,6 +402,35 @@ describe("Socket", () => {
             client.close();
             await server.stop();
         });
+
+        it.each([["ping"], ["pong"]])("terminates on ws.%s", async (method) => {
+            const server = Hapi.server();
+            await server.register({ plugin: plugin, options: {} });
+
+            server.route({
+                method: "POST",
+                path: "/",
+                handler: () => "hello",
+            });
+
+            await server.start();
+            const client = new Ws("http://localhost:" + server.info.port);
+            client.onerror = Hoek.ignore;
+
+            const sendPingOrPong = async () => new Promise((resolve, reject) => {
+                client.on("open", () => {
+                    client[method]("", true, () => resolve());
+                });
+            })
+
+            await sendPingOrPong();
+            await delay(1000);
+
+            expect(client.readyState).toEqual(client.CLOSED);
+
+            client.close();
+            await server.stop();
+        });
     });
 
     describe("_processRequest()", () => {
