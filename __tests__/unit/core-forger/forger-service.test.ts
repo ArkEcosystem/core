@@ -66,6 +66,8 @@ beforeEach(() => {
 
 afterEach(() => {
     jest.resetAllMocks();
+    jest.runAllTimers();
+    jest.useRealTimers();
 });
 
 describe("ForgerService", () => {
@@ -120,7 +122,7 @@ describe("ForgerService", () => {
     });
 
     describe("GetRound", () => {
-        it("should return undefined", async () => {
+        it("should return undefined", () => {
             forgerService.register({ hosts: [mockHost] });
 
             expect(forgerService.getRound()).toBeUndefined();
@@ -128,19 +130,15 @@ describe("ForgerService", () => {
     });
 
     describe("GetRemainingSlotTime", () => {
-        it("should return undefined", async () => {
+        it("should return undefined", () => {
             forgerService.register({ hosts: [mockHost] });
 
-            // @ts-ignore
-            const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
-            spyGetNetworkState.mockResolvedValue(mockNetworkState);
-
-            await expect(forgerService.getRemainingSlotTime()).resolves.toBeNumber();
+            expect(forgerService.getRemainingSlotTime()).toBeUndefined();
         });
     });
 
     describe("GetLastForgedBlock", () => {
-        it("should return undefined", async () => {
+        it("should return undefined", () => {
             forgerService.register({ hosts: [mockHost] });
 
             expect(forgerService.getLastForgedBlock()).toBeUndefined();
@@ -237,19 +235,20 @@ describe("ForgerService", () => {
         });
 
         it("should set correct timeout to check slots", async () => {
-            const timeout = 500;
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(timeout);
-
             jest.useFakeTimers();
-            client.getRound.mockReturnValueOnce({ delegates });
+
+            client.getRound.mockReturnValueOnce({
+                delegates,
+                timestamp: Crypto.Slots.getTime() - 7,
+                lastBlock: { height: 100 },
+            });
 
             forgerService.register({ hosts: [mockHost] });
             await expect(forgerService.boot(delegates)).toResolve();
 
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), timeout);
+            jest.runAllTimers();
 
-            jest.useRealTimers();
+            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), expect.toBeWithin(0, 2000));
         });
     });
 
@@ -353,8 +352,15 @@ describe("ForgerService", () => {
             expect(logger.warning).toHaveBeenCalledWith(expectedDoubleForgeWarning);
         });
 
-        it("should not allow forging if quorum is not met", async () => {
-            client.getRound.mockReturnValueOnce({ delegates });
+        it.only("should not allow forging if quorum is not met", async () => {
+            jest.useFakeTimers();
+
+            client.getRound.mockReturnValueOnce({
+                delegates,
+                timestamp: Crypto.Slots.getTime() - 7,
+                lastBlock: { height: 100 },
+            });
+
             forgerService.register({ hosts: [mockHost] });
             await forgerService.boot(delegates);
 

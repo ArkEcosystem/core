@@ -11,7 +11,7 @@ export class NextSlotProcessAction implements Contracts.Kernel.ProcessAction {
 
     public async handler() {
         return {
-            remainingTime: await this.forger.getRemainingSlotTime(),
+            remainingTime: this.forger.getRemainingSlotTime(),
         };
     }
 }

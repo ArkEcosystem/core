@@ -85,12 +85,8 @@ export class ForgerService {
         return this.round;
     }
 
-    public async getRemainingSlotTime(): Promise<number> {
-        if (!this.round) {
-            throw new Error("Not initialized");
-        }
-
-        return this.getRoundRemainingSlotTime(this.round);
+    public getRemainingSlotTime(): number | undefined {
+        return this.round ? this.getRoundRemainingSlotTime(this.round) : undefined;
     }
 
     public getLastForgedBlock(): Interfaces.IBlock | undefined {
@@ -118,7 +114,7 @@ export class ForgerService {
         try {
             await this.loadRound();
             Utils.assert.defined<Contracts.P2P.CurrentRound>(this.round);
-            timeout = this.getRoundRemainingSlotTime(this.round);
+            timeout = Math.max(0, this.getRoundRemainingSlotTime(this.round));
         } catch (error) {
             this.logger.warning("Waiting for a responsive host");
         } finally {
