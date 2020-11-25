@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import dayjs, { Dayjs } from "dayjs";
 
 import { PeerVerificationResult } from "./peer-verifier";
@@ -9,6 +9,18 @@ import { PeerVerificationResult } from "./peer-verifier";
  * @implements {Contracts.P2P.Peer}
  */
 export class Peer implements Contracts.P2P.Peer {
+    /**
+     * @type {(string)}
+     * @memberof Peer
+     */
+    public readonly ip: string;
+
+    /**
+     * @type {(number)}
+     * @memberof Peer
+     */
+    public readonly port: number;
+
     /**
      * @type {Contracts.P2P.PeerPorts}
      * @memberof Peer
@@ -67,7 +79,10 @@ export class Peer implements Contracts.P2P.Peer {
      * @param {number} port
      * @memberof Peer
      */
-    public constructor(public readonly ip: string, public readonly port: number) {}
+    public constructor(ip: string, port: number) {
+        this.ip = Utils.IpAddress.normalizeAddress(ip);
+        this.port = port;
+    }
 
     /**
      * @readonly
