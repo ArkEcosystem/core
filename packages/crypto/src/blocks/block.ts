@@ -188,7 +188,7 @@ export class Block implements IBlock {
                 result.errors.push("Invalid block version");
             }
 
-            if (block.timestamp > Slots.getTime() + Managers.configManager.getMilestone().blocktime) {
+            if (block.timestamp > Slots.getTime() + Managers.configManager.getMilestone(block.height).blocktime) {
                 result.errors.push("Invalid block timestamp");
             }
 
