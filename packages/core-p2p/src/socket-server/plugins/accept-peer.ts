@@ -1,4 +1,4 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { PeerRoute } from "../routes/peer";
 import { getPeerIp } from "../../utils/get-peer-ip";
@@ -27,7 +27,9 @@ export class AcceptPeerPlugin {
             async method(request, h) {
                 if (routesConfigByPath[request.path]) {
                     const peerIp = request.socket ? getPeerIp(request.socket) : request.info.remoteAddress;
-                    peerProcessor.validateAndAcceptPeer({ ip: peerIp } as Contracts.P2P.Peer);
+                    peerProcessor.validateAndAcceptPeer({
+                        ip: Utils.IpAddress.normalizeAddress(peerIp),
+                    } as Contracts.P2P.Peer);
                 }
                 return h.continue;
             },
