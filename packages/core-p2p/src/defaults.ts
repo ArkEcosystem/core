@@ -48,7 +48,7 @@ export const defaults = {
      * the internal API to your forger. If you run a split relay and forger
      * you will need to specify the IP of your forger here.
      */
-    remoteAccess: ["127.0.0.1", "::ffff:127.0.0.1"],
+    remoteAccess: ["127.0.0.1", "::1"],
     /**
      * The DNS servers we use to verify connectivity
      */
