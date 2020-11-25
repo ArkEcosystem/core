@@ -123,7 +123,7 @@ export class Peer implements Contracts.P2P.Peer {
      */
     public toBroadcast(): Contracts.P2P.PeerBroadcast {
         return {
-            ip: this.ip,
+            ip: Utils.IpAddress.cleanAddress(this.ip),
             port: this.port,
         };
     }
