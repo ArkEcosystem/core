@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Nes, NetworkState, NetworkStateStatus, Codecs } from "@arkecosystem/core-p2p";
+import { Codecs, Nes, NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
@@ -150,7 +150,11 @@ export class Client {
         // actions on a remote host based on events you should be using webhooks
         // that get triggered by the events you wish to react to.
 
-        const allowedHosts: string[] = ["127.0.0.1", "::ffff:127.0.0.1"];
+        const allowedHosts: string[] = ["127.0.0.1", "[::1]"];
+
+        for (const host of this.hosts) {
+            console.log("HOST: ", host.hostname);
+        }
 
         const host: RelayHost | undefined = this.hosts.find((item) =>
             allowedHosts.some((allowedHost) => item.hostname.includes(allowedHost)),
