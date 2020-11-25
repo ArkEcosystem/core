@@ -7,6 +7,7 @@ import { isBlacklisted } from "./is-blacklisted";
 import { getBlockNotChainedErrorMessage, isBlockChained } from "./is-block-chained";
 import { isWhitelisted } from "./is-whitelisted";
 import { calculateRound, isNewRound } from "./round-calculator";
+export * as IpAddress from "./ip-address";
 export * as Search from "./search";
 import { calculate } from "./supply-calculator";
 

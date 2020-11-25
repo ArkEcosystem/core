@@ -1004,5 +1004,38 @@ describe("Client", () => {
                 await server.stop();
             });
         });
+
+        describe("ping / pong", () => {
+            it.each([["ping"], ["pong"]])("terminates when receiving a ws.%s", async (method) => {
+                const server = await createServerWithPlugin({}, {}, true);
+                
+                server.route({
+                    method: "POST",
+                    path: "/",
+                    handler: async (request) => {
+                        request.server.plugins.nes._listener._sockets._forEach((socket) => {
+                            setTimeout(() => socket._ws[method](), 100);
+                        });
+
+                        return "hello";
+                    },
+                });
+
+                await server.start();
+                const client = new Client("http://localhost:" + server.info.port);
+
+                await client.connect();
+
+                await client.request("/");
+
+                await Hoek.wait(500);
+
+                //@ts-ignore
+                expect(client._ws).toBeNull(); // null because _cleanup() in reconnect() method
+
+                await client.disconnect();
+                await server.stop();
+            });
+        })
     });
 });
