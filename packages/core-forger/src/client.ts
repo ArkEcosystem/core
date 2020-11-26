@@ -152,10 +152,6 @@ export class Client {
 
         const allowedHosts: string[] = ["127.0.0.1", "[::1]"];
 
-        for (const host of this.hosts) {
-            console.log("HOST: ", host.hostname);
-        }
-
         const host: RelayHost | undefined = this.hosts.find((item) =>
             allowedHosts.some((allowedHost) => item.hostname.includes(allowedHost)),
         );
