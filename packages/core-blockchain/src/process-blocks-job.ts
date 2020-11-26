@@ -5,7 +5,6 @@ import { Blocks, Crypto, Interfaces, Utils as CryptoUtils } from "@arkecosystem/
 
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { RevertBlockHandler } from "./processor/handlers";
-import { error } from "xstate/lib/actions";
 
 @Container.injectable()
 export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
