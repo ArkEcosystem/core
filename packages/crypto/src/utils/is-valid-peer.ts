@@ -25,7 +25,7 @@ export const isLocalHost = (ip: string, includeNetworkInterfaces: boolean = true
 
 const sanitizeRemoteAddress = (ip: string): string | undefined => {
     try {
-        return process(ip.replace("[", "").replace("]", "")).toString();
+        return process(ip).toString();
     } catch (error) {
         return undefined;
     }
