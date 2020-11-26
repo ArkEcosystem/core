@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Services, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
@@ -113,7 +113,7 @@ export class ForgerService {
         let timeout: number = 2000;
         try {
             await this.loadRound();
-            Utils.assert.defined<Contracts.P2P.CurrentRound>(this.round);
+            AppUtils.assert.defined<Contracts.P2P.CurrentRound>(this.round);
             timeout = Math.max(0, this.getRoundRemainingSlotTime(this.round));
         } catch (error) {
             this.logger.warning("Waiting for a responsive host");
@@ -146,19 +146,19 @@ export class ForgerService {
 
             await this.loadRound();
 
-            Utils.assert.defined<Contracts.P2P.CurrentRound>(this.round);
+            AppUtils.assert.defined<Contracts.P2P.CurrentRound>(this.round);
 
             if (!this.round.canForge) {
                 // basically looping until we lock at beginning of next slot
                 return this.checkLater(200);
             }
 
-            Utils.assert.defined<string>(this.round.currentForger.publicKey);
+            AppUtils.assert.defined<string>(this.round.currentForger.publicKey);
 
             const delegate: Delegate | undefined = this.isActiveDelegate(this.round.currentForger.publicKey);
 
             if (!delegate) {
-                Utils.assert.defined<string>(this.round.nextForger.publicKey);
+                AppUtils.assert.defined<string>(this.round.nextForger.publicKey);
 
                 if (this.isActiveDelegate(this.round.nextForger.publicKey)) {
                     const username = this.usernames[this.round.nextForger.publicKey];
@@ -234,7 +234,7 @@ export class ForgerService {
         round: Contracts.P2P.CurrentRound,
         networkState: Contracts.P2P.NetworkState,
     ): Promise<void> {
-        Utils.assert.defined<number>(networkState.nodeHeight);
+        AppUtils.assert.defined<number>(networkState.nodeHeight);
 
         Managers.configManager.setHeight(networkState.nodeHeight);
 
@@ -252,8 +252,8 @@ export class ForgerService {
             reward: round.reward,
         });
 
-        Utils.assert.defined<Interfaces.IBlock>(block);
-        Utils.assert.defined<string>(delegate.publicKey);
+        AppUtils.assert.defined<Interfaces.IBlock>(block);
+        AppUtils.assert.defined<string>(delegate.publicKey);
 
         const minimumMs = 2000;
         const timeLeftInMs: number = this.getRoundRemainingSlotTime(round);
@@ -285,7 +285,7 @@ export class ForgerService {
      */
     public async getTransactionsForForging(): Promise<Interfaces.ITransactionData[]> {
         const response = await this.client.getTransactions();
-        if (Utils.isEmpty(response)) {
+        if (AppUtils.isEmpty(response)) {
             this.logger.error("Could not get unconfirmed transactions from transaction pool.");
             return [];
         }
@@ -293,8 +293,8 @@ export class ForgerService {
             (hex) => Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(hex, "hex")).data,
         );
         this.logger.debug(
-            `Received ${Utils.pluralize("transaction", transactions.length, true)} ` +
-                `from the pool containing ${Utils.pluralize("transaction", response.poolSize, true)} total`,
+            `Received ${AppUtils.pluralize("transaction", transactions.length, true)} ` +
+                `from the pool containing ${AppUtils.pluralize("transaction", response.poolSize, true)} total`,
         );
         return transactions;
     }
@@ -322,12 +322,16 @@ export class ForgerService {
         }> = networkState.getOverHeightBlockHeaders();
         if (overHeightBlockHeaders.length > 0) {
             this.logger.info(
-                `Detected ${Utils.pluralize("distinct overheight block header", overHeightBlockHeaders.length, true)}.`,
+                `Detected ${AppUtils.pluralize(
+                    "distinct overheight block header",
+                    overHeightBlockHeaders.length,
+                    true,
+                )}.`,
             );
 
             for (const overHeightBlockHeader of overHeightBlockHeaders) {
                 if (overHeightBlockHeader.generatorPublicKey === delegate.publicKey) {
-                    Utils.assert.defined<string>(delegate.publicKey);
+                    AppUtils.assert.defined<string>(delegate.publicKey);
 
                     const username: string = this.usernames[delegate.publicKey];
 
@@ -367,7 +371,7 @@ export class ForgerService {
         this.round = await this.client.getRound();
 
         this.usernames = this.round.delegates.reduce((acc, wallet) => {
-            Utils.assert.defined<string>(wallet.publicKey);
+            AppUtils.assert.defined<string>(wallet.publicKey);
 
             return Object.assign(acc, {
                 [wallet.publicKey]: wallet.delegate.username,
@@ -403,16 +407,16 @@ export class ForgerService {
      */
     private printLoadedDelegates(): void {
         const activeDelegates: Delegate[] = this.delegates.filter((delegate) => {
-            Utils.assert.defined<string>(delegate.publicKey);
+            AppUtils.assert.defined<string>(delegate.publicKey);
 
             return this.usernames.hasOwnProperty(delegate.publicKey);
         });
 
         if (activeDelegates.length > 0) {
             this.logger.info(
-                `Loaded ${Utils.pluralize("active delegate", activeDelegates.length, true)}: ${activeDelegates
+                `Loaded ${AppUtils.pluralize("active delegate", activeDelegates.length, true)}: ${activeDelegates
                     .map(({ publicKey }) => {
-                        Utils.assert.defined<string>(publicKey);
+                        AppUtils.assert.defined<string>(publicKey);
 
                         return `${this.usernames[publicKey]} (${publicKey})`;
                     })
@@ -426,7 +430,7 @@ export class ForgerService {
                 .map((delegate) => delegate.publicKey);
 
             this.logger.info(
-                `Loaded ${Utils.pluralize(
+                `Loaded ${AppUtils.pluralize(
                     "inactive delegate",
                     inactiveDelegates.length,
                     true,
