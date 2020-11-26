@@ -1,4 +1,4 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { Client } from "./hapi-nes";
 
@@ -68,10 +68,13 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
     }
 
     private async create(peer: Contracts.P2P.Peer): Promise<Client> {
-        const connection = new Client(`ws://${peer.ip}:${peer.port}`, { timeout: 10000 });
+        const connection = new Client(`ws://${Utils.IpAddress.normalizeAddress(peer.ip)}:${peer.port}`, {
+            timeout: 10000,
+        });
 
         connection.onError = (error) => {
-            this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
+            this.logger.debug(`Socket error (peer ${Utils.IpAddress.normalizeAddress(peer.ip)}) : ${error.message}`);
+            console.log("IP: ", peer.ip);
         };
 
         await connection.connect({ retries: 1, timeout: 5000 });

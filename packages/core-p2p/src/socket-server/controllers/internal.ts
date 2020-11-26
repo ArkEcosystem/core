@@ -20,7 +20,7 @@ export class InternalController extends Controller {
 
     public async acceptNewPeer(request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<void> {
         return this.peerProcessor.validateAndAcceptPeer({
-            ip: Utils.IpAddress.normalizeAddress((request.payload as any).ip),
+            ip: (request.payload as any).ip,
         } as Contracts.P2P.Peer);
     }
 

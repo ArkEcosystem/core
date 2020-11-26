@@ -37,10 +37,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     }
 
     public isWhitelisted(peer: Contracts.P2P.Peer): boolean {
-        return KernelUtils.isWhitelisted(
-            this.configuration.getOptional<string[]>("remoteAccess", []),
-            KernelUtils.IpAddress.cleanAddress(peer.ip),
-        );
+        return KernelUtils.isWhitelisted(this.configuration.getOptional<string[]>("remoteAccess", []), peer.ip);
     }
 
     public async validateAndAcceptPeer(
@@ -60,7 +57,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
             return false;
         }
 
-        if (!Utils.isValidPeer(peer) || this.storage.hasPendingPeer(KernelUtils.IpAddress.normalizeAddress(peer.ip))) {
+        if (!Utils.isValidPeer(peer) || this.storage.hasPendingPeer(peer.ip)) {
             return false;
         }
 
@@ -91,7 +88,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     }
 
     private async acceptNewPeer(peer, options: Contracts.P2P.AcceptNewPeerOptions): Promise<void> {
-        if (this.storage.hasPeer(KernelUtils.IpAddress.normalizeAddress(peer.ip))) {
+        if (this.storage.hasPeer(peer.ip)) {
             return;
         }
 
