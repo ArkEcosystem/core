@@ -65,11 +65,11 @@ export class PeerStorage implements Contracts.P2P.PeerStorage {
 
     public getSameSubnetPeers(ip: string): Contracts.P2P.Peer[] {
         return this.getPeers().filter((peer) => {
-            if (Utils.IpAddress.isIPv6Address(peer.ip) && Utils.IpAddress.isIPv6Address(peer.ip)) {
+            if (Utils.IpAddress.isIPv6Address(peer.ip) && Utils.IpAddress.isIPv6Address(ip)) {
                 return cidr(`${Utils.IpAddress.cleanAddress(peer.ip)}/64`) === cidr(`${Utils.IpAddress.cleanAddress(ip)}/64`);
             }
 
-            if (!Utils.IpAddress.isIPv6Address(peer.ip) && !Utils.IpAddress.isIPv6Address(peer.ip)) {
+            if (!Utils.IpAddress.isIPv6Address(peer.ip) && !Utils.IpAddress.isIPv6Address(ip)) {
                 return cidr(`${peer.ip}/24`) === cidr(`${ip}/24`);
             }
 
