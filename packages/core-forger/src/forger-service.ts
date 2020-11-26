@@ -116,6 +116,7 @@ export class ForgerService {
             AppUtils.assert.defined<Contracts.P2P.CurrentRound>(this.round);
             timeout = Math.max(0, this.getRoundRemainingSlotTime(this.round));
         } catch (error) {
+            console.error(error.stack);
             this.logger.warning("Waiting for a responsive host");
         } finally {
             this.checkLater(timeout);
