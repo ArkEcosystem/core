@@ -352,7 +352,7 @@ describe("ForgerService", () => {
             expect(logger.warning).toHaveBeenCalledWith(expectedDoubleForgeWarning);
         });
 
-        it.only("should not allow forging if quorum is not met", async () => {
+        it("should not allow forging if quorum is not met", async () => {
             jest.useFakeTimers();
 
             client.getRound.mockReturnValueOnce({
