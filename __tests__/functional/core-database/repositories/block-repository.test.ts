@@ -22,7 +22,7 @@ beforeEach(async () => {
 });
 
 const bip39 = new BIP39("generator's secret");
-const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"), getBlockTimeLookup);
+const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"));
 const block2 = bip39.forge([], {
     timestamp: block1.data.timestamp + 60,
     previousBlock: block1.data,
