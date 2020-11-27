@@ -1,6 +1,6 @@
 import { Container } from "@arkecosystem/core-kernel";
-import si from "systeminformation";
 import df from "@sindresorhus/df";
+import si from "systeminformation";
 
 import { Actions } from "../contracts";
 
@@ -12,8 +12,7 @@ export class Action implements Actions.Action {
         return {
             cpu: await this.prepareCpuData(),
             ram: await this.prepareMemData(),
-            disks: await this.prepareFilesystemsData(),
-            installationDisk: await this.getProjectFilesystem(),
+            disk: await this.prepareFilesystemsData(),
         };
     }
 
@@ -38,21 +37,17 @@ export class Action implements Actions.Action {
     }
 
     private async prepareFilesystemsData(): Promise<any> {
-        const fs = await si.fsSize();
+        const projectFs = await this.getProjectFilesystem();
 
-        const result: any[] = [];
+        const disk: any = (await si.fsSize()).find((disk) => disk.fs === projectFs);
 
-        for (const disk of fs) {
-            result.push({
-                filesystem: disk.fs,
-                total: this.convert(disk.size),
-                used: this.convert(disk.used),
-                available: this.convert(disk.size - disk.used),
-                mountpoint: disk.mount,
-            });
-        }
-
-        return result;
+        return {
+            filesystem: disk.fs,
+            total: this.convert(disk.size),
+            used: this.convert(disk.used),
+            available: this.convert(disk.size - disk.used),
+            mountpoint: disk.mount,
+        };
     }
 
     private async getProjectFilesystem(): Promise<string> {

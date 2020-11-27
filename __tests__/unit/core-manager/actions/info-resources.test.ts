@@ -2,8 +2,9 @@ import "jest-extended";
 
 import { Action } from "@packages/core-manager/src/actions/info-resources";
 import { Sandbox } from "@packages/core-test-framework";
+import si from "systeminformation";
 
-const diskData = {
+const dfDiskData = {
     filesystem: "/dev/disk1s1",
     size: 499963174912,
     used: 11138412544,
@@ -12,17 +13,26 @@ const diskData = {
     mountpoint: "/",
 };
 
+const diskData = {
+    fs: "/dev/disk1s1",
+    size: 499963174912,
+    used: 11138412544,
+    mount: "/",
+};
+
 jest.mock("@sindresorhus/df", () => {
     const df = async function () {
-        return [diskData];
+        return [dfDiskData];
     };
 
     df.file = async () => {
-        return diskData;
+        return dfDiskData;
     };
 
     return df;
 });
+
+si.fsSize = jest.fn().mockResolvedValue([diskData]);
 
 let sandbox: Sandbox;
 let action: Action;
@@ -47,14 +57,9 @@ describe("Info:Resources", () => {
         expect(typeof result.ram.total).toEqual("number");
         expect(result.ram.total - (result.ram.used + result.ram.available)).toEqual(0);
 
-        expect(result.disks.length).toBeGreaterThan(1);
-        result.disks.forEach((fs) => {
-            expect(typeof fs.mountpoint).toEqual("string");
-            expect(typeof fs.filesystem).toEqual("string");
-            expect(typeof fs.total).toEqual("number");
-            expect(fs.total - (fs.used + fs.available)).toEqual(0);
-        });
-
-        expect(result.installationDisk).toEqual("/dev/disk1s1");
+        expect(typeof result.disk.mountpoint).toEqual("string");
+        expect(typeof result.disk.filesystem).toEqual("string");
+        expect(typeof result.disk.total).toEqual("number");
+        expect(result.disk.total - (result.disk.used + result.disk.available)).toEqual(0);
     });
 });
