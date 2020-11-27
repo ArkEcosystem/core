@@ -1,7 +1,7 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { Logger, QueryRunner } from "typeorm";
 
-import { DatabaseService } from "./database-service";
+import { DatabaseService } from "./database/database-service";
 
 @Container.injectable()
 export class DatabaseLogger implements Logger {

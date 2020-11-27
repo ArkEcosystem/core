@@ -3,7 +3,7 @@ import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kerne
 
 import { ActionReader } from "./action-reader";
 import { DatabaseLogger } from "./database-logger";
-import { DatabaseService } from "./database-service";
+import { DatabaseService } from "./database/database-service";
 import { Identifiers } from "./ioc";
 import { Listener } from "./listener";
 import { LogServiceWrapper } from "./log-service-wrapper";

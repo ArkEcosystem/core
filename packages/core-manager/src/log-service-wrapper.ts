@@ -1,6 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 
-import { DatabaseService } from "./database-service";
+import { DatabaseService } from "./database/database-service";
 
 export class LogServiceWrapper implements Contracts.Kernel.Logger {
     public constructor(private logger: Contracts.Kernel.Logger, private databaseService: DatabaseService) {}

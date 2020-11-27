@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { Container } from "@arkecosystem/core-kernel";
-import { DatabaseService } from "@arkecosystem/core-manager/src/database-service";
-import { Sandbox } from "@packages/core-test-framework";
+import { DatabaseService } from "@arkecosystem/core-manager/src/database/database-service";
+import { Sandbox } from "@arkecosystem/core-test-framework";
 import { existsSync } from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";
 

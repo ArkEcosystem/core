@@ -1,7 +1,7 @@
 import { Container } from "@arkecosystem/core-kernel";
 
 import { Actions } from "../contracts";
-import { DatabaseService } from "../database-service";
+import { DatabaseService } from "../database/database-service";
 
 @Container.injectable()
 export class Action implements Actions.Action {

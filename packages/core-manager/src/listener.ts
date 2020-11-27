@@ -1,6 +1,6 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 
-import { DatabaseService } from "./database-service";
+import { DatabaseService } from "./database/database-service";
 
 @Container.injectable()
 export class Listener {
