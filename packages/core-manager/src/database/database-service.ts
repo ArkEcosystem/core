@@ -51,10 +51,6 @@ export class DatabaseService {
             .prepare(`SELECT * FROM ${this.databaseName}`)
             .pluck(false)
             .all()
-            .map((x) => {
-                x.data = JSON.parse(x.data);
-                return x;
-            });
     }
 
     public getTotal(conditions?: any): number {

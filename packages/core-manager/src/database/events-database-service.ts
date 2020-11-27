@@ -13,4 +13,15 @@ export class EventsDatabaseService extends DatabaseService {
 
         super.boot(flush);
     }
+
+    public getAll(): any[] {
+        return this.transform(super.getAll());
+    }
+
+    private transform(data: any[]) {
+        return data.map((x) => {
+            x.data = JSON.parse(x.data);
+            return x;
+        });
+    }
 }
