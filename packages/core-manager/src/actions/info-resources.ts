@@ -1,5 +1,6 @@
 import { Container } from "@arkecosystem/core-kernel";
 import si from "systeminformation";
+import df from "@sindresorhus/df";
 
 import { Actions } from "../contracts";
 
@@ -12,6 +13,7 @@ export class Action implements Actions.Action {
             cpu: await this.prepareCpuData(),
             ram: await this.prepareMemData(),
             disks: await this.prepareFilesystemsData(),
+            installationDisk: await this.getProjectFilesystem(),
         };
     }
 
@@ -51,6 +53,10 @@ export class Action implements Actions.Action {
         }
 
         return result;
+    }
+
+    private async getProjectFilesystem(): Promise<string> {
+        return (await df.file(__dirname)).filesystem;
     }
 
     private convert(sizeInBytes: number): number {

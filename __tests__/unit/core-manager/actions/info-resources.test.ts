@@ -3,6 +3,27 @@ import "jest-extended";
 import { Action } from "@packages/core-manager/src/actions/info-resources";
 import { Sandbox } from "@packages/core-test-framework";
 
+const diskData = {
+    filesystem: "/dev/disk1s1",
+    size: 499963174912,
+    used: 11138412544,
+    available: 264768466944,
+    capacity: 0.05,
+    mountpoint: "/",
+};
+
+jest.mock("@sindresorhus/df", () => {
+    const df = async function () {
+        return [diskData];
+    };
+
+    df.file = async () => {
+        return diskData;
+    };
+
+    return df;
+});
+
 let sandbox: Sandbox;
 let action: Action;
 
@@ -33,5 +54,7 @@ describe("Info:Resources", () => {
             expect(typeof fs.total).toEqual("number");
             expect(fs.total - (fs.used + fs.available)).toEqual(0);
         });
+
+        expect(result.installationDisk).toEqual("/dev/disk1s1");
     });
 });
