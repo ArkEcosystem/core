@@ -31,6 +31,6 @@ export class Action implements Actions.Action {
     };
 
     public async execute(params: { query: any }): Promise<any> {
-        return this.database.queryEvents(params.query);
+        return this.database.query(params.query);
     }
 }

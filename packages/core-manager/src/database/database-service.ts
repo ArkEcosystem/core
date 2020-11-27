@@ -47,10 +47,7 @@ export class DatabaseService {
     }
 
     public getAll(): any[] {
-        return this.database
-            .prepare(`SELECT * FROM ${this.databaseName}`)
-            .pluck(false)
-            .all()
+        return this.database.prepare(`SELECT * FROM ${this.databaseName}`).pluck(false).all();
     }
 
     public getTotal(conditions?: any): number {
@@ -59,7 +56,7 @@ export class DatabaseService {
             .get()["COUNT(*)"] as number;
     }
 
-    public queryEvents(conditions?: any): any {
+    public query(conditions?: any): any {
         const limit = this.prepareLimit(conditions);
         const offset = this.prepareOffset(conditions);
 
@@ -69,16 +66,12 @@ export class DatabaseService {
             offset,
             data: this.database
                 .prepare(
-                    `SELECT events.id, events.event, events.data, events.timestamp FROM ${
-                        this.databaseName
-                    } ${this.prepareWhere(conditions)} LIMIT ${limit} OFFSET ${offset}`,
+                    `SELECT * FROM ${this.databaseName} ${this.prepareWhere(
+                        conditions,
+                    )} LIMIT ${limit} OFFSET ${offset}`,
                 )
                 .pluck(false)
-                .all()
-                .map((x) => {
-                    x.data = JSON.parse(x.data);
-                    return x;
-                }),
+                .all(),
         };
     }
 

@@ -106,7 +106,7 @@ describe("DatabaseService", () => {
         });
 
         it("should return limit 10", async () => {
-            const result = database.queryEvents();
+            const result = database.query();
 
             expect(result.total).toBe(200);
             expect(result.limit).toBe(10);
@@ -116,7 +116,7 @@ describe("DatabaseService", () => {
         });
 
         it("should return limit 10 with offset", async () => {
-            const result = database.queryEvents({ $offset: 10 });
+            const result = database.query({ $offset: 10 });
 
             expect(result.total).toBe(200);
             expect(result.limit).toBe(10);
@@ -126,7 +126,7 @@ describe("DatabaseService", () => {
         });
 
         it("should return limit 20", async () => {
-            const result = database.queryEvents({ $limit: 20 });
+            const result = database.query({ $limit: 20 });
 
             expect(result.total).toBe(200);
             expect(result.limit).toBe(20);
@@ -136,7 +136,7 @@ describe("DatabaseService", () => {
         });
 
         it("should return events with name", async () => {
-            const result = database.queryEvents({ $limit: 1000, event: "dummy_event" });
+            const result = database.query({ $limit: 1000, event: "dummy_event" });
 
             expect(result.total).toBe(100);
             expect(result.limit).toBe(1000);
@@ -146,7 +146,7 @@ describe("DatabaseService", () => {
         });
 
         it("should not return events if searching by number", async () => {
-            const result = database.queryEvents({ $limit: 1000, event: 1 });
+            const result = database.query({ $limit: 1000, event: 1 });
 
             expect(result.total).toBe(0);
             expect(result.limit).toBe(1000);
@@ -168,7 +168,7 @@ describe("DatabaseService", () => {
         });
 
         it("should chose $eq by default", async () => {
-            const result = database.queryEvents({ data: { size: 1 } });
+            const result = database.query({ data: { size: 1 } });
 
             expect(result.total).toBe(1);
             expect(result.limit).toBe(10);
@@ -178,7 +178,7 @@ describe("DatabaseService", () => {
         });
 
         it("should use $eq on string", async () => {
-            const result = database.queryEvents({ data: { name: { $eq: "1_dummy_event" } } });
+            const result = database.query({ data: { name: { $eq: "1_dummy_event" } } });
 
             expect(result.total).toBe(1);
             expect(result.limit).toBe(10);
@@ -188,7 +188,7 @@ describe("DatabaseService", () => {
         });
 
         it("should use $ne", async () => {
-            const result = database.queryEvents({ data: { size: { $ne: 3 } } });
+            const result = database.query({ data: { size: { $ne: 3 } } });
 
             expect(result.total).toBe(4);
             expect(result.limit).toBe(10);
@@ -198,7 +198,7 @@ describe("DatabaseService", () => {
         });
 
         it("should use $like on string", async () => {
-            const result = database.queryEvents({ data: { name: { $like: "1_%" } } });
+            const result = database.query({ data: { name: { $like: "1_%" } } });
 
             expect(result.total).toBe(1);
             expect(result.limit).toBe(10);
@@ -208,7 +208,7 @@ describe("DatabaseService", () => {
         });
 
         it("should use $lt", async () => {
-            const result = database.queryEvents({ data: { size: { $lt: 2 } } });
+            const result = database.query({ data: { size: { $lt: 2 } } });
 
             expect(result.total).toBe(1);
             expect(result.limit).toBe(10);
@@ -218,7 +218,7 @@ describe("DatabaseService", () => {
         });
 
         it("should use $lte", async () => {
-            const result = database.queryEvents({ data: { size: { $lte: 2 } } });
+            const result = database.query({ data: { size: { $lte: 2 } } });
 
             expect(result.total).toBe(2);
             expect(result.limit).toBe(10);
@@ -228,7 +228,7 @@ describe("DatabaseService", () => {
         });
 
         it("should use $gt", async () => {
-            const result = database.queryEvents({ data: { size: { $gt: 4 } } });
+            const result = database.query({ data: { size: { $gt: 4 } } });
 
             expect(result.total).toBe(1);
             expect(result.limit).toBe(10);
@@ -238,7 +238,7 @@ describe("DatabaseService", () => {
         });
 
         it("should use $gte", async () => {
-            const result = database.queryEvents({ data: { size: { $gte: 4 } } });
+            const result = database.query({ data: { size: { $gte: 4 } } });
 
             expect(result.total).toBe(2);
             expect(result.limit).toBe(10);
@@ -248,7 +248,7 @@ describe("DatabaseService", () => {
         });
 
         it("should use $gte an $lte", async () => {
-            const result = database.queryEvents({ data: { size: { $gte: 2, $lte: 4 } } });
+            const result = database.query({ data: { size: { $gte: 2, $lte: 4 } } });
 
             expect(result.total).toBe(3);
             expect(result.limit).toBe(10);

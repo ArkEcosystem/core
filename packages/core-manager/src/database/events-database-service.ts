@@ -18,6 +18,14 @@ export class EventsDatabaseService extends DatabaseService {
         return this.transform(super.getAll());
     }
 
+    public query(conditions?: any): any {
+        const result = super.query(conditions);
+
+        result.data = this.transform(result.data);
+
+        return result;
+    }
+
     private transform(data: any[]) {
         return data.map((x) => {
             x.data = JSON.parse(x.data);
