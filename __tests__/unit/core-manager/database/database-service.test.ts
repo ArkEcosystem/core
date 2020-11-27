@@ -15,6 +15,13 @@ afterEach(() => {
     setGracefulCleanup();
 });
 
+const jsonContent = {
+    name: "name",
+    nested: {
+        name: "nested_name",
+    },
+};
+
 const schema: Schema = {
     tables: [
         {
@@ -104,13 +111,6 @@ describe("DatabaseService", () => {
         });
 
         it("should add data to table_2", () => {
-            const jsonContent = {
-                name: "name",
-                nested: {
-                    name: "nested_name",
-                },
-            };
-
             database.add("table_2", {
                 column_1: "content 1",
                 column_2: "content 2",
@@ -164,24 +164,37 @@ describe("DatabaseService", () => {
         });
     });
 
-    // describe("GetAll", () => {
-    //     it("should return added data from table", () => {
-    //         database = new DatabaseService(storagePath, schema);
-    //         database.boot();
-    //         expect(existsSync(storagePath)).toBeTrue();
-    //
-    //         database.add("table_1", {
-    //             column_1: "string content",
-    //         });
-    //
-    //         const result = database.getAll("table_1");
-    //
-    //         expect(result.length).toEqual(1);
-    //         expect(result).toEqual([
-    //             {
-    //                 column_1: "string content",
-    //             },
-    //         ]);
-    //     });
-    // });
+    describe("GetAll", () => {
+        it("should return all data form table", () => {
+            database = new DatabaseService(storagePath, schema);
+            database.boot();
+            expect(existsSync(storagePath)).toBeTrue();
+
+            for (let i = 0; i < 100; i++) {
+                database.add("table_1", {
+                    column_1: "string content",
+                });
+            }
+
+            for (let i = 0; i < 200; i++) {
+                database.add("table_2", {
+                    column_1: "content 1",
+                    column_2: "content 2",
+                    column_json: jsonContent,
+                });
+            }
+
+            const result1 = database.getAll("table_1");
+            expect(result1.length).toEqual(100);
+
+            const result2 = database.getAll("table_2");
+            expect(result2.length).toEqual(200);
+        });
+
+        it("should throw if table does not exist", () => {
+            expect(() => {
+                database.getAll("table_x");
+            }).toThrow("Table table_x does not exists.");
+        });
+    });
 });
