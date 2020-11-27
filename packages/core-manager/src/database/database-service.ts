@@ -20,10 +20,10 @@ import { ensureFileSync } from "fs-extra";
 export interface Column {
     name: string;
     type: string;
-    primary: boolean | undefined;
-    autoincrement: boolean | undefined;
-    nullable: boolean | undefined;
-    default: string | undefined;
+    primary?: boolean;
+    autoincrement?: boolean;
+    nullable?: boolean;
+    default?: string;
 }
 
 export interface Table {
@@ -49,6 +49,77 @@ export class DatabaseService {
         // if (flush) {
         //     this.flush();
         // }
+    }
+
+    public add(tableName: string, data: any) {
+        const table = this.schema.tables.find((table) => table.name === tableName);
+
+        if (!table) {
+            throw new Error("Cannot find table"); // TODO Improve log
+        }
+
+        this.database.prepare(this.prepareInsertSQL(table, data)).run(this.prepareInsertData(table, data));
+    }
+
+    private prepareInsertData(table: Table, data: any) {
+        const result = {};
+
+        for (const column of this.getInsertColumns(table, data)) {
+            if (column.type === "json") {
+                result[column.name] = JSON.stringify(data[column.name]);
+            } else {
+                result[column.name] = column.name;
+            }
+        }
+
+        return result;
+    }
+
+    private prepareInsertSQL(table: Table, data: any): string {
+        let result = `INSERT INTO ${table.name} (`;
+
+        for (const column of this.getInsertColumns(table, data)) {
+            result += column.name;
+
+            if (table.columns[table.columns.length - 1] !== column) {
+                result += ", ";
+            }
+        }
+
+        result += ") VALUES (";
+
+        for (const column of this.getInsertColumns(table, data)) {
+            if (column.type === "json") {
+                result += `:json(${column.name})`;
+            } else {
+                result += `:${column.name}`;
+            }
+
+            if (table.columns[table.columns.length - 1] !== column) {
+                result += ", ";
+            }
+        }
+
+        result += ")";
+
+        console.log("prepareInsertSQL: ", result);
+
+        return result;
+    }
+
+    private getInsertColumns(table: Table, data: any): Column[] {
+        const result: Column[] = [];
+
+        for (const key of Object.keys(data)) {
+            const column = table.columns.find((column) => column.name === key);
+            if (column) {
+                result.push(column);
+            }
+        }
+
+        // TODO: Test if number of columns greater than number of non nullable columns
+
+        return result;
     }
 
     private exec(sql: string): any {
