@@ -1,4 +1,3 @@
-import { Container, Providers } from "@arkecosystem/core-kernel";
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
 
@@ -18,27 +17,16 @@ const conditions = new Map<string, string>([
     ["$like", "LIKE"],
 ]);
 
-@Container.injectable()
 export class DatabaseService {
-    @Container.inject(Container.Identifiers.PluginConfiguration)
-    @Container.tagged("plugin", "@arkecosystem/core-manager")
-    private readonly configuration!: Providers.PluginConfiguration;
+    protected database!: BetterSqlite3.Database;
 
-    private database!: BetterSqlite3.Database;
-
-    public boot(): void {
-        const filename =
-            this.configuration.getRequired<{ storage: string }>("watcher").storage ||
-            `${process.env.CORE_PATH_DATA}/events.sqlite`;
-        ensureFileSync(filename);
-
+    public constructor(private readonly filename: string, private readonly databaseName: string) {
+        ensureFileSync(this.filename);
         this.database = new BetterSqlite3(filename);
-        this.database.exec(`
-            PRAGMA journal_mode = WAL;
-            CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, event VARCHAR(255) NOT NULL, data JSON NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);
-        `);
+    }
 
-        if (this.configuration.getRequired<{ resetDatabase: boolean }>("watcher").resetDatabase) {
+    public boot(flush: boolean = false): void {
+        if (flush) {
             this.flush();
         }
     }
@@ -48,19 +36,19 @@ export class DatabaseService {
     }
 
     public flush(): void {
-        this.database.prepare("DELETE FROM events").run();
+        this.database.prepare(`DELETE FROM ${this.databaseName}`).run();
     }
 
-    public addEvent(event: string, data: any): void {
+    public add(event: string, data: any): void {
         this.database.prepare("INSERT INTO events (event, data) VALUES (:event, json(:data))").run({
             event: event,
             data: JSON.stringify(data || {}),
         });
     }
 
-    public getAllEvents(): any[] {
+    public getAll(): any[] {
         return this.database
-            .prepare("SELECT * FROM events")
+            .prepare(`SELECT * FROM ${this.databaseName}`)
             .pluck(false)
             .all()
             .map((x) => {
@@ -70,9 +58,9 @@ export class DatabaseService {
     }
 
     public getTotal(conditions?: any): number {
-        return this.database.prepare(`SELECT COUNT(*) FROM events ${this.prepareWhere(conditions)}`).get()[
-            "COUNT(*)"
-        ] as number;
+        return this.database
+            .prepare(`SELECT COUNT(*) FROM ${this.databaseName} ${this.prepareWhere(conditions)}`)
+            .get()["COUNT(*)"] as number;
     }
 
     public queryEvents(conditions?: any): any {
@@ -85,9 +73,9 @@ export class DatabaseService {
             offset,
             data: this.database
                 .prepare(
-                    `SELECT events.id, events.event, events.data, events.timestamp FROM events ${this.prepareWhere(
-                        conditions,
-                    )} LIMIT ${limit} OFFSET ${offset}`,
+                    `SELECT events.id, events.event, events.data, events.timestamp FROM ${
+                        this.databaseName
+                    } ${this.prepareWhere(conditions)} LIMIT ${limit} OFFSET ${offset}`,
                 )
                 .pluck(false)
                 .all()

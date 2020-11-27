@@ -24,7 +24,7 @@ export class Listener {
 
     private handleEvents(data: { name: Contracts.Kernel.EventName; data: any }) {
         if (this.canAddEvent(data.name.toString())) {
-            this.databaseService.addEvent(data.name.toString(), data.data);
+            this.databaseService.add(data.name.toString(), data.data);
         }
     }
 

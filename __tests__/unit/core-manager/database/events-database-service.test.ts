@@ -1,29 +1,15 @@
 import "jest-extended";
 
-import { Container } from "@arkecosystem/core-kernel";
-import { DatabaseService } from "@arkecosystem/core-manager/src/database/database-service";
-import { Sandbox } from "@arkecosystem/core-test-framework";
+import { EventsDatabaseService } from "@arkecosystem/core-manager/src/database/events-database-service";
 import { existsSync } from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";
 
-let sandbox: Sandbox;
-let database: DatabaseService;
+let database: EventsDatabaseService;
 let storagePath: string;
 
 beforeEach(() => {
-    sandbox = new Sandbox();
-
     storagePath = dirSync().name + "/events.sqlite";
-
-    sandbox.app.bind(Container.Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
-
-    sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({
-        getRequired: jest.fn().mockImplementation(() => {
-            return { storage: storagePath, resetDatabase: true };
-        }),
-    });
-
-    database = sandbox.app.get(Container.Identifiers.WatcherDatabaseService);
+    database = new EventsDatabaseService(storagePath);
 });
 
 afterEach(() => {
@@ -35,15 +21,15 @@ describe("DatabaseService", () => {
         it("should boot and create file", async () => {
             database.boot();
 
-            expect(existsSync(storagePath!)).toBeTrue();
+            expect(existsSync(storagePath)).toBeTrue();
         });
 
-        it("should boot without watcher storage in defaults", async () => {
-            // @ts-ignore
-            storagePath = undefined;
-
-            database.boot();
-        });
+        // it("should boot without watcher storage in defaults", async () => {
+        //     // @ts-ignore
+        //     storagePath = undefined;
+        //
+        //     database.boot();
+        // });
     });
 
     describe("Dispose", () => {
@@ -52,7 +38,7 @@ describe("DatabaseService", () => {
             database.dispose();
 
             expect(() => {
-                database.addEvent("dummy_event", { data: "dummy_data" });
+                database.add("dummy_event", { data: "dummy_data" });
             }).toThrowError();
         });
     });
@@ -61,13 +47,13 @@ describe("DatabaseService", () => {
         it("should dispose", async () => {
             database.boot();
 
-            database.addEvent("dummy_event", { data: "dummy_data" });
+            database.add("dummy_event", { data: "dummy_data" });
 
-            expect(database.getAllEvents().length).toBe(1);
+            expect(database.getAll().length).toBe(1);
 
             database.flush();
 
-            expect(database.getAllEvents().length).toBe(0);
+            expect(database.getAll().length).toBe(0);
         });
     });
 
@@ -76,9 +62,9 @@ describe("DatabaseService", () => {
             database.boot();
             expect(existsSync(storagePath)).toBeTrue();
 
-            database.addEvent("dummy_event", { data: "dummy_data" });
+            database.add("dummy_event", { data: "dummy_data" });
 
-            const result = database.getAllEvents();
+            const result = database.getAll();
 
             expect(result).toBeArray();
             expect(result[0]).toMatchObject({
@@ -94,9 +80,9 @@ describe("DatabaseService", () => {
             database.boot();
             expect(existsSync(storagePath)).toBeTrue();
 
-            database.addEvent("dummy_event", undefined);
+            database.add("dummy_event", undefined);
 
-            const result = database.getAllEvents();
+            const result = database.getAll();
 
             expect(result).toBeArray();
             expect(result[0]).toMatchObject({
@@ -114,8 +100,8 @@ describe("DatabaseService", () => {
             database.boot();
 
             for (let i = 0; i < 100; i++) {
-                database.addEvent("dummy_event", { data: "dummy_data" });
-                database.addEvent("another_dummy_event", { data: "another_dummy_data" });
+                database.add("dummy_event", { data: "dummy_data" });
+                database.add("another_dummy_event", { data: "another_dummy_data" });
             }
         });
 
@@ -174,11 +160,11 @@ describe("DatabaseService", () => {
         beforeEach(() => {
             database.boot();
 
-            database.addEvent("dummy_event", { size: 1, name: "1_dummy_event" });
-            database.addEvent("dummy_event", { size: 2, name: "2_dummy_event" });
-            database.addEvent("dummy_event", { size: 3, name: "3_dummy_event" });
-            database.addEvent("dummy_event", { size: 4, name: "4_dummy_event" });
-            database.addEvent("dummy_event", { size: 5, name: "5_dummy_event" });
+            database.add("dummy_event", { size: 1, name: "1_dummy_event" });
+            database.add("dummy_event", { size: 2, name: "2_dummy_event" });
+            database.add("dummy_event", { size: 3, name: "3_dummy_event" });
+            database.add("dummy_event", { size: 4, name: "4_dummy_event" });
+            database.add("dummy_event", { size: 5, name: "5_dummy_event" });
         });
 
         it("should chose $eq by default", async () => {

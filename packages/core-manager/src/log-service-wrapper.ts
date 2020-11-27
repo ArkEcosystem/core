@@ -10,35 +10,35 @@ export class LogServiceWrapper implements Contracts.Kernel.Logger {
     }
     public emergency(message: any): void {
         this.logger.emergency(message);
-        this.databaseService.addEvent("log.emergency", message);
+        this.databaseService.add("log.emergency", message);
     }
     public alert(message: any): void {
         this.logger.alert(message);
-        this.databaseService.addEvent("log.alert", message);
+        this.databaseService.add("log.alert", message);
     }
     public critical(message: any): void {
         this.logger.critical(message);
-        this.databaseService.addEvent("log.critical", message);
+        this.databaseService.add("log.critical", message);
     }
     public error(message: any): void {
         this.logger.error(message);
-        this.databaseService.addEvent("log.error", message);
+        this.databaseService.add("log.error", message);
     }
     public warning(message: any): void {
         this.logger.warning(message);
-        this.databaseService.addEvent("log.warning", message);
+        this.databaseService.add("log.warning", message);
     }
     public notice(message: any): void {
         this.logger.notice(message);
-        this.databaseService.addEvent("log.notice", message);
+        this.databaseService.add("log.notice", message);
     }
     public info(message: any): void {
         this.logger.info(message);
-        this.databaseService.addEvent("log.info", message);
+        this.databaseService.add("log.info", message);
     }
     public debug(message: any): void {
         this.logger.debug(message);
-        this.databaseService.addEvent("log.debug", message);
+        this.databaseService.add("log.debug", message);
     }
     public suppressConsoleOutput(suppress: boolean): void {
         this.logger.suppressConsoleOutput(suppress);
