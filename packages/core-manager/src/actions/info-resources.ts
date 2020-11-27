@@ -10,8 +10,8 @@ export class Action implements Actions.Action {
     public async execute(params: any): Promise<any> {
         return {
             cpu: await this.prepareCpuData(),
-            mem: await this.prepareMemData(),
-            filesystems: await this.prepareFilesystemsData(),
+            ram: await this.prepareMemData(),
+            disks: await this.prepareFilesystemsData(),
         };
     }
 

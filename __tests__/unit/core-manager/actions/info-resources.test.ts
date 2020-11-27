@@ -23,11 +23,11 @@ describe("Info:Resources", () => {
         expect(result.cpu.total).toEqual(100);
         expect(result.cpu.total - (result.cpu.used + result.cpu.available)).toEqual(0);
 
-        expect(typeof result.mem.total).toEqual("number");
-        expect(result.mem.total - (result.mem.used + result.mem.available)).toEqual(0);
+        expect(typeof result.ram.total).toEqual("number");
+        expect(result.ram.total - (result.ram.used + result.ram.available)).toEqual(0);
 
-        expect(result.filesystems.length).toBeGreaterThan(1);
-        result.filesystems.forEach((fs) => {
+        expect(result.disks.length).toBeGreaterThan(1);
+        result.disks.forEach((fs) => {
             expect(typeof fs.mountpoint).toEqual("string");
             expect(typeof fs.filesystem).toEqual("string");
             expect(typeof fs.total).toEqual("number");
