@@ -16,7 +16,7 @@ afterEach(() => {
     setGracefulCleanup();
 });
 
-describe("DatabaseService", () => {
+describe("EventsDatabaseService", () => {
     describe("Boot", () => {
         it("should boot and create file", async () => {
             database.boot();
