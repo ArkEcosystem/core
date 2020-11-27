@@ -57,6 +57,36 @@ describe("DatabaseService", () => {
             database.add("table_1", {
                 column_1: "string content",
             });
+
+            const result = database.getAll("table_1");
+
+            expect(result.length).toEqual(1);
+            expect(result).toEqual([
+                {
+                    column_1: "string content",
+                },
+            ]);
         });
     });
+
+    // describe("GetAll", () => {
+    //     it("should return added data from table", () => {
+    //         database = new DatabaseService(storagePath, schema);
+    //         database.boot();
+    //         expect(existsSync(storagePath)).toBeTrue();
+    //
+    //         database.add("table_1", {
+    //             column_1: "string content",
+    //         });
+    //
+    //         const result = database.getAll("table_1");
+    //
+    //         expect(result.length).toEqual(1);
+    //         expect(result).toEqual([
+    //             {
+    //                 column_1: "string content",
+    //             },
+    //         ]);
+    //     });
+    // });
 });

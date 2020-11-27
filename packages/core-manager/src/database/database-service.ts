@@ -51,14 +51,27 @@ export class DatabaseService {
         // }
     }
 
-    public add(tableName: string, data: any) {
+    public getAll(tableName: string): any[] {
+        return this.database
+            .prepare(`SELECT * FROM ${this.getTable(tableName).name}`)
+            .pluck(false)
+            .all();
+    }
+
+    public add(tableName: string, data: any): void {
+        const table = this.getTable(tableName);
+
+        this.database.prepare(this.prepareInsertSQL(table, data)).run(this.prepareInsertData(table, data));
+    }
+
+    private getTable(tableName: string): Table {
         const table = this.schema.tables.find((table) => table.name === tableName);
 
         if (!table) {
             throw new Error("Cannot find table"); // TODO Improve log
         }
 
-        this.database.prepare(this.prepareInsertSQL(table, data)).run(this.prepareInsertData(table, data));
+        return table;
     }
 
     private prepareInsertData(table: Table, data: any) {
@@ -68,7 +81,7 @@ export class DatabaseService {
             if (column.type === "json") {
                 result[column.name] = JSON.stringify(data[column.name]);
             } else {
-                result[column.name] = column.name;
+                result[column.name] = data[column.name];
             }
         }
 
@@ -153,7 +166,7 @@ export class DatabaseService {
     }
 
     private createColumnSQL(column: Column): string {
-        let result = `${column.name} ${column.type}`;
+        let result = `${column.name} ${column.type.toUpperCase()}`;
 
         if (column.primary) {
             result += " PRIMARY KEY";
