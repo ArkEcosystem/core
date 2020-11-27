@@ -8,14 +8,14 @@ export class EventsDatabaseService extends DatabaseService {
     public boot(flush: boolean = false): void {
         this.database.exec(`
             PRAGMA journal_mode = WAL;
-            CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, event VARCHAR(255) NOT NULL, data JSON NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);
+            CREATE TABLE IF NOT EXISTS ${this.table} (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, event VARCHAR(255) NOT NULL, data JSON NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);
         `);
 
         super.boot(flush);
     }
 
     public add(event: string, data: any): void {
-        this.database.prepare("INSERT INTO events (event, data) VALUES (:event, json(:data))").run({
+        this.database.prepare(`INSERT INTO ${this.table} (event, data) VALUES (:event, json(:data))`).run({
             event: event,
             data: JSON.stringify(data || {}),
         });

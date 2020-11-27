@@ -20,7 +20,7 @@ const conditions = new Map<string, string>([
 export class DatabaseService {
     protected database!: BetterSqlite3.Database;
 
-    public constructor(private readonly filename: string, private readonly databaseName: string) {
+    public constructor(private readonly filename: string, protected readonly table: string) {
         ensureFileSync(this.filename);
         this.database = new BetterSqlite3(filename);
     }
@@ -36,16 +36,16 @@ export class DatabaseService {
     }
 
     public flush(): void {
-        this.database.prepare(`DELETE FROM ${this.databaseName}`).run();
+        this.database.prepare(`DELETE FROM ${this.table}`).run();
     }
 
     public getAll(): any[] {
-        return this.database.prepare(`SELECT * FROM ${this.databaseName}`).pluck(false).all();
+        return this.database.prepare(`SELECT * FROM ${this.table}`).pluck(false).all();
     }
 
     public getTotal(conditions?: any): number {
         return this.database
-            .prepare(`SELECT COUNT(*) FROM ${this.databaseName} ${this.prepareWhere(conditions)}`)
+            .prepare(`SELECT COUNT(*) FROM ${this.table} ${this.prepareWhere(conditions)}`)
             .get()["COUNT(*)"] as number;
     }
 
@@ -59,7 +59,7 @@ export class DatabaseService {
             offset,
             data: this.database
                 .prepare(
-                    `SELECT * FROM ${this.databaseName} ${this.prepareWhere(
+                    `SELECT * FROM ${this.table} ${this.prepareWhere(
                         conditions,
                     )} LIMIT ${limit} OFFSET ${offset}`,
                 )
