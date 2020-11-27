@@ -68,7 +68,7 @@ export class DatabaseService {
         const table = this.schema.tables.find((table) => table.name === tableName);
 
         if (!table) {
-            throw new Error("Cannot find table"); // TODO Improve log
+            throw new Error(`Table ${tableName} does not exists.`); // TODO Improve log
         }
 
         return table;
@@ -89,26 +89,28 @@ export class DatabaseService {
     }
 
     private prepareInsertSQL(table: Table, data: any): string {
+        const columns = this.getInsertColumns(table, data);
+
         let result = `INSERT INTO ${table.name} (`;
 
-        for (const column of this.getInsertColumns(table, data)) {
+        for (const column of columns) {
             result += column.name;
 
-            if (table.columns[table.columns.length - 1] !== column) {
+            if (columns[columns.length - 1] !== column) {
                 result += ", ";
             }
         }
 
         result += ") VALUES (";
 
-        for (const column of this.getInsertColumns(table, data)) {
+        for (const column of columns) {
             if (column.type === "json") {
                 result += `:json(${column.name})`;
             } else {
                 result += `:${column.name}`;
             }
 
-            if (table.columns[table.columns.length - 1] !== column) {
+            if (columns[columns.length - 1] !== column) {
                 result += ", ";
             }
         }
