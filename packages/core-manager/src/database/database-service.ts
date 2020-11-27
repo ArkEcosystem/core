@@ -39,13 +39,6 @@ export class DatabaseService {
         this.database.prepare(`DELETE FROM ${this.databaseName}`).run();
     }
 
-    public add(event: string, data: any): void {
-        this.database.prepare("INSERT INTO events (event, data) VALUES (:event, json(:data))").run({
-            event: event,
-            data: JSON.stringify(data || {}),
-        });
-    }
-
     public getAll(): any[] {
         return this.database.prepare(`SELECT * FROM ${this.databaseName}`).pluck(false).all();
     }
