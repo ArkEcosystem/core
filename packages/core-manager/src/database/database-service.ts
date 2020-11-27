@@ -52,10 +52,23 @@ export class DatabaseService {
     }
 
     public getAll(tableName: string): any[] {
-        return this.database
-            .prepare(`SELECT * FROM ${this.getTable(tableName).name}`)
-            .pluck(false)
-            .all();
+        const table = this.getTable(tableName);
+
+        const result = this.database.prepare(`SELECT * FROM ${table.name}`).pluck(false).all();
+
+        const jsonColumns = table.columns.filter((column) => column.type === "json");
+
+        if (jsonColumns.length) {
+            return result.map((item) => {
+                for (const jsonColumn of jsonColumns) {
+                    item[jsonColumn.name] = JSON.parse(item[jsonColumn.name]);
+                }
+
+                return item;
+            });
+        }
+
+        return result;
     }
 
     public add(tableName: string, data: any): void {
@@ -105,7 +118,7 @@ export class DatabaseService {
 
         for (const column of columns) {
             if (column.type === "json") {
-                result += `:json(${column.name})`;
+                result += `json(:${column.name})`;
             } else {
                 result += `:${column.name}`;
             }

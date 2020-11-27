@@ -49,6 +49,10 @@ const schema: Schema = {
                     nullable: true,
                 },
                 {
+                    name: "column_json",
+                    type: "json",
+                },
+                {
                     name: "timestamp",
                     type: "datetime",
                     default: "CURRENT_TIMESTAMP",
@@ -73,7 +77,7 @@ describe("DatabaseService", () => {
             expect(spyOnExec).toHaveBeenCalledWith(
                 "PRAGMA journal_mode = WAL;\n" +
                     "CREATE TABLE IF NOT EXISTS table_1 (column_1 VARCHAR(255) NOT NULL);\n" +
-                    "CREATE TABLE IF NOT EXISTS table_2 (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, column_1 VARCHAR(255) NOT NULL, column_2 VARCHAR(255) NOT NULL, column_3 VARCHAR(255), timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);\n",
+                    "CREATE TABLE IF NOT EXISTS table_2 (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, column_1 VARCHAR(255) NOT NULL, column_2 VARCHAR(255) NOT NULL, column_3 VARCHAR(255), column_json JSON NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);\n",
             );
         });
     });
@@ -100,9 +104,17 @@ describe("DatabaseService", () => {
         });
 
         it("should add data to table_2", () => {
+            const jsonContent = {
+                name: "name",
+                nested: {
+                    name: "nested_name",
+                },
+            };
+
             database.add("table_2", {
                 column_1: "content 1",
                 column_2: "content 2",
+                column_json: jsonContent,
             });
 
             const result = database.getAll("table_2");
@@ -112,6 +124,7 @@ describe("DatabaseService", () => {
                 column_1: "content 1",
                 column_2: "content 2",
                 column_3: null,
+                column_json: jsonContent,
                 timestamp: expect.toBeString(),
             });
         });
