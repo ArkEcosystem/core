@@ -90,7 +90,12 @@ describe("ForgerService", () => {
         delegates = calculateActiveDelegates();
 
         round = {
-            data: { delegates, timestamp: Slots.getTime() - 7, reward: 0, lastBlock: { height: 100 } },
+            data: {
+                delegates,
+                timestamp: Slots.getTime() - 3,
+                reward: 0,
+                lastBlock: { height: 100 },
+            },
             canForge: false,
         };
 
@@ -1105,12 +1110,15 @@ describe("ForgerService", () => {
         it("should forge valid new blocks when passed specific milestones", async () => {
             client.getRound.mockReturnValueOnce({
                 delegates,
-                timestamp: Crypto.Slots.getTime() - 7,
+                timestamp: Crypto.Slots.getTime() - 3,
                 lastBlock: { height: 100 },
             });
 
             const spyMilestone = jest.spyOn(Managers.configManager, "getMilestone");
-            spyMilestone.mockReturnValue({ block: { idFullSha256: true, version: 0 }, reward: 0 });
+            spyMilestone.mockReturnValue({
+                ...Managers.configManager.getMilestone(1),
+                block: { version: 0, idFullSha256: true },
+            });
 
             forgerService.register({ hosts: [mockHost] });
 
