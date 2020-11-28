@@ -19,11 +19,6 @@ beforeEach(() => configManager.setFromPreset("devnet"));
 
 afterEach(() => jest.resetAllMocks());
 
-const blockTimestampLookup = (height: number): number => {
-    if (height === 1) return 0;
-    throw new Error(`Attemped to lookup block with height ${height}, but no lookup implementation was provided`);
-};
-
 describe("Block", () => {
     const data = {
         id: "187940162505562345",
@@ -45,7 +40,7 @@ describe("Block", () => {
 
     describe("constructor", () => {
         it("should store the data", () => {
-            const block = BlockFactory.fromData(dummyBlock, blockTimestampLookup);
+            const block = BlockFactory.fromData(dummyBlock);
 
             expect(block.data.blockSignature).toBe(dummyBlock.blockSignature);
             expect(block.data.generatorPublicKey).toBe(dummyBlock.generatorPublicKey);
@@ -59,13 +54,13 @@ describe("Block", () => {
         });
 
         it("should verify the block", () => {
-            const block = BlockFactory.fromData(dummyBlock, blockTimestampLookup);
+            const block = BlockFactory.fromData(dummyBlock);
 
             expect(block.verification.verified).toBeTrue();
         });
 
         it("should fail to verify the block ", () => {
-            const block = BlockFactory.fromData(data, blockTimestampLookup);
+            const block = BlockFactory.fromData(data);
 
             expect(block.verification.verified).toBeFalse();
         });
@@ -73,7 +68,7 @@ describe("Block", () => {
         it("should fail to verify a block with an invalid previous block", () => {
             const previousBlockBackup = dummyBlock.previousBlock;
             dummyBlock.previousBlock = "0000000000000000000";
-            const block = BlockFactory.fromData(dummyBlock, blockTimestampLookup);
+            const block = BlockFactory.fromData(dummyBlock);
 
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain("Failed to verify block signature");
@@ -83,8 +78,8 @@ describe("Block", () => {
 
         it("should fail to verify a block with incorrect timestamp", () => {
             // @ts-ignore
-            jest.spyOn(Slots, "getSlotNumber").mockImplementation((_, timestamp) => (timestamp ? 2 : 0));
-            const block = BlockFactory.fromData(dummyBlock, blockTimestampLookup);
+            jest.spyOn(Slots, "getTime").mockImplementation(() => dummyBlock.timestamp - 30);
+            const block = BlockFactory.fromData(dummyBlock);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain("Invalid block timestamp");
 
@@ -108,7 +103,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create(210);
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
 
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain("Transactions length is too high");
@@ -131,11 +126,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge(
-                [transactions[0], transactions[0]],
-                optionsDefault,
-                blockTimestampLookup,
-            );
+            const block: IBlock = delegate.forge([transactions[0], transactions[0]], optionsDefault);
 
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered duplicate transaction: ${transactions[0].id}`);
@@ -152,7 +143,7 @@ describe("Block", () => {
                 vendorFieldLength: 64,
                 epoch: "2017-03-21T13:00:00.000Z",
             }));
-            let block = BlockFactory.fromData(dummyBlock, blockTimestampLookup);
+            let block = BlockFactory.fromData(dummyBlock);
 
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors[0]).toContain("Payload is too large");
@@ -167,7 +158,7 @@ describe("Block", () => {
                 vendorFieldLength: 64,
                 epoch: "2017-03-21T13:00:00.000Z",
             }));
-            block = BlockFactory.fromData(dummyBlock, blockTimestampLookup);
+            block = BlockFactory.fromData(dummyBlock);
 
             expect(block.verification.verified).toBeTrue();
             expect(block.verification.errors).toBeEmpty();
@@ -195,7 +186,7 @@ describe("Block", () => {
 
             transactions[0].expiration = 102;
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeTrue();
         });
 
@@ -218,7 +209,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
         });
@@ -244,7 +235,7 @@ describe("Block", () => {
                 .create();
 
             Managers.configManager.getMilestone().aip11 = false;
-            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
             Managers.configManager.getMilestone().aip11 = true;
@@ -275,7 +266,7 @@ describe("Block", () => {
                 .create();
 
             Managers.configManager.getMilestone().aip11 = false;
-            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeTrue();
             Managers.configManager.getMilestone().aip11 = true;
         });
@@ -305,7 +296,7 @@ describe("Block", () => {
                 .create();
 
             Managers.configManager.getMilestone().aip11 = false;
-            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered future transaction: ${transactions[0].id}`);
             Managers.configManager.getMilestone().aip11 = true;
@@ -335,7 +326,7 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeTrue();
             expect(block.verification.errors).toBeEmpty();
         });
@@ -363,17 +354,17 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-            const block: IBlock = delegate.forge(transactions, optionsDefault, blockTimestampLookup);
+            const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered future transaction: ${transactions[0].id}`);
         });
 
         it("should fail to verify a block if error is thrown", () => {
             const errorMessage = "Very very, very bad error";
-            jest.spyOn(Slots, "getSlotNumber").mockImplementation((height) => {
+            jest.spyOn(Slots, "getTime").mockImplementation((height) => {
                 throw errorMessage;
             });
-            const block = BlockFactory.fromData(dummyBlock, blockTimestampLookup);
+            const block = BlockFactory.fromData(dummyBlock);
 
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toEqual([errorMessage]);
@@ -397,7 +388,7 @@ describe("Block", () => {
                 generatorPublicKey: "026a423b3323de175dd82788c7eab57850c6a37ea6a470308ebadd7007baf8ceb3",
                 blockSignature:
                     "3045022100c92d7d0c3ea2ba72576f6494a81fc498d0420286896f806a7ead443d0b5d89720220501610f0d5498d028fd27676ea2597a5cb80cf5896e77fe2fa61623d31ff290c",
-            }, blockTimestampLookup);
+            });
 
             expect(block.verification.verified).toBeTrue();
             expect(block.verification.errors).toEqual([]);
@@ -417,7 +408,7 @@ describe("Block", () => {
                 generatorPublicKey: "026a423b3323de175dd82788c7eab57850c6a37ea6a470308ebadd7007baf8ceb3",
                 blockSignature:
                     "3045022100c92d7d0c3ea2ba72576f6494a81fc498d0420286896f806a7ead443d0b5d89720220afe9ef0f2ab672fd702d898915da6858ef2e0d8e18612058c570fc4f9e371835",
-            }, blockTimestampLookup);
+            });
 
             expect(blockHighS.verification.verified).toBeFalse();
             expect(blockHighS.verification.errors).toEqual(["Failed to verify block signature"]);
@@ -439,7 +430,7 @@ describe("Block", () => {
                 generatorPublicKey: "026a423b3323de175dd82788c7eab57850c6a37ea6a470308ebadd7007baf8ceb3",
                 blockSignature:
                     "3045022100c92d7d0c3ea2ba72576f6494a81fc498d0420286896f806a7ead443d0b5d89720220501610f0d5498d028fd27676ea2597a5cb80cf5896e77fe2fa61623d31ff290c",
-            }, blockTimestampLookup);
+            });
 
             expect(block.verification.verified).toBeTrue();
             expect(block.verification.errors).toEqual([]);
@@ -459,7 +450,7 @@ describe("Block", () => {
                 generatorPublicKey: "026a423b3323de175dd82788c7eab57850c6a37ea6a470308ebadd7007baf8ceb3",
                 blockSignature:
                     "3046022100c92d7d0c3ea2ba72576f6494a81fc498d0420286896f806a7ead443d0b5d89720220501610f0d5498d028fd27676ea2597a5cb80cf5896e77fe2fa61623d31ff290c00",
-            }, blockTimestampLookup);
+            });
 
             expect(blockInvalidSignatureLength.verification.verified).toBeFalse();
             expect(blockInvalidSignatureLength.verification.errors).toEqual(["Failed to verify block signature"]);
@@ -481,7 +472,7 @@ describe("Block", () => {
                 generatorPublicKey: "026a423b3323de175dd82788c7eab57850c6a37ea6a470308ebadd7007baf8ceb3",
                 blockSignature:
                     "3045022100c92d7d0c3ea2ba72576f6494a81fc498d0420286896f806a7ead443d0b5d89720220501610f0d5498d028fd27676ea2597a5cb80cf5896e77fe2fa61623d31ff290c",
-            }, blockTimestampLookup);
+            });
 
             expect(block.verification.verified).toBeTrue();
             expect(block.verification.errors).toEqual([]);
@@ -501,14 +492,14 @@ describe("Block", () => {
                 generatorPublicKey: "026a423b3323de175dd82788c7eab57850c6a37ea6a470308ebadd7007baf8ceb3",
                 blockSignature:
                     "30440220c92d7d0c3ea2ba72576f6494a81fc498d0420286896f806a7ead443d0b5d89720220501610f0d5498d028fd27676ea2597a5cb80cf5896e77fe2fa61623d31ff290c",
-            }, blockTimestampLookup);
+            });
 
             expect(blockInvalidR.verification.verified).toBeFalse();
             expect(blockInvalidR.verification.errors).toEqual(["Failed to verify block signature"]);
         });
 
         it("should construct the block (header only)", () => {
-            const block = BlockFactory.fromHex(dummyBlock2.serialized, blockTimestampLookup);
+            const block = BlockFactory.fromHex(dummyBlock2.serialized);
             const actual = block.toJson();
 
             expect(actual.version).toBe(dummyBlock2.data.version);
@@ -527,7 +518,7 @@ describe("Block", () => {
         });
 
         it("should construct the block (full)", () => {
-            const block = BlockFactory.fromHex(dummyBlock2.serializedFull, blockTimestampLookup);
+            const block = BlockFactory.fromHex(dummyBlock2.serializedFull);
             const actual = block.toJson();
 
             expect(actual.version).toBe(dummyBlock2.data.version);
@@ -552,7 +543,7 @@ describe("Block", () => {
             jest.spyOn(Block.prototype as any, "verify").mockImplementation(() => ({ verified: true }));
 
             const data2 = { ...data };
-            const header = BlockFactory.fromData(data2, blockTimestampLookup).getHeader();
+            const header = BlockFactory.fromData(data2).getHeader();
             const bignumProperties = ["reward", "totalAmount", "totalFee"];
 
             for (const key of Object.keys(data)) {
@@ -682,10 +673,7 @@ describe("Block", () => {
                 configManager.setFromPreset(network);
                 configManager.getMilestone().aip11 = false;
 
-                const block: Interfaces.IBlock = BlockFactory.fromJson(
-                    networks[network].genesisBlock,
-                    blockTimestampLookup,
-                );
+                const block: Interfaces.IBlock = BlockFactory.fromJson(networks[network].genesisBlock);
 
                 expect(block.serialized).toHaveLength(length);
                 expect(block.verifySignature()).toBeTrue();
@@ -698,8 +686,8 @@ describe("Block", () => {
             const s = Serializer.serializeWithTransactions(dummyBlock).toString("hex");
             const serialized =
                 "00000000006fb50300db1a002b324b8b33a85802070000000049d97102000000801d2c040000000000c2eb0b00000000e0000000de56269cae3ab156f6979b94a04c30b82ed7d6f9a97d162583c98215c18c65db03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac3730450221008c59bd2379061ad3539b73284fc0bbb57dbc97efd54f55010ba3f198c04dde7402202e482126b3084c6313c1378d686df92a3e2ef5581323de11e74fe07eeab339f3990000009a0000009a0000009a000000990000009a00000099000000ff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37809698000000000000006d7c4d00000000000000001e46550551e12d2531ea9d2968696b75f68ae7f29530440220714c2627f0e9c3bd6bf13b8b4faa5ec2d677694c27f580e2f9e3875bde9bc36f02201c33faacab9eafd799d9ceecaa153e3b87b4cd04535195261fd366e552652549ff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac3780969800000000000000f1536500000000000000001e46550551e12d2531ea9d2968696b75f68ae7f2953045022100e6039f810684515c0d6b31039040a76c98f3624b6454cb156a0a2137e5f8dba7022001ada19bcca5798e1c7cc8cc39bab5d4019525e3d72a42bd2c4129352b8ead87ff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37809698000000000000002f685900000000000000001e46550551e12d2531ea9d2968696b75f68ae7f2953045022100c2b5ef772b36e468e95ec2e457bfaba7bad0e13b3faf57e229ff5d67a0e017c902202339664595ea5c70ce20e4dd182532f7fa385d86575b0476ff3eda9f9785e1e9ff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac3780969800000000000000105e5f00000000000000001e46550551e12d2531ea9d2968696b75f68ae7f29530450221009ceb56688705e6b12000bde726ca123d84982231d7434f059612ff5f987409c602200d908667877c902e7ba35024951046b883e0bce9103d4717928d94ecc958884aff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37809698000000000000008c864700000000000000001e46550551e12d2531ea9d2968696b75f68ae7f29530440220464beac6d49943ad8afaac4fdc863c9cd7cf3a84f9938c1d7269ed522298f11a02203581bf180de1966f86d914afeb005e1e818c9213514f96a34e1391c2a08514faff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac3780969800000000000000d2496b00000000000000001e46550551e12d2531ea9d2968696b75f68ae7f2953045022100c7b40d7134d909762d18d6bfb7ac1c32be0ee8c047020131f499faea70ca0b2b0220117c0cf026f571f5a85e3ae800a6fd595185076ff38e64c7a4bd14f34e1d4dd1ff011e00006fb50303287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37809698000000000000004e725300000000000000001e46550551e12d2531ea9d2968696b75f68ae7f295304402206a4a8e4e6918fbc15728653b117f51db716aeb04e5ee1de047f80b0476ee4efb02200f486dfaf0def3f3e8636d46ee75a2c07de9714ce4283a25fde9b6218b5e7923";
-            const block1 = BlockFactory.fromData(dummyBlock, blockTimestampLookup);
-            const block2 = BlockFactory.fromData(Deserializer.deserialize(Buffer.from(serialized, "hex")).data, blockTimestampLookup);
+            const block1 = BlockFactory.fromData(dummyBlock);
+            const block2 = BlockFactory.fromData(Deserializer.deserialize(Buffer.from(serialized, "hex")).data);
 
             expect(s).toEqual(serialized);
             expect(block1.verification.verified).toEqual(true);
@@ -761,7 +749,7 @@ describe("Block", () => {
             ],
         };
 
-        const block = BlockFactory.fromData(issue, blockTimestampLookup);
+        const block = BlockFactory.fromData(issue);
         expect(block.data.id).toBe(issue.id);
         expect(block.transactions[0].id).toBe(issue.transactions[1].id);
 
@@ -833,7 +821,7 @@ describe("Block", () => {
                     transactions: [],
                     version: 6,
                 };
-                const blk = BlockFactory.fromData(mock, blockTimestampLookup);
+                const blk = BlockFactory.fromData(mock);
                 expect(blk.data.id).toBe(mock.id);
             });
 
@@ -855,7 +843,7 @@ describe("Block", () => {
                     transactions: [],
                     version: 6,
                 };
-                const blk2 = BlockFactory.fromData(mock2, blockTimestampLookup);
+                const blk2 = BlockFactory.fromData(mock2);
                 expect(blk2.data.id).not.toBe(mock2.id);
             });
         });

@@ -17,38 +17,24 @@ export const expectBlock = ({ data }: { data: IBlockData }) => {
     expect(data).toEqual(blockWithoutTransactions);
 };
 
-const getTimeStampForBlock = (height: number) => {
-    switch (height) {
-        case 1:
-            return 0;
-        default:
-            throw new Error(`Test scenarios should not hit this line`);
-    }
-};
-
 beforeEach(() => configManager.setFromPreset("devnet"));
 
 describe("BlockFactory", () => {
     describe(".fromHex", () => {
         it("should create a block instance from hex", () => {
-            expectBlock(
-                BlockFactory.fromHex(
-                    Serializer.serializeWithTransactions(dummyBlock).toString("hex"),
-                    getTimeStampForBlock,
-                ),
-            );
+            expectBlock(BlockFactory.fromHex(Serializer.serializeWithTransactions(dummyBlock).toString("hex")));
         });
     });
 
     describe(".fromBytes", () => {
         it("should create a block instance from a buffer", () => {
-            expectBlock(BlockFactory.fromBytes(Serializer.serializeWithTransactions(dummyBlock), getTimeStampForBlock));
+            expectBlock(BlockFactory.fromBytes(Serializer.serializeWithTransactions(dummyBlock)));
         });
     });
 
     describe(".fromData", () => {
         it("should create a block instance from an object", () => {
-            expectBlock(BlockFactory.fromData(dummyBlock, getTimeStampForBlock));
+            expectBlock(BlockFactory.fromData(dummyBlock));
         });
 
         it("should create a block with exceptions", () => {
@@ -58,20 +44,16 @@ describe("BlockFactory", () => {
 
         it("should throw on invalid input data - block property has an unexpected value", () => {
             const b1 = Object.assign({}, blockWithExceptions, { timestamp: "abcd" });
-            expect(() => BlockFactory.fromData(b1 as any, getTimeStampForBlock)).toThrowError(
-                /Invalid.*timestamp.*integer.*abcd/i,
-            );
+            expect(() => BlockFactory.fromData(b1 as any)).toThrowError(/Invalid.*timestamp.*integer.*abcd/i);
 
             const b2 = Object.assign({}, blockWithExceptions, { totalAmount: "abcd" });
-            expect(() => BlockFactory.fromData(b2 as any, getTimeStampForBlock)).toThrowError(
-                /Invalid.*totalAmount.*bignumber.*abcd/i,
-            );
+            expect(() => BlockFactory.fromData(b2 as any)).toThrowError(/Invalid.*totalAmount.*bignumber.*abcd/i);
         });
 
         it("should throw on invalid input data - required block property is missing", () => {
             const b = Object.assign({}, blockWithExceptions);
             delete b.generatorPublicKey;
-            expect(() => BlockFactory.fromData(b as any, getTimeStampForBlock)).toThrowError(
+            expect(() => BlockFactory.fromData(b as any)).toThrowError(
                 /Invalid.*required property.*generatorPublicKey/i,
             );
         });
@@ -79,12 +61,7 @@ describe("BlockFactory", () => {
 
     describe(".fromJson", () => {
         it("should create a block instance from JSON", () => {
-            expectBlock(
-                BlockFactory.fromJson(
-                    BlockFactory.fromData(dummyBlock, getTimeStampForBlock).toJson(),
-                    getTimeStampForBlock,
-                ),
-            );
+            expectBlock(BlockFactory.fromJson(BlockFactory.fromData(dummyBlock).toJson()));
         });
     });
 });
