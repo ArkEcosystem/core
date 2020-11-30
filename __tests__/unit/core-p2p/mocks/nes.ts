@@ -5,6 +5,9 @@ export class NesClient {
     public disconnect() {
         return;
     }
+    public terminate() {
+        return;
+    }
 
     public request() {
         return;

@@ -7,6 +7,8 @@ import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 import { Socket } from "@packages/core-p2p/src/hapi-nes/socket";
 import { parseNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
 
+jest.setTimeout(60000);
+
 describe("Listener", () => {
     it("refuses connection while stopping", async () => {
         const server = Hapi.server();
@@ -207,14 +209,14 @@ describe("Listener", () => {
             const server = Hapi.server();
             await server.register({
                 plugin: plugin,
-                options: { heartbeat: { interval: 200, timeout: 180 } },
+                options: { heartbeat: { interval: 1200, timeout: 1180 } },
             });
 
             server.route({
                 method: "POST",
                 path: "/",
                 handler: async () => {
-                    await Hoek.wait(440);
+                    await Hoek.wait(1440);
                     return "hello";
                 },
             });
@@ -235,16 +237,16 @@ describe("Listener", () => {
 
             await client.connect();
             // @ts-ignore
-            expect(client._heartbeatTimeout).toEqual(380);
+            expect(client._heartbeatTimeout).toEqual(2380);
 
             await client.request("/");
-            await Hoek.wait(520);
+            await Hoek.wait(2520);
 
             expect(d).toEqual(0);
 
             // @ts-ignore
             client._onMessage = Hoek.ignore; // Stop processing messages
-            await Hoek.wait(480);
+            await Hoek.wait(2480);
 
             expect(d).toEqual(1);
 
@@ -258,7 +260,7 @@ describe("Listener", () => {
             const onDisconnection = () => disconnected++;
             await server.register({
                 plugin: plugin,
-                options: { onDisconnection, heartbeat: { timeout: 50, interval: 55 } },
+                options: { onDisconnection, heartbeat: { timeout: 1050, interval: 1055 } },
             });
             await server.start();
 
@@ -293,20 +295,20 @@ describe("Listener", () => {
             // wait for the next ping
             await pingTeam.work;
 
-            await Hoek.wait(30);
+            await Hoek.wait(1030);
             const connectPromise = client.connect().catch((message) => {
                 throw new Error(message);
             });
 
             // client should not time out for another 50 milliseconds
 
-            await Hoek.wait(40);
+            await Hoek.wait(1040);
 
             // release "hello" message before the timeout hits
             helloTeam.attend();
             await connectPromise;
 
-            await Hoek.wait(60); // ping should have been answered and connection still active
+            await Hoek.wait(1060); // ping should have been answered and connection still active
 
             expect(disconnected).toEqual(0);
 
