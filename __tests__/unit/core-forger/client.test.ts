@@ -25,7 +25,9 @@ describe("Client", () => {
     let client: Client;
 
     const host = { hostname: "127.0.0.1", port: 4000, socket: undefined };
+    const hostIPv6 = { hostname: "::1", port: 4000, socket: undefined };
     const hosts = [host];
+    const hostsIPv6 = [hostIPv6];
 
     beforeEach(() => {
         client = app.resolve<Client>(Client);
@@ -39,6 +41,12 @@ describe("Client", () => {
             client.register(hosts);
             expect(Nes.Client).toHaveBeenCalledWith(`ws://${host.hostname}:${host.port}`);
             expect(client.hosts).toEqual([{ ...host, socket: expect.anything() }]);
+        });
+
+        it("should register IPv6 hosts", async () => {
+            client.register(hostsIPv6);
+            expect(Nes.Client).toHaveBeenCalledWith(`ws://[${hostIPv6.hostname}]:${hostIPv6.port}`);
+            expect(client.hosts).toEqual([{ ...hostIPv6, socket: expect.anything() }]);
         });
 
         it("on error the socket should call logger", () => {

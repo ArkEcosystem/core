@@ -20,7 +20,11 @@ describe("PeerStorage", () => {
 
     describe("getPeers", () => {
         it("should return all the peers in an array", () => {
-            const peers = [new Peer("176.165.66.55", 4000), new Peer("176.165.44.33", 4000)];
+            const peers = [
+                new Peer("176.165.66.55", 4000),
+                new Peer("176.165.44.33", 4000),
+                new Peer("2001:3984:3989::104", 4000),
+            ];
             peers.map((peer) => peerStorage.setPeer(peer));
 
             expect(peerStorage.getPeers()).toEqual(peers);
@@ -33,6 +37,7 @@ describe("PeerStorage", () => {
                 new Peer("176.165.66.55", 4000),
                 new Peer("176.165.44.33", 4000),
                 new Peer("176.165.22.11", 4000),
+                new Peer("2001:3984:3989::104", 4000),
             ];
 
             expect(peerStorage.hasPeers()).toBeFalse();
@@ -53,6 +58,7 @@ describe("PeerStorage", () => {
             const peersByIp = {
                 "176.165.66.55": new Peer("176.165.66.55", 4000),
                 "176.165.44.33": new Peer("176.165.44.33", 4000),
+                "2001:3984:3989::104": new Peer("2001:3984:3989::104", 4000),
             };
             Object.values(peersByIp).map((peer) => peerStorage.setPeer(peer));
 
@@ -65,6 +71,7 @@ describe("PeerStorage", () => {
             const peersByIp = {
                 "176.165.66.55": new Peer("176.165.66.55", 4000),
                 "176.165.44.33": new Peer("176.165.44.33", 4000),
+                "2001:3984:3989::104": new Peer("2001:3984:3989::104", 4000),
             };
             Object.values(peersByIp).map((peer) => peerStorage.setPeer(peer));
 
@@ -77,6 +84,7 @@ describe("PeerStorage", () => {
             const peersByIp = {
                 "176.165.66.55": new Peer("176.165.66.55", 4000),
                 "176.165.44.33": new Peer("176.165.44.33", 4000),
+                "2001:3984:3989::104": new Peer("2001:3984:3989::104", 4000),
             };
             Object.values(peersByIp).map((peer) => peerStorage.setPeer(peer));
 
@@ -131,6 +139,7 @@ describe("PeerStorage", () => {
                 new Peer("176.165.66.55", 4000),
                 new Peer("176.165.44.33", 4000),
                 new Peer("176.165.22.11", 4000),
+                new Peer("2001:3984:3989::104", 4000),
             ];
 
             expect(peerStorage.hasPendingPeers()).toBeFalse();
@@ -151,6 +160,7 @@ describe("PeerStorage", () => {
             const peersByIp = {
                 "176.165.66.55": new Peer("176.165.66.55", 4000),
                 "176.165.44.33": new Peer("176.165.44.33", 4000),
+                "2001:3984:3989::104": new Peer("2001:3984:3989::104", 4000),
             };
             Object.values(peersByIp).map((peer) => peerStorage.setPendingPeer(peer));
 
@@ -163,6 +173,7 @@ describe("PeerStorage", () => {
             const peersByIp = {
                 "176.165.66.55": new Peer("176.165.66.55", 4000),
                 "176.165.44.33": new Peer("176.165.44.33", 4000),
+                "2001:3984:3989::104": new Peer("2001:3984:3989::104", 4000),
             };
             Object.values(peersByIp).map((peer) => peerStorage.setPendingPeer(peer));
 
@@ -175,6 +186,7 @@ describe("PeerStorage", () => {
             const peersByIp = {
                 "176.165.66.55": new Peer("176.165.66.55", 4000),
                 "176.165.44.33": new Peer("176.165.44.33", 4000),
+                "2001:3984:3989::104": new Peer("2001:3984:3989::104", 4000),
             };
             Object.values(peersByIp).map((peer) => peerStorage.setPendingPeer(peer));
 
@@ -220,6 +232,7 @@ describe("PeerStorage", () => {
                 new Peer("176.165.66.55", 4000),
                 new Peer("176.165.66.33", 4000),
                 new Peer("176.165.22.11", 4000),
+                new Peer("2001:3984:3989::104", 4000),
             ];
 
             peers.map((peer) => peerStorage.setPeer(peer));

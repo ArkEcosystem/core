@@ -2,13 +2,12 @@ import "jest-extended";
 
 import { Container } from "@arkecosystem/core-kernel";
 
-import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
-import { Peer } from "../../../packages/core-p2p/src/peer";
 import * as Nes from "../../../packages/core-p2p/src/hapi-nes";
-
+import { Peer } from "../../../packages/core-p2p/src/peer";
+import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
 import { NesClient } from "./mocks/nes";
 
-jest.spyOn(Nes, "Client").mockImplementation((url) => new (NesClient as any)());
+const spyOnClient = jest.spyOn(Nes, "Client").mockImplementation((url) => new (NesClient as any)());
 
 describe("PeerConnector", () => {
     let peerConnector: PeerConnector;
@@ -23,6 +22,10 @@ describe("PeerConnector", () => {
         container.bind(Container.Identifiers.PeerConnector).to(PeerConnector);
 
         peerConnector = container.get<PeerConnector>(Container.Identifiers.PeerConnector);
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     describe("all", () => {
@@ -41,12 +44,18 @@ describe("PeerConnector", () => {
 
     describe("connection", () => {
         it("should return the connection", async () => {
-            const peers = [new Peer("178.165.55.44", 4000), new Peer("178.165.55.33", 4000)];
+            const peers = [
+                new Peer("178.165.55.44", 4000),
+                new Peer("178.165.55.33", 4000),
+                new Peer("2001:3984:3989::104", 4000),
+            ];
             await peerConnector.connect(peers[0]);
             await peerConnector.connect(peers[1]);
+            await peerConnector.connect(peers[2]);
 
             expect(peerConnector.connection(peers[0])).toBeInstanceOf(NesClient);
             expect(peerConnector.connection(peers[1])).toBeInstanceOf(NesClient);
+            expect(peerConnector.connection(peers[2])).toBeInstanceOf(NesClient);
         });
 
         it("should return undefined if there is no connection", async () => {
@@ -60,6 +69,18 @@ describe("PeerConnector", () => {
             const peer = new Peer("178.165.55.11", 4000);
             const peerConnection = await peerConnector.connect(peer);
 
+            expect(spyOnClient).toHaveBeenCalledTimes(1);
+            expect(spyOnClient).toHaveBeenCalledWith("ws://178.165.55.11:4000", { timeout: 10000 });
+            expect(peerConnection).toBeInstanceOf(NesClient);
+            expect(peerConnection).toBe(peerConnector.connection(peer));
+        });
+
+        it("should set the connection with brackets IPv6", async () => {
+            const peer = new Peer("2001:3984:3989::104", 4000);
+            const peerConnection = await peerConnector.connect(peer);
+
+            expect(spyOnClient).toHaveBeenCalledTimes(1);
+            expect(spyOnClient).toHaveBeenCalledWith("ws://[2001:3984:3989::104]:4000", { timeout: 10000 });
             expect(peerConnection).toBeInstanceOf(NesClient);
             expect(peerConnection).toBe(peerConnector.connection(peer));
         });

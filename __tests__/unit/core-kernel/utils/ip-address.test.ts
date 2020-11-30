@@ -1,6 +1,11 @@
 import "jest-extended";
 
-import { isValidAddress, isIPv6Address, normalizeAddress } from "@packages/core-kernel/src/utils/ip-address";
+import {
+    cleanAddress,
+    isIPv6Address,
+    isValidAddress,
+    normalizeAddress,
+} from "@packages/core-kernel/src/utils/ip-address";
 
 describe("isValidAddress", () => {
     it("should return true for valid IPv6 address", () => {
@@ -30,7 +35,6 @@ describe("isValidAddress", () => {
     it("should return true for invalid IPv4 address", () => {
         expect(isValidAddress("127.0.0.300")).toBeFalse();
     });
-
 
     it("should return false for random string", () => {
         expect(isValidAddress("random")).toBeFalse();
@@ -90,5 +94,31 @@ describe("normalizeAddress", () => {
 
     it("should return same random string", () => {
         expect(normalizeAddress("random")).toEqual("random");
+    });
+});
+
+describe("cleanAddress", () => {
+    it("should return clean IPv6 address", () => {
+        expect(cleanAddress("2001:3984:3989::104")).toEqual("2001:3984:3989::104");
+    });
+
+    it("should return clean localhost IPv6 address", () => {
+        expect(cleanAddress("::1")).toEqual("::1");
+    });
+
+    it("should return clean :: IPv6 address", () => {
+        expect(cleanAddress("::")).toEqual("::");
+    });
+
+    it("should keep clean IPv6 address in brackets", () => {
+        expect(cleanAddress("[2001:3984:3989::104]")).toEqual("2001:3984:3989::104");
+    });
+
+    it("should return same IPv4 address", () => {
+        expect(cleanAddress("127.0.0.1")).toEqual("127.0.0.1");
+    });
+
+    it("should return same random string", () => {
+        expect(cleanAddress("random")).toEqual("random");
     });
 });
