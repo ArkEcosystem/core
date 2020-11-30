@@ -4,6 +4,7 @@ import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kerne
 import { ActionReader } from "./action-reader";
 import { DatabaseLogger } from "./database-logger";
 import { EventsDatabaseService } from "./database/events-database-service";
+import { LogsDatabaseService } from "./database/logs-database-service";
 import { Identifiers } from "./ioc";
 import { Listener } from "./listener";
 import { LogServiceWrapper } from "./log-service-wrapper";
@@ -18,6 +19,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.bind(Identifiers.WatcherDatabaseService).to(EventsDatabaseService).inSingletonScope();
         this.app.get<EventsDatabaseService>(Identifiers.WatcherDatabaseService).boot();
+
+        this.app.bind(Identifiers.LogsDatabaseService).to(LogsDatabaseService).inSingletonScope();
+        this.app.get<EventsDatabaseService>(Identifiers.LogsDatabaseService).boot();
 
         if (this.config().getRequired<{ enabled: boolean }>("watcher").enabled) {
             this.app.bind(Identifiers.EventsListener).to(Listener).inSingletonScope();
@@ -80,6 +84,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         }
 
         this.app.get<EventsDatabaseService>(Identifiers.WatcherDatabaseService).dispose();
+        this.app.get<EventsDatabaseService>(Identifiers.LogsDatabaseService).dispose();
     }
 
     public async required(): Promise<boolean> {

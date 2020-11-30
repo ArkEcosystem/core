@@ -10,5 +10,6 @@ export const Identifiers = {
     CliManager: Symbol.for("Manager<Cli>"),
 
     WatcherDatabaseService: Symbol.for("Watcher<DatabaseService>"),
+    LogsDatabaseService: Symbol.for("Logs<DatabaseService>"),
     EventsListener: Symbol.for("Listener<Events>"),
 };
