@@ -1,42 +1,64 @@
-import { DatabaseService } from "./database-service";
+import { Container, Providers } from "@packages/core-kernel";
 
-export class EventsDatabaseService extends DatabaseService {
-    public constructor(filename: string) {
-        super(filename, "events");
+import { Database, Result } from "./database";
+
+@Container.injectable()
+export class EventsDatabaseService {
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-manager")
+    private readonly configuration!: Providers.PluginConfiguration;
+
+    private database!: Database;
+
+    public boot(): void {
+        const filename =
+            this.configuration.getRequired<{ storage: string }>("watcher").storage ||
+            `${process.env.CORE_PATH_DATA}/events.sqlite`;
+
+        this.database = new Database(filename, {
+            tables: [
+                {
+                    name: "events",
+                    columns: [
+                        {
+                            name: "id",
+                            type: "integer",
+                            primary: true,
+                            autoincrement: true,
+                        },
+                        {
+                            name: "event",
+                            type: "varchar(255)",
+                        },
+                        {
+                            name: "data",
+                            type: "json",
+                        },
+                        {
+                            name: "timestamp",
+                            type: "datetime",
+                            default: "CURRENT_TIMESTAMP",
+                        },
+                    ],
+                },
+            ],
+        });
+
+        this.database.boot(this.configuration.getRequired<{ resetDatabase: boolean }>("watcher").resetDatabase);
     }
 
-    public boot(flush: boolean = false): void {
-        this.database.exec(`
-            PRAGMA journal_mode = WAL;
-            CREATE TABLE IF NOT EXISTS ${this.table} (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, event VARCHAR(255) NOT NULL, data JSON NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);
-        `);
-
-        super.boot(flush);
+    public dispose(): void {
+        this.database.dispose();
     }
 
-    public add(event: string, data: any): void {
-        this.database.prepare(`INSERT INTO ${this.table} (event, data) VALUES (:event, json(:data))`).run({
-            event: event,
-            data: JSON.stringify(data || {}),
+    public add(event: string, data: any = {}): void {
+        this.database.add("events", {
+            event,
+            data,
         });
     }
 
-    public getAll(): any[] {
-        return this.transform(super.getAll());
-    }
-
-    public query(conditions?: any): any {
-        const result = super.query(conditions);
-
-        result.data = this.transform(result.data);
-
-        return result;
-    }
-
-    private transform(data: any[]) {
-        return data.map((x) => {
-            x.data = JSON.parse(x.data);
-            return x;
-        });
+    public find(conditions?: any): Result {
+        return this.database.find("events", conditions);
     }
 }
