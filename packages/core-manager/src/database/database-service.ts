@@ -51,6 +51,10 @@ export class DatabaseService {
         // }
     }
 
+    public dispose(): void {
+        this.database.close();
+    }
+
     public getAll(tableName: string): any[] {
         const table = this.getTable(tableName);
 
@@ -209,10 +213,6 @@ export class DatabaseService {
     //
     // public flush(): void {
     //     this.database.prepare(`DELETE FROM ${this.table}`).run();
-    // }
-    //
-    // public getAll(): any[] {
-    //     return this.database.prepare(`SELECT * FROM ${this.table}`).pluck(false).all();
     // }
     //
     // public getTotal(conditions?: any): number {

@@ -89,6 +89,20 @@ describe("DatabaseService", () => {
         });
     });
 
+    describe("Dispose", () => {
+        it("should close database", async () => {
+            database = new DatabaseService(storagePath, schema);
+
+            // @ts-ignore
+            const spyOnClose = jest.spyOn(database.database, "close");
+
+            database.boot();
+            database.dispose();
+
+            expect(spyOnClose).toHaveBeenCalledTimes(1);
+        });
+    });
+
     describe("Add", () => {
         beforeEach(() => {
             database = new DatabaseService(storagePath, schema);
