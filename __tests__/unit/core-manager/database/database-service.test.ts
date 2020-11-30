@@ -159,6 +159,21 @@ describe("DatabaseService", () => {
             });
         });
 
+        it("should add data if contains extra fields", () => {
+            database.add("table_1", {
+                column_1: "string content",
+                random: "test",
+            });
+
+            const result = database.getAll("table_1");
+            expect(result.length).toEqual(1);
+            expect(result).toEqual([
+                {
+                    column_1: "string content",
+                },
+            ]);
+        });
+
         it("should throw if table does not exist", () => {
             expect(() => {
                 database.add("table_x", {
@@ -270,6 +285,207 @@ describe("DatabaseService", () => {
 
         it("should count with query on json field", () => {
             expect(database.getTotal("table_2", { column_json: { value: 1 } })).toEqual(1);
+        });
+    });
+
+    describe("Find", () => {
+        beforeEach(() => {
+            database = new DatabaseService(storagePath, schema);
+            database.boot();
+
+            for (let i = 0; i < 100; i++) {
+                database.add("table_1", {
+                    column_1: "dummy_event",
+                });
+                database.add("table_1", {
+                    column_1: "another_dummy_event",
+                });
+            }
+        });
+
+        it("should return limit 10", async () => {
+            const result = database.find("table_1");
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(10);
+        });
+
+        it("should return limit 10 with offset", async () => {
+            const result = database.find("table_1", { $offset: 10 });
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(10);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(10);
+        });
+
+        it("should return limit 20", async () => {
+            const result = database.find("table_1", { $limit: 20 });
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(20);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(20);
+        });
+
+        it("should return events with name", async () => {
+            const result = database.find("table_1", { $limit: 1000, column_1: "dummy_event" });
+
+            expect(result.total).toBe(100);
+            expect(result.limit).toBe(1000);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(100);
+        });
+
+        it("should return empty result if searching by wrong type", async () => {
+            const result = database.find("table_1", { $limit: 1000, column_1: 1 });
+
+            expect(result.total).toBe(0);
+            expect(result.limit).toBe(1000);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(0);
+        });
+
+        it("should throw if column does not exists", async () => {
+            expect(() => {
+                database.find("table_1", { column_x: 1 });
+            }).toThrow("Column column_x does not exist on table table_1.");
+        });
+
+        it("should throw if table does not exists", async () => {
+            expect(() => {
+                database.find("table_x", { column_1: 1 });
+            }).toThrow("Table table_x does not exists.");
+        });
+    });
+
+    describe("Find JSON", () => {
+        beforeEach(() => {
+            database = new DatabaseService(storagePath, schema);
+            database.boot();
+
+            database.add("table_2", {
+                column_1: "dummy_event",
+                column_2: "",
+                column_json: { size: 1, name: "1_dummy_event" },
+            });
+            database.add("table_2", {
+                column_1: "dummy_event",
+                column_2: "",
+                column_json: { size: 2, name: "2_dummy_event" },
+            });
+            database.add("table_2", {
+                column_1: "dummy_event",
+                column_2: "",
+                column_json: { size: 3, name: "3_dummy_event" },
+            });
+            database.add("table_2", {
+                column_1: "dummy_event",
+                column_2: "",
+                column_json: { size: 4, name: "4_dummy_event" },
+            });
+            database.add("table_2", {
+                column_1: "dummy_event",
+                column_2: "",
+                column_json: { size: 5, name: "5_dummy_event" },
+            });
+        });
+
+        it("should chose $eq by default", async () => {
+            const result = database.find("table_2", { column_json: { size: 1 } });
+
+            expect(result.total).toBe(1);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(1);
+        });
+
+        it("should use $eq on string", async () => {
+            const result = database.find("table_2", { column_json: { name: { $eq: "1_dummy_event" } } });
+
+            expect(result.total).toBe(1);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(1);
+        });
+
+        it("should use $ne", async () => {
+            const result = database.find("table_2", { column_json: { size: { $ne: 3 } } });
+
+            expect(result.total).toBe(4);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(4);
+        });
+
+        it("should use $like on string", async () => {
+            const result = database.find("table_2", { column_json: { name: { $like: "1_%" } } });
+
+            expect(result.total).toBe(1);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(1);
+        });
+
+        it("should use $lt", async () => {
+            const result = database.find("table_2", { column_json: { size: { $lt: 2 } } });
+
+            expect(result.total).toBe(1);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(1);
+        });
+
+        it("should use $lte", async () => {
+            const result = database.find("table_2", { column_json: { size: { $lte: 2 } } });
+
+            expect(result.total).toBe(2);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(2);
+        });
+
+        it("should use $gt", async () => {
+            const result = database.find("table_2", { column_json: { size: { $gt: 4 } } });
+
+            expect(result.total).toBe(1);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(1);
+        });
+
+        it("should use $gte", async () => {
+            const result = database.find("table_2", { column_json: { size: { $gte: 4 } } });
+
+            expect(result.total).toBe(2);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(2);
+        });
+
+        it("should use $gte an $lte", async () => {
+            const result = database.find("table_2", { column_json: { size: { $gte: 2, $lte: 4 } } });
+
+            expect(result.total).toBe(3);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(3);
         });
     });
 });

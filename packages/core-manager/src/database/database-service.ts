@@ -91,7 +91,7 @@ export class DatabaseService {
         const table = this.schema.tables.find((table) => table.name === tableName);
 
         if (!table) {
-            throw new Error(`Table ${tableName} does not exists.`); // TODO Improve log
+            throw new Error(`Table ${tableName} does not exists.`);
         }
 
         return table;
@@ -140,7 +140,7 @@ export class DatabaseService {
 
         result += ")";
 
-        console.log("prepareInsertSQL: ", result);
+        // console.log("prepareInsertSQL: ", result);
 
         return result;
     }
@@ -154,8 +154,6 @@ export class DatabaseService {
                 result.push(column);
             }
         }
-
-        // TODO: Test if number of columns greater than number of non nullable columns
 
         return result;
     }
@@ -196,6 +194,7 @@ export class DatabaseService {
         if (column.primary) {
             result += " PRIMARY KEY";
 
+            /* istanbul ignore else */
             if (column.autoincrement) {
                 result += " AUTOINCREMENT";
             }
@@ -219,42 +218,52 @@ export class DatabaseService {
             .prepare(`SELECT COUNT(*) FROM ${table.name} ${this.prepareWhere(table, conditions)}`)
             .get()["COUNT(*)"] as number;
     }
-    //
-    // public query(conditions?: any): any {
-    //     const limit = this.prepareLimit(conditions);
-    //     const offset = this.prepareOffset(conditions);
-    //
-    //     return {
-    //         total: this.getTotal(conditions),
-    //         limit,
-    //         offset,
-    //         data: this.database
-    //             .prepare(
-    //                 `SELECT * FROM ${this.table} ${this.prepareWhere(
-    //                     conditions,
-    //                 )} LIMIT ${limit} OFFSET ${offset}`,
-    //             )
-    //             .pluck(false)
-    //             .all(),
-    //     };
-    // }
-    //
-    // private prepareLimit(conditions?: any): number {
-    //     if (conditions?.$limit && typeof conditions.$limit === "number" && conditions.$limit <= 1000) {
-    //         return conditions.$limit;
-    //     }
-    //
-    //     return 10;
-    // }
-    //
-    // private prepareOffset(conditions?: any): number {
-    //     if (conditions?.$offset && typeof conditions.$offset === "number") {
-    //         return conditions.$offset;
-    //     }
-    //
-    //     return 0;
-    // }
-    //
+
+    public find(tableName: string, conditions?: any): any {
+        const table = this.getTable(tableName);
+
+        const limit = this.prepareLimit(conditions);
+        const offset = this.prepareOffset(conditions);
+
+        this.clearLimitAndOffset(conditions);
+
+        return {
+            total: this.getTotal(tableName, conditions),
+            limit,
+            offset,
+            data: this.database
+                .prepare(`SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)} LIMIT ${limit} OFFSET ${offset}`)
+                .pluck(false)
+                .all(),
+        };
+    }
+
+    private prepareLimit(conditions?: any): number {
+        if (conditions?.$limit && typeof conditions.$limit === "number" && conditions.$limit <= 1000) {
+            return conditions.$limit;
+        }
+
+        return 10;
+    }
+
+    private prepareOffset(conditions?: any): number {
+        if (conditions?.$offset && typeof conditions.$offset === "number") {
+            return conditions.$offset;
+        }
+
+        return 0;
+    }
+
+    private clearLimitAndOffset(conditions?: any): void {
+        if (conditions && conditions.$offset) {
+            delete conditions.$offset;
+        }
+
+        if (conditions && conditions.$limit) {
+            delete conditions.$limit;
+        }
+    }
+
     private prepareWhere(table: Table, conditions?: any): string {
         let query = "";
 
@@ -282,7 +291,7 @@ export class DatabaseService {
             const column = table.columns.find((column) => column.name === key);
 
             if (!column) {
-                throw new Error(`Column ${key} does not exist on table ${table.name}`);
+                throw new Error(`Column ${key} does not exist on table ${table.name}.`);
             }
 
             if (column.type === "json") {
