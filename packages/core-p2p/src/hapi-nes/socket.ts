@@ -327,7 +327,7 @@ export class Socket {
         };
 
         const res = await this.server.inject(shot);
-        if (res.statusCode !== 200) {
+        if (res.statusCode >= 400) {
             throw Boom.boomify(new Error(res.result), { statusCode: res.statusCode });
         }
 
