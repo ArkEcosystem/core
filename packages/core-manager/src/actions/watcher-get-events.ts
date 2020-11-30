@@ -1,12 +1,12 @@
 import { Container } from "@arkecosystem/core-kernel";
 
 import { Actions } from "../contracts";
-import { DatabaseService } from "../database/database-service";
+import { EventsDatabaseService } from "../database/events-database-service";
 
 @Container.injectable()
 export class Action implements Actions.Action {
     @Container.inject(Container.Identifiers.WatcherDatabaseService)
-    private readonly database!: DatabaseService;
+    private readonly database!: EventsDatabaseService;
 
     public name = "watcher.getEvents";
 
@@ -31,6 +31,6 @@ export class Action implements Actions.Action {
     };
 
     public async execute(params: { query: any }): Promise<any> {
-        return this.database.query(params.query);
+        return this.database.find(params.query);
     }
 }

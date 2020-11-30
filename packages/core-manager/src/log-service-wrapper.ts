@@ -1,9 +1,9 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 
-import { DatabaseService } from "./database/database-service";
+import { EventsDatabaseService } from "./database/events-database-service";
 
 export class LogServiceWrapper implements Contracts.Kernel.Logger {
-    public constructor(private logger: Contracts.Kernel.Logger, private databaseService: DatabaseService) {}
+    public constructor(private logger: Contracts.Kernel.Logger, private databaseService: EventsDatabaseService) {}
 
     public async make(options?: any): Promise<Contracts.Kernel.Logger> {
         return this.logger.make(options);

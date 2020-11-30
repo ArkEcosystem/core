@@ -1,12 +1,12 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { Logger, QueryRunner } from "typeorm";
 
-import { DatabaseService } from "./database/database-service";
+import { EventsDatabaseService } from "./database/events-database-service";
 
 @Container.injectable()
 export class DatabaseLogger implements Logger {
     @Container.inject(Container.Identifiers.WatcherDatabaseService)
-    private readonly databaseService!: DatabaseService;
+    private readonly databaseService!: EventsDatabaseService;
 
     public log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {
         this.databaseService.add(`database.${level}`, message);
