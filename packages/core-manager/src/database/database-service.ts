@@ -87,6 +87,38 @@ export class DatabaseService {
         this.database.prepare(this.prepareInsertSQL(table, data)).run(this.prepareInsertData(table, data));
     }
 
+    public getTotal(tableName: string, conditions?: any): number {
+        const table = this.getTable(tableName);
+
+        return this.database
+            .prepare(`SELECT COUNT(*) FROM ${table.name} ${this.prepareWhere(table, conditions)}`)
+            .get()["COUNT(*)"] as number;
+    }
+
+    public find(tableName: string, conditions?: any): any {
+        const table = this.getTable(tableName);
+
+        const limit = this.prepareLimit(conditions);
+        const offset = this.prepareOffset(conditions);
+
+        this.clearLimitAndOffset(conditions);
+
+        return {
+            total: this.getTotal(tableName, conditions),
+            limit,
+            offset,
+            data: this.database
+                .prepare(
+                    `SELECT * FROM ${table.name} ${this.prepareWhere(
+                        table,
+                        conditions,
+                    )} LIMIT ${limit} OFFSET ${offset}`,
+                )
+                .pluck(false)
+                .all(),
+        };
+    }
+
     private getTable(tableName: string): Table {
         const table = this.schema.tables.find((table) => table.name === tableName);
 
@@ -209,33 +241,6 @@ export class DatabaseService {
         }
 
         return result;
-    }
-
-    public getTotal(tableName: string, conditions?: any): number {
-        const table = this.getTable(tableName);
-
-        return this.database
-            .prepare(`SELECT COUNT(*) FROM ${table.name} ${this.prepareWhere(table, conditions)}`)
-            .get()["COUNT(*)"] as number;
-    }
-
-    public find(tableName: string, conditions?: any): any {
-        const table = this.getTable(tableName);
-
-        const limit = this.prepareLimit(conditions);
-        const offset = this.prepareOffset(conditions);
-
-        this.clearLimitAndOffset(conditions);
-
-        return {
-            total: this.getTotal(tableName, conditions),
-            limit,
-            offset,
-            data: this.database
-                .prepare(`SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)} LIMIT ${limit} OFFSET ${offset}`)
-                .pluck(false)
-                .all(),
-        };
     }
 
     private prepareLimit(conditions?: any): number {
