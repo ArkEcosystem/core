@@ -53,6 +53,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     public validatePeerIp(peer, options: Contracts.P2P.AcceptNewPeerOptions = {}): boolean {
         if (this.configuration.get("disableDiscovery")) {
             this.logger.warning(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
+
             return false;
         }
 

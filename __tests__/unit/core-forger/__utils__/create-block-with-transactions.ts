@@ -41,13 +41,4 @@ export const transactions = TransactionFactory.initialize()
 
 export const delegate: BIP39 = new BIP39(dummy.plainPassphrase);
 
-export const getTimeStampForBlock = (height: number) => {
-    switch (height) {
-        case 1:
-            return 0;
-        default:
-            throw new Error(`Test scenarios should not hit this line`);
-    }
-};
-
-export const forgedBlockWithTransactions = delegate.forge(transactions, optionsDefault, getTimeStampForBlock);
+export const forgedBlockWithTransactions = delegate.forge(transactions, optionsDefault);

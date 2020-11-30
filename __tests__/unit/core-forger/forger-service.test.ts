@@ -14,6 +14,7 @@ import { Address } from "@packages/crypto/src/identities";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 
 import { calculateActiveDelegates } from "./__utils__/calculate-active-delegates";
+import { Slots } from "@arkecosystem/crypto/dist/crypto";
 
 let sandbox: Sandbox;
 const logger = {
@@ -88,7 +89,15 @@ describe("ForgerService", () => {
 
         delegates = calculateActiveDelegates();
 
-        round = { data: { delegates, timestamp: 50, reward: 0 }, canForge: false };
+        round = {
+            data: {
+                delegates,
+                timestamp: Slots.getTime() - 3,
+                reward: 0,
+                lastBlock: { height: 100 },
+            },
+            canForge: false,
+        };
 
         mockNetworkState = {
             status: NetworkStateStatus.Default,
@@ -114,13 +123,14 @@ describe("ForgerService", () => {
         };
 
         mockRound = {
-            timestamp: 0,
+            timestamp: Slots.getTime() - 5,
             reward: 0,
+            lastBlock: { height: 100 },
         };
     });
 
     describe("GetRound", () => {
-        it("should return undefined", async () => {
+        it("should return undefined", () => {
             forgerService.register({ hosts: [mockHost] });
 
             expect(forgerService.getRound()).toBeUndefined();
@@ -128,19 +138,15 @@ describe("ForgerService", () => {
     });
 
     describe("GetRemainingSlotTime", () => {
-        it("should return undefined", async () => {
+        it("should return undefined", () => {
             forgerService.register({ hosts: [mockHost] });
 
-            // @ts-ignore
-            const spyGetNetworkState = jest.spyOn(forgerService.client, "getNetworkState");
-            spyGetNetworkState.mockResolvedValue(mockNetworkState);
-
-            await expect(forgerService.getRemainingSlotTime()).resolves.toBeNumber();
+            expect(forgerService.getRemainingSlotTime()).toBeUndefined();
         });
     });
 
     describe("GetLastForgedBlock", () => {
-        it("should return undefined", async () => {
+        it("should return undefined", () => {
             forgerService.register({ hosts: [mockHost] });
 
             expect(forgerService.getLastForgedBlock()).toBeUndefined();
@@ -237,19 +243,20 @@ describe("ForgerService", () => {
         });
 
         it("should set correct timeout to check slots", async () => {
-            const timeout = 500;
-            const slotSpy = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            slotSpy.mockReturnValue(timeout);
-
             jest.useFakeTimers();
-            client.getRound.mockReturnValueOnce({ delegates });
+
+            client.getRound.mockReturnValueOnce({
+                delegates,
+                timestamp: Crypto.Slots.getTime() - 7,
+                lastBlock: { height: 100 },
+            });
 
             forgerService.register({ hosts: [mockHost] });
             await expect(forgerService.boot(delegates)).toResolve();
 
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), timeout);
+            jest.runAllTimers();
 
-            jest.useRealTimers();
+            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), expect.toBeWithin(0, 2000));
         });
     });
 
@@ -354,7 +361,14 @@ describe("ForgerService", () => {
         });
 
         it("should not allow forging if quorum is not met", async () => {
-            client.getRound.mockReturnValueOnce({ delegates });
+            jest.useFakeTimers();
+
+            client.getRound.mockReturnValueOnce({
+                delegates,
+                timestamp: Crypto.Slots.getTime() - 7,
+                lastBlock: { height: 100 },
+            });
+
             forgerService.register({ hosts: [mockHost] });
             await forgerService.boot(delegates);
 
@@ -372,7 +386,12 @@ describe("ForgerService", () => {
         });
 
         it("should allow forging if quorum is met", async () => {
-            client.getRound.mockReturnValueOnce({ delegates });
+            client.getRound.mockReturnValueOnce({
+                delegates,
+                timestamp: Crypto.Slots.getTime() - 7,
+                lastBlock: { height: 100 },
+            });
+
             forgerService.register({ hosts: [mockHost] });
             await forgerService.boot(delegates);
 
@@ -387,7 +406,12 @@ describe("ForgerService", () => {
         });
 
         it("should allow forging if quorum is met, not log warning if overheight delegate is not the same", async () => {
-            client.getRound.mockReturnValueOnce({ delegates });
+            client.getRound.mockReturnValueOnce({
+                delegates,
+                timestamp: Crypto.Slots.getTime() - 7,
+                lastBlock: { height: 100 },
+            });
+
             forgerService.register({ hosts: [mockHost] });
             await forgerService.boot(delegates);
 
@@ -431,13 +455,21 @@ describe("ForgerService", () => {
             forgerService.register({ hosts: [mockHost] });
             (forgerService as any).initialized = true;
 
-            client.getRound.mockReturnValueOnce({ delegates });
+            client.getRound.mockReturnValueOnce({
+                delegates,
+                timestamp: Crypto.Slots.getTime() - 7,
+                lastBlock: { height: 100 },
+            });
             await expect(forgerService.boot(delegates)).toResolve();
             expect(logger.info).not.toHaveBeenCalledWith(`Forger Manager started.`);
 
             jest.useFakeTimers();
 
-            client.getRound.mockReturnValueOnce({ delegates });
+            client.getRound.mockReturnValueOnce({
+                delegates,
+                timestamp: Crypto.Slots.getTime() - 7,
+                lastBlock: { height: 100 },
+            });
             await expect(forgerService.checkSlot()).toResolve();
             expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 200);
 
@@ -461,6 +493,8 @@ describe("ForgerService", () => {
                         publicKey: delegates[delegates.length - 1].publicKey,
                     },
                     nextForger: { publicKey: delegates[delegates.length - 3].publicKey },
+                    timestamp: Crypto.Slots.getTime() - 7,
+                    lastBlock: { height: 100 },
                 },
             };
 
@@ -478,7 +512,6 @@ describe("ForgerService", () => {
 
             client.getRound.mockResolvedValueOnce(round.data as Contracts.P2P.CurrentRound);
             await expect(forgerService.checkSlot()).toResolve();
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 0);
 
             expect(spyClientSyncWithNetwork).toHaveBeenCalled();
 
@@ -505,6 +538,8 @@ describe("ForgerService", () => {
                         publicKey: delegates[delegates.length - 2].publicKey,
                     },
                     nextForger: { publicKey: delegates[delegates.length - 1].publicKey },
+                    timestamp: Crypto.Slots.getTime() - 7,
+                    lastBlock: { height: 100 },
                 },
             };
 
@@ -523,7 +558,6 @@ describe("ForgerService", () => {
 
             client.getRound.mockResolvedValueOnce(round.data as Contracts.P2P.CurrentRound);
             await expect(forgerService.checkSlot()).toResolve();
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 0);
 
             expect(spyClientSyncWithNetwork).not.toHaveBeenCalled();
 
@@ -561,7 +595,7 @@ describe("ForgerService", () => {
                     lastBlock: {
                         height: 3,
                     },
-                    timestamp: 0,
+                    timestamp: Crypto.Slots.getTime() - 7,
                     reward: "0",
                     current: 1,
                 },
@@ -589,8 +623,6 @@ describe("ForgerService", () => {
             jest.useFakeTimers();
             // @ts-ignore
             await expect(forgerService.checkSlot()).toResolve();
-
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 0);
 
             expect(spyForgeNewBlock).toHaveBeenCalledWith(
                 delegates[delegates.length - 2],
@@ -626,7 +658,7 @@ describe("ForgerService", () => {
                     lastBlock: {
                         height: 10,
                     },
-                    timestamp: 0,
+                    timestamp: Crypto.Slots.getTime() - 7,
                     reward: "0",
                 },
             };
@@ -653,8 +685,6 @@ describe("ForgerService", () => {
             jest.useFakeTimers();
             // @ts-ignore
             await forgerService.checkSlot();
-
-            expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 0);
 
             expect(spyForgeNewBlock).toHaveBeenCalledWith(
                 delegates[delegates.length - 2],
@@ -967,7 +997,12 @@ describe("ForgerService", () => {
 
     describe("ForgeNewBlock", () => {
         it("should fail to forge when delegate is already in next slot", async () => {
-            client.getRound.mockReturnValueOnce({ delegates });
+            client.getRound.mockReturnValueOnce({
+                delegates,
+                timestamp: Crypto.Slots.getTime() - 7,
+                lastBlock: { height: 100 },
+            });
+
             forgerService.register({ hosts: [mockHost] });
 
             client.getTransactions.mockResolvedValueOnce(mockTransaction);
@@ -977,13 +1012,14 @@ describe("ForgerService", () => {
             const address = `Delegate-Wallet-${2}`;
 
             const mockBlock = { data: {} } as Interfaces.IBlock;
+            const mockPrevRound = { ...mockRound, timestamp: Slots.getTime() - 9 };
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
                 forge: jest.fn().mockReturnValue(mockBlock),
             };
 
             // @ts-ignore
-            await expect(forgerService.forgeNewBlock(nextDelegateToForge, mockRound, mockNetworkState)).toResolve();
+            await expect(forgerService.forgeNewBlock(nextDelegateToForge, mockPrevRound, mockNetworkState)).toResolve();
 
             const prettyName = `Username: ${address} (${nextDelegateToForge.publicKey})`;
 
@@ -993,10 +1029,11 @@ describe("ForgerService", () => {
         });
 
         it("should fail to forge when there is not enough time left in slot", async () => {
-            client.getRound.mockReturnValueOnce({ delegates });
-            const timeLeftInMs = 1000;
-            const spyTimeTillNextSlot = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            spyTimeTillNextSlot.mockReturnValue(timeLeftInMs);
+            client.getRound.mockReturnValueOnce({
+                delegates,
+                timestamp: Crypto.Slots.getTime() - 7,
+                lastBlock: { height: 100 },
+            });
 
             forgerService.register({ hosts: [mockHost] });
 
@@ -1007,6 +1044,7 @@ describe("ForgerService", () => {
             const address = `Delegate-Wallet-${2}`;
 
             const mockBlock = { data: {} } as Interfaces.IBlock;
+            const mockEndingRound = { ...mockRound, timestamp: Slots.getTime() - 7 };
             const nextDelegateToForge = {
                 publicKey: delegates[2].publicKey,
                 forge: jest.fn().mockReturnValue(mockBlock),
@@ -1016,15 +1054,15 @@ describe("ForgerService", () => {
             spyNextSlot.mockReturnValue(0);
 
             // @ts-ignore
-            await expect(forgerService.forgeNewBlock(nextDelegateToForge, mockRound, mockNetworkState)).toResolve();
+            await expect(
+                forgerService.forgeNewBlock(nextDelegateToForge as any, mockEndingRound, mockNetworkState),
+            ).toResolve();
 
             const prettyName = `Username: ${address} (${nextDelegateToForge.publicKey})`;
 
-            const minimumMs = 2000;
-
-            const failedForgeMessage = `Failed to forge new block by delegate ${prettyName}, because there were ${timeLeftInMs}ms left in the current slot (less than ${minimumMs}ms).`;
-
-            expect(logger.warning).toHaveBeenCalledWith(failedForgeMessage);
+            expect(logger.warning).toHaveBeenCalledWith(
+                expect.stringContaining(`Failed to forge new block by delegate ${prettyName}, because there were`),
+            );
         });
 
         it("should forge valid new blocks", async () => {
@@ -1070,13 +1108,17 @@ describe("ForgerService", () => {
         });
 
         it("should forge valid new blocks when passed specific milestones", async () => {
-            client.getRound.mockReturnValueOnce({ delegates });
-            const spyMilestone = jest.spyOn(Managers.configManager, "getMilestone");
-            spyMilestone.mockReturnValueOnce({ block: { idFullSha256: true, version: 0 }, reward: 0 });
+            client.getRound.mockReturnValueOnce({
+                delegates,
+                timestamp: Crypto.Slots.getTime() - 3,
+                lastBlock: { height: 100 },
+            });
 
-            const timeLeftInMs = 3000;
-            const spyTimeTillNextSlot = jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot");
-            spyTimeTillNextSlot.mockReturnValueOnce(timeLeftInMs).mockReturnValueOnce(timeLeftInMs);
+            const spyMilestone = jest.spyOn(Managers.configManager, "getMilestone");
+            spyMilestone.mockReturnValue({
+                ...Managers.configManager.getMilestone(1),
+                block: { version: 0, idFullSha256: true },
+            });
 
             forgerService.register({ hosts: [mockHost] });
 

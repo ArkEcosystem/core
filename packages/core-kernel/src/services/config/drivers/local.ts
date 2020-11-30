@@ -137,7 +137,9 @@ export class LocalConfigLoader implements ConfigLoader {
                 list: Joi.array()
                     .items(
                         Joi.object().keys({
-                            ip: Joi.string().ip().required(),
+                            ip: Joi.string()
+                                .ip({ version: ["ipv4", "ipV6"] })
+                                .required(),
                             port: Joi.number().port().required(),
                         }),
                     )

@@ -125,9 +125,7 @@ export class SnapshotDatabaseService implements Database.DatabaseService {
         Utils.assert.defined<Interfaces.IBlockData>(block);
 
         /* istanbul ignore next */
-        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block, () => {
-            return block.timestamp;
-        })!;
+        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
 
         return lastBlock;
     }
