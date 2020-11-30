@@ -35,7 +35,7 @@ export interface Schema {
     tables: Table[];
 }
 
-export class DatabaseService {
+export class Database {
     protected database!: BetterSqlite3.Database;
 
     public constructor(private readonly filename: string, protected readonly schema: Schema) {
@@ -46,9 +46,9 @@ export class DatabaseService {
     public boot(flush: boolean = false): void {
         this.exec(this.createDatabaseSQL());
 
-        // if (flush) {
-        //     this.flush();
-        // }
+        if (flush) {
+            this.flush();
+        }
     }
 
     public dispose(): void {

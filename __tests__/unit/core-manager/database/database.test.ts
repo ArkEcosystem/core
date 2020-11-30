@@ -1,10 +1,10 @@
 import "jest-extended";
 
-import { DatabaseService, Schema } from "@arkecosystem/core-manager/src/database/database-service";
+import { Database, Schema } from "@arkecosystem/core-manager/src/database/database";
 import { existsSync } from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";
 
-let database: DatabaseService;
+let database: Database;
 let storagePath: string;
 
 beforeEach(() => {
@@ -72,7 +72,7 @@ const schema: Schema = {
 describe("DatabaseService", () => {
     describe("Boot", () => {
         it("should boot and create file", async () => {
-            database = new DatabaseService(storagePath, schema);
+            database = new Database(storagePath, schema);
 
             // @ts-ignore
             const spyOnExec = jest.spyOn(database, "exec");
@@ -87,11 +87,26 @@ describe("DatabaseService", () => {
                     "CREATE TABLE IF NOT EXISTS table_2 (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, column_1 VARCHAR(255) NOT NULL, column_2 VARCHAR(255) NOT NULL, column_3 VARCHAR(255), column_json JSON NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);\n",
             );
         });
+
+        it("should boot with flush option", async () => {
+            database = new Database(storagePath, schema);
+
+            // @ts-ignore
+            const spyOnFlush = jest.spyOn(database, "flush");
+
+            database.boot();
+            expect(spyOnFlush).toHaveBeenCalledTimes(0);
+
+            database.boot(true);
+
+            expect(existsSync(storagePath)).toBeTrue();
+            expect(spyOnFlush).toHaveBeenCalledTimes(1);
+        });
     });
 
     describe("Dispose", () => {
         it("should close database", async () => {
-            database = new DatabaseService(storagePath, schema);
+            database = new Database(storagePath, schema);
 
             // @ts-ignore
             const spyOnClose = jest.spyOn(database.database, "close");
@@ -105,7 +120,7 @@ describe("DatabaseService", () => {
 
     describe("Flush", () => {
         it("should flush database", async () => {
-            database = new DatabaseService(storagePath, schema);
+            database = new Database(storagePath, schema);
 
             // @ts-ignore
             const spyOnPrepare = jest.spyOn(database.database, "prepare");
@@ -121,7 +136,7 @@ describe("DatabaseService", () => {
 
     describe("Add", () => {
         beforeEach(() => {
-            database = new DatabaseService(storagePath, schema);
+            database = new Database(storagePath, schema);
             database.boot();
             expect(existsSync(storagePath)).toBeTrue();
         });
@@ -211,7 +226,7 @@ describe("DatabaseService", () => {
 
     describe("GetAll", () => {
         it("should return all data form table", () => {
-            database = new DatabaseService(storagePath, schema);
+            database = new Database(storagePath, schema);
             database.boot();
             expect(existsSync(storagePath)).toBeTrue();
 
@@ -245,7 +260,7 @@ describe("DatabaseService", () => {
 
     describe("GetTotal", () => {
         beforeEach(() => {
-            database = new DatabaseService(storagePath, schema);
+            database = new Database(storagePath, schema);
             database.boot();
 
             database.add("table_1", {
@@ -290,7 +305,7 @@ describe("DatabaseService", () => {
 
     describe("Find", () => {
         beforeEach(() => {
-            database = new DatabaseService(storagePath, schema);
+            database = new Database(storagePath, schema);
             database.boot();
 
             for (let i = 0; i < 100; i++) {
@@ -381,7 +396,7 @@ describe("DatabaseService", () => {
 
     describe("Find JSON", () => {
         beforeEach(() => {
-            database = new DatabaseService(storagePath, schema);
+            database = new Database(storagePath, schema);
             database.boot();
 
             database.add("table_2", {
