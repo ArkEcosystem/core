@@ -103,6 +103,22 @@ describe("DatabaseService", () => {
         });
     });
 
+    describe("Flush", () => {
+        it("should flush database", async () => {
+            database = new DatabaseService(storagePath, schema);
+
+            // @ts-ignore
+            const spyOnPrepare = jest.spyOn(database.database, "prepare");
+
+            database.boot();
+            database.flush();
+
+            expect(spyOnPrepare).toHaveBeenCalledTimes(2);
+            expect(spyOnPrepare).toHaveBeenCalledWith("DELETE FROM table_1");
+            expect(spyOnPrepare).toHaveBeenCalledWith("DELETE FROM table_2");
+        });
+    });
+
     describe("Add", () => {
         beforeEach(() => {
             database = new DatabaseService(storagePath, schema);
