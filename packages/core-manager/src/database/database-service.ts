@@ -1,21 +1,21 @@
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
 
-// interface ConditionLine {
-//     property: string;
-//     condition: string;
-//     value: string;
-// }
-//
-// const conditions = new Map<string, string>([
-//     ["$eq", "="],
-//     ["$ne", "!="],
-//     ["$lt", "<"],
-//     ["$lte", "<="],
-//     ["$gt", ">"],
-//     ["$gte", ">="],
-//     ["$like", "LIKE"],
-// ]);
+interface ConditionLine {
+    property: string;
+    condition: string;
+    value: string;
+}
+
+const conditions = new Map<string, string>([
+    ["$eq", "="],
+    ["$ne", "!="],
+    ["$lt", "<"],
+    ["$lte", "<="],
+    ["$gt", ">"],
+    ["$gte", ">="],
+    ["$like", "LIKE"],
+]);
 
 export interface Column {
     name: string;
@@ -212,12 +212,13 @@ export class DatabaseService {
         return result;
     }
 
-    //
-    // public getTotal(conditions?: any): number {
-    //     return this.database
-    //         .prepare(`SELECT COUNT(*) FROM ${this.table} ${this.prepareWhere(conditions)}`)
-    //         .get()["COUNT(*)"] as number;
-    // }
+    public getTotal(tableName: string, conditions?: any): number {
+        const table = this.getTable(tableName);
+
+        return this.database
+            .prepare(`SELECT COUNT(*) FROM ${table.name} ${this.prepareWhere(table, conditions)}`)
+            .get()["COUNT(*)"] as number;
+    }
     //
     // public query(conditions?: any): any {
     //     const limit = this.prepareLimit(conditions);
@@ -254,94 +255,99 @@ export class DatabaseService {
     //     return 0;
     // }
     //
-    // private prepareWhere(conditions?: any): string {
-    //     let query = "";
-    //
-    //     const extractedConditions = this.extractWhereConditions(conditions);
-    //
-    //     if (extractedConditions.length > 0) {
-    //         query += "WHERE " + extractedConditions[0];
-    //     }
-    //
-    //     for (let i = 1; i < extractedConditions.length; i++) {
-    //         query += " AND " + extractedConditions[i];
-    //     }
-    //
-    //     return query;
-    // }
-    //
-    // private extractWhereConditions(conditions?: any): string[] {
-    //     let result: string[] = [];
-    //
-    //     if (!conditions) {
-    //         return [];
-    //     }
-    //
-    //     for (const key of Object.keys(conditions)) {
-    //         if (key === "event") {
-    //             result = [
-    //                 ...result,
-    //                 ...this.extractConditions(conditions[key], key).map((x) => this.conditionLineToSQLCondition(x)),
-    //             ];
-    //         }
-    //         if (key === "data") {
-    //             result = [
-    //                 ...result,
-    //                 ...this.extractConditions(conditions[key], "$").map((x) =>
-    //                     this.conditionLineToSQLCondition(x, key),
-    //                 ),
-    //             ];
-    //         }
-    //     }
-    //
-    //     return result;
-    // }
-    //
-    // private conditionLineToSQLCondition(conditionLine: ConditionLine, jsonExtractProperty?: string): string {
-    //     const useQuote = typeof conditionLine.value !== "number";
-    //
-    //     if (jsonExtractProperty) {
-    //         // Example: json_extract(data, '$.publicKey') = '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
-    //         // prettier-ignore
-    //         return `json_extract(${jsonExtractProperty}, '${conditionLine.property}') ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
-    //     }
-    //
-    //     // Example: event LIKE 'wallet'
-    //     // prettier-ignore
-    //     return `${conditionLine.property} ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
-    // }
-    //
-    // private extractConditions(data: any, property: string): ConditionLine[] {
-    //     let result: ConditionLine[] = [];
-    //
-    //     /* istanbul ignore next */
-    //     if (!data) {
-    //         /* istanbul ignore next */
-    //         return [];
-    //     }
-    //
-    //     if (typeof data !== "object") {
-    //         result.push({
-    //             property: `${property}`,
-    //             condition: "$eq",
-    //             value: data,
-    //         });
-    //
-    //         return result;
-    //     }
-    //
-    //     for (const key of Object.keys(data)) {
-    //         if (key.startsWith("$")) {
-    //             result.push({
-    //                 property: property,
-    //                 condition: key,
-    //                 value: data[key],
-    //             });
-    //         } else {
-    //             result = [...result, ...this.extractConditions(data[key], `${property}.${key}`)];
-    //         }
-    //     }
-    //
-    //     return result;
-    // }
+    private prepareWhere(table: Table, conditions?: any): string {
+        let query = "";
+
+        const extractedConditions = this.extractWhereConditions(table, conditions);
+
+        if (extractedConditions.length > 0) {
+            query += "WHERE " + extractedConditions[0];
+        }
+
+        for (let i = 1; i < extractedConditions.length; i++) {
+            query += " AND " + extractedConditions[i];
+        }
+
+        return query;
+    }
+
+    private extractWhereConditions(table: Table, conditions?: any): string[] {
+        let result: string[] = [];
+
+        if (!conditions) {
+            return [];
+        }
+
+        for (const key of Object.keys(conditions)) {
+            const column = table.columns.find((column) => column.name === key);
+
+            if (!column) {
+                throw new Error(`Column ${key} does not exist on table ${table.name}`);
+            }
+
+            if (column.type === "json") {
+                result = [
+                    ...result,
+                    ...this.extractConditions(conditions[key], "$").map((x) =>
+                        this.conditionLineToSQLCondition(x, key),
+                    ),
+                ];
+            } else {
+                result = [
+                    ...result,
+                    ...this.extractConditions(conditions[key], key).map((x) => this.conditionLineToSQLCondition(x)),
+                ];
+            }
+        }
+
+        return result;
+    }
+
+    private conditionLineToSQLCondition(conditionLine: ConditionLine, jsonExtractProperty?: string): string {
+        const useQuote = typeof conditionLine.value !== "number";
+
+        if (jsonExtractProperty) {
+            // Example: json_extract(data, '$.publicKey') = '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
+            // prettier-ignore
+            return `json_extract(${jsonExtractProperty}, '${conditionLine.property}') ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
+        }
+
+        // Example: event LIKE 'wallet'
+        // prettier-ignore
+        return `${conditionLine.property} ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
+    }
+
+    private extractConditions(data: any, property: string): ConditionLine[] {
+        let result: ConditionLine[] = [];
+
+        /* istanbul ignore next */
+        if (!data) {
+            /* istanbul ignore next */
+            return [];
+        }
+
+        if (typeof data !== "object") {
+            result.push({
+                property: `${property}`,
+                condition: "$eq",
+                value: data,
+            });
+
+            return result;
+        }
+
+        for (const key of Object.keys(data)) {
+            if (key.startsWith("$")) {
+                result.push({
+                    property: property,
+                    condition: key,
+                    value: data[key],
+                });
+            } else {
+                result = [...result, ...this.extractConditions(data[key], `${property}.${key}`)];
+            }
+        }
+
+        return result;
+    }
 }

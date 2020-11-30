@@ -227,4 +227,49 @@ describe("DatabaseService", () => {
             }).toThrow("Table table_x does not exists.");
         });
     });
+
+    describe("GetTotal", () => {
+        beforeEach(() => {
+            database = new DatabaseService(storagePath, schema);
+            database.boot();
+
+            database.add("table_1", {
+                column_1: "content 1",
+            });
+
+            database.add("table_1", {
+                column_1: "content 2",
+            });
+
+            database.add("table_2", {
+                column_1: "content 1",
+                column_2: "content 1",
+                column_json: {
+                    value: 1,
+                },
+            });
+
+            database.add("table_2", {
+                column_1: "content 2",
+                column_2: "content 2",
+                column_json: {
+                    value: 2,
+                },
+            });
+        });
+
+        it("should count all items if conditions are empty", () => {
+            expect(database.getTotal("table_1")).toEqual(2);
+            expect(database.getTotal("table_2")).toEqual(2);
+        });
+
+        it("should count with query on non-json field", () => {
+            expect(database.getTotal("table_1", { column_1: "content 1" })).toEqual(1);
+            expect(database.getTotal("table_2", { column_1: "content 1" })).toEqual(1);
+        });
+
+        it("should count with query on json field", () => {
+            expect(database.getTotal("table_2", { column_json: { value: 1 } })).toEqual(1);
+        });
+    });
 });
