@@ -274,11 +274,11 @@ export class Database {
     }
 
     private clearLimitAndOffset(conditions?: any): void {
-        if (conditions && conditions.$offset) {
+        if (conditions && Object.keys(conditions).includes("$offset")) {
             delete conditions.$offset;
         }
 
-        if (conditions && conditions.$limit) {
+        if (conditions && Object.keys(conditions).includes("$limit")) {
             delete conditions.$limit;
         }
     }

@@ -319,7 +319,7 @@ describe("DatabaseService", () => {
         });
 
         it("should return expected item", async () => {
-            const result = database.find("table_1", { $limit: 1 });
+            const result = database.find("table_1", { $limit: 1, $offset: 0 });
 
             expect(result.total).toBe(200);
             expect(result.limit).toBe(1);
@@ -427,7 +427,7 @@ describe("DatabaseService", () => {
         });
 
         it("should return expected item", async () => {
-            const result = database.find("table_2", { $limit: 1 });
+            const result = database.find("table_2", { $limit: 1, $offset: 0 });
 
             expect(result.total).toBe(5);
             expect(result.limit).toBe(1);

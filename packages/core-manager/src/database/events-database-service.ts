@@ -1,4 +1,4 @@
-import { Container, Providers } from "@packages/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
 
 import { Database, Result } from "./database";
 
