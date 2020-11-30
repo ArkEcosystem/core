@@ -35,6 +35,13 @@ export interface Schema {
     tables: Table[];
 }
 
+export interface Result {
+    total: number;
+    limit: number;
+    offset: number;
+    data: any[];
+}
+
 export class Database {
     protected database!: BetterSqlite3.Database;
 
@@ -83,7 +90,7 @@ export class Database {
             .get()["COUNT(*)"] as number;
     }
 
-    public find(tableName: string, conditions?: any): any {
+    public find(tableName: string, conditions?: any): Result {
         const table = this.getTable(tableName);
 
         const limit = this.prepareLimit(conditions);
