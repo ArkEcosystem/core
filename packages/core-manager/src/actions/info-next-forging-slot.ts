@@ -23,6 +23,7 @@ export class Action implements Actions.Action {
 
         const processName = getCoreOrForgerProcessName(getOnlineProcesses(processManager));
 
+        // ! it's sync trigger, but NextSlotProcessAction.handler is async
         const response = processManager.trigger(processName, "forger.nextSlot");
 
         const result = parseProcessActionResponse(response);

@@ -90,31 +90,52 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
         let lastProcessResult: BlockProcessorResult | undefined;
         let lastProcessedBlock: Interfaces.IBlock | undefined = undefined;
 
-        // TODO: Add try catch, because fromData can throw error
-        for (const block of this.blocks) {
-            const blockInstance = Blocks.BlockFactory.fromData(block, blockTimeLookup);
-            Utils.assert.defined<Interfaces.IBlock>(blockInstance);
+        const acceptedBlockTimeLookup = (height: number) => {
+            return acceptedBlocks.find((b) => b.data.height === height)?.data.timestamp ?? blockTimeLookup(height);
+        };
 
-            lastProcessResult = await this.triggers.call("processBlock", {
-                blockProcessor: this.app.get<BlockProcessor>(Container.Identifiers.BlockProcessor),
-                block: blockInstance,
-            });
+        try {
+            for (const block of this.blocks) {
+                const currentSlot: number = Crypto.Slots.getSlotNumber(acceptedBlockTimeLookup);
+                const blockSlot: number = Crypto.Slots.getSlotNumber(acceptedBlockTimeLookup, block.timestamp);
 
-            lastProcessedBlock = blockInstance;
-
-            if (lastProcessResult === BlockProcessorResult.Accepted) {
-                acceptedBlocks.push(blockInstance);
-            } else if (lastProcessResult === BlockProcessorResult.Corrupted) {
-                await this.handleCorrupted();
-                return;
-            } else {
-                if (lastProcessResult === BlockProcessorResult.Rollback) {
-                    forkBlock = blockInstance;
-                    this.stateStore.lastDownloadedBlock = blockInstance.data;
+                if (blockSlot > currentSlot) {
+                    this.logger.error(
+                        `Discarded block ${block.height.toLocaleString()} because it takes a future slot.`,
+                    );
+                    break;
                 }
 
-                break; // if one block is not accepted, the other ones won't be chained anyway
+                const blockInstance = Blocks.BlockFactory.fromData(block);
+                Utils.assert.defined<Interfaces.IBlock>(blockInstance);
+
+                lastProcessResult = await this.triggers.call("processBlock", {
+                    blockProcessor: this.app.get<BlockProcessor>(Container.Identifiers.BlockProcessor),
+                    block: blockInstance,
+                });
+
+                lastProcessedBlock = blockInstance;
+
+                if (lastProcessResult === BlockProcessorResult.Accepted) {
+                    acceptedBlocks.push(blockInstance);
+                } else if (lastProcessResult === BlockProcessorResult.Corrupted) {
+                    await this.handleCorrupted();
+                    return;
+                } else {
+                    if (lastProcessResult === BlockProcessorResult.Rollback) {
+                        forkBlock = blockInstance;
+                        this.stateStore.lastDownloadedBlock = blockInstance.data;
+                    }
+
+                    break; // if one block is not accepted, the other ones won't be chained anyway
+                }
             }
+        } catch (error) {
+            this.logger.error(
+                `Failed to process chunk of block chunk of blocks [${fromHeight.toLocaleString()}, ${toHeight.toLocaleString()}] on top of ${lastHeight.toLocaleString()}`,
+            );
+
+            this.logger.error(error.stack);
         }
 
         if (acceptedBlocks.length > 0) {

@@ -11,10 +11,6 @@ import {
 import { BlockRepository } from "../../../../packages/core-database/src/repositories/block-repository";
 import { BIP39 } from "../../../../packages/core-forger/src/methods/bip39";
 
-const getBlockTimeLookup = (height: number): number => {
-    throw new Error("Mocked getBlockTimeLookup");
-};
-
 let connection: Connection | undefined;
 
 beforeAll(async () => {
@@ -26,25 +22,17 @@ beforeEach(async () => {
 });
 
 const bip39 = new BIP39("generator's secret");
-const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"), getBlockTimeLookup);
-const block2 = bip39.forge(
-    [],
-    {
-        timestamp: block1.data.timestamp + 60,
-        previousBlock: block1.data,
-        reward: new Utils.BigNumber("100"),
-    },
-    getBlockTimeLookup,
-);
-const block3 = bip39.forge(
-    [],
-    {
-        timestamp: block2.data.timestamp + 120,
-        previousBlock: block2.data,
-        reward: new Utils.BigNumber("100"),
-    },
-    getBlockTimeLookup,
-);
+const block1 = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"));
+const block2 = bip39.forge([], {
+    timestamp: block1.data.timestamp + 60,
+    previousBlock: block1.data,
+    reward: new Utils.BigNumber("100"),
+});
+const block3 = bip39.forge([], {
+    timestamp: block2.data.timestamp + 120,
+    previousBlock: block2.data,
+    reward: new Utils.BigNumber("100"),
+});
 
 describe("BlockRepository.findLatest", () => {
     it("should return undefined when no blocks were added", async () => {

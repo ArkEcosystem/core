@@ -1,13 +1,7 @@
 import { Identities } from "@arkecosystem/crypto";
 import { BIP38 } from "@packages/core-forger/src/methods/bip38";
 
-import {
-    dummy,
-    expectedBlock,
-    getTimeStampForBlock,
-    optionsDefault,
-    transactions,
-} from "../__utils__/create-block-with-transactions";
+import { dummy, expectedBlock, optionsDefault, transactions } from "../__utils__/create-block-with-transactions";
 
 const passphrase: string = "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire";
 const bip38: string = "6PYTQC4c2vBv6PGvV4HibNni6wNsHsGbR1qpL1DfkCNihsiWwXnjvJMU4B";
@@ -30,7 +24,7 @@ describe("Methods -> BIP38", () => {
         const spyDecryptKeys = jest.spyOn(delegate as any, "decryptKeysWithOtp");
         const spyEncryptKeys = jest.spyOn(delegate as any, "encryptKeysWithOtp");
 
-        const block = delegate.forge(transactions, optionsDefault, getTimeStampForBlock);
+        const block = delegate.forge(transactions, optionsDefault);
 
         expect(spyDecryptKeys).toHaveBeenCalledTimes(1);
         expect(spyEncryptKeys).toHaveBeenCalledTimes(1);
@@ -51,6 +45,6 @@ describe("Methods -> BIP38", () => {
         const delegate = new BIP38(dummy.bip38Passphrase, "bip38-password");
         delegate.encryptedKeys = undefined;
 
-        expect(() => delegate.forge(transactions, optionsDefault, getTimeStampForBlock)).toThrow();
+        expect(() => delegate.forge(transactions, optionsDefault)).toThrow();
     });
 });

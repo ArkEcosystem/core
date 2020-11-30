@@ -230,10 +230,12 @@ describe("Client", () => {
 
             expect(nesClient.request).toHaveBeenCalledWith({
                 path: "p2p.internal.emitEvent",
-                payload: Buffer.from(JSON.stringify({
-                    event: "test-event",
-                    body: data,
-                })),
+                payload: Buffer.from(
+                    JSON.stringify({
+                        event: "test-event",
+                        body: data,
+                    }),
+                ),
             });
         });
 

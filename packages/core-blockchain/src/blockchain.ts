@@ -322,14 +322,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
                 Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlockData);
 
-                const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(
-                    this.app,
-                    lastBlock.data.height,
-                );
-
                 const tempNewLastBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(
                     tempNewLastBlockData,
-                    blockTimeLookup,
                     {
                         deserializeTransactionsUnchecked: true,
                     },

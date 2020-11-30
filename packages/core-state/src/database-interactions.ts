@@ -61,11 +61,8 @@ export class DatabaseInteraction {
             this.events.dispatch(Enums.StateEvent.Starting);
 
             const genesisBlockJson = Managers.configManager.get("genesisBlock");
-            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(
-                this.app,
-                genesisBlockJson.height,
-            );
-            const genesisBlock = Blocks.BlockFactory.fromJson(genesisBlockJson, blockTimeLookup);
+            const genesisBlock = Blocks.BlockFactory.fromJson(genesisBlockJson);
+
             this.stateStore.setGenesisBlock(genesisBlock!);
 
             if (process.env.CORE_RESET_DATABASE) {
@@ -218,16 +215,13 @@ export class DatabaseInteraction {
             roundInfo.roundHeight + roundInfo.maxDelegates - 1,
         );
 
-        const builtBlockPromises: Promise<Interfaces.IBlock>[] = blocks.map(async (block: Interfaces.IBlockData) => {
+        return blocks.map((block: Interfaces.IBlockData) => {
             if (block.height === 1) {
                 return this.stateStore.getGenesisBlock();
             }
 
-            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
-            return Blocks.BlockFactory.fromData(block, blockTimeLookup, { deserializeTransactionsUnchecked: true })!;
+            return Blocks.BlockFactory.fromData(block, { deserializeTransactionsUnchecked: true })!;
         });
-
-        return Promise.all(builtBlockPromises);
     }
 
     public async getActiveDelegates(

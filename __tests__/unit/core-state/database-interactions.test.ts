@@ -7,9 +7,6 @@ import { DatabaseService } from "../../../packages/core-database";
 import { DatabaseInteraction } from "../../../packages/core-state/src/database-interactions";
 import block1760000 from "./__fixtures__/block1760000";
 
-const getTimeStampForBlock = () => {
-    throw new Error("Unreachable");
-};
 const app = {
     get: jest.fn(),
     terminate: jest.fn(),
@@ -100,10 +97,7 @@ const logger = {
     info: jest.fn(),
     debug: jest.fn(),
 };
-// const databaseService = {
-//     reset: jest.fn(),
-//     saveBlocks: jest.fn(),
-// };
+
 const container = new Container.Container();
 container.bind(Container.Identifiers.Application).toConstantValue(app);
 container.bind(Container.Identifiers.DatabaseConnection).toConstantValue(connection);
@@ -226,7 +220,7 @@ describe("DatabaseInteraction.restoreCurrentRound", () => {
     it("should restore round to its initial state", async () => {
         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = Blocks.BlockFactory.fromData(block1760000);
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
 
         const lastBlocksByHeight = [lastBlock.data];
@@ -492,7 +486,7 @@ describe("DatabaseInteraction.getActiveDelegates", () => {
     it("should return shuffled round delegates", async () => {
         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = Blocks.BlockFactory.fromData(block1760000);
 
         // @ts-ignore
         blockRepository.findLatest.mockResolvedValueOnce(lastBlock.data);
@@ -679,7 +673,7 @@ describe("DatabaseInteraction.loadBlocksFromCurrentRound", () => {
     it("should initialize blocksInCurrentRound property", async () => {
         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = Blocks.BlockFactory.fromData(block1760000);
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
         stateStore.getLastBlocksByHeight.mockReturnValueOnce([lastBlock.data]);
         blockRepository.findByHeightRangeWithTransactions.mockReturnValueOnce([lastBlock.data]);
@@ -716,7 +710,7 @@ describe("DatabaseInteraction.revertRound", () => {
     it("should revert, and delete round when reverting to previous round", async () => {
         const databaseInteraction: DatabaseInteraction = container.resolve(DatabaseInteraction);
 
-        const lastBlock = Blocks.BlockFactory.fromData(block1760000, getTimeStampForBlock);
+        const lastBlock = Blocks.BlockFactory.fromData(block1760000);
         stateStore.getLastBlock.mockReturnValueOnce(lastBlock);
         stateStore.getLastBlocksByHeight.mockReturnValueOnce([lastBlock.data]);
         blockRepository.findByHeightRangeWithTransactions.mockReturnValueOnce([lastBlock.data]);

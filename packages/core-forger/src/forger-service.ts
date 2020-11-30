@@ -1,6 +1,6 @@
 import { Container, Contracts, Enums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { Blocks, Crypto, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { Client } from "./client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
@@ -85,15 +85,8 @@ export class ForgerService {
         return this.round;
     }
 
-    public async getRemainingSlotTime(): Promise<number> {
-        const networkState: Contracts.P2P.NetworkState = await this.client.getNetworkState();
-
-        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(
-            this.app,
-            networkState.nodeHeight!,
-        );
-
-        return Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup);
+    public getRemainingSlotTime(): number | undefined {
+        return this.round ? this.getRoundRemainingSlotTime(this.round) : undefined;
     }
 
     public getLastForgedBlock(): Interfaces.IBlock | undefined {
@@ -120,20 +113,8 @@ export class ForgerService {
         let timeout: number = 2000;
         try {
             await this.loadRound();
-
             AppUtils.assert.defined<Contracts.P2P.CurrentRound>(this.round);
-
-            let height;
-            try {
-                AppUtils.assert.defined<string>(this.round.lastBlock.height);
-                height = this.round.lastBlock.height;
-            } catch {
-                height = 1;
-            }
-
-            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
-
-            timeout = Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup);
+            timeout = Math.max(0, this.getRoundRemainingSlotTime(this.round));
         } catch (error) {
             this.logger.warning("Waiting for a responsive host");
         } finally {
@@ -176,16 +157,6 @@ export class ForgerService {
 
             const delegate: Delegate | undefined = this.isActiveDelegate(this.round.currentForger.publicKey);
 
-            let height;
-            try {
-                AppUtils.assert.defined<string>(this.round.lastBlock.height);
-                height = this.round.lastBlock.height;
-            } catch {
-                height = 1;
-            }
-
-            const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(this.app, height);
-
             if (!delegate) {
                 AppUtils.assert.defined<string>(this.round.nextForger.publicKey);
 
@@ -199,7 +170,7 @@ export class ForgerService {
                     await this.client.syncWithNetwork();
                 }
 
-                return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup));
+                return this.checkLater(this.getRoundRemainingSlotTime(this.round));
             }
 
             const networkState: Contracts.P2P.NetworkState = await this.client.getNetworkState();
@@ -222,7 +193,7 @@ export class ForgerService {
 
             this.logAppReady = true;
 
-            return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup));
+            return this.checkLater(this.getRoundRemainingSlotTime(this.round));
         } catch (error) {
             if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
                 if (error.message.includes("blockchain isn't ready") || error.message.includes("App is not ready")) {
@@ -269,37 +240,26 @@ export class ForgerService {
 
         const transactions: Interfaces.ITransactionData[] = await this.getTransactionsForForging();
 
-        const blockTimeLookup = await AppUtils.forgingInfoCalculator.getBlockTimeLookup(
-            this.app,
-            networkState.nodeHeight,
-        );
-
-        const block: Interfaces.IBlock | undefined = delegate.forge(
-            transactions,
-            {
-                previousBlock: {
-                    id: networkState.lastBlockId,
-                    idHex: Managers.configManager.getMilestone().block.idFullSha256
-                        ? networkState.lastBlockId
-                        : Blocks.Block.toBytesHex(networkState.lastBlockId),
-                    height: networkState.nodeHeight,
-                },
-                timestamp: round.timestamp,
-                reward: round.reward,
+        const block: Interfaces.IBlock | undefined = delegate.forge(transactions, {
+            previousBlock: {
+                id: networkState.lastBlockId,
+                idHex: Managers.configManager.getMilestone().block.idFullSha256
+                    ? networkState.lastBlockId
+                    : Blocks.Block.toBytesHex(networkState.lastBlockId),
+                height: networkState.nodeHeight,
             },
-            blockTimeLookup,
-        );
+            timestamp: round.timestamp,
+            reward: round.reward,
+        });
 
         AppUtils.assert.defined<Interfaces.IBlock>(block);
         AppUtils.assert.defined<string>(delegate.publicKey);
 
         const minimumMs = 2000;
-        const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot(blockTimeLookup);
-        const currentSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup);
-        const roundSlot: number = Crypto.Slots.getSlotNumber(blockTimeLookup, round.timestamp);
+        const timeLeftInMs: number = this.getRoundRemainingSlotTime(round);
         const prettyName = `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`;
 
-        if (timeLeftInMs >= minimumMs && currentSlot === roundSlot) {
+        if (timeLeftInMs >= minimumMs) {
             this.logger.info(`Forged new block ${block.data.id} by delegate ${prettyName}`);
 
             await this.client.broadcastBlock(block);
@@ -310,16 +270,12 @@ export class ForgerService {
             for (const transaction of transactions) {
                 this.client.emitEvent(Enums.TransactionEvent.Forged, transaction);
             }
+        } else if (timeLeftInMs > 0) {
+            this.logger.warning(
+                `Failed to forge new block by delegate ${prettyName}, because there were ${timeLeftInMs}ms left in the current slot (less than ${minimumMs}ms).`,
+            );
         } else {
-            if (currentSlot !== roundSlot) {
-                this.logger.warning(
-                    `Failed to forge new block by delegate ${prettyName}, because already in next slot.`,
-                );
-            } else {
-                this.logger.warning(
-                    `Failed to forge new block by delegate ${prettyName}, because there were ${timeLeftInMs}ms left in the current slot (less than ${minimumMs}ms).`,
-                );
-            }
+            this.logger.warning(`Failed to forge new block by delegate ${prettyName}, because already in next slot.`);
         }
     }
 
@@ -481,5 +437,12 @@ export class ForgerService {
                 )}: ${inactiveDelegates.join(", ")}`,
             );
         }
+    }
+
+    private getRoundRemainingSlotTime(round: Contracts.P2P.CurrentRound): number {
+        const epoch = new Date(Managers.configManager.getMilestone(1).epoch).getTime();
+        const blocktime = Managers.configManager.getMilestone(round.lastBlock.height).blocktime;
+
+        return epoch + round.timestamp * 1000 + blocktime * 1000 - Date.now();
     }
 }
