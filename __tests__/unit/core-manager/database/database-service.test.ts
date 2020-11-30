@@ -303,6 +303,19 @@ describe("DatabaseService", () => {
             }
         });
 
+        it("should return expected item", async () => {
+            const result = database.find("table_1", { $limit: 1 });
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(1);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(1);
+            expect(result.data[0]).toEqual({
+                column_1: "dummy_event",
+            });
+        });
+
         it("should return limit 10", async () => {
             const result = database.find("table_1");
 
@@ -395,6 +408,24 @@ describe("DatabaseService", () => {
                 column_1: "dummy_event",
                 column_2: "",
                 column_json: { size: 5, name: "5_dummy_event" },
+            });
+        });
+
+        it("should return expected item", async () => {
+            const result = database.find("table_2", { $limit: 1 });
+
+            expect(result.total).toBe(5);
+            expect(result.limit).toBe(1);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(1);
+            expect(result.data[0]).toEqual({
+                id: 1,
+                column_1: "dummy_event",
+                column_2: "",
+                column_3: null,
+                column_json: { size: 1, name: "1_dummy_event" },
+                timestamp: expect.toBeString(),
             });
         });
 

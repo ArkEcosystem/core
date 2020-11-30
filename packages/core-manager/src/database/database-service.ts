@@ -66,19 +66,7 @@ export class DatabaseService {
 
         const result = this.database.prepare(`SELECT * FROM ${table.name}`).pluck(false).all();
 
-        const jsonColumns = table.columns.filter((column) => column.type === "json");
-
-        if (jsonColumns.length) {
-            return result.map((item) => {
-                for (const jsonColumn of jsonColumns) {
-                    item[jsonColumn.name] = JSON.parse(item[jsonColumn.name]);
-                }
-
-                return item;
-            });
-        }
-
-        return result;
+        return this.transform(table, result);
     }
 
     public add(tableName: string, data: any): void {
@@ -107,15 +95,18 @@ export class DatabaseService {
             total: this.getTotal(tableName, conditions),
             limit,
             offset,
-            data: this.database
-                .prepare(
-                    `SELECT * FROM ${table.name} ${this.prepareWhere(
-                        table,
-                        conditions,
-                    )} LIMIT ${limit} OFFSET ${offset}`,
-                )
-                .pluck(false)
-                .all(),
+            data: this.transform(
+                table,
+                this.database
+                    .prepare(
+                        `SELECT * FROM ${table.name} ${this.prepareWhere(
+                            table,
+                            conditions,
+                        )} LIMIT ${limit} OFFSET ${offset}`,
+                    )
+                    .pluck(false)
+                    .all(),
+            ),
         };
     }
 
@@ -127,6 +118,22 @@ export class DatabaseService {
         }
 
         return table;
+    }
+
+    private transform(table: Table, data: any[]): any[] {
+        const jsonColumns = table.columns.filter((column) => column.type === "json");
+
+        if (jsonColumns.length) {
+            return data.map((item) => {
+                for (const jsonColumn of jsonColumns) {
+                    item[jsonColumn.name] = JSON.parse(item[jsonColumn.name]);
+                }
+
+                return item;
+            });
+        }
+
+        return data;
     }
 
     private prepareInsertData(table: Table, data: any) {
