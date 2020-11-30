@@ -85,6 +85,7 @@ export class Client {
     private _heartbeat;
     private _disconnectListeners;
     private _disconnectRequested;
+    private _lastPinged;
 
     public constructor(url, options?) {
         options = options || {};
@@ -170,6 +171,10 @@ export class Client {
 
     public disconnect() {
         return new Promise((resolve) => this._disconnect(resolve, false));
+    }
+
+    public terminate() {
+        return new Promise((resolve) => this._disconnect(resolve, false, true));
     }
 
     public request(options) {
@@ -482,6 +487,11 @@ export class Client {
         // Ping
 
         if (update.type === "ping") {
+            if (this._lastPinged && (Date.now() < this._lastPinged + 1000)) {
+                this._lastPinged = Date.now();
+                return this.onError(NesError("Ping exceeded limit", errorTypes.PROTOCOL));
+            }
+            this._lastPinged = Date.now();
             return this._send({ type: "ping" }, false).catch(ignore); // Ignore errors
         }
 

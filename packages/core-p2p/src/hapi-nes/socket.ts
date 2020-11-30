@@ -2,7 +2,6 @@
 
 import Boom from "@hapi/boom";
 import Bounce from "@hapi/bounce";
-import Hoek from "@hapi/hoek";
 import Teamwork from "@hapi/teamwork";
 import { parseNesMessage, stringifyNesMessage } from "./utils";
 
@@ -25,6 +24,7 @@ export class Socket {
     private _processingCount;
     private _packets;
     private _sending;
+    private _lastPinged;
 
     public constructor(ws, req, listener) {
         this._ws = ws;
@@ -165,20 +165,10 @@ export class Socket {
         setImmediate(() => this._flush());
     }
 
+    //@ts-ignore
     private _error(err, request?) {
-        err = Boom.boomify(err);
-
-        const message = Hoek.clone(err.output);
-        delete message.payload.statusCode;
-        message.headers = this._filterHeaders(message.headers);
-
-        message.payload = Buffer.from(JSON.stringify(message.payload));
-        if (request) {
-            message.type = request.type;
-            message.id = request.id;
-        }
-
-        return this._send(message);
+        this.terminate();
+        return Promise.resolve();
     }
 
     private async _onMessage(message) {
@@ -231,6 +221,11 @@ export class Socket {
         // Initialization and Authentication
 
         if (request.type === "ping") {
+            if (this._lastPinged && (Date.now() < this._lastPinged + 1000)) {
+                this._lastPinged = Date.now();
+                throw Boom.badRequest("Exceeded ping limit");
+            }
+            this._lastPinged = Date.now();
             return {};
         }
 
@@ -332,6 +327,9 @@ export class Socket {
         };
 
         const res = await this.server.inject(shot);
+        if (res.statusCode !== 200) {
+            throw Boom.boomify(new Error(res.result), { statusCode: res.statusCode });
+        }
 
         const response = {
             type: "request",

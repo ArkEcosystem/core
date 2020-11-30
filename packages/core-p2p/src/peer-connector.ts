@@ -74,7 +74,7 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
 
         connection.onError = (error) => {
             this.logger.debug(`Socket error (peer ${Utils.IpAddress.normalizeAddress(peer.ip)}) : ${error.message}`);
-            console.log("IP: ", peer.ip);
+            connection.terminate();
         };
 
         await connection.connect({ retries: 1, timeout: 5000 });
