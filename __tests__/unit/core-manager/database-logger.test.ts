@@ -9,7 +9,7 @@ let sandbox: Sandbox;
 let databaseLogger: DatabaseLogger;
 
 const mockDatabaseService = {
-    addEvent: jest.fn(),
+    add: jest.fn(),
 };
 
 beforeEach(() => {
@@ -29,27 +29,27 @@ describe("DatabaseLogger", () => {
     it(".log", async () => {
         databaseLogger.log("log", "dummy_message");
 
-        expect(mockDatabaseService.addEvent).toHaveBeenCalledWith("database.log", "dummy_message");
+        expect(mockDatabaseService.add).toHaveBeenCalledWith("database.log", "dummy_message");
 
         databaseLogger.log("info", "dummy_message");
 
-        expect(mockDatabaseService.addEvent).toHaveBeenCalledWith("database.info", "dummy_message");
+        expect(mockDatabaseService.add).toHaveBeenCalledWith("database.info", "dummy_message");
 
         databaseLogger.log("warn", "dummy_message");
 
-        expect(mockDatabaseService.addEvent).toHaveBeenCalledWith("database.warn", "dummy_message");
+        expect(mockDatabaseService.add).toHaveBeenCalledWith("database.warn", "dummy_message");
     });
 
     it(".logMigration", async () => {
         databaseLogger.logMigration("dummy_message");
 
-        expect(mockDatabaseService.addEvent).toHaveBeenCalledWith("database.migration", "dummy_message");
+        expect(mockDatabaseService.add).toHaveBeenCalledWith("database.migration", "dummy_message");
     });
 
     it(".logQuery", async () => {
         databaseLogger.logQuery("dummy_query", ["dummy_parameter"]);
 
-        expect(mockDatabaseService.addEvent).toHaveBeenCalledWith("database.query.log", {
+        expect(mockDatabaseService.add).toHaveBeenCalledWith("database.query.log", {
             query: "dummy_query",
             parameters: ["dummy_parameter"],
         });
@@ -58,7 +58,7 @@ describe("DatabaseLogger", () => {
     it(".logQueryError", async () => {
         databaseLogger.logQueryError("dummy_error", "dummy_query", ["dummy_parameter"]);
 
-        expect(mockDatabaseService.addEvent).toHaveBeenCalledWith("database.query.error", {
+        expect(mockDatabaseService.add).toHaveBeenCalledWith("database.query.error", {
             error: "dummy_error",
             query: "dummy_query",
             parameters: ["dummy_parameter"],
@@ -68,7 +68,7 @@ describe("DatabaseLogger", () => {
     it(".logQuerySlow", async () => {
         databaseLogger.logQuerySlow(1000, "dummy_query", ["dummy_parameter"]);
 
-        expect(mockDatabaseService.addEvent).toHaveBeenCalledWith("database.query.slow", {
+        expect(mockDatabaseService.add).toHaveBeenCalledWith("database.query.slow", {
             time: 1000,
             query: "dummy_query",
             parameters: ["dummy_parameter"],
@@ -78,6 +78,6 @@ describe("DatabaseLogger", () => {
     it(".logSchemaBuild", async () => {
         databaseLogger.logSchemaBuild("dummy_message");
 
-        expect(mockDatabaseService.addEvent).toHaveBeenCalledWith("database.schemaBuild", "dummy_message");
+        expect(mockDatabaseService.add).toHaveBeenCalledWith("database.schemaBuild", "dummy_message");
     });
 });
