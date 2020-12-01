@@ -60,8 +60,7 @@ export class LogsDatabaseService {
             ],
         });
 
-        // TODO: Check if requires flush
-        this.database.boot(this.configuration.getRequired<{ resetDatabase: boolean }>("watcher").resetDatabase);
+        this.database.boot();
     }
 
     public dispose(): void {
@@ -93,6 +92,28 @@ export class LogsDatabaseService {
             if (searchParams.dateTo) {
                 conditions.timestamp.$lte = searchParams.dateTo;
             }
+        }
+
+        if (searchParams.level) {
+            conditions.level = searchParams.level;
+        }
+
+        if (searchParams.process) {
+            conditions.process = searchParams.process;
+        }
+
+        if (searchParams.searchTerm) {
+            conditions.content = {
+                $like: `%${searchParams.searchTerm}%`,
+            };
+        }
+
+        if (searchParams.limit) {
+            conditions.$limit = searchParams.limit;
+        }
+
+        if (searchParams.offset) {
+            conditions.$offset = searchParams.offset;
         }
 
         return this.database.find("logs", conditions);

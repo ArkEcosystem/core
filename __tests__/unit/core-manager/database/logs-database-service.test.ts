@@ -93,7 +93,7 @@ describe("LogsDatabaseService", () => {
 
             database.add("info", "content");
 
-            const result = database.find().data;
+            const result = database.search({}).data;
 
             expect(result).toBeArray();
             expect(result[0]).toMatchObject({
@@ -118,7 +118,7 @@ describe("LogsDatabaseService", () => {
         });
 
         it("should return all", async () => {
-            const result = database.find({ $limit: 1000 });
+            const result = database.search({ limit: 1000 });
 
             expect(result.total).toBe(200);
             expect(result.limit).toBe(1000);
@@ -127,8 +127,8 @@ describe("LogsDatabaseService", () => {
             expect(result.data.length).toBe(200);
         });
 
-        it("should filter by log type", async () => {
-            const result = database.find({ $limit: 1000, level: "info" });
+        it("should filter by log level", async () => {
+            const result = database.search({ limit: 1000, level: "info" });
 
             expect(result.total).toBe(100);
             expect(result.limit).toBe(1000);
@@ -137,18 +137,29 @@ describe("LogsDatabaseService", () => {
             expect(result.data.length).toBe(100);
         });
 
-        it("should filter by content", async () => {
-            const result = database.find({ $limit: 1000, content: "info content" });
+        it("should filter by process", async () => {
+            let result = database.search({ limit: 1000, process: "core" });
 
-            expect(result.total).toBe(100);
+            expect(result.total).toBe(200);
             expect(result.limit).toBe(1000);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
-            expect(result.data.length).toBe(100);
+            expect(result.data.length).toBe(200);
+
+            result = database.search({ limit: 1000, process: "forger" });
+
+            expect(result.total).toBe(0);
+            expect(result.limit).toBe(1000);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(0);
         });
 
         it("should search in content", async () => {
-            const result = database.find({ $limit: 1000, content: { $like: "%nfo%" } });
+            const result = database.search({
+                limit: 1000,
+                searchTerm: "nfo",
+            });
 
             expect(result.total).toBe(100);
             expect(result.limit).toBe(1000);
@@ -161,21 +172,64 @@ describe("LogsDatabaseService", () => {
             // @ts-ignore
             database.database.exec(`UPDATE logs SET timestamp = '2016-01-02 00:00:00.000' WHERE id = 1`);
 
-            // const result = database.find({
-            //     $limit: 1000,
-            //     timestamp: { $gte: "2016-01-01 00:00:00.000", $lte: "2016-01-03 00:00:00.000" },
-            // });
+            let result = database.search({
+                limit: 1000,
+                dateFrom: "2016-01-01 00:00:00.000",
+            });
 
-            const result = database.search({
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(1000);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(200);
+
+            result = database.search({
+                limit: 1000,
+                dateTo: "2016-01-03 00:00:00.000",
+            });
+
+            expect(result.total).toBe(1);
+            expect(result.limit).toBe(1000);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(1);
+
+            result = database.search({
+                limit: 1000,
                 dateFrom: "2016-01-01 00:00:00.000",
                 dateTo: "2016-01-03 00:00:00.000",
             });
 
             expect(result.total).toBe(1);
-            // expect(result.limit).toBe(1000);
+            expect(result.limit).toBe(1000);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(1);
+        });
+
+        it("should search with offset", () => {
+            let result = database.search({
+                limit: 1,
+            });
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(1);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(1);
+            expect(result.data[0].id).toBe(1);
+
+            result = database.search({
+                limit: 1,
+                offset: 10,
+            });
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(1);
+            expect(result.offset).toBe(10);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(1);
+            expect(result.data[0].id).toBe(11);
         });
     });
 });
