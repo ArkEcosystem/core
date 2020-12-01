@@ -29,15 +29,18 @@ export class EventsDatabaseService {
                         {
                             name: "event",
                             type: "varchar(255)",
+                            index: true,
                         },
                         {
                             name: "data",
                             type: "json",
+                            index: true,
                         },
                         {
                             name: "timestamp",
                             type: "datetime",
                             default: "CURRENT_TIMESTAMP",
+                            index: true,
                         },
                     ],
                 },
