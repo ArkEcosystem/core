@@ -25,7 +25,6 @@ export class LogsDatabaseService {
 
     public boot(): void {
         const filename = this.configuration.getRequired<{ storage: string }>("logs").storage;
-        // `${process.env.CORE_PATH_DATA}/logs.sqlite`; TODO: Check
 
         this.database = new Database(filename, {
             tables: [
@@ -73,10 +72,6 @@ export class LogsDatabaseService {
             level,
             content,
         });
-    }
-
-    public find(conditions?: any): Result {
-        return this.database.find("logs", conditions);
     }
 
     public search(searchParams: SearchParams): Result {
