@@ -534,4 +534,36 @@ describe("DatabaseService", () => {
             expect(result.data.length).toBe(3);
         });
     });
+
+    describe("Remove", () => {
+        beforeEach(() => {
+            database = new Database(storagePath, schema);
+            database.boot();
+
+            for (let i = 0; i < 100; i++) {
+                database.add("table_1", {
+                    column_1: "dummy_event",
+                });
+                database.add("table_1", {
+                    column_1: "another_dummy_event",
+                });
+            }
+        });
+
+        it("should remove all table data", () => {
+            expect(database.getAll("table_1").length).toEqual(200);
+
+            database.remove("table_1");
+
+            expect(database.getAll("table_1").length).toEqual(0);
+        });
+
+        it("should remove partially", () => {
+            expect(database.getAll("table_1").length).toEqual(200);
+
+            database.remove("table_1", { column_1: "dummy_event" });
+
+            expect(database.getAll("table_1").length).toEqual(100);
+        });
+    });
 });
