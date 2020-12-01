@@ -10,10 +10,15 @@ import { dirSync, setGracefulCleanup } from "tmp";
 let database: LogsDatabaseService;
 let storagePath: string;
 let sandbox: Sandbox;
+let configFlags: any;
 let configuration: any;
 
 beforeEach(() => {
     storagePath = dirSync().name + "/logs.sqlite";
+
+    configFlags = {
+        processType: "core",
+    };
 
     configuration = {
         getRequired: jest.fn().mockReturnValue({
@@ -24,6 +29,7 @@ beforeEach(() => {
 
     sandbox = new Sandbox();
 
+    sandbox.app.bind(Container.Identifiers.ConfigFlags).toConstantValue(configFlags);
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
 
     database = sandbox.app.resolve(LogsDatabaseService);
@@ -92,6 +98,7 @@ describe("LogsDatabaseService", () => {
             expect(result).toBeArray();
             expect(result[0]).toMatchObject({
                 id: 1,
+                process: "core",
                 level: "info",
                 content: "content",
             });

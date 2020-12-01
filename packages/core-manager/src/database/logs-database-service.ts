@@ -4,6 +4,9 @@ import { Database, Result } from "./database";
 
 @Container.injectable()
 export class LogsDatabaseService {
+    @Container.inject(Container.Identifiers.ConfigFlags)
+    private readonly configFlags!: any;
+
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-manager")
     private readonly configuration!: Providers.PluginConfiguration;
@@ -24,6 +27,10 @@ export class LogsDatabaseService {
                             type: "integer",
                             primary: true,
                             autoincrement: true,
+                        },
+                        {
+                            name: "process",
+                            type: "varchar(15)",
                         },
                         {
                             name: "level",
@@ -53,6 +60,7 @@ export class LogsDatabaseService {
 
     public add(level: string, content: string): void {
         this.database.add("logs", {
+            process: this.configFlags.processType,
             level,
             content,
         });
