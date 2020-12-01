@@ -24,6 +24,7 @@ export interface Column {
     autoincrement?: boolean;
     nullable?: boolean;
     default?: string;
+    index?: boolean;
 }
 
 export interface Table {
@@ -215,6 +216,8 @@ export class Database {
             result += this.createTableSQL(table) + "\n";
         }
 
+        result += this.createIndexesSQL();
+
         return result;
     }
 
@@ -252,6 +255,20 @@ export class Database {
 
         if (column.default) {
             result += ` DEFAULT ${column.default}`;
+        }
+
+        return result;
+    }
+
+    private createIndexesSQL(): string {
+        let result = "";
+
+        for (const table of this.schema.tables) {
+            for (const column of table.columns) {
+                if (column.index) {
+                    result += `CREATE INDEX IF NOT EXISTS index_${table.name}_${column.name} ON ${table.name} (${column.name});\n`;
+                }
+            }
         }
 
         return result;
