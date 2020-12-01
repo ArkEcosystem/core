@@ -37,7 +37,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     .toConstantValue(
                         new LogServiceWrapper(
                             logService,
-                            this.app.get<EventsDatabaseService>(Identifiers.WatcherDatabaseService),
+                            this.app.get<LogsDatabaseService>(Identifiers.LogsDatabaseService),
                         ),
                     );
             }
