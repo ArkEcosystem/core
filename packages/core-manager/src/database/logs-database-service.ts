@@ -2,6 +2,16 @@ import { Container, Providers } from "@arkecosystem/core-kernel";
 
 import { Database, Result } from "./database";
 
+interface SearchParams {
+    dateFrom?: string;
+    dateTo?: string;
+    searchTerm?: string;
+    level?: string;
+    process?: string;
+    limit?: number;
+    offset?: number;
+}
+
 @Container.injectable()
 export class LogsDatabaseService {
     @Container.inject(Container.Identifiers.ConfigFlags)
@@ -67,6 +77,24 @@ export class LogsDatabaseService {
     }
 
     public find(conditions?: any): Result {
+        return this.database.find("logs", conditions);
+    }
+
+    public search(searchParams: SearchParams): Result {
+        const conditions: any = {};
+
+        if (searchParams.dateFrom || searchParams.dateTo) {
+            conditions.timestamp = {};
+
+            if (searchParams.dateFrom) {
+                conditions.timestamp.$gte = searchParams.dateFrom;
+            }
+
+            if (searchParams.dateTo) {
+                conditions.timestamp.$lte = searchParams.dateTo;
+            }
+        }
+
         return this.database.find("logs", conditions);
     }
 }

@@ -161,13 +161,18 @@ describe("LogsDatabaseService", () => {
             // @ts-ignore
             database.database.exec(`UPDATE logs SET timestamp = '2016-01-02 00:00:00.000' WHERE id = 1`);
 
-            const result = database.find({
-                $limit: 1000,
-                timestamp: { $gte: "2016-01-01 00:00:00.000", $lte: "2016-01-03 00:00:00.000" },
+            // const result = database.find({
+            //     $limit: 1000,
+            //     timestamp: { $gte: "2016-01-01 00:00:00.000", $lte: "2016-01-03 00:00:00.000" },
+            // });
+
+            const result = database.search({
+                dateFrom: "2016-01-01 00:00:00.000",
+                dateTo: "2016-01-03 00:00:00.000",
             });
 
             expect(result.total).toBe(1);
-            expect(result.limit).toBe(1000);
+            // expect(result.limit).toBe(1000);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(1);
