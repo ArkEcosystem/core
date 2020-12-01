@@ -16,6 +16,9 @@ export const defaults = {
             webhooks: !process.env.CORE_WATCH_WEBHOOKS_DISABLED,
         },
     },
+    logs: {
+        storage: `${process.env.CORE_PATH_DATA}/logs.sqlite`,
+    },
     server: {
         http: {
             enabled: !process.env.CORE_MONITOR_DISABLED,

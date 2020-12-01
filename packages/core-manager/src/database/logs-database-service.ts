@@ -11,7 +11,7 @@ export class LogsDatabaseService {
     private database!: Database;
 
     public boot(): void {
-        const filename = this.configuration.getRequired<{ storage: string }>("watcher").storage;
+        const filename = this.configuration.getRequired<{ storage: string }>("logs").storage;
         // `${process.env.CORE_PATH_DATA}/logs.sqlite`; TODO: Check
 
         this.database = new Database(filename, {
