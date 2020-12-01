@@ -135,6 +135,14 @@ export class Worker extends SCWorker {
                     const parsed = JSON.parse(message);
                     if (parsed.event === "#disconnect") {
                         req.socket._disconnected = true;
+                        if (
+                            typeof parsed.data !== "object" ||
+                            typeof parsed.data.code !== "number" ||
+                            Object.keys(parsed).length !== 2 ||
+                            Object.keys(parsed.data).length !== 1
+                        ) {
+                            return this.setErrorForIpAndDestroy(req.socket);
+                        }
                     } else if (parsed.event === "#handshake") {
                         if (req.socket._handshake) {
                             return this.setErrorForIpAndDestroy(req.socket);
