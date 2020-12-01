@@ -2,7 +2,7 @@ import { Container, Providers } from "@arkecosystem/core-kernel";
 
 import { Database, Result } from "./database";
 
-interface SearchParams {
+export interface SearchParams {
     dateFrom?: string;
     dateTo?: string;
     searchTerm?: string;
