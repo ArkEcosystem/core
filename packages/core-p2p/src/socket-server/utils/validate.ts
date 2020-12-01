@@ -35,7 +35,13 @@ export const validateTransactionLight = (transaction: any): boolean => {
                 return false;
             }
             for (const p of transaction.asset.payments) {
-                if (!p || typeof p !== "object" || Object.keys(p).length !== 2 || !p.recipientId || !p.amount) {
+                if (
+                    !p ||
+                    typeof p !== "object" ||
+                    typeof p.recipientId !== "string" ||
+                    typeof p.amount !== "string" ||
+                    Object.keys(p).length !== 2
+                ) {
                     return false;
                 }
             }
