@@ -51,6 +51,10 @@ export class Database {
         this.database = new BetterSqlite3(filename);
     }
 
+    public isOpen(): boolean {
+        return this.database.open;
+    }
+
     public boot(flush: boolean = false): void {
         this.exec(this.createDatabaseSQL());
 

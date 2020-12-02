@@ -66,16 +66,6 @@ export class Command extends Commands.Command {
                     networkStart: flags.networkStart,
                 },
                 "@arkecosystem/core-forger": await buildBIP38(flags, this.app.getCorePath("config")),
-                "@arkecosystem/core-manager": {
-                    server: {
-                        http: {
-                            enabled: false,
-                        },
-                        https: {
-                            enabled: false,
-                        },
-                    },
-                },
             },
         });
 
