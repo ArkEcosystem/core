@@ -1,6 +1,6 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 
-import { DatabaseService } from "./database-service";
+import { EventsDatabaseService } from "./database/events-database-service";
 
 @Container.injectable()
 export class Listener {
@@ -9,7 +9,7 @@ export class Listener {
     private readonly configuration!: Providers.PluginConfiguration;
 
     @Container.inject(Container.Identifiers.WatcherDatabaseService)
-    private readonly databaseService!: DatabaseService;
+    private readonly databaseService!: EventsDatabaseService;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly events!: Contracts.Kernel.EventDispatcher;
@@ -24,7 +24,7 @@ export class Listener {
 
     private handleEvents(data: { name: Contracts.Kernel.EventName; data: any }) {
         if (this.canAddEvent(data.name.toString())) {
-            this.databaseService.addEvent(data.name.toString(), data.data);
+            this.databaseService.add(data.name.toString(), data.data);
         }
     }
 

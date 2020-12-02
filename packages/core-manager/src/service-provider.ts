@@ -3,7 +3,7 @@ import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kerne
 
 import { ActionReader } from "./action-reader";
 import { DatabaseLogger } from "./database-logger";
-import { DatabaseService } from "./database-service";
+import { EventsDatabaseService } from "./database/events-database-service";
 import { Identifiers } from "./ioc";
 import { Listener } from "./listener";
 import { LogServiceWrapper } from "./log-service-wrapper";
@@ -16,8 +16,8 @@ import { CliManager } from "./utils/cli-manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind(Identifiers.WatcherDatabaseService).to(DatabaseService).inSingletonScope();
-        this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService).boot();
+        this.app.bind(Identifiers.WatcherDatabaseService).to(EventsDatabaseService).inSingletonScope();
+        this.app.get<EventsDatabaseService>(Identifiers.WatcherDatabaseService).boot();
 
         if (this.config().getRequired<{ enabled: boolean }>("watcher").enabled) {
             this.app.bind(Identifiers.EventsListener).to(Listener).inSingletonScope();
@@ -33,7 +33,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     .toConstantValue(
                         new LogServiceWrapper(
                             logService,
-                            this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService),
+                            this.app.get<EventsDatabaseService>(Identifiers.WatcherDatabaseService),
                         ),
                     );
             }
@@ -79,7 +79,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             await this.app.get<Server>(Identifiers.HTTPS).dispose();
         }
 
-        this.app.get<DatabaseService>(Identifiers.WatcherDatabaseService).dispose();
+        this.app.get<EventsDatabaseService>(Identifiers.WatcherDatabaseService).dispose();
     }
 
     public async required(): Promise<boolean> {

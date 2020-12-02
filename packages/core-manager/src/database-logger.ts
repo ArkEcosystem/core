@@ -1,30 +1,30 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { Logger, QueryRunner } from "typeorm";
 
-import { DatabaseService } from "./database-service";
+import { EventsDatabaseService } from "./database/events-database-service";
 
 @Container.injectable()
 export class DatabaseLogger implements Logger {
     @Container.inject(Container.Identifiers.WatcherDatabaseService)
-    private readonly databaseService!: DatabaseService;
+    private readonly databaseService!: EventsDatabaseService;
 
     public log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner): any {
-        this.databaseService.addEvent(`database.${level}`, message);
+        this.databaseService.add(`database.${level}`, message);
     }
 
     public logMigration(message: string, queryRunner?: QueryRunner): any {
-        this.databaseService.addEvent(`database.migration`, message);
+        this.databaseService.add(`database.migration`, message);
     }
 
     public logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): any {
-        this.databaseService.addEvent(`database.query.log`, {
+        this.databaseService.add(`database.query.log`, {
             query: query,
             parameters: parameters,
         });
     }
 
     public logQueryError(error: string, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
-        this.databaseService.addEvent(`database.query.error`, {
+        this.databaseService.add(`database.query.error`, {
             error: error,
             query: query,
             parameters: parameters,
@@ -32,7 +32,7 @@ export class DatabaseLogger implements Logger {
     }
 
     public logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
-        this.databaseService.addEvent(`database.query.slow`, {
+        this.databaseService.add(`database.query.slow`, {
             time: time,
             query: query,
             parameters: parameters,
@@ -40,6 +40,6 @@ export class DatabaseLogger implements Logger {
     }
 
     public logSchemaBuild(message: string, queryRunner?: QueryRunner): any {
-        this.databaseService.addEvent(`database.schemaBuild`, message);
+        this.databaseService.add(`database.schemaBuild`, message);
     }
 }
