@@ -6,7 +6,6 @@ export const defaults = {
         watch: {
             blocks: !process.env.CORE_WATCH_BLOCKS_DISABLED,
             errors: !process.env.CORE_WATCH_ERRORS_DISABLED,
-            logs: !process.env.CORE_WATCH_LOGS_DISABLED,
             queries: !process.env.CORE_WATCH_QUERIES_DISABLED,
             queues: !process.env.CORE_WATCH_QUEUES_DISABLED,
             rounds: !process.env.CORE_WATCH_ROUNDS_DISABLED,
@@ -17,8 +16,9 @@ export const defaults = {
         },
     },
     logs: {
-        storage: `${process.env.CORE_PATH_DATA}/logs.sqlite`,
+        enabled: !process.env.CORE_WATCH_LOGS_DISABLED,
         resetDatabase: process.env.CORE_RESET_DATABASE,
+        storage: `${process.env.CORE_PATH_DATA}/logs.sqlite`,
         history: 30, // Days
     },
     server: {

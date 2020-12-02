@@ -29,18 +29,18 @@ export class ServiceProvider extends Providers.ServiceProvider {
             if (this.config().getRequired<boolean>("watcher.watch.queries")) {
                 this.app.bind(Container.Identifiers.DatabaseLogger).to(DatabaseLogger).inSingletonScope();
             }
+        }
 
-            if (this.config().getRequired<boolean>("watcher.watch.logs")) {
-                const logService = this.app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService);
-                this.app
-                    .rebind(Container.Identifiers.LogService)
-                    .toConstantValue(
-                        new LogServiceWrapper(
-                            logService,
-                            this.app.get<LogsDatabaseService>(Identifiers.LogsDatabaseService),
-                        ),
-                    );
-            }
+        if (this.config().getRequired<boolean>("logs.enabled")) {
+            const logService = this.app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService);
+            this.app
+                .rebind(Container.Identifiers.LogService)
+                .toConstantValue(
+                    new LogServiceWrapper(
+                        logService,
+                        this.app.get<LogsDatabaseService>(Identifiers.LogsDatabaseService),
+                    ),
+                );
         }
 
         this.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
