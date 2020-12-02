@@ -14,6 +14,7 @@ const logger = {
     info: jest.fn(),
     debug: jest.fn(),
     error: jest.fn(),
+    notice: jest.fn(),
 };
 
 const mockEventDispatcher = {
@@ -32,11 +33,13 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
+    app.bind(Container.Identifiers.ConfigFlags).toConstantValue({ processType: "core" });
     app.bind(Container.Identifiers.FilesystemService).toConstantValue({});
     app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(mockEventDispatcher);
     app.bind(Container.Identifiers.WalletAttributes).toConstantValue({});
 
     defaults.watcher.storage = dirSync().name + "/events.sqlite";
+    defaults.logs.storage = dirSync().name + "/logs.sqlite";
     defaults.server.https.tls.key = path.resolve(__dirname, "./__fixtures__/key.pem");
     defaults.server.https.tls.cert = path.resolve(__dirname, "./__fixtures__/server.crt");
 });
@@ -148,8 +151,8 @@ describe("ServiceProvider", () => {
         usedDefaults.watcher.enabled = true;
 
         usedDefaults.watcher.watch.queries = false;
-        usedDefaults.watcher.watch.logs = false;
         usedDefaults.watcher.watch.wallets = false;
+        usedDefaults.logs.enabled = false;
 
         setPluginConfiguration(app, serviceProvider, usedDefaults);
 

@@ -1,44 +1,44 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 
-import { EventsDatabaseService } from "./database/events-database-service";
+import { LogsDatabaseService } from "./database/logs-database-service";
 
 export class LogServiceWrapper implements Contracts.Kernel.Logger {
-    public constructor(private logger: Contracts.Kernel.Logger, private databaseService: EventsDatabaseService) {}
+    public constructor(private logger: Contracts.Kernel.Logger, private databaseService: LogsDatabaseService) {}
 
     public async make(options?: any): Promise<Contracts.Kernel.Logger> {
         return this.logger.make(options);
     }
-    public emergency(message: any): void {
+    public emergency(message: string): void {
         this.logger.emergency(message);
-        this.databaseService.add("log.emergency", message);
+        this.databaseService.add("emergency", message);
     }
-    public alert(message: any): void {
+    public alert(message: string): void {
         this.logger.alert(message);
-        this.databaseService.add("log.alert", message);
+        this.databaseService.add("alert", message);
     }
-    public critical(message: any): void {
+    public critical(message: string): void {
         this.logger.critical(message);
-        this.databaseService.add("log.critical", message);
+        this.databaseService.add("critical", message);
     }
-    public error(message: any): void {
+    public error(message: string): void {
         this.logger.error(message);
-        this.databaseService.add("log.error", message);
+        this.databaseService.add("error", message);
     }
-    public warning(message: any): void {
+    public warning(message: string): void {
         this.logger.warning(message);
-        this.databaseService.add("log.warning", message);
+        this.databaseService.add("warning", message);
     }
-    public notice(message: any): void {
+    public notice(message: string): void {
         this.logger.notice(message);
-        this.databaseService.add("log.notice", message);
+        this.databaseService.add("notice", message);
     }
-    public info(message: any): void {
+    public info(message: string): void {
         this.logger.info(message);
-        this.databaseService.add("log.info", message);
+        this.databaseService.add("info", message);
     }
-    public debug(message: any): void {
+    public debug(message: string): void {
         this.logger.debug(message);
-        this.databaseService.add("log.debug", message);
+        this.databaseService.add("debug", message);
     }
     public suppressConsoleOutput(suppress: boolean): void {
         this.logger.suppressConsoleOutput(suppress);
