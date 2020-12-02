@@ -56,17 +56,6 @@ describe("EventsDatabaseService", () => {
 
             expect(spyOnFlush).toHaveBeenCalledTimes(1);
         });
-
-        it("should boot without watcher storage in defaults", async () => {
-            configuration.getRequired = jest.fn().mockReturnValue({});
-
-            storagePath = dirSync().name;
-            process.env.CORE_PATH_DATA = storagePath;
-
-            database.boot();
-
-            expect(existsSync(storagePath + "/events.sqlite")).toBeTrue();
-        });
     });
 
     describe("Dispose", () => {
