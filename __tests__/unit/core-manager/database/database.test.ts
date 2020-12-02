@@ -74,7 +74,7 @@ const schema: Schema = {
 describe("DatabaseService", () => {
     describe("Boot", () => {
         it("should boot and create file", async () => {
-            database = new Database(storagePath, schema);
+            database = new Database(storagePath, schema, { defaultLimit: 10 });
 
             // @ts-ignore
             const spyOnExec = jest.spyOn(database, "exec");
@@ -309,7 +309,7 @@ describe("DatabaseService", () => {
 
     describe("Find", () => {
         beforeEach(() => {
-            database = new Database(storagePath, schema);
+            database = new Database(storagePath, schema, { defaultLimit: 10, maxLimit: 500 });
             database.boot();
 
             for (let i = 0; i < 100; i++) {
@@ -343,6 +343,16 @@ describe("DatabaseService", () => {
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(10);
+        });
+
+        it("should respect maxLimit", async () => {
+            const result = database.find("table_1", { $limit: 700 });
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(500);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(200);
         });
 
         it("should return limit 10 with offset", async () => {
@@ -400,7 +410,7 @@ describe("DatabaseService", () => {
 
     describe("Find JSON", () => {
         beforeEach(() => {
-            database = new Database(storagePath, schema);
+            database = new Database(storagePath, schema, { defaultLimit: 10 });
             database.boot();
 
             database.add("table_2", {
