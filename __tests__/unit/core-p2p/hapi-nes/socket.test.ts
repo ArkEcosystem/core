@@ -4,7 +4,7 @@ import * as Hapi from "@hapi/hapi";
 import * as Hoek from "@hapi/hoek";
 import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
-import { stringifyNesMessage, parseNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
+import { stringifyNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
 import { default as Ws } from "ws";
 import delay from "delay";
 
@@ -238,7 +238,7 @@ describe("Socket", () => {
             await server.stop();
         });
 
-        it("errors on uninitialized connection", async () => {
+        it("terminates on uninitialized connection", async () => {
             const server = Hapi.server();
             await server.register({ plugin: plugin, options: {} });
 
@@ -251,23 +251,18 @@ describe("Socket", () => {
             await server.start();
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
-
-            const team = new Teamwork.Team();
-            client.on("message", (data) => {
-                const message = parseNesMessage(data);
-                expect(JSON.parse(message.payload.toString()).message).toEqual("Connection is not initialized");
-
-                team.attend();
-            });
 
             client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "request", path: "/" }), Hoek.ignore));
 
-            await team.work;
+            await delay(1000);
+
+            expect(client.readyState).toEqual(client.CLOSED);
+
             client.close();
             await server.stop();
         });
 
-        it("errors on missing path", async () => {
+        it("terminates on missing path", async () => {
             const server = Hapi.server();
             await server.register({ plugin: plugin, options: {} });
 
@@ -281,33 +276,17 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            const team = new Teamwork.Team();
-            client.on("message", (data) => {
-                const message = parseNesMessage(data);
-                if (message.id !== 2) {
-                    client.send(stringifyNesMessage({ id: 2, type: "request" }), Hoek.ignore);
-                    return;
-                }
+            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "request", version: "2" }), Hoek.ignore));
 
-                expect(JSON.parse(message.payload.toString())).toEqual({
-                    error: "Bad Request",
-                    message: "Message missing path",
-                });
+            await delay(1000);
 
-                expect(message.statusCode).toEqual(400);
-                expect(message.type).toEqual("request");
+            expect(client.readyState).toEqual(client.CLOSED);
 
-                team.attend();
-            });
-
-            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "hello", version: "2" }), Hoek.ignore));
-
-            await team.work;
             client.close();
             await server.stop();
         });
 
-        it("errors on unknown type", async () => {
+        it("terminates on unknown type", async () => {
             const server = Hapi.server();
             await server.register({ plugin: plugin, options: {} });
 
@@ -321,61 +300,35 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            const team = new Teamwork.Team();
-            client.on("message", (data) => {
-                const message = parseNesMessage(data);
-                if (message.id !== 2) {
-                    client.send(stringifyNesMessage({ id: 2, type: "unknown" }), Hoek.ignore);
-                    return;
-                }
+            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "??", version: "2" }), Hoek.ignore));
+            
+            await delay(1000);
 
-                expect(JSON.parse(message.payload.toString())).toEqual({
-                    error: "Bad Request",
-                    message: "Unknown message type",
-                });
+            expect(client.readyState).toEqual(client.CLOSED);
 
-                expect(message.statusCode).toEqual(400);
-                expect(message.type).toEqual("undefined");
-
-                team.attend();
-            });
-
-            client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "hello", version: "2" }), Hoek.ignore));
-
-            await team.work;
             client.close();
             await server.stop();
         });
 
-        it("errors on incorrect version", async () => {
+        it("terminates on incorrect version", async () => {
             const server = Hapi.server();
             await server.register({ plugin: plugin, options: {} });
 
             await server.start();
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
-
-            const team = new Teamwork.Team();
-            client.on("message", (data) => {
-                const message = parseNesMessage(data);
-                expect(JSON.parse(message.payload.toString())).toEqual({
-                    error: "Bad Request",
-                    message: "Incorrect protocol version (expected 2 but received 1)",
-                });
-
-                expect(message.statusCode).toEqual(400);
-
-                team.attend();
-            });
 
             client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "hello", version: "1" }), Hoek.ignore));
 
-            await team.work;
+            await delay(1000);
+
+            expect(client.readyState).toEqual(client.CLOSED);
+
             client.close();
             await server.stop();
         });
 
-        it("errors on missing version", async () => {
+        it("terminates on missing version", async () => {
             const server = Hapi.server();
             await server.register({ plugin: plugin, options: {} });
 
@@ -383,22 +336,11 @@ describe("Socket", () => {
             const client = new Ws("http://localhost:" + server.info.port);
             client.onerror = Hoek.ignore;
 
-            const team = new Teamwork.Team();
-            client.on("message", (data) => {
-                const message = parseNesMessage(data);
-                expect(JSON.parse(message.payload.toString())).toEqual({
-                    error: "Bad Request",
-                    message: "Incorrect protocol version (expected 2 but received 0)",
-                });
-
-                expect(message.statusCode).toEqual(400);
-
-                team.attend();
-            });
-
             client.on("open", () => client.send(stringifyNesMessage({ id: 1, type: "hello" }), Hoek.ignore));
+            
+            await delay(1000);
 
-            await team.work;
+            expect(client.readyState).toEqual(client.CLOSED);
             client.close();
             await server.stop();
         });
