@@ -1,10 +1,11 @@
 import { Container, Providers } from "@arkecosystem/core-kernel";
+import dayjs from "dayjs";
 
 import { Database, Result } from "./database";
 
 export interface SearchParams {
-    dateFrom?: string;
-    dateTo?: string;
+    dateFrom?: number;
+    dateTo?: number;
     searchTerm?: string;
     level?: string;
     process?: string;
@@ -51,8 +52,7 @@ export class LogsDatabaseService {
                         },
                         {
                             name: "timestamp",
-                            type: "datetime",
-                            default: "CURRENT_TIMESTAMP",
+                            type: "integer",
                         },
                     ],
                 },
@@ -71,6 +71,7 @@ export class LogsDatabaseService {
             process: this.configFlags.processType,
             level,
             content,
+            timestamp: dayjs().unix(),
         });
     }
 

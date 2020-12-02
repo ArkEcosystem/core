@@ -103,7 +103,7 @@ describe("LogsDatabaseService", () => {
                 content: "content",
             });
 
-            expect(result[0].timestamp).toBeDefined();
+            expect(result[0].timestamp).toBeNumber();
         });
     });
 
@@ -170,11 +170,11 @@ describe("LogsDatabaseService", () => {
 
         it("should search by datetime", () => {
             // @ts-ignore
-            database.database.exec(`UPDATE logs SET timestamp = '2016-01-02 00:00:00.000' WHERE id = 1`);
+            database.database.exec(`UPDATE logs SET timestamp = 1451696400 WHERE id = 1`);
 
             let result = database.search({
                 limit: 1000,
-                dateFrom: "2016-01-01 00:00:00.000",
+                dateFrom: 1451610000,
             });
 
             expect(result.total).toBe(200);
@@ -185,7 +185,7 @@ describe("LogsDatabaseService", () => {
 
             result = database.search({
                 limit: 1000,
-                dateTo: "2016-01-03 00:00:00.000",
+                dateTo: 1451782800,
             });
 
             expect(result.total).toBe(1);
@@ -196,8 +196,8 @@ describe("LogsDatabaseService", () => {
 
             result = database.search({
                 limit: 1000,
-                dateFrom: "2016-01-01 00:00:00.000",
-                dateTo: "2016-01-03 00:00:00.000",
+                dateFrom: 1451610000,
+                dateTo: 1451782800,
             });
 
             expect(result.total).toBe(1);
