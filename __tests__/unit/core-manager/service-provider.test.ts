@@ -33,7 +33,7 @@ beforeEach(() => {
 
     app.bind(Container.Identifiers.LogService).toConstantValue(logger);
     app.bind(Container.Identifiers.PluginConfiguration).to(Providers.PluginConfiguration).inSingletonScope();
-    app.bind(Container.Identifiers.ConfigFlags).toConstantValue({ processType: "core" });
+    app.bind(Container.Identifiers.ConfigFlags).toConstantValue({ processType: "manager" });
     app.bind(Container.Identifiers.FilesystemService).toConstantValue({});
     app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(mockEventDispatcher);
     app.bind(Container.Identifiers.WalletAttributes).toConstantValue({});
@@ -80,6 +80,26 @@ describe("ServiceProvider", () => {
 
         expect(app.isBound(Identifiers.HTTP)).toBeTrue();
         expect(app.isBound(Identifiers.HTTPS)).not.toBeTrue();
+
+        await expect(serviceProvider.dispose()).toResolve();
+    });
+
+    it("should not boot HTTP server and register actions when process is not manager", async () => {
+        app.rebind(Container.Identifiers.ConfigFlags).toConstantValue({ processType: "core" });
+
+        const usedDefaults = { ...defaults };
+
+        usedDefaults.server.http.enabled = true;
+
+        setPluginConfiguration(app, serviceProvider, usedDefaults);
+
+        await expect(serviceProvider.register()).toResolve();
+
+        await expect(serviceProvider.boot()).toResolve();
+
+        expect(app.isBound(Identifiers.HTTP)).toBeFalse();
+        expect(app.isBound(Identifiers.HTTPS)).toBeFalse();
+        expect(app.isBound(Identifiers.ActionReader)).toBeFalse();
 
         await expect(serviceProvider.dispose()).toResolve();
     });
