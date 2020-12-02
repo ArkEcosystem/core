@@ -30,6 +30,7 @@ const schema: Schema = {
                 {
                     name: "column_1",
                     type: "varchar(255)",
+                    index: true,
                 },
             ],
         },
@@ -45,6 +46,7 @@ const schema: Schema = {
                 {
                     name: "column_1",
                     type: "varchar(255)",
+                    index: true,
                 },
                 {
                     name: "column_2",
@@ -84,7 +86,9 @@ describe("DatabaseService", () => {
             expect(spyOnExec).toHaveBeenCalledWith(
                 "PRAGMA journal_mode = WAL;\n" +
                     "CREATE TABLE IF NOT EXISTS table_1 (column_1 VARCHAR(255) NOT NULL);\n" +
-                    "CREATE TABLE IF NOT EXISTS table_2 (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, column_1 VARCHAR(255) NOT NULL, column_2 VARCHAR(255) NOT NULL, column_3 VARCHAR(255), column_json JSON NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);\n",
+                    "CREATE TABLE IF NOT EXISTS table_2 (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, column_1 VARCHAR(255) NOT NULL, column_2 VARCHAR(255) NOT NULL, column_3 VARCHAR(255), column_json JSON NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);\n" +
+                    "CREATE INDEX IF NOT EXISTS index_table_1_column_1 ON table_1 (column_1);\n" +
+                    "CREATE INDEX IF NOT EXISTS index_table_2_column_1 ON table_2 (column_1);\n",
             );
         });
 
