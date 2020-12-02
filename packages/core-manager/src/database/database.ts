@@ -118,6 +118,12 @@ export class Database {
         };
     }
 
+    public remove(tableName: string, conditions?: any): void {
+        const table = this.getTable(tableName);
+
+        this.database.exec(`DELETE FROM ${table.name} ${this.prepareWhere(table, conditions)}`);
+    }
+
     private getTable(tableName: string): Table {
         const table = this.schema.tables.find((table) => table.name === tableName);
 
