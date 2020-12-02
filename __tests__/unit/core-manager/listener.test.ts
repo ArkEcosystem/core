@@ -7,7 +7,7 @@ import { Sandbox } from "@packages/core-test-framework";
 let sandbox: Sandbox;
 let listener: Listener;
 const mockDatabase = {
-    addEvent: jest.fn(),
+    add: jest.fn(),
 };
 
 let handler;
@@ -60,7 +60,7 @@ describe("Listener", () => {
 
             handler.handle({ name: "dummy_event", data: "dummy_data" });
 
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -68,14 +68,14 @@ describe("Listener", () => {
         it("should pass", async () => {
             listener.boot();
             handler.handle({ name: "block.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(1);
         });
 
         it("should not pass", async () => {
             mockWatchDefaults.blocks = false;
             listener.boot();
             handler.handle({ name: "block.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(0);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(0);
         });
     });
 
@@ -83,14 +83,14 @@ describe("Listener", () => {
         it("should pass", async () => {
             listener.boot();
             handler.handle({ name: "log.error", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(1);
         });
 
         it("should not pass", async () => {
             mockWatchDefaults.errors = false;
             listener.boot();
             handler.handle({ name: "log.error", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(0);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(0);
         });
     });
 
@@ -98,14 +98,14 @@ describe("Listener", () => {
         it("should pass", async () => {
             listener.boot();
             handler.handle({ name: "queue.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(1);
         });
 
         it("should not pass", async () => {
             mockWatchDefaults.queues = false;
             listener.boot();
             handler.handle({ name: "queue.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(0);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(0);
         });
     });
 
@@ -113,14 +113,14 @@ describe("Listener", () => {
         it("should pass", async () => {
             listener.boot();
             handler.handle({ name: "round.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(1);
         });
 
         it("should not pass", async () => {
             mockWatchDefaults.rounds = false;
             listener.boot();
             handler.handle({ name: "round.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(0);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(0);
         });
     });
 
@@ -128,14 +128,14 @@ describe("Listener", () => {
         it("should pass", async () => {
             listener.boot();
             handler.handle({ name: "schedule.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(1);
         });
 
         it("should not pass", async () => {
             mockWatchDefaults.schedules = false;
             listener.boot();
             handler.handle({ name: "schedule.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(0);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(0);
         });
     });
 
@@ -143,14 +143,14 @@ describe("Listener", () => {
         it("should pass", async () => {
             listener.boot();
             handler.handle({ name: "transaction.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(1);
         });
 
         it("should not pass", async () => {
             mockWatchDefaults.transactions = false;
             listener.boot();
             handler.handle({ name: "transaction.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(0);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(0);
         });
     });
 
@@ -158,14 +158,14 @@ describe("Listener", () => {
         it("should pass", async () => {
             listener.boot();
             handler.handle({ name: "webhooks.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(1);
         });
 
         it("should not pass", async () => {
             mockWatchDefaults.webhooks = false;
             listener.boot();
             handler.handle({ name: "webhooks.", data: "dummy_data" });
-            expect(mockDatabase.addEvent).toHaveBeenCalledTimes(0);
+            expect(mockDatabase.add).toHaveBeenCalledTimes(0);
         });
     });
 });

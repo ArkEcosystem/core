@@ -8,15 +8,15 @@ import { Sandbox } from "@packages/core-test-framework";
 let sandbox: Sandbox;
 let action: Action;
 
-let emptyResult = {
+const emptyResult = {
     total: 0,
     limit: 0,
     offset: 0,
     data: [],
-}
+};
 
 const mockDatabaseService = {
-    queryEvents: jest.fn().mockReturnValue(emptyResult),
+    find: jest.fn().mockReturnValue(emptyResult),
 };
 
 beforeEach(() => {
@@ -28,7 +28,7 @@ beforeEach(() => {
     action = sandbox.app.resolve(Action);
 });
 
-describe("Info:CoreVersion", () => {
+describe("Watcher:GetEvents", () => {
     it("should have name", () => {
         expect(action.name).toEqual("watcher.getEvents");
     });

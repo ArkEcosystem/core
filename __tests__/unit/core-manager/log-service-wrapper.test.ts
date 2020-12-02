@@ -9,7 +9,7 @@ let mockLogger;
 
 beforeEach(() => {
     mockDatabase = {
-        addEvent: jest.fn(),
+        add: jest.fn(),
     };
 
     mockLogger = {
@@ -43,56 +43,56 @@ describe("Listener", () => {
         logServiceWrapper.emergency("message");
 
         expect(mockLogger.emergency).toHaveBeenCalledTimes(1);
-        expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+        expect(mockDatabase.add).toHaveBeenCalledTimes(1);
     });
 
     it("should call alert", async () => {
         logServiceWrapper.alert("message");
 
         expect(mockLogger.alert).toHaveBeenCalledTimes(1);
-        expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+        expect(mockDatabase.add).toHaveBeenCalledTimes(1);
     });
 
     it("should call critical", async () => {
         logServiceWrapper.critical("message");
 
         expect(mockLogger.critical).toHaveBeenCalledTimes(1);
-        expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+        expect(mockDatabase.add).toHaveBeenCalledTimes(1);
     });
 
     it("should call error", async () => {
         logServiceWrapper.error("message");
 
         expect(mockLogger.error).toHaveBeenCalledTimes(1);
-        expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+        expect(mockDatabase.add).toHaveBeenCalledTimes(1);
     });
 
     it("should call warning", async () => {
         logServiceWrapper.warning("message");
 
         expect(mockLogger.warning).toHaveBeenCalledTimes(1);
-        expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+        expect(mockDatabase.add).toHaveBeenCalledTimes(1);
     });
 
     it("should call notice", async () => {
         logServiceWrapper.notice("message");
 
         expect(mockLogger.notice).toHaveBeenCalledTimes(1);
-        expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+        expect(mockDatabase.add).toHaveBeenCalledTimes(1);
     });
 
     it("should call info", async () => {
         logServiceWrapper.info("message");
 
         expect(mockLogger.info).toHaveBeenCalledTimes(1);
-        expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+        expect(mockDatabase.add).toHaveBeenCalledTimes(1);
     });
 
     it("should call debug", async () => {
         logServiceWrapper.debug("message");
 
         expect(mockLogger.debug).toHaveBeenCalledTimes(1);
-        expect(mockDatabase.addEvent).toHaveBeenCalledTimes(1);
+        expect(mockDatabase.add).toHaveBeenCalledTimes(1);
     });
 
     it("should call suppressConsoleOutput", async () => {
