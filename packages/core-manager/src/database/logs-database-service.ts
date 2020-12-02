@@ -41,10 +41,12 @@ export class LogsDatabaseService {
                         {
                             name: "process",
                             type: "varchar(15)",
+                            index: true,
                         },
                         {
                             name: "level",
                             type: "varchar(15)",
+                            index: true,
                         },
                         {
                             name: "content",
@@ -53,6 +55,7 @@ export class LogsDatabaseService {
                         {
                             name: "timestamp",
                             type: "integer",
+                            index: true,
                         },
                     ],
                 },
