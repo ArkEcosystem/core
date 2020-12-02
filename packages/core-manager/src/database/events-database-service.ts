@@ -11,9 +11,7 @@ export class EventsDatabaseService {
     private database!: Database;
 
     public boot(): void {
-        const filename =
-            this.configuration.getRequired<{ storage: string }>("watcher").storage ||
-            `${process.env.CORE_PATH_DATA}/events.sqlite`;
+        const filename = this.configuration.getRequired<{ storage: string }>("watcher").storage;
 
         this.database = new Database(filename, {
             tables: [
