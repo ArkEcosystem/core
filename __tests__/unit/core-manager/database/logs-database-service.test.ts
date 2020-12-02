@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Container } from "@arkecosystem/core-kernel";
-// import { Database } from "@arkecosystem/core-manager/src/database/database";
+import { Database } from "@arkecosystem/core-manager/src/database/database";
 import { LogsDatabaseService } from "@arkecosystem/core-manager/src/database/logs-database-service";
 import { Sandbox } from "@arkecosystem/core-test-framework";
 import { existsSync } from "fs-extra";
@@ -24,6 +24,7 @@ beforeEach(() => {
         getRequired: jest.fn().mockReturnValue({
             storage: storagePath,
             resetDatabase: false,
+            history: 30,
         }),
     };
 
@@ -49,30 +50,20 @@ describe("LogsDatabaseService", () => {
             expect(existsSync(storagePath)).toBeTrue();
         });
 
-        // it("should boot, create file and flush", async () => {
-        //     const spyOnFlush = jest.spyOn(Database.prototype, "flush");
-        //
-        //     configuration.getRequired = jest.fn().mockReturnValue({
-        //         storage: storagePath,
-        //         resetDatabase: true,
-        //     });
-        //
-        //     database.boot();
-        //     expect(existsSync(storagePath)).toBeTrue();
-        //
-        //     expect(spyOnFlush).toHaveBeenCalledTimes(1);
-        // });
-        //
-        // it("should boot without watcher storage in defaults", async () => {
-        //     configuration.getRequired = jest.fn().mockReturnValue({});
-        //
-        //     storagePath = dirSync().name;
-        //     process.env.CORE_PATH_DATA = storagePath;
-        //
-        //     database.boot();
-        //
-        //     expect(existsSync(storagePath + "/events.sqlite")).toBeTrue();
-        // });
+        it("should boot, create file and flush", async () => {
+            const spyOnFlush = jest.spyOn(Database.prototype, "flush");
+
+            configuration.getRequired = jest.fn().mockReturnValue({
+                storage: storagePath,
+                resetDatabase: true,
+                history: 30,
+            });
+
+            database.boot();
+            expect(existsSync(storagePath)).toBeTrue();
+
+            expect(spyOnFlush).toHaveBeenCalledTimes(1);
+        });
     });
 
     describe("Dispose", () => {
@@ -104,6 +95,26 @@ describe("LogsDatabaseService", () => {
             });
 
             expect(result[0].timestamp).toBeNumber();
+        });
+
+        it("should remove old logs", async () => {
+            database.boot();
+            expect(existsSync(storagePath)).toBeTrue();
+
+            database.add("info", "content");
+
+            let result = database.search({}).data;
+
+            expect(result.length).toEqual(1);
+
+            // @ts-ignore
+            database.database.exec(`UPDATE logs SET timestamp = 1451696400 WHERE id = 1`);
+
+            database.add("info", "content");
+
+            result = database.search({}).data;
+
+            expect(result.length).toEqual(1);
         });
     });
 

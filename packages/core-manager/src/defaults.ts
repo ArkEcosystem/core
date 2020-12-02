@@ -18,6 +18,8 @@ export const defaults = {
     },
     logs: {
         storage: `${process.env.CORE_PATH_DATA}/logs.sqlite`,
+        resetDatabase: process.env.CORE_RESET_DATABASE,
+        history: 30, // Days
     },
     server: {
         http: {

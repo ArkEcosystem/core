@@ -62,7 +62,7 @@ export class LogsDatabaseService {
             ],
         });
 
-        this.database.boot();
+        this.database.boot(this.configuration.getRequired<{ resetDatabase: boolean }>("logs").resetDatabase);
     }
 
     public dispose(): void {
@@ -76,6 +76,8 @@ export class LogsDatabaseService {
             content,
             timestamp: dayjs().unix(),
         });
+
+        this.removeOldRecords();
     }
 
     public search(searchParams: SearchParams): Result {
@@ -116,5 +118,14 @@ export class LogsDatabaseService {
         }
 
         return this.database.find("logs", conditions);
+    }
+
+    private removeOldRecords() {
+        this.database.remove("logs", {
+            timestamp: {
+                $lte:
+                    dayjs().unix() - this.configuration.getRequired<{ history: number }>("logs").history * 24 * 60 * 60,
+            },
+        });
     }
 }
