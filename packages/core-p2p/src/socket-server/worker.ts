@@ -1,6 +1,7 @@
 import { P2P } from "@arkecosystem/core-interfaces";
 import Ajv from "ajv";
 import delay from "delay";
+import { validate } from "json-validator-duplicated-keys";
 
 import { cidr } from "ip";
 import { RateLimiter } from "../rate-limiter";
@@ -133,7 +134,9 @@ export class Worker extends SCWorker {
             } else {
                 try {
                     const parsed = JSON.parse(message);
-                    if (parsed.event === "#disconnect") {
+                    if (validate(message) !== undefined) {
+                        return this.setErrorForIpAndDestroy(req.socket);
+                    } else if (parsed.event === "#disconnect") {
                         req.socket._disconnected = true;
                         if (
                             typeof parsed.data !== "object" ||
