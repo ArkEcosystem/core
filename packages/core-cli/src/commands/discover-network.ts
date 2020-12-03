@@ -1,5 +1,6 @@
 import { Networks } from "@arkecosystem/crypto";
-import { existsSync, readdirSync } from "fs-extra";
+import { existsSync, readdirSync, readJSON } from "fs-extra";
+import { join } from "path";
 import prompts from "prompts";
 
 import { injectable } from "../ioc";
@@ -16,9 +17,9 @@ export class DiscoverNetwork {
      * @memberof DiscoverNetwork
      */
     public async discover(path: string): Promise<string> {
-        if (process.env.CORE_PATH_CONFIG) {
-            path = process.env.CORE_PATH_CONFIG;
-        }
+        try {
+            return await this.discoverFromCrypto();
+        } catch {}
 
         if (!existsSync(path)) {
             throw new Error(`The [${path}] directory does not exist.`);
@@ -37,6 +38,12 @@ export class DiscoverNetwork {
         }
 
         return this.discoverWithPrompt(folders);
+    }
+
+    public async discoverFromCrypto(): Promise<string> {
+        const network = await readJSON(join(process.env.CORE_PATH_CONFIG!, "crypto", "network.json"));
+
+        return network.name;
     }
 
     /**
