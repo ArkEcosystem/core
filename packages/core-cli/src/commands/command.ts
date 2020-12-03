@@ -11,6 +11,7 @@ import { Identifiers, inject, injectable, postConstruct } from "../ioc";
 import { Output } from "../output";
 import { Config, Environment } from "../services";
 import { CommandHelp } from "./command-help";
+import { DiscoverConfig } from "./discover-config";
 import { DiscoverNetwork } from "./discover-network";
 
 /**
@@ -183,6 +184,8 @@ export abstract class Command {
      */
     public async run(): Promise<void> {
         try {
+            await this.detectConfig();
+
             if (this.requiresNetwork) {
                 await this.detectNetwork();
             }
@@ -282,6 +285,14 @@ export abstract class Command {
      */
     public hasFlag(name: string): boolean {
         return this.input.hasFlag(name);
+    }
+
+    private async detectConfig(): Promise<void> {
+        const config = await this.app.resolve(DiscoverConfig).discover();
+        if (config) {
+            this.input.setFlag("token", config.token);
+            this.input.setFlag("network", config.network);
+        }
     }
 
     /**
