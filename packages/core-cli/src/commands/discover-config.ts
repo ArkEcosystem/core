@@ -1,3 +1,4 @@
+import envPaths from "env-paths";
 import { readJSON } from "fs-extra";
 import { join } from "path";
 
@@ -15,13 +16,18 @@ interface Config {
 @injectable()
 export class DiscoverConfig {
     /**
-     * @param {string} path
      * @returns {Promise<string>}
      * @memberof DiscoverNetwork
+     * @param token
+     * @param network
      */
-    public async discover(): Promise<Config | undefined> {
+    public async discover(token: string = "", network: string = ""): Promise<Config | undefined> {
         try {
             return await readJSON(join(process.env.CORE_PATH_CONFIG!, "config.json"));
+        } catch {}
+
+        try {
+            return await readJSON(join(envPaths(token, { suffix: "core" }).config, network, "config.json"));
         } catch {}
 
         return undefined;

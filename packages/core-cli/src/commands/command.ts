@@ -190,6 +190,9 @@ export abstract class Command {
                 await this.detectNetwork();
             }
 
+            // Check for configuration again after network was chosen
+            await this.detectConfig();
+
             if (this.input.hasFlag("token") && this.input.hasFlag("network")) {
                 this.app
                     .rebind(Identifiers.ApplicationPaths)
@@ -288,7 +291,10 @@ export abstract class Command {
     }
 
     private async detectConfig(): Promise<void> {
-        const config = await this.app.resolve(DiscoverConfig).discover();
+        const config = await this.app
+            .resolve(DiscoverConfig)
+            .discover(this.input.getFlag("token"), this.input.getFlag("network"));
+
         if (config) {
             this.input.setFlag("token", config.token);
             this.input.setFlag("network", config.network);
