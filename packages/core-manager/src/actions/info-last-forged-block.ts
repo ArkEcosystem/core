@@ -23,7 +23,7 @@ export class Action implements Actions.Action {
 
         const processName = getCoreOrForgerProcessName(getOnlineProcesses(processManager));
 
-        const response = processManager.trigger(processName, "forger.lastForgedBlock");
+        const response = await processManager.trigger(processName, "forger.lastForgedBlock");
 
         const result = parseProcessActionResponse(response);
 
