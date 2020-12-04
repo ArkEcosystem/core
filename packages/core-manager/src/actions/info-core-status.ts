@@ -5,6 +5,11 @@ import { Actions } from "../contracts";
 import { Identifiers } from "../ioc";
 import { getConnectionData, HttpClient } from "../utils";
 
+interface Params {
+    token: string;
+    process: string;
+}
+
 @Container.injectable()
 export class Action implements Actions.Action {
     @Container.inject(Container.Identifiers.Application)
@@ -24,7 +29,13 @@ export class Action implements Actions.Action {
         },
     };
 
-    public async execute(params: any): Promise<any> {
+    public async execute(params: Params): Promise<any> {
+        params = {
+            token: this.app.token(),
+            process: "core",
+            ...params,
+        };
+
         return {
             processStatus: this.getProcessStatus(params.token, params.process) || "undefined",
             syncing: await this.getSyncingStatus(),
