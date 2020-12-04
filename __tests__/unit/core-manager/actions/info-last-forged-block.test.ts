@@ -6,6 +6,7 @@ import * as Utils from "@packages/core-manager/src/utils";
 import { Sandbox } from "@packages/core-test-framework";
 
 import { TriggerResponses } from "../__fixtures__";
+import { Container } from "@arkecosystem/core-kernel";
 
 let sandbox: Sandbox;
 let action: Action;
@@ -29,6 +30,7 @@ beforeEach(() => {
 
     sandbox = new Sandbox();
 
+    sandbox.app.bind(Container.Identifiers.ApplicationToken).toConstantValue("ark");
     sandbox.app.bind(Identifiers.CLI).toConstantValue(mockCli);
 
     action = sandbox.app.resolve(Action);
