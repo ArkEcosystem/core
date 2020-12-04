@@ -2,6 +2,7 @@ import { dotSeparatedQuery } from "./dot-separated-query";
 import { commaArrayQuery } from "./comma-array-query";
 import { hapiAjv } from "./hapi-ajv";
 import { whitelist } from "./whitelist";
+import { responseHeaders } from "./response-headers";
 
 export const preparePlugins = (config) => [
     {
@@ -31,4 +32,5 @@ export const preparePlugins = (config) => [
             },
         },
     },
+    { plugin: responseHeaders },
 ];
