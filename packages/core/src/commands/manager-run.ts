@@ -51,14 +51,7 @@ export class Command extends Commands.Command {
 
         await Utils.buildApplication({
             flags,
-            plugins: {
-                "@arkecosystem/core-manager": {
-                    watcher: {
-                        enabled: false,
-                        resetDatabase: process.env.CORE_RESET_DATABASE,
-                    },
-                },
-            },
+            plugins: {},
         });
 
         // Prevent resolving execute method
