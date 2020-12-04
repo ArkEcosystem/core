@@ -1,4 +1,4 @@
-import { ExecaSyncReturnValue, sync } from "execa";
+import execa, { ExecaReturnValue, ExecaSyncReturnValue, sync } from "execa";
 
 import { ProcessDescription, ProcessIdentifier, ProcessState } from "../contracts";
 import { injectable } from "../ioc";
@@ -165,11 +165,11 @@ export class ProcessManager {
     }
 
     /**
-     * @returns {ExecaSyncReturnValue}
+     * @returns {Promise<ExecaReturnValue>}
      * @memberof ProcessManager
      */
-    public trigger(id: ProcessIdentifier, processActionName: string, param?: string): ExecaSyncReturnValue {
-        return this.shellSync(`pm2 trigger ${id} ${processActionName} ${param}`);
+    public async trigger(id: ProcessIdentifier, processActionName: string, param?: string): Promise<ExecaReturnValue> {
+        return this.shell(`pm2 trigger ${id} ${processActionName} ${param}`);
     }
 
     /**
@@ -283,6 +283,16 @@ export class ProcessManager {
      */
     public missing(id: ProcessIdentifier): boolean {
         return !this.has(id);
+    }
+
+    /**
+     * @private
+     * @param {string} command
+     * @returns {Promise<ExecaReturnValue>}
+     * @memberof ProcessManager
+     */
+    private async shell(command: string): Promise<ExecaReturnValue> {
+        return execa(command, { shell: true });
     }
 
     /**
