@@ -1,7 +1,7 @@
 export class Lock {
-    private exclusivePromise?: Promise<any>;
+    private exclusivePromise?: Promise<unknown>;
 
-    private readonly nonExclusivePromises: Set<Promise<any>> = new Set<Promise<any>>();
+    private readonly nonExclusivePromises: Set<Promise<unknown>> = new Set<Promise<unknown>>();
 
     public async runNonExclusive<T>(callback: () => Promise<T>): Promise<T> {
         while (this.exclusivePromise) {
@@ -28,11 +28,13 @@ export class Lock {
         }
 
         const exclusivePromise = (async () => {
-            for (const nonExclusivePromise of this.nonExclusivePromises) {
-                try {
-                    await nonExclusivePromise;
-                } catch {}
-            }
+            await Promise.all(
+                Array.from(this.nonExclusivePromises).map(async (nonExclusivePromise) => {
+                    try {
+                        await nonExclusivePromise;
+                    } catch {}
+                }),
+            );
 
             return await callback();
         })();
