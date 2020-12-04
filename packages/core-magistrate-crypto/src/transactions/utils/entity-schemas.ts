@@ -16,7 +16,7 @@ export const register = {
     required: ["name"],
     additionalProperties: false,
     properties: {
-        name: { type: "string", pattern: "^[a-zA-Z0-9_-]+$", minLength: 1, maxLength: 40 },
+        name: { type: "string", pattern: "^[a-zA-Z0-9_!@$&.-]+$", minLength: 1, maxLength: 40 },
         ...update.properties,
     },
 };
