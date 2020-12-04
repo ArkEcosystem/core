@@ -74,7 +74,7 @@ const schema: Schema = {
 describe("DatabaseService", () => {
     describe("Boot", () => {
         it("should boot and create file", async () => {
-            database = new Database(storagePath, schema);
+            database = new Database(storagePath, schema, { defaultLimit: 10 });
 
             // @ts-ignore
             const spyOnExec = jest.spyOn(database, "exec");
@@ -309,7 +309,7 @@ describe("DatabaseService", () => {
 
     describe("Find", () => {
         beforeEach(() => {
-            database = new Database(storagePath, schema);
+            database = new Database(storagePath, schema, { defaultLimit: 10, maxLimit: 500 });
             database.boot();
 
             for (let i = 0; i < 100; i++) {
@@ -345,6 +345,16 @@ describe("DatabaseService", () => {
             expect(result.data.length).toBe(10);
         });
 
+        it("should respect maxLimit", async () => {
+            const result = database.find("table_1", { $limit: 700 });
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(500);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(200);
+        });
+
         it("should return limit 10 with offset", async () => {
             const result = database.find("table_1", { $offset: 10 });
 
@@ -366,20 +376,20 @@ describe("DatabaseService", () => {
         });
 
         it("should return events with name", async () => {
-            const result = database.find("table_1", { $limit: 1000, column_1: "dummy_event" });
+            const result = database.find("table_1", { $limit: 500, column_1: "dummy_event" });
 
             expect(result.total).toBe(100);
-            expect(result.limit).toBe(1000);
+            expect(result.limit).toBe(500);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(100);
         });
 
         it("should return empty result if searching by wrong type", async () => {
-            const result = database.find("table_1", { $limit: 1000, column_1: 1 });
+            const result = database.find("table_1", { $limit: 500, column_1: 1 });
 
             expect(result.total).toBe(0);
-            expect(result.limit).toBe(1000);
+            expect(result.limit).toBe(500);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(0);
@@ -400,7 +410,7 @@ describe("DatabaseService", () => {
 
     describe("Find JSON", () => {
         beforeEach(() => {
-            database = new Database(storagePath, schema);
+            database = new Database(storagePath, schema, { defaultLimit: 10 });
             database.boot();
 
             database.add("table_2", {

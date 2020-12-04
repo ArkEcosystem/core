@@ -1,6 +1,11 @@
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
 
+interface Options {
+    defaultLimit: number;
+    maxLimit: number;
+}
+
 interface ConditionLine {
     property: string;
     condition: string;
@@ -44,9 +49,21 @@ export interface Result {
 }
 
 export class Database {
+    protected options: Options;
+
     protected database!: BetterSqlite3.Database;
 
-    public constructor(private readonly filename: string, protected readonly schema: Schema) {
+    public constructor(
+        private readonly filename: string,
+        protected readonly schema: Schema,
+        options: Partial<Options> = {},
+    ) {
+        this.options = {
+            defaultLimit: 100,
+            maxLimit: 1000,
+            ...options,
+        };
+
         ensureFileSync(this.filename);
         this.database = new BetterSqlite3(filename);
     }
@@ -285,11 +302,14 @@ export class Database {
     }
 
     private prepareLimit(conditions?: any): number {
-        if (conditions?.$limit && typeof conditions.$limit === "number" && conditions.$limit <= 1000) {
-            return conditions.$limit;
+        if (conditions?.$limit && typeof conditions.$limit === "number") {
+            if (conditions.$limit <= this.options.maxLimit) {
+                return conditions.$limit;
+            }
+            return this.options.maxLimit;
         }
 
-        return 10;
+        return this.options.defaultLimit;
     }
 
     private prepareOffset(conditions?: any): number {

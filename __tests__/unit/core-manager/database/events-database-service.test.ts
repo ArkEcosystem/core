@@ -117,24 +117,24 @@ describe("EventsDatabaseService", () => {
             }
         });
 
-        it("should return limit 10", async () => {
+        it("should return limit 100", async () => {
             const result = database.find();
 
             expect(result.total).toBe(200);
-            expect(result.limit).toBe(10);
+            expect(result.limit).toBe(100);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
-            expect(result.data.length).toBe(10);
+            expect(result.data.length).toBe(100);
         });
 
         it("should return limit 10 with offset", async () => {
             const result = database.find({ $offset: 10 });
 
             expect(result.total).toBe(200);
-            expect(result.limit).toBe(10);
+            expect(result.limit).toBe(100);
             expect(result.offset).toBe(10);
             expect(result.data).toBeArray();
-            expect(result.data.length).toBe(10);
+            expect(result.data.length).toBe(100);
         });
 
         it("should return limit 20", async () => {
@@ -183,7 +183,7 @@ describe("EventsDatabaseService", () => {
             const result = database.find({ data: { size: 1 } });
 
             expect(result.total).toBe(1);
-            expect(result.limit).toBe(10);
+            expect(result.limit).toBe(100);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(1);
@@ -193,7 +193,7 @@ describe("EventsDatabaseService", () => {
             const result = database.find({ data: { name: { $eq: "1_dummy_event" } } });
 
             expect(result.total).toBe(1);
-            expect(result.limit).toBe(10);
+            expect(result.limit).toBe(100);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(1);
@@ -203,7 +203,7 @@ describe("EventsDatabaseService", () => {
             const result = database.find({ data: { size: { $ne: 3 } } });
 
             expect(result.total).toBe(4);
-            expect(result.limit).toBe(10);
+            expect(result.limit).toBe(100);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(4);
@@ -213,7 +213,7 @@ describe("EventsDatabaseService", () => {
             const result = database.find({ data: { name: { $like: "1_%" } } });
 
             expect(result.total).toBe(1);
-            expect(result.limit).toBe(10);
+            expect(result.limit).toBe(100);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(1);
@@ -223,7 +223,7 @@ describe("EventsDatabaseService", () => {
             const result = database.find({ data: { size: { $lt: 2 } } });
 
             expect(result.total).toBe(1);
-            expect(result.limit).toBe(10);
+            expect(result.limit).toBe(100);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(1);
@@ -233,7 +233,7 @@ describe("EventsDatabaseService", () => {
             const result = database.find({ data: { size: { $lte: 2 } } });
 
             expect(result.total).toBe(2);
-            expect(result.limit).toBe(10);
+            expect(result.limit).toBe(100);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(2);
@@ -243,7 +243,7 @@ describe("EventsDatabaseService", () => {
             const result = database.find({ data: { size: { $gt: 4 } } });
 
             expect(result.total).toBe(1);
-            expect(result.limit).toBe(10);
+            expect(result.limit).toBe(100);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(1);
@@ -253,7 +253,7 @@ describe("EventsDatabaseService", () => {
             const result = database.find({ data: { size: { $gte: 4 } } });
 
             expect(result.total).toBe(2);
-            expect(result.limit).toBe(10);
+            expect(result.limit).toBe(100);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(2);
@@ -263,7 +263,7 @@ describe("EventsDatabaseService", () => {
             const result = database.find({ data: { size: { $gte: 2, $lte: 4 } } });
 
             expect(result.total).toBe(3);
-            expect(result.limit).toBe(10);
+            expect(result.limit).toBe(100);
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(3);
