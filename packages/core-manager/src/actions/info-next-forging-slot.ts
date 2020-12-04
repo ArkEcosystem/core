@@ -25,13 +25,13 @@ export class Action implements Actions.Action {
         },
     };
 
-    public async execute(params: Params): Promise<any> {
+    public async execute(params: Partial<Params>): Promise<any> {
         params = {
             token: this.app.token(),
             ...params,
         };
 
-        return await this.getNextForgingSlot(params.token);
+        return await this.getNextForgingSlot(params.token!);
     }
 
     private async getNextForgingSlot(token: string): Promise<any> {
