@@ -70,10 +70,15 @@ describe("LogsDatabaseService", () => {
         it("should dispose", async () => {
             database.boot();
             database.dispose();
+        });
+
+        it("should not throw if add is called after dispose", async () => {
+            database.boot();
+            database.dispose();
 
             expect(() => {
                 database.add("info", "log content");
-            }).toThrowError();
+            }).not.toThrowError();
         });
     });
 

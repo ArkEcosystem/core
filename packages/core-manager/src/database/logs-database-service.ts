@@ -70,6 +70,10 @@ export class LogsDatabaseService {
     }
 
     public add(level: string, content: string): void {
+        if (!this.database.isOpen()) {
+            return;
+        }
+
         this.database.add("logs", {
             process: this.configFlags.processType,
             level,

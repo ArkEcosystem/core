@@ -1,7 +1,7 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
 import Joi from "@hapi/joi";
-import { Command } from "@packages/core-cli/src/commands";
+import { Command, DiscoverConfig } from "@packages/core-cli/src/commands";
 import { setGracefulCleanup } from "tmp";
 
 @Container.injectable()
@@ -72,14 +72,14 @@ describe("Command", () => {
     });
 
     describe("#initialize", () => {
-        it("should initialize the command", () => {
-            expect(cmd.initialize()).resolves.toBeUndefined();
+        it("should initialize the command", async () => {
+            await expect(cmd.initialize()).resolves.toBeUndefined();
         });
     });
 
     describe("#interact", () => {
-        it("should interact with the user", () => {
-            expect(cmd.interact()).resolves.toBeUndefined();
+        it("should interact with the user", async () => {
+            await expect(cmd.interact()).resolves.toBeUndefined();
         });
     });
 
@@ -95,6 +95,19 @@ describe("Command", () => {
             cmd.requiresNetwork = false;
 
             await cmd.run();
+        });
+
+        it("should run the command without a network and token if network is detected from config", async () => {
+            const spyOnDiscover = jest.spyOn(DiscoverConfig.prototype, "discover").mockResolvedValue({
+                token: "token",
+                network: "testnet",
+            });
+
+            await cmd.run();
+
+            expect(spyOnDiscover).toHaveBeenCalledTimes(2);
+            expect(cmd.getFlag("token")).toEqual("token");
+            expect(cmd.getFlag("network")).toEqual("testnet");
         });
 
         it("should run the command in interactive mode", async () => {
@@ -135,7 +148,7 @@ describe("Command", () => {
 
     describe("#execute", () => {
         it("should execute the command", async () => {
-            expect(cmd.execute()).resolves.toBeUndefined();
+            await expect(cmd.execute()).resolves.toBeUndefined();
         });
     });
 
@@ -143,6 +156,7 @@ describe("Command", () => {
         it("should display the help", () => {
             let output;
             jest.spyOn(cli.app.get(Container.Identifiers.Box), "render").mockImplementation(
+                // @ts-ignore
                 (message: string) => (output = message),
             );
 

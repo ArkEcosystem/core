@@ -16,10 +16,6 @@ export class DiscoverNetwork {
      * @memberof DiscoverNetwork
      */
     public async discover(path: string): Promise<string> {
-        if (process.env.CORE_PATH_CONFIG) {
-            path = process.env.CORE_PATH_CONFIG;
-        }
-
         if (!existsSync(path)) {
             throw new Error(`The [${path}] directory does not exist.`);
         }
