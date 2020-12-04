@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { Container } from "@arkecosystem/core-kernel";
 import { Action } from "@packages/core-manager/src/actions/info-current-delegate";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import * as Utils from "@packages/core-manager/src/utils";
@@ -12,9 +13,10 @@ let action: Action;
 
 let mockCli;
 let mockTrigger;
+let spyOnGetCoreOrForgerProcessName;
 
 beforeEach(() => {
-    jest.spyOn(Utils, "getCoreOrForgerProcessName").mockReturnValue("ark-core");
+    spyOnGetCoreOrForgerProcessName = jest.spyOn(Utils, "getCoreOrForgerProcessName").mockReturnValue("ark-core");
     jest.spyOn(Utils, "getOnlineProcesses").mockReturnValue([]);
 
     mockTrigger = jest.fn().mockReturnValue({
@@ -29,6 +31,7 @@ beforeEach(() => {
 
     sandbox = new Sandbox();
 
+    sandbox.app.bind(Container.Identifiers.ApplicationToken).toConstantValue("ark");
     sandbox.app.bind(Identifiers.CLI).toConstantValue(mockCli);
 
     action = sandbox.app.resolve(Action);
@@ -48,6 +51,16 @@ describe("Info:CurrentDelegate", () => {
         const result = await action.execute({});
 
         expect(result).toEqual({ rank: 16, username: "genesis_25" });
+
+        expect(spyOnGetCoreOrForgerProcessName).toHaveBeenCalledWith([], "ark");
+    });
+
+    it("should return current delegate using token in params", async () => {
+        const result = await action.execute({ token: "customToken" });
+
+        expect(result).toEqual({ rank: 16, username: "genesis_25" });
+
+        expect(spyOnGetCoreOrForgerProcessName).toHaveBeenCalledWith([], "customToken");
     });
 
     it("should throw error if trigger responded with error", async () => {

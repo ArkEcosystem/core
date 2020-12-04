@@ -25,13 +25,13 @@ export class Action implements Actions.Action {
         },
     };
 
-    public async execute(params: Params): Promise<any> {
+    public async execute(params: Partial<Params>): Promise<any> {
         params = {
             token: this.app.token(),
             ...params,
         };
 
-        return await this.getCurrentDelegate(params.token);
+        return await this.getCurrentDelegate(params.token!);
     }
 
     private async getCurrentDelegate(token: string): Promise<any> {
