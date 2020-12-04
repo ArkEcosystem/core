@@ -3,8 +3,9 @@ import "jest-extended";
 import { Contracts } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
 import { ProcessManager } from "@packages/core-cli/src/services";
+import execa from "execa";
 
-import execa from "../../../../__mocks__/execa";
+jest.mock("execa");
 
 let cli;
 let processManager;
@@ -469,20 +470,20 @@ describe("ProcessManager", () => {
     });
 
     describe("#trigger", () => {
-        it(".trigger()", () => {
+        it(".trigger()", async () => {
             // Arrange...
-            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+            execa.mockResolvedValue({
                 stdout: null,
                 stderr: undefined,
                 failed: false,
             });
 
             // Act...
-            const { failed } = processManager.trigger("ark-core", "module.name", "params");
+            const { failed } = await processManager.trigger("ark-core", "module.name", "params");
 
             // Assert...
             expect(failed).toBeFalse();
-            expect(spySync).toHaveBeenCalledWith("pm2 trigger ark-core module.name params", { shell: true });
+            expect(execa).toHaveBeenCalledWith("pm2 trigger ark-core module.name params", { shell: true });
         });
     });
 
