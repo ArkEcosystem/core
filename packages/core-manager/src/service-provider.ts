@@ -54,6 +54,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
             const pkg: Types.PackageJson = require("../package.json");
             this.app.bind(Identifiers.CLI).toConstantValue(ApplicationFactory.make(new Container.Container(), pkg));
         }
+
+        this.logDefaultPaths();
     }
 
     /**
@@ -102,6 +104,16 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 required: true,
             },
         ];
+    }
+
+    private logDefaultPaths(): void {
+        const logger = this.app.get<Contracts.Kernel.Logger>(Container.Identifiers.LogService);
+
+        logger.info(`DATA path: ${this.app.dataPath()}`);
+        logger.info(`CONFIG path: ${this.app.configPath()}`);
+        logger.info(`CACHE path: ${this.app.cachePath()}`);
+        logger.info(`LOG path: ${this.app.logPath()}`);
+        logger.info(`TEMP path: ${this.app.tempPath()}`);
     }
 
     private async buildServer(type: string, id: symbol): Promise<void> {
