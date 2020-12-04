@@ -5,6 +5,10 @@ import { Actions } from "../contracts";
 import { Identifiers } from "../ioc";
 import { getCoreOrForgerProcessName, getOnlineProcesses, parseProcessActionResponse } from "../utils";
 
+interface Params {
+    token: string;
+}
+
 @Container.injectable()
 export class Action implements Actions.Action {
     @Container.inject(Container.Identifiers.Application)
@@ -12,16 +16,30 @@ export class Action implements Actions.Action {
 
     public name = "info.nextForgingSlot";
 
-    public async execute(params: object): Promise<any> {
-        return await this.getNextForgingSlot();
+    public schema = {
+        type: "object",
+        properties: {
+            token: {
+                type: "string",
+            },
+        },
+    };
+
+    public async execute(params: Partial<Params>): Promise<any> {
+        params = {
+            token: this.app.token(),
+            ...params,
+        };
+
+        return await this.getNextForgingSlot(params.token!);
     }
 
-    private async getNextForgingSlot(): Promise<any> {
+    private async getNextForgingSlot(token: string): Promise<any> {
         const cli = this.app.get<Cli>(Identifiers.CLI);
 
         const processManager = cli.get<Services.ProcessManager>(CliContainer.Identifiers.ProcessManager);
 
-        const processName = getCoreOrForgerProcessName(getOnlineProcesses(processManager));
+        const processName = getCoreOrForgerProcessName(getOnlineProcesses(processManager), token);
 
         const response = await processManager.trigger(processName, "forger.nextSlot");
 

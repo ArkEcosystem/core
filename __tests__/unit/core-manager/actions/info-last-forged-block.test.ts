@@ -6,15 +6,17 @@ import * as Utils from "@packages/core-manager/src/utils";
 import { Sandbox } from "@packages/core-test-framework";
 
 import { TriggerResponses } from "../__fixtures__";
+import { Container } from "@arkecosystem/core-kernel";
 
 let sandbox: Sandbox;
 let action: Action;
 
 let mockCli;
 let mockTrigger;
+let spyOnGetCoreOrForgerProcessName;
 
 beforeEach(() => {
-    jest.spyOn(Utils, "getCoreOrForgerProcessName").mockReturnValue("ark-core");
+    spyOnGetCoreOrForgerProcessName = jest.spyOn(Utils, "getCoreOrForgerProcessName").mockReturnValue("ark-core");
     jest.spyOn(Utils, "getOnlineProcesses").mockReturnValue([]);
 
     mockTrigger = jest.fn().mockReturnValue({
@@ -29,6 +31,7 @@ beforeEach(() => {
 
     sandbox = new Sandbox();
 
+    sandbox.app.bind(Container.Identifiers.ApplicationToken).toConstantValue("ark");
     sandbox.app.bind(Identifiers.CLI).toConstantValue(mockCli);
 
     action = sandbox.app.resolve(Action);
@@ -49,6 +52,17 @@ describe("Info:CurrentDelegate", () => {
 
         expect(result.data).toBeDefined();
         expect(result.serialized).toBeDefined();
+
+        expect(spyOnGetCoreOrForgerProcessName).toHaveBeenCalledWith([], "ark");
+    });
+
+    it("should return last block using token in params", async () => {
+        const result = await action.execute({ token: "customToken" });
+
+        expect(result.data).toBeDefined();
+        expect(result.serialized).toBeDefined();
+
+        expect(spyOnGetCoreOrForgerProcessName).toHaveBeenCalledWith([], "customToken");
     });
 
     it("should throw error if trigger responded with error", async () => {

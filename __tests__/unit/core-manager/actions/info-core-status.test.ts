@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import { ProcessState } from "@packages/core-cli/src/contracts";
+import { Container } from "@packages/core-kernel";
 import { Action } from "@packages/core-manager/src/actions/info-core-status";
 import { Identifiers } from "@packages/core-manager/src/ioc";
 import { HttpClient } from "@packages/core-manager/src/utils";
@@ -10,12 +11,15 @@ let sandbox: Sandbox;
 let action: Action;
 
 let mockCli;
+let mockProcessManager;
 
 beforeEach(() => {
+    mockProcessManager = {
+        status: jest.fn().mockReturnValue(ProcessState.Online),
+    };
+
     mockCli = {
-        get: jest.fn().mockReturnValue({
-            status: jest.fn().mockReturnValue(ProcessState.Online),
-        }),
+        get: jest.fn().mockReturnValue(mockProcessManager),
     };
 
     HttpClient.prototype.get = jest.fn().mockReturnValue({
@@ -26,6 +30,7 @@ beforeEach(() => {
 
     sandbox = new Sandbox();
 
+    sandbox.app.bind(Container.Identifiers.ApplicationToken).toConstantValue("ark");
     sandbox.app.bind(Identifiers.CLI).toConstantValue(mockCli);
 
     action = sandbox.app.resolve(Action);
@@ -49,6 +54,20 @@ describe("Info:CoreStatus", () => {
         const result = await promise;
 
         expect(result).toEqual({ processStatus: "online", syncing: true });
+
+        expect(mockProcessManager.status).toHaveBeenCalledWith("ark-core");
+    });
+
+    it("should return status and syncing using HTTP when token is passed", async () => {
+        const promise = action.execute({ token: "customToken" });
+
+        await expect(promise).toResolve();
+
+        const result = await promise;
+
+        expect(result).toEqual({ processStatus: "online", syncing: true });
+
+        expect(mockProcessManager.status).toHaveBeenCalledWith("customToken-core");
     });
 
     it("should return status and syncing using HTTPS", async () => {

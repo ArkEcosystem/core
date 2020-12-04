@@ -5,6 +5,10 @@ import { Actions } from "../contracts";
 import { Identifiers } from "../ioc";
 import { getCoreOrForgerProcessName, getOnlineProcesses, parseProcessActionResponse } from "../utils";
 
+interface Params {
+    token: string;
+}
+
 @Container.injectable()
 export class Action implements Actions.Action {
     @Container.inject(Container.Identifiers.Application)
@@ -12,16 +16,30 @@ export class Action implements Actions.Action {
 
     public name = "info.lastForgedBlock";
 
-    public async execute(params: object): Promise<any> {
-        return await this.getLastForgedBlock();
+    public schema = {
+        type: "object",
+        properties: {
+            token: {
+                type: "string",
+            },
+        },
+    };
+
+    public async execute(params: Partial<Params>): Promise<any> {
+        params = {
+            token: this.app.token(),
+            ...params,
+        };
+
+        return await this.getLastForgedBlock(params.token!);
     }
 
-    private async getLastForgedBlock(): Promise<any> {
+    private async getLastForgedBlock(token: string): Promise<any> {
         const cli = this.app.get<Cli>(Identifiers.CLI);
 
         const processManager = cli.get<Services.ProcessManager>(CliContainer.Identifiers.ProcessManager);
 
-        const processName = getCoreOrForgerProcessName(getOnlineProcesses(processManager));
+        const processName = getCoreOrForgerProcessName(getOnlineProcesses(processManager), token);
 
         const response = await processManager.trigger(processName, "forger.lastForgedBlock");
 
