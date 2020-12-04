@@ -37,6 +37,11 @@ beforeEach(() => {
     app.bind(Container.Identifiers.FilesystemService).toConstantValue({});
     app.bind(Container.Identifiers.EventDispatcherService).toConstantValue(mockEventDispatcher);
     app.bind(Container.Identifiers.WalletAttributes).toConstantValue({});
+    app.dataPath = jest.fn();
+    app.configPath = jest.fn();
+    app.cachePath = jest.fn();
+    app.logPath = jest.fn();
+    app.tempPath = jest.fn();
 
     defaults.watcher.storage = dirSync().name + "/events.sqlite";
     defaults.logs.storage = dirSync().name + "/logs.sqlite";
