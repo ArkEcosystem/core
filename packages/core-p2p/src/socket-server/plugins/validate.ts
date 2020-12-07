@@ -1,5 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
+import { isValidVersion } from "../../utils";
 
 import { BlocksRoute } from "../routes/blocks";
 import { InternalRoute } from "../routes/internal";
@@ -21,7 +22,12 @@ export class ValidatePlugin {
 
         server.ext({
             type: "onPostAuth",
-            async method(request, h) {
+            method: async (request, h) => {
+                const version = request.payload?.headers?.version;
+                if (version && !isValidVersion(this.app, { version } as Contracts.P2P.Peer)) {
+                    return Boom.badRequest("Validation failed (invalid version)");
+                }
+
                 const result = allRoutesConfigByPath[request.path]?.validation?.validate(request.payload);
                 if (result && result.error) {
                     return Boom.badRequest("Validation failed");
