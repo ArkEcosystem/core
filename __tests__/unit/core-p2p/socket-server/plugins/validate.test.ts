@@ -3,6 +3,9 @@ import Joi from "@hapi/joi";
 import { Container } from "@arkecosystem/core-kernel";
 
 import { ValidatePlugin } from "@arkecosystem/core-p2p/src/socket-server/plugins/validate";
+import * as utils from "@arkecosystem/core-p2p/src/utils";
+
+const spyIsValidVersion = jest.spyOn(utils, "isValidVersion").mockReturnValue(true);
 
 describe("ValidatePlugin", () => {
     let validatePlugin: ValidatePlugin;
@@ -67,6 +70,20 @@ describe("ValidatePlugin", () => {
         expect(responseInvalid.result).toEqual({
             error: "Bad Request",
             message: "Validation failed",
+            statusCode: 400,
+        });
+
+        // try with an invalid version
+        spyIsValidVersion.mockReturnValueOnce(false);
+        const responseInvalidVersion = await server.inject({
+            method: "POST",
+            url: "/p2p/peer/mockroute",
+            payload: { headers: { version: "2.0.0" } },
+        });
+        expect(responseInvalidVersion.statusCode).toBe(400);
+        expect(responseInvalidVersion.result).toEqual({
+            error: "Bad Request",
+            message: "Validation failed (invalid version)",
             statusCode: 400,
         });
 
