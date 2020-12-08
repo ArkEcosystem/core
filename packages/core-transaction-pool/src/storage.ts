@@ -34,7 +34,7 @@ export class Storage implements Contracts.TransactionPool.Storage {
                 serialized         BLOB         NOT NULL
             );
 
-            CREATE UNIQUE INDEX idx_pool_20201204_id ON pool_20201204 (id);
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_pool_20201204_id ON pool_20201204 (id);
         `);
 
         this.addTransactionStmt = this.database.prepare(
