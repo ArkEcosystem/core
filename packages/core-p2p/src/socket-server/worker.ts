@@ -194,6 +194,7 @@ export class Worker extends SCWorker {
                 if (object.event === "p2p.peer.postTransactions") {
                     if (
                         typeof object.data.data === "object" &&
+                        Object.keys(object.data.data).length === 1 && // {transactions}
                         object.data.data.transactions &&
                         Array.isArray(object.data.data.transactions) &&
                         object.data.data.transactions.length <= this.config.maxTransactionsPerRequest
