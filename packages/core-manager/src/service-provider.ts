@@ -43,7 +43,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 );
         }
 
-        if (this.app.get<any>(Container.Identifiers.ConfigFlags).processType === "manager") {
+        if (this.isProcessTypeManager()) {
             this.app.bind(Identifiers.ActionReader).to(ActionReader).inSingletonScope();
             this.app.bind(Identifiers.PluginFactory).to(PluginFactory).inSingletonScope();
             this.app.bind(Identifiers.BasicCredentialsValidator).to(Argon2id).inSingletonScope();
@@ -61,7 +61,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async boot(): Promise<void> {
-        if (this.app.get<any>(Container.Identifiers.ConfigFlags).processType === "manager") {
+        if (this.isProcessTypeManager()) {
             if (this.config().get("server.http.enabled")) {
                 await this.buildServer("http", Identifiers.HTTP);
                 await this.app.get<Server>(Identifiers.HTTP).boot();
@@ -96,12 +96,20 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public dependencies(): Contracts.Kernel.PluginDependency[] {
-        return [
-            {
-                name: "@arkecosystem/core-snapshots",
-                required: this.app.get<any>(Container.Identifiers.ConfigFlags).processType === "manager",
-            },
-        ];
+        if (this.isProcessTypeManager()) {
+            return [
+                {
+                    name: "@arkecosystem/core-snapshots",
+                    required: true,
+                },
+            ];
+        }
+
+        return [];
+    }
+
+    private isProcessTypeManager() {
+        return this.app.get<any>(Container.Identifiers.ConfigFlags).processType === "manager";
     }
 
     private async buildServer(type: string, id: symbol): Promise<void> {
