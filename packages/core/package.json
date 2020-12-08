@@ -37,7 +37,7 @@
         "forger:devnet": "cross-env CORE_PATH_CONFIG=./bin/config/devnet yarn ark forger:run",
         "forger:mainnet": "cross-env CORE_PATH_CONFIG=./bin/config/mainnet yarn ark forger:run",
         "forger:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark forger:run --env=test",
-        "full:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark core:run --networkStart",
+        "full:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark core:run --networkStart --env=test",
         "manager:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark manager:run --env=test",
         "prepublishOnly": "yarn build"
     },
