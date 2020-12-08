@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-cli",
-    "version": "3.0.0-next.14",
+    "version": "3.0.0-next.15",
     "description": "Core of the ARK Blockchain",
     "license": "MIT",
     "contributors": [
@@ -21,8 +21,8 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-kernel": "^3.0.0-next.14",
-        "@arkecosystem/crypto": "^3.0.0-next.14",
+        "@arkecosystem/core-kernel": "^3.0.0-next.15",
+        "@arkecosystem/crypto": "^3.0.0-next.15",
         "@arkecosystem/utils": "^1.2.1",
         "@hapi/joi": "^17.1.0",
         "boxen": "^4.2.0",
