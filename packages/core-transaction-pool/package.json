@@ -33,6 +33,7 @@
         "@types/better-sqlite3": "^5.4.0",
         "@types/fs-extra": "^8.0.1",
         "better-sqlite3": "^7.0.0",
+        "bytebuffer": "^5.0.1",
         "fs-extra": "^8.1.0",
         "lodash.differencewith": "^4.5.0"
     },
