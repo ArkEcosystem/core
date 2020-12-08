@@ -99,7 +99,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         return [
             {
                 name: "@arkecosystem/core-snapshots",
-                required: true,
+                required: this.app.get<any>(Container.Identifiers.ConfigFlags).processType === "manager",
             },
         ];
     }
