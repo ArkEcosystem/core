@@ -96,12 +96,16 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public dependencies(): Contracts.Kernel.PluginDependency[] {
-        return [
-            {
-                name: "@arkecosystem/core-snapshots",
-                required: this.app.get<any>(Container.Identifiers.ConfigFlags).processType === "manager",
-            },
-        ];
+        if (this.app.get<any>(Container.Identifiers.ConfigFlags).processType === "manager") {
+            return [
+                {
+                    name: "@arkecosystem/core-snapshots",
+                    required: true,
+                },
+            ];
+        }
+
+        return [];
     }
 
     private async buildServer(type: string, id: symbol): Promise<void> {
