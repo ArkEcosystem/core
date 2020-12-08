@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-transaction-pool",
-    "version": "3.0.0-next.15",
+    "version": "3.0.0-next.16",
     "description": "Transaction Pool Manager for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -25,11 +25,11 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-database": "^3.0.0-next.15",
-        "@arkecosystem/core-kernel": "^3.0.0-next.15",
-        "@arkecosystem/core-state": "^3.0.0-next.15",
-        "@arkecosystem/core-transactions": "^3.0.0-next.15",
-        "@arkecosystem/crypto": "^3.0.0-next.15",
+        "@arkecosystem/core-database": "^3.0.0-next.16",
+        "@arkecosystem/core-kernel": "^3.0.0-next.16",
+        "@arkecosystem/core-state": "^3.0.0-next.16",
+        "@arkecosystem/core-transactions": "^3.0.0-next.16",
+        "@arkecosystem/crypto": "^3.0.0-next.16",
         "@types/better-sqlite3": "^5.4.0",
         "@types/fs-extra": "^8.0.1",
         "better-sqlite3": "^7.0.0",
