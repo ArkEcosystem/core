@@ -4,8 +4,8 @@ import { peer } from "./proto/protos";
 
 export const getPeers = {
     request: {
-        serialize: (obj: {}): Buffer => Buffer.alloc(0),
-        deserialize: (payload: Buffer): {} => ({}),
+        serialize: (obj: peer.GetPeersRequest): Buffer => Buffer.from(peer.GetPeersRequest.encode(obj).finish()),
+        deserialize: (payload: Buffer): {} => peer.GetPeersRequest.decode(payload),
     },
     response: {
         serialize: (peers: Contracts.P2P.PeerBroadcast[]): Buffer => {
@@ -38,8 +38,8 @@ export const getCommonBlocks = {
 
 export const getStatus = {
     request: {
-        serialize: (obj: {}): Buffer => Buffer.alloc(0),
-        deserialize: (payload: Buffer): {} => ({}),
+        serialize: (obj: peer.GetStatusRequest): Buffer => Buffer.from(peer.GetStatusRequest.encode(obj).finish()),
+        deserialize: (payload: Buffer): {} => peer.GetStatusRequest.decode(payload),
     },
     response: {
         serialize: (obj: Contracts.P2P.PeerPingResponse): Buffer => {

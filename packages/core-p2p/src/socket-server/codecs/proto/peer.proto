@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package peer;
 
+message GetPeersRequest {
+    shared.Headers headers = 1;
+}
+
 message GetPeersResponse {
     message Peer {
         string ip = 1;
@@ -13,6 +17,7 @@ message GetPeersResponse {
 
 message GetCommonBlocksRequest {
     repeated string ids = 1;
+    shared.Headers headers = 2;
 }
 
 message GetCommonBlocksResponse {
@@ -24,6 +29,9 @@ message GetCommonBlocksResponse {
     Common common = 1;
 }
 
+message GetStatusRequest {
+    shared.Headers headers = 1;
+}
 
 message GetStatusResponse {
     message State {

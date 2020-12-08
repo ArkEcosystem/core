@@ -55,8 +55,16 @@ describe("ServiceProvider", () => {
         serviceProvider = app.resolve<ServiceProvider>(ServiceProvider);
     });
 
-    it("should contain core-snapshot dependency", async () => {
-        await expect(serviceProvider.dependencies().length).toEqual(1);
+    it("should contain required core-snapshot dependency when processType is equal manager", async () => {
+        await expect(serviceProvider.dependencies()).toEqual([
+            { name: "@arkecosystem/core-snapshots", required: true },
+        ]);
+    });
+
+    it("should not contain dependencies when processType is not equal manager", async () => {
+        app.rebind(Container.Identifiers.ConfigFlags).toConstantValue({ processType: "core" });
+
+        await expect(serviceProvider.dependencies()).toEqual([]);
     });
 
     it("should register", async () => {

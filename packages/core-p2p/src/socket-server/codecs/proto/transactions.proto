@@ -4,6 +4,7 @@ package transactions;
 
 message PostTransactionsRequest {
     repeated bytes transactions = 1;
+    shared.Headers headers = 2;
 }
 
 message PostTransactionsResponse {
