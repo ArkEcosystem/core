@@ -39,9 +39,6 @@
             },
             {
                 "package": "@arkecosystem/core-forger"
-            },
-            {
-                "package": "@arkecosystem/core-snapshots"
             }
         ]
     },
