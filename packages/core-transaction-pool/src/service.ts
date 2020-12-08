@@ -9,6 +9,9 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly configuration!: Providers.PluginConfiguration;
 
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly stateStore!: Contracts.State.StateStore;
+
     @Container.inject(Container.Identifiers.TransactionPoolDynamicFeeMatcher)
     private readonly dynamicFeeMatcher!: Contracts.TransactionPool.DynamicFeeMatcher;
 
@@ -76,12 +79,18 @@ export class Service implements Contracts.TransactionPool.Service {
             }
 
             AppUtils.assert.defined<string>(transaction.id);
+            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
             if (this.storage.hasTransaction(transaction.id)) {
                 throw new TransactionAlreadyInPoolError(transaction);
             }
 
-            this.storage.addTransaction(transaction.id, transaction.serialized);
+            this.storage.addTransaction({
+                height: this.stateStore.getLastHeight(),
+                id: transaction.id,
+                senderPublicKey: transaction.data.senderPublicKey,
+                serialized: transaction.serialized,
+            });
 
             try {
                 await this.dynamicFeeMatcher.throwIfCannotEnterPool(transaction);
@@ -97,62 +106,7 @@ export class Service implements Contracts.TransactionPool.Service {
         });
     }
 
-    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        await this.lock.runNonExclusive(async () => {
-            if (this.disposed) {
-                return;
-            }
-
-            AppUtils.assert.defined<string>(transaction.id);
-            if (this.storage.hasTransaction(transaction.id) === false) {
-                this.logger.error(`${transaction} not found`);
-                return;
-            }
-
-            const removedTransactions = await this.mempool.removeTransaction(transaction);
-            for (const removedTransaction of removedTransactions) {
-                AppUtils.assert.defined<string>(removedTransaction.id);
-                this.storage.removeTransaction(removedTransaction.id);
-                this.logger.debug(`${removedTransaction} removed from pool`);
-            }
-
-            if (!removedTransactions.find((t) => t.id === transaction.id)) {
-                this.storage.removeTransaction(transaction.id);
-                this.logger.error(`${transaction} removed from pool (wasn't in mempool)`);
-            }
-
-            this.events.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
-        });
-    }
-
-    public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        await this.lock.runNonExclusive(async () => {
-            if (this.disposed) {
-                return;
-            }
-
-            AppUtils.assert.defined<string>(transaction.id);
-            if (this.storage.hasTransaction(transaction.id) === false) {
-                return;
-            }
-
-            const removedTransactions = await this.mempool.acceptForgedTransaction(transaction);
-            for (const removedTransaction of removedTransactions) {
-                AppUtils.assert.defined<string>(removedTransaction.id);
-                this.storage.removeTransaction(removedTransaction.id);
-                this.logger.debug(`${removedTransaction} removed from pool`);
-            }
-
-            if (removedTransactions.find((t) => t.id === transaction.id)) {
-                this.logger.debug(`${transaction} forged and accepted by pool`);
-            } else {
-                this.storage.removeTransaction(transaction.id);
-                this.logger.error(`${transaction} forged and accepted by pool (wasn't in mempool)`);
-            }
-        });
-    }
-
-    public async readdTransactions(precedingTransactions?: Interfaces.ITransaction[]): Promise<void> {
+    public async readdTransactions(previouslyForgedTransactions?: Interfaces.ITransaction[]): Promise<void> {
         await this.lock.runExclusive(async () => {
             if (this.disposed) {
                 return;
@@ -160,61 +114,155 @@ export class Service implements Contracts.TransactionPool.Service {
 
             this.mempool.flush();
 
-            let precedingSuccessCount = 0;
-            let precedingErrorCount = 0;
-            let pendingSuccessCount = 0;
-            let pendingErrorCount = 0;
+            let previouslyForgedSuccesses = 0;
+            let previouslyForgedFailures = 0;
+            let previouslyStoredSuccesses = 0;
+            let previouslyStoredExpirations = 0;
+            let previouslyStoredFailures = 0;
 
-            if (precedingTransactions) {
-                for (const { id, serialized } of precedingTransactions) {
+            if (previouslyForgedTransactions) {
+                for (const { id, serialized } of previouslyForgedTransactions) {
                     try {
-                        AppUtils.assert.defined<string>(id);
-                        const precedingTransaction = Transactions.TransactionFactory.fromBytes(serialized);
-                        await this.addTransactionToMempool(precedingTransaction);
-                        this.storage.addTransaction(id, serialized);
-                        precedingSuccessCount++;
+                        const previouslyForgedTransaction = Transactions.TransactionFactory.fromBytes(serialized);
+
+                        AppUtils.assert.defined<string>(previouslyForgedTransaction.id);
+                        AppUtils.assert.defined<string>(previouslyForgedTransaction.data.senderPublicKey);
+
+                        await this.addTransactionToMempool(previouslyForgedTransaction);
+
+                        this.storage.addTransaction({
+                            height: this.stateStore.getLastHeight(),
+                            id: previouslyForgedTransaction.id,
+                            senderPublicKey: previouslyForgedTransaction.data.senderPublicKey,
+                            serialized: previouslyForgedTransaction.serialized,
+                        });
+
+                        previouslyForgedSuccesses++;
                     } catch (error) {
-                        this.logger.debug(`Failed to re-add and wasn't added to storage: ${error.message}`);
-                        precedingErrorCount++;
+                        this.logger.debug(`Failed to re-add previously forged transaction ${id}: ${error.message}`);
+                        previouslyForgedFailures++;
                     }
                 }
             }
 
-            for (const { id, serialized } of this.storage.getAllTransactions()) {
-                try {
-                    const pendingTransaction = Transactions.TransactionFactory.fromBytes(serialized);
-                    await this.addTransactionToMempool(pendingTransaction);
-                    pendingSuccessCount++;
-                } catch (error) {
+            const maxTransactionAge: number = this.configuration.getRequired<number>("maxTransactionAge");
+            const lastHeight: number = this.stateStore.getLastHeight();
+            const expiredHeight: number = lastHeight - maxTransactionAge;
+
+            for (const { height, id, serialized } of this.storage.getAllTransactions()) {
+                if (height > expiredHeight) {
+                    try {
+                        const previouslyStoredTransaction = Transactions.TransactionFactory.fromBytes(serialized);
+
+                        await this.addTransactionToMempool(previouslyStoredTransaction);
+                        previouslyStoredSuccesses++;
+                    } catch (error) {
+                        this.storage.removeTransaction(id);
+                        this.logger.debug(`Failed to re-add previously stored transaction ${id}: ${error.message}`);
+                        previouslyStoredFailures++;
+                    }
+                } else {
                     this.storage.removeTransaction(id);
-                    this.logger.debug(`Failed to re-add and was removed from storage: ${error.message}`);
-                    pendingErrorCount++;
+                    this.logger.debug(`Not re-adding previously stored expired transaction ${id}`);
+                    previouslyStoredExpirations++;
                 }
             }
 
-            if (precedingSuccessCount === 1) {
-                this.logger.info(`${precedingSuccessCount} preceding transaction was re-added to pool`);
+            if (previouslyForgedSuccesses === 1) {
+                this.logger.info(`${previouslyForgedSuccesses} previously forged transaction re-added`);
             }
-            if (precedingSuccessCount > 1) {
-                this.logger.info(`${precedingSuccessCount} preceding transactions were re-added to pool`);
+            if (previouslyForgedSuccesses > 1) {
+                this.logger.info(`${previouslyForgedSuccesses} previously forged transactions re-added`);
             }
-            if (precedingErrorCount === 1) {
-                this.logger.warning(`${precedingErrorCount} preceding transaction was not re-added to pool`);
+            if (previouslyForgedFailures === 1) {
+                this.logger.warning(`${previouslyForgedFailures} previously forged transaction failed re-adding`);
             }
-            if (precedingErrorCount > 1) {
-                this.logger.warning(`${precedingErrorCount} preceding transactions were not re-added to pool`);
+            if (previouslyForgedFailures > 1) {
+                this.logger.warning(`${previouslyForgedFailures} previously forged transactions failed re-adding`);
             }
-            if (pendingSuccessCount === 1) {
-                this.logger.info(`${pendingSuccessCount} pending transaction was re-added to pool`);
+
+            if (previouslyStoredSuccesses === 1) {
+                this.logger.info(`${previouslyStoredSuccesses} previously stored transaction re-added`);
             }
-            if (pendingSuccessCount > 1) {
-                this.logger.info(`${pendingSuccessCount} pending transactions were re-added to pool`);
+            if (previouslyStoredSuccesses > 1) {
+                this.logger.info(`${previouslyStoredSuccesses} previously stored transactions re-added`);
             }
-            if (pendingErrorCount === 1) {
-                this.logger.warning(`${pendingErrorCount} pending transaction was not re-added to pool`);
+            if (previouslyStoredExpirations === 1) {
+                this.logger.info(`${previouslyStoredExpirations} previously stored transaction expired`);
             }
-            if (pendingErrorCount > 1) {
-                this.logger.warning(`${pendingErrorCount} pending transactions were not re-added to pool`);
+            if (previouslyStoredExpirations > 1) {
+                this.logger.info(`${previouslyStoredExpirations} previously stored transactions expired`);
+            }
+            if (previouslyStoredFailures === 1) {
+                this.logger.warning(`${previouslyStoredFailures} previously stored transaction failed re-adding`);
+            }
+            if (previouslyStoredFailures > 1) {
+                this.logger.warning(`${previouslyStoredFailures} previously stored transactions failed re-adding`);
+            }
+        });
+    }
+
+    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<void> {
+        await this.lock.runNonExclusive(async () => {
+            if (this.disposed) {
+                return;
+            }
+
+            AppUtils.assert.defined<string>(transaction.id);
+            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+            if (this.storage.hasTransaction(transaction.id) === false) {
+                this.logger.error(`Failed to remove ${transaction} that isn't in pool`);
+                return;
+            }
+
+            const removedTransactions = await this.mempool.removeTransaction(
+                transaction.data.senderPublicKey,
+                transaction.id,
+            );
+
+            for (const removedTransaction of removedTransactions) {
+                AppUtils.assert.defined<string>(removedTransaction.id);
+                this.storage.removeTransaction(removedTransaction.id);
+                this.logger.debug(`Removed ${removedTransaction}`);
+                this.events.dispatch(Enums.TransactionEvent.RemovedFromPool, removedTransaction.data);
+            }
+
+            if (!removedTransactions.find((t) => t.id === transaction.id)) {
+                this.storage.removeTransaction(transaction.id);
+                this.logger.error(`Removed ${transaction} from storage`);
+                this.events.dispatch(Enums.TransactionEvent.RemovedFromPool, transaction.data);
+            }
+        });
+    }
+
+    public async removeForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
+        await this.lock.runNonExclusive(async () => {
+            if (this.disposed) {
+                return;
+            }
+
+            AppUtils.assert.defined<string>(transaction.id);
+            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+            if (this.storage.hasTransaction(transaction.id) === false) {
+                return;
+            }
+
+            const removedTransactions = await this.mempool.removeForgedTransaction(
+                transaction.data.senderPublicKey,
+                transaction.id,
+            );
+
+            for (const removedTransaction of removedTransactions) {
+                AppUtils.assert.defined<string>(removedTransaction.id);
+                this.storage.removeTransaction(removedTransaction.id);
+                this.logger.debug(`Removed forged ${removedTransaction}`);
+            }
+
+            if (!removedTransactions.find((t) => t.id === transaction.id)) {
+                this.storage.removeTransaction(transaction.id);
+                this.logger.error(`Removed forged ${transaction} from storage`);
             }
         });
     }
@@ -225,8 +273,8 @@ export class Service implements Contracts.TransactionPool.Service {
                 return;
             }
 
-            await this.cleanExpired();
-            await this.cleanLowestPriority();
+            await this.removeExpiredTransactions();
+            await this.removeLowestPriorityTransactions();
         });
     }
 
@@ -241,44 +289,92 @@ export class Service implements Contracts.TransactionPool.Service {
         });
     }
 
+    private async removeLowestPriorityTransaction(): Promise<void> {
+        if (this.getPoolSize() === 0) {
+            return;
+        }
+
+        const transaction = this.poolQuery.getFromLowestPriority().first();
+
+        AppUtils.assert.defined<string>(transaction.id);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const removedTransactions = await this.mempool.removeTransaction(
+            transaction.data.senderPublicKey,
+            transaction.id,
+        );
+
+        for (const removedTransaction of removedTransactions) {
+            AppUtils.assert.defined<string>(removedTransaction.id);
+            this.storage.removeTransaction(removedTransaction.id);
+            this.logger.info(`Removed lowest priority ${removedTransaction}`);
+            this.events.dispatch(Enums.TransactionEvent.Expired, removedTransaction.data);
+        }
+    }
+
+    private async removeLowestPriorityTransactions(): Promise<void> {
+        const maxTransactionsInPool: number = this.configuration.getRequired<number>("maxTransactionsInPool");
+
+        while (this.getPoolSize() > maxTransactionsInPool) {
+            await this.removeLowestPriorityTransaction();
+        }
+    }
+
+    private async removeExpiredTransactions(): Promise<void> {
+        const maxTransactionAge: number = this.configuration.getRequired<number>("maxTransactionAge");
+        const lastHeight: number = this.stateStore.getLastHeight();
+        const expiredHeight: number = lastHeight - maxTransactionAge;
+
+        for (const { senderPublicKey, id } of this.storage.getOldTransactions(expiredHeight)) {
+            const removedTransactions = await this.mempool.removeTransaction(senderPublicKey, id);
+
+            for (const removedTransaction of removedTransactions) {
+                AppUtils.assert.defined<string>(removedTransaction.id);
+                this.storage.removeTransaction(removedTransaction.id);
+                this.logger.info(`Removed expired ${removedTransaction}`);
+                this.events.dispatch(Enums.TransactionEvent.Expired, removedTransaction.data);
+            }
+        }
+
+        for (const transaction of this.poolQuery.getAll()) {
+            AppUtils.assert.defined<string>(transaction.id);
+            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+            if (await this.expirationService.isExpired(transaction)) {
+                const removedTransactions = await this.mempool.removeTransaction(
+                    transaction.data.senderPublicKey,
+                    transaction.id,
+                );
+
+                for (const removedTransaction of removedTransactions) {
+                    AppUtils.assert.defined<string>(removedTransaction.id);
+                    this.storage.removeTransaction(removedTransaction.id);
+                    this.logger.info(`Removed expired ${removedTransaction}`);
+                    this.events.dispatch(Enums.TransactionEvent.Expired, removedTransaction.data);
+                }
+            }
+        }
+    }
+
     private async addTransactionToMempool(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const maxTransactionsInPool: number = this.configuration.getRequired<number>("maxTransactionsInPool");
 
         if (this.getPoolSize() >= maxTransactionsInPool) {
-            await this.cleanExpired();
+            await this.removeExpiredTransactions();
+            await this.removeLowestPriorityTransactions();
         }
 
         if (this.getPoolSize() >= maxTransactionsInPool) {
-            await this.cleanLowestPriority();
-
             const lowest = this.poolQuery.getFromLowestPriority().first();
             if (transaction.data.fee.isLessThanEqual(lowest.data.fee)) {
                 throw new TransactionPoolFullError(transaction, lowest.data.fee);
             }
-            await this.removeTransaction(lowest);
+
+            await this.removeLowestPriorityTransaction();
         }
 
         await this.mempool.addTransaction(transaction);
-    }
-
-    private async cleanExpired(): Promise<void> {
-        for (const transaction of this.poolQuery.getAll()) {
-            if (await this.expirationService.isExpired(transaction)) {
-                this.logger.warning(`${transaction} expired`);
-                await this.removeTransaction(transaction);
-
-                this.events.dispatch(Enums.TransactionEvent.Expired, transaction.data);
-            }
-        }
-    }
-
-    private async cleanLowestPriority(): Promise<void> {
-        const maxTransactionsInPool = this.configuration.getRequired<number>("maxTransactionsInPool");
-        while (this.getPoolSize() > maxTransactionsInPool) {
-            const lowest = this.poolQuery.getFromLowestPriority().first();
-            await this.removeTransaction(lowest);
-        }
     }
 }

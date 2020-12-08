@@ -142,7 +142,7 @@ describe("SenderMempool.removeTransaction", () => {
 
         const senderMempool = container.resolve(SenderMempool);
         await senderMempool.addTransaction(transaction1);
-        await senderMempool.removeTransaction(transaction1);
+        await senderMempool.removeTransaction(transaction1.id);
 
         expect(senderState.revert).toBeCalledWith(transaction1);
     });
@@ -152,7 +152,7 @@ describe("SenderMempool.removeTransaction", () => {
 
         const senderMempool = container.resolve(SenderMempool);
         await senderMempool.addTransaction(transaction1);
-        const removedTransactions = await senderMempool.removeTransaction(transaction2);
+        const removedTransactions = await senderMempool.removeTransaction(transaction2.id);
         const remainingTransactions = senderMempool.getFromEarliest();
 
         expect(removedTransactions).toStrictEqual([]);
@@ -167,7 +167,7 @@ describe("SenderMempool.removeTransaction", () => {
         await senderMempool.addTransaction(transaction2);
         await senderMempool.addTransaction(transaction3);
 
-        const removedTransactions = await senderMempool.removeTransaction(transaction2);
+        const removedTransactions = await senderMempool.removeTransaction(transaction2.id);
         const remainingTransactions = senderMempool.getFromEarliest();
 
         expect(removedTransactions).toStrictEqual([transaction3, transaction2]);
@@ -183,7 +183,7 @@ describe("SenderMempool.removeTransaction", () => {
         await senderMempool.addTransaction(transaction2);
         await senderMempool.addTransaction(transaction3);
 
-        const removedTransactions = await senderMempool.removeTransaction(transaction2);
+        const removedTransactions = await senderMempool.removeTransaction(transaction2.id);
         const remainingTransactions = senderMempool.getFromEarliest();
 
         expect(removedTransactions).toStrictEqual([transaction3, transaction2, transaction1]);
@@ -191,7 +191,7 @@ describe("SenderMempool.removeTransaction", () => {
     });
 });
 
-describe("SenderMempool.acceptForgedTransaction", () => {
+describe("SenderMempool.removeForgedTransaction", () => {
     it("should return all transactions that were added before transaction being accepted", async () => {
         configuration.getRequired.mockReturnValueOnce(10); // maxTransactionsPerSender
 
@@ -200,7 +200,7 @@ describe("SenderMempool.acceptForgedTransaction", () => {
         await senderMempool.addTransaction(transaction2);
         await senderMempool.addTransaction(transaction3);
 
-        const removedTransactions = await senderMempool.acceptForgedTransaction(transaction2);
+        const removedTransactions = await senderMempool.removeForgedTransaction(transaction2.id);
         const remainingTransactions = senderMempool.getFromEarliest();
 
         expect(removedTransactions).toStrictEqual([transaction1, transaction2]);
@@ -214,7 +214,7 @@ describe("SenderMempool.acceptForgedTransaction", () => {
         await senderMempool.addTransaction(transaction1);
         await senderMempool.addTransaction(transaction2);
 
-        const removedTransactions = await senderMempool.acceptForgedTransaction(transaction3);
+        const removedTransactions = await senderMempool.removeForgedTransaction(transaction3.id);
         const remainingTransactions = senderMempool.getFromEarliest();
 
         expect(removedTransactions).toStrictEqual([transaction1, transaction2]);

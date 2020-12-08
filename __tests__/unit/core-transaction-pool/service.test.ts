@@ -3,19 +3,11 @@ import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { Service } from "../../../packages/core-transaction-pool/src/service";
 
-const logger = {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warning: jest.fn(),
-    error: jest.fn(),
-};
-const events = {
-    listen: jest.fn(),
-    forget: jest.fn(),
-    dispatch: jest.fn(),
-};
 const configuration = {
     getRequired: jest.fn(),
+};
+const stateStore = {
+    getLastHeight: jest.fn(),
 };
 const dynamicFeeMatcher = {
     throwIfCannotEnterPool: jest.fn(),
@@ -31,7 +23,7 @@ const mempool = {
     getSize: jest.fn(),
     addTransaction: jest.fn(),
     removeTransaction: jest.fn(),
-    acceptForgedTransaction: jest.fn(),
+    removeForgedTransaction: jest.fn(),
     flush: jest.fn(),
 };
 const poolQuery = {
@@ -41,16 +33,28 @@ const poolQuery = {
 const expirationService = {
     isExpired: jest.fn(),
 };
+const events = {
+    listen: jest.fn(),
+    forget: jest.fn(),
+    dispatch: jest.fn(),
+};
+const logger = {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warning: jest.fn(),
+    error: jest.fn(),
+};
 
 const container = new Container.Container();
-container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(events);
 container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
+container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
 container.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).toConstantValue(dynamicFeeMatcher);
 container.bind(Container.Identifiers.TransactionPoolStorage).toConstantValue(storage);
 container.bind(Container.Identifiers.TransactionPoolMempool).toConstantValue(mempool);
 container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
 container.bind(Container.Identifiers.TransactionPoolExpirationService).toConstantValue(expirationService);
+container.bind(Container.Identifiers.EventDispatcherService).toConstantValue(events);
+container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
 beforeEach(() => {
     jest.resetAllMocks();
@@ -88,10 +92,10 @@ describe("Service.boot", () => {
 
         try {
             const service = container.resolve(Service);
+            jest.spyOn(service, "flush").mockImplementation(() => Promise.resolve());
             await service.boot();
 
-            expect(mempool.flush).toBeCalled();
-            expect(storage.flush).toBeCalled();
+            expect(service.flush).toBeCalled();
         } finally {
             delete process.env["CORE_RESET_DATABASE"];
         }
@@ -118,31 +122,21 @@ describe("Service.dispose", () => {
 
 describe("Service.handle", () => {
     it("should re-add transactions after state builder had finished", async () => {
-        storage.getAllTransactions.mockReturnValueOnce([
-            { id: transaction1.id, serialized: transaction1.serialized },
-            { id: transaction2.id, serialized: transaction2.serialized },
-        ]);
-
         const service = container.resolve(Service);
+        jest.spyOn(service, "readdTransactions").mockImplementation(() => Promise.resolve());
+
         await service.handle({ name: Enums.StateEvent.BuilderFinished });
 
-        expect(mempool.flush).toBeCalled();
-        expect(mempool.addTransaction).toBeCalledWith(transaction1);
-        expect(mempool.addTransaction).toBeCalledWith(transaction2);
+        expect(service.readdTransactions).toBeCalled();
     });
 
     it("should re-add transactions after milestone had changed", async () => {
-        storage.getAllTransactions.mockReturnValueOnce([
-            { id: transaction1.id, serialized: transaction1.serialized },
-            { id: transaction2.id, serialized: transaction2.serialized },
-        ]);
-
         const service = container.resolve(Service);
+        jest.spyOn(service, "readdTransactions").mockImplementation(() => Promise.resolve());
+
         await service.handle({ name: Enums.CryptoEvent.MilestoneChanged });
 
-        expect(mempool.flush).toBeCalled();
-        expect(mempool.addTransaction).toBeCalledWith(transaction1);
-        expect(mempool.addTransaction).toBeCalledWith(transaction2);
+        expect(service.readdTransactions).toBeCalled();
     });
 });
 
@@ -170,13 +164,20 @@ describe("Service.addTransaction", () => {
     });
 
     it("should add transaction to storage and mempool", async () => {
+        const height = 1000;
+        stateStore.getLastHeight.mockReturnValue(height);
         configuration.getRequired.mockReturnValue(10); // maxTransactionsInPool
         mempool.getSize.mockReturnValue(0);
 
         const service = container.resolve(Service);
         await service.addTransaction(transaction1);
 
-        expect(storage.addTransaction).toBeCalledWith(transaction1.id, transaction1.serialized);
+        expect(storage.addTransaction).toBeCalledWith({
+            height,
+            id: transaction1.id,
+            senderPublicKey: transaction1.data.senderPublicKey,
+            serialized: transaction1.serialized,
+        });
         expect(mempool.addTransaction).toBeCalledWith(transaction1);
 
         expect(events.dispatch).toHaveBeenCalledTimes(1);
@@ -315,36 +316,36 @@ describe("Service.removeTransaction", () => {
     });
 });
 
-describe("Service.acceptForgedTransaction", () => {
+describe("Service.removeForgedTransaction", () => {
     it("should do nothing if transaction wasn't added previously", async () => {
         storage.hasTransaction.mockReturnValueOnce(false);
 
         const service = container.resolve(Service);
-        await service.acceptForgedTransaction(transaction1);
+        await service.removeForgedTransaction(transaction1);
 
-        expect(mempool.acceptForgedTransaction).not.toBeCalled();
+        expect(mempool.removeForgedTransaction).not.toBeCalled();
     });
 
     it("should remove from storage every transaction removed by mempool", async () => {
         storage.hasTransaction.mockReturnValueOnce(true);
-        mempool.acceptForgedTransaction.mockReturnValueOnce([transaction1, transaction2]);
+        mempool.removeForgedTransaction.mockReturnValueOnce([transaction1, transaction2]);
 
         const service = container.resolve(Service);
-        await service.acceptForgedTransaction(transaction1);
+        await service.removeForgedTransaction(transaction1);
 
-        expect(mempool.acceptForgedTransaction).toBeCalledWith(transaction1);
+        expect(mempool.removeForgedTransaction).toBeCalledWith(transaction1.data.senderPublicKey, transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
     });
 
     it("should log error if transaction wasn't found in mempool", async () => {
         storage.hasTransaction.mockReturnValueOnce(true);
-        mempool.acceptForgedTransaction.mockReturnValueOnce([transaction2]);
+        mempool.removeForgedTransaction.mockReturnValueOnce([transaction2]);
 
         const service = container.resolve(Service);
-        await service.acceptForgedTransaction(transaction1);
+        await service.removeForgedTransaction(transaction1);
 
-        expect(mempool.acceptForgedTransaction).toBeCalledWith(transaction1);
+        expect(mempool.removeForgedTransaction).toBeCalledWith(transaction1.data.senderPublicKey, transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction1.id);
         expect(storage.removeTransaction).toBeCalledWith(transaction2.id);
         expect(logger.error).toBeCalled();
