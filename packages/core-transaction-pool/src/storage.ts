@@ -35,6 +35,7 @@ export class Storage implements Contracts.TransactionPool.Storage {
             );
 
             CREATE UNIQUE INDEX IF NOT EXISTS idx_pool_20201204_id ON pool_20201204 (id);
+            CREATE INDEX IF NOT EXISTS idx_pool_20201204_height ON pool_20201204 (height);
         `);
 
         this.addTransactionStmt = this.database.prepare(
