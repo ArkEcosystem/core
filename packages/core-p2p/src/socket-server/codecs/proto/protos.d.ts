@@ -7,6 +7,9 @@ export namespace blocks {
 
         /** PostBlockRequest block */
         block?: (Uint8Array|null);
+
+        /** PostBlockRequest headers */
+        headers?: (shared.IHeaders|null);
     }
 
     /** Represents a PostBlockRequest. */
@@ -20,6 +23,9 @@ export namespace blocks {
 
         /** PostBlockRequest block. */
         public block: Uint8Array;
+
+        /** PostBlockRequest headers. */
+        public headers?: (shared.IHeaders|null);
 
         /**
          * Creates a new PostBlockRequest instance using the specified properties.
@@ -106,6 +112,9 @@ export namespace blocks {
 
         /** GetBlocksRequest serialized */
         serialized?: (boolean|null);
+
+        /** GetBlocksRequest headers */
+        headers?: (shared.IHeaders|null);
     }
 
     /** Represents a GetBlocksRequest. */
@@ -128,6 +137,9 @@ export namespace blocks {
 
         /** GetBlocksRequest serialized. */
         public serialized: boolean;
+
+        /** GetBlocksRequest headers. */
+        public headers?: (shared.IHeaders|null);
 
         /**
          * Creates a new GetBlocksRequest instance using the specified properties.
@@ -477,6 +489,96 @@ export namespace blocks {
 /** Namespace peer. */
 export namespace peer {
 
+    /** Properties of a GetPeersRequest. */
+    interface IGetPeersRequest {
+
+        /** GetPeersRequest headers */
+        headers?: (shared.IHeaders|null);
+    }
+
+    /** Represents a GetPeersRequest. */
+    class GetPeersRequest implements IGetPeersRequest {
+
+        /**
+         * Constructs a new GetPeersRequest.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: peer.IGetPeersRequest);
+
+        /** GetPeersRequest headers. */
+        public headers?: (shared.IHeaders|null);
+
+        /**
+         * Creates a new GetPeersRequest instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns GetPeersRequest instance
+         */
+        public static create(properties?: peer.IGetPeersRequest): peer.GetPeersRequest;
+
+        /**
+         * Encodes the specified GetPeersRequest message. Does not implicitly {@link peer.GetPeersRequest.verify|verify} messages.
+         * @param message GetPeersRequest message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: peer.IGetPeersRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified GetPeersRequest message, length delimited. Does not implicitly {@link peer.GetPeersRequest.verify|verify} messages.
+         * @param message GetPeersRequest message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: peer.IGetPeersRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a GetPeersRequest message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns GetPeersRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): peer.GetPeersRequest;
+
+        /**
+         * Decodes a GetPeersRequest message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns GetPeersRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): peer.GetPeersRequest;
+
+        /**
+         * Verifies a GetPeersRequest message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a GetPeersRequest message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns GetPeersRequest
+         */
+        public static fromObject(object: { [k: string]: any }): peer.GetPeersRequest;
+
+        /**
+         * Creates a plain object from a GetPeersRequest message. Also converts values to other types if specified.
+         * @param message GetPeersRequest
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: peer.GetPeersRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this GetPeersRequest to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
     /** Properties of a GetPeersResponse. */
     interface IGetPeersResponse {
 
@@ -671,6 +773,9 @@ export namespace peer {
 
         /** GetCommonBlocksRequest ids */
         ids?: (string[]|null);
+
+        /** GetCommonBlocksRequest headers */
+        headers?: (shared.IHeaders|null);
     }
 
     /** Represents a GetCommonBlocksRequest. */
@@ -684,6 +789,9 @@ export namespace peer {
 
         /** GetCommonBlocksRequest ids. */
         public ids: string[];
+
+        /** GetCommonBlocksRequest headers. */
+        public headers?: (shared.IHeaders|null);
 
         /**
          * Creates a new GetCommonBlocksRequest instance using the specified properties.
@@ -943,6 +1051,96 @@ export namespace peer {
              */
             public toJSON(): { [k: string]: any };
         }
+    }
+
+    /** Properties of a GetStatusRequest. */
+    interface IGetStatusRequest {
+
+        /** GetStatusRequest headers */
+        headers?: (shared.IHeaders|null);
+    }
+
+    /** Represents a GetStatusRequest. */
+    class GetStatusRequest implements IGetStatusRequest {
+
+        /**
+         * Constructs a new GetStatusRequest.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: peer.IGetStatusRequest);
+
+        /** GetStatusRequest headers. */
+        public headers?: (shared.IHeaders|null);
+
+        /**
+         * Creates a new GetStatusRequest instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns GetStatusRequest instance
+         */
+        public static create(properties?: peer.IGetStatusRequest): peer.GetStatusRequest;
+
+        /**
+         * Encodes the specified GetStatusRequest message. Does not implicitly {@link peer.GetStatusRequest.verify|verify} messages.
+         * @param message GetStatusRequest message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: peer.IGetStatusRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified GetStatusRequest message, length delimited. Does not implicitly {@link peer.GetStatusRequest.verify|verify} messages.
+         * @param message GetStatusRequest message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: peer.IGetStatusRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a GetStatusRequest message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns GetStatusRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): peer.GetStatusRequest;
+
+        /**
+         * Decodes a GetStatusRequest message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns GetStatusRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): peer.GetStatusRequest;
+
+        /**
+         * Verifies a GetStatusRequest message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a GetStatusRequest message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns GetStatusRequest
+         */
+        public static fromObject(object: { [k: string]: any }): peer.GetStatusRequest;
+
+        /**
+         * Creates a plain object from a GetStatusRequest message. Also converts values to other types if specified.
+         * @param message GetStatusRequest
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: peer.GetStatusRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this GetStatusRequest to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
     }
 
     /** Properties of a GetStatusResponse. */
@@ -1750,6 +1948,100 @@ export namespace peer {
     }
 }
 
+/** Namespace shared. */
+export namespace shared {
+
+    /** Properties of a Headers. */
+    interface IHeaders {
+
+        /** Headers version */
+        version?: (string|null);
+    }
+
+    /** Represents a Headers. */
+    class Headers implements IHeaders {
+
+        /**
+         * Constructs a new Headers.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: shared.IHeaders);
+
+        /** Headers version. */
+        public version: string;
+
+        /**
+         * Creates a new Headers instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns Headers instance
+         */
+        public static create(properties?: shared.IHeaders): shared.Headers;
+
+        /**
+         * Encodes the specified Headers message. Does not implicitly {@link shared.Headers.verify|verify} messages.
+         * @param message Headers message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: shared.IHeaders, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified Headers message, length delimited. Does not implicitly {@link shared.Headers.verify|verify} messages.
+         * @param message Headers message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: shared.IHeaders, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a Headers message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns Headers
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): shared.Headers;
+
+        /**
+         * Decodes a Headers message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns Headers
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): shared.Headers;
+
+        /**
+         * Verifies a Headers message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a Headers message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns Headers
+         */
+        public static fromObject(object: { [k: string]: any }): shared.Headers;
+
+        /**
+         * Creates a plain object from a Headers message. Also converts values to other types if specified.
+         * @param message Headers
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: shared.Headers, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this Headers to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+}
+
 /** Namespace transactions. */
 export namespace transactions {
 
@@ -1758,6 +2050,9 @@ export namespace transactions {
 
         /** PostTransactionsRequest transactions */
         transactions?: (Uint8Array[]|null);
+
+        /** PostTransactionsRequest headers */
+        headers?: (shared.IHeaders|null);
     }
 
     /** Represents a PostTransactionsRequest. */
@@ -1771,6 +2066,9 @@ export namespace transactions {
 
         /** PostTransactionsRequest transactions. */
         public transactions: Uint8Array[];
+
+        /** PostTransactionsRequest headers. */
+        public headers?: (shared.IHeaders|null);
 
         /**
          * Creates a new PostTransactionsRequest instance using the specified properties.

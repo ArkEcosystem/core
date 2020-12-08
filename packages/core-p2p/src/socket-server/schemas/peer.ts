@@ -1,11 +1,17 @@
 import Joi from "@hapi/joi";
+import { headers } from "./shared";
 
 export const peerSchemas = {
-    getPeers: Joi.object().max(0), // empty object expected
+    getPeers: Joi.object({
+        headers,
+    }),
 
     getCommonBlocks: Joi.object({
         ids: Joi.array().min(1).max(10).items(Joi.string()), // TODO strings are block ids
+        headers,
     }),
 
-    getStatus: Joi.object().max(0), // empty object expected
+    getStatus: Joi.object({
+        headers,
+    }),
 };

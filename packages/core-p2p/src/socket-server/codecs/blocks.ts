@@ -34,6 +34,7 @@ export const postBlock = {
         deserialize: (payload: Buffer) => {
             const decoded = blocks.PostBlockRequest.decode(payload);
             return {
+                ...decoded,
                 block: Buffer.from(decoded.block),
             };
         },

@@ -4,6 +4,7 @@ package blocks;
 
 message PostBlockRequest {
     bytes block = 1;
+    shared.Headers headers = 2;
 }
 
 message GetBlocksRequest {
@@ -11,6 +12,7 @@ message GetBlocksRequest {
     uint32 blockLimit = 2;
     bool headersOnly = 3;
     bool serialized = 4;
+    shared.Headers headers = 5;
 }
 
 message GetBlocksResponse {

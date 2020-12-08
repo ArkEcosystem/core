@@ -25,6 +25,7 @@ $root.blocks = (function() {
          * @memberof blocks
          * @interface IPostBlockRequest
          * @property {Uint8Array|null} [block] PostBlockRequest block
+         * @property {shared.IHeaders|null} [headers] PostBlockRequest headers
          */
 
         /**
@@ -49,6 +50,14 @@ $root.blocks = (function() {
          * @instance
          */
         PostBlockRequest.prototype.block = $util.newBuffer([]);
+
+        /**
+         * PostBlockRequest headers.
+         * @member {shared.IHeaders|null|undefined} headers
+         * @memberof blocks.PostBlockRequest
+         * @instance
+         */
+        PostBlockRequest.prototype.headers = null;
 
         /**
          * Creates a new PostBlockRequest instance using the specified properties.
@@ -76,6 +85,8 @@ $root.blocks = (function() {
                 writer = $Writer.create();
             if (message.block != null && Object.hasOwnProperty.call(message, "block"))
                 writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.block);
+            if (message.headers != null && Object.hasOwnProperty.call(message, "headers"))
+                $root.shared.Headers.encode(message.headers, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
             return writer;
         };
 
@@ -112,6 +123,9 @@ $root.blocks = (function() {
                 switch (tag >>> 3) {
                 case 1:
                     message.block = reader.bytes();
+                    break;
+                case 2:
+                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -151,6 +165,11 @@ $root.blocks = (function() {
             if (message.block != null && message.hasOwnProperty("block"))
                 if (!(message.block && typeof message.block.length === "number" || $util.isString(message.block)))
                     return "block: buffer expected";
+            if (message.headers != null && message.hasOwnProperty("headers")) {
+                var error = $root.shared.Headers.verify(message.headers);
+                if (error)
+                    return "headers." + error;
+            }
             return null;
         };
 
@@ -171,6 +190,11 @@ $root.blocks = (function() {
                     $util.base64.decode(object.block, message.block = $util.newBuffer($util.base64.length(object.block)), 0);
                 else if (object.block.length)
                     message.block = object.block;
+            if (object.headers != null) {
+                if (typeof object.headers !== "object")
+                    throw TypeError(".blocks.PostBlockRequest.headers: object expected");
+                message.headers = $root.shared.Headers.fromObject(object.headers);
+            }
             return message;
         };
 
@@ -187,7 +211,7 @@ $root.blocks = (function() {
             if (!options)
                 options = {};
             var object = {};
-            if (options.defaults)
+            if (options.defaults) {
                 if (options.bytes === String)
                     object.block = "";
                 else {
@@ -195,8 +219,12 @@ $root.blocks = (function() {
                     if (options.bytes !== Array)
                         object.block = $util.newBuffer(object.block);
                 }
+                object.headers = null;
+            }
             if (message.block != null && message.hasOwnProperty("block"))
                 object.block = options.bytes === String ? $util.base64.encode(message.block, 0, message.block.length) : options.bytes === Array ? Array.prototype.slice.call(message.block) : message.block;
+            if (message.headers != null && message.hasOwnProperty("headers"))
+                object.headers = $root.shared.Headers.toObject(message.headers, options);
             return object;
         };
 
@@ -224,6 +252,7 @@ $root.blocks = (function() {
          * @property {number|null} [blockLimit] GetBlocksRequest blockLimit
          * @property {boolean|null} [headersOnly] GetBlocksRequest headersOnly
          * @property {boolean|null} [serialized] GetBlocksRequest serialized
+         * @property {shared.IHeaders|null} [headers] GetBlocksRequest headers
          */
 
         /**
@@ -274,6 +303,14 @@ $root.blocks = (function() {
         GetBlocksRequest.prototype.serialized = false;
 
         /**
+         * GetBlocksRequest headers.
+         * @member {shared.IHeaders|null|undefined} headers
+         * @memberof blocks.GetBlocksRequest
+         * @instance
+         */
+        GetBlocksRequest.prototype.headers = null;
+
+        /**
          * Creates a new GetBlocksRequest instance using the specified properties.
          * @function create
          * @memberof blocks.GetBlocksRequest
@@ -305,6 +342,8 @@ $root.blocks = (function() {
                 writer.uint32(/* id 3, wireType 0 =*/24).bool(message.headersOnly);
             if (message.serialized != null && Object.hasOwnProperty.call(message, "serialized"))
                 writer.uint32(/* id 4, wireType 0 =*/32).bool(message.serialized);
+            if (message.headers != null && Object.hasOwnProperty.call(message, "headers"))
+                $root.shared.Headers.encode(message.headers, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
             return writer;
         };
 
@@ -350,6 +389,9 @@ $root.blocks = (function() {
                     break;
                 case 4:
                     message.serialized = reader.bool();
+                    break;
+                case 5:
+                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -398,6 +440,11 @@ $root.blocks = (function() {
             if (message.serialized != null && message.hasOwnProperty("serialized"))
                 if (typeof message.serialized !== "boolean")
                     return "serialized: boolean expected";
+            if (message.headers != null && message.hasOwnProperty("headers")) {
+                var error = $root.shared.Headers.verify(message.headers);
+                if (error)
+                    return "headers." + error;
+            }
             return null;
         };
 
@@ -421,6 +468,11 @@ $root.blocks = (function() {
                 message.headersOnly = Boolean(object.headersOnly);
             if (object.serialized != null)
                 message.serialized = Boolean(object.serialized);
+            if (object.headers != null) {
+                if (typeof object.headers !== "object")
+                    throw TypeError(".blocks.GetBlocksRequest.headers: object expected");
+                message.headers = $root.shared.Headers.fromObject(object.headers);
+            }
             return message;
         };
 
@@ -442,6 +494,7 @@ $root.blocks = (function() {
                 object.blockLimit = 0;
                 object.headersOnly = false;
                 object.serialized = false;
+                object.headers = null;
             }
             if (message.lastBlockHeight != null && message.hasOwnProperty("lastBlockHeight"))
                 object.lastBlockHeight = message.lastBlockHeight;
@@ -451,6 +504,8 @@ $root.blocks = (function() {
                 object.headersOnly = message.headersOnly;
             if (message.serialized != null && message.hasOwnProperty("serialized"))
                 object.serialized = message.serialized;
+            if (message.headers != null && message.hasOwnProperty("headers"))
+                object.headers = $root.shared.Headers.toObject(message.headers, options);
             return object;
         };
 
@@ -1223,6 +1278,198 @@ $root.peer = (function() {
      */
     var peer = {};
 
+    peer.GetPeersRequest = (function() {
+
+        /**
+         * Properties of a GetPeersRequest.
+         * @memberof peer
+         * @interface IGetPeersRequest
+         * @property {shared.IHeaders|null} [headers] GetPeersRequest headers
+         */
+
+        /**
+         * Constructs a new GetPeersRequest.
+         * @memberof peer
+         * @classdesc Represents a GetPeersRequest.
+         * @implements IGetPeersRequest
+         * @constructor
+         * @param {peer.IGetPeersRequest=} [properties] Properties to set
+         */
+        function GetPeersRequest(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * GetPeersRequest headers.
+         * @member {shared.IHeaders|null|undefined} headers
+         * @memberof peer.GetPeersRequest
+         * @instance
+         */
+        GetPeersRequest.prototype.headers = null;
+
+        /**
+         * Creates a new GetPeersRequest instance using the specified properties.
+         * @function create
+         * @memberof peer.GetPeersRequest
+         * @static
+         * @param {peer.IGetPeersRequest=} [properties] Properties to set
+         * @returns {peer.GetPeersRequest} GetPeersRequest instance
+         */
+        GetPeersRequest.create = function create(properties) {
+            return new GetPeersRequest(properties);
+        };
+
+        /**
+         * Encodes the specified GetPeersRequest message. Does not implicitly {@link peer.GetPeersRequest.verify|verify} messages.
+         * @function encode
+         * @memberof peer.GetPeersRequest
+         * @static
+         * @param {peer.IGetPeersRequest} message GetPeersRequest message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        GetPeersRequest.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.headers != null && Object.hasOwnProperty.call(message, "headers"))
+                $root.shared.Headers.encode(message.headers, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified GetPeersRequest message, length delimited. Does not implicitly {@link peer.GetPeersRequest.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof peer.GetPeersRequest
+         * @static
+         * @param {peer.IGetPeersRequest} message GetPeersRequest message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        GetPeersRequest.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a GetPeersRequest message from the specified reader or buffer.
+         * @function decode
+         * @memberof peer.GetPeersRequest
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {peer.GetPeersRequest} GetPeersRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        GetPeersRequest.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.peer.GetPeersRequest();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a GetPeersRequest message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof peer.GetPeersRequest
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {peer.GetPeersRequest} GetPeersRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        GetPeersRequest.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a GetPeersRequest message.
+         * @function verify
+         * @memberof peer.GetPeersRequest
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        GetPeersRequest.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.headers != null && message.hasOwnProperty("headers")) {
+                var error = $root.shared.Headers.verify(message.headers);
+                if (error)
+                    return "headers." + error;
+            }
+            return null;
+        };
+
+        /**
+         * Creates a GetPeersRequest message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof peer.GetPeersRequest
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {peer.GetPeersRequest} GetPeersRequest
+         */
+        GetPeersRequest.fromObject = function fromObject(object) {
+            if (object instanceof $root.peer.GetPeersRequest)
+                return object;
+            var message = new $root.peer.GetPeersRequest();
+            if (object.headers != null) {
+                if (typeof object.headers !== "object")
+                    throw TypeError(".peer.GetPeersRequest.headers: object expected");
+                message.headers = $root.shared.Headers.fromObject(object.headers);
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a GetPeersRequest message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof peer.GetPeersRequest
+         * @static
+         * @param {peer.GetPeersRequest} message GetPeersRequest
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        GetPeersRequest.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.headers = null;
+            if (message.headers != null && message.hasOwnProperty("headers"))
+                object.headers = $root.shared.Headers.toObject(message.headers, options);
+            return object;
+        };
+
+        /**
+         * Converts this GetPeersRequest to JSON.
+         * @function toJSON
+         * @memberof peer.GetPeersRequest
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        GetPeersRequest.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return GetPeersRequest;
+    })();
+
     peer.GetPeersResponse = (function() {
 
         /**
@@ -1648,6 +1895,7 @@ $root.peer = (function() {
          * @memberof peer
          * @interface IGetCommonBlocksRequest
          * @property {Array.<string>|null} [ids] GetCommonBlocksRequest ids
+         * @property {shared.IHeaders|null} [headers] GetCommonBlocksRequest headers
          */
 
         /**
@@ -1673,6 +1921,14 @@ $root.peer = (function() {
          * @instance
          */
         GetCommonBlocksRequest.prototype.ids = $util.emptyArray;
+
+        /**
+         * GetCommonBlocksRequest headers.
+         * @member {shared.IHeaders|null|undefined} headers
+         * @memberof peer.GetCommonBlocksRequest
+         * @instance
+         */
+        GetCommonBlocksRequest.prototype.headers = null;
 
         /**
          * Creates a new GetCommonBlocksRequest instance using the specified properties.
@@ -1701,6 +1957,8 @@ $root.peer = (function() {
             if (message.ids != null && message.ids.length)
                 for (var i = 0; i < message.ids.length; ++i)
                     writer.uint32(/* id 1, wireType 2 =*/10).string(message.ids[i]);
+            if (message.headers != null && Object.hasOwnProperty.call(message, "headers"))
+                $root.shared.Headers.encode(message.headers, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
             return writer;
         };
 
@@ -1739,6 +1997,9 @@ $root.peer = (function() {
                     if (!(message.ids && message.ids.length))
                         message.ids = [];
                     message.ids.push(reader.string());
+                    break;
+                case 2:
+                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1782,6 +2043,11 @@ $root.peer = (function() {
                     if (!$util.isString(message.ids[i]))
                         return "ids: string[] expected";
             }
+            if (message.headers != null && message.hasOwnProperty("headers")) {
+                var error = $root.shared.Headers.verify(message.headers);
+                if (error)
+                    return "headers." + error;
+            }
             return null;
         };
 
@@ -1804,6 +2070,11 @@ $root.peer = (function() {
                 for (var i = 0; i < object.ids.length; ++i)
                     message.ids[i] = String(object.ids[i]);
             }
+            if (object.headers != null) {
+                if (typeof object.headers !== "object")
+                    throw TypeError(".peer.GetCommonBlocksRequest.headers: object expected");
+                message.headers = $root.shared.Headers.fromObject(object.headers);
+            }
             return message;
         };
 
@@ -1822,11 +2093,15 @@ $root.peer = (function() {
             var object = {};
             if (options.arrays || options.defaults)
                 object.ids = [];
+            if (options.defaults)
+                object.headers = null;
             if (message.ids && message.ids.length) {
                 object.ids = [];
                 for (var j = 0; j < message.ids.length; ++j)
                     object.ids[j] = message.ids[j];
             }
+            if (message.headers != null && message.hasOwnProperty("headers"))
+                object.headers = $root.shared.Headers.toObject(message.headers, options);
             return object;
         };
 
@@ -2244,6 +2519,198 @@ $root.peer = (function() {
         })();
 
         return GetCommonBlocksResponse;
+    })();
+
+    peer.GetStatusRequest = (function() {
+
+        /**
+         * Properties of a GetStatusRequest.
+         * @memberof peer
+         * @interface IGetStatusRequest
+         * @property {shared.IHeaders|null} [headers] GetStatusRequest headers
+         */
+
+        /**
+         * Constructs a new GetStatusRequest.
+         * @memberof peer
+         * @classdesc Represents a GetStatusRequest.
+         * @implements IGetStatusRequest
+         * @constructor
+         * @param {peer.IGetStatusRequest=} [properties] Properties to set
+         */
+        function GetStatusRequest(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * GetStatusRequest headers.
+         * @member {shared.IHeaders|null|undefined} headers
+         * @memberof peer.GetStatusRequest
+         * @instance
+         */
+        GetStatusRequest.prototype.headers = null;
+
+        /**
+         * Creates a new GetStatusRequest instance using the specified properties.
+         * @function create
+         * @memberof peer.GetStatusRequest
+         * @static
+         * @param {peer.IGetStatusRequest=} [properties] Properties to set
+         * @returns {peer.GetStatusRequest} GetStatusRequest instance
+         */
+        GetStatusRequest.create = function create(properties) {
+            return new GetStatusRequest(properties);
+        };
+
+        /**
+         * Encodes the specified GetStatusRequest message. Does not implicitly {@link peer.GetStatusRequest.verify|verify} messages.
+         * @function encode
+         * @memberof peer.GetStatusRequest
+         * @static
+         * @param {peer.IGetStatusRequest} message GetStatusRequest message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        GetStatusRequest.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.headers != null && Object.hasOwnProperty.call(message, "headers"))
+                $root.shared.Headers.encode(message.headers, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified GetStatusRequest message, length delimited. Does not implicitly {@link peer.GetStatusRequest.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof peer.GetStatusRequest
+         * @static
+         * @param {peer.IGetStatusRequest} message GetStatusRequest message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        GetStatusRequest.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a GetStatusRequest message from the specified reader or buffer.
+         * @function decode
+         * @memberof peer.GetStatusRequest
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {peer.GetStatusRequest} GetStatusRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        GetStatusRequest.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.peer.GetStatusRequest();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a GetStatusRequest message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof peer.GetStatusRequest
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {peer.GetStatusRequest} GetStatusRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        GetStatusRequest.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a GetStatusRequest message.
+         * @function verify
+         * @memberof peer.GetStatusRequest
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        GetStatusRequest.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.headers != null && message.hasOwnProperty("headers")) {
+                var error = $root.shared.Headers.verify(message.headers);
+                if (error)
+                    return "headers." + error;
+            }
+            return null;
+        };
+
+        /**
+         * Creates a GetStatusRequest message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof peer.GetStatusRequest
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {peer.GetStatusRequest} GetStatusRequest
+         */
+        GetStatusRequest.fromObject = function fromObject(object) {
+            if (object instanceof $root.peer.GetStatusRequest)
+                return object;
+            var message = new $root.peer.GetStatusRequest();
+            if (object.headers != null) {
+                if (typeof object.headers !== "object")
+                    throw TypeError(".peer.GetStatusRequest.headers: object expected");
+                message.headers = $root.shared.Headers.fromObject(object.headers);
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a GetStatusRequest message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof peer.GetStatusRequest
+         * @static
+         * @param {peer.GetStatusRequest} message GetStatusRequest
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        GetStatusRequest.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.headers = null;
+            if (message.headers != null && message.hasOwnProperty("headers"))
+                object.headers = $root.shared.Headers.toObject(message.headers, options);
+            return object;
+        };
+
+        /**
+         * Converts this GetStatusRequest to JSON.
+         * @function toJSON
+         * @memberof peer.GetStatusRequest
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        GetStatusRequest.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return GetStatusRequest;
     })();
 
     peer.GetStatusResponse = (function() {
@@ -4227,6 +4694,205 @@ $root.peer = (function() {
     return peer;
 })();
 
+$root.shared = (function() {
+
+    /**
+     * Namespace shared.
+     * @exports shared
+     * @namespace
+     */
+    var shared = {};
+
+    shared.Headers = (function() {
+
+        /**
+         * Properties of a Headers.
+         * @memberof shared
+         * @interface IHeaders
+         * @property {string|null} [version] Headers version
+         */
+
+        /**
+         * Constructs a new Headers.
+         * @memberof shared
+         * @classdesc Represents a Headers.
+         * @implements IHeaders
+         * @constructor
+         * @param {shared.IHeaders=} [properties] Properties to set
+         */
+        function Headers(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Headers version.
+         * @member {string} version
+         * @memberof shared.Headers
+         * @instance
+         */
+        Headers.prototype.version = "";
+
+        /**
+         * Creates a new Headers instance using the specified properties.
+         * @function create
+         * @memberof shared.Headers
+         * @static
+         * @param {shared.IHeaders=} [properties] Properties to set
+         * @returns {shared.Headers} Headers instance
+         */
+        Headers.create = function create(properties) {
+            return new Headers(properties);
+        };
+
+        /**
+         * Encodes the specified Headers message. Does not implicitly {@link shared.Headers.verify|verify} messages.
+         * @function encode
+         * @memberof shared.Headers
+         * @static
+         * @param {shared.IHeaders} message Headers message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        Headers.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.version != null && Object.hasOwnProperty.call(message, "version"))
+                writer.uint32(/* id 1, wireType 2 =*/10).string(message.version);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified Headers message, length delimited. Does not implicitly {@link shared.Headers.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof shared.Headers
+         * @static
+         * @param {shared.IHeaders} message Headers message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        Headers.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a Headers message from the specified reader or buffer.
+         * @function decode
+         * @memberof shared.Headers
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {shared.Headers} Headers
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        Headers.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.shared.Headers();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.version = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a Headers message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof shared.Headers
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {shared.Headers} Headers
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        Headers.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a Headers message.
+         * @function verify
+         * @memberof shared.Headers
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        Headers.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.version != null && message.hasOwnProperty("version"))
+                if (!$util.isString(message.version))
+                    return "version: string expected";
+            return null;
+        };
+
+        /**
+         * Creates a Headers message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof shared.Headers
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {shared.Headers} Headers
+         */
+        Headers.fromObject = function fromObject(object) {
+            if (object instanceof $root.shared.Headers)
+                return object;
+            var message = new $root.shared.Headers();
+            if (object.version != null)
+                message.version = String(object.version);
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a Headers message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof shared.Headers
+         * @static
+         * @param {shared.Headers} message Headers
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        Headers.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.version = "";
+            if (message.version != null && message.hasOwnProperty("version"))
+                object.version = message.version;
+            return object;
+        };
+
+        /**
+         * Converts this Headers to JSON.
+         * @function toJSON
+         * @memberof shared.Headers
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        Headers.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return Headers;
+    })();
+
+    return shared;
+})();
+
 $root.transactions = (function() {
 
     /**
@@ -4243,6 +4909,7 @@ $root.transactions = (function() {
          * @memberof transactions
          * @interface IPostTransactionsRequest
          * @property {Array.<Uint8Array>|null} [transactions] PostTransactionsRequest transactions
+         * @property {shared.IHeaders|null} [headers] PostTransactionsRequest headers
          */
 
         /**
@@ -4268,6 +4935,14 @@ $root.transactions = (function() {
          * @instance
          */
         PostTransactionsRequest.prototype.transactions = $util.emptyArray;
+
+        /**
+         * PostTransactionsRequest headers.
+         * @member {shared.IHeaders|null|undefined} headers
+         * @memberof transactions.PostTransactionsRequest
+         * @instance
+         */
+        PostTransactionsRequest.prototype.headers = null;
 
         /**
          * Creates a new PostTransactionsRequest instance using the specified properties.
@@ -4296,6 +4971,8 @@ $root.transactions = (function() {
             if (message.transactions != null && message.transactions.length)
                 for (var i = 0; i < message.transactions.length; ++i)
                     writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.transactions[i]);
+            if (message.headers != null && Object.hasOwnProperty.call(message, "headers"))
+                $root.shared.Headers.encode(message.headers, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
             return writer;
         };
 
@@ -4334,6 +5011,9 @@ $root.transactions = (function() {
                     if (!(message.transactions && message.transactions.length))
                         message.transactions = [];
                     message.transactions.push(reader.bytes());
+                    break;
+                case 2:
+                    message.headers = $root.shared.Headers.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -4377,6 +5057,11 @@ $root.transactions = (function() {
                     if (!(message.transactions[i] && typeof message.transactions[i].length === "number" || $util.isString(message.transactions[i])))
                         return "transactions: buffer[] expected";
             }
+            if (message.headers != null && message.hasOwnProperty("headers")) {
+                var error = $root.shared.Headers.verify(message.headers);
+                if (error)
+                    return "headers." + error;
+            }
             return null;
         };
 
@@ -4402,6 +5087,11 @@ $root.transactions = (function() {
                     else if (object.transactions[i].length)
                         message.transactions[i] = object.transactions[i];
             }
+            if (object.headers != null) {
+                if (typeof object.headers !== "object")
+                    throw TypeError(".transactions.PostTransactionsRequest.headers: object expected");
+                message.headers = $root.shared.Headers.fromObject(object.headers);
+            }
             return message;
         };
 
@@ -4420,11 +5110,15 @@ $root.transactions = (function() {
             var object = {};
             if (options.arrays || options.defaults)
                 object.transactions = [];
+            if (options.defaults)
+                object.headers = null;
             if (message.transactions && message.transactions.length) {
                 object.transactions = [];
                 for (var j = 0; j < message.transactions.length; ++j)
                     object.transactions[j] = options.bytes === String ? $util.base64.encode(message.transactions[j], 0, message.transactions[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.transactions[j]) : message.transactions[j];
             }
+            if (message.headers != null && message.hasOwnProperty("headers"))
+                object.headers = $root.shared.Headers.toObject(message.headers, options);
             return object;
         };
 
