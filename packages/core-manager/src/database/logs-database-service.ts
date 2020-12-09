@@ -3,6 +3,14 @@ import dayjs from "dayjs";
 
 import { Database, Result } from "./database";
 
+export interface LogsResult {
+    id: number;
+    process: string;
+    level: string;
+    content: string;
+    timestamp: number;
+}
+
 export interface SearchParams {
     dateFrom?: number;
     dateTo?: number;
@@ -122,6 +130,10 @@ export class LogsDatabaseService {
         }
 
         return this.database.find("logs", conditions);
+    }
+
+    public getAll(conditions: any): LogsResult[] {
+        return this.database.getAll("logs", conditions);
     }
 
     private removeOldRecords() {

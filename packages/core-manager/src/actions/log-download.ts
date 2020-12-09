@@ -3,9 +3,9 @@ import dayjs from "dayjs";
 import { createWriteStream, ensureDirSync, WriteStream } from "fs-extra";
 import { join } from "path";
 
-// import { Identifiers } from "../ioc";
-// import { LogsDatabaseService } from "../database/logs-database-service";
 import { Actions } from "../contracts";
+import { LogsDatabaseService } from "../database/logs-database-service";
+import { Identifiers } from "../ioc";
 
 interface Params {
     dateFrom: number;
@@ -19,8 +19,8 @@ export class Action implements Actions.Action {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Application;
 
-    // @Container.inject(Identifiers.LogsDatabaseService)
-    // private readonly database!: LogsDatabaseService;
+    @Container.inject(Identifiers.LogsDatabaseService)
+    private readonly database!: LogsDatabaseService;
 
     public name = "log.download";
 
@@ -66,6 +66,8 @@ export class Action implements Actions.Action {
     }
 
     private writeLogs(stream: WriteStream): void {
-        stream.write("Test");
+        for (const log of this.database.getAll({})) {
+            stream.write(log.content);
+        }
     }
 }
