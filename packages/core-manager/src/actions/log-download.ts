@@ -46,7 +46,7 @@ export class Action implements Actions.Action {
     public async execute(params: Params): Promise<any> {
         const fileName = this.generateFileName();
 
-        this.writeLogs(this.prepareOutputStream(fileName));
+        this.writeLogs(this.prepareOutputStream(fileName), this.prepareQueryConditions(params));
 
         return fileName;
     }
@@ -65,9 +65,33 @@ export class Action implements Actions.Action {
         return createWriteStream(filePath);
     }
 
-    private writeLogs(stream: WriteStream): void {
-        for (const log of this.database.getAll({})) {
-            stream.write(log.content);
+    private prepareQueryConditions(params: Params): any {
+        const query = {
+            timestamp: {
+                $lte: params.dateTo,
+                $gte: params.dateFrom,
+            },
+            level: {
+                $in: params.levels,
+            },
+            $order: {
+                id: "ASC",
+            },
+        };
+
+        if (params.processes) {
+            // @ts-ignore
+            query.process = {
+                $in: params.processes,
+            };
+        }
+
+        return query;
+    }
+
+    private writeLogs(stream: WriteStream, conditions: any): void {
+        for (const log of this.database.getAll(conditions)) {
+            stream.write(`${log.id} [${log.level.toUpperCase()}] ${log.content}\n`);
         }
     }
 }
