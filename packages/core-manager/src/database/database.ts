@@ -94,6 +94,8 @@ export class Database {
     public getAll(tableName: string, conditions?: any): any[] {
         const table = this.getTable(tableName);
 
+        console.log(this.prepareOrderBy(conditions));
+
         const result = this.database
             .prepare(`SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)}`)
             .pluck(false)
@@ -326,6 +328,25 @@ export class Database {
         }
 
         return 0;
+    }
+
+    private prepareOrderBy(conditions?: any): string {
+        let result = "";
+
+        if (conditions && conditions.$order && Object.keys(conditions.$order).length >= 1) {
+            result = "ORDER BY";
+
+            const keys = Object.keys(conditions.$order);
+            for (const key of keys) {
+                result += ` ${key} ${conditions.$order[key] === "DESC" ? "DESC" : "ASC"}`;
+
+                if (keys[keys.length - 1] !== key) {
+                    result += ",";
+                }
+            }
+        }
+
+        return result;
     }
 
     private clearLimitAndOffset(conditions?: any): void {
