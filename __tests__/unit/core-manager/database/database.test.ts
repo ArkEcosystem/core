@@ -505,6 +505,28 @@ describe("DatabaseService", () => {
             expect(result.data.length).toBe(1);
         });
 
+        it("should use $in on number type", async () => {
+            const result = database.find("table_2", { column_json: { size: { $in: [1, 2] } } });
+
+            expect(result.total).toBe(2);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(2);
+        });
+
+        it("should use $in on string type", async () => {
+            const result = database.find("table_2", {
+                column_json: { name: { $in: ["1_dummy_event", "2_dummy_event"] } },
+            });
+
+            expect(result.total).toBe(2);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(2);
+        });
+
         it("should use $lt", async () => {
             const result = database.find("table_2", { column_json: { size: { $lt: 2 } } });
 

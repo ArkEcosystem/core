@@ -20,6 +20,7 @@ const conditions = new Map<string, string>([
     ["$gt", ">"],
     ["$gte", ">="],
     ["$like", "LIKE"],
+    ["$in", "IN"],
 ]);
 
 export interface Column {
@@ -122,6 +123,10 @@ export class Database {
         const offset = this.prepareOffset(conditions);
 
         this.clearLimitAndOffset(conditions);
+
+        console.log(
+            `SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)} LIMIT ${limit} OFFSET ${offset}`,
+        );
 
         return {
             total: this.getTotal(tableName, conditions),
@@ -381,18 +386,50 @@ export class Database {
         return result;
     }
 
+    private prepareValue(value: any) {
+        if (Array.isArray(value)) {
+            let result = "(";
+
+            for (const item of value) {
+                if (typeof item === "number") {
+                    result += `${item}`;
+                } else {
+                    result += `'${item}'`;
+                }
+
+                if (value[value.length - 1] !== item) {
+                    result += ",";
+                }
+            }
+
+            result += ")";
+
+            return result;
+        }
+
+        return value;
+    }
+
+    private useQuote(value: any) {
+        if (Array.isArray(value)) {
+            return false;
+        }
+
+        return typeof value !== "number";
+    }
+
     private conditionLineToSQLCondition(conditionLine: ConditionLine, jsonExtractProperty?: string): string {
-        const useQuote = typeof conditionLine.value !== "number";
+        const useQuote = this.useQuote(conditionLine.value);
 
         if (jsonExtractProperty) {
             // Example: json_extract(data, '$.publicKey') = '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
             // prettier-ignore
-            return `json_extract(${jsonExtractProperty}, '${conditionLine.property}') ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
+            return `json_extract(${jsonExtractProperty}, '${conditionLine.property}') ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${this.prepareValue(conditionLine.value)}${useQuote ? "'" : ""}`;
         }
 
         // Example: event LIKE 'wallet'
         // prettier-ignore
-        return `${conditionLine.property} ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
+        return `${conditionLine.property} ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${this.prepareValue(conditionLine.value)}${useQuote ? "'" : ""}`;
     }
 
     private extractConditions(data: any, property: string): ConditionLine[] {
