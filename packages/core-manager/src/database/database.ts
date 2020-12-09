@@ -90,10 +90,13 @@ export class Database {
         }
     }
 
-    public getAll(tableName: string): any[] {
+    public getAll(tableName: string, conditions?: any): any[] {
         const table = this.getTable(tableName);
 
-        const result = this.database.prepare(`SELECT * FROM ${table.name}`).pluck(false).all();
+        const result = this.database
+            .prepare(`SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)}`)
+            .pluck(false)
+            .all();
 
         return this.transform(table, result);
     }

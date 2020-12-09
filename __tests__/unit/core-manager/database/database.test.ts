@@ -229,7 +229,7 @@ describe("DatabaseService", () => {
     });
 
     describe("GetAll", () => {
-        it("should return all data form table", () => {
+        beforeEach(() => {
             database = new Database(storagePath, schema);
             database.boot();
             expect(existsSync(storagePath)).toBeTrue();
@@ -247,12 +247,19 @@ describe("DatabaseService", () => {
                     column_json: jsonContent,
                 });
             }
+        });
 
+        it("should return all data form table", () => {
             const result1 = database.getAll("table_1");
             expect(result1.length).toEqual(100);
 
             const result2 = database.getAll("table_2");
             expect(result2.length).toEqual(200);
+        });
+
+        it("should return all using conditions", () => {
+            const result1 = database.getAll("table_2", { id: { $lte: 30 } });
+            expect(result1.length).toEqual(30);
         });
 
         it("should throw if table does not exist", () => {
