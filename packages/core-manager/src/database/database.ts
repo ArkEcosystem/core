@@ -94,10 +94,12 @@ export class Database {
     public getAll(tableName: string, conditions?: any): any[] {
         const table = this.getTable(tableName);
 
-        console.log(this.prepareOrderBy(conditions));
-
         const result = this.database
-            .prepare(`SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)}`)
+            .prepare(
+                `SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)} ${this.prepareOrderBy(
+                    conditions,
+                )}`,
+            )
             .pluck(false)
             .all();
 
@@ -124,10 +126,11 @@ export class Database {
         const limit = this.prepareLimit(conditions);
         const offset = this.prepareOffset(conditions);
 
-        this.clearLimitAndOffset(conditions);
-
         console.log(
-            `SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)} LIMIT ${limit} OFFSET ${offset}`,
+            `SELECT * FROM ${table.name} ${this.prepareWhere(
+                table,
+                conditions,
+            )} LIMIT ${limit} OFFSET ${offset} ${this.prepareOrderBy(conditions)}`,
         );
 
         return {
@@ -141,7 +144,7 @@ export class Database {
                         `SELECT * FROM ${table.name} ${this.prepareWhere(
                             table,
                             conditions,
-                        )} LIMIT ${limit} OFFSET ${offset}`,
+                        )} LIMIT ${limit} OFFSET ${offset} ${this.prepareOrderBy(conditions)}`,
                     )
                     .pluck(false)
                     .all(),
@@ -349,16 +352,6 @@ export class Database {
         return result;
     }
 
-    private clearLimitAndOffset(conditions?: any): void {
-        if (conditions && Object.keys(conditions).includes("$offset")) {
-            delete conditions.$offset;
-        }
-
-        if (conditions && Object.keys(conditions).includes("$limit")) {
-            delete conditions.$limit;
-        }
-    }
-
     private prepareWhere(table: Table, conditions?: any): string {
         let query = "";
 
@@ -383,6 +376,10 @@ export class Database {
         }
 
         for (const key of Object.keys(conditions)) {
+            if (["$offset", "$limit", "$order"].includes(key)) {
+                continue;
+            }
+
             const column = table.columns.find((column) => column.name === key);
 
             if (!column) {
