@@ -106,6 +106,19 @@ export class Database {
         return this.transform(table, result);
     }
 
+    public getAllIterator(tableName: string, conditions?: any): IterableIterator<any> {
+        const table = this.getTable(tableName);
+
+        return this.database
+            .prepare(
+                `SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)} ${this.prepareOrderBy(
+                    conditions,
+                )}`,
+            )
+            .pluck(false)
+            .iterate();
+    }
+
     public add(tableName: string, data: any): void {
         const table = this.getTable(tableName);
 
