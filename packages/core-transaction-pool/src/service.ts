@@ -304,7 +304,7 @@ export class Service implements Contracts.TransactionPool.Service {
             for (const removedTransaction of removedTransactions) {
                 AppUtils.assert.defined<string>(removedTransaction.id);
                 this.storage.removeTransaction(removedTransaction.id);
-                this.logger.info(`Removed expired ${removedTransaction}`);
+                this.logger.info(`Removed old ${removedTransaction}`);
                 this.events.dispatch(Enums.TransactionEvent.Expired, removedTransaction.data);
             }
         }
