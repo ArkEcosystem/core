@@ -276,6 +276,7 @@ export class Service implements Contracts.TransactionPool.Service {
                 return;
             }
 
+            await this.removeOldTransactions();
             await this.removeExpiredTransactions();
             await this.removeLowestPriorityTransactions();
         });
@@ -290,6 +291,44 @@ export class Service implements Contracts.TransactionPool.Service {
             this.mempool.flush();
             this.storage.flush();
         });
+    }
+
+    private async removeOldTransactions(): Promise<void> {
+        const maxTransactionAge: number = this.configuration.getRequired<number>("maxTransactionAge");
+        const lastHeight: number = this.stateStore.getLastHeight();
+        const expiredHeight: number = lastHeight - maxTransactionAge;
+
+        for (const { senderPublicKey, id } of this.storage.getOldTransactions(expiredHeight)) {
+            const removedTransactions = await this.mempool.removeTransaction(senderPublicKey, id);
+
+            for (const removedTransaction of removedTransactions) {
+                AppUtils.assert.defined<string>(removedTransaction.id);
+                this.storage.removeTransaction(removedTransaction.id);
+                this.logger.info(`Removed expired ${removedTransaction}`);
+                this.events.dispatch(Enums.TransactionEvent.Expired, removedTransaction.data);
+            }
+        }
+    }
+
+    private async removeExpiredTransactions(): Promise<void> {
+        for (const transaction of this.poolQuery.getAll()) {
+            AppUtils.assert.defined<string>(transaction.id);
+            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+            if (await this.expirationService.isExpired(transaction)) {
+                const removedTransactions = await this.mempool.removeTransaction(
+                    transaction.data.senderPublicKey,
+                    transaction.id,
+                );
+
+                for (const removedTransaction of removedTransactions) {
+                    AppUtils.assert.defined<string>(removedTransaction.id);
+                    this.storage.removeTransaction(removedTransaction.id);
+                    this.logger.info(`Removed expired ${removedTransaction}`);
+                    this.events.dispatch(Enums.TransactionEvent.Expired, removedTransaction.data);
+                }
+            }
+        }
     }
 
     private async removeLowestPriorityTransaction(): Promise<void> {
@@ -323,48 +362,13 @@ export class Service implements Contracts.TransactionPool.Service {
         }
     }
 
-    private async removeExpiredTransactions(): Promise<void> {
-        const maxTransactionAge: number = this.configuration.getRequired<number>("maxTransactionAge");
-        const lastHeight: number = this.stateStore.getLastHeight();
-        const expiredHeight: number = lastHeight - maxTransactionAge;
-
-        for (const { senderPublicKey, id } of this.storage.getOldTransactions(expiredHeight)) {
-            const removedTransactions = await this.mempool.removeTransaction(senderPublicKey, id);
-
-            for (const removedTransaction of removedTransactions) {
-                AppUtils.assert.defined<string>(removedTransaction.id);
-                this.storage.removeTransaction(removedTransaction.id);
-                this.logger.info(`Removed expired ${removedTransaction}`);
-                this.events.dispatch(Enums.TransactionEvent.Expired, removedTransaction.data);
-            }
-        }
-
-        for (const transaction of this.poolQuery.getAll()) {
-            AppUtils.assert.defined<string>(transaction.id);
-            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-            if (await this.expirationService.isExpired(transaction)) {
-                const removedTransactions = await this.mempool.removeTransaction(
-                    transaction.data.senderPublicKey,
-                    transaction.id,
-                );
-
-                for (const removedTransaction of removedTransactions) {
-                    AppUtils.assert.defined<string>(removedTransaction.id);
-                    this.storage.removeTransaction(removedTransaction.id);
-                    this.logger.info(`Removed expired ${removedTransaction}`);
-                    this.events.dispatch(Enums.TransactionEvent.Expired, removedTransaction.data);
-                }
-            }
-        }
-    }
-
     private async addTransactionToMempool(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const maxTransactionsInPool: number = this.configuration.getRequired<number>("maxTransactionsInPool");
 
         if (this.getPoolSize() >= maxTransactionsInPool) {
+            await this.removeOldTransactions();
             await this.removeExpiredTransactions();
             await this.removeLowestPriorityTransactions();
         }
