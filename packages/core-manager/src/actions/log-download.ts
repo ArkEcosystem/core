@@ -54,11 +54,16 @@ export class Action implements Actions.Action {
 
         await this.workerManager.generateLog(
             this.database.getDBFilePath(),
-            join(this.app.dataPath(), fileName),
+            this.database.getSchema(),
             this.prepareQueryConditions(params),
+            this.getLogFilePath(fileName),
         );
 
         return fileName;
+    }
+
+    private getLogFilePath(fileName: string): string {
+        return join(this.app.dataPath(), "log-archive", fileName);
     }
 
     // @ts-ignore

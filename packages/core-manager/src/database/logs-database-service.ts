@@ -1,7 +1,7 @@
 import { Container, Providers } from "@arkecosystem/core-kernel";
 import dayjs from "dayjs";
 
-import { Database, Result } from "./database";
+import { Database, Result, Schema } from "./database";
 
 export interface LogsResult {
     id: number;
@@ -36,8 +36,8 @@ export class LogsDatabaseService {
         return this.configuration.getRequired<{ storage: string }>("logs").storage;
     }
 
-    public boot(): void {
-        this.database = new Database(this.getDBFilePath(), {
+    public getSchema(): Schema {
+        return {
             tables: [
                 {
                     name: "logs",
@@ -70,7 +70,11 @@ export class LogsDatabaseService {
                     ],
                 },
             ],
-        });
+        };
+    }
+
+    public boot(): void {
+        this.database = new Database(this.getDBFilePath(), this.getSchema());
 
         this.database.boot(this.configuration.getRequired<{ resetDatabase: boolean }>("logs").resetDatabase);
     }
