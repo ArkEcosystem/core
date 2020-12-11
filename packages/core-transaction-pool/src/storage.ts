@@ -20,13 +20,15 @@ export class Storage implements Contracts.TransactionPool.Storage {
         const filename = this.configuration.getRequired<string>("storage");
         ensureFileSync(filename);
 
+        const table = "pool_20201204";
+
         this.database = new BetterSqlite3(filename);
         this.database.exec(`
             PRAGMA journal_mode = WAL;
 
             DROP TABLE IF EXISTS pool;
 
-            CREATE TABLE IF NOT EXISTS pool_20201204(
+            CREATE TABLE IF NOT EXISTS ${table}(
                 n                  INTEGER      PRIMARY KEY AUTOINCREMENT,
                 height             INTEGER      NOT NULL,
                 id                 VARCHAR(64)  NOT NULL,
@@ -34,29 +36,27 @@ export class Storage implements Contracts.TransactionPool.Storage {
                 serialized         BLOB         NOT NULL
             );
 
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_pool_20201204_id ON pool_20201204 (id);
-            CREATE INDEX IF NOT EXISTS idx_pool_20201204_height ON pool_20201204 (height);
+            CREATE UNIQUE INDEX IF NOT EXISTS ${table}_id ON ${table} (id);
+            CREATE INDEX IF NOT EXISTS ${table}_height ON ${table} (height);
         `);
 
         this.addTransactionStmt = this.database.prepare(
-            "INSERT INTO pool_20201204 (height, id, senderPublicKey, serialized) VALUES (:height, :id, :senderPublicKey, :serialized)",
+            `INSERT INTO ${table} (height, id, senderPublicKey, serialized) VALUES (:height, :id, :senderPublicKey, :serialized)`,
         );
 
-        this.hasTransactionStmt = this.database
-            .prepare("SELECT COUNT(*) FROM pool_20201204 WHERE id = :id")
-            .pluck(true);
+        this.hasTransactionStmt = this.database.prepare(`SELECT COUNT(*) FROM ${table} WHERE id = :id`).pluck(true);
 
         this.getAllTransactionsStmt = this.database.prepare(
-            "SELECT height, id, senderPublicKey, serialized FROM pool_20201204 ORDER BY n",
+            `SELECT height, id, senderPublicKey, serialized FROM ${table} ORDER BY n`,
         );
 
         this.getOldTransactionsStmt = this.database.prepare(
-            "SELECT height, id, senderPublicKey, serialized FROM pool_20201204 WHERE height <= :height ORDER BY n DESC",
+            `SELECT height, id, senderPublicKey, serialized FROM ${table} WHERE height <= :height ORDER BY n DESC`,
         );
 
-        this.removeTransactionStmt = this.database.prepare("DELETE FROM pool_20201204 WHERE id = :id");
+        this.removeTransactionStmt = this.database.prepare(`DELETE FROM ${table} WHERE id = :id`);
 
-        this.flushStmt = this.database.prepare("DELETE FROM pool_20201204");
+        this.flushStmt = this.database.prepare(`DELETE FROM ${table}`);
     }
 
     public dispose(): void {
