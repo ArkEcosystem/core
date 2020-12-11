@@ -139,13 +139,6 @@ export class Database {
         const limit = this.prepareLimit(conditions);
         const offset = this.prepareOffset(conditions);
 
-        console.log(
-            `SELECT * FROM ${table.name} ${this.prepareWhere(
-                table,
-                conditions,
-            )} LIMIT ${limit} OFFSET ${offset} ${this.prepareOrderBy(conditions)}`,
-        );
-
         return {
             total: this.getTotal(tableName, conditions),
             limit,
@@ -239,8 +232,6 @@ export class Database {
         }
 
         result += ")";
-
-        // console.log("prepareInsertSQL: ", result);
 
         return result;
     }
