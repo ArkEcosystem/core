@@ -112,7 +112,7 @@ export class Service implements Contracts.TransactionPool.Service {
         });
     }
 
-    public async readdTransactions(previouslyForgedTransactions?: Interfaces.ITransaction[]): Promise<void> {
+    public async readdTransactions(previouslyForgedTransactions: Interfaces.ITransaction[] = []): Promise<void> {
         await this.lock.runExclusive(async () => {
             if (this.disposed) {
                 return;
@@ -126,28 +126,26 @@ export class Service implements Contracts.TransactionPool.Service {
             let previouslyStoredExpirations = 0;
             let previouslyStoredFailures = 0;
 
-            if (previouslyForgedTransactions) {
-                for (const { id, serialized } of previouslyForgedTransactions) {
-                    try {
-                        const previouslyForgedTransaction = Transactions.TransactionFactory.fromBytes(serialized);
+            for (const { id, serialized } of previouslyForgedTransactions) {
+                try {
+                    const previouslyForgedTransaction = Transactions.TransactionFactory.fromBytes(serialized);
 
-                        AppUtils.assert.defined<string>(previouslyForgedTransaction.id);
-                        AppUtils.assert.defined<string>(previouslyForgedTransaction.data.senderPublicKey);
+                    AppUtils.assert.defined<string>(previouslyForgedTransaction.id);
+                    AppUtils.assert.defined<string>(previouslyForgedTransaction.data.senderPublicKey);
 
-                        await this.addTransactionToMempool(previouslyForgedTransaction);
+                    await this.addTransactionToMempool(previouslyForgedTransaction);
 
-                        this.storage.addTransaction({
-                            height: this.stateStore.getLastHeight(),
-                            id: previouslyForgedTransaction.id,
-                            senderPublicKey: previouslyForgedTransaction.data.senderPublicKey,
-                            serialized: previouslyForgedTransaction.serialized,
-                        });
+                    this.storage.addTransaction({
+                        height: this.stateStore.getLastHeight(),
+                        id: previouslyForgedTransaction.id,
+                        senderPublicKey: previouslyForgedTransaction.data.senderPublicKey,
+                        serialized: previouslyForgedTransaction.serialized,
+                    });
 
-                        previouslyForgedSuccesses++;
-                    } catch (error) {
-                        this.logger.debug(`Failed to re-add previously forged transaction ${id}: ${error.message}`);
-                        previouslyForgedFailures++;
-                    }
+                    previouslyForgedSuccesses++;
+                } catch (error) {
+                    this.logger.debug(`Failed to re-add previously forged transaction ${id}: ${error.message}`);
+                    previouslyForgedFailures++;
                 }
             }
 
