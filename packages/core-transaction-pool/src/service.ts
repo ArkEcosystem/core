@@ -159,7 +159,6 @@ export class Service implements Contracts.TransactionPool.Service {
                 if (height > expiredHeight) {
                     try {
                         const previouslyStoredTransaction = Transactions.TransactionFactory.fromBytes(serialized);
-
                         await this.addTransactionToMempool(previouslyStoredTransaction);
                         previouslyStoredSuccesses++;
                     } catch (error) {
@@ -314,7 +313,7 @@ export class Service implements Contracts.TransactionPool.Service {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
             this.logger.info(`Removed lowest priority ${removedTransaction}`);
-            this.events.dispatch(Enums.TransactionEvent.Expired, removedTransaction.data);
+            this.events.dispatch(Enums.TransactionEvent.RemovedFromPool, removedTransaction.data);
         }
     }
 
