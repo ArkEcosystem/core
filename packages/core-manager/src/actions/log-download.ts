@@ -52,7 +52,11 @@ export class Action implements Actions.Action {
 
         // await this.writeLogs(this.prepareOutputStream(fileName), this.prepareQueryConditions(params));
 
-        await this.workerManager.generateLog(join(this.app.dataPath(), fileName), this.prepareQueryConditions(params));
+        await this.workerManager.generateLog(
+            this.database.getDBFilePath(),
+            join(this.app.dataPath(), fileName),
+            this.prepareQueryConditions(params),
+        );
 
         return fileName;
     }

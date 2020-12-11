@@ -32,10 +32,12 @@ export class LogsDatabaseService {
 
     private database!: Database;
 
-    public boot(): void {
-        const filename = this.configuration.getRequired<{ storage: string }>("logs").storage;
+    public getDBFilePath(): string {
+        return this.configuration.getRequired<{ storage: string }>("logs").storage;
+    }
 
-        this.database = new Database(filename, {
+    public boot(): void {
+        this.database = new Database(this.getDBFilePath(), {
             tables: [
                 {
                     name: "logs",
