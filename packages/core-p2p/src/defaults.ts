@@ -21,7 +21,7 @@ export const defaults = {
      * The timeout to download a batch of blocks (400). Notice that we start
      * 25 concurrent such downloads, so the network may be saturated. [milliseconds]
      */
-    getBlocksTimeout: 600000,
+    getBlocksTimeout: 30000,
     /**
      * The maximum number of peers we will broadcast data to
      */
