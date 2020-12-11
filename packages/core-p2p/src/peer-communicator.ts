@@ -242,7 +242,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
             const timeBeforeSocketCall: number = new Date().getTime();
 
-            maxPayload = maxPayload || 100 * constants.KILOBYTE; // 100KB by default, enough for most requests
+            maxPayload = maxPayload || constants.DEFAULT_MAX_PAYLOAD_CLIENT;
             const connection: SCClientSocket = this.connector.connect(peer, maxPayload);
             response = await socketEmit(
                 peer.ip,
