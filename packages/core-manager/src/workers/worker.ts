@@ -1,20 +1,11 @@
-import { parentPort, workerData } from "worker_threads";
+import { workerData } from "worker_threads";
 
-if (!parentPort) {
-    process.exit(-1);
-}
+import { GenerateLog, Options as GenerateLogOptions } from "./actions/generate-log";
 
-console.log(`We get the message with data: ${JSON.stringify(workerData)}`);
+const main = async () => {
+    const action = new GenerateLog(workerData as GenerateLogOptions);
 
-//
-// cosnt postMessageAfter = async () => {
-//     await new Promise((re))
-// }
+    await action.execute();
+};
 
-setTimeout(() => {
-    throw new Error("Some error");
-
-    parentPort?.postMessage({
-        test: "some_data",
-    });
-}, 10000);
+main();

@@ -1,6 +1,8 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { Worker } from "worker_threads";
 
+import { Options as GenerateLogOptions } from "./actions/generate-log";
+
 class ResolveRejectOnce {
     private counter: number = 0;
 
@@ -21,17 +23,17 @@ class ResolveRejectOnce {
 
 @Container.injectable()
 export class WorkerManager {
-    public generateLog(filePath: string, query: any): Promise<void> {
+    public generateLog(databaseFilePath: string, logFilePath: string, query: any): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            const resolver = new ResolveRejectOnce(resolve, reject);
-
-            const workerData = {
-                filePath,
+            const workerData: GenerateLogOptions = {
+                databaseFilePath,
+                logFilePath,
                 query,
             };
 
             const worker = new Worker(__dirname + "/worker.js", { workerData });
 
+            const resolver = new ResolveRejectOnce(resolve, reject);
             worker
                 .on("exit", () => {
                     resolver.resolve();
