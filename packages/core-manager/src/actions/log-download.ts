@@ -6,6 +6,7 @@ import { join } from "path";
 import { Actions } from "../contracts";
 import { LogsDatabaseService } from "../database/logs-database-service";
 import { Identifiers } from "../ioc";
+import { WorkerManager } from "../workers/worker-manager";
 
 interface Params {
     dateFrom: number;
@@ -21,6 +22,9 @@ export class Action implements Actions.Action {
 
     @Container.inject(Identifiers.LogsDatabaseService)
     private readonly database!: LogsDatabaseService;
+
+    @Container.inject(Identifiers.WorkerManager)
+    private readonly workerManager!: WorkerManager;
 
     public name = "log.download";
 
@@ -46,15 +50,19 @@ export class Action implements Actions.Action {
     public async execute(params: Params): Promise<any> {
         const fileName = this.generateFileName();
 
-        this.writeLogs(this.prepareOutputStream(fileName), this.prepareQueryConditions(params));
+        // await this.writeLogs(this.prepareOutputStream(fileName), this.prepareQueryConditions(params));
+
+        await this.workerManager.generateLog(join(this.app.dataPath(), fileName), this.prepareQueryConditions(params));
 
         return fileName;
     }
 
+    // @ts-ignore
     private generateFileName(): string {
         return dayjs().format("YYYY-MM-DD_HH-mm-ss") + ".log";
     }
 
+    // @ts-ignore
     private prepareOutputStream(fileName: string): WriteStream {
         const dir = join(this.app.dataPath(), "log-archive");
 
@@ -62,9 +70,12 @@ export class Action implements Actions.Action {
 
         const filePath = join(dir, fileName);
 
+        console.log("FilePath: ", filePath);
+
         return createWriteStream(filePath);
     }
 
+    // @ts-ignore
     private prepareQueryConditions(params: Params): any {
         const query = {
             timestamp: {
@@ -89,9 +100,43 @@ export class Action implements Actions.Action {
         return query;
     }
 
-    private writeLogs(stream: WriteStream, conditions: any): void {
-        for (const log of this.database.getAll(conditions)) {
+    // @ts-ignore
+    private async writeLogs(stream: WriteStream, conditions: any): Promise<void> {
+        const iterator = this.database.getAllIterator(conditions);
+
+        console.log("Logs found");
+
+        let i = 0;
+
+        console.log("Before loop");
+
+        for (const log of iterator) {
+            if (i === 0) {
+                console.log("Start");
+                console.log(log);
+            }
+
             stream.write(`${log.id} [${log.level.toUpperCase()}] ${log.content}\n`);
+
+            await new Promise((resolve) => {
+                if (i++ % 10000 === 0) {
+                    console.log(log.id);
+
+                    setImmediate(() => {
+                        resolve();
+                    });
+                } else {
+                    resolve();
+                }
+            });
         }
     }
 }
+
+// Times
+// imidiate every: 1 m 58 sec
+// no imediate: 1 m 25 sec
+// No async: 1 m 9 sec
+// Paritioning: 55 sec
+
+// Iterator: 33 sec

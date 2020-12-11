@@ -14,6 +14,7 @@ import { Server } from "./server/server";
 import { Argon2id, SimpleTokenValidator } from "./server/validators";
 import { SnapshotsManager } from "./snapshots/snapshots-manager";
 import { CliManager } from "./utils/cli-manager";
+import { WorkerManager } from "./workers/worker-manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -50,6 +51,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             this.app.bind(Identifiers.TokenValidator).to(SimpleTokenValidator).inSingletonScope();
             this.app.bind(Identifiers.SnapshotsManager).to(SnapshotsManager).inSingletonScope();
             this.app.bind(Identifiers.CliManager).to(CliManager).inSingletonScope();
+            this.app.bind(Identifiers.WorkerManager).to(WorkerManager).inSingletonScope();
 
             const pkg: Types.PackageJson = require("../package.json");
             this.app.bind(Identifiers.CLI).toConstantValue(ApplicationFactory.make(new Container.Container(), pkg));
