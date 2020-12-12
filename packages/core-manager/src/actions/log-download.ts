@@ -64,7 +64,7 @@ export class Action implements Actions.Action {
     }
 
     private generateFileName(): string {
-        return dayjs().format("YYYY-MM-DD_HH-mm-ss") + ".log";
+        return dayjs().format("YYYY-MM-DD_HH-mm-ss") + ".log.gz";
     }
 
     private prepareQueryConditions(params: Params): any {

@@ -1,5 +1,7 @@
-import { createWriteStream, ensureDirSync, WriteStream } from "fs-extra";
+import { createWriteStream, ensureDirSync } from "fs-extra";
 import { dirname } from "path";
+import { Writable } from "stream";
+import zlib from "zlib";
 
 import { Database, Schema } from "../../database/database";
 import { LogsResult } from "../../database/logs-database-service";
@@ -28,15 +30,21 @@ export class GenerateLog {
         for (const log of iterator) {
             stream.write(this.formatLog(log));
         }
+
+        stream.end();
     }
 
     private formatLog(log: LogsResult): string {
         return `${log.id} [${log.level}] ${log.content}\n`;
     }
 
-    private prepareOutputStream(): WriteStream {
+    private prepareOutputStream(): Writable {
         ensureDirSync(dirname(this.options.logFilePath));
 
-        return createWriteStream(this.options.logFilePath);
+        const stream = zlib.createGzip();
+
+        stream.pipe(createWriteStream(this.options.logFilePath));
+
+        return stream;
     }
 }
