@@ -138,14 +138,6 @@ export class LogsDatabaseService {
         return this.database.find("logs", conditions);
     }
 
-    public getAll(conditions: any): LogsResult[] {
-        return this.database.getAll("logs", conditions);
-    }
-
-    public getAllIterator(conditions: any): IterableIterator<LogsResult> {
-        return this.database.getAllIterator("logs", conditions);
-    }
-
     private removeOldRecords() {
         this.database.remove("logs", {
             timestamp: {
