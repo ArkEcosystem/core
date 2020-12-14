@@ -1,5 +1,5 @@
-import { createWriteStream, ensureDirSync } from "fs-extra";
-import { dirname } from "path";
+import { createWriteStream, ensureDirSync, renameSync } from "fs-extra";
+import { dirname, join } from "path";
 import { Writable } from "stream";
 import zlib from "zlib";
 
@@ -9,7 +9,7 @@ import { LogsResult } from "../../database/logs-database-service";
 export interface Options {
     databaseFilePath: string;
     schema: Schema;
-    logFilePath: string;
+    logFileName: string;
     query: any;
 }
 
@@ -31,19 +31,33 @@ export class GenerateLog {
             stream.write(this.formatLog(log));
         }
 
-        stream.end();
+        await new Promise((resolve) => {
+            stream.end(() => {
+                resolve();
+            });
+        });
+
+        renameSync(this.getTempFilePath(), this.getFilePath());
     }
 
     private formatLog(log: LogsResult): string {
         return `${log.id} [${log.level}] ${log.content}\n`;
     }
 
+    private getFilePath(): string {
+        return join(process.env.CORE_PATH_DATA!, "log-archive", this.options.logFileName);
+    }
+
+    private getTempFilePath(): string {
+        return join(process.env.CORE_PATH_TEMP!, "log-archive", this.options.logFileName);
+    }
+
     private prepareOutputStream(): Writable {
-        ensureDirSync(dirname(this.options.logFilePath));
+        ensureDirSync(dirname(this.getTempFilePath()));
 
         const stream = zlib.createGzip();
 
-        stream.pipe(createWriteStream(this.options.logFilePath));
+        stream.pipe(createWriteStream(this.getTempFilePath()));
 
         return stream;
     }

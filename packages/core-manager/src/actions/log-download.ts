@@ -1,6 +1,5 @@
-import { Application, Container } from "@arkecosystem/core-kernel";
+import { Container } from "@arkecosystem/core-kernel";
 import dayjs from "dayjs";
-import { join } from "path";
 
 import { Actions } from "../contracts";
 import { LogsDatabaseService } from "../database/logs-database-service";
@@ -16,9 +15,6 @@ interface Params {
 
 @Container.injectable()
 export class Action implements Actions.Action {
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Application;
-
     @Container.inject(Identifiers.LogsDatabaseService)
     private readonly database!: LogsDatabaseService;
 
@@ -53,14 +49,10 @@ export class Action implements Actions.Action {
             this.database.getDBFilePath(),
             this.database.getSchema(),
             this.prepareQueryConditions(params),
-            this.getLogFilePath(fileName),
+            fileName,
         );
 
         return fileName;
-    }
-
-    private getLogFilePath(fileName: string): string {
-        return join(this.app.dataPath(), "log-archive", fileName);
     }
 
     private generateFileName(): string {
