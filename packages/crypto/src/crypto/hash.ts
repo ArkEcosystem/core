@@ -19,14 +19,18 @@ export class Hash {
         const signatureLength = bufferSignature.readUInt8(1);
         const rLength = bufferSignature.readUInt8(3);
         const sLength = bufferSignature.readUInt8(4 + rLength + 1);
-        if (bufferSignature.length !== 4 + rLength + 2 + sLength || signatureLength !== 2 + rLength + 2 + sLength) {
+        if (
+            bufferSignature.length !== 4 + rLength + 2 + sLength ||
+            signatureLength !== 2 + rLength + 2 + sLength ||
+            signatureLength > 127
+        ) {
             return false;
         }
 
         // check that first byte is positive, if it is then the whole R / S will be positive as required
         const rFirstByte = bufferSignature.readInt8(4);
         const sFirstByte = bufferSignature.readInt8(4 + rLength + 2);
-        if (rFirstByte < 0 || sFirstByte < 0) {
+        if (rFirstByte < 0 || sFirstByte < 0 || rFirstByte > 127 || sFirstByte > 127) {
             return false;
         }
 

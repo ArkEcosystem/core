@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { constants } from "./constants";
 
 export const requestSchemas = {
     peer: {
@@ -100,7 +101,7 @@ export const replySchemas = {
     },
     "p2p.peer.getPeers": {
         type: "array",
-        maxItems: 2000,
+        maxItems: constants.MAX_PEERS_GETPEERS,
         items: {
             type: "object",
             properties: {

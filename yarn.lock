@@ -5416,6 +5416,11 @@ babel-preset-jest@^25.1.0:
     "@babel/plugin-syntax-object-rest-spread" "^7.0.0"
     babel-plugin-jest-hoist "^25.1.0"
 
+backslash@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/backslash/-/backslash-0.2.0.tgz#6c3c1fce7e7e714ccfc10fd74f0f73410677375f"
+  integrity sha1-bDwfzn5+cUzPwQ/XTw9zQQZ3N18=
+
 balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
@@ -10044,6 +10049,13 @@ json-stringify-safe@5.x.x, json-stringify-safe@^5.0.0, json-stringify-safe@^5.0.
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
   integrity sha1-Epai1Y/UXxmg9s4B1lcB4sc1tus=
+
+json-validator-duplicated-keys@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/json-validator-duplicated-keys/-/json-validator-duplicated-keys-1.0.1.tgz#cfb24a0013c70a652d69110eceff99fefaf625ce"
+  integrity sha512-rFGhwW21QNCoLCwDeuqN2TtEyiXWmT+huJwBjXk6NAAEvrowkGyiiOKJjlW5v7Th1/WEqFTkS0lzPdQOrPuaNQ==
+  dependencies:
+    backslash "^0.2.0"
 
 json5@2.x, json5@^2.1.0:
   version "2.1.1"

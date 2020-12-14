@@ -1,6 +1,7 @@
 import { P2P } from "@arkecosystem/core-interfaces";
 import Ajv from "ajv";
 import delay from "delay";
+import { validate } from "json-validator-duplicated-keys";
 
 import { cidr } from "ip";
 import { RateLimiter } from "../rate-limiter";
@@ -133,8 +134,18 @@ export class Worker extends SCWorker {
             } else {
                 try {
                     const parsed = JSON.parse(message);
-                    if (parsed.event === "#disconnect") {
+                    if (validate(message) !== undefined) {
+                        return this.setErrorForIpAndDestroy(req.socket);
+                    } else if (parsed.event === "#disconnect") {
                         req.socket._disconnected = true;
+                        if (
+                            typeof parsed.data !== "object" ||
+                            typeof parsed.data.code !== "number" ||
+                            Object.keys(parsed).length !== 2 ||
+                            Object.keys(parsed.data).length !== 1
+                        ) {
+                            return this.setErrorForIpAndDestroy(req.socket);
+                        }
                     } else if (parsed.event === "#handshake") {
                         if (req.socket._handshake) {
                             return this.setErrorForIpAndDestroy(req.socket);
@@ -145,8 +156,7 @@ export class Worker extends SCWorker {
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
                         this.hasAdditionalProperties(parsed) ||
-                        (typeof parsed.cid !== "number" &&
-                            (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined")) ||
+                        (typeof parsed.cid !== "number" && typeof parsed.cid !== "undefined") ||
                         !this.handlers.includes(parsed.event)
                     ) {
                         return this.setErrorForIpAndDestroy(req.socket);
@@ -184,6 +194,7 @@ export class Worker extends SCWorker {
                 if (object.event === "p2p.peer.postTransactions") {
                     if (
                         typeof object.data.data === "object" &&
+                        Object.keys(object.data.data).length === 1 && // {transactions}
                         object.data.data.transactions &&
                         Array.isArray(object.data.data.transactions) &&
                         object.data.data.transactions.length <= this.config.maxTransactionsPerRequest

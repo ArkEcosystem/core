@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
 import { create, SCClientSocket } from "socketcluster-client";
+import { constants } from "./constants";
 import { PeerRepository } from "./peer-repository";
 import { codec } from "./utils/sc-codec";
 
@@ -89,6 +90,13 @@ export class PeerConnector implements P2P.IPeerConnector {
                 socket.on("ping", () => this.terminate(peer));
                 socket.on("pong", () => this.terminate(peer));
                 socket.on("message", data => {
+                    if (data.length > 1000) {
+                        // reset max payload to default after receiving a message
+                        // (the 1k length condition helps discarding SC messages and also some of our own
+                        // that would not need a max payload reset)
+                        socket._receiver._maxPayload = constants.DEFAULT_MAX_PAYLOAD_CLIENT;
+                    }
+
                     // this is to establish some rate limit on socket messages
                     // 30 messages per second is enough for socketcluster's + our own messages
                     const timeNow: number = new Date().getTime();

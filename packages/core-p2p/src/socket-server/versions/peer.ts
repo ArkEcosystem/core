@@ -3,6 +3,7 @@ import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosyste
 import { isBlockChained } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+import { constants } from "../../constants";
 import { MissingCommonBlockError } from "../../errors";
 import { IPeerPingResponse } from "../../interfaces";
 import { isWhitelisted } from "../../utils";
@@ -15,6 +16,7 @@ export const getPeers = ({ service }: { service: P2P.IPeerService }): P2P.IPeerB
         .getStorage()
         .getPeers()
         .sort((a, b) => a.latency - b.latency)
+        .slice(0, constants.MAX_PEERS_GETPEERS)
         .map(peer => peer.toBroadcast());
 };
 
