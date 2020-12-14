@@ -10,7 +10,7 @@ class ResolveRejectOnce {
     public constructor(
         private readonly resolveMethod: Function,
         private readonly rejectMethod: Function,
-        private readonly onFinish: Function = () => {},
+        private readonly onFinish: Function,
     ) {}
 
     public resolve(): void {
