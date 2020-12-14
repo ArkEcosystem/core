@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { createWriteStream, ensureDirSync, renameSync } from "fs-extra";
 import { dirname, join } from "path";
 import { Writable } from "stream";
@@ -5,6 +7,8 @@ import zlib from "zlib";
 
 import { Database, Schema } from "../../database/database";
 import { LogsResult } from "../../database/logs-database-service";
+
+dayjs.extend(utc);
 
 export interface Options {
     databaseFilePath: string;
@@ -41,7 +45,7 @@ export class GenerateLog {
     }
 
     private formatLog(log: LogsResult): string {
-        return `${log.id} [${log.level}] ${log.content}\n`;
+        return `${dayjs.unix(log.timestamp).utc().format("YYYY-MM-DD HH:mm:ss.SSS")} [${log.level}] : ${log.content}\n`;
     }
 
     private getFilePath(): string {
