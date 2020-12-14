@@ -15,7 +15,7 @@ export const validRegisters: Interfaces.IEntityAsset[] = [
         subType: 0,
         action: Enums.EntityAction.Register,
         data: {
-            name: "my_module",
+            name: "my_@&$-module!...",
             ...data,
         },
     })),
