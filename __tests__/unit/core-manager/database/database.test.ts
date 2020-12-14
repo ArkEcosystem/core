@@ -269,6 +269,57 @@ describe("DatabaseService", () => {
         });
     });
 
+    describe("GetAllIterator", () => {
+        const count = (iterator) => {
+            let i = 0;
+            // @ts-ignore
+            for (const item of iterator) {
+                i++;
+            }
+            return i;
+        };
+
+        beforeEach(() => {
+            database = new Database(storagePath, schema);
+            database.boot();
+            expect(existsSync(storagePath)).toBeTrue();
+
+            for (let i = 0; i < 100; i++) {
+                database.add("table_1", {
+                    column_1: "string content",
+                });
+            }
+
+            for (let i = 0; i < 200; i++) {
+                database.add("table_2", {
+                    column_1: "content 1",
+                    column_2: "content 2",
+                    column_json: jsonContent,
+                });
+            }
+        });
+
+        it("should return all data form table", () => {
+            const result1 = database.getAllIterator("table_1");
+
+            expect(count(result1)).toEqual(100);
+
+            const result2 = database.getAllIterator("table_2");
+            expect(count(result2)).toEqual(200);
+        });
+
+        it("should return all using conditions", () => {
+            const result1 = database.getAllIterator("table_2", { id: { $lte: 30 } });
+            expect(count(result1)).toEqual(30);
+        });
+
+        it("should throw if table does not exist", () => {
+            expect(() => {
+                database.getAllIterator("table_x");
+            }).toThrow("Table table_x does not exists.");
+        });
+    });
+
     describe("GetTotal", () => {
         beforeEach(() => {
             database = new Database(storagePath, schema);
@@ -327,6 +378,17 @@ describe("DatabaseService", () => {
                     column_1: "another_dummy_event",
                 });
             }
+
+            database.add("table_2", {
+                column_1: "dummy_event",
+                column_2: "",
+                column_json: { size: 1, name: "dummy_event" },
+            });
+            database.add("table_2", {
+                column_1: "dummy_event",
+                column_2: "",
+                column_json: { size: 2, name: "dummy_event" },
+            });
         });
 
         it("should return expected item", async () => {
@@ -350,6 +412,91 @@ describe("DatabaseService", () => {
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(10);
+        });
+
+        it("should respect order ASC", async () => {
+            const result = database.find("table_1", { $order: { column_1: "ASC" } });
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(10);
+
+            expect(result.data[0]).toEqual({
+                column_1: "another_dummy_event",
+            });
+            expect(result.data[1]).toEqual({
+                column_1: "another_dummy_event",
+            });
+        });
+
+        it("should respect order invalid as ASC", async () => {
+            const result = database.find("table_1", { $order: { column_1: "invalid" } });
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(10);
+
+            expect(result.data[0]).toEqual({
+                column_1: "another_dummy_event",
+            });
+            expect(result.data[1]).toEqual({
+                column_1: "another_dummy_event",
+            });
+        });
+
+        it("should respect order DESC", async () => {
+            const result = database.find("table_1", { $order: { column_1: "DESC" } });
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(10);
+
+            expect(result.data[0]).toEqual({
+                column_1: "dummy_event",
+            });
+            expect(result.data[1]).toEqual({
+                column_1: "dummy_event",
+            });
+        });
+
+        it("should respect multiple order ASC", async () => {
+            const result = database.find("table_2", { $order: { column_1: "ASC", id: "DESC" } });
+
+            expect(result.total).toBe(2);
+            expect(result.limit).toBe(10);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(2);
+
+            expect(result.data[0]).toEqual({
+                id: 2,
+                column_1: "dummy_event",
+                column_2: "",
+                column_3: null,
+                column_json: {
+                    name: "dummy_event",
+                    size: 2,
+                },
+                timestamp: expect.toBeString(),
+            });
+
+            expect(result.data[1]).toEqual({
+                id: 1,
+                column_1: "dummy_event",
+                column_2: "",
+                column_3: null,
+                column_json: {
+                    name: "dummy_event",
+                    size: 1,
+                },
+                timestamp: expect.toBeString(),
+            });
         });
 
         it("should respect maxLimit", async () => {

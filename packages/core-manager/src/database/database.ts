@@ -147,10 +147,9 @@ export class Database {
                 table,
                 this.database
                     .prepare(
-                        `SELECT * FROM ${table.name} ${this.prepareWhere(
-                            table,
+                        `SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)} ${this.prepareOrderBy(
                             conditions,
-                        )} LIMIT ${limit} OFFSET ${offset} ${this.prepareOrderBy(conditions)}`,
+                        )} LIMIT ${limit} OFFSET ${offset};`,
                     )
                     .pluck(false)
                     .all(),
