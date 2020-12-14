@@ -45,7 +45,9 @@ export class GenerateLog {
     }
 
     private formatLog(log: LogsResult): string {
-        return `${dayjs.unix(log.timestamp).utc().format("YYYY-MM-DD HH:mm:ss.SSS")} [${log.level}] : ${log.content}\n`;
+        return `[${dayjs.unix(log.timestamp).utc().format("YYYY-MM-DD HH:mm:ss.SSS")}] ${log.level.toUpperCase()} : ${
+            log.content
+        }\n`;
     }
 
     private getFilePath(): string {
