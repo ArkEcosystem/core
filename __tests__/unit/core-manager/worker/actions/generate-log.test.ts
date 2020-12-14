@@ -21,6 +21,11 @@ beforeEach(() => {
     process.env.CORE_PATH_DATA = dirSync().name;
 });
 
+afterAll(() => {
+    delete process.env.CORE_PATH_TEMP;
+    delete process.env.CORE_PATH_DATA;
+});
+
 describe("Generate Log", () => {
     it("should generate log", async () => {
         const spyOnBoot = jest.spyOn(Database.prototype, "boot");
