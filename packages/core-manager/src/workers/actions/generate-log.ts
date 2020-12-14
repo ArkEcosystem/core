@@ -41,6 +41,7 @@ export class GenerateLog {
             });
         });
 
+        ensureDirSync(dirname(this.getFilePath()));
         renameSync(this.getTempFilePath(), this.getFilePath());
     }
 
