@@ -45,7 +45,11 @@ export class Action implements Actions.Action {
     public async execute(params: Params): Promise<any> {
         const fileName = this.generateFileName();
 
-        await this.workerManager.generateLog(
+        if (!this.workerManager.canRun()) {
+            throw new Error("Previous log generation is still in progress.");
+        }
+
+        this.workerManager.generateLog(
             this.database.getDBFilePath(),
             this.database.getSchema(),
             this.prepareQueryConditions(params),
