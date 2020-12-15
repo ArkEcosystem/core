@@ -17,6 +17,7 @@ beforeEach(() => {
     sandbox.app.bind(Identifiers.SnapshotsManager).toConstantValue({});
     sandbox.app.bind(Identifiers.WatcherDatabaseService).toConstantValue({});
     sandbox.app.bind(Identifiers.LogsDatabaseService).toConstantValue({});
+    sandbox.app.bind(Identifiers.WorkerManager).toConstantValue({});
     sandbox.app.bind(Container.Identifiers.PluginConfiguration).toConstantValue({});
     sandbox.app.bind(Container.Identifiers.ConfigFlags).toConstantValue({});
     sandbox.app.bind(Container.Identifiers.FilesystemService).toConstantValue({});

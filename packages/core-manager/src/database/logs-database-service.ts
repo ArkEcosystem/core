@@ -1,7 +1,15 @@
 import { Container, Providers } from "@arkecosystem/core-kernel";
 import dayjs from "dayjs";
 
-import { Database, Result } from "./database";
+import { Database, Result, Schema } from "./database";
+
+export interface LogsResult {
+    id: number;
+    process: string;
+    level: string;
+    content: string;
+    timestamp: number;
+}
 
 export interface SearchParams {
     dateFrom?: number;
@@ -24,10 +32,12 @@ export class LogsDatabaseService {
 
     private database!: Database;
 
-    public boot(): void {
-        const filename = this.configuration.getRequired<{ storage: string }>("logs").storage;
+    public getDBFilePath(): string {
+        return this.configuration.getRequired<{ storage: string }>("logs").storage;
+    }
 
-        this.database = new Database(filename, {
+    public getSchema(): Schema {
+        return {
             tables: [
                 {
                     name: "logs",
@@ -60,7 +70,11 @@ export class LogsDatabaseService {
                     ],
                 },
             ],
-        });
+        };
+    }
+
+    public boot(): void {
+        this.database = new Database(this.getDBFilePath(), this.getSchema());
 
         this.database.boot(this.configuration.getRequired<{ resetDatabase: boolean }>("logs").resetDatabase);
     }
