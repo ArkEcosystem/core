@@ -8,8 +8,8 @@ export interface SenderMempool {
     getFromLatest(): Iterable<Interfaces.ITransaction>;
 
     addTransaction(transaction: Interfaces.ITransaction): Promise<void>;
-    removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
-    acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
+    removeTransaction(id: string): Promise<Interfaces.ITransaction[]>;
+    removeForgedTransaction(id: string): Promise<Interfaces.ITransaction[]>;
 }
 
 export type SenderMempoolFactory = () => SenderMempool;

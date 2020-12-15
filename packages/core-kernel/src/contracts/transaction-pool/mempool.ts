@@ -10,8 +10,8 @@ export interface Mempool {
     getSenderMempools(): Iterable<SenderMempool>;
 
     addTransaction(transaction: Interfaces.ITransaction): Promise<void>;
-    removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
-    acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
+    removeTransaction(senderPublicKey: string, id: string): Promise<Interfaces.ITransaction[]>;
+    removeForgedTransaction(senderPublicKey: string, id: string): Promise<Interfaces.ITransaction[]>;
 
     flush(): void;
 }

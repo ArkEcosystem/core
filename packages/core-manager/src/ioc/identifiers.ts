@@ -12,4 +12,5 @@ export const Identifiers = {
     WatcherDatabaseService: Symbol.for("Watcher<DatabaseService>"),
     LogsDatabaseService: Symbol.for("Logs<DatabaseService>"),
     EventsListener: Symbol.for("Listener<Events>"),
+    WorkerManager: Symbol.for("Manager<Worker>"),
 };

@@ -20,6 +20,7 @@ const conditions = new Map<string, string>([
     ["$gt", ">"],
     ["$gte", ">="],
     ["$like", "LIKE"],
+    ["$in", "IN"],
 ]);
 
 export interface Column {
@@ -90,12 +91,32 @@ export class Database {
         }
     }
 
-    public getAll(tableName: string): any[] {
+    public getAll(tableName: string, conditions?: any): any[] {
         const table = this.getTable(tableName);
 
-        const result = this.database.prepare(`SELECT * FROM ${table.name}`).pluck(false).all();
+        const result = this.database
+            .prepare(
+                `SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)} ${this.prepareOrderBy(
+                    conditions,
+                )}`,
+            )
+            .pluck(false)
+            .all();
 
         return this.transform(table, result);
+    }
+
+    public getAllIterator(tableName: string, conditions?: any): IterableIterator<any> {
+        const table = this.getTable(tableName);
+
+        return this.database
+            .prepare(
+                `SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)} ${this.prepareOrderBy(
+                    conditions,
+                )}`,
+            )
+            .pluck(false)
+            .iterate();
     }
 
     public add(tableName: string, data: any): void {
@@ -118,8 +139,6 @@ export class Database {
         const limit = this.prepareLimit(conditions);
         const offset = this.prepareOffset(conditions);
 
-        this.clearLimitAndOffset(conditions);
-
         return {
             total: this.getTotal(tableName, conditions),
             limit,
@@ -128,10 +147,9 @@ export class Database {
                 table,
                 this.database
                     .prepare(
-                        `SELECT * FROM ${table.name} ${this.prepareWhere(
-                            table,
+                        `SELECT * FROM ${table.name} ${this.prepareWhere(table, conditions)} ${this.prepareOrderBy(
                             conditions,
-                        )} LIMIT ${limit} OFFSET ${offset}`,
+                        )} LIMIT ${limit} OFFSET ${offset};`,
                     )
                     .pluck(false)
                     .all(),
@@ -213,8 +231,6 @@ export class Database {
         }
 
         result += ")";
-
-        // console.log("prepareInsertSQL: ", result);
 
         return result;
     }
@@ -320,14 +336,23 @@ export class Database {
         return 0;
     }
 
-    private clearLimitAndOffset(conditions?: any): void {
-        if (conditions && Object.keys(conditions).includes("$offset")) {
-            delete conditions.$offset;
+    private prepareOrderBy(conditions?: any): string {
+        let result = "";
+
+        if (conditions && conditions.$order && Object.keys(conditions.$order).length >= 1) {
+            result = "ORDER BY";
+
+            const keys = Object.keys(conditions.$order);
+            for (const key of keys) {
+                result += ` ${key} ${conditions.$order[key] === "DESC" ? "DESC" : "ASC"}`;
+
+                if (keys[keys.length - 1] !== key) {
+                    result += ",";
+                }
+            }
         }
 
-        if (conditions && Object.keys(conditions).includes("$limit")) {
-            delete conditions.$limit;
-        }
+        return result;
     }
 
     private prepareWhere(table: Table, conditions?: any): string {
@@ -354,6 +379,10 @@ export class Database {
         }
 
         for (const key of Object.keys(conditions)) {
+            if (["$offset", "$limit", "$order"].includes(key)) {
+                continue;
+            }
+
             const column = table.columns.find((column) => column.name === key);
 
             if (!column) {
@@ -378,18 +407,50 @@ export class Database {
         return result;
     }
 
+    private prepareValue(value: any) {
+        if (Array.isArray(value)) {
+            let result = "(";
+
+            for (const item of value) {
+                if (typeof item === "number") {
+                    result += `${item}`;
+                } else {
+                    result += `'${item}'`;
+                }
+
+                if (value[value.length - 1] !== item) {
+                    result += ",";
+                }
+            }
+
+            result += ")";
+
+            return result;
+        }
+
+        return value;
+    }
+
+    private useQuote(value: any) {
+        if (Array.isArray(value)) {
+            return false;
+        }
+
+        return typeof value !== "number";
+    }
+
     private conditionLineToSQLCondition(conditionLine: ConditionLine, jsonExtractProperty?: string): string {
-        const useQuote = typeof conditionLine.value !== "number";
+        const useQuote = this.useQuote(conditionLine.value);
 
         if (jsonExtractProperty) {
             // Example: json_extract(data, '$.publicKey') = '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
             // prettier-ignore
-            return `json_extract(${jsonExtractProperty}, '${conditionLine.property}') ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
+            return `json_extract(${jsonExtractProperty}, '${conditionLine.property}') ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${this.prepareValue(conditionLine.value)}${useQuote ? "'" : ""}`;
         }
 
         // Example: event LIKE 'wallet'
         // prettier-ignore
-        return `${conditionLine.property} ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${conditionLine.value}${useQuote ? "'" : ""}`;
+        return `${conditionLine.property} ${conditions.get(conditionLine.condition)} ${useQuote ? "'" : ""}${this.prepareValue(conditionLine.value)}${useQuote ? "'" : ""}`;
     }
 
     private extractConditions(data: any, property: string): ConditionLine[] {
