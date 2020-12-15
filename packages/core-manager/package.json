@@ -48,7 +48,8 @@
         "typeorm": "0.2.25"
     },
     "devDependencies": {
-        "nock": "^13.0.0"
+        "nock": "^13.0.0",
+        "tmp": "^0.2.0"
     },
     "engines": {
         "node": ">=10.x"
