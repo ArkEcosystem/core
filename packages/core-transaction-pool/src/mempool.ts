@@ -53,42 +53,34 @@ export class Mempool implements Contracts.TransactionPool.Mempool {
         }
     }
 
-    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-        const senderMempool = this.senderMempools.get(transaction.data.senderPublicKey);
+    public async removeTransaction(senderPublicKey: string, id: string): Promise<Interfaces.ITransaction[]> {
+        const senderMempool = this.senderMempools.get(senderPublicKey);
         if (!senderMempool) {
             return [];
         }
 
         try {
-            return await senderMempool.removeTransaction(transaction);
+            return await senderMempool.removeTransaction(id);
         } finally {
             if (senderMempool.isDisposable()) {
-                this.senderMempools.delete(transaction.data.senderPublicKey);
-                this.logger.debug(
-                    `${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state disposed`,
-                );
+                this.senderMempools.delete(senderPublicKey);
+                this.logger.debug(`${Identities.Address.fromPublicKey(senderPublicKey)} state disposed`);
             }
         }
     }
 
-    public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-        const senderMempool = this.senderMempools.get(transaction.data.senderPublicKey);
+    public async removeForgedTransaction(senderPublicKey: string, id: string): Promise<Interfaces.ITransaction[]> {
+        const senderMempool = this.senderMempools.get(senderPublicKey);
         if (!senderMempool) {
             return [];
         }
 
         try {
-            return await senderMempool.acceptForgedTransaction(transaction);
+            return await senderMempool.removeForgedTransaction(id);
         } finally {
             if (senderMempool.isDisposable()) {
-                this.senderMempools.delete(transaction.data.senderPublicKey);
-                this.logger.debug(
-                    `${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state disposed`,
-                );
+                this.senderMempools.delete(senderPublicKey);
+                this.logger.debug(`${Identities.Address.fromPublicKey(senderPublicKey)} state disposed`);
             }
         }
     }

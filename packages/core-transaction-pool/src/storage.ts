@@ -9,44 +9,81 @@ export class Storage implements Contracts.TransactionPool.Storage {
     private readonly configuration!: Providers.PluginConfiguration;
 
     private database!: BetterSqlite3.Database;
+    private addTransactionStmt!: BetterSqlite3.Statement<Contracts.TransactionPool.StoredTransaction>;
+    private hasTransactionStmt!: BetterSqlite3.Statement<{ id: string }>;
+    private getAllTransactionsStmt!: BetterSqlite3.Statement<never[]>;
+    private getOldTransactionsStmt!: BetterSqlite3.Statement<{ height: number }>;
+    private removeTransactionStmt!: BetterSqlite3.Statement<{ id: string }>;
+    private flushStmt!: BetterSqlite3.Statement<never[]>;
 
     public boot(): void {
         const filename = this.configuration.getRequired<string>("storage");
         ensureFileSync(filename);
 
+        const table = "pool_20201204";
+
         this.database = new BetterSqlite3(filename);
         this.database.exec(`
             PRAGMA journal_mode = WAL;
-            CREATE TABLE IF NOT EXISTS pool (id VARCHAR(64) PRIMARY KEY, serialized BLOB NOT NULL);
+
+            DROP TABLE IF EXISTS pool;
+
+            CREATE TABLE IF NOT EXISTS ${table}(
+                n                  INTEGER      PRIMARY KEY AUTOINCREMENT,
+                height             INTEGER      NOT NULL,
+                id                 VARCHAR(64)  NOT NULL,
+                senderPublicKey    VARCHAR(66)  NOT NULL,
+                serialized         BLOB         NOT NULL
+            );
+
+            CREATE UNIQUE INDEX IF NOT EXISTS ${table}_id ON ${table} (id);
+            CREATE INDEX IF NOT EXISTS ${table}_height ON ${table} (height);
         `);
+
+        this.addTransactionStmt = this.database.prepare(
+            `INSERT INTO ${table} (height, id, senderPublicKey, serialized) VALUES (:height, :id, :senderPublicKey, :serialized)`,
+        );
+
+        this.hasTransactionStmt = this.database.prepare(`SELECT COUNT(*) FROM ${table} WHERE id = :id`).pluck(true);
+
+        this.getAllTransactionsStmt = this.database.prepare(
+            `SELECT height, id, senderPublicKey, serialized FROM ${table} ORDER BY n`,
+        );
+
+        this.getOldTransactionsStmt = this.database.prepare(
+            `SELECT height, id, senderPublicKey, serialized FROM ${table} WHERE height <= :height ORDER BY n DESC`,
+        );
+
+        this.removeTransactionStmt = this.database.prepare(`DELETE FROM ${table} WHERE id = :id`);
+
+        this.flushStmt = this.database.prepare(`DELETE FROM ${table}`);
     }
 
     public dispose(): void {
         this.database.close();
     }
 
+    public addTransaction(storedTransaction: Contracts.TransactionPool.StoredTransaction): void {
+        this.addTransactionStmt.run(storedTransaction);
+    }
+
     public hasTransaction(id: string): boolean {
-        return !!this.database.prepare("SELECT COUNT(*) FROM pool WHERE id = ?").pluck(true).get(id);
+        return !!this.hasTransactionStmt.get({ id });
     }
 
-    public getAllTransactions(): Iterable<{ id: string; serialized: Buffer }> {
-        return this.database
-            .prepare("SELECT id, LOWER(HEX(serialized)) AS hex FROM pool")
-            .all()
-            .map(({ id, hex }) => {
-                return { id, serialized: Buffer.from(hex, "hex") };
-            });
+    public getAllTransactions(): Iterable<Contracts.TransactionPool.StoredTransaction> {
+        return this.getAllTransactionsStmt.all();
     }
 
-    public addTransaction(id: string, serialized: Buffer): void {
-        this.database.prepare("INSERT INTO pool (id, serialized) VALUES (:id, :serialized)").run({ id, serialized });
+    public getOldTransactions(height: number): Iterable<Contracts.TransactionPool.StoredTransaction> {
+        return this.getOldTransactionsStmt.all({ height });
     }
 
     public removeTransaction(id: string): void {
-        this.database.prepare("DELETE FROM pool WHERE id = ?").run(id);
+        this.removeTransactionStmt.run({ id });
     }
 
     public flush(): void {
-        this.database.prepare("DELETE FROM pool").run();
+        this.flushStmt.run();
     }
 }
