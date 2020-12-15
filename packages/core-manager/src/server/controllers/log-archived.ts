@@ -15,7 +15,8 @@ export class LogArchivedController {
 
         return h
             .response(file)
-            .header("Content-Type", "text/plain")
+            .header("Content-Type", "application/gzip")
+            .header("Content-Encoding", "gzip")
             .header("Content-Disposition", "attachment; filename= " + fileName);
     }
 }
