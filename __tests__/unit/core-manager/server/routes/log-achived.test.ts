@@ -27,6 +27,8 @@ const mockFilesystem = {
 };
 
 beforeEach(() => {
+    process.env.CORE_PATH_DATA = "path/to/data";
+
     const actionReader: Partial<ActionReader> = {
         discoverActions(): Actions.Method[] {
             return [];
@@ -63,6 +65,10 @@ afterEach(async () => {
     jest.restoreAllMocks();
 });
 
+afterAll(() => {
+    delete process.env.CORE_PATH_DATA;
+});
+
 describe("LogArchived", () => {
     it("should be ok", async () => {
         await server.initialize("serverName", {});
@@ -75,7 +81,8 @@ describe("LogArchived", () => {
 
         const injectOptions = {
             method: "GET",
-            url: "/log/archived/ark-core-out.log",
+            url: "/log/archived/2020-12-14_17-38-00.log.gz",
+            // headers: { Accept: "*/*" }, // TODO: Response fails with Accept header
         };
 
         const response = await server.inject(injectOptions);
