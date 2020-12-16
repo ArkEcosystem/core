@@ -230,7 +230,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     private applyTransactionToWallet(
         transaction: Contracts.Database.TransactionModel | Interfaces.ITransactionData,
         wallet: Contracts.State.Wallet,
-    ) {
+    ): void {
         const entities: IEntitiesWallet = wallet.getAttribute<IEntitiesWallet>("entities", {});
 
         switch (transaction.asset!.action) {
