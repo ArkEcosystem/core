@@ -45,10 +45,12 @@
         "latest-version": "^5.1.0",
         "require-from-string": "^2.0.2",
         "systeminformation": "^4.30.4",
-        "typeorm": "0.2.25"
+        "typeorm": "0.2.25",
+        "zlib": "^1.0.5"
     },
     "devDependencies": {
-        "nock": "^13.0.0"
+        "nock": "^13.0.0",
+        "tmp": "^0.2.0"
     },
     "engines": {
         "node": ">=10.x"

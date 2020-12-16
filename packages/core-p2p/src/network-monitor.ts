@@ -408,6 +408,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                             );
                             downloadResults[i] = blocks;
                             return;
+                        } else if (isLastChunk && blocks.length === 0) {
+                            // Peer returned no block, but it is probably fine (when no new blocks are forged for example)
+                            downloadResults[i] = [];
+                            return;
                         } else {
                             throw new Error("Received blocks length does not match asked length");
                         }

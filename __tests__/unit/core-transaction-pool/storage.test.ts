@@ -70,7 +70,13 @@ describe("Storage.hasTransaction", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1.id, transaction1.serialized);
+            storage.addTransaction({
+                height: 100,
+                id: transaction1.id,
+                senderPublicKey: transaction1.data.senderPublicKey,
+                serialized: transaction1.serialized,
+            });
+
             const has = storage.hasTransaction(transaction1.id);
             expect(has).toBe(true);
         } finally {
@@ -84,7 +90,13 @@ describe("Storage.hasTransaction", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1.id, transaction1.serialized);
+            storage.addTransaction({
+                height: 100,
+                id: transaction1.id,
+                senderPublicKey: transaction1.data.senderPublicKey,
+                serialized: transaction1.serialized,
+            });
+
             const has = storage.hasTransaction(transaction2.id);
             expect(has).toBe(false);
         } finally {
@@ -100,13 +112,87 @@ describe("Storage.getAllTransactions", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1.id, transaction1.serialized);
-            storage.addTransaction(transaction2.id, transaction2.serialized);
-            const addedTransactions = Array.from(storage.getAllTransactions());
-            expect(addedTransactions).toStrictEqual([
-                { id: transaction1.id, serialized: transaction1.serialized },
-                { id: transaction2.id, serialized: transaction2.serialized },
-            ]);
+            const storedTransaction1 = {
+                height: 100,
+                id: transaction1.id,
+                senderPublicKey: transaction1.data.senderPublicKey,
+                serialized: transaction1.serialized,
+            };
+
+            const storedTransaction2 = {
+                height: 100,
+                id: transaction2.id,
+                senderPublicKey: transaction2.data.senderPublicKey,
+                serialized: transaction2.serialized,
+            };
+
+            storage.addTransaction(storedTransaction1);
+            storage.addTransaction(storedTransaction2);
+
+            const allTransactions = Array.from(storage.getAllTransactions());
+            expect(allTransactions).toEqual([storedTransaction1, storedTransaction2]);
+        } finally {
+            storage.dispose();
+        }
+    });
+});
+
+describe("Storage.getOldTransactions", () => {
+    it("should return only old transactions", () => {
+        configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
+        const storage = container.resolve(Storage);
+        storage.boot();
+
+        try {
+            const storedTransaction1 = {
+                height: 100,
+                id: transaction1.id,
+                senderPublicKey: transaction1.data.senderPublicKey,
+                serialized: transaction1.serialized,
+            };
+
+            const storedTransaction2 = {
+                height: 200,
+                id: transaction2.id,
+                senderPublicKey: transaction2.data.senderPublicKey,
+                serialized: transaction2.serialized,
+            };
+
+            storage.addTransaction(storedTransaction1);
+            storage.addTransaction(storedTransaction2);
+
+            const oldTransactions = Array.from(storage.getOldTransactions(100));
+            expect(oldTransactions).toEqual([storedTransaction1]);
+        } finally {
+            storage.dispose();
+        }
+    });
+
+    it("should return all old transactions", () => {
+        configuration.getRequired.mockReturnValueOnce(":memory:"); // storage
+        const storage = container.resolve(Storage);
+        storage.boot();
+
+        try {
+            const storedTransaction1 = {
+                height: 100,
+                id: transaction1.id,
+                senderPublicKey: transaction1.data.senderPublicKey,
+                serialized: transaction1.serialized,
+            };
+
+            const storedTransaction2 = {
+                height: 200,
+                id: transaction2.id,
+                senderPublicKey: transaction2.data.senderPublicKey,
+                serialized: transaction2.serialized,
+            };
+
+            storage.addTransaction(storedTransaction1);
+            storage.addTransaction(storedTransaction2);
+
+            const oldTransactions = Array.from(storage.getOldTransactions(200));
+            expect(oldTransactions).toEqual([storedTransaction2, storedTransaction1]);
         } finally {
             storage.dispose();
         }
@@ -120,7 +206,13 @@ describe("Storage.addTransaction", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1.id, transaction1.serialized);
+            storage.addTransaction({
+                height: 100,
+                id: transaction1.id,
+                senderPublicKey: transaction1.data.senderPublicKey,
+                serialized: transaction1.serialized,
+            });
+
             const has = storage.hasTransaction(transaction1.id);
             expect(has).toBe(true);
         } finally {
@@ -134,9 +226,21 @@ describe("Storage.addTransaction", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1.id, transaction1.serialized);
-            const check = () => storage.addTransaction(transaction1.id, transaction1.serialized);
-            expect(check).toThrow();
+            storage.addTransaction({
+                height: 100,
+                id: transaction1.id,
+                senderPublicKey: transaction1.data.senderPublicKey,
+                serialized: transaction1.serialized,
+            });
+
+            expect(() => {
+                storage.addTransaction({
+                    height: 100,
+                    id: transaction1.id,
+                    senderPublicKey: transaction1.data.senderPublicKey,
+                    serialized: transaction1.serialized,
+                });
+            }).toThrow();
         } finally {
             storage.dispose();
         }
@@ -150,8 +254,15 @@ describe("Storage.removeTransaction", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1.id, transaction1.serialized);
+            storage.addTransaction({
+                height: 100,
+                id: transaction1.id,
+                senderPublicKey: transaction1.data.senderPublicKey,
+                serialized: transaction1.serialized,
+            });
+
             storage.removeTransaction(transaction1.id);
+
             const has = storage.hasTransaction(transaction1.id);
             expect(has).toBe(false);
         } finally {
@@ -167,11 +278,24 @@ describe("Storage.flush", () => {
         storage.boot();
 
         try {
-            storage.addTransaction(transaction1.id, transaction1.serialized);
-            storage.addTransaction(transaction2.id, transaction2.serialized);
+            storage.addTransaction({
+                height: 100,
+                id: transaction1.id,
+                senderPublicKey: transaction1.data.senderPublicKey,
+                serialized: transaction1.serialized,
+            });
+
+            storage.addTransaction({
+                height: 100,
+                id: transaction2.id,
+                senderPublicKey: transaction2.data.senderPublicKey,
+                serialized: transaction2.serialized,
+            });
+
             storage.flush();
-            const addedTransactions = Array.from(storage.getAllTransactions());
-            expect(addedTransactions).toStrictEqual([]);
+
+            const allTransactions = Array.from(storage.getAllTransactions());
+            expect(allTransactions).toStrictEqual([]);
         } finally {
             storage.dispose();
         }

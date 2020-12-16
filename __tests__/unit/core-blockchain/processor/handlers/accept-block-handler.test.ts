@@ -15,7 +15,7 @@ describe("AcceptBlockHandler", () => {
         lastDownloadedBlock: undefined,
         getLastBlock: jest.fn(),
     };
-    const transactionPool = { acceptForgedTransaction: jest.fn() };
+    const transactionPool = { removeForgedTransaction: jest.fn() };
     const databaseInteractions = {
         walletRepository: {
             getNonce: jest.fn(),
@@ -30,7 +30,7 @@ describe("AcceptBlockHandler", () => {
     };
     const revertBlockHandler = {
         execute: jest.fn(),
-    }
+    };
     const application = { get: jest.fn(), resolve: jest.fn() };
 
     beforeAll(() => {
@@ -66,9 +66,9 @@ describe("AcceptBlockHandler", () => {
 
             expect(blockchain.resetWakeUp).toBeCalledTimes(1);
 
-            expect(transactionPool.acceptForgedTransaction).toBeCalledTimes(2);
-            expect(transactionPool.acceptForgedTransaction).toHaveBeenCalledWith(block.transactions[0]);
-            expect(transactionPool.acceptForgedTransaction).toHaveBeenCalledWith(block.transactions[1]);
+            expect(transactionPool.removeForgedTransaction).toBeCalledTimes(2);
+            expect(transactionPool.removeForgedTransaction).toHaveBeenCalledWith(block.transactions[0]);
+            expect(transactionPool.removeForgedTransaction).toHaveBeenCalledWith(block.transactions[1]);
         });
 
         it("should reset state.forkedBlock if incoming block has same height", async () => {

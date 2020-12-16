@@ -37,6 +37,7 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         try {
             this.concurrency++;
+
             await this.lock.runExclusive(async () => {
                 AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -58,11 +59,12 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
         }
     }
 
-    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+    public async removeTransaction(id: string): Promise<Interfaces.ITransaction[]> {
         try {
             this.concurrency++;
+
             return await this.lock.runExclusive(async () => {
-                const index = this.transactions.findIndex((t) => t.id === transaction.id);
+                const index = this.transactions.findIndex((t) => t.id === id);
                 if (index === -1) {
                     return [];
                 }
@@ -86,11 +88,12 @@ export class SenderMempool implements Contracts.TransactionPool.SenderMempool {
         }
     }
 
-    public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+    public async removeForgedTransaction(id: string): Promise<Interfaces.ITransaction[]> {
         try {
             this.concurrency++;
+
             return await this.lock.runExclusive(async () => {
-                const index: number = this.transactions.findIndex((t) => t.id === transaction.id);
+                const index: number = this.transactions.findIndex((t) => t.id === id);
                 if (index === -1) {
                     return this.transactions.splice(0, this.transactions.length);
                 } else {
