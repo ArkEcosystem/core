@@ -8,14 +8,15 @@ export class LogArchivedController {
     private readonly filesystem!: Contracts.Kernel.Filesystem;
 
     public async file(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const logsPath = `${process.env.HOME}/.pm2/logs`;
+        const logsPath = join(process.env.CORE_PATH_DATA!, "log-archive");
         const fileName = request.params.id;
 
         const file = await this.filesystem.get(join(logsPath, fileName));
 
         return h
             .response(file)
-            .header("Content-Type", "text/plain")
+            .header("Content-Type", "application/gzip")
+            .header("Content-Encoding", "gzip")
             .header("Content-Disposition", "attachment; filename= " + fileName);
     }
 }

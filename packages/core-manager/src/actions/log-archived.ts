@@ -1,5 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { basename } from "path";
+import { pathExistsSync } from "fs-extra";
+import { basename, join, extname } from "path";
 
 import { Actions } from "../contracts";
 
@@ -23,7 +24,14 @@ export class Action implements Actions.Action {
     }
 
     private async getArchivedLogs(): Promise<string[]> {
-        const logsPath = `${process.env.HOME}/.pm2/logs`;
-        return this.filesystem.files(logsPath);
+        const logsPath = join(process.env.CORE_PATH_DATA!, "log-archive");
+
+        if (!pathExistsSync(logsPath)) {
+            return [];
+        }
+
+        const files = await this.filesystem.files(logsPath);
+
+        return files.filter((fileName) => extname(fileName) === ".gz");
     }
 }
