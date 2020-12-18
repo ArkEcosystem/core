@@ -5,7 +5,8 @@ import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 import { RelayHost } from "./interfaces";
 
-// todo: review the implementation and make use of ioc
+const MAX_PAYLOAD_CLIENT = 20 * 1024 * 1024; // allow large value of max payload communicating with relay
+
 /**
  * @export
  * @class Client
@@ -212,6 +213,8 @@ export class Client {
                 path: event,
                 payload: codec.request.serialize(payload),
             };
+
+            this.host.socket.setMaxPayload(MAX_PAYLOAD_CLIENT);
 
             const response: any = await this.host.socket.request(options);
 
