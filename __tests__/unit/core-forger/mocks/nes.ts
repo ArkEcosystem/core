@@ -4,6 +4,7 @@ export const nesClient = {
     request: jest.fn().mockReturnValue({ payload: Buffer.from(JSON.stringify({})) }),
     onError: jest.fn(),
     _isReady: jest.fn().mockReturnValue(true),
+    setMaxPayload: jest.fn(),
 };
 
 export default {
