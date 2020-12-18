@@ -6,6 +6,8 @@ import * as Teamwork from "@hapi/teamwork";
 import { Client, plugin } from "@packages/core-p2p/src/hapi-nes";
 import { stringifyNesMessage } from "@packages/core-p2p/src/hapi-nes/utils";
 
+jest.setTimeout(60000);
+
 const createServerWithPlugin = async (pluginOptions = {}, serverOptions = {}, withPreResponseHandler = false) => {
     const server = Hapi.server(serverOptions);
     await server.register({ plugin: plugin, options: pluginOptions });
