@@ -110,3 +110,8 @@ export const stringifyNesMessage = (messageObj: NesMessage): Buffer => {
 
     return Buffer.concat([bufHeader, pathBuf, socketBuf, payloadBuf]);
 };
+
+export const protocol = {
+    gracefulErrorStatusCode: 499,   // custom status code to be used when we want to send back an explicit error (otherwise
+                                    // no error is sent back and the socket is disconnected)
+};
