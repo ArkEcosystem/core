@@ -18,6 +18,7 @@ describe("BlocksController", () => {
         handleIncomingBlock: jest.fn(),
         pingBlock: jest.fn(),
         getLastDownloadedBlock: jest.fn(),
+        getLastHeight: jest.fn(),
     };
     const createProcessor = jest.fn();
     const appPlugins = [{ package: "@arkecosystem/core-api", options: {} }];

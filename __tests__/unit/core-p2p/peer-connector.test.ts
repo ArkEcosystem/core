@@ -97,16 +97,16 @@ describe("PeerConnector", () => {
     });
 
     describe("disconnect", () => {
-        it("should call disconnect on the connection and forget it", async () => {
+        it("should call terminate on the connection and forget it", async () => {
             const peer = new Peer("178.165.55.11", 4000);
             const peerConnection = await peerConnector.connect(peer);
-            const spyDisconnect = jest.spyOn(peerConnection, "disconnect");
+            const spyTerminate = jest.spyOn(peerConnection, "terminate");
 
             expect(peerConnector.connection(peer)).toBeInstanceOf(NesClient);
 
             peerConnector.disconnect(peer);
             expect(peerConnector.connection(peer)).toBeUndefined();
-            expect(spyDisconnect).toBeCalledTimes(1);
+            expect(spyTerminate).toBeCalledTimes(1);
         });
 
         it("should not do anything if the peer is not defined", async () => {
