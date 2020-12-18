@@ -3,6 +3,7 @@ import Joi from "@hapi/joi";
 import { Container } from "@arkecosystem/core-kernel";
 
 import { IsAppReadyPlugin } from "@arkecosystem/core-p2p/src/socket-server/plugins/is-app-ready";
+import { protocol } from "@arkecosystem/core-p2p/src/hapi-nes/utils";
 
 afterEach(() => {
     jest.clearAllMocks();
@@ -54,7 +55,7 @@ describe("IsAppReadyPlugin", () => {
 
         isAppReadyPlugin.register(server);
 
-        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onRequest" }));
+        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPostAuth" }));
 
         // try the route with a valid payload
         const remoteAddress = "187.166.55.44";
@@ -79,13 +80,13 @@ describe("IsAppReadyPlugin", () => {
 
         // try the route with a valid payload
         const remoteAddress = "187.166.55.44";
-        const responseForbidden = await server.inject({
+        const response = await server.inject({
             method: "POST",
             url: "/p2p/peer/mockroute",
             payload: {},
             remoteAddress,
         });
-        expect(responseForbidden.statusCode).toBe(403);
+        expect(response.statusCode).toBe(protocol.gracefulErrorStatusCode);
         expect(app.isBound).toBeCalledTimes(1);
         expect(blockchainService.isBooted).toBeCalledTimes(0);
     });
@@ -99,13 +100,13 @@ describe("IsAppReadyPlugin", () => {
 
         // try the route with a valid payload
         const remoteAddress = "187.166.55.44";
-        const responseForbidden = await server.inject({
+        const response = await server.inject({
             method: "POST",
             url: "/p2p/peer/mockroute",
             payload: {},
             remoteAddress,
         });
-        expect(responseForbidden.statusCode).toBe(403);
+        expect(response.statusCode).toBe(protocol.gracefulErrorStatusCode);
         expect(app.isBound).toBeCalledTimes(1);
         expect(blockchainService.isBooted).toBeCalledTimes(1);
     });
@@ -129,7 +130,7 @@ describe("IsAppReadyPlugin", () => {
 
         isAppReadyPlugin.register(server);
 
-        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onRequest" }));
+        expect(spyExt).toBeCalledWith(expect.objectContaining({ type: "onPostAuth" }));
 
         // try the route with a valid payload
         const remoteAddress = "187.166.55.44";
