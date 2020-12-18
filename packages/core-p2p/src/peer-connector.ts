@@ -82,7 +82,6 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
 
         await connection.connect({ retries: 1, timeout: 5000 });
 
-        connection.connect();
         return connection;
     }
 }
