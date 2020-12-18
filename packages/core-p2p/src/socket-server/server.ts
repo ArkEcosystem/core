@@ -72,9 +72,6 @@ export class Server {
         this.app.resolve(BlocksRoute).register(this.server);
         this.app.resolve(TransactionsRoute).register(this.server);
 
-        // onRequest
-        this.app.resolve(IsAppReadyPlugin).register(this.server);
-
         // onPreAuth
         this.app.resolve(WhitelistForgerPlugin).register(this.server);
         this.app.resolve(RateLimitPlugin).register(this.server);
@@ -82,6 +79,7 @@ export class Server {
         // onPostAuth
         this.app.resolve(CodecPlugin).register(this.server);
         this.app.resolve(ValidatePlugin).register(this.server);
+        this.app.resolve(IsAppReadyPlugin).register(this.server);
 
         // onPreHandler
         this.app.resolve(AcceptPeerPlugin).register(this.server);

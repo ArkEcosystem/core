@@ -2,8 +2,9 @@
 
 import Boom from "@hapi/boom";
 import Bounce from "@hapi/bounce";
+import Hoek from "@hapi/hoek";
 import Teamwork from "@hapi/teamwork";
-import { parseNesMessage, stringifyNesMessage } from "./utils";
+import { parseNesMessage, protocol, stringifyNesMessage } from "./utils";
 
 const internals = {
     version: "2",
@@ -167,8 +168,24 @@ export class Socket {
 
     //@ts-ignore
     private _error(err, request?) {
-        this.terminate();
-        return Promise.resolve();
+        if (err.output?.statusCode === protocol.gracefulErrorStatusCode) {
+            err = Boom.boomify(err);
+
+            const message = Hoek.clone(err.output);
+            delete message.payload.statusCode;
+            message.headers = this._filterHeaders(message.headers);
+
+            message.payload = Buffer.from(JSON.stringify(message.payload));
+            if (request) {
+                message.type = request.type;
+                message.id = request.id;
+            }
+
+            return this._send(message);
+        } else {
+            this.terminate();
+            return Promise.resolve();
+        }
     }
 
     private async _onMessage(message) {
