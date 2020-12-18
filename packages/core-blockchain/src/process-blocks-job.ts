@@ -152,16 +152,12 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
             }
         }
 
-        // TODO: Should we really broadcast only on this two types
         if (
             (lastProcessResult === BlockProcessorResult.Accepted ||
                 lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
             lastProcessedBlock
         ) {
-            if (
-                this.stateStore.started &&
-                Crypto.Slots.getSlotInfo(blockTimeLookup).startTime <= lastProcessedBlock.data.timestamp
-            ) {
+            if (this.stateStore.started) {
                 this.networkMonitor.broadcastBlock(lastProcessedBlock);
             }
         } else if (forkBlock) {

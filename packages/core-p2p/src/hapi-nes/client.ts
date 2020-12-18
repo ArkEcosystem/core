@@ -63,6 +63,8 @@ const errorCodes = {
     1015: "TLS handshake",
 };
 
+const DEFAULT_MAX_PAYLOAD_CLIENT = 100 * 1024;
+
 // Client
 
 export class Client {
@@ -197,6 +199,10 @@ export class Client {
 
     public _isReady() {
         return this._ws && this._ws.readyState === WebSocket.OPEN;
+    }
+
+    public setMaxPayload(maxPayload: number) {
+        this._ws._receiver._maxPayload = maxPayload;
     }
 
     private _connect(options, initial, next) {
@@ -456,7 +462,12 @@ export class Client {
         return this._send(request, true);
     }
 
+    private _resetMaxPayload() {
+        this.setMaxPayload(DEFAULT_MAX_PAYLOAD_CLIENT);
+    }
+
     private _onMessage(message) {
+        this._resetMaxPayload();
         this._beat();
 
         let update;

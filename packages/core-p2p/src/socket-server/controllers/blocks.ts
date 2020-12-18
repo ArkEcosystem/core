@@ -87,6 +87,13 @@ export class BlocksController extends Controller {
         const reqBlockLimit: number = +(request.payload as any).blockLimit || 400;
         const reqHeadersOnly: boolean = !!(request.payload as any).headersOnly;
 
+        const lastHeight: number = this.app.get<Contracts.Blockchain.Blockchain>(
+            Container.Identifiers.BlockchainService
+        ).getLastHeight();
+        if (reqBlockHeight > lastHeight) {
+            return [];
+        }
+
         const blocks: Contracts.Shared.DownloadBlock[] = await this.database.getBlocksForDownload(
             reqBlockHeight,
             reqBlockLimit,
