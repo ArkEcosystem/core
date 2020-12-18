@@ -74,7 +74,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
             throw new StaticFeeMismatchError(staticFee.toFixed());
         }
 
-        super.throwIfCannotBeApplied(transaction, wallet);
+        await super.throwIfCannotBeApplied(transaction, wallet);
 
         KernelUtils.assert.defined<object>(transaction.data.asset);
 
@@ -230,7 +230,7 @@ export class EntityTransactionHandler extends Handlers.TransactionHandler {
     private applyTransactionToWallet(
         transaction: Contracts.Database.TransactionModel | Interfaces.ITransactionData,
         wallet: Contracts.State.Wallet,
-    ) {
+    ): void {
         const entities: IEntitiesWallet = wallet.getAttribute<IEntitiesWallet>("entities", {});
 
         switch (transaction.asset!.action) {
