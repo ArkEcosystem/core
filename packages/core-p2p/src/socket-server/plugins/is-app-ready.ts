@@ -1,5 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
+import { protocol } from "../../hapi-nes/utils";
 
 @Container.injectable()
 export class IsAppReadyPlugin {
@@ -8,7 +9,7 @@ export class IsAppReadyPlugin {
 
     public register(server) {
         server.ext({
-            type: "onRequest",
+            type: "onPostAuth",
             method: async (request, h) => {
                 if (
                     this.app.isBound(Container.Identifiers.BlockchainService) &&
@@ -17,7 +18,7 @@ export class IsAppReadyPlugin {
                     return h.continue;
                 }
                 
-                return Boom.forbidden("App is not ready");
+                return Boom.boomify(new Error("App is not ready"), { statusCode: protocol.gracefulErrorStatusCode });
             },
         });
     }
