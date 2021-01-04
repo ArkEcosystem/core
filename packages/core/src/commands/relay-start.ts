@@ -56,7 +56,7 @@ export class Command extends Commands.Command {
 
         this.actions.abortRunningProcess(`${flags.token}-core`);
 
-        this.actions.daemonizeProcess(
+        await this.actions.daemonizeProcess(
             {
                 name: `${flags.token}-relay`,
                 script: resolve(__dirname, "../../bin/run"),
