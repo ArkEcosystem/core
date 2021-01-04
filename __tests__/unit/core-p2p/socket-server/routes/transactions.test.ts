@@ -9,7 +9,12 @@ describe("BlocksRoute", () => {
 
     const logger = { warning: jest.fn(), debug: jest.fn() };
     const controller = { getPeers: jest.fn() }; // a mock peer controller
-    const app = { resolve: jest.fn().mockReturnValue(controller) };
+    const app = {
+        resolve: jest.fn().mockReturnValue(controller),
+        getTagged: () => ({
+            getOptional: jest.fn().mockReturnValue(40)
+        })
+    };
     const server = { bind: jest.fn(), route: jest.fn() };
 
     beforeAll(() => {

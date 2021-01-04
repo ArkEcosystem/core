@@ -13,6 +13,7 @@ export class BlocksRoute extends Route {
                 handler: controller.getBlocks,
                 validation: blocksSchemas.getBlocks,
                 codec: getBlocks,
+                maxBytes: 1024,
             },
             "/p2p/blocks/postBlock": {
                 id: "p2p.blocks.postBlock",

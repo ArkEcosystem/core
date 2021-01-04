@@ -12,18 +12,21 @@ export class PeerRoute extends Route {
                 handler: controller.getPeers,
                 validation: peerSchemas.getPeers,
                 codec: getPeers,
+                maxBytes: 1024,
             },
             "/p2p/peer/getCommonBlocks": {
                 id: "p2p.peer.getCommonBlocks",
                 handler: controller.getCommonBlocks,
                 validation: peerSchemas.getCommonBlocks,
                 codec: getCommonBlocks,
+                maxBytes: 10 * 1024,
             },
             "/p2p/peer/getStatus": {
                 id: "p2p.peer.getStatus",
                 handler: controller.getStatus,
                 validation: peerSchemas.getStatus,
                 codec: getStatus,
+                maxBytes: 1024,
             },
         };
     }

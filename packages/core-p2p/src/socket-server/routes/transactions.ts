@@ -11,7 +11,7 @@ export class TransactionsRoute extends Route {
             "/p2p/transactions/postTransactions": {
                 id: "p2p.transactions.postTransactions",
                 handler: controller.postTransactions,
-                validation: transactionsSchemas.postTransactions,
+                validation: transactionsSchemas.createPostTransactionsSchema(this.app),
                 codec: postTransactions,
                 maxBytes: constants.DEFAULT_MAX_PAYLOAD,
             },
