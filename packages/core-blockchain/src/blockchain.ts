@@ -111,7 +111,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public async boot(skipStartedCheck = false): Promise<boolean> {
-        this.logger.info("Starting Blockchain Manager :chains:");
+        this.logger.info("Starting Blockchain Manager");
 
         this.stateStore.reset(blockchainMachine);
 
@@ -141,7 +141,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
     public async dispose(): Promise<void> {
         if (!this.stopped) {
-            this.logger.info("Stopping Blockchain Manager :chains:");
+            this.logger.info("Stopping Blockchain Manager");
 
             this.stopped = true;
             this.stateStore.clearWakeUpTimeout();
