@@ -2,7 +2,6 @@ import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { Client } from "./hapi-nes";
 
-// todo: review the implementation
 @Container.injectable()
 export class PeerConnector implements Contracts.P2P.PeerConnector {
     @Container.inject(Container.Identifiers.LogService)
@@ -21,8 +20,12 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         return connection;
     }
 
-    public async connect(peer: Contracts.P2P.Peer): Promise<Client> {
+    public async connect(peer: Contracts.P2P.Peer, maxPayload?: number): Promise<Client> {
         const connection = this.connection(peer) || (await this.create(peer));
+        
+        if (maxPayload) {
+            connection.setMaxPayload(maxPayload);
+        }
 
         this.connections.set(`${peer.ip}`, connection);
 
@@ -33,7 +36,7 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         const connection = this.connection(peer);
 
         if (connection) {
-            connection.disconnect();
+            connection.terminate();
 
             this.connections.delete(`${peer.ip}`);
         }

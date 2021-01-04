@@ -88,7 +88,7 @@ describe("Client", () => {
             await expect(client.broadcastBlock(forgedBlockWithTransactions)).toResolve();
 
             expect(logger.error).toHaveBeenCalledWith(
-                `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.blocks.postBlock> failed, because of 'this.host.socket.request is not a function'.`,
+                `Broadcast block failed: Request to ${host.hostname}:${host.port}<p2p.blocks.postBlock> failed, because of 'this.host.socket.setMaxPayload is not a function'.`,
             );
         });
 

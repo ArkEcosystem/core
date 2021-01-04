@@ -29,7 +29,7 @@ export class HtlcLockBuilder extends TransactionBuilder<HtlcLockBuilder> {
         struct.recipientId = this.data.recipientId;
         struct.amount = this.data.amount;
         struct.vendorField = this.data.vendorField;
-        struct.asset = this.data.asset;
+        struct.asset = JSON.parse(JSON.stringify(this.data.asset));
         return struct;
     }
 

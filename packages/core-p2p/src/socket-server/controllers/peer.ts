@@ -7,6 +7,7 @@ import { MissingCommonBlockError } from "../../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { Controller } from "./controller";
 import { getPeerIp } from "../../utils/get-peer-ip";
+import { constants } from "../../constants";
 
 export class PeerController extends Controller {
     @Container.inject(Container.Identifiers.PeerStorage)
@@ -28,6 +29,7 @@ export class PeerController extends Controller {
 
                 return a.latency - b.latency;
             })
+            .slice(0, constants.MAX_PEERS_GETPEERS)
             .map((peer) => peer.toBroadcast());
     }
 

@@ -263,6 +263,7 @@ export const ipfs = extend(transactionBaseSchema, {
 
 export const htlcLock = extend(transactionBaseSchema, {
     $id: "htlcLock",
+    required: ["recipientId"],
     properties: {
         type: { transactionType: TransactionType.HtlcLock },
         amount: { bignumber: { minimum: 1 } },

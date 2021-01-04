@@ -1,5 +1,6 @@
 // @ts-ignore
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { constants } from "./constants";
 
 export const requestSchemas = {
     peer: {
@@ -107,7 +108,7 @@ export const replySchemas = {
     },
     "p2p.peer.getPeers": {
         type: "array",
-        maxItems: 2000,
+        maxItems: constants.MAX_PEERS_GETPEERS,
         items: {
             type: "object",
             properties: {
