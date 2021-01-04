@@ -51,7 +51,7 @@ export class Command extends Commands.Command {
 
         this.actions.abortRunningProcess(`${flags.token}-manager`);
 
-        this.actions.daemonizeProcess(
+        await this.actions.daemonizeProcess(
             {
                 name: `${flags.token}-manager`,
                 script: resolve(__dirname, "../../bin/run"),

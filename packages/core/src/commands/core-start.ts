@@ -64,7 +64,7 @@ export class Command extends Commands.Command {
 
         await buildBIP38(flags, this.app.getCorePath("config"));
 
-        this.actions.daemonizeProcess(
+        await this.actions.daemonizeProcess(
             {
                 name: `${flags.token}-core`,
                 script: resolve(__dirname, "../../bin/run"),
