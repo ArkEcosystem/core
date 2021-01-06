@@ -14,7 +14,7 @@ export class CheckLater implements Action {
     private readonly stateStore!: Contracts.State.StateStore;
 
     public async handle(): Promise<void> {
-        if (!this.blockchain.isStopped && !this.stateStore.wakeUpTimeout) {
+        if (!this.blockchain.isStopped() && !this.stateStore.wakeUpTimeout) {
             this.blockchain.setWakeUp();
         }
     }
