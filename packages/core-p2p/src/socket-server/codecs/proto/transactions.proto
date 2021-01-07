@@ -3,7 +3,7 @@ syntax = "proto3";
 package transactions;
 
 message PostTransactionsRequest {
-    repeated bytes transactions = 1;
+    bytes transactions = 1;
     shared.Headers headers = 2;
 }
 

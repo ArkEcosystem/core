@@ -2049,7 +2049,7 @@ export namespace transactions {
     interface IPostTransactionsRequest {
 
         /** PostTransactionsRequest transactions */
-        transactions?: (Uint8Array[]|null);
+        transactions?: (Uint8Array|null);
 
         /** PostTransactionsRequest headers */
         headers?: (shared.IHeaders|null);
@@ -2065,7 +2065,7 @@ export namespace transactions {
         constructor(properties?: transactions.IPostTransactionsRequest);
 
         /** PostTransactionsRequest transactions. */
-        public transactions: Uint8Array[];
+        public transactions: Uint8Array;
 
         /** PostTransactionsRequest headers. */
         public headers?: (shared.IHeaders|null);
