@@ -3,7 +3,7 @@ import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kerne
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
-import { TooManyTransactionsError, UnchainedBlockError } from "../errors";
+import { TooManyTransactionsError } from "../errors";
 import { mapAddr } from "../utils/map-addr";
 import { Controller } from "./controller";
 
@@ -55,7 +55,7 @@ export class BlocksController extends Controller {
             const blockTimeLookup = await Utils.forgingInfoCalculator.getBlockTimeLookup(this.app, block.height);
 
             if (!Utils.isBlockChained(lastDownloadedBlock, block, blockTimeLookup)) {
-                throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
+                return false;
             }
         }
 
