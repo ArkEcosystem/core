@@ -1,7 +1,7 @@
-import delay from "delay";
 import { Container } from "@arkecosystem/core-kernel";
-import { StateMachine } from "../../../../packages/core-blockchain/src/state-machine/state-machine";
-import { blockchainMachine } from "../../../../packages/core-blockchain/src/state-machine/machine";
+import { blockchainMachine } from "@packages/core-blockchain/src/state-machine/machine";
+import { StateMachine } from "@packages/core-blockchain/src/state-machine/state-machine";
+import delay from "delay";
 
 describe("State machine", () => {
     const container = new Container.Container();
@@ -62,6 +62,26 @@ describe("State machine", () => {
                 expect(nextState).toEqual(mockNextState);
                 expect(handle).toHaveBeenCalledTimes(1);
             });
+        });
+    });
+
+    describe("getState", () => {
+        it("should return state if defined", () => {
+            stateStore.blockchain = {
+                // @ts-ignore
+                value: "dummy_state",
+            };
+            const stateMachine = container.resolve<StateMachine>(StateMachine);
+
+            expect(stateMachine.getState()).toEqual("dummy_state");
+        });
+
+        it("should return undefined if state is not set", () => {
+            // @ts-ignore
+            stateStore.blockchain = {};
+            const stateMachine = container.resolve<StateMachine>(StateMachine);
+
+            expect(stateMachine.getState()).toEqual(undefined);
         });
     });
 });

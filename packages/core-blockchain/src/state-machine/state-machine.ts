@@ -52,4 +52,8 @@ export class StateMachine {
 
         return nextState;
     }
+
+    public getState(): string | undefined {
+        return this.stateStore.blockchain.value;
+    }
 }
