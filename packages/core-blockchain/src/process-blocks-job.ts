@@ -5,6 +5,7 @@ import { Blocks, Crypto, Interfaces, Utils as CryptoUtils } from "@arkecosystem/
 
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { RevertBlockHandler } from "./processor/handlers";
+import { StateMachine } from "@packages/core-blockchain/src/state-machine";
 
 @Container.injectable()
 export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
@@ -13,6 +14,9 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
 
     @Container.inject(Container.Identifiers.BlockchainService)
     private readonly blockchain!: Contracts.Blockchain.Blockchain;
+
+    @Container.inject(Container.Identifiers.StateMachine)
+    private readonly stateMachine!: StateMachine;
 
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
@@ -157,7 +161,7 @@ export class ProcessBlocksJob implements Contracts.Kernel.QueueJob {
                 lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
             lastProcessedBlock
         ) {
-            if (this.stateStore.started) {
+            if (this.stateStore.started && this.stateMachine.getState() === "newBlock") {
                 this.networkMonitor.broadcastBlock(lastProcessedBlock);
             }
         } else if (forkBlock) {
