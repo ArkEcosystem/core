@@ -402,18 +402,15 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                             blockLimit: this.downloadChunkSize,
                         });
 
-                        if (blocks.length === this.downloadChunkSize || (isLastChunk && blocks.length > 0)) {
+                        if (blocks.length > 0 || isLastChunk) {
+                            // when `isLastChunk` it can be normal that the peer does not send any block (when none were forged)
                             this.logger.debug(
                                 `Downloaded blocks ${blocksRange} (${blocks.length}) ` + `from ${peerPrint}`,
                             );
                             downloadResults[i] = blocks;
                             return;
-                        } else if (isLastChunk && blocks.length === 0) {
-                            // Peer returned no block, but it is probably fine (when no new blocks are forged for example)
-                            downloadResults[i] = [];
-                            return;
                         } else {
-                            throw new Error("Received blocks length does not match asked length");
+                            throw new Error("Peer did not return any block");
                         }
                     } catch (error) {
                         this.logger.info(
