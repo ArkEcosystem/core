@@ -4908,7 +4908,7 @@ $root.transactions = (function() {
          * Properties of a PostTransactionsRequest.
          * @memberof transactions
          * @interface IPostTransactionsRequest
-         * @property {Array.<Uint8Array>|null} [transactions] PostTransactionsRequest transactions
+         * @property {Uint8Array|null} [transactions] PostTransactionsRequest transactions
          * @property {shared.IHeaders|null} [headers] PostTransactionsRequest headers
          */
 
@@ -4921,7 +4921,6 @@ $root.transactions = (function() {
          * @param {transactions.IPostTransactionsRequest=} [properties] Properties to set
          */
         function PostTransactionsRequest(properties) {
-            this.transactions = [];
             if (properties)
                 for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
@@ -4930,11 +4929,11 @@ $root.transactions = (function() {
 
         /**
          * PostTransactionsRequest transactions.
-         * @member {Array.<Uint8Array>} transactions
+         * @member {Uint8Array} transactions
          * @memberof transactions.PostTransactionsRequest
          * @instance
          */
-        PostTransactionsRequest.prototype.transactions = $util.emptyArray;
+        PostTransactionsRequest.prototype.transactions = $util.newBuffer([]);
 
         /**
          * PostTransactionsRequest headers.
@@ -4968,9 +4967,8 @@ $root.transactions = (function() {
         PostTransactionsRequest.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.transactions != null && message.transactions.length)
-                for (var i = 0; i < message.transactions.length; ++i)
-                    writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.transactions[i]);
+            if (message.transactions != null && Object.hasOwnProperty.call(message, "transactions"))
+                writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.transactions);
             if (message.headers != null && Object.hasOwnProperty.call(message, "headers"))
                 $root.shared.Headers.encode(message.headers, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
             return writer;
@@ -5008,9 +5006,7 @@ $root.transactions = (function() {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1:
-                    if (!(message.transactions && message.transactions.length))
-                        message.transactions = [];
-                    message.transactions.push(reader.bytes());
+                    message.transactions = reader.bytes();
                     break;
                 case 2:
                     message.headers = $root.shared.Headers.decode(reader, reader.uint32());
@@ -5050,13 +5046,9 @@ $root.transactions = (function() {
         PostTransactionsRequest.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.transactions != null && message.hasOwnProperty("transactions")) {
-                if (!Array.isArray(message.transactions))
-                    return "transactions: array expected";
-                for (var i = 0; i < message.transactions.length; ++i)
-                    if (!(message.transactions[i] && typeof message.transactions[i].length === "number" || $util.isString(message.transactions[i])))
-                        return "transactions: buffer[] expected";
-            }
+            if (message.transactions != null && message.hasOwnProperty("transactions"))
+                if (!(message.transactions && typeof message.transactions.length === "number" || $util.isString(message.transactions)))
+                    return "transactions: buffer expected";
             if (message.headers != null && message.hasOwnProperty("headers")) {
                 var error = $root.shared.Headers.verify(message.headers);
                 if (error)
@@ -5077,16 +5069,11 @@ $root.transactions = (function() {
             if (object instanceof $root.transactions.PostTransactionsRequest)
                 return object;
             var message = new $root.transactions.PostTransactionsRequest();
-            if (object.transactions) {
-                if (!Array.isArray(object.transactions))
-                    throw TypeError(".transactions.PostTransactionsRequest.transactions: array expected");
-                message.transactions = [];
-                for (var i = 0; i < object.transactions.length; ++i)
-                    if (typeof object.transactions[i] === "string")
-                        $util.base64.decode(object.transactions[i], message.transactions[i] = $util.newBuffer($util.base64.length(object.transactions[i])), 0);
-                    else if (object.transactions[i].length)
-                        message.transactions[i] = object.transactions[i];
-            }
+            if (object.transactions != null)
+                if (typeof object.transactions === "string")
+                    $util.base64.decode(object.transactions, message.transactions = $util.newBuffer($util.base64.length(object.transactions)), 0);
+                else if (object.transactions.length)
+                    message.transactions = object.transactions;
             if (object.headers != null) {
                 if (typeof object.headers !== "object")
                     throw TypeError(".transactions.PostTransactionsRequest.headers: object expected");
@@ -5108,15 +5095,18 @@ $root.transactions = (function() {
             if (!options)
                 options = {};
             var object = {};
-            if (options.arrays || options.defaults)
-                object.transactions = [];
-            if (options.defaults)
+            if (options.defaults) {
+                if (options.bytes === String)
+                    object.transactions = "";
+                else {
+                    object.transactions = [];
+                    if (options.bytes !== Array)
+                        object.transactions = $util.newBuffer(object.transactions);
+                }
                 object.headers = null;
-            if (message.transactions && message.transactions.length) {
-                object.transactions = [];
-                for (var j = 0; j < message.transactions.length; ++j)
-                    object.transactions[j] = options.bytes === String ? $util.base64.encode(message.transactions[j], 0, message.transactions[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.transactions[j]) : message.transactions[j];
             }
+            if (message.transactions != null && message.hasOwnProperty("transactions"))
+                object.transactions = options.bytes === String ? $util.base64.encode(message.transactions, 0, message.transactions.length) : options.bytes === Array ? Array.prototype.slice.call(message.transactions) : message.transactions;
             if (message.headers != null && message.hasOwnProperty("headers"))
                 object.headers = $root.shared.Headers.toObject(message.headers, options);
             return object;
