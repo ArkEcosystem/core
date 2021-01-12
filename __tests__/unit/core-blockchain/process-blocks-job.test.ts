@@ -12,6 +12,9 @@ describe("Blockchain", () => {
     let processBlocksJob: ProcessBlocksJob;
 
     const blockchainService: any = {};
+    const stateMachine: any = {
+        getState: jest.fn(),
+    };
     const blockProcessor: any = {};
     const stateStore: any = {};
     const databaseService: any = {};
@@ -29,6 +32,7 @@ describe("Blockchain", () => {
         sandbox = new Sandbox();
 
         sandbox.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchainService);
+        sandbox.app.bind(Container.Identifiers.StateMachine).toConstantValue(stateMachine);
         sandbox.app.bind(Container.Identifiers.BlockProcessor).toConstantValue(blockProcessor);
         sandbox.app.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
         sandbox.app.bind(Container.Identifiers.DatabaseService).toConstantValue(databaseService);
@@ -240,7 +244,9 @@ describe("Blockchain", () => {
             expect(process.exit).toHaveBeenCalled();
         });
 
-        it("should broadcast a block if (Crypto.Slots.getSlotNumber() * blocktime <= block.data.timestamp)", async () => {
+        it("should broadcast a block if state is newBlock", async () => {
+            stateMachine.getState.mockReturnValue("newBlock");
+
             const getTimeStampForBlock = (height: number) => {
                 switch (height) {
                     case 1:
@@ -276,6 +282,46 @@ describe("Blockchain", () => {
             expect(databaseBlockRepository.saveBlocks).toBeCalledTimes(1);
 
             expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(1);
+        });
+
+        it("should skip broadcasting if state is downloadFinished", async () => {
+            stateMachine.getState.mockReturnValue("downloadFinished");
+
+            const getTimeStampForBlock = (height: number) => {
+                switch (height) {
+                    case 1:
+                        return 0;
+                    default:
+                        throw new Error(`Test scenarios should not hit this line`);
+                }
+            };
+
+            let slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock);
+
+            // Wait until we get a timestamp at the first half of a slot (allows for computation time)
+            while (!slotInfo.forgingStatus) {
+                slotInfo = Crypto.Slots.getSlotInfo(getTimeStampForBlock);
+            }
+
+            const block = {
+                ...currentBlock,
+                timestamp: slotInfo.startTime,
+            };
+
+            stateStore.started = true;
+            blockchainService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
+            databaseService.getLastBlock = jest.fn().mockReturnValue({ data: lastBlock });
+            blockProcessor.process = jest.fn().mockReturnValue(BlockProcessorResult.Accepted);
+
+            databaseBlockRepository.saveBlocks = jest.fn();
+            peerNetworkMonitor.broadcastBlock = jest.fn();
+
+            processBlocksJob.setBlocks([block]);
+            await processBlocksJob.handle();
+
+            expect(databaseBlockRepository.saveBlocks).toBeCalledTimes(1);
+
+            expect(peerNetworkMonitor.broadcastBlock).toBeCalledTimes(0);
         });
     });
 });
