@@ -38,7 +38,7 @@ export class CodecPlugin {
             type: "onPreResponse",
             method: async (request, h) => {
                 try {
-                    if (request.response.source) {
+                    if (typeof request.response.source !== "undefined") {
                         request.response.source = allRoutesConfigByPath[request.path].codec.response.serialize(request.response.source);
                     } else {
                         // if we're here it's because there was some error thrown, error description is in request.response.output.payload
