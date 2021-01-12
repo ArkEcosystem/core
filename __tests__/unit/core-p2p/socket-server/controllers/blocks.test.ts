@@ -1,7 +1,7 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { BlocksController } from "@arkecosystem/core-p2p/src/socket-server/controllers/blocks";
-import { TooManyTransactionsError, UnchainedBlockError } from "@arkecosystem/core-p2p/src/socket-server/errors";
-import { Blocks, Identities, Managers, Networks, Transactions, Utils, Interfaces } from "@arkecosystem/crypto";
+import { TooManyTransactionsError } from "@arkecosystem/core-p2p/src/socket-server/errors";
+import { Blocks, Identities, Interfaces, Managers, Networks, Transactions, Utils } from "@arkecosystem/crypto";
 
 Managers.configManager.getMilestone().aip11 = true; // for creating aip11 v2 transactions
 
@@ -157,7 +157,6 @@ describe("BlocksController", () => {
                     },
                 });
 
-
                 await expect(
                     blocksController.postBlock(
                         {
@@ -173,42 +172,39 @@ describe("BlocksController", () => {
         });
 
         describe("when block is not chained", () => {
-            it.each([[true], [false]])(
-                "should throw UnchainedBlockError only if block is not known",
-                async (blockPing) => {
-                    blockchain.getLastDownloadedBlock = jest.fn().mockReturnValueOnce(Networks.testnet.genesisBlock);
-                    const blockUnchained = deepClone(block);
-                    blockUnchained.data.height = 9;
-                    const blockSerialized = Blocks.Serializer.serializeWithTransactions({
-                        ...blockUnchained.data,
-                        transactions: blockUnchained.transactions.map((tx) => tx.data),
-                    });
+            it.each([[true], [false]])("should return false only if block is not known", async (blockPing) => {
+                blockchain.getLastDownloadedBlock = jest.fn().mockReturnValueOnce(Networks.testnet.genesisBlock);
+                const blockUnchained = deepClone(block);
+                blockUnchained.data.height = 9;
+                const blockSerialized = Blocks.Serializer.serializeWithTransactions({
+                    ...blockUnchained.data,
+                    transactions: blockUnchained.transactions.map((tx) => tx.data),
+                });
 
-                    if (blockPing) {
-                        blockchain.pingBlock = jest.fn().mockReturnValueOnce(true);
-                        await expect(
-                            blocksController.postBlock(
-                                {
-                                    payload: { block: blockSerialized },
-                                    info: { remoteAddress: "187.55.33.22" },
-                                },
-                                {},
-                            ),
-                        ).toResolve();
-                        expect(blockchain.handleIncomingBlock).toBeCalledTimes(0);
-                    } else {
-                        await expect(
-                            blocksController.postBlock(
-                                {
-                                    payload: { block: blockSerialized },
-                                    info: { remoteAddress: "187.55.33.22" },
-                                },
-                                {},
-                            ),
-                        ).rejects.toBeInstanceOf(UnchainedBlockError);
-                    }
-                },
-            );
+                if (blockPing) {
+                    blockchain.pingBlock = jest.fn().mockReturnValueOnce(true);
+                    await expect(
+                        blocksController.postBlock(
+                            {
+                                payload: { block: blockSerialized },
+                                info: { remoteAddress: "187.55.33.22" },
+                            },
+                            {},
+                        ),
+                    ).toResolve();
+                    expect(blockchain.handleIncomingBlock).toBeCalledTimes(0);
+                } else {
+                    await expect(
+                        blocksController.postBlock(
+                            {
+                                payload: { block: blockSerialized },
+                                info: { remoteAddress: "187.55.33.22" },
+                            },
+                            {},
+                        ),
+                    ).resolves.toBeFalsy();
+                }
+            });
         });
 
         describe("when block comes from forger", () => {
@@ -297,11 +293,7 @@ describe("BlocksController", () => {
 
             expect(blocks).toEqual(mockBlocks);
             expect(database.getBlocksForDownload).toBeCalledTimes(1);
-            expect(database.getBlocksForDownload).toBeCalledWith(
-                payload.lastBlockHeight + 1,
-                400,
-                payload.headersOnly,
-            );
+            expect(database.getBlocksForDownload).toBeCalledWith(payload.lastBlockHeight + 1, 400, payload.headersOnly);
         });
     });
 });
