@@ -202,7 +202,9 @@ export class Client {
     }
 
     public setMaxPayload(maxPayload: number) {
-        this._ws._receiver._maxPayload = maxPayload;
+        if (this._ws?.receiver) {
+            this._ws._receiver._maxPayload = maxPayload;
+        }
     }
 
     private _connect(options, initial, next) {

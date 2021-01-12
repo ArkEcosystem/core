@@ -2,6 +2,7 @@ import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
+import { constants } from "../../constants";
 
 import { TooManyTransactionsError, UnchainedBlockError } from "../errors";
 import { mapAddr } from "../utils/map-addr";
@@ -100,14 +101,25 @@ export class BlocksController extends Controller {
             reqHeadersOnly,
         );
 
+        // Only return the blocks fetched while we are below the p2p maxPayload limit
+        const blocksToReturn: Contracts.Shared.DownloadBlock[] = [];
+        const maxPayloadWithMargin = constants.DEFAULT_MAX_PAYLOAD - 100 * 1024; // 100KB margin because we're dealing with estimates
+        for (let i = 0, sizeEstimate = 0; sizeEstimate < maxPayloadWithMargin && i < blocks.length; i++) {
+            blocksToReturn.push(blocks[i]);
+            sizeEstimate += blocks[i].transactions?.reduce((acc, curr) => acc + curr.length, 0) ?? 0;
+            // We estimate the size of each block -- as it will be sent through p2p -- with the length of the
+            // associated transactions. When blocks are big, size of the block header is negligible compared to its
+            // transactions. And here we just want a broad limit to stop when getting close to p2p max payload.
+        }
+
         this.logger.info(
             `${mapAddr(request.info.remoteAddress)} has downloaded ${Utils.pluralize(
                 "block",
-                blocks.length,
+                blocksToReturn.length,
                 true,
             )} from height ${reqBlockHeight.toLocaleString()}`,
         );
 
-        return blocks;
+        return blocksToReturn;
     }
 }
