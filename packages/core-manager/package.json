@@ -30,7 +30,7 @@
         "@arkecosystem/utils": "^1.2.1",
         "@hapi/basic": "^6.0.0",
         "@hapi/boom": "^9.0.0",
-        "@hapi/hapi": "^19.0.0",
+        "@hapi/hapi": "^20.0.3",
         "@hapi/joi": "^17.1.1",
         "@hapist/json-rpc": "^0.2.0",
         "@hapist/whitelist": "^0.1.0",
