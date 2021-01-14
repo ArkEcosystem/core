@@ -1,7 +1,7 @@
 export const defaults = {
     server: {
         hostname: process.env.CORE_P2P_HOST || "0.0.0.0",
-        port: process.env.CORE_P2P_PORT || 4002,
+        port: parseInt(process.env.CORE_P2P_PORT!) || 4002,
         logLevel: process.env.CORE_NETWORK_NAME === "testnet" ? 1 : 0,
     },
     /**
@@ -28,11 +28,11 @@ export const defaults = {
     /**
      * The maximum authorized number of peers sharing same ip /24 subnet
      */
-    maxSameSubnetPeers: process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET || 5,
+    maxSameSubnetPeers: parseInt(process.env.CORE_P2P_MAX_PEERS_SAME_SUBNET!) || 5,
     /**
      * The maximum peer consecutive errors before peer is forget from peer store.
      */
-    maxPeerSequentialErrors: process.env.CORE_P2P_MAX_PEER_SEQUENTIAL_ERRORS || 3,
+    maxPeerSequentialErrors: parseInt(process.env.CORE_P2P_MAX_PEER_SEQUENTIAL_ERRORS!) || 3,
     /**
      * The list of IPs we allow to be added to the peer list.
      */
@@ -70,5 +70,5 @@ export const defaults = {
     /**
      * Rate limit config
      */
-    rateLimit: process.env.CORE_P2P_RATE_LIMIT || 100, // max number of messages per second per socket connection
+    rateLimit: parseInt(process.env.CORE_P2P_RATE_LIMIT!) || 100, // max number of messages per second per socket connection
 };
