@@ -80,6 +80,17 @@ export class NodeController extends Controller {
                 constants: Managers.configManager.getMilestone(this.blockchain.getLastHeight()),
                 transactionPool: {
                     dynamicFees: dynamicFees.enabled ? dynamicFees : { enabled: false },
+                    maxTransactionsInPool: this.transactionPoolConfiguration.getRequired<number>(
+                        "maxTransactionsInPool",
+                    ),
+                    maxTransactionsPerSender: this.transactionPoolConfiguration.getRequired<number>(
+                        "maxTransactionsPerSender",
+                    ),
+                    maxTransactionsPerRequest: this.transactionPoolConfiguration.getRequired<number>(
+                        "maxTransactionsPerRequest",
+                    ),
+                    maxTransactionAge: this.transactionPoolConfiguration.getRequired<number>("maxTransactionAge"),
+                    maxTransactionBytes: this.transactionPoolConfiguration.getRequired<number>("maxTransactionBytes"),
                 },
             },
         };
