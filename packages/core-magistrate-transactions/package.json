@@ -16,8 +16,8 @@
     "scripts": {
         "build": "yarn clean && tsc",
         "build:watch": "yarn clean && yarn compile -w",
-        "clean": "del dist",
-        "compile": "../../node_modules/typescript/bin/tsc",
+        "clean": "rimraf dist",
+        "compile": "node ../../node_modules/typescript/bin/tsc",
         "prepublishOnly": "yarn build"
     },
     "dependencies": {

@@ -14,11 +14,11 @@
     "scripts": {
         "prepublishOnly": "yarn build",
         "pretest": "yarn lint && yarn build",
-        "compile": "../../node_modules/typescript/bin/tsc",
+        "compile": "node ../../node_modules/typescript/bin/tsc",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
         "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
-        "clean": "del dist"
+        "clean": "rimraf dist"
     },
     "dependencies": {
         "@arkecosystem/crypto": "^3.0.0-next.18",
