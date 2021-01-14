@@ -21,6 +21,7 @@ const payments = [
 ];
 
 process.env.CORE_TRANSACTION_POOL_MAX_PER_SENDER = "1500";
+process.env.CORE_API_RATE_LIMIT_USER_LIMIT = "500";
 
 let app: Contracts.Kernel.Application;
 beforeAll(async () => (app = await support.setUp()));
