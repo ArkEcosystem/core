@@ -19,12 +19,12 @@
         "ark": "./bin/run"
     },
     "scripts": {
-        "ark": "./bin/run",
+        "ark": "node ./bin/run",
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
         "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
-        "clean": "del dist",
-        "compile": "../../node_modules/typescript/bin/tsc",
+        "clean": "rimraf dist",
+        "compile": "node ../../node_modules/typescript/bin/tsc",
         "debug:forger": "node --inspect-brk yarn ark forger:run",
         "debug:relay": "node --inspect-brk yarn ark relay:run",
         "debug:start": "node --inspect-brk yarn ark core:run",
