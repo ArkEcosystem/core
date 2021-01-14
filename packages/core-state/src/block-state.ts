@@ -242,22 +242,32 @@ export class BlockState {
         ) {
             AppUtils.assert.defined<Interfaces.ITransactionAsset>(transaction.asset?.votes);
 
-            for (const vote of transaction.asset.votes) {
+            for (let i = 0; i < transaction.asset.votes.length; i++) {
+                const vote: string = transaction.asset.votes[i];
                 const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(vote.substr(1));
-                let voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
                 const senderLockedBalance: Utils.BigNumber = sender.getAttribute(
                     "htlc.lockedBalance",
                     Utils.BigNumber.ZERO,
                 );
 
+                let voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
+
                 if (vote.startsWith("+")) {
                     voteBalance = revert
-                        ? voteBalance.minus(sender.balance.minus(transaction.fee)).minus(senderLockedBalance)
+                        ? voteBalance.minus(sender.balance).minus(senderLockedBalance)
                         : voteBalance.plus(sender.balance).plus(senderLockedBalance);
+
+                    if (i === 0 && revert) {
+                        voteBalance = voteBalance.plus(transaction.fee);
+                    }
                 } else {
                     voteBalance = revert
                         ? voteBalance.plus(sender.balance).plus(senderLockedBalance)
-                        : voteBalance.minus(sender.balance.plus(transaction.fee)).minus(senderLockedBalance);
+                        : voteBalance.minus(sender.balance).minus(senderLockedBalance);
+
+                    if (i === 0 && !revert) {
+                        voteBalance = voteBalance.minus(transaction.fee);
+                    }
                 }
 
                 delegate.setAttribute("delegate.voteBalance", voteBalance);

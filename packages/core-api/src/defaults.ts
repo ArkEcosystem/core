@@ -24,11 +24,11 @@ export const defaults = {
         },
         rateLimit: {
             enabled: !process.env.CORE_API_RATE_LIMIT_DISABLED,
-            points: parseInt(process.env.CORE_API_RATE_LIMIT_USER_LIMIT!) || 300,
-            duration: parseInt(process.env.CORE_API_RATE_LIMIT_USER_EXPIRES!) || 60000,
+            points: parseInt(process.env.CORE_API_RATE_LIMIT_USER_LIMIT!) || 100,
+            duration: parseInt(process.env.CORE_API_RATE_LIMIT_USER_EXPIRES!) || 60, // Sec
             whitelist: process.env.CORE_API_RATE_LIMIT_WHITELIST
                 ? process.env.CORE_API_RATE_LIMIT_WHITELIST.split(",")
-                : ["*"],
+                : [],
             blacklist: process.env.CORE_API_RATE_LIMIT_BLACKLIST
                 ? process.env.CORE_API_RATE_LIMIT_BLACKLIST.split(",")
                 : [],
