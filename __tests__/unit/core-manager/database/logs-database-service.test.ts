@@ -233,7 +233,7 @@ describe("LogsDatabaseService", () => {
             expect(result.offset).toBe(0);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(1);
-            expect(result.data[0].id).toBe(1);
+            expect(result.data[0].id).toBe(200);
 
             result = database.search({
                 limit: 1,
@@ -245,7 +245,29 @@ describe("LogsDatabaseService", () => {
             expect(result.offset).toBe(10);
             expect(result.data).toBeArray();
             expect(result.data.length).toBe(1);
-            expect(result.data[0].id).toBe(11);
+            expect(result.data[0].id).toBe(190);
+        });
+
+        it("should sort by order", () => {
+            let result = database.search({});
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(100);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(100);
+            expect(result.data[0].id).toBe(200);
+
+            result = database.search({
+                order: "ASC",
+            });
+
+            expect(result.total).toBe(200);
+            expect(result.limit).toBe(100);
+            expect(result.offset).toBe(0);
+            expect(result.data).toBeArray();
+            expect(result.data.length).toBe(100);
+            expect(result.data[0].id).toBe(1);
         });
     });
 });
