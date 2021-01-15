@@ -19,6 +19,7 @@ export interface SearchParams {
     process?: string;
     limit?: number;
     offset?: number;
+    order?: string;
 }
 
 @Container.injectable()
@@ -99,7 +100,9 @@ export class LogsDatabaseService {
     }
 
     public search(searchParams: SearchParams): Result {
-        const conditions: any = {};
+        const conditions: any = {
+            $order: { id: "DESC" },
+        };
 
         if (searchParams.dateFrom || searchParams.dateTo) {
             conditions.timestamp = {};
@@ -133,6 +136,10 @@ export class LogsDatabaseService {
 
         if (searchParams.offset) {
             conditions.$offset = searchParams.offset;
+        }
+
+        if (searchParams.order && searchParams.order.toUpperCase() === "ASC") {
+            conditions.$order.id = "ASC";
         }
 
         return this.database.find("logs", conditions);

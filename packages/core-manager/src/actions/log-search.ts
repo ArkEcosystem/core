@@ -35,6 +35,9 @@ export class Action implements Actions.Action {
             offset: {
                 type: "number",
             },
+            order: {
+                type: "string",
+            },
         },
     };
 
