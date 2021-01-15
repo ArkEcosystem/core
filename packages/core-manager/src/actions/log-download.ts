@@ -49,7 +49,7 @@ export class Action implements Actions.Action {
             throw new Error("Previous log generation is still in progress.");
         }
 
-        this.workerManager.generateLog(
+        await this.workerManager.generateLog(
             this.database.getDBFilePath(),
             this.database.getSchema(),
             this.prepareQueryConditions(params),
