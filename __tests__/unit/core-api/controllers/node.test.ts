@@ -110,6 +110,29 @@ describe("NodeController", () => {
     });
 
     describe("configuration", () => {
+        beforeEach(() => {
+            app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set(
+                "maxTransactionsInPool",
+                15000,
+            );
+            app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set(
+                "maxTransactionsPerSender",
+                150,
+            );
+            app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set(
+                "maxTransactionsPerRequest",
+                40,
+            );
+            app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set(
+                "maxTransactionAge",
+                2700,
+            );
+            app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set(
+                "maxTransactionBytes",
+                2000000,
+            );
+        });
+
         it("should return node configuration", async () => {
             app.bind(Identifiers.ApplicationVersion).toConstantValue("3.0.0");
 
@@ -131,6 +154,11 @@ describe("NodeController", () => {
             expect(response.data.constants).toBeDefined();
             expect(response.data.transactionPool).toBeDefined();
             expect(response.data.transactionPool.dynamicFees).toBeDefined();
+            expect(response.data.transactionPool.maxTransactionsInPool).toBeNumber();
+            expect(response.data.transactionPool.maxTransactionsPerSender).toBeNumber();
+            expect(response.data.transactionPool.maxTransactionsPerRequest).toBeNumber();
+            expect(response.data.transactionPool.maxTransactionAge).toBeNumber();
+            expect(response.data.transactionPool.maxTransactionBytes).toBeNumber();
         });
 
         it("should return node configuration when dynamicFees are not enabled", async () => {
@@ -154,6 +182,11 @@ describe("NodeController", () => {
             expect(response.data.constants).toBeDefined();
             expect(response.data.transactionPool).toBeDefined();
             expect(response.data.transactionPool.dynamicFees).toBeDefined();
+            expect(response.data.transactionPool.maxTransactionsInPool).toBeNumber();
+            expect(response.data.transactionPool.maxTransactionsPerSender).toBeNumber();
+            expect(response.data.transactionPool.maxTransactionsPerRequest).toBeNumber();
+            expect(response.data.transactionPool.maxTransactionAge).toBeNumber();
+            expect(response.data.transactionPool.maxTransactionBytes).toBeNumber();
         });
     });
 
