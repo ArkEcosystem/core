@@ -1,4 +1,5 @@
 import "jest-extended";
+import { AnySchema } from "@hapi/joi";
 
 import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
 import { defaults } from "@packages/core-api/src/defaults";
@@ -150,5 +151,49 @@ describe("ServiceProvider", () => {
         const coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
 
         await expect(coreApiServiceProvider.required()).resolves.toBeFalse();
+    });
+
+    describe("configSchema", () => {
+        let coreApiServiceProvider: CoreApiServiceProvider;
+
+        beforeEach(() => {
+            coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
+        });
+
+        it("should validate schema", async () => {
+            jest.resetModules();
+            const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                (await import("@packages/core-api/src/defaults")).defaults,
+            );
+
+            expect(result.error).toBeUndefined();
+
+            expect(result.value.server.http.enabled).toBeTrue();
+            expect(result.value.server.http.host).toEqual("0.0.0.0");
+            expect(result.value.server.http.port).toEqual(4003);
+
+            expect(result.value.server.https.enabled).toBeFalse();
+            expect(result.value.server.https.host).toEqual("0.0.0.0");
+            expect(result.value.server.https.port).toEqual(8443);
+            expect(result.value.server.https.tls.key).toBeUndefined();
+            expect(result.value.server.https.tls.cert).toBeUndefined();
+
+            expect(result.value.plugins.cache.enabled).toBeTrue();
+            expect(result.value.plugins.cache.stdTTL).toBeNumber();
+            expect(result.value.plugins.cache.checkperiod).toBeNumber();
+
+            expect(result.value.plugins.rateLimit.enabled).toBeTrue();
+            expect(result.value.plugins.rateLimit.points).toBeNumber();
+            expect(result.value.plugins.rateLimit.duration).toBeNumber();
+            expect(result.value.plugins.rateLimit.whitelist).toEqual([]);
+            expect(result.value.plugins.rateLimit.blacklist).toEqual([]);
+
+            expect(result.value.plugins.pagination.limit).toBeNumber();
+            expect(result.value.plugins.socketTimeout).toBeNumber();
+            expect(result.value.plugins.whitelist).toEqual(["*"]);
+            expect(result.value.plugins.trustProxy).toBeFalse();
+
+            expect(result.value.options.estimateTotalCount).toBeTrue();
+        });
     });
 });
