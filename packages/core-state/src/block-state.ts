@@ -245,30 +245,28 @@ export class BlockState {
             for (let i = 0; i < transaction.asset.votes.length; i++) {
                 const vote: string = transaction.asset.votes[i];
                 const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(vote.substr(1));
-                const senderLockedBalance: Utils.BigNumber = sender.getAttribute(
-                    "htlc.lockedBalance",
-                    Utils.BigNumber.ZERO,
-                );
 
-                let voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
+                let senderDelegatedAmount = sender
+                    .getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)
+                    .plus(sender.balance);
 
-                if (vote.startsWith("+")) {
-                    voteBalance = revert
-                        ? voteBalance.minus(sender.balance).minus(senderLockedBalance)
-                        : voteBalance.plus(sender.balance).plus(senderLockedBalance);
-
-                    if (i === 0 && revert) {
-                        voteBalance = voteBalance.plus(transaction.fee);
-                    }
-                } else {
-                    voteBalance = revert
-                        ? voteBalance.plus(sender.balance).plus(senderLockedBalance)
-                        : voteBalance.minus(sender.balance).minus(senderLockedBalance);
-
-                    if (i === 0 && !revert) {
-                        voteBalance = voteBalance.minus(transaction.fee);
-                    }
+                if (revert) {
+                    // balance already includes reverted fee when updateVoteBalances is called
+                    senderDelegatedAmount = senderDelegatedAmount.minus(transaction.fee);
                 }
+
+                if (i === 0 && vote.startsWith("-")) {
+                    // first unvote also changes vote balance by fee
+                    senderDelegatedAmount = senderDelegatedAmount.plus(transaction.fee);
+                }
+
+                const voteBalanceChange: Utils.BigNumber = senderDelegatedAmount
+                    .times(vote.startsWith("-") ? -1 : 1)
+                    .times(revert ? -1 : 1);
+
+                const voteBalance: Utils.BigNumber = delegate
+                    .getAttribute("delegate.voteBalance", Utils.BigNumber.ZERO)
+                    .plus(voteBalanceChange);
 
                 delegate.setAttribute("delegate.voteBalance", voteBalance);
             }
