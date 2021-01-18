@@ -242,25 +242,23 @@ export class BlockState {
         ) {
             AppUtils.assert.defined<Interfaces.ITransactionAsset>(transaction.asset?.votes);
 
+            const senderDelegatedAmount = sender
+                .getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)
+                .plus(sender.balance)
+                // balance already includes reverted fee when updateVoteBalances is called
+                .minus(revert ? transaction.fee : Utils.BigNumber.ZERO);
+
             for (let i = 0; i < transaction.asset.votes.length; i++) {
                 const vote: string = transaction.asset.votes[i];
                 const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(vote.substr(1));
 
-                let senderDelegatedAmount = sender
-                    .getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)
-                    .plus(sender.balance);
+                // first unvote also changes vote balance by fee
+                const senderVoteDelegatedAmount =
+                    i === 0 && vote.startsWith("-")
+                        ? senderDelegatedAmount.plus(transaction.fee)
+                        : senderDelegatedAmount;
 
-                if (revert) {
-                    // balance already includes reverted fee when updateVoteBalances is called
-                    senderDelegatedAmount = senderDelegatedAmount.minus(transaction.fee);
-                }
-
-                if (i === 0 && vote.startsWith("-")) {
-                    // first unvote also changes vote balance by fee
-                    senderDelegatedAmount = senderDelegatedAmount.plus(transaction.fee);
-                }
-
-                const voteBalanceChange: Utils.BigNumber = senderDelegatedAmount
+                const voteBalanceChange: Utils.BigNumber = senderVoteDelegatedAmount
                     .times(vote.startsWith("-") ? -1 : 1)
                     .times(revert ? -1 : 1);
 
