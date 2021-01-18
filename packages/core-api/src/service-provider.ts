@@ -60,8 +60,29 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     }),
                 }),
             }),
-            plugins: Joi.object(),
-            options: Joi.object(),
+            plugins: Joi.object({
+                cache: Joi.object({
+                    enabled: Joi.bool().required(),
+                    stdTTL: Joi.number().required(),
+                    checkperiod: Joi.number().required(),
+                }),
+                rateLimit: Joi.object({
+                    enabled: Joi.bool().required(),
+                    points: Joi.number().required(),
+                    duration: Joi.number().required(),
+                    whitelist: Joi.array().items(Joi.string()).required(),
+                    blacklist: Joi.array().items(Joi.string()).required(),
+                }),
+                pagination: Joi.object({
+                    limit: Joi.number().required(),
+                }),
+                socketTimeout: Joi.number().required(),
+                whitelist: Joi.array().items(Joi.string()).required(),
+                trustProxy: Joi.bool().required(),
+            }),
+            options: Joi.object({
+                estimateTotalCount: Joi.bool().required(),
+            }),
         });
     }
 
