@@ -22,6 +22,7 @@ export const defaults = {
         history: 30, // Days
     },
     server: {
+        ip: process.env.CORE_MONITOR_PUBLIC_IP,
         http: {
             enabled: !process.env.CORE_MONITOR_DISABLED,
             host: process.env.CORE_MONITOR_HOST || "0.0.0.0",
