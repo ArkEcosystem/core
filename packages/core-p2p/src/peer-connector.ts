@@ -51,6 +51,16 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
 
             this.connections.delete(`${peer.ip}`);
         }
+
+        const timeSinceLastConnectionCreate = Date.now() - (this.lastConnectionCreate.get(peer.ip) ?? 0);
+        setTimeout(
+            () => {
+                if (!this.connection(peer)) {
+                    this.lastConnectionCreate.delete(peer.ip);
+                }
+            },
+            Math.max(TEN_SECONDS_IN_MILLISECONDS - timeSinceLastConnectionCreate, 0), // always between 0-10 seconds
+        );
     }
 
     public async emit(peer: Contracts.P2P.Peer, event: string, payload: any): Promise<any> {
