@@ -1,5 +1,5 @@
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
-import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse } from "@hapi/hapi";
+import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
 import { Plugins } from "../contracts";
@@ -26,6 +26,9 @@ export class Server {
         this.server.app.app = this.app;
 
         await this.server.register(this.pluginFactory.preparePlugins());
+
+        // Disable 2 minute socket timout
+        this.getRoute("POST", "/").settings.timeout.socket = false;
     }
 
     public async register(plugins: any | any[]): Promise<void> {
@@ -67,5 +70,9 @@ export class Server {
         }
 
         return options;
+    }
+
+    private getRoute(method: string, path: string): ServerRoute | undefined {
+        return this.server.table().find((route) => route.method === method.toLowerCase() && route.path === path);
     }
 }

@@ -10,9 +10,9 @@ import { defaults } from "@packages/core-manager/src/defaults";
 
 let sandbox: Sandbox;
 let server: Server;
-let pluginsConfiguration = defaults.plugins;
+const pluginsConfiguration = defaults.plugins;
 
-let logger = {
+const logger = {
     info: jest.fn(),
     notice: jest.fn(),
     error: jest.fn(),
@@ -20,6 +20,13 @@ let logger = {
 
 let mockStart = jest.fn();
 let mockStop = jest.fn();
+const mockJsonRPCRoute = {
+    method: "post",
+    path: "/",
+    settings: {
+        timeout: {},
+    },
+};
 
 jest.mock("@hapi/hapi", () => {
     return {
@@ -32,6 +39,7 @@ jest.mock("@hapi/hapi", () => {
                 register: jest.fn(),
                 start: jest.fn().mockImplementation(mockStart),
                 stop: jest.fn().mockImplementation(mockStop),
+                table: jest.fn().mockReturnValue([mockJsonRPCRoute]),
             };
         }),
     };
