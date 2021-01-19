@@ -3,6 +3,8 @@ name: Devnet sync
 on:
     schedule:
         - cron: '0 1 * * *'
+    pull_request:
+        types: [ready_for_review, synchronize, opened]
 
 jobs:
     devnet-sync:
@@ -26,7 +28,7 @@ jobs:
         steps:
             - uses: actions/checkout@v2
               with:
-                  ref: 2.6
+                  ref: develop
             - name: Cache node modules
               uses: actions/cache@v1
               with:
