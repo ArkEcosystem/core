@@ -7,6 +7,8 @@ import { Peer } from "../../../packages/core-p2p/src/peer";
 import { PeerConnector } from "../../../packages/core-p2p/src/peer-connector";
 import { NesClient } from "./mocks/nes";
 
+jest.setTimeout(60000);
+
 const spyOnClient = jest.spyOn(Nes, "Client").mockImplementation((url) => new (NesClient as any)());
 
 describe("PeerConnector", () => {
@@ -93,6 +95,17 @@ describe("PeerConnector", () => {
 
             expect(peerConnection).toBeInstanceOf(NesClient);
             expect(logger.debug).toHaveBeenCalled();
+        });
+
+        it("should delay connection create if re-connecting within 10 seconds", async () => {
+            const peer = new Peer("178.165.55.11", 4000);
+            await peerConnector.connect(peer);
+
+            peerConnector.disconnect(peer);
+
+            const before = Date.now();
+            await peerConnector.connect(peer);
+            expect((Date.now() - before)/1000).toBeCloseTo(10, 1); // close to 10 seconds
         });
     });
 
