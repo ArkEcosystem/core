@@ -186,7 +186,7 @@ describe("ServiceProvider", () => {
             expect(result.value.server.https.tls.key).toBeUndefined();
             expect(result.value.server.https.tls.cert).toBeUndefined();
 
-            expect(result.value.plugins.cache.enabled).toBeTrue();
+            expect(result.value.plugins.cache.enabled).toBeFalse();
             expect(result.value.plugins.cache.stdTTL).toBeNumber();
             expect(result.value.plugins.cache.checkperiod).toBeNumber();
 
@@ -332,20 +332,8 @@ describe("ServiceProvider", () => {
             });
         });
 
-        describe("process.env.CORE_API_CACHE_DISABLED", () => {
-            it("should return true if process.env.CORE_API_CACHE_DISABLED is undefined", async () => {
-                jest.resetModules();
-                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
-                    (await import("@packages/core-api/src/defaults")).defaults,
-                );
-
-                expect(result.error).toBeUndefined();
-                expect(result.value.plugins.cache.enabled).toEqual(true);
-            });
-
-            it("should return false if process.env.CORE_API_CACHE_DISABLED is defined", async () => {
-                process.env.CORE_API_CACHE_DISABLED = "true";
-
+        describe("process.env.CORE_API_CACHE", () => {
+            it("should return false if process.env.CORE_API_CACHE is undefined", async () => {
                 jest.resetModules();
                 const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
                     (await import("@packages/core-api/src/defaults")).defaults,
@@ -353,6 +341,18 @@ describe("ServiceProvider", () => {
 
                 expect(result.error).toBeUndefined();
                 expect(result.value.plugins.cache.enabled).toEqual(false);
+            });
+
+            it("should return true if process.env.CORE_API_CACHE_DISABLED is defined", async () => {
+                process.env.CORE_API_CACHE = "true";
+
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.cache.enabled).toEqual(true);
             });
         });
 
