@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 import { BlocksController } from "../controllers/blocks";
 import * as Schemas from "../schemas";

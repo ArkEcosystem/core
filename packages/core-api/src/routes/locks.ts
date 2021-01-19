@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 import { LocksController } from "../controllers/locks";
 import { lockCriteriaSchema, lockParamSchema, lockSortingSchema } from "../resources-new";
