@@ -1,6 +1,6 @@
 import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
 import { Utils } from "@arkecosystem/core-kernel";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 /**
  * @export
