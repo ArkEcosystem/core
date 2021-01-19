@@ -54,7 +54,7 @@ beforeEach(() => {
     app.bind(Container.Identifiers.PaginationService).toConstantValue({});
 
     defaults.server.http.enabled = true;
-    defaults.server.https.enabled = "enabled";
+    defaults.server.https.enabled = true;
     defaults.server.https.tls.key = path.resolve(__dirname, "./__fixtures__/key.pem");
     defaults.server.https.tls.cert = path.resolve(__dirname, "./__fixtures__/server.crt");
 });
@@ -91,7 +91,7 @@ describe("ServiceProvider", () => {
 
     it("should boot if HTTP and HTTPS server are disabled", async () => {
         defaults.server.http.enabled = false;
-        defaults.server.https.enabled = undefined;
+        defaults.server.https.enabled = false;
 
         const coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
 
@@ -128,7 +128,7 @@ describe("ServiceProvider", () => {
 
     it("should dispose if HTTP and HTTPS server are disabled", async () => {
         defaults.server.http.enabled = false;
-        defaults.server.https.enabled = undefined;
+        defaults.server.https.enabled = false;
 
         const coreApiServiceProvider = app.resolve<CoreApiServiceProvider>(CoreApiServiceProvider);
 
@@ -269,7 +269,7 @@ describe("ServiceProvider", () => {
         });
 
         describe("process.env.CORE_API_SSL", () => {
-            it("should return true if process.env.CORE_API_SSL = true", async () => {
+            it("should return true if process.env.CORE_API_SSL is defined", async () => {
                 process.env.CORE_API_SSL = "true";
                 process.env.CORE_API_SSL_KEY = "path/to/key";
                 process.env.CORE_API_SSL_CERT = "path/to/cert";
@@ -283,9 +283,7 @@ describe("ServiceProvider", () => {
                 expect(result.value.server.https.enabled).toEqual(true);
             });
 
-            it("should return false if process.env.CORE_API_SSL = false", async () => {
-                process.env.CORE_API_SSL = "false";
-
+            it("should return false if process.env.CORE_API_SSL is undefined", async () => {
                 jest.resetModules();
                 const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
                     (await import("@packages/core-api/src/defaults")).defaults,
@@ -293,18 +291,6 @@ describe("ServiceProvider", () => {
 
                 expect(result.error).toBeUndefined();
                 expect(result.value.server.https.enabled).toEqual(false);
-            });
-
-            it("should throw error if process.env.CORE_API_SSL is invalid", async () => {
-                process.env.CORE_API_SSL = "invalid";
-
-                jest.resetModules();
-                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
-                    (await import("@packages/core-api/src/defaults")).defaults,
-                );
-
-                expect(result.error).toBeDefined();
-                expect(result.error!.message).toEqual('"server.https.enabled" must be a boolean');
             });
 
             it("should throw error if process.env.CORE_API_SSL = true and CORE_API_SSL_KEY or CORE_API_SSL_CERT is undefined", async () => {

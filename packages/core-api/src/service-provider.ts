@@ -46,12 +46,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
         return Joi.object({
             server: Joi.object({
                 http: Joi.object({
-                    enabled: Joi.bool().default(false),
+                    enabled: Joi.bool().required(),
                     host: Joi.string().required(),
                     port: Joi.number().required(),
                 }),
                 https: Joi.object({
-                    enabled: Joi.bool().default(false),
+                    enabled: Joi.bool().required(),
                     host: Joi.string().required(),
                     port: Joi.number().required(),
                     tls: Joi.object({
