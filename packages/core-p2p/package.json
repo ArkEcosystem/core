@@ -37,7 +37,7 @@
         "@hapi/cryptiles": "5.x.x",
         "@hapi/hapi": "^20.0.3",
         "@hapi/hoek": "9.x.x",
-        "@hapi/joi": "^17.1.1",
+        "joi": "^17.3.0",
         "@hapi/sntp": "^4.0.0",
         "@hapi/teamwork": "5.x.x",
         "ajv": "^6.10.2",
