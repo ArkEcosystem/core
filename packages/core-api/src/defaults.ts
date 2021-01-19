@@ -18,7 +18,7 @@ export const defaults = {
     },
     plugins: {
         cache: {
-            enabled: !process.env.CORE_API_CACHE,
+            enabled: !process.env.CORE_API_CACHE_DISABLED,
             stdTTL: 8,
             checkperiod: 120,
         },
