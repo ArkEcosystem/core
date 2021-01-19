@@ -1,7 +1,7 @@
 export const defaults = {
     server: {
         http: {
-            enabled: process.env.CORE_API_ENABLED || true,
+            enabled: !process.env.CORE_API_DISABLED,
             host: process.env.CORE_API_HOST || "0.0.0.0",
             port: process.env.CORE_API_PORT || 4003,
         },
@@ -18,12 +18,12 @@ export const defaults = {
     },
     plugins: {
         cache: {
-            enabled: process.env.CORE_API_CACHE || true,
+            enabled: !process.env.CORE_API_CACHE,
             stdTTL: 8,
             checkperiod: 120,
         },
         rateLimit: {
-            enabled: process.env.CORE_API_RATE_LIMIT_ENABLED || true,
+            enabled: !process.env.CORE_API_RATE_LIMIT_DISABLED,
             points: process.env.CORE_API_RATE_LIMIT_USER_LIMIT || 100,
             duration: process.env.CORE_API_RATE_LIMIT_USER_EXPIRES || 60, // Sec
             whitelist: process.env.CORE_API_RATE_LIMIT_WHITELIST
@@ -38,9 +38,9 @@ export const defaults = {
         },
         socketTimeout: 5000,
         whitelist: ["*"],
-        trustProxy: process.env.CORE_API_TRUST_PROXY || false,
+        trustProxy: !!process.env.CORE_API_TRUST_PROXY,
     },
     options: {
-        estimateTotalCount: process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT || true,
+        estimateTotalCount: !process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT,
     },
 };
