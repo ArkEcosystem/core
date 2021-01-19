@@ -6,7 +6,7 @@ import {
     positiveBigNumber,
 } from "@arkecosystem/core-api/src/schemas";
 import { Utils } from "@arkecosystem/core-kernel";
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 describe("bigNumber", () => {
     it("should convert string to Utils.BigNumber", () => {
