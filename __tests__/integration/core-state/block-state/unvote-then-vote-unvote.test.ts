@@ -15,7 +15,7 @@ afterAll(async () => {
     await tearDown();
 });
 
-test("BlockState handling unvote, vote+unvote transactions", async () => {
+test("BlockState handling [unvote], [vote+unvote] blocks", async () => {
     const stateStore = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore);
 
     const blockState = app.getTagged<Contracts.State.BlockState>(
