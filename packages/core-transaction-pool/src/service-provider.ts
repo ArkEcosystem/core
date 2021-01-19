@@ -1,4 +1,5 @@
 import { Container, Contracts, Providers, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import Joi from "@hapi/joi";
 import { fork } from "child_process";
 
 import {
@@ -59,6 +60,31 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            enabled: Joi.bool().required(),
+            storage: Joi.string().required(),
+            maxTransactionsInPool: Joi.number().min(1).required(),
+            maxTransactionsPerSender: Joi.number().min(1).required(),
+            allowedSenders: Joi.array().items(Joi.string()).required(),
+            maxTransactionsPerRequest: Joi.number().min(1).required(),
+            maxTransactionAge: Joi.number().min(1).required(),
+            dynamicFees: Joi.object({}).required(),
+            maxTransactionBytes: Joi.number().min(1).required(),
+            workerPool: Joi.object({
+                workerCount: Joi.number().min(1).required(),
+                cryptoPackages: Joi.array()
+                    .items(
+                        Joi.object({
+                            typeGroup: Joi.number().min(2).required(),
+                            packageName: Joi.string().required(),
+                        }),
+                    )
+                    .required(),
+            }).required(),
+        });
     }
 
     private registerServices(): void {
