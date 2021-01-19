@@ -204,10 +204,8 @@ describe("ServiceProvider", () => {
             expect(result.value.options.estimateTotalCount).toBeTrue();
         });
 
-        describe("process.env.CORE_API_ENABLED", () => {
-            it("should return true when process.env.CORE_API_ENABLED = true", async () => {
-                process.env.CORE_API_ENABLED = "true";
-
+        describe("process.env.CORE_API_DISABLED", () => {
+            it("should return true when process.env.CORE_API_DISABLED is undefined", async () => {
                 jest.resetModules();
                 const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
                     (await import("@packages/core-api/src/defaults")).defaults,
@@ -217,8 +215,8 @@ describe("ServiceProvider", () => {
                 expect(result.value.server.http.enabled).toBeTrue();
             });
 
-            it("should return false when process.env.CORE_API_ENABLED = false", async () => {
-                process.env.CORE_API_ENABLED = "false";
+            it("should return false when process.env.CORE_API_DISABLED is present", async () => {
+                process.env.CORE_API_DISABLED = "true";
 
                 jest.resetModules();
                 const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
@@ -227,18 +225,6 @@ describe("ServiceProvider", () => {
 
                 expect(result.error).toBeUndefined();
                 expect(result.value.server.http.enabled).toBeFalse();
-            });
-
-            it("should throw when process.env.CORE_API_ENABLED is invalid", async () => {
-                process.env.CORE_API_ENABLED = "invalid";
-
-                jest.resetModules();
-                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
-                    (await import("@packages/core-api/src/defaults")).defaults,
-                );
-
-                expect(result.error).toBeDefined();
-                expect(result.error!.message).toEqual('"server.http.enabled" must be a boolean');
             });
         });
 
@@ -346,10 +332,8 @@ describe("ServiceProvider", () => {
             });
         });
 
-        describe("process.env.CORE_API_CACHE", () => {
-            it("should return true if process.env.CORE_API_CACHE = true", async () => {
-                process.env.CORE_API_CACHE = "true";
-
+        describe("process.env.CORE_API_CACHE_DISABLED", () => {
+            it("should return true if process.env.CORE_API_CACHE_DISABLED is undefined", async () => {
                 jest.resetModules();
                 const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
                     (await import("@packages/core-api/src/defaults")).defaults,
@@ -359,8 +343,8 @@ describe("ServiceProvider", () => {
                 expect(result.value.plugins.cache.enabled).toEqual(true);
             });
 
-            it("should return false if process.env.CORE_API_CACHE = false", async () => {
-                process.env.CORE_API_CACHE = "false";
+            it("should return false if process.env.CORE_API_CACHE_DISABLED is defined", async () => {
+                process.env.CORE_API_CACHE_DISABLED = "true";
 
                 jest.resetModules();
                 const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
@@ -370,24 +354,10 @@ describe("ServiceProvider", () => {
                 expect(result.error).toBeUndefined();
                 expect(result.value.plugins.cache.enabled).toEqual(false);
             });
-
-            it("should throw error if process.env.CORE_API_CACHE is invalid", async () => {
-                process.env.CORE_API_CACHE = "invalid";
-
-                jest.resetModules();
-                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
-                    (await import("@packages/core-api/src/defaults")).defaults,
-                );
-
-                expect(result.error).toBeDefined();
-                expect(result.error!.message).toEqual('"plugins.cache.enabled" must be a boolean');
-            });
         });
 
-        describe("process.env.CORE_API_RATE_LIMIT_ENABLED", () => {
-            it("should return true if process.env.CORE_API_RATE_LIMIT_ENABLED = true", async () => {
-                process.env.CORE_API_RATE_LIMIT_ENABLED = "true";
-
+        describe("process.env.CORE_API_RATE_LIMIT_DISABLED", () => {
+            it("should return true if process.env.CORE_API_RATE_LIMIT_DISABLED is undefined", async () => {
                 jest.resetModules();
                 const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
                     (await import("@packages/core-api/src/defaults")).defaults,
@@ -397,8 +367,8 @@ describe("ServiceProvider", () => {
                 expect(result.value.plugins.rateLimit.enabled).toEqual(true);
             });
 
-            it("should return false if process.env.CORE_API_RATE_LIMIT_ENABLED = false", async () => {
-                process.env.CORE_API_RATE_LIMIT_ENABLED = "false";
+            it("should return false if process.env.CORE_API_RATE_LIMIT_ENABLED is defined", async () => {
+                process.env.CORE_API_RATE_LIMIT_DISABLED = "true";
 
                 jest.resetModules();
                 const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
@@ -407,18 +377,6 @@ describe("ServiceProvider", () => {
 
                 expect(result.error).toBeUndefined();
                 expect(result.value.plugins.rateLimit.enabled).toEqual(false);
-            });
-
-            it("should throw error if process.env.CORE_API_RATE_LIMIT_ENABLED is invalid", async () => {
-                process.env.CORE_API_RATE_LIMIT_ENABLED = "invalid";
-
-                jest.resetModules();
-                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
-                    (await import("@packages/core-api/src/defaults")).defaults,
-                );
-
-                expect(result.error).toBeDefined();
-                expect(result.error!.message).toEqual('"plugins.rateLimit.enabled" must be a boolean');
             });
         });
 
@@ -503,7 +461,17 @@ describe("ServiceProvider", () => {
         });
 
         describe("process.env.CORE_API_TRUST_PROXY", () => {
-            it("should return true if process.env.CORE_API_TRUST_PROXY = true", async () => {
+            it("should return false if process.env.CORE_API_TRUST_PROXY is undefined", async () => {
+                jest.resetModules();
+                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
+                    (await import("@packages/core-api/src/defaults")).defaults,
+                );
+
+                expect(result.error).toBeUndefined();
+                expect(result.value.plugins.trustProxy).toEqual(false);
+            });
+
+            it("should return false if process.env.CORE_API_TRUST_PROXY is defined", async () => {
                 process.env.CORE_API_TRUST_PROXY = "true";
 
                 jest.resetModules();
@@ -514,36 +482,10 @@ describe("ServiceProvider", () => {
                 expect(result.error).toBeUndefined();
                 expect(result.value.plugins.trustProxy).toEqual(true);
             });
-
-            it("should return false if process.env.CORE_API_TRUST_PROXY = false", async () => {
-                process.env.CORE_API_TRUST_PROXY = "false";
-
-                jest.resetModules();
-                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
-                    (await import("@packages/core-api/src/defaults")).defaults,
-                );
-
-                expect(result.error).toBeUndefined();
-                expect(result.value.plugins.trustProxy).toEqual(false);
-            });
-
-            it("should return error if process.env.CORE_API_TRUST_PROXY is invalid", async () => {
-                process.env.CORE_API_TRUST_PROXY = "invalid";
-
-                jest.resetModules();
-                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
-                    (await import("@packages/core-api/src/defaults")).defaults,
-                );
-
-                expect(result.error).toBeDefined();
-                expect(result.error!.message).toEqual('"plugins.trustProxy" must be a boolean');
-            });
         });
 
         describe("process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT", () => {
-            it("should return true if process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT = true", async () => {
-                process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT = "true";
-
+            it("should return true if process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT is undefined", async () => {
                 jest.resetModules();
                 const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
                     (await import("@packages/core-api/src/defaults")).defaults,
@@ -553,8 +495,8 @@ describe("ServiceProvider", () => {
                 expect(result.value.options.estimateTotalCount).toEqual(true);
             });
 
-            it("should return false if process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT = false", async () => {
-                process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT = "false";
+            it("should return false if process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT is defined", async () => {
+                process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT = "true";
 
                 jest.resetModules();
                 const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
@@ -563,18 +505,6 @@ describe("ServiceProvider", () => {
 
                 expect(result.error).toBeUndefined();
                 expect(result.value.options.estimateTotalCount).toEqual(false);
-            });
-
-            it("should return error if process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT is invalid", async () => {
-                process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT = "invalid";
-
-                jest.resetModules();
-                const result = (coreApiServiceProvider.configSchema() as AnySchema).validate(
-                    (await import("@packages/core-api/src/defaults")).defaults,
-                );
-
-                expect(result.error).toBeDefined();
-                expect(result.error!.message).toEqual('"options.estimateTotalCount" must be a boolean');
             });
         });
     });
