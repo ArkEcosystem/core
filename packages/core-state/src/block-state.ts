@@ -67,11 +67,12 @@ export class BlockState {
 
         const revertedTransactions: Interfaces.ITransaction[] = [];
         try {
+            this.revertBlockFromForger(forgerWallet, block.data);
+
             for (const transaction of block.transactions.slice().reverse()) {
                 await this.revertTransaction(transaction);
                 revertedTransactions.push(transaction);
             }
-            this.revertBlockFromForger(forgerWallet, block.data);
         } catch (error) {
             this.logger.error(error.stack);
             this.logger.error("Failed to revert all transactions in block - applying previous transactions");
