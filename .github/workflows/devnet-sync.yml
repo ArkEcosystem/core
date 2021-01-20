@@ -3,8 +3,6 @@ name: Devnet sync
 on:
     schedule:
         - cron: '0 1 * * *'
-    pull_request:
-        types: [ready_for_review, synchronize, opened]
 
 jobs:
     devnet-sync:
