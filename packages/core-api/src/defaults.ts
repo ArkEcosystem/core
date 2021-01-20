@@ -7,7 +7,7 @@ export const defaults = {
         },
         // @see https://hapijs.com/api#-serveroptionstls
         https: {
-            enabled: process.env.CORE_API_SSL,
+            enabled: !!process.env.CORE_API_SSL,
             host: process.env.CORE_API_SSL_HOST || "0.0.0.0",
             port: process.env.CORE_API_SSL_PORT || 8443,
             tls: {
@@ -18,7 +18,7 @@ export const defaults = {
     },
     plugins: {
         cache: {
-            enabled: !process.env.CORE_API_CACHE,
+            enabled: !!process.env.CORE_API_CACHE,
             stdTTL: 8,
             checkperiod: 120,
         },

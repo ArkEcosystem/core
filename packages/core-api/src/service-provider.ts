@@ -1,4 +1,5 @@
 import { Providers } from "@arkecosystem/core-kernel";
+import Joi from "@hapi/joi";
 
 import Handlers from "./handlers";
 import { Identifiers } from "./identifiers";
@@ -39,6 +40,50 @@ export class ServiceProvider extends Providers.ServiceProvider {
         if (this.config().get("server.https.enabled")) {
             await this.app.get<Server>(Identifiers.HTTPS).dispose();
         }
+    }
+
+    public configSchema(): object {
+        return Joi.object({
+            server: Joi.object({
+                http: Joi.object({
+                    enabled: Joi.bool().required(),
+                    host: Joi.string().required(),
+                    port: Joi.number().required(),
+                }),
+                https: Joi.object({
+                    enabled: Joi.bool().required(),
+                    host: Joi.string().required(),
+                    port: Joi.number().required(),
+                    tls: Joi.object({
+                        key: Joi.string().when("...enabled", { is: true, then: Joi.required() }),
+                        cert: Joi.string().when("...enabled", { is: true, then: Joi.required() }),
+                    }),
+                }),
+            }),
+            plugins: Joi.object({
+                cache: Joi.object({
+                    enabled: Joi.bool().required(),
+                    stdTTL: Joi.number().required(),
+                    checkperiod: Joi.number().required(),
+                }),
+                rateLimit: Joi.object({
+                    enabled: Joi.bool().required(),
+                    points: Joi.number().required(),
+                    duration: Joi.number().required(),
+                    whitelist: Joi.array().items(Joi.string()).required(),
+                    blacklist: Joi.array().items(Joi.string()).required(),
+                }),
+                pagination: Joi.object({
+                    limit: Joi.number().required(),
+                }),
+                socketTimeout: Joi.number().required(),
+                whitelist: Joi.array().items(Joi.string()).required(),
+                trustProxy: Joi.bool().required(),
+            }),
+            options: Joi.object({
+                estimateTotalCount: Joi.bool().required(),
+            }),
+        });
     }
 
     private async buildServer(type: string, id: symbol): Promise<void> {
